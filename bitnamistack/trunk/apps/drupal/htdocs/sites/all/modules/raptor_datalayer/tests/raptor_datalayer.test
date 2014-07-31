@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Current posts module
+ */
+
+class RAPTORBlocksTestCase extends DrupalWebTestCase
+{  
+    public static function getInfo()
+    {
+        return array(
+          'name' => 'RAPTOR blocks module functionality',
+          'description' => 'Tests hooks in the RAPTOR blocks module',
+          'group' => 'RAPTOR',
+        );
+    }
+
+    public function setUp()
+    {
+        parent::setUp('raptor_blocks');
+    }
+
+    public function testPermission()
+    {
+        $data = module_invoke('raptor_blocks', 'permission');
+
+        $this->assertTrue(is_array($data), t('Permission hook returns array.'));
+
+        $this->assertTrue(array_key_exists('access raptor_blocks content', $data),
+        t('Permission is as expected.'));
+
+    }
+
+    public function testMenu()
+    {
+
+    }
+
+    public function testBlock()
+    {
+        $info = module_invoke('raptor_blocks', 'block_info');
+        $data = module_invoke('raptor_blocks', 'block_view', 'raptor_blocks');
+          $this->assertIdentical($info['raptor_blocks']['info'], $data['subject'],
+             t('Block list name and subject are identical.'));
+    }
+
+}

@@ -1,0 +1,129 @@
+/* ------------------ Admin Forms ------------------*/
+
+#raptor-admin-container {
+	.user-profile-dataentry > div {
+		margin: 16px;
+	}
+
+	.form-item {
+		label {
+			display: inline-block;
+			width: 110px;
+		}
+
+		label[for=edit-confirmed-by-patient-yn] {
+			width: 200px;
+		}
+
+		label[for=edit-canceled-reason-tx] {
+			width: 325px;
+		}
+
+		label[for=edit-suggested-uid] {
+			width: 325px;
+		}
+
+		label[for=edit-notes-tx] {
+			width: 183px;
+			margin: 20px 0 5px 0;
+		}
+
+		label[for=edit-notes-critical-yn] {
+			width: 400px;
+		}
+	}
+
+	fieldset {
+		border: 1px solid #999;
+		padding: 16px;
+		margin: 16px;
+
+		fieldset {
+			.form-item {
+				label {
+					display: inline-block;
+					width: 150px;
+				}				
+			}
+		}
+	}
+
+	legend {
+		text-transform: capitalize;
+	}
+
+	.form-type-checkbox {
+		display: inline-block;
+
+		label {
+			width: auto;
+			margin-right: 16px;
+			margin-left: -4px;
+		}
+	}
+
+	#edit-cancel {
+		display: inline-block;
+	}
+
+	.form-item-location-tx {
+		display: inline-block;
+	}
+
+	.form-item-location-tx + ul {
+		display: inline-block;
+
+		li {
+			display: inline;
+			margin: 0 12px 0 0;
+		}
+	}
+
+	#raptor-schedule-table {
+		margin-bottom: 20px;
+
+		th {
+			width: 175px;
+		}
+	}
+}
+
+.raptor-dialog-table-container {
+	height: 655px;
+	overflow-y: auto;
+	margin: 0 0 25px 0;
+}
+
+.raptor-dialog-table {
+	border-collapse: collapse;
+	border: 1px solid #ccc;
+	width: 100%;
+
+	tr {
+		border-bottom: 1px solid #ccc;
+
+		td, th {
+			padding: 6px 12px;
+		}
+	}
+}
+
+.raptor-action-buttons {
+	div {
+		display: inline-block;
+	}
+}
+
+#edit-leftpart {
+	float: left;
+	width: 40%;
+}
+
+#edit-rightpart {
+	float: left;
+	width: 44%;
+}
+
+#edit-rightpart ~ fieldset {
+	clear: both;
+}

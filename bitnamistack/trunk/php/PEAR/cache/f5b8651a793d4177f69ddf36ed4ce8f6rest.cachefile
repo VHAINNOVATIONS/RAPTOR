@@ -1,0 +1,1 @@
+s:343:"a:2:{s:8:"required";a:3:{s:3:"php";a:1:{s:3:"min";s:5:"4.0.5";}s:13:"pearinstaller";a:1:{s:3:"min";s:5:"1.4.3";}s:7:"package";a:3:{s:4:"name";s:10:"Net_Socket";s:7:"channel";s:12:"pear.php.net";s:3:"min";s:5:"1.0.7";}}s:8:"optional";a:1:{s:7:"package";a:3:{s:4:"name";s:9:"Auth_SASL";s:7:"channel";s:12:"pear.php.net";s:3:"min";s:5:"1.0.5";}}}";

@@ -1,0 +1,8 @@
+a:14:{s:7:"attribs";a:4:{s:5:"xmlns";s:36:"http://pear.php.net/dtd/rest.release";s:9:"xmlns:xsi";s:41:"http://www.w3.org/2001/XMLSchema-instance";s:11:"xmlns:xlink";s:28:"http://www.w3.org/1999/xlink";s:18:"xsi:schemaLocation";s:81:"http://pear.php.net/dtd/rest.release     http://pear.php.net/dtd/rest.release.xsd";}s:1:"p";a:2:{s:7:"attribs";a:1:{s:10:"xlink:href";s:17:"/rest/p/auth_sasl";}s:8:"_content";s:9:"Auth_SASL";}s:1:"c";s:12:"pear.php.net";s:1:"v";s:5:"1.0.6";s:2:"st";s:6:"stable";s:1:"l";s:3:"BSD";s:1:"m";s:6:"kguest";s:1:"s";s:47:"Abstraction of various SASL mechanism responses";s:1:"d";s:152:"Provides code to generate responses to common SASL mechanisms, including:
+- Digest-MD5
+- Cram-MD5
+- Plain
+- Anonymous
+- Login (Pseudo mechanism)
+- SCRAM";s:2:"da";s:19:"2011-09-27 16:35:20";s:1:"n";s:102:"QA release
+* Bug #18856: Authentication warnings because of wrong Auth_SASL::factory argument [kguest]";s:1:"f";s:4:"9119";s:1:"g";s:39:"http://pear.php.net/get/Auth_SASL-1.0.6";s:1:"x";a:1:{s:7:"attribs";a:1:{s:10:"xlink:href";s:17:"package.1.0.6.xml";}}}

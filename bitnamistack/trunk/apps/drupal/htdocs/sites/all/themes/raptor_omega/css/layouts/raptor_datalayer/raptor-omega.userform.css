@@ -1,0 +1,35 @@
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\000031}}
+.user-profile-dataentry > div {
+  margin: 16px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\000036}}
+.form-item label {
+  display: inline-block;
+  width: 110px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000312}}
+fieldset {
+  border: 1px solid #999;
+  padding: 16px;
+  margin: 16px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000319}}
+  fieldset fieldset .form-item label {
+    display: inline-block;
+    width: 150px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000327}}
+legend {
+  text-transform: capitalize; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000331}}
+.form-type-checkbox {
+  display: inline-block; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000334}}
+  .form-type-checkbox label {
+    width: auto;
+    margin-right: 16px;
+    margin-left: -4px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000341}}
+#edit-cancel {
+  display: inline-block; }

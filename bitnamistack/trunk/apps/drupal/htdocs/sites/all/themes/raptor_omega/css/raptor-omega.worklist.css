@@ -1,0 +1,424 @@
+/*~~~~~~~~~~~~~~~~~~~~~~~  Worklist  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\000033}}
+#worklist_container {
+  margin: 0;
+  width: 100%;
+  /*~~~~~~~~~~~~~~~~~~~~~~~  containers/wrappers  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Table/Sort  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  /* tables */
+  /*----- Button Section -----*/
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Navigation/ Tabs  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+  /* Main Nav */
+  /* Side Nav */
+  /*nav-icons*/
+  /* Top Nav */
+  /* Tab Section */ }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\000039}}
+  #worklist_container .main-content {
+    border-radius: 5px;
+    width: 100%;
+    overflow: hidden; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000315}}
+  #worklist_container .right-content {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    float: left; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000321}}
+  #worklist_container .wrapper {
+    border-radius: 10px;
+    width: 95%;
+    min-width: 960px;
+    min-height: 1px;
+    margin: 0 auto 20px;
+    position: relative;
+    clear: both;
+    -moz-box-shadow: 0px 0px 43px -4px #555;
+    -webkit-box-shadow: 0px 0px 43px -4px #555;
+    box-shadow: 0px 0px 43px -4px #555; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000335}}
+  #worklist_container .top-wrapper {
+    width: 95%;
+    min-width: 960px;
+    min-height: 1px;
+    margin: -12px auto 0;
+    position: relative; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000343}}
+  #worklist_container header {
+    background: #cecfce;
+    border: 1px solid #666;
+    border-radius: 5px;
+    width: 96%;
+    min-height: 200px;
+    margin: 20px 0 40px 0;
+    float: left;
+    margin-left: 16px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000354}}
+  #worklist_container section {
+    float: left; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000358}}
+  #worklist_container .left-side {
+    width: 60%;
+    margin-right: 10px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000363}}
+  #worklist_container .right-side {
+    width: 30%; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000371}}
+  #worklist_container table {
+    border-collapse: collapse; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000375}}
+  #worklist_container table.tablesorter {
+    font-family: arial;
+    margin: 0 0 20px;
+    font-size: 8pt;
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000384}}
+  #worklist_container table.tablesorter thead tr th, #worklist_container table.tablesorter tfoot tr th {
+    background: #0092d0;
+    /*border: 1px solid #FFF;*/
+    font-size: 1.1em;
+    padding: 4px 5px;
+    color: #fff;
+    height: 60px;
+    vertical-align: middle;
+    border-collapse: collapse; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\0000395}}
+  #worklist_container table.tablesorter thead tr .header {
+    /*background-image: url("../images/bg.gif");*/
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
+    border-collapse: collapse;
+    border-left: 1px solid #fff; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003104}}
+  #worklist_container table.tablesorter thead tr td {
+    border-right: 2px solid white; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003108}}
+  #worklist_container table.tablesorter tbody tr {
+    color: #3D3D3D;
+    /*padding: 4px;*/
+    /*background-color: #FFF;*/
+    vertical-align: top;
+    border-collapse: collapse; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003116}}
+  #worklist_container table.tablesorter tbody tr.odd td {
+    background-color: #F0F0F6; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003120}}
+  #worklist_container table.tablesorter thead tr .headerSortUp {
+    /*background-image: url("../images/asc.gif");*/ }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003124}}
+  #worklist_container table.tablesorter thead tr .headerSortDown {
+    /*background-image: url("../images/desc.gif");*/ }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003128}}
+  #worklist_container table.tablesorter thead tr .headerSortDown, #worklist_container table.tablesorter thead tr .headerSortUp {
+    background-color: #8dbdd8; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003132}}
+  #worklist_container .chk-all {
+    background-color: #0092D0;
+    background-image: none;
+    color: #FFFFFF;
+    font-size: 1.1em;
+    font-weight: bold;
+    vertical-align: middle;
+    cursor: pointer;
+    padding: 4px 5px;
+    z-index: 10;
+    position: relative;
+    border-right: 1px solid #fff;
+    text-align: left; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003147}}
+  #worklist_container table {
+    border-collapse: collapse !important; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003151}}
+  #worklist_container table tr {
+    border-bottom: 1px dashed lightgrey; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003155}}
+  #worklist_container tbody.table-content tr td {
+    padding: 16px 6px;
+    text-align: left;
+    vertical-align: middle; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003161}}
+  #worklist_container tbody.table-content tr:hover, #worklist_container tbody.table-content tr:hover a {
+    background: #0c63a1;
+    color: #fff;
+    cursor: pointer; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003175}}
+  #worklist_container tbody.table-content tr:nth-child(odd) {
+    background: #E4E9EC; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003179}}
+  #worklist_container tbody.table-content tr:nth-child(2n+1):hover {
+    background: #0c63a1; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003183}}
+  #worklist_container table tr:last-child, #worklist_container tbody.table-content:last-child {
+    border: none; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003187}}
+  #worklist_container .top-buttons-wrapper {
+    margin-top: 10px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003191}}
+  #worklist_container #tablePagination {
+    background-color: lightblue;
+    font-size: 0.8em;
+    padding: 0px 5px;
+    width: 40%;
+    height: 20px;
+    border-radius: 4px;
+    float: right;
+    padding: 10px;
+    margin: 0 10px 20px 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003203}}
+  #worklist_container #tablePagination_paginater {
+    margin: -1px auto 0;
+    position: relative; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003208}}
+  #worklist_container #tablePagination img {
+    padding: 0px 3px;
+    margin-bottom: -6px;
+    cursor: pointer; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003214}}
+  #worklist_container #tablePagination_perPage {
+    float: left; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003218}}
+  #worklist_container #tablePagination_paginater {
+    float: right; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003222}}
+  #worklist_container #tablePagination_top {
+    background-color: lightblue;
+    font-size: 0.8em;
+    padding: 0px 5px;
+    /*max-width: 100%;
+    width: 14.8%;*/
+    height: 20px;
+    border-radius: 4px;
+    float: right;
+    padding: 10px;
+    margin: 0 10px 20px 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003235}}
+  #worklist_container #tablePagination_paginater_top {
+    margin: -1px auto 0;
+    position: relative; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003240}}
+  #worklist_container #tablePagination_top img {
+    padding: 0px 3px;
+    margin-bottom: -6px;
+    cursor: pointer; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003246}}
+  #worklist_container #tablePagination_perPage_top {
+    float: left;
+    display: none; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003251}}
+  #worklist_container #tablePagination_paginater_top {
+    float: right; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003257}}
+  #worklist_container #buttonsWrapper {
+    width: 50%;
+    padding: 13px 10px 10px 10px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003262}}
+  #worklist_container #buttonsWrapper a {
+    background: #0B63A2;
+    color: #fff;
+    text-decoration: none;
+    margin-left: 40px;
+    padding: 12px;
+    border-radius: 0 4px 4px 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003271}}
+  #worklist_container #buttonsWrapper a:hover {
+    background: #0D324F; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003275}}
+  #worklist_container #edit_btn, #worklist_container #edit_btn_top {
+    background: url("../images/icons/edit_icon_sm.png") no-repeat 8px center #0d324f;
+    width: 206px;
+    padding: 12px 0 12px 12px;
+    border-radius: 4px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003282}}
+  #worklist_container #refresh_btn, #worklist_container #refresh_btn_top {
+    background: url("../images/icons/refresh_icon_sm.png") no-repeat 8px center #0d324f;
+    width: 206px;
+    margin-left: 10px;
+    padding: 12px 0 12px 12px;
+    border-radius: 4px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003290}}
+  #worklist_container #worklistLoaderWrapper {
+    text-align: center;
+    padding-top: 180px;
+    height: 400px;
+    width: 100%; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003297}}
+  #worklist_container #worklistTable {
+    display: none; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003305}}
+  #worklist_container .top-nav {
+    width: 95%;
+    min-width: 960px;
+    height: 35px;
+    margin: 0 auto;
+    z-index: 99;
+    position: relative; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003314}}
+    #worklist_container .top-nav ul {
+      float: right;
+      color: lightblue;
+      margin: 10px 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003319}}
+      #worklist_container .top-nav ul li {
+        display: inline-block;
+        border-right: 1px solid #ddd;
+        padding: 0 5px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003324}}
+        #worklist_container .top-nav ul li a {
+          text-decoration: none;
+          color: #fff;
+          font-size: .9em; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003330}}
+        #worklist_container .top-nav ul li a:hover {
+          color: #0c63a1; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003335}}
+        #worklist_container .top-nav ul li ul {
+          display: none;
+          background-color: #052a44;
+          padding: 6px 6px;
+          position: absolute;
+          z-index: 2;
+          border: none;
+          color: #000; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003344}}
+          #worklist_container .top-nav ul li ul li {
+            border: none;
+            display: block;
+            padding: 5px 4px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003350}}
+          #worklist_container .top-nav ul li ul li:hover {
+            background-color: LightBlue;
+            color: Black; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003354}}
+            #worklist_container .top-nav ul li ul li:hover a:hover {
+              color: #000; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003361}}
+      #worklist_container .top-nav ul li:last-child, #worklist_container .top-nav ul li:last-child a {
+        border: 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003369}}
+  #worklist_container .side-nav {
+    background: rgba(255, 255, 255, 0.8);
+    border-top-left-radius: 5px;
+    width: 100%;
+    height: 124px;
+    float: left;
+    display: none; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003378}}
+  #worklist_container #user-icon {
+    background: url("../images/icons/avatar_lrg.png") #0f649c no-repeat center bottom;
+    /*border-top-left-radius:5px;*/
+    width: 120px;
+    height: 93px;
+    float: left;
+    margin: 10px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003387}}
+  #worklist_container nav {
+    width: 100%;
+    height: 50px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003396}}
+  #worklist_container nav ul li {
+    text-align: center;
+    border-bottom: 1px solid #A9A9A9; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003401}}
+  #worklist_container nav ul li a {
+    color: #878787;
+    display: block;
+    text-decoration: none;
+    padding: 50px 0 10px;
+    text-align: center;
+    vertical-align: middle; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003410}}
+  #worklist_container nav ul li a:hover {
+    color: #0F649C; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003417}}
+  #worklist_container .overview {
+    background: url("../images/icons/overview_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003421}}
+  #worklist_container .medications {
+    background: url("../images/icons/medications_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003425}}
+  #worklist_container .vitals {
+    background: url("../images/icons/vitals_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003429}}
+  #worklist_container .allergies {
+    background: url("../images/icons/allergies_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003433}}
+  #worklist_container .labs {
+    background: url("../images/icons/labs_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003437}}
+  #worklist_container .dose-hx {
+    background: url("../images/icons/dose_hx_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003441}}
+  #worklist_container .clin-rpts {
+    background: url("../images/icons/clin_rpts_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003445}}
+  #worklist_container .problem-list {
+    background: url("../images/icons/problem_list_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003449}}
+  #worklist_container .notes {
+    background: url("../images/icons/notes_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003453}}
+  #worklist_container .rad-rpts {
+    background: url("../images/icons/rad_rpts_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003457}}
+  #worklist_container .library {
+    background: url("../images/icons/library_icon.png") center 15px no-repeat; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003463}}
+  #worklist_container .top {
+    background: url("../images/top_nav_bg.jpg") repeat-x scroll 0px 0px #052a44;
+    width: 100%;
+    height: 98px;
+    float: left;
+    margin-bottom: 26px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003473}}
+  #worklist_container .tabs-wrapper {
+    position: relative;
+    width: 98%;
+    min-height: 600px;
+    clear: both;
+    margin: 45px 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003481}}
+  #worklist_container .tab {
+    float: left;
+    margin-left: 5px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003486}}
+  #worklist_container .tab label:hover {
+    background: #ccc;
+    cursor: pointer; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003491}}
+  #worklist_container .tab:first-child {
+    margin-left: 50px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003495}}
+  #worklist_container .tab label {
+    background: #eee;
+    padding: 10px 6px;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    margin-left: -1px;
+    position: relative;
+    left: 1px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003505}}
+  #worklist_container .tab [type=radio] {
+    display: none; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003509}}
+  #worklist_container .content {
+    position: absolute;
+    top: 28px;
+    /* left: 27px; */
+    background: white;
+    right: 0;
+    bottom: 24;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
+    width: 93%;
+    min-height: 500px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003523}}
+  #worklist_container [type=radio]:checked ~ label {
+    background: white;
+    border-bottom: 1px solid white;
+    z-index: 2; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.worklist\.scss}line{font-family:\00003529}}
+  #worklist_container [type=radio]:checked ~ label ~ .content {
+    z-index: 1; }

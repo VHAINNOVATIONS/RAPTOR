@@ -1,0 +1,16 @@
+ENTERIC|RediCat 450cc during 1-2 hrs before scan|1|1|1
+ENTERIC|Volumen 1350cc protocol|1|1|1
+ENTERIC|Volumen 900cc protocol|1|1|1
+ENTERIC|H2O 450cc over 20min pre + 150cc ontable|1|1|1
+ENTERIC|GastroView|1|1|1
+ENTERIC|Rectal|1|1|1
+ENTERIC|Other|1|1|1
+IV|Water|1|0|0
+IV|Ultravist 300|1|0|0
+IV|Visipaque 320|1|0|0
+IV|ProHance|0|1|0
+IV|MultiHance|0|1|0
+IV|MultiHance 1/2 Dose|0|1|0
+IV|Eovist|0|1|0
+IV|Ablavar|0|1|0
+IV|Other|1|1|1

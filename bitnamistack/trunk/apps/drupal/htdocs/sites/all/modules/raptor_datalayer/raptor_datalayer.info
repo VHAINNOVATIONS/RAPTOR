@@ -1,0 +1,12 @@
+name = RAPTOR Data Layer
+description = A module with the data layer needed by the RAPTOR application
+core = 7.x
+
+version = "7.x-0.1c"
+package = RAPTOR
+
+dependencies[] = ctools
+#dependencies[] = raptor_contraindications
+
+scripts[] = js/formHelper.js
+files[] = tests/raptor_datalayer.test

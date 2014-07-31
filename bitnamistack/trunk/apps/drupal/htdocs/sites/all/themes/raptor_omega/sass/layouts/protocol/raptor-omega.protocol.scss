@@ -1,0 +1,766 @@
+/*~~~~~~~~~~~~~~~~~~~~~~~  Protocol  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+#protocol_container, #protocol_container_styles {
+  margin: 0;
+  width: 100%;
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  mixins  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  %formButton {
+    background-color: #ccc;
+    border: 1px solid #666;
+    display: inline;
+    margin: 8px;
+    padding: 3px 6px;
+
+    a {
+      background-color: inherit;
+      color: #333;
+    }
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  containers/wrappers  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  .main-content {
+    border-radius: 5px;
+    width: 100%;
+    position: relative;
+    /*overflow: hidden;*/
+  }
+
+  .right-content {
+    width: 100%;
+    background: rgba(255,255,255, 0.3);
+    float: left;
+  }
+
+  .wrapper {
+    border-radius: 10px;
+    width: 95%;
+    min-width: 960px;
+    min-height: 1px;
+    margin: 0 auto 0px;
+    position: relative;
+    clear: both;
+
+    -moz-box-shadow:    0px 0px 43px -4px #555;
+    -webkit-box-shadow: 0px 0px 43px -4px #555;
+    box-shadow:         0px 0px 43px -4px #555;
+  }
+
+  .top-wrapper {
+    width: 95%;
+    min-width: 960px;
+    min-height: 1px;
+    margin: -12px auto 0;
+    position: relative;
+  }
+
+  fieldset.form-wrapper {
+    //border: 1px solid #ccc;
+
+    legend {
+      text-transform: capitalize;
+    }
+
+    [type=checkbox] {
+      margin: 5px 7px 7px 7px;
+    }
+  }
+
+  header {
+    background: #cecfce;
+    border: 1px solid #666;
+    border-radius:5px;
+    width: 99%;
+    min-height: 1px;
+    margin: 6px 0 6px 6px;
+    /*clear: both;*/
+    /*padding: 20px 0;*/
+    /*float: left;*/
+  }
+
+  section {
+    float: left;
+  }
+
+  .left-side {
+    border: 1px solid lightgrey;
+    width: 60%;
+    min-height: 100px;
+    margin: 20px 10px 20px 0;
+    padding: 10px;
+    width: 44%;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .right-side {
+    border: 1px solid lightgrey;
+    width: 39%;
+    min-height: 100px;
+    margin-top: 20px;
+    padding: 10px;
+    width: 54%;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .read-only {
+    background: #ffff9c;
+    border: 1px solid yellow;
+    width: 100%;
+    padding: 10px;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .read-only2 {
+    /*background: #ffff9c;
+    border: 1px solid yellow;*/
+    width: 100%;
+    padding: 10px;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .bottom-protocol {
+    border: 1px solid lightgrey;
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .contraindication {
+    border: 1px solid lightgrey;
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .page-action {
+    border: 1px solid lightgrey;
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  tr.hide {display:none;}
+
+  .table-btn-wrapper {
+    float: right;
+    margin: -19px 46px 8px;
+    position: relative;
+     z-index: 99;
+  }
+
+  .table-btn-wrapper button {
+    cursor: pointer;
+  }
+
+  [id$=fieldset],
+  #edit-boilerplate-fieldset--2,
+  #edit-contraindication,
+  #edit-protocolnotes {
+    border: 1px solid #ccc;
+    padding: 0 7px 7px 7px;
+    margin-bottom: 15px;
+
+    legend {
+      color: #999;
+      font-weight: bold;
+      margin: 0 8px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+  }
+
+  #edit-contrast-fieldset {
+    legend {
+      margin-bottom: 9px;
+    }
+  }
+
+  fieldset.data-entry1-area,
+  fieldset.data-entry2-area:not(#edit-protocolnotes) {
+
+    [id$=col1] {
+      width: 20%;
+      float: left;
+
+      .form-type-radio > * {
+        display: block;
+        float: left;
+      }
+
+      .form-item {
+        clear: both;
+        margin-bottom: 5px;
+      }
+
+      .form-item :first-child {
+        width: 25px;
+        margin-bottom: 14px;
+      }
+
+      .form-item :nth-child(2) {
+        width: 80px;
+      }
+
+      .form-item :nth-child(3) {
+        width: 200px;
+      }
+    }
+
+    [id$=col2] {
+      width: 65%;
+      float: left;
+
+      .v-spacer-select {
+        margin-bottom: 21px;
+      }
+
+      .form-wrapper {
+        margin-bottom: 12px;
+      }
+    }
+
+    [id$=col3] {
+      width: 10%;
+      float: right;
+      text-align: right;
+    }
+
+    [id$=row2] {
+      clear: both;
+    }
+
+  }
+
+  fieldset.data-entry2-area {
+    [id$=col1] {
+      width: 95%;
+    }
+
+    [id$=col3] {
+      width: 5%;
+      margin-top: 6px;
+    }
+  }
+
+  #edit-boilerplate-fieldset legend {
+    margin-bottom: 0;
+  }
+
+  .form-item {
+    margin-bottom: 12px;
+  }
+
+  #edit-protocolnotes > legend {
+    display: none;
+  }
+
+  .default-value-acknowledgement {
+    clear: both;
+  }
+
+  .reset-values-button-container{
+    @extend %formButton;
+
+    font-size: 8px;
+    padding: 2px;
+    text-transform: uppercase;
+  }
+
+  .listalter-button-container a {
+    background-color: #ccc;
+    border: 1px solid #666;
+    display: inline;
+    padding: 0 3px;
+    color: #333;
+    font-size:8px;
+    text-transform:uppercase;
+    vertical-align:top;
+    text-decoration: none;
+  }
+
+  .form-type-textfield input:enabled, select:enabled {
+    border: 1px solid #000;
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Navigation/ Tabs  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+   /* Side Nav */
+
+  .side-nav {
+    background: rgba(255, 255, 255, .8);
+    border-top-left-radius:5px;
+    width: 100%;
+    height: 124px;
+    float: left;
+    display: none;
+  }
+
+  #user-icon{
+    background: url("../images/icons/avatar_lrg.png") #0F649C no-repeat center bottom;
+    /*border-top-left-radius:5px;*/
+    width: 120px;
+    height: 93px;
+    float: left;
+    margin: 10px;
+  }
+
+  nav {
+    width: 100%;
+    height: 50px;
+  }
+
+  nav ul {
+
+  }
+
+  nav ul li {
+    text-align: center;
+    border-bottom: 1px solid #A9A9A9;
+  /*  padding: 10px 0; */
+  }
+
+  nav ul li a {
+    color: #878787;
+    display: block;
+    text-decoration: none;
+    padding: 50px 0 10px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  nav ul li a:hover {
+    color: #0F649C;
+  }
+
+  /*nav-icons*/
+
+
+  .overview{
+    background: url("../images/icons/overview_icon.png") center 15px no-repeat;
+  }
+
+  .medications{
+    background: url("../images/icons/medications_icon.png") center 15px no-repeat;
+  }
+
+  .vitals{
+    background: url("../images/icons/vitals_icon.png") center 15px no-repeat;
+  }
+
+  .allergies{
+    background: url("../images/icons/allergies_icon.png") center 15px no-repeat;
+  }
+
+  .labs{
+    background: url("../images/icons/labs_icon.png") center 15px no-repeat;
+  }
+
+  .dose-hx{
+    background: url("../images/icons/dose_hx_icon.png") center 15px no-repeat;
+  }
+
+  .clin-rpts{
+    background: url("../images/icons/clin_rpts_icon.png") center 15px no-repeat;
+  }
+
+  .problem-list{
+    background: url("../images/icons/problem_list_icon.png") center 15px no-repeat;
+  }
+
+  .notes{
+    background: url("../images/icons/notes_icon.png") center 15px no-repeat;
+  }
+
+  .rad-rpts{
+    background: url("../images/icons/rad_rpts_icon.png") center 15px no-repeat;
+  }
+
+  .library{
+    background: url("../images/icons/library_icon.png") center 15px no-repeat;
+  }
+
+  /* Top Nav */
+
+  .top {
+    background: url("../images/top_nav_bg.jpg") repeat-x scroll 0px 0px #052a44;
+    width: 100%;
+    height: 98px;
+    float: left;
+    margin-bottom: 26px;
+  }
+
+  .new-wrapper {
+    background: #fff;
+    border-radius: 5px;
+    width: 90%;
+    position: relative;
+    float: left;
+
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  /* Tab Section */
+  .tabs-wrapper {
+    /*position: relative;
+    width: 98%; 
+    min-height: 1px; 
+    clear: both;
+    margin: 45px 0;*/
+
+    /*margin: 213px 0;*/
+    /*min-height: 1px;
+    position: absolute;*/
+    width: 100%;
+  }
+
+
+  .tabs > li > input[type=radio] {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  .tabs {
+    width: 98%;
+    float: none;
+    list-style: none;
+    position: absolute;
+    padding: 0;
+    margin: 22px auto;
+  }
+
+  .tabs > li{
+    float: left;
+  }
+
+  .tabs > li > label {
+    display: block;
+    margin: 0 6px;
+    padding: 5px 20px;
+    border-radius: 2px 2px 0 0;
+    color: #052A44;
+    font-size: 14px;
+    font-weight: normal;
+    /*font-family: 'Lily Script One', helveti;*/
+    font-family: arial;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    position: relative;
+    top: 3px;
+    -webkit-transition: all 0.2s ease-in-out;
+    -moz-transition: all 0.2s ease-in-out;
+    -o-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .tabs > li > label:hover {
+    top: 0;
+  }
+
+  .tabs > li:first-child {
+    margin: 0px -5px;
+  }
+
+  [id^=tab]:checked + label {
+    background: rgba(5,42,68,0.5);
+    color: white;
+    top: 0;
+  }
+
+  [id^=tab]:checked ~ [id^=tab-content] {
+    display: block;
+  }
+
+  .tab-content {
+    z-index: 2;
+    display: none;
+    text-align: left;
+    width: 100%;
+    font-size: 18px;
+    line-height: 140%;
+    padding-top: 10px;
+    background: rgba(255,255,255,1);
+    /*padding: 15px;*/
+    position: absolute;
+    top: 28px;
+    left: 0;
+    box-sizing: border-box;
+    -webkit-animation-duration: 0.5s;
+    -o-animation-duration: 0.5s;
+    -moz-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    font-size: 14px;
+
+    // Tab variables
+
+    $cellBorder: 1px solid #ccc;
+
+    %tableCells {
+      border-top: $cellBorder;
+      border-bottom: $cellBorder;
+      padding: 6px 35px 2px 8px;
+    }
+
+    %firstCell {
+      border-left: $cellBorder;
+    }
+
+    %lastCell {
+      border-right: $cellBorder;
+    }
+
+    // Default tab styles
+
+    h3 {
+      margin-top: 20px;
+    }
+
+    table {
+      border-collapse: collapse;
+      border: 2px solid #999;
+      width: 99%;
+    }
+
+    th {
+      @extend %tableCells;
+      background-color: darkgray;
+    }
+
+    th:first-child {
+      @extend %firstCell;
+    }
+
+    th:last-child {
+      @extend %lastCell;
+    }
+
+    th[colspan] {
+      text-align: center;
+    }
+
+    // Order Overview
+    tbody th:first-child {
+      
+    }
+
+    td {
+      @extend %tableCells;
+    }
+
+    td:first-child {
+      @extend %firstCell;
+    }
+
+    td:last-child {
+      @extend %lastCell;
+    }
+
+    tbody tr:nth-child(odd) {
+      background-color: #ddd;
+    }
+
+    li {
+      margin-left: 16px;
+    }
+
+    .category {
+      margin-bottom: 10px;
+
+      ul {
+        margin-top: 5px;
+      }
+
+      ul > li {
+        @extend %formButton;
+      }
+    }
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Patient info  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  header {
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+     /* margin: 5px auto;
+      padding: 10px;*/
+      /*float: left;*/
+    }
+
+    table tr {
+      padding: 10px 0 0;
+    }
+
+    table tr th {
+      background: darkgray;
+      text-align: left;
+    }
+
+    tbody tr th, tbody tr td {
+      text-align: left;
+      padding: 4px 10px;
+
+    }
+
+    tbody tr td {
+      padding-bottom: 15px;
+    }
+
+    tbody tr:last-child td {
+      padding-bottom: 8px;
+    }
+
+    #requested_by {
+      width: 100px;
+    }
+
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Selecton  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  .selection {
+    display: none;
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Medications  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  #tab-content4 {
+    th:nth-child(1) {
+      width: 75px;
+    }
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Protocol Notes  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  .prev-protocolnotes {
+    margin: 8px 0 16px 0;
+  }
+
+  .existing-note {
+    background-color: #eee;
+    width: 50%;
+
+    span {
+      padding: 8px;
+    }
+
+    div {
+      padding: 8px;
+      background-color: #fff;
+    }
+
+    div.critical-note {
+      background-color: #ffffe0;
+    }
+  }
+
+  .form-item label {
+    font-weight: normal;
+  }
+
+  .page-action button {
+    padding: 6px;
+  }
+
+  .existing-scheduler-note {
+    border: 1px solid #333;
+  }
+
+  .existing-note {
+    border: 1px solid #333;
+  }
+
+  .critical-note {
+    background-color: #ffff9c;
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Contraindications Requiring Confirmation  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  #static-warnings {
+    li {
+      list-style-type: disc;
+    }
+  }
+
+  #edit-contraindication {
+    ul {
+      list-style-type: square;
+      margin: 20px 0 15px 15px;
+    }
+  }
+
+}
+
+#protocol_container_styles {
+
+  fieldset.data-entry1-area,
+  fieldset.data-entry2-area {
+
+    [id$=col1] {
+      border: none;
+      margin: 0;
+      width: 19%;
+
+      label {
+        width: 75px;
+      }
+    }
+
+    [id$=col2] {
+      width: 45%;
+      border: 0;
+      margin: 0;
+
+      fieldset {
+        border: 0;
+        margin: 0;
+      }
+
+      .form-wrapper {
+        padding: 0;
+      }
+    }
+
+    [id$=col3] {
+      width: 10%;
+      border: 0;
+      margin: 0;
+    }
+
+    [id$=row2] {
+      clear: both;
+      display: none;
+    }
+
+  }
+
+}
