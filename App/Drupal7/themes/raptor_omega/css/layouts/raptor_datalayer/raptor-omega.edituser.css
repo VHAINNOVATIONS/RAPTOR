@@ -1,0 +1,30 @@
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\000031}}
+.page-raptor-datalayer-edituser .user-profile-dataentry > div {
+  margin: 16px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\000036}}
+.page-raptor-datalayer-edituser .form-item label {
+  display: inline-block;
+  width: 110px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000312}}
+.page-raptor-datalayer-edituser fieldset {
+  border: 1px solid #999;
+  padding: 16px;
+  margin: 16px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000319}}
+  .page-raptor-datalayer-edituser fieldset fieldset .form-item label {
+    display: inline-block;
+    width: 150px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000327}}
+.page-raptor-datalayer-edituser legend {
+  text-transform: capitalize; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000331}}
+.page-raptor-datalayer-edituser .form-type-checkbox {
+  display: inline-block; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000334}}
+  .page-raptor-datalayer-edituser .form-type-checkbox label {
+    width: auto;
+    margin-right: 16px;
+    margin-left: -4px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.userform\.scss}line{font-family:\0000341}}
+.page-raptor-datalayer-edituser #edit-cancel {
+  display: inline-block; }

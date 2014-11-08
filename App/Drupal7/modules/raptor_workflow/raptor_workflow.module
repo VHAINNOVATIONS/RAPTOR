@@ -1,0 +1,84 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2014
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ *  
+ * A workflow integration module for the RAPTOR application. 
+ *
+ */
+
+function raptor_workflow_help($path, $arg) 
+{
+  switch ($path)
+  {
+    case "admin/help#raptor_workflow":
+        return '<p>'.  t("Integrates workflow package.") .'</p>';
+        break;
+  }
+}
+
+function raptor_workflow_menu() 
+{
+    $items = array();
+    
+    $items['raptor/workflow/exportdata'] = array(
+      'title' => t('Workflow Data Export'),
+      'page callback' => 'raptor_adminworkflowdatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Extract to a file all workflow data'),
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/workflow/runtests'] = array(
+      'title' => t('Workflow Test'),
+      'page callback' => 'raptor_workflow_runtests_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Test workflow integration'),
+      'type' => MENU_CALLBACK,
+    );
+
+    return $items;
+}
+
+function raptor_adminworkflowdatadump_form() 
+{
+    return drupal_get_form("raptor_adminworkflowdatadump_form_builder");
+}
+
+function raptor_workflow_runtests_form() 
+{
+    return drupal_get_form("raptor_workflow_runtests_form_builder");
+}
+
+function raptor_workflow_runtests_form_builder($form, $form_state)
+{
+	throw new \Exception('Feature not yet implemented');
+}
+
+function raptor_workflow_runtests_form_builder_submit($form, &$form_state)
+{
+	throw new \Exception('Feature not yet implemented');
+}
+
+
+/**
+ * Send a downloadable file to the browser
+ * @param type $form_state
+ * @return binary file
+ */
+function raptor_adminworkflowdatadump_form_builder($form, &$form_state)
+{
+	throw new \Exception('Feature not yet implemented');
+}
+
+
+
+

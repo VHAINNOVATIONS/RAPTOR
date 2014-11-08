@@ -1,0 +1,15 @@
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.manageusers\.scss}line{font-family:\000033}}
+.user-admin table, .protocollib-admin table {
+  border-collapse: collapse;
+  border: 1px solid #ccc;
+  width: 100%; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.manageusers\.scss}line{font-family:\000038}}
+  .user-admin table tr, .protocollib-admin table tr {
+    border-bottom: 1px solid #ccc; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.manageusers\.scss}line{font-family:\0000311}}
+    .user-admin table tr td, .user-admin table tr th, .protocollib-admin table tr td, .protocollib-admin table tr th {
+      padding: 6px 12px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.26-0\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/raptor_datalayer\/raptor-omega\.manageusers\.scss}line{font-family:\0000318}}
+#edit-adduser, #edit-addprotocollib, #edit-cancel {
+  display: inline-block; }

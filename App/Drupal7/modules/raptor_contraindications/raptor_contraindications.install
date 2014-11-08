@@ -1,0 +1,39 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2014
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ *  
+ * Install the module
+ */
+
+require_once ("install/raptor_schema.inc");
+require_once ("install/CILoadUtils.inc");
+
+
+function raptor_contraindications_uninstall()
+{
+    $t = get_t();
+    drupal_set_message($t('Uninstalled raptor_contraindications'));
+}
+
+/**
+ * Insert baseline rows into tables
+ * @return status
+ */
+function raptor_contraindications_install()
+{
+    //Install the baseline contraindication rules
+    $t = get_t();
+    \raptor\CILoadUtils::loadContraindicationBasedata();
+    
+    drupal_set_message($t('Installed raptor_contraindications'));
+}
+
+
+    
