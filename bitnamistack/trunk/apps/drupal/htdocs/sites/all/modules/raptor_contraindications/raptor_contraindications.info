@@ -1,8 +1,0 @@
-name = RAPTOR Contraindications Engine
-description = A module with the contraindications engine needed by the RAPTOR application
-core = 7.x
-
-version = "7.x-0.1c"
-package = RAPTOR
-
-files[] = tests/raptor_contraindications.test
