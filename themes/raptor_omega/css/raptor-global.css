@@ -1,0 +1,33 @@
+
+
+.medical-health-bad{
+    background-color: red;
+}
+
+.medical-health-warn{
+    background-color: yellow;
+}
+
+.medical-health-good{
+    background-color: greenyellow;
+}
+
+.raptor-active-field{
+    color: blue;
+}
+
+#edit-radioisotope-cd{
+    width: 80%;
+}
+
+#edit-contrast-cd{
+    width: 80%;
+}
+
+.form-type-radio{
+   width: auto;
+}
+
+#edit-modality-abbr{
+    display: -webkit-box;
+}

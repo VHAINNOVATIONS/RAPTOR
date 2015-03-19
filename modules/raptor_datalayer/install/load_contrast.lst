@@ -1,0 +1,17 @@
+ENTERIC|GastroView 450cc during 1-2 hrs before scan|1|0|1
+ENTERIC|H2O 450cc over 20min prescan + 150cc on table|1|0|1
+ENTERIC|Other (see protocol notes)|1|1|1
+ENTERIC|Rectal|1|0|1
+ENTERIC|RediCat 450cc during 1-2 hrs before scan|1|0|1
+ENTERIC|Volumen 1350cc protocol|1|0|1
+ENTERIC|Volumen 450cc protocol|1|0|1
+ENTERIC|Volumen 900cc protocol|1|0|1
+IV|Ablavar 0.03 mmol/kg|0|1|0
+IV|Eovist 0.025 mmol/kg|0|1|0
+IV|Isovue 370|1|0|1
+IV|MultiHance 0.05 mmol/kg ("1/2 Dose")|0|1|0
+IV|MultiHance 0.1 mmol/kg|0|1|0
+IV|Other (see protocol notes)|1|1|1
+IV|ProHance 0.1 mmol/kg|0|1|0
+IV|Ultravist 300|1|0|1
+IV|Visipaque 320|1|0|1

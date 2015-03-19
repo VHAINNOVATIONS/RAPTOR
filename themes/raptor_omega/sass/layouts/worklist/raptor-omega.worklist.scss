@@ -1,0 +1,323 @@
+/*~~~~~~~~~~~~~~~~~~~~~~~  Worklist  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+#worklist_container {
+  margin: 0;
+  width: 100%;
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  containers/wrappers  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  .main-content{
+    border-radius: 5px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .right-content{
+    width: 100%;
+    background: rgba(255,255,255, 0.8);
+    float: left;
+  }
+
+  .wrapper {
+    border-radius: 10px;
+    width: 95%;
+    min-width: 960px;
+    min-height: 1px;
+    margin: 0 auto 20px;
+    position: relative;
+    clear: both;
+
+    -moz-box-shadow:    0px 0px 43px -4px #555;
+    -webkit-box-shadow: 0px 0px 43px -4px #555;
+    box-shadow:         0px 0px 43px -4px #555;
+  }
+
+  .top-wrapper {
+    width: 95%;
+    min-width: 960px;
+    min-height: 1px;
+    margin: -12px auto 0;
+    position: relative;
+  }
+
+  header {
+    background: #000;
+    border: 1px solid #666;
+    border-radius:5px;
+    width: 96%;
+    min-height: 200px;
+    margin: 20px 0 40px 0;
+    float: left;
+    margin-left: 16px;
+  }
+
+  section {
+    float: left;
+  }
+
+  .left-side{
+    width: 60%;
+    margin-right: 10px;
+  }
+
+  .right-side{
+    width: 30%;
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Table/Sort  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+  /* tables */
+
+  .chk-all {
+    background-image: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    vertical-align: middle;
+    cursor: pointer;
+    padding: 4px 5px;
+    text-align: left;
+  }
+
+  %trHover {
+    background: #0c63a1;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  tbody.table-content {
+    tr:hover {
+      @extend %trHover;
+
+      a {
+        @extend %trHover;
+      }
+
+      td.pending_alert {
+        @extend %trHover;
+      }
+    }
+
+    td.pending_alert {
+      background-color: LightPink; 
+      color: DarkRed; 
+    }
+  }
+
+  .pending_column {
+    text-align: center;
+  }
+
+  .status_code_column {
+    display: none;
+  }
+
+  .locked_column {
+    background: url('../images/icons/lock-icon.png') no-repeat right 5px center;
+  }
+
+  .locked_owned_column {
+    background: url('../images/icons/lock-owned-icon.png') no-repeat right 5px center;
+  }
+
+  #worklistTable_wrapper {
+    margin: 20px 0;
+  }
+
+  /*----- Button Section -----*/
+
+  #buttonsWrapper{
+    width: 50%;
+    padding: 13px 10px 10px 10px;
+  }
+
+  #buttonsWrapper a {
+    background: #0B63A2;
+    color: #fff;
+    text-decoration: none;
+    margin-left: 40px;
+    padding: 12px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  #buttonsWrapper a:hover {
+    background: #0D324F;
+  }
+
+  [id^=edit-top-work-order-] {
+    background: url("../images/icons/edit_icon_sm.png") no-repeat 8px center #0D324F;
+    width: 206px;
+    padding: 12px 0 12px 12px;
+    border-radius: 4px;
+  }
+
+  [id^=refresh-] {
+    background: url("../images/icons/refresh_icon_sm.png") no-repeat 8px center #0D324F;
+    width: 206px;
+    margin-left: 10px;
+    padding: 12px 0 12px 12px;
+    border-radius: 4px;
+  }
+
+  #worklistLoaderWrapper {
+    text-align: center; 
+    padding-top: 180px;
+    height: 400px; 
+    width: 100%; 
+  }
+
+  /*~~~~~~~~~~~~~~~~~~~~~~~  Navigation/ Tabs  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+ 
+  /* Side Nav */
+
+  .side-nav {
+    background: rgba(255, 255, 255, .8);
+    border-top-left-radius:5px;
+    width: 100%;
+    height: 124px;
+    float: left;
+    display: none;
+  }
+
+  #user-icon{
+    background: url("../images/icons/avatar_lrg.png") #0F649C no-repeat center bottom;
+    width: 120px;
+    height: 93px;
+    float: left;
+    margin: 10px;
+  }
+
+  nav {
+    width: 100%;
+    height: 50px;
+  }
+
+  nav ul {
+
+  }
+
+  nav ul li {
+    text-align: center;
+    border-bottom: 1px solid #A9A9A9;
+  }
+
+  nav ul li a {
+    color: #878787;
+    display: block;
+    text-decoration: none;
+    padding: 50px 0 10px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  nav ul li a:hover {
+    color: #0F649C;
+  }
+
+  /*nav-icons*/
+
+
+  .overview{
+    background: url("../images/icons/overview_icon.png") center 15px no-repeat;
+  }
+
+  .medications{
+    background: url("../images/icons/medications_icon.png") center 15px no-repeat;
+  }
+
+  .vitals{
+    background: url("../images/icons/vitals_icon.png") center 15px no-repeat;
+  }
+
+  .allergies{
+    background: url("../images/icons/allergies_icon.png") center 15px no-repeat;
+  }
+
+  .labs{
+    background: url("../images/icons/labs_icon.png") center 15px no-repeat;
+  }
+
+  .dose-hx{
+    background: url("../images/icons/dose_hx_icon.png") center 15px no-repeat;
+  }
+
+  .clin-rpts{
+    background: url("../images/icons/clin_rpts_icon.png") center 15px no-repeat;
+  }
+
+  .problem-list{
+    background: url("../images/icons/problem_list_icon.png") center 15px no-repeat;
+  }
+
+  .notes{
+    background: url("../images/icons/notes_icon.png") center 15px no-repeat;
+  }
+
+  .rad-rpts{
+    background: url("../images/icons/rad_rpts_icon.png") center 15px no-repeat;
+  }
+
+  .library{
+    background: url("../images/icons/library_icon.png") center 15px no-repeat;
+  }
+
+  /* Tab Section */
+  .tabs-wrapper {
+    position: relative;
+    width: 98%; 
+    min-height: 600px; 
+    clear: both;
+    margin: 45px 0;
+  }
+
+  .tab {
+    float: left;
+    margin-left: 5px;
+  }
+
+  .tab label:hover {
+    background: #ccc;
+    cursor: pointer;
+  }
+
+  .tab:first-child {
+    margin-left: 50px;
+  }
+
+  .tab label {
+    background: #eee; 
+    padding: 10px 6px; 
+    border: 1px solid #ccc;
+    border-bottom: none;
+    margin-left: -1px; 
+    position: relative;
+    left: 1px; 
+  }
+
+  .tab [type=radio] { 
+    display: none;   
+  }
+
+  .content {
+    position: absolute;
+    top: 28px;
+    background: white;
+    right: 0;
+    bottom: 24;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
+    width: 93%;
+    min-height: 500px;
+  }
+
+  [type=radio]:checked ~ label {
+    background: white;
+    border-bottom: 1px solid white;
+    z-index: 2;
+  }
+
+  [type=radio]:checked ~ label ~ .content {
+    z-index: 1;
+  }
+}

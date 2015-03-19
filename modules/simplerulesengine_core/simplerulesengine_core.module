@@ -1,0 +1,149 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants
+ * Designed and implemented by Frank Font (ffont@sanbusinessconsultants.com)
+ * In collaboration with Andrew Casertano (acasertano@sanbusinessconsultants.com)
+ * Open source enhancements to this module are welcome!  Contact SAN to share updates.
+ *
+ * Copyright 2014 SAN Business Consultants, a Maryland USA company (sanbusinessconsultants.com)
+ *
+ * Licensed under the GNU General Public License, Version 2 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.gnu.org/copyleft/gpl.html
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------------
+ *
+ * This is a simple decision support engine module for Drupal.
+ */
+
+require_once 'core/ASREContext.inc';
+require_once 'core/ASREDictionary.inc';
+require_once 'core/SREngine.inc';
+
+/** 
+ * Implements hook_help. 
+ * 
+ * Displays help and module information. 
+ * 
+ * @param path  
+ *   Which path of the site we're using to display help 
+ * @param arg  
+ *   Array that holds the current path as returned from arg() function 
+ */
+function simplerulesengine_core_help($path, $arg) 
+{
+    global $base_url;
+    $testurl = $base_url . '/simplerulesengine/runtests';
+    $contributemsg = 'Contact Frank Font or Andrew Casertano at <a href="http://sanbusinessconsultants.com/">SAN Business Consultants</a> to contribute to this open source project or to ask about decision support consulting services.';
+    switch ($path)
+    {
+      case "admin/help#simplerulesengine_core":
+          return '<p>'. t("This module is intended for use by other modules that want to implent a small expert system.  The SREngine class of this module evaluates decision support rules for a variety of variable conditions.") .'</p>'
+                .'<p>'.t($contributemsg).'</p>'
+                .'<p>Internal tests are built into this module and can be executed at <a href="'.$testurl.'">'.$testurl.'</a></p>';
+          break;
+    }
+}
+
+function simplerulesengine_core_menu() 
+{
+    $items = array();
+    
+    $items['simplerulesengine/runtests'] = array(
+      'title' => t('Simple Rules Engine Test'),
+      'page callback' => 'simplerulesengine_core_runtests_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Test simple rules engine'),
+      'type' => MENU_CALLBACK,
+    );
+
+    return $items;
+}
+
+function simplerulesengine_core_runtests_form() 
+{
+    return drupal_get_form("simplerulesengine_core_runtests_form_builder");
+}
+
+function simplerulesengine_core_runtests_form_builder($form, &$form_state)
+{
+    $loaded = module_load_include('inc','simplerulesengine_core','parser/test/TestAll');
+    if(!$loaded)
+    {
+        drupal_set_message(t('Failed to load the TestAll class'), 'error');
+    }
+    $form[]['done_button'] = array('#type' => 'submit'
+    , '#value' => t('Test Everything')
+    , '#attributes' => array('title' => 'Run Test.')
+    );
+    $form[]['done_button'] = array('#type' => 'submit'
+    , '#value' => t('Only Test Tokenizer')
+    , '#attributes' => array('title' => 'Run Test.')
+    );
+    $form[]['done_button'] = array('#type' => 'submit'
+    , '#value' => t('Only Test Measures')
+    , '#attributes' => array('title' => 'Run Test.')
+    );
+    $form[]['done_button'] = array('#type' => 'submit'
+    , '#value' => t('Only Test Rules')
+    , '#attributes' => array('title' => 'Run Test.')
+    );
+
+    //drupal_exit();
+    return $form;
+}
+
+function simplerulesengine_core_runtests_form_builder_submit($form, &$form_state)
+{
+    $clickedbutton = $form_state['clicked_button'];
+    $clickedvalue = $clickedbutton['#value'];
+
+    //Stay on same page!
+    $loaded = module_load_include('inc','simplerulesengine_core','parser/test/TestAll');
+    if(!$loaded)
+    {
+        drupal_set_message(t('Failed to load the TestAll class'), 'error');
+    }
+
+    if(($clickedvalue == t('Test Everything')))
+    {
+        \simplerulesengine\TestAll::runAllTests();
+
+        drupal_set_message(t('Ran all simple tests as of ' . date("Y-m-d H:i:s", time())));
+    } else
+    if(($clickedvalue == t('Only Test Tokenizer')))
+    {
+        \simplerulesengine\TestTokenizer::runAllTests();
+
+        drupal_set_message(t('Ran all simple tests as of ' . date("Y-m-d H:i:s", time())));
+    } else
+    if(($clickedvalue == t('Only Test Measures')))
+    {
+        \simplerulesengine\TestMeasureExpression::runAllTests();
+
+        drupal_set_message(t('Ran all simple tests as of ' . date("Y-m-d H:i:s", time())));
+    } else
+    if(($clickedvalue == t('Only Test Rules')))
+    {
+        \simplerulesengine\TestRuleExpression::runAllTests();
+
+        drupal_set_message(t('Ran all simple tests as of ' . date("Y-m-d H:i:s", time())));
+    } else {
+        drupal_set_message(t('Did not recognize button ' . $clickedvalue),'error');
+    }
+}
+
+
+
+
+

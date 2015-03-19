@@ -1,0 +1,158 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2014
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ *  
+ * A scheduling integration module for the RAPTOR application. 
+ * 
+ */
+
+/** 
+ * Implements hook_help. 
+ * 
+ * Displays help and module information. 
+ * 
+ * @param path  
+ *   Which path of the site we're using to display help 
+ * @param arg  
+ *   Array that holds the current path as returned from arg() function 
+ */
+function raptor_scheduling_help($path, $arg) 
+{
+  switch ($path)
+  {
+    case "admin/help#raptor_scheduling":
+        return '<p>'.  t("Integrates scheduling package.") .'</p>';
+        break;
+  }
+}
+
+function raptor_scheduling_menu() 
+{
+    $items = array();
+    
+    $items['raptor/scheduling/exportdata'] = array(
+      'title' => t('Scheduling Data Dump'),
+      'page callback' => 'raptor_adminschedulingdatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Extract to a file all scheduling data'),
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/scheduling/runtests'] = array(
+      'title' => t('Scheduling Test'),
+      'page callback' => 'raptor_scheduling_runtests_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Test scheduling integration'),
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/scheduleticket'] = array(
+      'title' => t('Schedule Ticket'),
+      'page callback' => 'raptor_scheduling_scheduleticket_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Schedule Ticket Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'ScheduleTicketPage.php',
+      'file path' => drupal_get_path('module', 'raptor_scheduling') . '/form/',    );
+    
+    return $items;
+}
+
+function raptor_scheduling_scheduleticket_form() 
+{
+    return drupal_get_form("raptor_scheduling_scheduleticket_form_builder");
+}
+
+
+function raptor_adminschedulingdatadump_form() 
+{
+    return drupal_get_form("raptor_adminschedulingdatadump_form_builder");
+}
+
+function raptor_scheduling_runtests_form() 
+{
+    return drupal_get_form("raptor_scheduling_runtests_form_builder");
+}
+
+function raptor_scheduling_runtests_form_builder($form, &$form_state)
+{
+	throw new \Exception('Feature not yet implemented');
+}
+
+function raptor_scheduling_runtests_form_builder_submit($form, &$form_state)
+{
+	throw new \Exception('Feature not yet implemented');
+}
+
+/**
+ * Send a downloadable file to the browser
+ * @param type $form_state
+ * @return binary file
+ */
+function raptor_adminschedulingdatadump_form_builder($form, &$form_state)
+{
+	throw new \Exception('Feature not yet implemented');
+}
+
+function raptor_scheduling_scheduleticket_form_builder($form, &$form_state)
+{
+    $oContext = \raptor\Context::getInstance();
+    $oPI = new \raptor_sched\ScheduleTicketPage();
+    
+    if(!isset($_REQUEST['rawrtid'])) 
+    {
+        die('Did not find expected rawrtid parameter!');
+    }
+    $rawrtid=$_REQUEST['rawrtid'];
+    if($rawrtid === null || substr($rawrtid,0,1) !== '[' || substr($rawrtid,-1) !== ']')
+    {
+        die("The rawrtid parameter MUST start with [ and end with ] bracket!");
+    }
+    $clean_rawrtid = substr($rawrtid, 1, -1);
+    $oContext->setSelectedTrackingID($clean_rawrtid);
+    
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues();    
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function raptor_scheduling_scheduleticket_form_builder_validate($form, &$form_state) 
+{
+    $oPI = new \raptor_sched\ScheduleTicketPage();
+    return $oPI->looksValid($form, $form_state['values']);
+}
+
+function raptor_scheduling_scheduleticket_form_builder_submit($form, &$form_state) 
+{
+    $clickedbutton = $form_state['clicked_button'];
+    $clickedvalue = $clickedbutton['#value'];
+    if(substr($clickedvalue,0,strlen(t('Save these'))) == t('Save these'))
+    {
+        //Write an error message but save it anyways
+        drupal_set_message('The multiple schedule feature is under consideration, seeking feedback from SMEs on workflow fit.', 'error');
+    }
+    $oPI = new \raptor_sched\ScheduleTicketPage();
+    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+    if($rowsupdated > 0)
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'worklist',
+          );
+    }
+}
+
+
+
+
+

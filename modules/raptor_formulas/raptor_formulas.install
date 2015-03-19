@@ -1,0 +1,60 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2014
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ *  
+ * Install the module
+ */
+
+require_once ("install/raptor_schema.inc");
+require_once ("install/FormulasLoadUtils.inc");
+
+function raptor_formulas_uninstall()
+{
+    $t = get_t();
+    drupal_set_message($t('Uninstalled raptor_formulas'));
+}
+
+/**
+ * Create indexes and insert baseline rows into tables
+ * @return status
+ */
+function raptor_formulas_install()
+{
+    $t = get_t();
+    
+    //Load all the lists from load files.
+    raptor_formulas_basedata_load_lists();
+    
+    drupal_set_message($t('Installed raptor_formulas'));
+}
+
+function raptor_formulas_basedata_load_lists()
+{
+    //Load match phrases.
+    raptor_formulas_load_simplelist('load_kw_with_contrast.lst','raptor_list_kw_with_contrast','phrase_tx');
+    raptor_formulas_load_simplelist('load_kw_without_contrast.lst','raptor_list_kw_without_contrast','phrase_tx');
+    raptor_formulas_load_simplelist('load_kw_withandwithout_contrast.lst','raptor_list_kw_withandwithout_contrast','phrase_tx');
+}
+
+function raptor_formulas_load_simplelist($filename,$tablename,$fieldname)
+{
+    $aLines = \raptor\FormulasLoadUtils::getFileAsArray($filename);
+    foreach($aLines as $row)
+    {
+        $values = explode('|', $row);
+        db_insert($tablename)->fields(array(
+           $fieldname => $values[0],
+         ))->execute();
+    }
+}
+
+
+
+    

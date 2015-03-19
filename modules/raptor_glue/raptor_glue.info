@@ -1,0 +1,27 @@
+;; ------------------------------------------------------------------------------------
+;; Created by SAN Business Consultants for RAPTOR phase 2
+;; Open Source VA Innovation Project 2011-2014
+;; VA Innovator: Dr. Jonathan Medverd
+;; SAN Implementation: Andrew Casertano, Frank Font, et al
+;; Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+;; ------------------------------------------------------------------------------------
+
+name = RAPTOR Glue
+description = Integrates all the other RAPTOR modules into one application
+core = 7.x
+
+version = "7.x-0.7-dev"
+package = RAPTOR
+
+dependencies[] = raptor_contraindications
+dependencies[] = raptor_datalayer
+dependencies[] = raptor_imageviewing
+dependencies[] = raptor_scheduling
+dependencies[] = raptor_workflow
+;;dependencies[] = raptor_graph
+dependencies[] = raptor_formulas
+;;dependencies[] = raptor_reports
+
+files[] = tests/raptor_glue.test
+
+scripts[] = js/formHelper.js

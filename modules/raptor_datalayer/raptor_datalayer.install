@@ -1,0 +1,503 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2014
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ *  
+ * Install the module
+ */
+
+require_once ("install/raptor_schema.inc");
+require_once ("install/LoadUtils.inc");
+
+
+function raptor_datalayer_uninstall()
+{
+    $t = get_t();
+    drupal_set_message($t('Uninstalled raptor_datalayer'));
+}
+
+/**
+ * Create indexes and insert baseline rows into tables
+ * @return status
+ */
+function raptor_datalayer_install()
+{
+    $t = get_t();
+    
+    //Create indexes on the tables.
+    db_add_index('raptor_checklist_question'
+            ,'raptor_checklist_question_sorted_idx'
+            ,array('type_cd','modality_abbr','protocol_shortname','relative_position'));
+    
+    
+    //Populate the base user profile
+    \raptor\LoadUtils::loadUserBasedata();
+
+    //Populate the modality listing
+    raptor_datalayer_basedata_modality();
+     
+    //Create baseline ROLES
+    raptor_datalayer_basedata_roles();
+    
+    //Insert baseline protocols
+    \raptor\LoadUtils::loadProtocolLibBasedata();
+    
+    //Insert the baseline checklist questions
+    \raptor\LoadUtils::loadChecklistBasedata();
+
+    //Insert the baseline qa criteria questions
+    \raptor\LoadUtils::loadQACriteriaBasedata();
+    
+    //Load all the lists from load files.
+    raptor_datalayer_basedata_load_lists();
+    
+    drupal_set_message($t('Installed raptor_datalayer'));
+}
+
+function raptor_datalayer_basedata_load_lists()
+{
+    $aLines = \raptor\LoadUtils::getFileAsArray('load_contrast.lst');
+    foreach($aLines as $row)
+    {
+        $values = explode('|', $row);
+        db_insert('raptor_list_contrast')->fields(array(
+           'type_nm' => $values[0],
+           'option_tx' => $values[1],
+           'ct_yn' => $values[2],
+           'mr_yn' => $values[3],
+           'nm_yn' => $values[4],
+         ))->execute();
+    }
+    
+    $aLines = \raptor\LoadUtils::getFileAsArray('load_sedation.lst');
+    foreach($aLines as $row)
+    {
+        $values = explode('|', $row);
+        db_insert('raptor_list_sedation')->fields(array(
+           'type_nm' => $values[0],
+           'option_tx' => $values[1],
+           'ct_yn' => $values[2],
+           'mr_yn' => $values[3],
+           'nm_yn' => $values[4],
+         ))->execute();
+    }
+    
+    $aLines = \raptor\LoadUtils::getFileAsArray('load_hydration.lst');
+    foreach($aLines as $row)
+    {
+        $values = explode('|', $row);
+        db_insert('raptor_list_hydration')->fields(array(
+           'type_nm' => $values[0],
+           'option_tx' => $values[1],
+           'ct_yn' => $values[2],
+           'mr_yn' => $values[3],
+           'nm_yn' => $values[4],
+         ))->execute();
+    }
+    
+    $aLines = \raptor\LoadUtils::getFileAsArray('load_radioisotope.lst');
+    foreach($aLines as $row)
+    {
+        $values = explode('|', $row);
+        db_insert('raptor_list_radioisotope')->fields(array(
+           'type_nm' => $values[0],
+           'option_tx' => $values[1],
+           'ct_yn' => $values[2],
+           'mr_yn' => $values[3],
+           'nm_yn' => $values[4],
+         ))->execute();
+    }
+
+    raptor_datalayer_load_simplelist('load_atrisk_meds.lst','raptor_atrisk_meds','keyword');
+
+    raptor_datalayer_load_simplelist('load_atrisk_allergy_contrast.lst','raptor_atrisk_allergy_contrast','keyword');
+
+    raptor_datalayer_load_simplelist('load_atrisk_bloodthinner.lst','raptor_atrisk_bloodthinner','keyword');
+
+    raptor_datalayer_load_simplelist('load_atrisk_rare_contrast.lst','raptor_atrisk_rare_contrast','keyword');
+    
+    raptor_datalayer_load_simplelist('load_atrisk_rare_radioisotope.lst','raptor_atrisk_rare_radioisotope','keyword');
+    
+    $aLines = \raptor\LoadUtils::getFileAsArray('load_schedule_location.lst');
+    foreach($aLines as $row)
+    {
+        $values = explode('|', $row);
+        db_insert('raptor_schedule_location')->fields(array(
+           'location_tx' => $values[0],
+           'description_tx' => $values[1],
+         ))->execute();
+    }
+
+    //TODO MOVE THIS TO THE SCHEDULE MODULE
+    raptor_datalayer_load_simplelist('load_schedule_duration.lst','raptor_schedule_duration','minutes');
+    
+    //Load the codes
+    raptor_datalayer_loadcodes('cprs');
+    raptor_datalayer_loadcodes('radlex');
+    raptor_datalayer_loadcodes('cpt');
+    raptor_datalayer_loadcodes('icd');
+    raptor_datalayer_loadcodes('snomed');
+    raptor_datalayer_loadcodes('loinc');
+}
+
+function raptor_datalayer_load_simplelist($filename,$tablename,$fieldname)
+{
+    $aLines = \raptor\LoadUtils::getFileAsArray($filename);
+    foreach($aLines as $row)
+    {
+        $values = explode('|', $row);
+        db_insert($tablename)->fields(array(
+           $fieldname => $values[0],
+         ))->execute();
+    }
+}
+
+function raptor_datalayer_loadcodes($typename)
+{
+    $codelistfilename = 'load_'.$typename.'_codes.lst';
+    $codetablename = 'raptor_'.$typename.'_codes'; 
+    $codefieldname = $typename.'_cd';
+    $aLines = \raptor\LoadUtils::getFileAsArray($codelistfilename);
+    foreach($aLines as $row)
+    {
+        $values = explode('|', $row);
+        db_insert($codetablename)->fields(array(
+           $codefieldname => $values[0],
+           'exclude_from_worklist_yn' => $values[1],
+           'contrast_yn' => (is_int($values[2]) ? $values[2] : NULL),
+           'modality_abbr' => $values[3],
+           'service_nm' => $values[4],
+           'updated_dt' => date("Y-m-d H:i:s", time()),
+         ))->execute();
+    }
+}
+
+function raptor_datalayer_basedata_modality()
+{
+     db_insert('raptor_list_modality')->fields(array(
+        'modality_abbr' => 'CT',
+        'modality_desc' => 'Computed Tomography',
+        'prefixes' => 'CT,CAT',
+        'keywords' => 'CT,CAT',
+      ))->execute();
+     db_insert('raptor_list_modality')->fields(array(
+        'modality_abbr' => 'MR',
+        'modality_desc' => 'Magnetic Resonance Imaging',
+        'prefixes' => 'MR',
+        'keywords' => 'MR,MRI,MAGNETIC',
+      ))->execute();
+     db_insert('raptor_list_modality')->fields(array(
+        'modality_abbr' => 'NM',
+        'modality_desc' => 'Nuclear Medicine',
+        'prefixes' => 'NM,NUC',
+        'keywords' => 'NUC',
+      ))->execute();
+     db_insert('raptor_list_modality')->fields(array(
+        'modality_abbr' => 'FL',
+        'modality_desc' => 'Fluoroscopy',
+        'prefixes' => 'FL',
+        'keywords' => 'Flouro,Fluoroscopy',
+      ))->execute();
+     db_insert('raptor_list_modality')->fields(array(
+        'modality_abbr' => 'IR',
+        'modality_desc' => 'Interventional Radiology',
+        'prefixes' => 'IR',
+        'keywords' => 'Interventional Radiology',
+      ))->execute();
+     db_insert('raptor_list_modality')->fields(array(
+        'modality_abbr' => 'US',
+        'modality_desc' => 'Ultrasound',
+        'prefixes' => 'US',
+        'keywords' => 'Ultrasound',
+      ))->execute();
+}
+
+function raptor_datalayer_basedata_roles()
+{
+     db_insert('raptor_role')->fields(array(
+        'roleid' => 1,
+        'enabled_yn' => 1,
+        'name' => 'Site Administrator',
+        'CEUA1' => 1,
+        'lockCEUA1' => 1,
+        'LACE1' => 0,
+        'lockLACE1' => 1,
+        'SWI1' => 0,
+        'lockSWI1' => 1,
+        'PWI1' => 0,
+        'lockPWI1' => 1,
+        'APWI1' => 0,
+        'lockAPWI1' => 1,
+        'SUWI1' => 0,
+        'lockSUWI1' => 1,
+        'CE1' => 0,
+        'lockCE1' => 1,
+        'QA1' => 0,
+        'lockQA1' => 1,
+        'SP1' => 0,
+        'lockSP1' => 1,
+        'VREP1' => 1,
+        'lockVREP1' => 0,
+        'VREP2' => 1,
+        'lockVREP2' => 0,
+        'EBO1' => 1,
+        'lockEBO1' => 0,
+        'UNP1' => 1,
+        'lockUNP1' => 0,
+        'REP1' => 1,
+        'lockREP1' => 0,
+        'DRA1' => 1,
+        'lockDRA1' => 1,
+        'ELCO1' => 1,
+        'lockELCO1' => 0,
+        'ELHO1' => 1,
+        'lockELHO1' => 0,
+        'ELSO1' => 1,
+        'lockELSO1' => 0,
+        'ELSVO1' => 1,
+        'lockELSVO1' => 0,
+        'ELRO1' => 1,
+        'lockELRO1' => 0,
+        'EECC1' => 0,
+        'lockEECC1' => 0,
+        'ECIR1' => 1,
+        'lockECIR1' => 0,
+        'EERL1' => 1,
+        'lockEERL1' => 0,
+        'EARM1' => 1,
+        'lockEARM1' => 0,
+        'CUT1' => 1,
+        'lockCUT1' => 0,
+      ))->execute();
+     db_insert('raptor_role')->fields(array(
+        'roleid' => 10,
+        'enabled_yn' => 1,
+        'name' => 'Radiologist',
+        'CEUA1' => 0,
+        'lockCEUA1' => 1,
+        'LACE1' => 1,
+        'lockLACE1' => 0,
+        'SWI1' => 1,
+        'lockSWI1' => 1,
+        'PWI1' => 1,
+        'lockPWI1' => 1,
+        'APWI1' => 1,
+        'lockAPWI1' => 0,
+        'SUWI1' => 0,
+        'lockSUWI1' => 0,
+        'CE1' => 0,
+        'lockCE1' => 0,
+        'QA1' => 1,
+        'lockQA1' => 0,
+        'SP1' => 1,
+        'lockSP1' => 0,
+        'VREP1' => 1,
+        'lockVREP1' => 0,
+        'VREP2' => 1,
+        'lockVREP2' => 0,
+        'EBO1' => 0,
+        'lockEBO1' => 0,
+        'UNP1' => 0,
+        'lockUNP1' => 0,
+        'REP1' => 0,
+        'lockREP1' => 0,
+        'DRA1' => 0,
+        'lockDRA1' => 0,
+        'ELCO1' => 0,
+        'lockELCO1' => 0,
+        'ELSVO1' => 0,
+        'lockELSVO1' => 0,
+        'ELHO1' => 1,
+        'lockELHO1' => 0,
+        'ELSO1' => 1,
+        'lockELSO1' => 0,
+        'ELSVO1' => 1,
+        'lockELSVO1' => 0,
+        'ELRO1' => 0,
+        'lockELRO1' => 0,
+        'ECIR1' => 0,
+        'lockECIR1' => 0,
+        'EECC1' => 0,
+        'lockEECC1' => 0,
+        'EERL1' => 0,
+        'lockEERL1' => 0,
+        'EARM1' => 0,
+        'lockEARM1' => 0,
+        'CUT1' => 0,
+        'lockCUT1' => 0,
+      ))->execute();
+     db_insert('raptor_role')->fields(array(
+        'roleid' => 20,
+        'enabled_yn' => 1,
+        'name' => 'Resident',
+        'CEUA1' => 0,
+        'lockCEUA1' => 1,
+        'LACE1' => 0,
+        'lockLACE1' => 1,
+        'SWI1' => 1,
+        'lockSWI1' => 1,
+        'PWI1' => 1,
+        'lockPWI1' => 1,
+        'APWI1' => 0,
+        'lockAPWI1' => 0,
+        'SUWI1' => 0,
+        'lockSUWI1' => 1,
+        'CE1' => 0,
+        'lockCE1' => 0,
+        'QA1' => 0,
+        'lockQA1' => 0,
+        'SP1' => 1,
+        'lockSP1' => 0,
+        'VREP1' => 1,
+        'lockVREP1' => 0,
+        'VREP2' => 1,
+        'lockVREP2' => 0,
+        'EBO1' => 0,
+        'lockEBO1' => 0,
+        'UNP1' => 0,
+        'lockUNP1' => 0,
+        'REP1' => 0,
+        'lockREP1' => 0,
+        'DRA1' => 0,
+        'lockDRA1' => 0,
+        'ELCO1' => 0,
+        'lockELCO1' => 0,
+        'ELHO1' => 0,
+        'lockELHO1' => 0,
+        'ELSO1' => 0,
+        'lockELSO1' => 0,
+        'ELSVO1' => 1,
+        'lockELSVO1' => 0,
+        'ELRO1' => 0,
+        'lockELRO1' => 0,
+        'EECC1' => 0,
+        'lockEECC1' => 0,
+        'ECIR1' => 0,
+        'lockECIR1' => 0,
+        'EERL1' => 0,
+        'lockEERL1' => 0,
+        'EARM1' => 0,
+        'lockEARM1' => 0,
+        'CUT1' => 0,
+        'lockCUT1' => 0,
+      ))->execute();
+     db_insert('raptor_role')->fields(array(
+        'roleid' => 30,
+        'enabled_yn' => 1,
+        'name' => 'Technologist',
+        'CEUA1' => 0,
+        'lockCEUA1' => 1,
+        'LACE1' => 0,
+        'lockLACE1' => 1,
+        'SWI1' => 1,
+        'lockSWI1' => 1,
+        'PWI1' => 0,
+        'lockPWI1' => 1,
+        'APWI1' => 1,
+        'lockAPWI1' => 0,
+        'SUWI1' => 0,
+        'lockSUWI1' => 0,
+        'CE1' => 1,
+        'lockCE1' => 1,
+        'QA1' => 1,
+        'lockQA1' => 0,
+        'SP1' => 1,
+        'lockSP1' => 0,
+        'VREP1' => 1,
+        'lockVREP1' => 0,
+        'VREP2' => 1,
+        'lockVREP2' => 0,
+        'EBO1' => 0,
+        'lockEBO1' => 0,
+        'UNP1' => 0,
+        'lockUNP1' => 0,
+        'REP1' => 0,
+        'lockREP1' => 0,
+        'DRA1' => 0,
+        'lockDRA1' => 0,
+        'ELCO1' => 0,
+        'lockELCO1' => 0,
+        'ELHO1' => 0,
+        'lockELHO1' => 0,
+        'ELSO1' => 0,
+        'lockELSO1' => 0,
+        'ELSVO1' => 1,
+        'lockELSVO1' => 0,
+        'ELRO1' => 0,
+        'lockELRO1' => 0,
+        'EECC1' => 0,
+        'lockEECC1' => 0,
+        'ECIR1' => 0,
+        'lockECIR1' => 0,
+        'EERL1' => 0,
+        'lockEERL1' => 0,
+        'EARM1' => 0,
+        'lockEARM1' => 0,
+        'CUT1' => 0,
+        'lockCUT1' => 0,
+      ))->execute();
+     db_insert('raptor_role')->fields(array(
+        'roleid' => 40,
+        'enabled_yn' => 1,
+        'name' => 'Scheduler',
+        'CEUA1' => 0,
+        'lockCEUA1' => 1,
+        'LACE1' => 0,
+        'lockLACE1' => 1,
+        'SWI1' => 1,
+        'lockSWI1' => 0,
+        'PWI1' => 0,
+        'lockPWI1' => 1,
+        'APWI1' => 0,
+        'lockAPWI1' => 1,
+        'SUWI1' => 0,
+        'lockSUWI1' => 1,
+        'CE1' => 0,
+        'lockCE1' => 0,
+        'QA1' => 0,
+        'lockQA1' => 1,
+        'SP1' => 1,
+        'lockSP1' => 0,
+        'VREP1' => 1,
+        'lockVREP1' => 0,
+        'VREP2' => 1,
+        'lockVREP2' => 0,
+        'EBO1' => 0,
+        'lockEBO1' => 1,
+        'UNP1' => 0,
+        'lockUNP1' => 1,
+        'REP1' => 0,
+        'lockREP1' => 1,
+        'DRA1' => 0,
+        'lockDRA1' => 1,
+        'ELCO1' => 0,
+        'lockELCO1' => 1,
+        'ELHO1' => 0,
+        'lockELHO1' => 1,
+        'ELSO1' => 0,
+        'lockELSO1' => 1,
+        'ELSVO1' => 1,
+        'lockELSVO1' => 0,
+        'ELRO1' => 0,
+        'lockELRO1' => 1,
+        'EECC1' => 0,
+        'lockEECC1' => 0,
+        'ECIR1' => 0,
+        'lockECIR1' => 1,
+        'EERL1' => 1,
+        'lockEERL1' => 0,
+        'EARM1' => 0,
+        'lockEARM1' => 0,
+        'CUT1' => 0,
+        'lockCUT1' => 0,
+      ))->execute();
+}
+
+
+    
