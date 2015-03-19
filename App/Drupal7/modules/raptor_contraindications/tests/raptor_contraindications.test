@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ * Tests for the contraindication engine module
+ */
+
+class RAPTORContraIndicationsTestCase extends DrupalWebTestCase
+{  
+    public static function getInfo()
+    {
+        return array(
+          'name' => 'RAPTOR contraindications module functionality',
+          'description' => 'Tests hooks in the RAPTOR contraindications module',
+          'group' => 'RAPTOR',
+        );
+    }
+
+    public function setUp()
+    {
+        parent::setUp('raptor_contraindications','simplerulesengine_core');
+    }
+
+    public function testPermission()
+    {
+        $data = module_invoke('raptor_contraindications', 'permission');
+
+        $this->assertTrue(is_array($data), t('Permission hook returns array.'));
+
+        $this->assertTrue(array_key_exists('access raptor_contraindications content', $data),
+        t('Permission is as expected.'));
+
+    }
+
+    public function testMenu()
+    {
+        $this->assert(true);
+    }
+
+    public function testLogic()
+    {
+        $this->assert(true);
+    }
+
+}

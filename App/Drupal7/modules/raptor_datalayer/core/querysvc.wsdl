@@ -1,0 +1,2536 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://mdws.medora.va.gov/QuerySvc" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:s1="http://mdws.medora.va.gov/QuerySvc/AbstractTypes" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" targetNamespace="http://mdws.medora.va.gov/QuerySvc" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://mdws.medora.va.gov/QuerySvc">
+      <s:element name="getFile">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="fileNumber" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="includeXRefs" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getFileResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getFileResult" type="tns:VistaFileTO" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="VistaFileTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="fields" type="tns:ArrayOfVistaFieldTO" />
+              <s:element minOccurs="0" maxOccurs="1" name="global" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="lastIenAssigned" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="number" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="numberOfRecords" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="xrefs" type="tns:XRefArray" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AbstractTO" abstract="true">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="fault" type="tns:FaultTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="FaultTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="message" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="stackTrace" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="innerType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="innerMessage" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="innerStackTrace" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="suggestion" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="XRefTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="dd" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="fieldName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="fieldNumber" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="file" type="tns:VistaFileTO" />
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AbstractArrayTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="count" type="s:int" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="XRefArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="xrefs" type="tns:ArrayOfXRefTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfXRefTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="XRefTO" nillable="true" type="tns:XRefTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="VistaFieldTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="isMultiple" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="isPointer" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="isWordProc" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="nodePiece" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="number" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="pointsTo" type="tns:VistaFileTO" />
+              <s:element minOccurs="0" maxOccurs="1" name="transform" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfVistaFieldTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="VistaFieldTO" nillable="true" type="tns:VistaFieldTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="getXRefs">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="fileNumber" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getXRefsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getXRefsResult" type="tns:XRefArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getVHA">
+        <s:complexType />
+      </s:element>
+      <s:element name="getVHAResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getVHAResult" type="tns:RegionArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="RegionArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="regions" type="tns:ArrayOfRegionTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfRegionTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="RegionTO" nillable="true" type="tns:RegionTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="RegionTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="sites" type="tns:SiteArray" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SiteArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="sites" type="tns:ArrayOfSiteTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfSiteTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="SiteTO" nillable="true" type="tns:SiteTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="SiteTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="sitecode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="displayName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="moniker" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="regionID" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="lastEventTimestamp" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="lastEventReason" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="uid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="pid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="dataSources" type="tns:DataSourceArray" />
+              <s:element minOccurs="0" maxOccurs="1" name="parentSiteId" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="childSites" type="tns:SiteArray" />
+              <s:element minOccurs="0" maxOccurs="1" name="address" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="city" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="state" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="systemName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="siteType" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DataSourceArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="items" type="tns:ArrayOfDataSourceTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfDataSourceTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DataSourceTO" nillable="true" type="tns:DataSourceTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DataSourceTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="protocol" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="modality" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="timeout" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="provider" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="context" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="testSource" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="vendor" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="version" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="siteId" type="tns:TaggedText" />
+              <s:element minOccurs="0" maxOccurs="1" name="welcomeMessage" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="TaggedText">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="tag" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="text" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="textArray" type="tns:ArrayOfString" />
+              <s:element minOccurs="0" maxOccurs="1" name="taggedResults" type="tns:ArrayOfTaggedText" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfTaggedText">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TaggedText" nillable="true" type="tns:TaggedText" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="connect">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sitelist" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="connectResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="connectResult" type="tns:DataSourceArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="login">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="pwd" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="context" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="loginResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="loginResult" type="tns:UserTO" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UserTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="SSN" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="DUZ" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="siteId" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="office" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="phone" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="pager" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="service" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="title" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="orderRole" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="userClass" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="greeting" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="siteMessage" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ids" type="tns:TaggedTextArray" />
+              <s:element minOccurs="0" maxOccurs="1" name="emailAddress" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="username" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="demographics" type="tns:DemographicSetTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="TaggedTextArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="results" type="tns:ArrayOfTaggedText" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DemographicSetTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="tag" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="addresses" type="tns:ArrayOfAddressTO" />
+          <s:element minOccurs="0" maxOccurs="1" name="phones" type="tns:ArrayOfPhoneNumTO" />
+          <s:element minOccurs="0" maxOccurs="1" name="emailAddresses" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="names" type="tns:ArrayOfString" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfAddressTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="AddressTO" nillable="true" type="tns:AddressTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="AddressTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="validFrom" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="validTo" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="streetAddress1" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="streetAddress2" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="streetAddress3" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="city" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="county" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="state" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="zipcode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="country" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfPhoneNumTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PhoneNumTO" nillable="true" type="tns:PhoneNumTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PhoneNumTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="areaCode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="exchange" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="number" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="disconnect">
+        <s:complexType />
+      </s:element>
+      <s:element name="disconnectResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="disconnectResult" type="tns:TaggedTextArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="match">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="target" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="matchResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="matchResult" type="tns:TaggedPatientArrays" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TaggedPatientArrays">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="arrays" type="tns:ArrayOfTaggedPatientArray" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfTaggedPatientArray">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TaggedPatientArray" nillable="true" type="tns:TaggedPatientArray" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TaggedPatientArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTaggedArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="patients" type="tns:ArrayOfPatientTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="AbstractTaggedArrayTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="tag" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="TimeSlotArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTaggedArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="slots" type="tns:ArrayOfTimeSlotTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfTimeSlotTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TimeSlotTO" nillable="true" type="tns:TimeSlotTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TimeSlotTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="start" type="s:dateTime" />
+              <s:element minOccurs="1" maxOccurs="1" name="end" type="s:dateTime" />
+              <s:element minOccurs="0" maxOccurs="1" name="text" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="available" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfPatientTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PatientTO" nillable="true" type="tns:PatientTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PatientTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:PersonTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="eligibilityCode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="patientName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="mpiPid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="mpiChecksum" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="localPid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="sitePids" type="tns:TaggedTextArray" />
+              <s:element minOccurs="0" maxOccurs="1" name="vendorPid" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="location" type="tns:HospitalLocationTO" />
+              <s:element minOccurs="0" maxOccurs="1" name="cwad" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="restricted" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="admitTimestamp" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="serviceConnected" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="scPercent" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="inpatient" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="deceasedDate" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="confidentiality" type="tns:TaggedText" />
+              <s:element minOccurs="1" maxOccurs="1" name="needsMeansTest" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="patientFlags" type="tns:TaggedTextArray" />
+              <s:element minOccurs="0" maxOccurs="1" name="cmorSiteId" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="activeInsurance" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="isTestPatient" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="currentMeansStatus" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="hasInsurance" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="preferredFacility" type="tns:TaggedText" />
+              <s:element minOccurs="0" maxOccurs="1" name="patientType" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="isVeteran" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="isLocallyAssignedMpiPid" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="sites" type="tns:SiteArray" />
+              <s:element minOccurs="0" maxOccurs="1" name="team" type="tns:TeamTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PersonTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="occupation" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="employmentStatus" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="relationships" type="tns:PersonArray" />
+              <s:element minOccurs="0" maxOccurs="1" name="description" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="religion" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ssn" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="gender" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="dob" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ethnicity" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="age" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="maritalStatus" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="homeAddress" type="tns:AddressTO" />
+              <s:element minOccurs="0" maxOccurs="1" name="homePhone" type="tns:PhoneNumTO" />
+              <s:element minOccurs="0" maxOccurs="1" name="cellPhone" type="tns:PhoneNumTO" />
+              <s:element minOccurs="0" maxOccurs="1" name="demographics" type="tns:ArrayOfDemographicSetTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PersonArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="persons" type="tns:ArrayOfPersonTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfPersonTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="PersonTO" nillable="true" type="tns:PersonTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfDemographicSetTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="DemographicSetTO" nillable="true" type="tns:DemographicSetTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="HospitalLocationTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="department" type="tns:TaggedText" />
+              <s:element minOccurs="0" maxOccurs="1" name="service" type="tns:TaggedText" />
+              <s:element minOccurs="0" maxOccurs="1" name="specialty" type="tns:TaggedText" />
+              <s:element minOccurs="0" maxOccurs="1" name="stopCode" type="tns:TaggedText" />
+              <s:element minOccurs="0" maxOccurs="1" name="facility" type="tns:SiteTO" />
+              <s:element minOccurs="0" maxOccurs="1" name="building" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="floor" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="room" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="bed" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="phone" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="appointmentTimestamp" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="type" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="physicalLocation" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="askForCheckIn" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="appointmentLength" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="clinicDisplayStartTime" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="displayIncrements" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="availability" type="tns:TimeSlotArray" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="TeamTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="pcpName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="attendingName" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="select">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DFN" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="selectResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="selectResult" type="tns:PatientTO" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getVariableValue">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="arg" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getVariableValueResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getVariableValueResult" type="tns:TextTO" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TextTO">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="text" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="ddrLister">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="file" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="iens" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="fields" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="flags" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="maxrex" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="from" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="part" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="xref" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="screen" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="identifier" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ddrListerResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ddrListerResult" type="tns:TextArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TextArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="text" type="tns:ArrayOfString" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="cprsUserLookup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="target" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="cprsUserLookupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="cprsUserLookupResult" type="tns:UserArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="UserArray">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:AbstractArrayTO">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="users" type="tns:ArrayOfUserTO" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfUserTO">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="UserTO" nillable="true" type="tns:UserTO" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="userLookup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="duz" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="userLookupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="userLookupResult" type="tns:UserTO" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="visitSite">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="pwd" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="sitecode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userSitecode" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="DUZ" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="SSN" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="context" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="visitSiteResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="visitSiteResult" type="tns:UserTO" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ddrGetsEntry">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="file" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="iens" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="flds" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="flags" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ddrGetsEntryResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ddrGetsEntryResult" type="tns:TextArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="siteHasPatch">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="patchId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="siteHasPatchResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="siteHasPatchResult" type="tns:TaggedText" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="sitesHavePatch">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sitelist" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="patchId" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="sitesHavePatchResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sitesHavePatchResult" type="tns:TaggedTextArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="runRpc">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="rpcName" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="paramValues" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="paramTypes" type="tns:ArrayOfInt" />
+            <s:element minOccurs="0" maxOccurs="1" name="paramEncrypted" type="tns:ArrayOfBoolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfBoolean">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="boolean" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="runRpcResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="runRpcResult" type="tns:TaggedTextArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getSites">
+        <s:complexType />
+      </s:element>
+      <s:element name="getSitesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getSitesResult" type="tns:TaggedTextArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getVersion">
+        <s:complexType />
+      </s:element>
+      <s:element name="getVersionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getVersionResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="addDataSource">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="id" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="datasource" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="port" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="modality" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="protocol" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="region" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="addDataSourceResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="addDataSourceResult" type="tns:SiteTO" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getFacadeVersion">
+        <s:complexType />
+      </s:element>
+      <s:element name="getFacadeVersionResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getFacadeVersionResult" type="tns:TextTO" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="setVha">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sitesFileName" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="setVhaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="setVhaResult" type="tns:SiteArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="getRpcs">
+        <s:complexType />
+      </s:element>
+      <s:element name="getRpcsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="getRpcsResult" type="tns:TextArray" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="VistaFileTO" nillable="true" type="tns:VistaFileTO" />
+      <s:element name="XRefArray" nillable="true" type="tns:XRefArray" />
+      <s:element name="RegionArray" nillable="true" type="tns:RegionArray" />
+      <s:element name="DataSourceArray" nillable="true" type="tns:DataSourceArray" />
+      <s:element name="UserTO" nillable="true" type="tns:UserTO" />
+      <s:element name="TaggedTextArray" nillable="true" type="tns:TaggedTextArray" />
+      <s:element name="TaggedPatientArrays" nillable="true" type="tns:TaggedPatientArrays" />
+      <s:element name="PatientTO" nillable="true" type="tns:PatientTO" />
+      <s:element name="TextTO" nillable="true" type="tns:TextTO" />
+      <s:element name="TextArray" nillable="true" type="tns:TextArray" />
+      <s:element name="UserArray" nillable="true" type="tns:UserArray" />
+      <s:element name="TaggedText" nillable="true" type="tns:TaggedText" />
+      <s:element name="string" nillable="true" type="s:string" />
+      <s:element name="SiteTO" nillable="true" type="tns:SiteTO" />
+      <s:element name="SiteArray" nillable="true" type="tns:SiteArray" />
+    </s:schema>
+    <s:schema targetNamespace="http://mdws.medora.va.gov/QuerySvc/AbstractTypes">
+      <s:import namespace="http://schemas.xmlsoap.org/soap/encoding/" />
+      <s:complexType name="StringArray">
+        <s:complexContent mixed="false">
+          <s:restriction base="soapenc:Array">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="unbounded" name="String" type="s:string" />
+            </s:sequence>
+          </s:restriction>
+        </s:complexContent>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="getFileSoapIn">
+    <wsdl:part name="parameters" element="tns:getFile" />
+  </wsdl:message>
+  <wsdl:message name="getFileSoapOut">
+    <wsdl:part name="parameters" element="tns:getFileResponse" />
+  </wsdl:message>
+  <wsdl:message name="getXRefsSoapIn">
+    <wsdl:part name="parameters" element="tns:getXRefs" />
+  </wsdl:message>
+  <wsdl:message name="getXRefsSoapOut">
+    <wsdl:part name="parameters" element="tns:getXRefsResponse" />
+  </wsdl:message>
+  <wsdl:message name="getVHASoapIn">
+    <wsdl:part name="parameters" element="tns:getVHA" />
+  </wsdl:message>
+  <wsdl:message name="getVHASoapOut">
+    <wsdl:part name="parameters" element="tns:getVHAResponse" />
+  </wsdl:message>
+  <wsdl:message name="connectSoapIn">
+    <wsdl:part name="parameters" element="tns:connect" />
+  </wsdl:message>
+  <wsdl:message name="connectSoapOut">
+    <wsdl:part name="parameters" element="tns:connectResponse" />
+  </wsdl:message>
+  <wsdl:message name="loginSoapIn">
+    <wsdl:part name="parameters" element="tns:login" />
+  </wsdl:message>
+  <wsdl:message name="loginSoapOut">
+    <wsdl:part name="parameters" element="tns:loginResponse" />
+  </wsdl:message>
+  <wsdl:message name="disconnectSoapIn">
+    <wsdl:part name="parameters" element="tns:disconnect" />
+  </wsdl:message>
+  <wsdl:message name="disconnectSoapOut">
+    <wsdl:part name="parameters" element="tns:disconnectResponse" />
+  </wsdl:message>
+  <wsdl:message name="matchSoapIn">
+    <wsdl:part name="parameters" element="tns:match" />
+  </wsdl:message>
+  <wsdl:message name="matchSoapOut">
+    <wsdl:part name="parameters" element="tns:matchResponse" />
+  </wsdl:message>
+  <wsdl:message name="selectSoapIn">
+    <wsdl:part name="parameters" element="tns:select" />
+  </wsdl:message>
+  <wsdl:message name="selectSoapOut">
+    <wsdl:part name="parameters" element="tns:selectResponse" />
+  </wsdl:message>
+  <wsdl:message name="getVariableValueSoapIn">
+    <wsdl:part name="parameters" element="tns:getVariableValue" />
+  </wsdl:message>
+  <wsdl:message name="getVariableValueSoapOut">
+    <wsdl:part name="parameters" element="tns:getVariableValueResponse" />
+  </wsdl:message>
+  <wsdl:message name="ddrListerSoapIn">
+    <wsdl:part name="parameters" element="tns:ddrLister" />
+  </wsdl:message>
+  <wsdl:message name="ddrListerSoapOut">
+    <wsdl:part name="parameters" element="tns:ddrListerResponse" />
+  </wsdl:message>
+  <wsdl:message name="cprsUserLookupSoapIn">
+    <wsdl:part name="parameters" element="tns:cprsUserLookup" />
+  </wsdl:message>
+  <wsdl:message name="cprsUserLookupSoapOut">
+    <wsdl:part name="parameters" element="tns:cprsUserLookupResponse" />
+  </wsdl:message>
+  <wsdl:message name="userLookupSoapIn">
+    <wsdl:part name="parameters" element="tns:userLookup" />
+  </wsdl:message>
+  <wsdl:message name="userLookupSoapOut">
+    <wsdl:part name="parameters" element="tns:userLookupResponse" />
+  </wsdl:message>
+  <wsdl:message name="visitSiteSoapIn">
+    <wsdl:part name="parameters" element="tns:visitSite" />
+  </wsdl:message>
+  <wsdl:message name="visitSiteSoapOut">
+    <wsdl:part name="parameters" element="tns:visitSiteResponse" />
+  </wsdl:message>
+  <wsdl:message name="ddrGetsEntrySoapIn">
+    <wsdl:part name="parameters" element="tns:ddrGetsEntry" />
+  </wsdl:message>
+  <wsdl:message name="ddrGetsEntrySoapOut">
+    <wsdl:part name="parameters" element="tns:ddrGetsEntryResponse" />
+  </wsdl:message>
+  <wsdl:message name="siteHasPatchSoapIn">
+    <wsdl:part name="parameters" element="tns:siteHasPatch" />
+  </wsdl:message>
+  <wsdl:message name="siteHasPatchSoapOut">
+    <wsdl:part name="parameters" element="tns:siteHasPatchResponse" />
+  </wsdl:message>
+  <wsdl:message name="sitesHavePatchSoapIn">
+    <wsdl:part name="parameters" element="tns:sitesHavePatch" />
+  </wsdl:message>
+  <wsdl:message name="sitesHavePatchSoapOut">
+    <wsdl:part name="parameters" element="tns:sitesHavePatchResponse" />
+  </wsdl:message>
+  <wsdl:message name="runRpcSoapIn">
+    <wsdl:part name="parameters" element="tns:runRpc" />
+  </wsdl:message>
+  <wsdl:message name="runRpcSoapOut">
+    <wsdl:part name="parameters" element="tns:runRpcResponse" />
+  </wsdl:message>
+  <wsdl:message name="getSitesSoapIn">
+    <wsdl:part name="parameters" element="tns:getSites" />
+  </wsdl:message>
+  <wsdl:message name="getSitesSoapOut">
+    <wsdl:part name="parameters" element="tns:getSitesResponse" />
+  </wsdl:message>
+  <wsdl:message name="getVersionSoapIn">
+    <wsdl:part name="parameters" element="tns:getVersion" />
+  </wsdl:message>
+  <wsdl:message name="getVersionSoapOut">
+    <wsdl:part name="parameters" element="tns:getVersionResponse" />
+  </wsdl:message>
+  <wsdl:message name="addDataSourceSoapIn">
+    <wsdl:part name="parameters" element="tns:addDataSource" />
+  </wsdl:message>
+  <wsdl:message name="addDataSourceSoapOut">
+    <wsdl:part name="parameters" element="tns:addDataSourceResponse" />
+  </wsdl:message>
+  <wsdl:message name="getFacadeVersionSoapIn">
+    <wsdl:part name="parameters" element="tns:getFacadeVersion" />
+  </wsdl:message>
+  <wsdl:message name="getFacadeVersionSoapOut">
+    <wsdl:part name="parameters" element="tns:getFacadeVersionResponse" />
+  </wsdl:message>
+  <wsdl:message name="setVhaSoapIn">
+    <wsdl:part name="parameters" element="tns:setVha" />
+  </wsdl:message>
+  <wsdl:message name="setVhaSoapOut">
+    <wsdl:part name="parameters" element="tns:setVhaResponse" />
+  </wsdl:message>
+  <wsdl:message name="getRpcsSoapIn">
+    <wsdl:part name="parameters" element="tns:getRpcs" />
+  </wsdl:message>
+  <wsdl:message name="getRpcsSoapOut">
+    <wsdl:part name="parameters" element="tns:getRpcsResponse" />
+  </wsdl:message>
+  <wsdl:message name="getFileHttpGetIn">
+    <wsdl:part name="fileNumber" type="s:string" />
+    <wsdl:part name="includeXRefs" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="getFileHttpGetOut">
+    <wsdl:part name="Body" element="tns:VistaFileTO" />
+  </wsdl:message>
+  <wsdl:message name="getXRefsHttpGetIn">
+    <wsdl:part name="fileNumber" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="getXRefsHttpGetOut">
+    <wsdl:part name="Body" element="tns:XRefArray" />
+  </wsdl:message>
+  <wsdl:message name="getVHAHttpGetIn" />
+  <wsdl:message name="getVHAHttpGetOut">
+    <wsdl:part name="Body" element="tns:RegionArray" />
+  </wsdl:message>
+  <wsdl:message name="connectHttpGetIn">
+    <wsdl:part name="sitelist" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="connectHttpGetOut">
+    <wsdl:part name="Body" element="tns:DataSourceArray" />
+  </wsdl:message>
+  <wsdl:message name="loginHttpGetIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="pwd" type="s:string" />
+    <wsdl:part name="context" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="loginHttpGetOut">
+    <wsdl:part name="Body" element="tns:UserTO" />
+  </wsdl:message>
+  <wsdl:message name="disconnectHttpGetIn" />
+  <wsdl:message name="disconnectHttpGetOut">
+    <wsdl:part name="Body" element="tns:TaggedTextArray" />
+  </wsdl:message>
+  <wsdl:message name="matchHttpGetIn">
+    <wsdl:part name="target" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="matchHttpGetOut">
+    <wsdl:part name="Body" element="tns:TaggedPatientArrays" />
+  </wsdl:message>
+  <wsdl:message name="selectHttpGetIn">
+    <wsdl:part name="DFN" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="selectHttpGetOut">
+    <wsdl:part name="Body" element="tns:PatientTO" />
+  </wsdl:message>
+  <wsdl:message name="getVariableValueHttpGetIn">
+    <wsdl:part name="arg" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="getVariableValueHttpGetOut">
+    <wsdl:part name="Body" element="tns:TextTO" />
+  </wsdl:message>
+  <wsdl:message name="ddrListerHttpGetIn">
+    <wsdl:part name="file" type="s:string" />
+    <wsdl:part name="iens" type="s:string" />
+    <wsdl:part name="fields" type="s:string" />
+    <wsdl:part name="flags" type="s:string" />
+    <wsdl:part name="maxrex" type="s:string" />
+    <wsdl:part name="from" type="s:string" />
+    <wsdl:part name="part" type="s:string" />
+    <wsdl:part name="xref" type="s:string" />
+    <wsdl:part name="screen" type="s:string" />
+    <wsdl:part name="identifier" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ddrListerHttpGetOut">
+    <wsdl:part name="Body" element="tns:TextArray" />
+  </wsdl:message>
+  <wsdl:message name="cprsUserLookupHttpGetIn">
+    <wsdl:part name="target" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="cprsUserLookupHttpGetOut">
+    <wsdl:part name="Body" element="tns:UserArray" />
+  </wsdl:message>
+  <wsdl:message name="userLookupHttpGetIn">
+    <wsdl:part name="duz" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="userLookupHttpGetOut">
+    <wsdl:part name="Body" element="tns:UserTO" />
+  </wsdl:message>
+  <wsdl:message name="visitSiteHttpGetIn">
+    <wsdl:part name="pwd" type="s:string" />
+    <wsdl:part name="sitecode" type="s:string" />
+    <wsdl:part name="userSitecode" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="DUZ" type="s:string" />
+    <wsdl:part name="SSN" type="s:string" />
+    <wsdl:part name="context" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="visitSiteHttpGetOut">
+    <wsdl:part name="Body" element="tns:UserTO" />
+  </wsdl:message>
+  <wsdl:message name="ddrGetsEntryHttpGetIn">
+    <wsdl:part name="file" type="s:string" />
+    <wsdl:part name="iens" type="s:string" />
+    <wsdl:part name="flds" type="s:string" />
+    <wsdl:part name="flags" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ddrGetsEntryHttpGetOut">
+    <wsdl:part name="Body" element="tns:TextArray" />
+  </wsdl:message>
+  <wsdl:message name="siteHasPatchHttpGetIn">
+    <wsdl:part name="patchId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="siteHasPatchHttpGetOut">
+    <wsdl:part name="Body" element="tns:TaggedText" />
+  </wsdl:message>
+  <wsdl:message name="sitesHavePatchHttpGetIn">
+    <wsdl:part name="sitelist" type="s:string" />
+    <wsdl:part name="patchId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="sitesHavePatchHttpGetOut">
+    <wsdl:part name="Body" element="tns:TaggedTextArray" />
+  </wsdl:message>
+  <wsdl:message name="runRpcHttpGetIn">
+    <wsdl:part name="rpcName" type="s:string" />
+    <wsdl:part name="paramValues" type="s1:StringArray" />
+    <wsdl:part name="paramTypes" type="s1:StringArray" />
+    <wsdl:part name="paramEncrypted" type="s1:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="runRpcHttpGetOut">
+    <wsdl:part name="Body" element="tns:TaggedTextArray" />
+  </wsdl:message>
+  <wsdl:message name="getSitesHttpGetIn" />
+  <wsdl:message name="getSitesHttpGetOut">
+    <wsdl:part name="Body" element="tns:TaggedTextArray" />
+  </wsdl:message>
+  <wsdl:message name="getVersionHttpGetIn" />
+  <wsdl:message name="getVersionHttpGetOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="addDataSourceHttpGetIn">
+    <wsdl:part name="id" type="s:string" />
+    <wsdl:part name="name" type="s:string" />
+    <wsdl:part name="datasource" type="s:string" />
+    <wsdl:part name="port" type="s:string" />
+    <wsdl:part name="modality" type="s:string" />
+    <wsdl:part name="protocol" type="s:string" />
+    <wsdl:part name="region" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="addDataSourceHttpGetOut">
+    <wsdl:part name="Body" element="tns:SiteTO" />
+  </wsdl:message>
+  <wsdl:message name="getFacadeVersionHttpGetIn" />
+  <wsdl:message name="getFacadeVersionHttpGetOut">
+    <wsdl:part name="Body" element="tns:TextTO" />
+  </wsdl:message>
+  <wsdl:message name="setVhaHttpGetIn">
+    <wsdl:part name="sitesFileName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="setVhaHttpGetOut">
+    <wsdl:part name="Body" element="tns:SiteArray" />
+  </wsdl:message>
+  <wsdl:message name="getRpcsHttpGetIn" />
+  <wsdl:message name="getRpcsHttpGetOut">
+    <wsdl:part name="Body" element="tns:TextArray" />
+  </wsdl:message>
+  <wsdl:message name="getFileHttpPostIn">
+    <wsdl:part name="fileNumber" type="s:string" />
+    <wsdl:part name="includeXRefs" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="getFileHttpPostOut">
+    <wsdl:part name="Body" element="tns:VistaFileTO" />
+  </wsdl:message>
+  <wsdl:message name="getXRefsHttpPostIn">
+    <wsdl:part name="fileNumber" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="getXRefsHttpPostOut">
+    <wsdl:part name="Body" element="tns:XRefArray" />
+  </wsdl:message>
+  <wsdl:message name="getVHAHttpPostIn" />
+  <wsdl:message name="getVHAHttpPostOut">
+    <wsdl:part name="Body" element="tns:RegionArray" />
+  </wsdl:message>
+  <wsdl:message name="connectHttpPostIn">
+    <wsdl:part name="sitelist" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="connectHttpPostOut">
+    <wsdl:part name="Body" element="tns:DataSourceArray" />
+  </wsdl:message>
+  <wsdl:message name="loginHttpPostIn">
+    <wsdl:part name="username" type="s:string" />
+    <wsdl:part name="pwd" type="s:string" />
+    <wsdl:part name="context" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="loginHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserTO" />
+  </wsdl:message>
+  <wsdl:message name="disconnectHttpPostIn" />
+  <wsdl:message name="disconnectHttpPostOut">
+    <wsdl:part name="Body" element="tns:TaggedTextArray" />
+  </wsdl:message>
+  <wsdl:message name="matchHttpPostIn">
+    <wsdl:part name="target" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="matchHttpPostOut">
+    <wsdl:part name="Body" element="tns:TaggedPatientArrays" />
+  </wsdl:message>
+  <wsdl:message name="selectHttpPostIn">
+    <wsdl:part name="DFN" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="selectHttpPostOut">
+    <wsdl:part name="Body" element="tns:PatientTO" />
+  </wsdl:message>
+  <wsdl:message name="getVariableValueHttpPostIn">
+    <wsdl:part name="arg" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="getVariableValueHttpPostOut">
+    <wsdl:part name="Body" element="tns:TextTO" />
+  </wsdl:message>
+  <wsdl:message name="ddrListerHttpPostIn">
+    <wsdl:part name="file" type="s:string" />
+    <wsdl:part name="iens" type="s:string" />
+    <wsdl:part name="fields" type="s:string" />
+    <wsdl:part name="flags" type="s:string" />
+    <wsdl:part name="maxrex" type="s:string" />
+    <wsdl:part name="from" type="s:string" />
+    <wsdl:part name="part" type="s:string" />
+    <wsdl:part name="xref" type="s:string" />
+    <wsdl:part name="screen" type="s:string" />
+    <wsdl:part name="identifier" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ddrListerHttpPostOut">
+    <wsdl:part name="Body" element="tns:TextArray" />
+  </wsdl:message>
+  <wsdl:message name="cprsUserLookupHttpPostIn">
+    <wsdl:part name="target" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="cprsUserLookupHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserArray" />
+  </wsdl:message>
+  <wsdl:message name="userLookupHttpPostIn">
+    <wsdl:part name="duz" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="userLookupHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserTO" />
+  </wsdl:message>
+  <wsdl:message name="visitSiteHttpPostIn">
+    <wsdl:part name="pwd" type="s:string" />
+    <wsdl:part name="sitecode" type="s:string" />
+    <wsdl:part name="userSitecode" type="s:string" />
+    <wsdl:part name="userName" type="s:string" />
+    <wsdl:part name="DUZ" type="s:string" />
+    <wsdl:part name="SSN" type="s:string" />
+    <wsdl:part name="context" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="visitSiteHttpPostOut">
+    <wsdl:part name="Body" element="tns:UserTO" />
+  </wsdl:message>
+  <wsdl:message name="ddrGetsEntryHttpPostIn">
+    <wsdl:part name="file" type="s:string" />
+    <wsdl:part name="iens" type="s:string" />
+    <wsdl:part name="flds" type="s:string" />
+    <wsdl:part name="flags" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="ddrGetsEntryHttpPostOut">
+    <wsdl:part name="Body" element="tns:TextArray" />
+  </wsdl:message>
+  <wsdl:message name="siteHasPatchHttpPostIn">
+    <wsdl:part name="patchId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="siteHasPatchHttpPostOut">
+    <wsdl:part name="Body" element="tns:TaggedText" />
+  </wsdl:message>
+  <wsdl:message name="sitesHavePatchHttpPostIn">
+    <wsdl:part name="sitelist" type="s:string" />
+    <wsdl:part name="patchId" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="sitesHavePatchHttpPostOut">
+    <wsdl:part name="Body" element="tns:TaggedTextArray" />
+  </wsdl:message>
+  <wsdl:message name="runRpcHttpPostIn">
+    <wsdl:part name="rpcName" type="s:string" />
+    <wsdl:part name="paramValues" type="s1:StringArray" />
+    <wsdl:part name="paramTypes" type="s1:StringArray" />
+    <wsdl:part name="paramEncrypted" type="s1:StringArray" />
+  </wsdl:message>
+  <wsdl:message name="runRpcHttpPostOut">
+    <wsdl:part name="Body" element="tns:TaggedTextArray" />
+  </wsdl:message>
+  <wsdl:message name="getSitesHttpPostIn" />
+  <wsdl:message name="getSitesHttpPostOut">
+    <wsdl:part name="Body" element="tns:TaggedTextArray" />
+  </wsdl:message>
+  <wsdl:message name="getVersionHttpPostIn" />
+  <wsdl:message name="getVersionHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="addDataSourceHttpPostIn">
+    <wsdl:part name="id" type="s:string" />
+    <wsdl:part name="name" type="s:string" />
+    <wsdl:part name="datasource" type="s:string" />
+    <wsdl:part name="port" type="s:string" />
+    <wsdl:part name="modality" type="s:string" />
+    <wsdl:part name="protocol" type="s:string" />
+    <wsdl:part name="region" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="addDataSourceHttpPostOut">
+    <wsdl:part name="Body" element="tns:SiteTO" />
+  </wsdl:message>
+  <wsdl:message name="getFacadeVersionHttpPostIn" />
+  <wsdl:message name="getFacadeVersionHttpPostOut">
+    <wsdl:part name="Body" element="tns:TextTO" />
+  </wsdl:message>
+  <wsdl:message name="setVhaHttpPostIn">
+    <wsdl:part name="sitesFileName" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="setVhaHttpPostOut">
+    <wsdl:part name="Body" element="tns:SiteArray" />
+  </wsdl:message>
+  <wsdl:message name="getRpcsHttpPostIn" />
+  <wsdl:message name="getRpcsHttpPostOut">
+    <wsdl:part name="Body" element="tns:TextArray" />
+  </wsdl:message>
+  <wsdl:portType name="QuerySvcSoap">
+    <wsdl:operation name="getFile">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get Vista file data dictionary</wsdl:documentation>
+      <wsdl:input message="tns:getFileSoapIn" />
+      <wsdl:output message="tns:getFileSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getXRefs">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get Vista file cross references</wsdl:documentation>
+      <wsdl:input message="tns:getXRefsSoapIn" />
+      <wsdl:output message="tns:getXRefsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVHA">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get all VHA sites</wsdl:documentation>
+      <wsdl:input message="tns:getVHASoapIn" />
+      <wsdl:output message="tns:getVHASoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="connect">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Connect to a single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:connectSoapIn" />
+      <wsdl:output message="tns:connectSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="login">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Log onto a single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:loginSoapIn" />
+      <wsdl:output message="tns:loginSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="disconnect">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Disconnect from single Vista system.</wsdl:documentation>
+      <wsdl:input message="tns:disconnectSoapIn" />
+      <wsdl:output message="tns:disconnectSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="match">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Match patients at logged in site.</wsdl:documentation>
+      <wsdl:input message="tns:matchSoapIn" />
+      <wsdl:output message="tns:matchSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="select">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Select a patient at logged in site.</wsdl:documentation>
+      <wsdl:input message="tns:selectSoapIn" />
+      <wsdl:output message="tns:selectSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVariableValue">
+      <wsdl:input message="tns:getVariableValueSoapIn" />
+      <wsdl:output message="tns:getVariableValueSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ddrLister">
+      <wsdl:input message="tns:ddrListerSoapIn" />
+      <wsdl:output message="tns:ddrListerSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="cprsUserLookup">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Lookup a user of CPRS</wsdl:documentation>
+      <wsdl:input message="tns:cprsUserLookupSoapIn" />
+      <wsdl:output message="tns:cprsUserLookupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="userLookup">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Lookup any user by DUZ</wsdl:documentation>
+      <wsdl:input message="tns:userLookupSoapIn" />
+      <wsdl:output message="tns:userLookupSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="visitSite">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Visit single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:visitSiteSoapIn" />
+      <wsdl:output message="tns:visitSiteSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ddrGetsEntry">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">DDR GETS ENTRY DATA</wsdl:documentation>
+      <wsdl:input message="tns:ddrGetsEntrySoapIn" />
+      <wsdl:output message="tns:ddrGetsEntrySoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="siteHasPatch">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Does this VistA have this patch installed?</wsdl:documentation>
+      <wsdl:input message="tns:siteHasPatchSoapIn" />
+      <wsdl:output message="tns:siteHasPatchSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="sitesHavePatch">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Do these VistAs have this patch installed?</wsdl:documentation>
+      <wsdl:input message="tns:sitesHavePatchSoapIn" />
+      <wsdl:output message="tns:sitesHavePatchSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="runRpc">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Execute Rpc</wsdl:documentation>
+      <wsdl:input message="tns:runRpcSoapIn" />
+      <wsdl:output message="tns:runRpcSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getSites">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get list of sites</wsdl:documentation>
+      <wsdl:input message="tns:getSitesSoapIn" />
+      <wsdl:output message="tns:getSitesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVersion">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get MDWS Version</wsdl:documentation>
+      <wsdl:input message="tns:getVersionSoapIn" />
+      <wsdl:output message="tns:getVersionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="addDataSource">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Add a data source for this session</wsdl:documentation>
+      <wsdl:input message="tns:addDataSourceSoapIn" />
+      <wsdl:output message="tns:addDataSourceSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getFacadeVersion">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get current facade's version</wsdl:documentation>
+      <wsdl:input message="tns:getFacadeVersionSoapIn" />
+      <wsdl:output message="tns:getFacadeVersionSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="setVha">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Set the current session's sites file</wsdl:documentation>
+      <wsdl:input message="tns:setVhaSoapIn" />
+      <wsdl:output message="tns:setVhaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getRpcs">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get the executed RPCs from the base Vista connection</wsdl:documentation>
+      <wsdl:input message="tns:getRpcsSoapIn" />
+      <wsdl:output message="tns:getRpcsSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="QuerySvcHttpGet">
+    <wsdl:operation name="getFile">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get Vista file data dictionary</wsdl:documentation>
+      <wsdl:input message="tns:getFileHttpGetIn" />
+      <wsdl:output message="tns:getFileHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getXRefs">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get Vista file cross references</wsdl:documentation>
+      <wsdl:input message="tns:getXRefsHttpGetIn" />
+      <wsdl:output message="tns:getXRefsHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVHA">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get all VHA sites</wsdl:documentation>
+      <wsdl:input message="tns:getVHAHttpGetIn" />
+      <wsdl:output message="tns:getVHAHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="connect">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Connect to a single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:connectHttpGetIn" />
+      <wsdl:output message="tns:connectHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="login">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Log onto a single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:loginHttpGetIn" />
+      <wsdl:output message="tns:loginHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="disconnect">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Disconnect from single Vista system.</wsdl:documentation>
+      <wsdl:input message="tns:disconnectHttpGetIn" />
+      <wsdl:output message="tns:disconnectHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="match">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Match patients at logged in site.</wsdl:documentation>
+      <wsdl:input message="tns:matchHttpGetIn" />
+      <wsdl:output message="tns:matchHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="select">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Select a patient at logged in site.</wsdl:documentation>
+      <wsdl:input message="tns:selectHttpGetIn" />
+      <wsdl:output message="tns:selectHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVariableValue">
+      <wsdl:input message="tns:getVariableValueHttpGetIn" />
+      <wsdl:output message="tns:getVariableValueHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ddrLister">
+      <wsdl:input message="tns:ddrListerHttpGetIn" />
+      <wsdl:output message="tns:ddrListerHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="cprsUserLookup">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Lookup a user of CPRS</wsdl:documentation>
+      <wsdl:input message="tns:cprsUserLookupHttpGetIn" />
+      <wsdl:output message="tns:cprsUserLookupHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="userLookup">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Lookup any user by DUZ</wsdl:documentation>
+      <wsdl:input message="tns:userLookupHttpGetIn" />
+      <wsdl:output message="tns:userLookupHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="visitSite">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Visit single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:visitSiteHttpGetIn" />
+      <wsdl:output message="tns:visitSiteHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ddrGetsEntry">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">DDR GETS ENTRY DATA</wsdl:documentation>
+      <wsdl:input message="tns:ddrGetsEntryHttpGetIn" />
+      <wsdl:output message="tns:ddrGetsEntryHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="siteHasPatch">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Does this VistA have this patch installed?</wsdl:documentation>
+      <wsdl:input message="tns:siteHasPatchHttpGetIn" />
+      <wsdl:output message="tns:siteHasPatchHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="sitesHavePatch">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Do these VistAs have this patch installed?</wsdl:documentation>
+      <wsdl:input message="tns:sitesHavePatchHttpGetIn" />
+      <wsdl:output message="tns:sitesHavePatchHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="runRpc">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Execute Rpc</wsdl:documentation>
+      <wsdl:input message="tns:runRpcHttpGetIn" />
+      <wsdl:output message="tns:runRpcHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getSites">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get list of sites</wsdl:documentation>
+      <wsdl:input message="tns:getSitesHttpGetIn" />
+      <wsdl:output message="tns:getSitesHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVersion">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get MDWS Version</wsdl:documentation>
+      <wsdl:input message="tns:getVersionHttpGetIn" />
+      <wsdl:output message="tns:getVersionHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="addDataSource">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Add a data source for this session</wsdl:documentation>
+      <wsdl:input message="tns:addDataSourceHttpGetIn" />
+      <wsdl:output message="tns:addDataSourceHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getFacadeVersion">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get current facade's version</wsdl:documentation>
+      <wsdl:input message="tns:getFacadeVersionHttpGetIn" />
+      <wsdl:output message="tns:getFacadeVersionHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="setVha">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Set the current session's sites file</wsdl:documentation>
+      <wsdl:input message="tns:setVhaHttpGetIn" />
+      <wsdl:output message="tns:setVhaHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getRpcs">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get the executed RPCs from the base Vista connection</wsdl:documentation>
+      <wsdl:input message="tns:getRpcsHttpGetIn" />
+      <wsdl:output message="tns:getRpcsHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="QuerySvcHttpPost">
+    <wsdl:operation name="getFile">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get Vista file data dictionary</wsdl:documentation>
+      <wsdl:input message="tns:getFileHttpPostIn" />
+      <wsdl:output message="tns:getFileHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getXRefs">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get Vista file cross references</wsdl:documentation>
+      <wsdl:input message="tns:getXRefsHttpPostIn" />
+      <wsdl:output message="tns:getXRefsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVHA">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get all VHA sites</wsdl:documentation>
+      <wsdl:input message="tns:getVHAHttpPostIn" />
+      <wsdl:output message="tns:getVHAHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="connect">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Connect to a single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:connectHttpPostIn" />
+      <wsdl:output message="tns:connectHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="login">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Log onto a single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:loginHttpPostIn" />
+      <wsdl:output message="tns:loginHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="disconnect">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Disconnect from single Vista system.</wsdl:documentation>
+      <wsdl:input message="tns:disconnectHttpPostIn" />
+      <wsdl:output message="tns:disconnectHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="match">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Match patients at logged in site.</wsdl:documentation>
+      <wsdl:input message="tns:matchHttpPostIn" />
+      <wsdl:output message="tns:matchHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="select">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Select a patient at logged in site.</wsdl:documentation>
+      <wsdl:input message="tns:selectHttpPostIn" />
+      <wsdl:output message="tns:selectHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVariableValue">
+      <wsdl:input message="tns:getVariableValueHttpPostIn" />
+      <wsdl:output message="tns:getVariableValueHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ddrLister">
+      <wsdl:input message="tns:ddrListerHttpPostIn" />
+      <wsdl:output message="tns:ddrListerHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="cprsUserLookup">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Lookup a user of CPRS</wsdl:documentation>
+      <wsdl:input message="tns:cprsUserLookupHttpPostIn" />
+      <wsdl:output message="tns:cprsUserLookupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="userLookup">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Lookup any user by DUZ</wsdl:documentation>
+      <wsdl:input message="tns:userLookupHttpPostIn" />
+      <wsdl:output message="tns:userLookupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="visitSite">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Visit single VistA system.</wsdl:documentation>
+      <wsdl:input message="tns:visitSiteHttpPostIn" />
+      <wsdl:output message="tns:visitSiteHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ddrGetsEntry">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">DDR GETS ENTRY DATA</wsdl:documentation>
+      <wsdl:input message="tns:ddrGetsEntryHttpPostIn" />
+      <wsdl:output message="tns:ddrGetsEntryHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="siteHasPatch">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Does this VistA have this patch installed?</wsdl:documentation>
+      <wsdl:input message="tns:siteHasPatchHttpPostIn" />
+      <wsdl:output message="tns:siteHasPatchHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="sitesHavePatch">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Do these VistAs have this patch installed?</wsdl:documentation>
+      <wsdl:input message="tns:sitesHavePatchHttpPostIn" />
+      <wsdl:output message="tns:sitesHavePatchHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="runRpc">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Execute Rpc</wsdl:documentation>
+      <wsdl:input message="tns:runRpcHttpPostIn" />
+      <wsdl:output message="tns:runRpcHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getSites">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get list of sites</wsdl:documentation>
+      <wsdl:input message="tns:getSitesHttpPostIn" />
+      <wsdl:output message="tns:getSitesHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getVersion">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get MDWS Version</wsdl:documentation>
+      <wsdl:input message="tns:getVersionHttpPostIn" />
+      <wsdl:output message="tns:getVersionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="addDataSource">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Add a data source for this session</wsdl:documentation>
+      <wsdl:input message="tns:addDataSourceHttpPostIn" />
+      <wsdl:output message="tns:addDataSourceHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getFacadeVersion">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get current facade's version</wsdl:documentation>
+      <wsdl:input message="tns:getFacadeVersionHttpPostIn" />
+      <wsdl:output message="tns:getFacadeVersionHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="setVha">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Set the current session's sites file</wsdl:documentation>
+      <wsdl:input message="tns:setVhaHttpPostIn" />
+      <wsdl:output message="tns:setVhaHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="getRpcs">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get the executed RPCs from the base Vista connection</wsdl:documentation>
+      <wsdl:input message="tns:getRpcsHttpPostIn" />
+      <wsdl:output message="tns:getRpcsHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="QuerySvcSoap" type="tns:QuerySvcSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="getFile">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getFile" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getXRefs">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getXRefs" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVHA">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getVHA" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="connect">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/connect" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="login">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/login" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="disconnect">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/disconnect" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="match">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/match" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="select">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/select" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVariableValue">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getVariableValue" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ddrLister">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/ddrLister" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cprsUserLookup">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/cprsUserLookup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="userLookup">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/userLookup" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="visitSite">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/visitSite" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ddrGetsEntry">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/ddrGetsEntry" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="siteHasPatch">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/siteHasPatch" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sitesHavePatch">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/sitesHavePatch" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="runRpc">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/runRpc" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getSites">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getSites" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVersion">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getVersion" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addDataSource">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/addDataSource" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFacadeVersion">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getFacadeVersion" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setVha">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/setVha" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getRpcs">
+      <soap:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getRpcs" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="QuerySvcSoap12" type="tns:QuerySvcSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="getFile">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getFile" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getXRefs">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getXRefs" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVHA">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getVHA" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="connect">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/connect" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="login">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/login" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="disconnect">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/disconnect" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="match">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/match" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="select">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/select" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVariableValue">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getVariableValue" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ddrLister">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/ddrLister" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cprsUserLookup">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/cprsUserLookup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="userLookup">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/userLookup" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="visitSite">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/visitSite" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ddrGetsEntry">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/ddrGetsEntry" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="siteHasPatch">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/siteHasPatch" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sitesHavePatch">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/sitesHavePatch" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="runRpc">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/runRpc" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getSites">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getSites" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVersion">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getVersion" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addDataSource">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/addDataSource" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFacadeVersion">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getFacadeVersion" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setVha">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/setVha" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getRpcs">
+      <soap12:operation soapAction="http://mdws.medora.va.gov/QuerySvc/getRpcs" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="QuerySvcHttpGet" type="tns:QuerySvcHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="getFile">
+      <http:operation location="/getFile" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getXRefs">
+      <http:operation location="/getXRefs" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVHA">
+      <http:operation location="/getVHA" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="connect">
+      <http:operation location="/connect" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="login">
+      <http:operation location="/login" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="disconnect">
+      <http:operation location="/disconnect" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="match">
+      <http:operation location="/match" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="select">
+      <http:operation location="/select" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVariableValue">
+      <http:operation location="/getVariableValue" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ddrLister">
+      <http:operation location="/ddrLister" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cprsUserLookup">
+      <http:operation location="/cprsUserLookup" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="userLookup">
+      <http:operation location="/userLookup" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="visitSite">
+      <http:operation location="/visitSite" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ddrGetsEntry">
+      <http:operation location="/ddrGetsEntry" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="siteHasPatch">
+      <http:operation location="/siteHasPatch" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sitesHavePatch">
+      <http:operation location="/sitesHavePatch" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="runRpc">
+      <http:operation location="/runRpc" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getSites">
+      <http:operation location="/getSites" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVersion">
+      <http:operation location="/getVersion" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addDataSource">
+      <http:operation location="/addDataSource" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFacadeVersion">
+      <http:operation location="/getFacadeVersion" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setVha">
+      <http:operation location="/setVha" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getRpcs">
+      <http:operation location="/getRpcs" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="QuerySvcHttpPost" type="tns:QuerySvcHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="getFile">
+      <http:operation location="/getFile" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getXRefs">
+      <http:operation location="/getXRefs" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVHA">
+      <http:operation location="/getVHA" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="connect">
+      <http:operation location="/connect" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="login">
+      <http:operation location="/login" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="disconnect">
+      <http:operation location="/disconnect" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="match">
+      <http:operation location="/match" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="select">
+      <http:operation location="/select" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVariableValue">
+      <http:operation location="/getVariableValue" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ddrLister">
+      <http:operation location="/ddrLister" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="cprsUserLookup">
+      <http:operation location="/cprsUserLookup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="userLookup">
+      <http:operation location="/userLookup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="visitSite">
+      <http:operation location="/visitSite" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ddrGetsEntry">
+      <http:operation location="/ddrGetsEntry" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="siteHasPatch">
+      <http:operation location="/siteHasPatch" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sitesHavePatch">
+      <http:operation location="/sitesHavePatch" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="runRpc">
+      <http:operation location="/runRpc" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getSites">
+      <http:operation location="/getSites" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getVersion">
+      <http:operation location="/getVersion" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="addDataSource">
+      <http:operation location="/addDataSource" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getFacadeVersion">
+      <http:operation location="/getFacadeVersion" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="setVha">
+      <http:operation location="/setVha" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getRpcs">
+      <http:operation location="/getRpcs" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="QuerySvc">
+    <wsdl:port name="QuerySvcSoap" binding="tns:QuerySvcSoap">
+      <soap:address location="http://localhost:8888/mdws2/QuerySvc.asmx" />
+    </wsdl:port>
+    <wsdl:port name="QuerySvcSoap12" binding="tns:QuerySvcSoap12">
+      <soap12:address location="http://localhost:8888/mdws2/QuerySvc.asmx" />
+    </wsdl:port>
+    <wsdl:port name="QuerySvcHttpGet" binding="tns:QuerySvcHttpGet">
+      <http:address location="http://localhost:8888/mdws2/QuerySvc.asmx" />
+    </wsdl:port>
+    <wsdl:port name="QuerySvcHttpPost" binding="tns:QuerySvcHttpPost">
+      <http:address location="http://localhost:8888/mdws2/QuerySvc.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
