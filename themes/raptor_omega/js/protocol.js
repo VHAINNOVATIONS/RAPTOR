@@ -308,6 +308,7 @@
                             $dialog = $('#replaceorder-modal');
                     //$('.form-item.form-type-textfield.form-item-navigationoverride').hide();
                     $('#replaceorderstep').val("next");
+                    $('#formhost').val("embedded");
                     e.preventDefault();
                     $.ajax({
                         type: "POST",
@@ -350,6 +351,7 @@
                     var $form = $('#replaceorder-modal').find('form'),
                             $dialog = $('#replaceorder-modal');
                     $('#replaceorderstep').val("back");
+                    $('#formhost').val("embedded");
                     e.preventDefault();
                     $.ajax({
                         type: "POST",
@@ -388,6 +390,7 @@
                             $dialog = $('#replaceorder-modal');
                     //$('.form-item.form-type-textfield.form-item-navigationoverride').hide();
                     $('#replaceorderstep').val("finish");
+                    $('#formhost').val("embedded");
                     e.preventDefault();
                     // Submit form via Ajax
                     $.ajax({
