@@ -401,21 +401,15 @@ class WorklistData
 
             $t[WorklistData::WLIDX_CPRSCODE]    = '';   //Placeholder for the CPRS code associated with this ticket
             $t[WorklistData::WLIDX_IMAGETYPE]   = $exploded[WorklistData::WLVFO_ImageType];   //Placeholder for Imaging Type - file 75.1, field 3
+            $modality = $language_infer->inferModalityFromPhrase($t[WorklistData::WLIDX_IMAGETYPE]);
+            if($modality == NULL)
+            {
+                $modality = $language_infer->inferModalityFromPhrase($t[WorklistData::WLIDX_STUDY]);
+            }
 
             $t[WorklistData::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = -1;  //Important that we allocate something here, will replace later.
             
-            //$modality = $this->getImpliedModality($t[WorklistData::WLIDX_STUDY]);   //20140603
-            $modality = $language_infer->inferModalityFromPhrase($t[WorklistData::WLIDX_STUDY]);
-            
             $t[WorklistData::WLIDX_MODALITY] = 'Unknown';
-            
-            /*
-            if($t[WorklistData::WLIDX_TRACKINGID] >= 2943)
-            {
-                die('LOOK AT THIS ONE NOW ['.$modality.']>>>>'.print_r($t,TRUE));
-            }
-             * 
-             */
             
             if($modality != '')    //Do not return the row if we cannot determine the modality.  TODO --- Replace this approach!!!!
             {
@@ -456,9 +450,6 @@ class WorklistData
                 }   
                 
             }
-            
-            
-
         }
         for($i=0;$i<count($worklist);$i++)
         {
@@ -525,7 +516,7 @@ class WorklistData
     /**
      * @description Return result of web service call to MDWS, web method QueryService.ddrLister
      */
-    private function getWorklistFromMDWS($filterDiscontinued = true)
+    private function getWorklistFromMDWS($startIEN='', $filterDiscontinued = true)
     {
         $MAXRECS = 1500;  //Starts grabbing from end of file
         
@@ -558,7 +549,7 @@ class WorklistData
                 'fields'=>$this->getWorklistVistaFieldArgumentString(), 
                 'flags'=>'PB',      //P=PACKED format, B=Back
                 'maxrex'=>$MAXRECS,    //1780',   //20140926 Known issue with RPC if this number is too big need to look into fix
-                'from'=>'',         //For pagination provide smallest IEN as startign point for new query
+                'from'=>$startIEN,     //For pagination provide smallest IEN as startign point for new query
                 'part'=>'',         //ignore
                 'xref'=>'#',        //Leave as #
                 'screen'=> ($filterDiscontinued ? "I (\$P(^(0),U,5)'=1)" : ''), //I ($P(^(0),U,5)=5)|($P(^(0),U,5)=6)',   //Server side filtering but APPLIED TO EACH RECORD ONE BY ONE VERY SLOW NO FILTERING BEFOREHAND
@@ -630,7 +621,7 @@ class WorklistData
      * @param type $oContext
      * @return type array of rows for the worklist page
      */
-    public function getWorklistRows()   //$oContext)
+    public function getWorklistRows($startIEN='')
     {
         
         $sThisResultName = 'getWorklistRows';
@@ -641,7 +632,7 @@ class WorklistData
             return $aCachedResult;
         }
         
-        $mdwsResponse = $this->getWorklistFromMDWS();
+        $mdwsResponse = $this->getWorklistFromMDWS($startIEN);
         $sqlResponse = $this->getWorklistTrackingFromSQL();
         
         $currentTrackingID = $this->m_oContext->getSelectedTrackingID();
@@ -668,6 +659,9 @@ class WorklistData
         return $aResult['pending_orders_map'];
     }
     
+    /**
+     * Gets dashboard details for the currently selected ticket of the session
+     */
     public function getDashboardMap($override_tracking_id=NULL)
     {
         if($override_tracking_id !== NULL)

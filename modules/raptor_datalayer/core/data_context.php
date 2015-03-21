@@ -381,7 +381,8 @@ class Context
                                 if($other['ipaddress'] == $me['ipaddress'])
                                 {
                                     //This is on same machine.
-                                    if ((time() - $_SESSION['CREATED']) < CONFLICT_CHECK_DELAY_SECONDS)
+                                    if (!isset($_SESSION['CREATED']) 
+                                            || (time() - $_SESSION['CREATED']) < CONFLICT_CHECK_DELAY_SECONDS)
                                     {
                                         //Allow for possibility that the session ID has changed for a single user
                                         $bAccountConflictDetected = FALSE;

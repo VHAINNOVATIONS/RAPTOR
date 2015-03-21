@@ -41,10 +41,10 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
     }
 
     /**
-     * Get the values to populate the form.
+     * Get the values to initiallypopulate the form.
      * @return type result of the queries as an array
      */
-    function getFieldValues()
+    function getInitialFieldValues()
     {
         $tid = $this->m_oContext->getSelectedTrackingID();
         if($tid == NULL || trim($tid) == '' || trim($tid) == 0)
@@ -52,25 +52,30 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
         }
         $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOneRow = $oWL->getDashboardMap();    //$tid);
-        $nSiteID = $this->m_oContext->getSiteID();
-
-        $nIEN = $tid;
+        $aOneRow = $oWL->getDashboardMap();
         $nUID = $this->m_oContext->getUID();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $imagetypes = MdwsNewOrderUtils::getImagingTypes($mdwsDao);
         
         $myvalues = array();
-        $myvalues['canOrderBeDCd'] = NULL;
-        $myvalues['canCreateNewOrder'] = NULL;
-        $myvalues['canReallyCancel'] = NULL;
-        $myvalues['requestingProviderDuz'] = NULL;  //Who is requesting the new order
-        $myvalues['originalOrderProviderDuz'] = NULL;  //Who from original order
-        $myvalues['neworderprovider_name'] = NULL;
-        $myvalues['newordermodifiers'] = NULL;
+        $myvalues['formhost'] = 'fulltab';  //If form is embedded into another form, make this different value
+        $myvalues['imagetypes'] = $imagetypes;
         $myvalues['currentstep'] = 1;
         $myvalues['tid'] = $tid;
+        $myvalues['uid'] = $nUID;
         $myvalues['procName'] = $aOneRow['Procedure'];
         $myvalues['OriginalRequester'] = $aOneRow['RequestedBy'];
         $myvalues['RequestingLocation'] = $aOneRow['RequestingLocation'];
+        $myvalues['canOrderBeDCd'] = $aOneRow['canOrderBeDCd'];
+        $myvalues['originalOrderProviderDuz'] = $aOneRow['orderingPhysicianDuz'];
+        $myvalues['OrderFileIen'] = $aOneRow['OrderFileIen'];
+        $myvalues['PatientID'] = $aOneRow['PatientID'];
+        $myvalues['orderitems_options'] = NULL;
+        $myvalues['canCreateNewOrder'] = NULL;
+        $myvalues['canReallyCancel'] = NULL;
+        $myvalues['requestingProviderDuz'] = NULL;  //Who is requesting the new order
+        $myvalues['neworderprovider_name'] = NULL;
+        $myvalues['newordermodifiers'] = NULL;
         $myvalues['reason'] = '';
         $myvalues['notes_tx'] = '';
         $myvalues['esig'] = '';
@@ -95,13 +100,9 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $myvalues['preopdate_dateonly'] = NULL;
         $myvalues['datedesired_timeonly'] = NULL;
         $myvalues['preopdate_timeonly'] = NULL;
-        
-        //$this->m_oContext = \raptor\Context::getInstance();
-        //$myvalues['tid'] = $this->m_oContext->getSelectedTrackingID();
-        $myvalues['OrderFileIen'] = $aOneRow['OrderFileIen'];
-        $myvalues['PatientID'] = $aOneRow['PatientID'];
 
-        //TODO: Pre-populate values for display
+        error_log("Got initial field values for replace order>>>".print_r($myvalues,TRUE));
+        
         return $myvalues;
     }
     
@@ -143,6 +144,30 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             
             $goodtrack[] = FormHelper::validate_date_field_not_empty($myvalues, 'preopdate_dateonly', 'Preop Date');
             $goodtrack[] = FormHelper::validate_time_field_not_empty($myvalues, 'preopdate_timeonly', 'Preop Time');
+            
+            //Make sure we know what kind of modality this order applies to.
+            $language_infer = new \raptor_formulas\LanguageInference();
+            $imagetype_map = $myvalues['imagetypes'];
+            $it_key = $myvalues['neworderimagetype'];
+            $imagetype_txt = $imagetype_map[$it_key];
+            $modality = $language_infer->inferModalityFromPhrase($imagetype_txt);
+            if($modality == NULL)
+            {
+                $oi_options = $myvalues['orderitems_options'];
+                $oi_key = $myvalues['neworderitem'];
+                $oi_txt = $oi_options[$oi_key];
+                $modality = $language_infer->inferModalityFromPhrase($oi_txt);
+            }
+            if($modality == NULL)
+            {
+                //Just highlite the selected order.
+                $modalityprefixes = trim($language_infer->getSupportedModalityCodes());
+                form_set_error('neworderitem'
+                        ,'Cannot determine a RAPTOR supported modality from the order text.'
+                        . '  (Prefer text with one of the following prefixes: '.$modalityprefixes.')');
+                $goodtrack[] = FALSE;
+            }
+            
         } else
         if($currentstep == 3)
         {
@@ -169,7 +194,6 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'esig', 'Electronic Signature');
             }
         }
-        
 
         //Check for trouble
         foreach($goodtrack as $value)
@@ -180,6 +204,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 return FALSE;
             }
         }
+        
         //There was no trouble, yay!
         return TRUE;
     }
@@ -487,13 +512,22 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
     /**
      * Get the markup of the form
      */
-    public function getForm($form, &$form_state, $disabled, $myvalues)
+    public function getForm($form, &$form_state, $disabled, $myvalues_override)
     {
+        if($myvalues_override != NULL)
+        {
+            $myvalues = $myvalues_override;
+        } else {
+            $myvalues = $form_state['values'];
+        }
+        
         $actioncode = $this->getWorkflowAction($form_state);
         $clickednext = $actioncode == 'n';
         $clickedback = $actioncode == 'b';
         $clickedfinish = $actioncode == 'f';
     
+        $diagnosesteps = 'init';
+        $formhost = $myvalues['formhost'];
         if(isset($form_state['values'])) 
         {
             if($clickednext || $clickedfinish)
@@ -504,15 +538,47 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             } else {
                 $move = 0;
             }
-            $currentstep = $form_state['step'] + $move;
+            $submittedstep = $this->getSubmittedStepNumber($form_state);
+            if($submittedstep < 1)
+            {
+                //Odd situation might happen on error condition last submit
+                //Try the current step from myvalues.
+                $submittedstep = $myvalues['currentstep'];
+                error_log("WARNING did not find a 'step' value in form_state!"
+                        . "  Defaulting to myvalues currentstep instead (" 
+                        . $myvalues['currentstep'] .")" );
+            }
+            $currentstep = $submittedstep + $move;
+            $diagnosesteps = "$currentstep = $submittedstep + $move";
         } else {
             //When no values were already posted then 
             //we can be sure we are step one
             $currentstep = 1;
+            $diagnosesteps = "hardcoded at $currentstep";
         }    
         if($currentstep < 1)
         {
-            throw new \Exception('Cannot have a step = '.$currentstep);
+            if($formhost == 'fulltab')
+            {
+                //This is an error
+                error_log("ERROR TROUBLE did not find a valid 'step' value!"
+                        . "\n...Navigation action=[$actioncode]"
+                        . "\n...Form host=[$formhost]"
+                        . "\n...Diagnostic tip=[$diagnosesteps]");
+                throw new \Exception('Cannot have a step = '.$currentstep);
+            } else {
+                //Continue with warning assuming this was embedded dialog issue
+                error_log("WARNING TROUBLE did not find a valid 'step' value!"
+                        . "\n...Navigation action=[$actioncode]"
+                        . "\n...Form host=[$formhost]"
+                        . "\n...Diagnostic tip=[$diagnosesteps]");
+                if($currentstep == 0)
+                {
+                    $currentstep = $this->getStepCount()-1;   //Back from last
+                } else {
+                    $currentstep = $this->getStepCount();     //Repeat last step
+                }
+            }
         } else if($currentstep > $this->getStepCount()){
             //We can be here if the submit on the final step 
             //failed and we are repeating the last step after submit
@@ -526,9 +592,10 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
 
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $myIEN = $myvalues['tid'];
-        $orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
-        $orginalProviderDuz = $orderDetails['orderingPhysicianDuz'];
-        $canOrderBeDCd = $orderDetails['canOrderBeDCd'];
+        //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
+        $orginalProviderDuz = $myvalues['originalOrderProviderDuz'];
+        $canOrderBeDCd = $myvalues['canOrderBeDCd'];
+        $imagetypes = $myvalues['imagetypes'];
 
         $myDuz = $mdwsDao->getDUZ();
         $isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
@@ -574,12 +641,17 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             //They can cancel with signature on file feature
             $canReallyCancel = TRUE;
         }
+        
+        //Make sure these values are always preserved
         $form['hiddenthings']['canCreateNewOrder'] = array('#type' => 'hidden', '#value' => $canCreateNewOrder);
         $form['hiddenthings']['canReallyCancel'] = array('#type' => 'hidden', '#value' => $canReallyCancel);
         $form['hiddenthings']['originalOrderProviderDuz'] 
                         = array('#type' => 'hidden'
                             , '#value' => $orginalProviderDuz);
         $form['hiddenthings']['canOrderBeDCd'] = array('#type' => 'hidden', '#value' => $canOrderBeDCd);
+        $form['hiddenthings']['imagetypes'] = array('#type' => 'hidden', '#value' => $imagetypes);
+        $form['hiddenthings']['uid'] = array('#type' => 'hidden', '#value' => $myvalues['uid']);
+        $form['hiddenthings']['tid'] = array('#type' => 'hidden', '#value' => $myvalues['tid']);
 
         if(!$canOrderBeDCd)
         {
@@ -621,6 +693,11 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             '#type'       => 'hidden',
             '#attributes' =>array('id'=> 'replaceorderstep'),
             '#default_value' => '',
+        );
+        $form['hiddenthings']['formhost'] = array(
+            '#type'       => 'hidden',
+            '#attributes' =>array('id'=> 'formhost'),
+            '#default_value' => $myvalues['formhost'],
         );
         $form['hiddenthings']['tid'] = array('#type' => 'hidden', '#value' => $myvalues['tid']);
         $form['hiddenthings']['procName'] = array('#type' => 'hidden', '#value' => $myvalues['procName']);
@@ -740,7 +817,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             '#required' => TRUE,
             );        
         
-        $imagetypes = MdwsNewOrderUtils::getImagingTypes($mdwsDao);
+        //$imagetypes = MdwsNewOrderUtils::getImagingTypes($mdwsDao);
         $neworderimagetype = FormHelper::getKeyOfValue($imagetypes, $rpd['ImageType']);
         if($neworderimagetype === FALSE)
         {
@@ -843,8 +920,11 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 "#description" => t("Select orderable item (imaging procedure)"),
                 "#default_value" => $neworderitem,
                 "#disabled" => $disabled_step2,
-                );        
-
+                );  
+            //Store the map so we can get it later
+            $form['hiddenthings']['orderitems_options'] 
+                    = array('#type' => 'hidden', '#value' => $orderitems_options);
+            
             $patientId = $myvalues['PatientID'];
             $raworderoptions = MdwsNewOrderUtils::getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId);
             //error_log("DEBUG LOOK getRadiologyOrderDialog...\n".print_r($raworderoptions,TRUE));
@@ -1266,7 +1346,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         {
             $finishnotallowed = FALSE;
             $form['data_entry_area1']['action_buttons']['next'] = array('#type' => 'submit'
-                    ,'#id' => 'replace-order-submit-next-button' //alex edits
+                    ,'#id' => 'replace-order-submit-next-button' 
                     , '#attributes' => array('class' => array('admin-action-button')
                         , 'title'=>'Commit all the values to VISTA')
                     , '#value' => t('Finish >>')

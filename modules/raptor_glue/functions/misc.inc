@@ -425,7 +425,7 @@ function raptor_glue_replaceorder_form_builder($form, &$form_state)
     {
         $myvalues = $form_state['values'];    
     } else {
-        $myvalues = $oPI->getFieldValues();    
+        $myvalues = $oPI->getInitialFieldValues();    
     }
     return $oPI->getForm($form, $form_state, $disabled, $myvalues);
 }
@@ -489,7 +489,9 @@ function raptor_glue_replaceorder_form_builder_submit($form, &$form_state)
         } catch (\Exception $ex) {
             //Redisplay the form but also log the details
             error_log('Failed on submit of Replace Order because '
-                    .$ex->getMessage()."\nError Details...\n".print_r($ex,TRUE));
+                    .$ex->getMessage()."\nError Details...\n"
+                    .print_r($ex,TRUE)
+                    ."\nMy Values Details...\n".print_r($myvalues,TRUE));
             if(strpos($ex->getMessage(),'Invalid electronic signature code') !== FALSE)
             {
                 //Make the error message more user friendly
@@ -501,9 +503,7 @@ function raptor_glue_replaceorder_form_builder_submit($form, &$form_state)
             $form_state['rebuild'] = TRUE;
         }
     }
-    
 }
-
 
 function raptor_glue_mng_protocols_form_builder($form, &$form_state)
 {

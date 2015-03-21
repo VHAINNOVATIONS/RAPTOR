@@ -1223,38 +1223,37 @@ class ProtocolSupportingData
      * The pathology report details
      * @return type array of arrays
      */
-    function getPathologyReportsDetail()
+    function getPathologyReportsDetail($max_reports=1000)
     {
-//        EXAMPLE OUTPUT:
-//        return array(
-//            array("Title"=>"the 1title asdf","ReportDate"=>"2013-05-01","Details"=>"asdlfkjklasd fklajklasdklf alkdsfkllkasd asdfkljklasljdf asdflkjk"),
-//            array("Title"=>"the 2title asdf","ReportDate"=>"2013-10-06","Details"=>"asdlfkjklasd fklajklasdklf alkdsfkllkasd asdfkljklasljdf asdflkjk"),
-//        );
         //$serviceResponse = $this->m_oContext->getEMRService()->getSurgicalPathologyReports(array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>0));
-        $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgicalPathologyReports", array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>0));
+        $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgicalPathologyReports"
+                , array('fromDate'=>'', 'toDate'=>'', 'nrpts'=>$max_reports));
         $result = array();
-        if(!isset($serviceResponse->getSurgicalPathologyReportsResult->arrays->TaggedSurgicalPathologyRptArray->count)) return $result;
+        if(!isset($serviceResponse->getSurgicalPathologyReportsResult
+                ->arrays->TaggedSurgicalPathologyRptArray->count)) return $result;
         
-        $numTaggedRpts = $serviceResponse->getSurgicalPathologyReportsResult->arrays->TaggedSurgicalPathologyRptArray->count;
+        $numTaggedRpts = $serviceResponse->getSurgicalPathologyReportsResult
+                ->arrays->TaggedSurgicalPathologyRptArray->count;
         if($numTaggedRpts > 0){
             for($i=0; $i<$numTaggedRpts; $i++){
                 // Check to see if any Rpts were returned. If not, return
-                if(!isset($serviceResponse->getSurgicalPathologyReportsResult->arrays->TaggedSurgicalPathologyRptArray->rpts)) return $result;
+                if(!isset($serviceResponse->getSurgicalPathologyReportsResult
+                        ->arrays->TaggedSurgicalPathologyRptArray->rpts)) return $result;
 
                 // Check to see if it is an object or an array
-                $objType = gettype($serviceResponse->getSurgicalPathologyReportsResult->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt);
+                $objType = gettype($serviceResponse->getSurgicalPathologyReportsResult
+                        ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt);
                 //Finally get it
                 if ($objType == 'array')
-                    $RptTO = $serviceResponse->getSurgicalPathologyReportsResult->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt[$i];
+                    $RptTO = $serviceResponse->getSurgicalPathologyReportsResult
+                        ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt[$i];
                 elseif ($objType == 'object')
-                    $RptTO = $serviceResponse->getSurgicalPathologyReportsResult->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt;
+                    $RptTO = $serviceResponse->getSurgicalPathologyReportsResult
+                        ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt;
                 else
                     return $result;
 
                 $tempRpt = array(); 
-//                $guid = com_create_guid();
-//                $guid = hash("md5", $this->getPatientId().$RptTO->timestamp);
-//                $tempRpt['guid'] = $guid;
                 $tempRpt['id'] = isset($RptTO->id) ? $RptTO->id : " ";
                 $tempRpt['title'] = isset($RptTO->title) ? $RptTO->title : " ";
                 $tempRpt['timestamp'] = isset($RptTO->timestamp) ? date("m/d/Y h:i a", strtotime($RptTO->timestamp)) : " ";
@@ -1273,12 +1272,6 @@ class ProtocolSupportingData
                 $sDateThing = (string) (isset($RptTO->specimen->collectionDate) && $RptTO->specimen->collectionDate > '') ? print_r($RptTO->specimen->collectionDate,TRUE) : 'No Date';;
                 if(trim($sDateThing) == '')
                 {
-                    /*
-                    die('why datething is not something?' . print_r($sDateThing,TRUE) 
-                            . '<br>type='.gettype($RptTO->specimen->collectionDate)
-                            . '<br>strlen='.strlen($RptTO->specimen->collectionDate));
-                     * 
-                     */
                     $sDateThing = 'Date Error';
                 }
                 $tempRpt['specimenCollectionDate'] = $sDateThing;
@@ -1290,7 +1283,6 @@ class ProtocolSupportingData
                 $tempRpt['specimenFacilityTagResults'] = isset($RptTO->specimen->facility->facilityTagResults) ? $RptTO->facility->facilityTagResults : " ";
                 $tempRpt['specimenFacilityTag'] = isset($RptTO->specimen->facility->facilityTag) ? $RptTO->facility->facilityTag : " ";
                 
-                
                 $tempRpt['clinicalHx'] = isset($RptTO->clinicalHx) ? $RptTO->clinicalHx : "";
                 $tempRpt['clinicalHx'] = nl2br($tempRpt['clinicalHx']);
                 $tempRpt['description'] = isset($RptTO->description) ? $RptTO->description : " ";
@@ -1301,12 +1293,6 @@ class ProtocolSupportingData
                 $tempRpt['comment'] = isset($RptTO->comment) ? $RptTO->comment : " ";
                 $tempRpt['comment'] = nl2br($tempRpt['comment']);
 
-//                $result[] = $tempRpt;
-//                $this->displaySurgicalPathologyRpts[] = array("guid"=>$tempRpt['guid'], "title"=>$tempRpt['title'], "date"=>$tempRpt['specimenCollectionDate']);
-//                
-//                if (!empty($tempRpt['clinicalHx']))
-//                    $this->displaySummary[] = array("title"=>$tempRpt['title'], "date"=>$tempRpt['specimenCollectionDate']);
-//
                 $aTemp = $this->getSnippetDetailPair($tempRpt['specimenName']);
                 $result[] = array("Title"=>$tempRpt['title']
                         , 'ReportDate' => $tempRpt['specimenCollectionDate']

@@ -400,26 +400,18 @@
             var lockedTIDSRecords = [];
 
             var addLockedTID = function (tid) {
-                if (lockedTIDSRecords.indexOf(tid) === -1) {
-                    lockedTIDSRecords.push(tid);
-                    console.log("Adding a TID " + lockedTIDSRecords);
-                }
-            }
-            ;
+                //if (lockedTIDSRecords.indexOf(tid) === -1) {
+                lockedTIDSRecords.push(tid);
+                //}
+            };
             var removeLockedTID = function (tid) {
-                if (lockedTIDSRecords.indexOf(tid) !== -1) {
-                    console.log("Removing a TID " + tid);
-                    lockedTIDSRecords = jQuery.grep(lockedTIDSRecords, function (value) {
-                        return value !== tid;
-                    });
-                }
-            }
-            ;
-            
-            var checkLockedTID = function(tid){
-                return lockedTIDSRecords.indexOf(tid);
-            }
-            
+                //lockedTIDSRecords.remove(tid);
+                lockedTIDSRecords = jQuery.grep(lockedTIDSRecords, function (value) {
+                    return value !== tid;
+                });
+            };
+
+
             var checkLockedRecords = function (response) {
                 var removedTIDS = [];
                 var worklistTable = $('#worklistTable').DataTable();
@@ -428,17 +420,11 @@
                 // TODO: Find more efficient way of showing locks aside from looping through table once for each locked protocol
                 // Add locks to newly locked pages
                 for (i = 0; i < response.tickets.edit_locks.length; i++) {
+
                     var otherUserLocks = worklistTable
                             .cells(function (idx, data, node) {
                                 var lockedProtocol = response.tickets.edit_locks[i];
-                                if (lockedProtocol.IEN === data) {
-                                    addLockedTID(data); //lockedProtocol IEN is a TID
-                                } else {
-                                    if (lockedTIDSRecords.indexOf(data)) {
-                                        removedTIDS.push(data);
-                                        removeLockedTID(data);//TODO: only remove if it's not a self and other user lock
-                                    }
-                                }
+                                
                                 return data === lockedProtocol.IEN && lockedProtocol.locked_by_uid !== Drupal.pageData.userID ? true : false;
                             })
                             .nodes();
@@ -449,30 +435,24 @@
                     var selfLocks = worklistTable
                             .cells(function (idx, data, node) {
                                 var lockedProtocol = response.tickets.edit_locks[i];
-                                if (lockedProtocol.IEN === data) {
-                                    addLockedTID(data); //lockedProtocol IEN is a TID
-                                } else {
-                                    if (lockedTIDSRecords.indexOf(data)) {
-                                        removedTIDS.push(data);
-                                        removeLockedTID(data);//TODO: only remove if it's not a self and other user lock
-                                    }
-                                }
+                                
                                 return data === lockedProtocol.IEN && lockedProtocol.locked_by_uid === Drupal.pageData.userID ? true : false;
                             })
                             .nodes();
 
                     // Add a class to the cells
                     selfLocks.to$().addClass('locked_owned_column');
-                    console.log("Currently locked record id: " + response.tickets.edit_locks[i].IEN + " Current state of Array: " + lockedTIDSRecords );
+
                     //remove locks from records
                     var removeLocks = worklistTable
                             .cells(function (idx, data, node) {
-                                var lockedProtocol = response.tickets.edit_locks[i];
-                                
+                                if (removedTIDS.indexOf(data)) {
+                                    return true;
+                                }
                             })
                             .nodes();
-
-                    //removes locks class from the cells
+                    console.log("in loop");
+                    //removes locks class to the cells
                     //removeLocks.to$().removeClass('locked_owned_column');
                     //removeLocks.to$().removeClass('locked_column');
                 }
@@ -543,7 +523,7 @@
                     }
                     ;
                 }); // END $.getJSON
-            }, 2 * 1000);
+            }, 5 * 1000);
         }
 
 

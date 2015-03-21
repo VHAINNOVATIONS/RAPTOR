@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -20,6 +20,16 @@ namespace raptor_formulas;
  */
 class LanguageInference 
 {
+    private $m_supported_modalities = "MR CT NM FL US "; //Must include the space after each!
+    
+    /**
+     * Return a string with the two char code, each with a trailing space!
+     */
+    public function getSupportedModalityCodes()
+    {
+        return $this->m_supported_modalities;
+    }
+    
     /**
      * NULL means no opinion
      */
@@ -30,7 +40,7 @@ class LanguageInference
         if(strlen($haystack) > 2)
         {
             $first3 = substr($haystack,0,3);
-            $real_modality_pos = strpos("MR CT NM FL US ", $first3);  //Must include the space!
+            $real_modality_pos = strpos($this->m_supported_modalities, $first3);  
             //Were they nice enough to prefix with the modality?
             if($real_modality_pos !== FALSE)
             {
@@ -49,8 +59,8 @@ class LanguageInference
                 {
                     $ma = 'MR';
                 } else
-                if(strpos($haystack, 'ECHOGRAM') !== FALSE 
-                        || strpos($haystack, 'UTRASOUND') !== FALSE)
+                if(strpos($haystack, 'ECHO') !== FALSE 
+                        || strpos($haystack, 'ULTRASOUND') !== FALSE)
                 {
                     $ma = 'US';
                 } else

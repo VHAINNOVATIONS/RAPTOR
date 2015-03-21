@@ -892,6 +892,7 @@ class MdwsUtils {
 
     /**
      * JOEL RECOMMENDS DELETING THIS AND USING RESULT FROM data_worklist::getDashboardMap
+     * @DEPRECATED
      */
     public static function getOrderDetails($mdwsDao, $radiologyOrderIen)
     {

@@ -22,7 +22,12 @@ function raptor_glue_cancelorders_form_builder($form, &$form_state)
     $oPI = new \raptor\CancelOrdersPage();
     $form = array();
     $disabled = FALSE;
-    $myvalues = $oPI->getFieldValues();    
+    if(isset($form_state['values']))
+    {
+        $myvalues = $form_state['values'];    
+    } else {
+        $myvalues = $oPI->getInitialFieldValues();    
+    }
     return $oPI->getForm($form, $form_state, $disabled, $myvalues);
 }
 

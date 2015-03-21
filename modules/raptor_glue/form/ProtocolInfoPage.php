@@ -2939,9 +2939,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $nUID = $this->m_oContext->getUID();
         $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
 
-        $mdwsDao = $this->m_oContext->getMdwsClient();
-        $orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $nIEN);
-        $orderFileStatus = $orderDetails['orderFileStatus'];
+        //$mdwsDao = $this->m_oContext->getMdwsClient();
+        //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $nIEN);
+        //$orderFileStatus = $orderDetails['orderFileStatus'];
         
         if(!$disabled)
         {

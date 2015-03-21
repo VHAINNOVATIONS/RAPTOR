@@ -159,10 +159,13 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         //Write success message
         if($canreallycancel)
         {
-            drupal_set_message('Canceled Order ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .')');
+            $cancelMsg = 'Canceled Order ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .')';
+            drupal_set_message($cancelMsg);
         } else {
-            drupal_set_message('Order ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .') marked for discontinuation action', 'warn');
+            $cancelMsg = 'Order ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .') marked for discontinuation action';
+            drupal_set_message($cancelMsg, 'warn');
         }
+        error_log($cancelMsg);
         
         return TRUE;
     }
