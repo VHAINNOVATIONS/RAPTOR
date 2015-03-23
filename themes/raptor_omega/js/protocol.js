@@ -78,6 +78,7 @@
         window.onbeforeunload = null;
     });
     
+    
     /*If the user presses a key, types something in or makes an ajax call, we have to reset action seconds
      * to keep the session active*/
     $(document).on('change keypress keyup keydown', 'input, select, textarea', function () {
@@ -453,9 +454,9 @@
                     var selectedVid = $chooseVisitForm.find('input[name=group_vid]:checked').val();
                     var eSig = $chooseVisitForm.find('[name=subform_commit_esig]').val()
 
-                    if (selectedVid == '' || selectedVid == null) {
+                    if (selectedVid === '' || selectedVid === null) {
                         alert('Cannot commit without selecting a visit!');
-                    } else if (eSig == '' || eSig == null) {
+                    } else if (eSig === '' || eSig === null) {
                         alert('Cannot commit without providing your electronic signature!');
                     } else {
                         $protocolForm.prop('selected_vid').value = selectedVid;
@@ -485,6 +486,9 @@
                         if ($protocolForm.prop('collaboration_uid').value > '') {
                             //alert('Will submit with ['+$protocolForm.prop('collaboration_uid').value + ']  and ' + $protocolForm.prop('collaboration_note_tx').value);
                             //Form is valid so go ahead and submit it now.
+                            //if form is submitting successfully, allow the user to navigate 
+                            //away from the page without throwing the warning - 
+                            window.onbeforeunload = null;
                             $protocolForm.trigger('submit');
                         } else {
                             alert('A collaborator must be selected');
