@@ -403,25 +403,29 @@
                 if (lockedTIDSRecords.indexOf(tid) === -1) {
                     lockedTIDSRecords.push(tid);
                 }
+                //console.log("Locked TID array is now " + lockedTIDSRecords);
             }
             ;
+            
             var removeLockedTID = function (tid) {
                 if (lockedTIDSRecords.indexOf(tid) !== -1) {
+                    //console.log("Removing TID "+tid);
                     lockedTIDSRecords = jQuery.grep(lockedTIDSRecords, function (value) {
                         return value !== tid;
                     });
                 }
             }
             ;
-
+            
             var checkLockedTID = function (tid) {
                 return lockedTIDSRecords.indexOf(tid);
             };
 
             var checkLockedRecords = function (response) {
                 var worklistTable = $('#worklistTable').DataTable();
-                
+                //var freeTIDS = []; //keeps track of freed up records
                 // TODO: Find more efficient way of showing locks aside from looping through table once for each locked protocol
+                // 
                 // if there are no active locks force-remove all locks from records
                 if (response.tickets.edit_locks.length === 0) {
                     var staleLocks = $('.locked_column');
@@ -429,10 +433,12 @@
                 }
                 // Add locks to newly locked pages
                 for (i = 0; i < response.tickets.edit_locks.length; i++) {
-
                     var otherUserLocks = worklistTable
                             .cells(function (idx, data, node) {
                                 var lockedProtocol = response.tickets.edit_locks[i];
+                                if (data === lockedProtocol.IEN && lockedProtocol.locked_by_uid !== Drupal.pageData.userID) {
+                                    addLockedTID(data);
+                                }
                                 return data === lockedProtocol.IEN && lockedProtocol.locked_by_uid !== Drupal.pageData.userID ? true : false;
                             })
                             .nodes();
@@ -443,6 +449,9 @@
                     var selfLocks = worklistTable
                             .cells(function (idx, data, node) {
                                 var lockedProtocol = response.tickets.edit_locks[i];
+                                if (data === lockedProtocol.IEN && lockedProtocol.locked_by_uid === Drupal.pageData.userID) {
+                                    addLockedTID(data);
+                                }
                                 return data === lockedProtocol.IEN && lockedProtocol.locked_by_uid === Drupal.pageData.userID ? true : false;
                             })
                             .nodes();
@@ -452,9 +461,16 @@
 
                     var removeLocks = worklistTable
                             .cells(function (idx, data, node) {
-
+                                var lockedProtocol = response.tickets.edit_locks[i];
+                                if(checkLockedTID(lockedProtocol.IEN)===-1 && data!==lockedProtocol.IEN && lockedProtocol.locked_by_uid !== Drupal.pageData.userID){
+                                    removeLockedTID(lockedProtocol.IEN);
+                                    return true;
+                                }else{
+                                    return false;
+                                }
                             })
                             .nodes();
+                    removeLocks.to$().removeClass('locked_column');
                 }
                 ;
             }
