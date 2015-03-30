@@ -403,7 +403,7 @@
                 if (lockedTIDSRecords.indexOf(tid) === -1) {
                     lockedTIDSRecords.push(tid);
                 }
-                //console.log("Locked TID array is now " + lockedTIDSRecords);
+                // console.log("Locked TID array is now " + lockedTIDSRecords);
             }
             ;
             
