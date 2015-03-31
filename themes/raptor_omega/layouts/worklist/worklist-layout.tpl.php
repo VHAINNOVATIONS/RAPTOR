@@ -246,7 +246,7 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
                                 <th class="status_code_column">Workflow Status Code</th>
                                 <th class="assignment_column" title="Collaboration information if any">Assignment</th>
                                 <th class="pending_column" title="# of pending imaging orders">#P</th>
-                                <th class="scheduled_column" title="Scheduling information for the exam">Scheduled</th>
+                                <th class="scheduled_column" title="Scheduling information for the exam">Pass Box</th>
                             </tr>
                         </thead>
                         <tbody class="table-content">
@@ -337,7 +337,7 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
             <label><input type="checkbox" checked name="column_display" value="11"><span>Patient Category / Location</span></label>
             <label><input type="checkbox" checked name="column_display" value="12"><span>Workflow Status</span></label>
             <label><input type="checkbox" checked name="column_display" value="14"><span>Assignment</span></label>
-            <label><input type="checkbox" checked name="column_display" value="16"><span>Scheduled</span></label>
+            <label><input type="checkbox" checked name="column_display" value="16"><span>Pass Box</span></label>
         </form>
     </div>
 </div> <!--! end of modal -->

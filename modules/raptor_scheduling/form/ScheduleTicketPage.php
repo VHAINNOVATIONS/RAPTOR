@@ -420,7 +420,7 @@ class ScheduleTicketPage
             {
                 $this->m_oTT->setCollaborationUser($sTrackingID, $nUID, 'Scheduler clearing', NULL);
             } else {
-                $this->m_oTT->setCollaborationUser($sTrackingID, $nUID, 'Scheduler suggested', $myvalues['suggested_uid']);
+                $this->m_oTT->setCollaborationUser($sTrackingID, $nUID, 'Needs Attention', $myvalues['suggested_uid']);
             }
         }
         
@@ -634,7 +634,7 @@ class ScheduleTicketPage
         }
         $form['data_entry_area1']['middlepart']['canceled_reason_tx'] = array(
             "#type" => "select",
-            "#title" => t("Reason for cancellation (If canceled)"),
+            "#title" => t("Reason for cancellation or replace order"),
             "#options" => $fulloptionlist,
             /*
             "#options" => array(
@@ -669,21 +669,21 @@ class ScheduleTicketPage
 
             $form['data_entry_area1']['bottom']['notes_tx'] = array(
                 '#type'          => 'textarea',
-                '#title'         => t('Scheduler Notes'),
+                '#title'         => t('Notes'),
                 '#rows'          => 3,
                 '#disabled'      => $disabled,
                 '#default_value' => $myvalues['notes_tx'],
             );
         }
 
-        $optionsConfirmed = array(0 => t('No') , 1 => t('Yes'));
+        /*$optionsConfirmed = array(0 => t('No') , 1 => t('Yes'));
         $form['data_entry_area1']['bottom']['notes_critical_yn'] = array(
             '#type' => 'radios',
             '#title' => t('Notes contain patient care information?'),
             '#default_value' => isset($myvalues['notes_critical_yn']) ? $myvalues['notes_critical_yn'] : 0,
             '#options' => $optionsConfirmed,
             '#description' => t('Should system ask Radiologist and Technologist to confirm reading the note?'),
-        );
+        );*/
         
         if($localmsg != NULL)
         {
