@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -86,7 +86,6 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
     {
         $bHappy = TRUE; //Assume no problems.
 
-        //drupal_set_message('>>>myvalues>>>'.print_r($myvalues,TRUE));
 
         //Perform some data quality checks now.
         if(!isset($myvalues['protocol_shortname']) 
@@ -99,6 +98,16 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
 
         $protocol_shortname = $myvalues['protocol_shortname'];
 
+        $filedetails = $this->m_oPageHelper->getPostedFileDetails($myvalues, $protocol_shortname, 'protocolfile');
+        $file = $filedetails['file'];
+        $rawfilename = $filedetails['rawfilename'];
+        $newfilename = $filedetails['newfilename'];
+        $filetype = $filedetails['filetype'];
+        $filesize = $filedetails['filesize'];
+        $file_blob = $filedetails['file_blob'];
+        $fid = $filedetails['fid'];
+
+        /*
         if(!isset($myvalues['protocolfile']) || $myvalues['protocolfile'] == '')
         {
             $file=NULL;
@@ -115,6 +124,7 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
             $filetype = strtoupper($fileinfo['extension']);
             $filesize=234;  //TODO
         }
+        */
         
         global $user;
         $updated_dt = date("Y-m-d H:i", time());
@@ -163,43 +173,32 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
                 'contrast_yn' => $contrast_yn,         
                 'radioisotope_yn' => $radioisotope_yn,         
                 'multievent_yn' => $multievent_yn,         
-              'filename' => $filename,
-              'original_filename' => $original_filename,
-              'original_file_upload_dt' => $original_file_upload_dt,
-              'original_file_upload_by_uid' => $original_file_upload_by_uid,
+                'filename' => $filename,
+                'original_filename' => $original_filename,
+                'original_file_upload_dt' => $original_file_upload_dt,
+                'original_file_upload_by_uid' => $original_file_upload_by_uid,
                 'active_yn' => $active_yn,
                 'updated_dt' => $updated_dt,
                 ))
                   ->execute(); 
-
-              //Now write all the child records.
-              $bHappy = $this->m_oPageHelper->writeChildRecords($protocol_shortname, $myvalues);
         }
         catch(\Exception $ex)
         {
-          error_log("code=".$ex->getCode()
-                  ."\nFailed to add protocol into database \n" 
-                  . print_r($myvalues, TRUE) . '>>>'. print_r($ex, TRUE));
-          drupal_set_message('Failed to add the new protocol because ' 
-                  . $ex, 'error');
-          return 0;
+           error_log("Failed to add protocol into database!\n" . print_r($myvalues, TRUE) . '>>>'. print_r($ex, TRUE));
+           drupal_set_message('Failed to add the new protocol because ' . $ex->getMessage(), 'error');
+           $bHappy = FALSE;
+        }
+
+        if($bHappy)
+        {
+            //Now write all the child records including the file blob upload to database!
+            $bHappy = $this->m_oPageHelper->writeChildLibraryRecords($protocol_shortname, $myvalues, TRUE, $file_blob);
         }
         
-        //Upload the scanned file too if there was one.
+        //Give the right user feedback
         if($bHappy && isset($myvalues['protocolfile']) 
                 && $myvalues['protocolfile'] != NULL)
         {
-            $file=$myvalues['protocolfile'];
-            //unset($form_state['values']['file']);
-            $file->status = FILE_STATUS_PERMANENT;
-            file_save($file);
-            drupal_set_message(t('The form has been submitted and the image has been saved, filename: @filename.'
-                    , array('@filename' => $file->filename)));            
-            
-            $source_uri = 'public://'.$file->filename;
-            $dest_uri = 'public://library/'.$newfilename;
-            file_unmanaged_copy($source_uri, $dest_uri);
-
             drupal_set_message('Saved new protocol and uploaded file for ' . $protocol_shortname);
         } else if($bHappy) {
             //Returns 1 if everything was okay

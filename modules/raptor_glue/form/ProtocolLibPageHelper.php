@@ -62,7 +62,7 @@ class ProtocolLibPageHelper
         $myvalues['radioisotope_yn'] = 0;
         $myvalues['sedation_yn'] = 0;
         $myvalues['multievent_yn'] = 0;
-        $myvalues['filename'] = NULL;   //DEPRECATED
+        //$myvalues['filename'] = NULL;   //DEPRECATED
         $myvalues['protocolfile'] = NULL;
         $myvalues['created_dt'] = NULL;
 
@@ -190,6 +190,46 @@ class ProtocolLibPageHelper
             //Rethrow the same exception
             throw $ex;
         }
+    }
+    
+    /**
+     * Get the blob and meta details of posted file
+     */
+    public function getPostedFileDetails($myvalues, $newbasename, $fieldname='protocolfile')
+    {
+        $details = array();
+        
+        if(!isset($myvalues[$fieldname]) || $myvalues[$fieldname] == '')
+        {
+            $details['file']=NULL;
+            $details['rawfilename']=NULL;
+            $details['newfilename']=NULL;
+            $details['filetype']=NULL;
+            $details['filesize']=NULL;
+            $details['file_blob']=NULL;
+            $details['fid']=NULL;
+        } else {
+            $details['file']=$myvalues[$fieldname];
+            $details['rawfilename'] = $details['file']->filename;
+            $fileinfo = pathinfo($details['rawfilename']);
+            $details['newfilename'] = $newbasename
+                    .'-v'.$myvalues['version']
+                    .'.'.$fileinfo['extension'];
+            $details['filetype'] = strtoupper($fileinfo['extension']);
+            $details['filesize']=$details['file']->filesize;
+            $details['fid'] = $details['file']->fid;
+
+            //Load the raw file blob object
+            $fileuri = $details['file']->uri;
+            $filepath = drupal_realpath($fileuri);
+            $fp      = fopen($filepath, 'r');
+            $rawfilesize = filesize($filepath);
+            $rawcontent = fread($fp, $rawfilesize);
+            $details['file_blob'] = $rawcontent; //No need for mysqli_real_escape_string if we bind on write!
+            fclose($fp);   
+        }
+        
+        return $details;
     }
     
     /**
@@ -625,7 +665,10 @@ class ProtocolLibPageHelper
         }
     }
     
-    public function writeFileUploadDetails($protocol_shortname, $myvalues)
+    /**
+     * Store the scanned image.
+     */
+    public function writeFileUploadDetails($protocol_shortname, $myvalues, $file_blob=NULL)
     {
         if(isset($myvalues['upload_file_now']) && $myvalues['upload_file_now'])
         {
@@ -639,6 +682,7 @@ class ProtocolLibPageHelper
                     'original_filename' => $myvalues['original_filename'],
                     'filetype' => $myvalues['filetype'],
                     'filesize' => $myvalues['filesize'],
+                    'file_blob' => $file_blob,
                     'uploaded_by_uid' => $myvalues['original_file_upload_by_uid'],
                     'comment_tx' => $myvalues['upload_comment_tx'],
                     'uploaded_dt' => $myvalues['original_file_upload_dt'],
@@ -907,8 +951,7 @@ class ProtocolLibPageHelper
     }
     
     /**
-     * @deprecated
-     */
+     * deprecated!!!!
     public function uploadFile($protocol_shortname, $myvalues)
     {
         $file = file_load($myvalues['filename']);
@@ -918,8 +961,12 @@ class ProtocolLibPageHelper
         file_usage_add($file, 'raptor', 'user', $user->uid); 
         return TRUE;
     }
-    
-    public function writeChildRecords($protocol_shortname, $myvalues, $removeExistingRecords=FALSE)
+     */
+
+    /**
+     * Write all the dependent protocol records
+     */
+    public function writeChildLibraryRecords($protocol_shortname, $myvalues, $removeExistingRecords=FALSE, $file_blob=NULL)
     {
         try
         {
@@ -956,10 +1003,10 @@ class ProtocolLibPageHelper
             $bHappy = $this->writeCodeMappings($protocol_shortname, $myvalues, $removeExistingRecords);
         }
 
-        if($bHappy)
+        if($bHappy && $file_blob != NULL)
         {
-            //Write all the code mappings
-            $bHappy = $this->writeFileUploadDetails($protocol_shortname, $myvalues);
+            //Write the uploaded file to the database
+            $bHappy = $this->writeFileUploadDetails($protocol_shortname, $myvalues, $file_blob);
         }
         
         return $bHappy;
@@ -1120,7 +1167,7 @@ class ProtocolLibPageHelper
     }
 
     /**
-     * Validate the proposed values.
+     * Validate the proposed values and update the form state.
      * @return true if no validation errors detected
      */
     function looksValidFormState($form, &$form_state, $formMode)

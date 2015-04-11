@@ -11,7 +11,6 @@
  * 
  */ 
 
-
 namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'config/Choices');

@@ -1,8 +1,9 @@
 <?php
 /**
+ * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -31,6 +32,55 @@ class ViewScannedProtocolLibFile
         $this->m_protocol_shortname = $protocol_shortname;
         $this->m_showclose = $showclose;
         $this->m_oContext = \raptor\Context::getInstance();
+    }
+    
+    /**
+     * Returns NULL if no there is no scanned file.
+     */
+    private function getUploadedFileDetails($protocol_shortname, $cleanfilename)
+    {
+        if($cleanfilename == '')
+        {
+            return NULL;
+        } 
+        
+        $uri = 'public://library/'.$cleanfilename;
+        $url = file_create_url($uri);
+        $filepath = drupal_realpath($uri);
+        if(!file_exists($filepath))
+        {
+            try
+            {
+                //Pull it out of the database.
+                $blob_result = db_select('raptor_protocol_lib_uploads','p')
+                        ->fields('p')
+                        ->condition('protocol_shortname', $protocol_shortname, '=')
+                        ->condition('filename', $cleanfilename, '=')
+                        ->execute();
+                if($blob_result->rowCount() == 1)
+                {
+                    $blob_record = $blob_result->fetchAssoc();    //There will at most be one record.
+                    $file_blob = $blob_record['file_blob'];
+                    if($file_blob == NULL)
+                    {
+                        $mywarning = "Expected to find a scanned file blob for [$protocol_shortname + $cleanfilename] but record was empty!";
+                        error_log($mywarning);
+                        drupal_set_message($mywarning, 'warning');
+                        return NULL;
+                    } else {
+                        file_put_contents($filepath, $file_blob);   //Write it to the path.
+                    }
+                }
+            } catch (\Exception $ex) {
+                error_log('Failed to extract scanned document from database for '.$protocol_shortname.' because '.$ex->getMessage());
+                throw $ex;
+            }
+        }
+        $details = array();
+        $details['uri'] = $uri;
+        $details['url'] = $url;
+        $details['filepath'] = $filepath;
+        return $details;
     }
     
     /**
@@ -73,13 +123,12 @@ class ViewScannedProtocolLibFile
                 $uploaded_dt = $record['original_file_upload_dt'];
                 $userinfo = $this->m_oContext->getUserInfo($record['original_file_upload_by_uid']);
                 $uploaded_by = $userinfo->getFullName();
-                if(trim($filename) > '')
+                $cleanfilename = trim($filename);
+                $sfdetails = $this->getUploadedFileDetails($protocol_shortname, $cleanfilename);
+                if($sfdetails !== NULL)
                 {
-                    $uri = 'public://library/'.$filename;
-                    $url = file_create_url($uri);
+                    $url = $sfdetails['url'];
                 }
-            } else {
-                die('<h1>There is NO scanned protocol for "'.$protocol_shortname.'"!</h1>');
             }
         } catch (\Exception $ex) {
             error_log('Failed to get scanned document information for '.$protocol_shortname.' because '.$ex->getMessage());

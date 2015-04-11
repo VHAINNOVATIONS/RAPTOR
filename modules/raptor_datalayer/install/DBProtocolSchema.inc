@@ -25,7 +25,7 @@ class DBProtocolSchema
     public function addToSchema(&$schema)
     {
         $schema['raptor_protocol_lib'] = array(
-          'description' => 'Protocol Library',
+          'description' => 'Protocol Library item key attributes',
           'fields' => array(
             'protocol_shortname' => array(
               'type' => 'varchar',
@@ -155,7 +155,7 @@ class DBProtocolSchema
         );
 
         $schema['raptor_protocol_lib_uploads'] = array(
-          'description' => 'Protocol library upload tracking',
+          'description' => 'Protocol library uploads',
           'fields' => array(
             'protocol_shortname' => array(
               'type' => 'varchar',
@@ -195,6 +195,11 @@ class DBProtocolSchema
               'unsigned' => TRUE,
               'not null' => TRUE,
               'description' => 'Size in bytes',
+            ),
+            'file_blob' => array(
+              'type' => 'mediumblob',
+              'not null' => FALSE,
+              'description' => 'The uploaded file as a blob',
             ),
             'uploaded_by_uid' => array(
               'type' => 'int',

@@ -155,12 +155,15 @@ function raptor_glue_page_alter(&$page)
 
             if(!isset($raptor_protocol_content['Reference']))
             {
-                drupal_set_message('Missing reference information now!!!!');
+                $localerrmsg = 'Missing reference information now!  Likely cause is a timed-out session.';
+                drupal_set_message($localerrmsg,'error');
+                error_log($localerrmsg);
+                
             }
 
         } else if($currentpage == 'worklist' || $currentpath == 'worklist'){
 
-            error_log('IN PAGEALTER worklist >>>[' . $currentpath . '] and [' . $currentpage . ']');
+            //error_log('IN PAGEALTER worklist >>>[' . $currentpath . '] and [' . $currentpage . ']');
 
             module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 
@@ -186,7 +189,7 @@ function raptor_glue_page_alter(&$page)
 
         } else {
 
-            error_log('IN PAGEALTER other >>>[' . $currentpath . '] and [' . $currentpage . ']');
+            //error_log('IN PAGEALTER other >>>[' . $currentpath . '] and [' . $currentpage . ']');
 
             //Some kind of admin page.
             $raptor_worklist_rows = null;

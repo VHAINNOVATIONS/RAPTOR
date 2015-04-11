@@ -75,23 +75,15 @@ class EditProtocolLibPage extends \raptor\ChildEditBasePage
         $bHappy = TRUE; //Assume no problems.
         $protocol_shortname = $this->m_protocol_shortname;
 
-        if(!isset($myvalues['protocolfile']) || $myvalues['protocolfile'] == '')
-        {
-            $file=NULL;
-            $rawfilename=NULL;
-            $newfilename=NULL;
-            $filetype=NULL;
-            $filesize=NULL;
-        } else {
-            $file=$myvalues['protocolfile'];
-            $rawfilename = $file->filename;
-            $fileinfo = pathinfo($rawfilename);
-            $newfilename = $protocol_shortname.'-v'.$myvalues['version']
-                    .'.'.$fileinfo['extension'];
-            $filetype = strtoupper($fileinfo['extension']);
-            $filesize=123;  //TODO
-        }
-
+        $filedetails = $this->m_oPageHelper->getPostedFileDetails($myvalues, $protocol_shortname, 'protocolfile');
+        $file = $filedetails['file'];
+        $rawfilename = $filedetails['rawfilename'];
+        $newfilename = $filedetails['newfilename'];
+        $filetype = $filedetails['filetype'];
+        $filesize = $filedetails['filesize'];
+        $file_blob = $filedetails['file_blob'];
+        $fid = $filedetails['fid'];
+        
         global $user;
         $updated_dt = date("Y-m-d H:i", time());
         try
@@ -120,7 +112,7 @@ class EditProtocolLibPage extends \raptor\ChildEditBasePage
             $myvalues['original_file_upload_dt'] = $original_file_upload_dt;
             $myvalues['original_file_upload_by_uid'] = $original_file_upload_by_uid;
 
-            //Now prepare the change the existing record.
+            //Now prepare to change the existing record.
             $yn_attribs = isset($myvalues['yn_attribs']) ? $myvalues['yn_attribs'] : array();
             $contrast_yn = (isset($yn_attribs['C']) && $yn_attribs['C'] === 'C') ? 1 : 0;
             $image_guided_yn = (isset($yn_attribs['IG']) && $yn_attribs['IG'] === 'IG') ? 1 : 0;
@@ -160,27 +152,15 @@ class EditProtocolLibPage extends \raptor\ChildEditBasePage
         
         if($bHappy)
         {
-            //Now write all the child records
-            $bHappy = $this->m_oPageHelper->writeChildRecords($protocol_shortname, $myvalues, TRUE);
+            //Now write all the child records including the file blob upload to database!
+            $bHappy = $this->m_oPageHelper->writeChildLibraryRecords($protocol_shortname, $myvalues, TRUE, $file_blob);
         }
 
-        //Upload the scanned file too if there was one.
+        //Provide the right user feedback.
         if($bHappy && isset($myvalues['protocolfile']) 
-                && $myvalues['protocolfile'] != NULL)
+                && $myvalues['protocolfile'] != NULL 
+                && $file_blob !== NULL)
         {
-            //TODO --- put this BEFORE we create the record!!!!!
-            $file=$myvalues['protocolfile'];
-            //unset($form_state['values']['file']);
-            $file->status = FILE_STATUS_PERMANENT;
-            file_save($file);
-            drupal_set_message(
-                    t('Uploaded file "@filename" into the protocol library'
-                            , array('@filename' => $file->filename)));  
-            
-            $source_uri = 'public://'.$file->filename;
-            $dest_uri = 'public://library/'.$newfilename;
-            file_unmanaged_copy($source_uri, $dest_uri);
-            
             drupal_set_message('Saved changes to protocol and uploaded file for ' . $protocol_shortname);
         } else if($bHappy) {
             //Returns 1 if everything was okay

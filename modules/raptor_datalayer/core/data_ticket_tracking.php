@@ -217,6 +217,7 @@ class TicketTrackingData
         }
 
         //Did we collaborate or remove collaboration?
+        $sNewWFS = ''; 
         if($sCWFS == 'CO' && $nCollaboratorUID == NULL)
         {
             //AC is the non-collaboration equivalent of CO
@@ -225,8 +226,12 @@ class TicketTrackingData
             //CO is the collaboration equivalent of AC
             $sNewWFS = 'CO'; 
         }
-        $this->setTicketWorkflowState($sTrackingID, $nRequesterUID
+        if($sNewWFS > '')
+        {
+            //Changing the WFS value
+            $this->setTicketWorkflowState($sTrackingID, $nRequesterUID
                 , $sNewWFS, $sCWFS, $updated_dt);
+        }
         
         return $successMsg;
     }
