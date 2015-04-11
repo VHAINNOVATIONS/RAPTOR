@@ -72,7 +72,11 @@ var chartLabs = <?php echo $labsJSON ?>;
 
 Drupal.pageData.modality = <?php echo $modalityJSON ?>;
 </script>
-
+<!--
+<div id="header-sticky-wrapper-patient-name" class="sticky-wrapper">
+        <p><?php echo($raptor_protocoldashboard["PatientName"]) ?></p>
+</div>
+-->
 <div id="protocol_container">
   <?php 
   $is_protocol_page = TRUE; //Imporant that we set this so that the header shows right content!
@@ -83,7 +87,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
   ?>
 
   <div class="wrapper cf">
-
+    
     <!-- <div class="clear_fix"></div> -->
     
     <div class="main-content">

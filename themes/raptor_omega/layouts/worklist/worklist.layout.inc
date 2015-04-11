@@ -22,3 +22,4 @@ scripts[] = js/modernizr-2.5.3.min.js
 scripts[] = js/jquery.dataTables.js
 scripts[] = js/worklist.js
 scripts[] = js/global.js
+scripts[] = js/jquery.sticky.js

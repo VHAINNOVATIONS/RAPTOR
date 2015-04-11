@@ -31,3 +31,9 @@
 #edit-modality-abbr{
     display: -webkit-box;
 }
+
+#header-sticky-wrapper-patient-name{
+    position: fixed;
+    background-color:yellow;
+    font-weight: bold;
+}

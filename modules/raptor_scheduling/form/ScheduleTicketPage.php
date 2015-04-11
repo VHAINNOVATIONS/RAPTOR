@@ -696,11 +696,11 @@ class ScheduleTicketPage
                     , '#value' => t('Save Settings')
                     , '#disabled' => $disabled
             );
-            $form['data_entry_area1']['action_buttons']['addnewschedule'] = array('#type' => 'submit'
+            /*$form['data_entry_area1']['action_buttons']['addnewschedule'] = array('#type' => 'submit'
                     , '#attributes' => array('class' => array('simple-action-button'))
                     , '#value' => t('Save these Settings and Add Another Schedule Event for Same Ticket')
                     , '#disabled' => $disabled
-            );
+            );*/
         }
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
                 , '#markup' => '<input class="raptor-dialog-cancel" type="button" value="Cancel">');

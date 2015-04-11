@@ -30,3 +30,5 @@ scripts[] = js/protocol.js
 scripts[] = js/jquery.scrollTo.min.js
 scripts[] = js/jquery.dataTables.js
 scripts[] = js/global.js
+scripts[] = js/jquery.sticky.js
+

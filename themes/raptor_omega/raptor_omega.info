@@ -27,7 +27,7 @@ scripts[] = js/jquery.cookie.js
 scripts[] = js/raptor-omega.behaviors.js
 scripts[] = js/jquery.dataTables.min.js
 scripts[] = js/jquery.timepicker.js
-
+scripts[] = js/jquery.sticky.js
 ; ========================================
 ; Settings
 ; ========================================

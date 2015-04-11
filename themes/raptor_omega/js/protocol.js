@@ -54,6 +54,10 @@
 
 // Theme jQuery (version 1.11.1 as of 1/3/15)
 (function (document, $) {
+    $(window).load(function(){
+       $("#header-sticky-wrapper-patient-name").sticky({topSpacing: 0 }); 
+    });
+    
     //The function below will warn the users about unsaved changes if they 
     //try to navigate away from the screen
     var confirmOnPageExit = function (e) {
@@ -64,27 +68,27 @@
         }
         return message;
     };
-    
-    setInterval(function(){
-        if(!$('#timeout-warning').is(':hidden')){
-           window.onbeforeunload = null;
-           $(window).scrollTo('#timeout-warning',800);
+
+    setInterval(function () {
+        if (!$('#timeout-warning').is(':hidden')) {
+            window.onbeforeunload = null;
+            $(window).scrollTo('#timeout-warning', 800);
         }
-    },5000);
-    
-    
+    }, 5000);
+
+
     //disable confirmation message for submit buttons
-    $(document).on('click','.form-submit',function(){
+    $(document).on('click', '.form-submit', function () {
         window.onbeforeunload = null;
     });
-    
-    
+
+
     /*If the user presses a key, types something in or makes an ajax call, we have to reset action seconds
      * to keep the session active*/
     $(document).on('change keypress keyup keydown', 'input, select, textarea', function () {
         //alert("Something is happening");
-        
-        window.onbeforeunload=confirmOnPageExit;
+
+        window.onbeforeunload = confirmOnPageExit;
         $.get(Drupal.pageData.baseURL + '/raptor/userinteractionping?resetsecondssincelastaction', function () { /* Intentionally left blank */
         });
     });
@@ -426,7 +430,7 @@
                     });
                 });
         //end edits
-        
+
 
         // Request Collaboration
         $('#raptor-protocol-collaborate').on('click', function (e) {
@@ -559,11 +563,11 @@
             e.preventDefault();
             $(this).hide().siblings('.hide').show();
         });
-        
-        $('.logo').click(function(){
+
+        $('.logo').click(function () {
             window.location.href = Drupal.pageData.baseURL + '/worklist?releasealltickets=TRUE'
         });
-        
+
         /*
          $('#edit-interpret-button').on('click', function (e) {
          document.cookie = 'worklistFilterMode=Interpretation';
