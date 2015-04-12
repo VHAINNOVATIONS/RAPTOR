@@ -140,7 +140,7 @@
                 e.preventDefault();
 
                 Drupal.behaviors.raptorShowAdministerDialog(
-                    'Schedule for ' + $(this).parent().find('.pat_column').text(), 
+                    'Pass Box for ' + $(this).parent().find('.pat_column').text(), 
                     'raptor/scheduleticket?rawrtid='+ $(this).parent().attr('data-rawrtid'),
                     function () {
                         // Set up time picker
