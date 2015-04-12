@@ -246,7 +246,7 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
                                 <th class="status_code_column">Workflow Status Code</th>
                                 <th class="assignment_column" title="Collaboration information if any">Assignment</th>
                                 <th class="pending_column" title="# of pending imaging orders">#P</th>
-                                <th class="scheduled_column" title="Scheduling information for the exam">Pass Box</th>
+                                <th class="scheduled_column" title="Pass Box information for the exam">Pass Box</th>
                             </tr>
                         </thead>
                         <tbody class="table-content">
