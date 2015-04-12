@@ -9,19 +9,12 @@
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  *  
- * A scheduling integration module for the RAPTOR application. 
+ * A scheduling/pass box integration module for the RAPTOR application. 
  * 
  */
 
 /** 
  * Implements hook_help. 
- * 
- * Displays help and module information. 
- * 
- * @param path  
- *   Which path of the site we're using to display help 
- * @param arg  
- *   Array that holds the current path as returned from arg() function 
  */
 function raptor_scheduling_help($path, $arg) 
 {

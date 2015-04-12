@@ -63,7 +63,7 @@ class ScheduleTicketPage
         $myvalues['PatientDOB'] = $aOneRow['PatientDOB'];
         $myvalues['RequestedDate'] = $aOneRow['RequestedDate'];
         $myvalues['Urgency'] = $aOneRow['Urgency'];
-        
+
         //Get all the available locations.
         $query = db_select('raptor_schedule_location', 'n');
         $query->fields('n')
@@ -301,7 +301,7 @@ class ScheduleTicketPage
                 if($result->rowCount() > 0)
                 {
                     $record = $result->fetchAssoc();
-                    form_set_error('location_tx', $myvalues['location_tx'] . ' already scheduled for exam ' . $record['IEN'] . ' (starts ' . $record['scheduled_dt'] . ' with duration of '.$record['duration_am'].' minutes)');
+                    form_set_error('location_tx', $myvalues['location_tx'] . ' already planned for exam ' . $record['IEN'] . ' (starts ' . $record['scheduled_dt'] . ' with duration of '.$record['duration_am'].' minutes)');
                     $bGood = FALSE;
                 }
                 
@@ -475,7 +475,7 @@ class ScheduleTicketPage
         {
             $sforinfo = ' for ' . $sforinfo;
         }
-        drupal_set_message('Scheduled ' . $sTrackingID . ' (' . $myvalues['procName'] .')' . $sforinfo); 
+        drupal_set_message('Pass Box settings saved for ' . $sTrackingID . ' (' . $myvalues['procName'] .')' . $sforinfo); 
         
         return 1;
     }
@@ -517,11 +517,21 @@ class ScheduleTicketPage
                 . '<th>Requested Date</th><td>' . $myvalues['RequestedDate'] . '&nbsp;</td>'
                 . '<th>Urgency</th><td>' . $myvalues['Urgency'] . '</td>'
                 . '</tr>'
-                .'</tbody></table>',
+                . '</tbody></table>',
         );
 
+        $form['data_entry_area1']['toppart']['schedulingdetails'] = array(
+            '#type'     => 'fieldset',
+            '#title'    => t('Scheduling details (Not integrated with enterprise scheduling system)'),
+            '#attributes' => array(
+                'class' => array(
+                    'data-entry1-area'
+                )
+             ),
+            '#disabled' => $disabled,
+        );
         
-        $form['data_entry_area1']['toppart']['location_tx'] = array(
+        $form['data_entry_area1']['toppart']['schedulingdetails']['location_tx'] = array(
             '#type' => 'textfield',
             '#title' => t('Location'),
             '#default_value' => $myvalues['location_tx'],
@@ -543,14 +553,14 @@ class ScheduleTicketPage
                         . ' title="'.$aRoom[1].'" >'.$aRoom[0].'</a></span>';
             }
             $htmlroomoptions .= '</ul>';
-            $form['data_entry_area1']['toppart']['rooms'] = array(
+            $form['data_entry_area1']['toppart']['schedulingdetails']['rooms'] = array(
                 '#markup' => $htmlroomoptions,
             );        
         }
         
         
         
-        $form['data_entry_area1']['toppart']['event_date_tx'] = array(
+        $form['data_entry_area1']['toppart']['schedulingdetails']['event_date_tx'] = array(
             '#type' => 'textfield',
             '#title' => t('Event Date'),
             '#default_value' => $myvalues['event_date_tx'],
@@ -560,7 +570,7 @@ class ScheduleTicketPage
             '#attributes' => array('class' => array('datepicker'))
         );        
         
-        $form['data_entry_area1']['toppart']['event_starttime_tx'] = array(
+        $form['data_entry_area1']['toppart']['schedulingdetails']['event_starttime_tx'] = array(
             '#type' => 'textfield',
             '#title' => t('Start Time'),
             '#default_value' => $myvalues['event_starttime_tx'],
@@ -574,12 +584,12 @@ class ScheduleTicketPage
             $htmlmarkup = 
                 '<a id="raptor-schedule-time" href="#"'
                 . ' title="Use current time as the start time">Use Current Time</a>';
-            $form['data_entry_area1']['toppart']['event_starttime_now'] = array(
+            $form['data_entry_area1']['toppart']['schedulingdetails']['event_starttime_now'] = array(
                 '#markup' => $htmlmarkup,
             );        
         }
         
-        $form['data_entry_area1']['toppart']['duration_am'] = array(
+        $form['data_entry_area1']['toppart']['schedulingdetails']['duration_am'] = array(
             '#type' => 'textfield',
             '#title' => t('Duration (minutes)'),
             '#default_value' => $myvalues['duration_am'],
@@ -610,15 +620,18 @@ class ScheduleTicketPage
                     . ' title="'.$aDuration.' minutes" >'.$aDuration.'</a></span>';
         }
         $htmldurations .= '</ul>';
-        $form['data_entry_area1']['toppart']['durations'] = array(
+        $form['data_entry_area1']['toppart']['schedulingdetails']['durations'] = array(
             '#markup' => $htmldurations,
         );        
         
         $optionsConfirmed = array(0 => t('No') 
             , 1 => t('Yes' . (isset($myvalues['confirmed_by_patient_dt']) 
                 ? ' ('.$myvalues['confirmed_by_patient_dt'].')' : '')  ));
-        $form['data_entry_area1']['middlepart']['confirmed_by_patient_yn'] = array(
+        $form['data_entry_area1']['toppart']['schedulingdetails']['confirmed_by_patient_yn'] = array(
             '#type' => 'radios',
+            '#attributes' => array(
+                'class' => array('container-inline'),
+                ),
             '#title' => t('Confirmed by patient'),
             '#default_value' => isset($myvalues['confirmed_by_patient_dt']) ? 1 : 0,
             '#options' => $optionsConfirmed,
@@ -635,7 +648,7 @@ class ScheduleTicketPage
         }
         $form['data_entry_area1']['middlepart']['canceled_reason_tx'] = array(
             "#type" => "select",
-            "#title" => t("Reason for cancellation or replace order"),
+            "#title" => t("Reason for cancellation or replace order request"),
             "#options" => $fulloptionlist,
             /*
             "#options" => array(
@@ -646,7 +659,7 @@ class ScheduleTicketPage
             ),
              */
             '#default_value' => $myvalues['canceled_reason_tx'],
-            "#description" => t("Select reason for canceling this procedure." . (isset($myvalues['canceled_dt']) ? ' ( Canceled '.$myvalues['canceled_dt'].' )' : '')),
+            "#description" => t("Select reason for requestiong cancellation of this procedure." . (isset($myvalues['canceled_dt']) ? ' ( Canceled '.$myvalues['canceled_dt'].' )' : '')),
             "#required" => FALSE,
             );        
         
@@ -698,6 +711,7 @@ class ScheduleTicketPage
                     , '#value' => t('Save Settings')
                     , '#disabled' => $disabled
             );
+            
             /*$form['data_entry_area1']['action_buttons']['addnewschedule'] = array('#type' => 'submit'
                     , '#attributes' => array('class' => array('simple-action-button'))
                     , '#value' => t('Save these Settings and Add Another Schedule Event for Same Ticket')
@@ -705,7 +719,7 @@ class ScheduleTicketPage
             );*/
         }
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="raptor-dialog-cancel" type="button" value="Cancel">');
+                , '#markup' => '<input class="raptor-dialog-cancel" type="button" value="Close without Saving Settings">');
         
         return $form;
     }
