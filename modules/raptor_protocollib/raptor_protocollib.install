@@ -1,0 +1,37 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2015
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ * 
+ * Install the module
+ */
+
+require_once 'install/schema.inc';
+
+function raptor_protocollib_uninstall()
+{
+    $t = get_t();
+    drupal_set_message($t('Uninstalled raptor_protocollib'));
+}
+
+/**
+ * Create stored procedures
+ * @return status
+ */
+function raptor_protocollib_install()
+{
+    //Tell the world we are done.
+    $t = get_t();
+    drupal_set_message($t('Installed raptor_protocollib'));
+}
+
+
+
+
+    

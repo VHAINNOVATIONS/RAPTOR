@@ -1,0 +1,72 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2015
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ *  
+ * A protocol library integration module for the RAPTOR application. 
+ * 
+ */
+
+/** 
+ * Implements hook_help. 
+ * 
+ * Displays help and module information. 
+ * 
+ * @param path  
+ *   Which path of the site we're using to display help 
+ * @param arg  
+ *   Array that holds the current path as returned from arg() function 
+ */
+function raptor_protocollib_help($path, $arg) 
+{
+  switch ($path)
+  {
+    case "admin/help#raptor_protocollib":
+        return '<p>'.  t("Integrates protocol library support.") .'</p>';
+        break;
+  }
+}
+
+function raptor_protocollib_menu() 
+{
+    $items = array();
+    
+    /*
+    $items['raptor/floatingdialog/testform'] = array(
+      'title' => t('Test Form'),
+      'page callback' => 'raptor_protocollib_runtests_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Test floatingdialog integration'),
+      'type' => MENU_CALLBACK,
+    );
+    */
+    return $items;
+}
+
+function raptor_protocollib_runtests_form() 
+{
+    //return drupal_get_form("raptor_protocollib_runtests_form_builder");
+	throw new \Exception('Feature not yet implemented');
+}
+
+function raptor_protocollib_runtests_form_builder($form, &$form_state)
+{
+	throw new \Exception('Feature not yet implemented');
+}
+
+function raptor_protocollib_runtests_form_builder_submit($form, &$form_state)
+{
+	throw new \Exception('Feature not yet implemented');
+}
+
+
+
+
+
