@@ -55,6 +55,9 @@ class ListOptions
         return $result->fetchCol();
     }
     
+    /**
+     * Filter for only one modality or none
+     */
     private function getSimpleResult($type, $modality, $sCoreSQL)
     {
         if($type == null)
@@ -91,4 +94,51 @@ class ListOptions
         $result = db_query($sCoreSQL . ' WHERE type_nm = :type_nm ' . $andWhere, $filter);
         return $result->fetchCol();
     }
+    
+    /**
+     * Filter for any number of modalities
+     */
+    private function getModalityFilteredResult($type, $modality_filter, $sCoreSQL)
+    {
+        if($type == null)
+        {
+            die('The type value cannot be null for core sql ' . $sCoreSQL);
+        }
+        $filter = array(':type_nm' => $type);
+        $andWhere = '';
+        if(is_array($modality_filter) && count($modality_filter)>0)
+        {
+            //Allow for multiple values
+            $andWhere = 'and (';
+            if(in_array('CT',$modality_filter))
+            {
+                $filter[':ct_yn'] = 1;
+                $andWhere .= ' or ct_yn = :ct_yn';
+            }
+            if(in_array('MR',$modality_filter))
+            {
+                $filter[':mr_yn'] = 1;
+                $andWhere .= ' or mr_yn = :mr_yn';
+            }
+            if(in_array('NM',$modality_filter))
+            {
+                $filter[':nm_yn'] = 1;
+                $andWhere .= ' or nm_yn = :nm_yn';
+            }
+            if(in_array('FL',$modality_filter))
+            {
+                $filter[':fl_yn'] = 1;
+                $andWhere .= ' or fl_yn = :fl_yn';
+            }
+            if(in_array('US',$modality_filter))
+            {
+                $filter[':us_yn'] = 1;
+                $andWhere .= ' or us_yn = :us_yn';
+            }
+            $andWhere .= ')';
+        }
+        $result = db_query($sCoreSQL . ' WHERE type_nm = :type_nm ' . $andWhere, $filter);
+        return $result->fetchCol();
+    }
+    
 }

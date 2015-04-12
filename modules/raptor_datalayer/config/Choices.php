@@ -377,8 +377,12 @@ class raptor_datalayer_Choices
     }
     
     
-    public static function getEntericContrastData($sDefaultChoiceOverride, &$bFoundInList)
+    public static function getEntericContrastData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
     {
+        if($modality_filter == NULL)
+        {
+            $modality_filter = array();
+        }
         //TODO -- Cache the instance!!!!!!
         $oLO = new ListOptions();
         $aValues = $oLO->getContrastOptions('ENTERIC', 'ANY');
@@ -390,8 +394,12 @@ class raptor_datalayer_Choices
         return raptor_datalayer_Choices::getListDataFromArray($aValues,$sDefaultChoiceOverride);
     }
     
-    public static function getIVContrastData($sDefaultChoiceOverride, &$bFoundInList)
+    public static function getIVContrastData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
     {
+        if($modality_filter == NULL)
+        {
+            $modality_filter = array();
+        }
         //TODO -- Cache the instance!!!!!!
         $oLO = new ListOptions();
         $aValues = $oLO->getContrastOptions('IV', 'ANY');
@@ -403,8 +411,13 @@ class raptor_datalayer_Choices
         return raptor_datalayer_Choices::getListDataFromArray($aValues,$sDefaultChoiceOverride);
     }
     
-    public static function getEntericRadioisotopeData($sDefaultChoiceOverride, &$bFoundInList)
+    public static function getEntericRadioisotopeData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
     {
+        if($modality_filter == NULL)
+        {
+            $modality_filter = array();
+        }
+
         //TODO -- Cache the instance!!!!!!
         $oLO = new ListOptions();
         $aValues = $oLO->getRadioisotopeOptions('ENTERIC', 'ANY');
@@ -416,8 +429,13 @@ class raptor_datalayer_Choices
         return raptor_datalayer_Choices::getListDataFromArray($aValues,$sDefaultChoiceOverride);
     }
     
-    public static function getIVRadioisotopeData($sDefaultChoiceOverride, &$bFoundInList)
+    public static function getIVRadioisotopeData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
     {
+        if($modality_filter == NULL)
+        {
+            $modality_filter = array();
+        }
+
         //TODO -- Cache the instance!!!!!!
         $oLO = new ListOptions();
         $aValues = $oLO->getRadioisotopeOptions('IV', 'ANY');
@@ -440,8 +458,13 @@ class raptor_datalayer_Choices
         return raptor_datalayer_Choices::getListItemFromArray($aValues, $sID);
     }
     
-    public static function getOralHydrationData($sDefaultChoiceOverride, &$bFoundInList)
+    public static function getOralHydrationData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
     {
+        if($modality_filter == NULL)
+        {
+            $modality_filter = array();
+        }
+
         //$sPath = __MYFOLDER_CHOICES__."/list-oral-hydration.cfg";
         //return raptor_datalayer_Choices::getListData($sPath,$sDefaultChoiceOverride);
 
@@ -456,8 +479,13 @@ class raptor_datalayer_Choices
         return raptor_datalayer_Choices::getListDataFromArray($aValues,$sDefaultChoiceOverride);
     }
 
-    public static function getIVHydrationData($sDefaultChoiceOverride, &$bFoundInList)
+    public static function getIVHydrationData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
     {
+        if($modality_filter == NULL)
+        {
+            $modality_filter = array();
+        }
+
         //$sPath = __MYFOLDER_CHOICES__."/list-iv-hydration.cfg";
         //return raptor_datalayer_Choices::getListData($sPath,$sDefaultChoiceOverride);
 
@@ -473,8 +501,13 @@ class raptor_datalayer_Choices
         
     }
     
-    public static function getOralSedationData($sDefaultChoiceOverride, &$bFoundInList)
+    public static function getOralSedationData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
     {
+        if($modality_filter == NULL)
+        {
+            $modality_filter = array();
+        }
+
         //$sPath = __MYFOLDER_CHOICES__."/list-oral-sedation.cfg";
         //return raptor_datalayer_Choices::getListData($sPath,$sDefaultChoiceOverride);
         
@@ -490,8 +523,13 @@ class raptor_datalayer_Choices
         
     }
 
-    public static function getIVSedationData($sDefaultChoiceOverride, &$bFoundInList)
+    public static function getIVSedationData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
     {
+        if($modality_filter == NULL)
+        {
+            $modality_filter = array();
+        }
+
         //$sPath = __MYFOLDER_CHOICES__."/list-iv-sedation.cfg";
         //return raptor_datalayer_Choices::getListData($sPath,$sDefaultChoiceOverride);
         
