@@ -23,7 +23,7 @@ module_load_include('php', 'raptor_datalayer', 'core/MdwsDaoFactory');
 module_load_include('php', 'raptor_datalayer', 'core/MdwsUtils');
 
 /**
- * Implements the schedule ticket page.
+ * Implements the schedule ticket/pass box page.
  *
  * @author Frank Font of SAN Business Consultants
  */
