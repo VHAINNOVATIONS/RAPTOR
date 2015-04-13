@@ -54,10 +54,18 @@
 
 // Theme jQuery (version 1.11.1 as of 1/3/15)
 (function (document, $) {
-    $(window).load(function(){
-       $("#header-sticky-wrapper-patient-name").sticky({topSpacing: 0 }); 
+    $(window).load(function () {
+        $("#header-sticky-wrapper-patient-name").hide();
+        $("#header-sticky-wrapper-patient-name").sticky({topSpacing: 0});
     });
-    
+    $(window).scroll(function(){
+        var height = $(window).scrollTop();
+        if(height > 300){
+            $("#header-sticky-wrapper-patient-name").fadeIn("slow");
+        }else{
+            $("#header-sticky-wrapper-patient-name").hide();
+        }
+    });
     //The function below will warn the users about unsaved changes if they 
     //try to navigate away from the screen
     var confirmOnPageExit = function (e) {
