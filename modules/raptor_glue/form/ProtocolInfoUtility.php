@@ -2020,22 +2020,37 @@ class ProtocolInfoUtility
         
         $enteric_tx = isset($myvalues[$section_name.'_enteric_customtx']) 
                 ? $myvalues[$section_name.'_enteric_customtx'] : '';
-        $aEntericChoices  = $oChoices
-                ->getEntericContrastData($enteric_tx, $bFoundInList);
+        $iv_tx = isset($myvalues[$section_name.'_iv_customtx']) 
+                ? $myvalues[$section_name.'_iv_customtx'] : '';
+        
+        if($section_name == 'contrast')
+        {
+            $aEntericChoices  = $oChoices
+                    ->getEntericContrastData($enteric_tx, $bFoundInList);
+            $aIVChoices    = $oChoices->getIVContrastData($iv_tx, $bFoundInList);
+        } else 
+        if($section_name == 'radioisotope')
+        {
+            $aEntericChoices  = $oChoices
+                    ->getEntericRadioisotopeData($enteric_tx, $bFoundInList);
+            $aIVChoices    = $oChoices->getIVRadioisotopeData($iv_tx, $bFoundInList);
+        } else {
+            throw new \Exception("Did not recognize SectionCheckboxType called [$section_name]!");
+        }
+
         if($enteric_tx > '' && !$bFoundInList)
         {
             $aControlOverrides['enteric'] = $enteric_tx;
         }
-        
-        $iv_tx = isset($myvalues[$section_name.'_iv_customtx']) ? $myvalues[$section_name.'_iv_customtx'] : '';
-        $aIVChoices    = $oChoices->getIVContrastData($iv_tx, $bFoundInList);
         if($iv_tx > '' && !$bFoundInList)
         {
             $aControlOverrides['iv'] = $iv_tx;
         }
         
-        return $this->getSectionCheckboxType($section_name, $titleoverride, $aEntericChoices
-                , $aIVChoices, $form_state, $disabled, $myvalues, $containerstates
+        return $this->getSectionCheckboxType($section_name, $titleoverride
+                , $aEntericChoices
+                , $aIVChoices
+                , $form_state, $disabled, $myvalues, $containerstates
                 , $supportEditMode
                 , $aControlOverrides
                 , $shownow
