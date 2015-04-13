@@ -19,7 +19,7 @@ require_once ("data_utility.php");
 /**
  * Returns information about the protocol settings.
  *
- * @author SAN
+ * @author Frank Font of SAN Business Consultants
  */
 class ProtocolSettings
 {

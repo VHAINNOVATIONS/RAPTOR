@@ -390,6 +390,8 @@ class ProtocolInfoUtility
         $form['hiddenptotocolstuff'] = array('#markup' 
             => $hiddendatahtml);
         
+        //die("LOOK NOW=".print_r($oPS,TRUE));
+        
         //Main protocol selection
         $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
                 , $disableAllInput
@@ -1892,6 +1894,8 @@ class ProtocolInfoUtility
             , $shownow=TRUE
             , $req_ack=FALSE)
     {
+        $modality_filter = array(); //TODO 20150413
+        
         if($titleoverride == NULL)
         {
             $titleoverride = $section_name; 
@@ -1906,13 +1910,13 @@ class ProtocolInfoUtility
         $iv_tx = isset($myvalues[$section_name.'_iv_customtx']) ? $myvalues[$section_name.'_iv_customtx'] : '';
         if($section_name == 'hydration')
         {
-            $aOralChoices  = $oChoices->getOralHydrationData($oral_tx, $bFoundInList);
-            $aIVChoices    = $oChoices->getIVHydrationData($iv_tx, $bFoundInList);
+            $aOralChoices  = $oChoices->getOralHydrationData($oral_tx, $bFoundInList, $modality_filter);
+            $aIVChoices    = $oChoices->getIVHydrationData($iv_tx, $bFoundInList, $modality_filter);
         } else 
         if($section_name == 'sedation')
         {
-            $aOralChoices  = $oChoices->getOralSedationData($oral_tx, $bFoundInList);
-            $aIVChoices    = $oChoices->getIVSedationData($iv_tx, $bFoundInList);
+            $aOralChoices  = $oChoices->getOralSedationData($oral_tx, $bFoundInList, $modality_filter);
+            $aIVChoices    = $oChoices->getIVSedationData($iv_tx, $bFoundInList, $modality_filter);
         } else {
             throw new \Exception("Did not recognize SectionRadioType called [$section_name]!");
         }
@@ -2010,6 +2014,9 @@ class ProtocolInfoUtility
             , $shownow=TRUE
             , $req_ack=FALSE )
     {
+        
+        $modality_filter = array(); //TODO 20150413
+        
         if($titleoverride == NULL)
         {
             $titleoverride = $section_name; 
@@ -2026,14 +2033,14 @@ class ProtocolInfoUtility
         if($section_name == 'contrast')
         {
             $aEntericChoices  = $oChoices
-                    ->getEntericContrastData($enteric_tx, $bFoundInList);
-            $aIVChoices    = $oChoices->getIVContrastData($iv_tx, $bFoundInList);
+                    ->getEntericContrastData($enteric_tx, $bFoundInList, $modality_filter);
+            $aIVChoices    = $oChoices->getIVContrastData($iv_tx, $bFoundInList, $modality_filter);
         } else 
         if($section_name == 'radioisotope')
         {
             $aEntericChoices  = $oChoices
-                    ->getEntericRadioisotopeData($enteric_tx, $bFoundInList);
-            $aIVChoices    = $oChoices->getIVRadioisotopeData($iv_tx, $bFoundInList);
+                    ->getEntericRadioisotopeData($enteric_tx, $bFoundInList, $modality_filter);
+            $aIVChoices    = $oChoices->getIVRadioisotopeData($iv_tx, $bFoundInList, $modality_filter);
         } else {
             throw new \Exception("Did not recognize SectionCheckboxType called [$section_name]!");
         }

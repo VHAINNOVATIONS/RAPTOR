@@ -1,5 +1,6 @@
 <?php
-/*
+/**
+ * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase1 proof of concept
  * Open Source VA Innovation Project 2011-2012
