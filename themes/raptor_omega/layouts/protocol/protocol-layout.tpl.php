@@ -10,8 +10,8 @@ global $raptor_protocol_content;
 
 $protocol_input = render($page['content']);
 
-$medications_detail = $raptor_protocol_content["Reference"]["MedicationsDetail"];
-$allergies_detail = $raptor_protocol_content["Reference"]["AllergiesDetail"];
+//$medications_detail = $raptor_protocol_content["Reference"]["MedicationsDetail"];
+//$allergies_detail = $raptor_protocol_content["Reference"]["AllergiesDetail"];
 $pathology_reports_detail = $raptor_protocol_content["Reference"]["PathologyReportsDetail"];
 $surgery_reports_detail = $raptor_protocol_content["Reference"]["SurgeryReportsDetail"];
 $problems_list_detail = $raptor_protocol_content["Reference"]["ProblemsListDetail"];
@@ -72,11 +72,11 @@ var chartLabs = <?php echo $labsJSON ?>;
 
 Drupal.pageData.modality = <?php echo $modalityJSON ?>;
 </script>
-<!--
+
 <div id="header-sticky-wrapper-patient-name" class="sticky-wrapper">
-        <p><?php echo($raptor_protocoldashboard["PatientName"]) ?></p>
+        <p id="paragraph-patient-name"><?php echo($raptor_protocoldashboard["PatientName"]) ?></p>
 </div>
--->
+
 <div id="protocol_container">
   <?php 
   $is_protocol_page = TRUE; //Imporant that we set this so that the header shows right content!
@@ -745,3 +745,4 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
 
 <div id="cancelorder-modal" style="display:none;" title="Cancel Order"></div> <!--! end of modal -->
 <div id="replaceorder-modal" style="display:none" title="Replace Order"></div> <!--! end of modal alex edits-->
+
