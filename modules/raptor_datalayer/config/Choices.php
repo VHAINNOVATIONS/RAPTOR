@@ -378,7 +378,8 @@ class raptor_datalayer_Choices
     }
     
     
-    public static function getEntericContrastData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
+    public static function getEntericContrastData($sDefaultChoiceOverride
+            , &$bFoundInList, $modality_filter=NULL)
     {
         if($modality_filter == NULL)
         {
@@ -386,7 +387,7 @@ class raptor_datalayer_Choices
         }
         //TODO -- Cache the instance!!!!!!
         $oLO = new ListOptions();
-        $aValues = $oLO->getContrastOptions('ENTERIC', 'ANY');
+        $aValues = $oLO->getContrastOptions('ENTERIC', $modality_filter);   //'ANY');
         $aValues[''] = '';  //Add empty option
         if($sDefaultChoiceOverride != NULL)
         {
@@ -395,7 +396,8 @@ class raptor_datalayer_Choices
         return raptor_datalayer_Choices::getListDataFromArray($aValues,$sDefaultChoiceOverride);
     }
     
-    public static function getIVContrastData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
+    public static function getIVContrastData($sDefaultChoiceOverride
+            , &$bFoundInList, $modality_filter=NULL)
     {
         if($modality_filter == NULL)
         {
@@ -403,7 +405,7 @@ class raptor_datalayer_Choices
         }
         //TODO -- Cache the instance!!!!!!
         $oLO = new ListOptions();
-        $aValues = $oLO->getContrastOptions('IV', 'ANY');
+        $aValues = $oLO->getContrastOptions('IV', $modality_filter);   //'ANY');
         $aValues[''] = '';  //Add empty option
         if($sDefaultChoiceOverride != NULL)
         {

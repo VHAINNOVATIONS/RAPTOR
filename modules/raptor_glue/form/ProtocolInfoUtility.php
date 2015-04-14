@@ -371,14 +371,24 @@ class ProtocolInfoUtility
         $form = array();
         
         //PROTOCOL 
+        $modality_filter = array();
         if($template_json == NULL)
         {
             if(!$disableChildInput && isset($myvalues['protocol1_nm']) && trim($myvalues['protocol1_nm']) > '')
             {
                 module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
                 $oPS = new \raptor\ProtocolSettings();    //TODO cache it
-                $templatevalues = $oPS->getDefaultValuesStructured($myvalues['protocol1_nm']);
+                //$templatevalues = $oPS->getDefaultValuesStructured($myvalues['protocol1_nm']);
+                $metainfo = $oPS->getProtocolMetaInformation($myvalues['protocol1_nm']);
+                $templatevalues = $metainfo['defaultvalues'];
+                $protocolattribs = $metainfo['attributes'];
+                $modality_abbr = $protocolattribs['modality_abbr'];
+                if($modality_abbr > '')
+                {
+                    $modality_filter[] = $modality_abbr;
+                }
                 $template_json = json_encode($templatevalues);
+        //die("LOOK NOW TV=".print_r($metainfo,TRUE));
             } else {
                 $template_json = '';    //Nothing needed.
             }
@@ -390,7 +400,7 @@ class ProtocolInfoUtility
         $form['hiddenptotocolstuff'] = array('#markup' 
             => $hiddendatahtml);
         
-        //die("LOOK NOW=".print_r($oPS,TRUE));
+        //die("LOOK NOW=".print_r($templatevalues,TRUE));
         
         //Main protocol selection
         $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
@@ -421,7 +431,8 @@ class ProtocolInfoUtility
                 , NULL
                 , TRUE
                 , $shownow
-                , $shownow); 
+                , $shownow
+                , $modality_filter); 
         $form['protocolinput'][] = $contrastarea;
 
         //Consent Required
@@ -446,8 +457,9 @@ class ProtocolInfoUtility
                 , $disableChildInput
                 , $myvalues
                 , NULL, TRUE
-            , $shownow
-            , $shownow);
+                , $shownow
+                , $shownow
+                , $modality_filter); 
         $form['protocolinput'][] = $hydrationarea;
         
         //Sedation
@@ -467,9 +479,11 @@ class ProtocolInfoUtility
                 , 'radioisotope', 'Radionuclide'
                 , $disableChildInput
                 , $myvalues
-                , NULL, TRUE
-            , $shownow
-            , $shownow);
+                , NULL
+                , TRUE
+                , $shownow
+                , $shownow
+                , $modality_filter); 
         $form['protocolinput'][] = $radioisotopearea;
         
         //Allergy
@@ -1892,9 +1906,14 @@ class ProtocolInfoUtility
             , $containerstates=NULL
             , $supportEditMode=TRUE
             , $shownow=TRUE
-            , $req_ack=FALSE)
+            , $req_ack=FALSE
+            , $modality_filter=NULL)
     {
-        $modality_filter = array(); //TODO 20150413
+        
+        if($modality_filter == NULL || !is_array($modality_filter))
+        {
+            $modality_filter = array();
+        }
         
         if($titleoverride == NULL)
         {
@@ -2012,10 +2031,14 @@ class ProtocolInfoUtility
             , $containerstates=NULL
             , $supportEditMode=TRUE
             , $shownow=TRUE
-            , $req_ack=FALSE )
+            , $req_ack=FALSE 
+            , $modality_filter=NULL)
     {
         
-        $modality_filter = array(); //TODO 20150413
+        if($modality_filter == NULL || !is_array($modality_filter))
+        {
+            $modality_filter = array();
+        }
         
         if($titleoverride == NULL)
         {

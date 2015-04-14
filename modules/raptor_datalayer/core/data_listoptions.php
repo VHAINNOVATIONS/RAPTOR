@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -11,41 +11,64 @@
  * 
  */ 
 
-
 namespace raptor;
 
-require_once ("data_utility.php");
+require_once 'data_utility.php';
 
 /**
  * This returns values for pick lists.
  *
- * @author SAN
+ * @author Frank Font of SAN Business Consultants
  */
 class ListOptions
 {
-    function getHydrationOptions($type, $modality)
+    function getHydrationOptions($type, $modality_filter)
     {
         $sCoreSQL = 'SELECT option_tx FROM raptor_list_hydration';
-        return $this->getSimpleResult($type, $modality, $sCoreSQL);
+        if(is_array($modality_filter))
+        {
+            return $this->getModalityFilteredResult($type, $modality_filter, $sCoreSQL);
+        } else {
+            //Assume simple string filter
+            return $this->getSimpleResult($type, $modality_filter, $sCoreSQL);
+        }
     }
     
     //Changed the name from pharama to isotope on 5/16
-    function getRadioisotopeOptions($type, $modality)
+    function getRadioisotopeOptions($type, $modality_filter)
     {
         $sCoreSQL = 'SELECT option_tx FROM raptor_list_radioisotope';
-        return $this->getSimpleResult($type, $modality, $sCoreSQL);
+        if(is_array($modality_filter))
+        {
+            return $this->getModalityFilteredResult($type, $modality_filter, $sCoreSQL);
+        } else {
+            //Assume simple string filter
+            return $this->getSimpleResult($type, $modality_filter, $sCoreSQL);
+        }
     }
     
-    function getSedationOptions($type, $modality)
+    function getSedationOptions($type, $modality_filter)
     {
         $sCoreSQL = 'SELECT option_tx FROM raptor_list_sedation';
-        return $this->getSimpleResult($type, $modality, $sCoreSQL);
+        if(is_array($modality_filter))
+        {
+            return $this->getModalityFilteredResult($type, $modality_filter, $sCoreSQL);
+        } else {
+            //Assume simple string filter
+            return $this->getSimpleResult($type, $modality_filter, $sCoreSQL);
+        }
     }
 
-    function getContrastOptions($type, $modality)
+    function getContrastOptions($type, $modality_filter)
     {
         $sCoreSQL = 'SELECT option_tx FROM raptor_list_contrast';
-        return $this->getSimpleResult($type, $modality, $sCoreSQL);
+        if(is_array($modality_filter))
+        {
+            return $this->getModalityFilteredResult($type, $modality_filter, $sCoreSQL);
+        } else {
+            //Assume simple string filter
+            return $this->getSimpleResult($type, $modality_filter, $sCoreSQL);
+        }
     }
     
     function getAtRiskMedsKeywords()
@@ -62,7 +85,7 @@ class ListOptions
     {
         if($type == null)
         {
-            die('The type value cannot be null for core sql ' . $sCoreSQL);
+            throw new \Exception('The type value cannot be null for core sql ' . $sCoreSQL);
         }
         $filter = array(':type_nm' => $type);
         $andWhere = '';
@@ -100,9 +123,9 @@ class ListOptions
      */
     private function getModalityFilteredResult($type, $modality_filter, $sCoreSQL)
     {
-        if($type == null)
+        if($type == NULL)
         {
-            die('The type value cannot be null for core sql ' . $sCoreSQL);
+            throw new \Exception('The type value cannot be null for core sql ' . $sCoreSQL);
         }
         $filter = array(':type_nm' => $type);
         $andWhere = '';
@@ -110,34 +133,67 @@ class ListOptions
         {
             //Allow for multiple values
             $andWhere = 'and (';
+            $foundcount=0;
             if(in_array('CT',$modality_filter))
             {
+                $foundcount++;
                 $filter[':ct_yn'] = 1;
-                $andWhere .= ' or ct_yn = :ct_yn';
+                if($foundcount > 1)
+                {
+                    $andWhere .= ' or ';
+                }
+                $andWhere .= ' ct_yn = :ct_yn';
             }
             if(in_array('MR',$modality_filter))
             {
+                $foundcount++;
                 $filter[':mr_yn'] = 1;
-                $andWhere .= ' or mr_yn = :mr_yn';
+                 if($foundcount > 1)
+                {
+                    $andWhere .= ' or ';
+                }
+                $andWhere .= ' mr_yn = :mr_yn';
             }
             if(in_array('NM',$modality_filter))
             {
+                $foundcount++;
                 $filter[':nm_yn'] = 1;
-                $andWhere .= ' or nm_yn = :nm_yn';
+                if($foundcount > 1)
+                {
+                    $andWhere .= ' or ';
+                }
+                $andWhere .= ' nm_yn = :nm_yn';
             }
             if(in_array('FL',$modality_filter))
             {
+                $foundcount++;
                 $filter[':fl_yn'] = 1;
-                $andWhere .= ' or fl_yn = :fl_yn';
+                if($foundcount > 1)
+                {
+                    $andWhere .= ' or ';
+                }
+                $andWhere .= ' fl_yn = :fl_yn';
             }
             if(in_array('US',$modality_filter))
             {
+                $foundcount++;
                 $filter[':us_yn'] = 1;
-                $andWhere .= ' or us_yn = :us_yn';
+                if($foundcount > 1)
+                {
+                    $andWhere .= ' or ';
+                }
+                $andWhere .= ' us_yn = :us_yn';
+            }
+            if($foundcount != count($modality_filter))
+            {
+                throw new \Exception('Did not find expected match for one or more modalities in filter list>>>'
+                        .print_r($modality_filter,TRUE));
             }
             $andWhere .= ')';
         }
-        $result = db_query($sCoreSQL . ' WHERE type_nm = :type_nm ' . $andWhere, $filter);
+        $runsql = $sCoreSQL . ' WHERE type_nm = :type_nm ' . $andWhere;
+        //error_log('getModalityFilteredResult>>>runsql='.$runsql);
+        $result = db_query($runsql, $filter);
         return $result->fetchCol();
     }
     

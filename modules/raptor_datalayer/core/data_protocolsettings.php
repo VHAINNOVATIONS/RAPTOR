@@ -23,30 +23,77 @@ require_once ("data_utility.php");
  */
 class ProtocolSettings
 {
-    public function getDefaultValuesRawResult($protocol_shortname)
+    public function getProtocolMetaInformation($protocol_shortname)
     {
+        $metainfo = array();
+        $metainfo['attributes'] = $this->getProtocolLibItemStructured($protocol_shortname);
+        $metainfo['defaultvalues'] = $this->getDefaultValuesStructured($protocol_shortname);
+        return $metainfo;
+    }
+    
+    private function getTableFields($tablename, $protocol_shortname)
+    {
+        //raptor_protocol_lib
         if($protocol_shortname == null)
         {
-            die('The protocol_shortname value cannot be null for template query!');
+            throw new \Exception('The protocol_shortname value cannot be null for '
+                    .$tablename.' query!');
         }
         $result = NULL;
         try{
-            $result = db_select('raptor_protocol_template','p')
+            $result = db_select($tablename,'p')
                     ->fields('p')
                     ->condition('protocol_shortname', $protocol_shortname)
                     ->execute();
             if($result->rowCount() !== 1)
             {
-                $msg = 'Trouble getting 1 protocol tempate for ['.$protocol_shortname.'] because found '.$result->rowCount().' instead!';
+                $msg = 'Trouble getting 1 '.$tablename
+                        .' item for ['
+                        .$protocol_shortname
+                        .'] because found '.$result->rowCount().' instead!';
                 error_log($msg);
-                //drupal_set_message('Contact support because '.$msg,'error');
+                throw new \Exception($msg);
             }
         } catch (\Exception $ex) {
-            $msg = 'Trouble getting protocol settings for ['.$protocol_shortname.'] because '.$ex->getMessage();
+            $msg = 'Trouble getting record from '.$tablename
+                    .' for ['.$protocol_shortname.'] because '
+                    .$ex->getMessage();
             error_log($msg);
-            //drupal_set_message('Contact support because '.$msg,'error');
+            throw new \Exception($msg);
         }
         return $result;
+    }
+
+    private function getProtocolLibRawItem($protocol_shortname)
+    {
+        return $this->getTableFields('raptor_protocol_lib', $protocol_shortname);
+    }
+    
+    private function getDefaultValuesRawResult($protocol_shortname)
+    {
+        return $this->getTableFields('raptor_protocol_template', $protocol_shortname);
+    }
+    
+    private function getProtocolLibItemStructured($protocol_shortname)
+    {
+        $result = $this->getProtocolLibRawItem($protocol_shortname);
+        if( $result->rowCount() == 0 )
+        {
+            //TODO -- Throw a fatal error here
+            //throw new /Exception
+            //Return empty result for now --- in production this will be a fatal error!!!
+            drupal_set_message('No modality found for ['.$protocol_shortname
+                    .'] (normal condition during development of the system)','warning'); 
+            $value = array(
+                'modality_abbr' => NULL,
+            );
+        } else {
+            $record = $result->fetchObject();
+            $value = array(
+                'modality_abbr' => $record->modality_abbr,
+            );
+        }
+        return $value;
     }
 
     /**
