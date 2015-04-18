@@ -675,23 +675,33 @@ class TicketTrackingData
     
     /**
      * Delete all the stale records
+     * Logic: If user has not accessed the site in more than USER_EDITLOCK_TIMEOUT_SECONDS
+     *        the the edit lock is removed.  
      */
     public function deleteAllStaleTicketLocks($nSiteID, $extralogmessage=NULL)
     {
+        //error_log('STARTING deleteAllStaleTicketLocks');
         $maxage = USER_EDITLOCK_TIMEOUT_SECONDS;
-        $oldestallowed_dt = date("Y-m-d H:i:s", time() - $maxage);
+        $oldestallowed_ts = time() - $maxage;
+        $oldestallowed_dt = date("Y-m-d H:i:s", $oldestallowed_ts);
+        //First check the raptor table
         $query = db_select('raptor_ticket_lock_tracking', 'n');
-        $query->leftJoin('sessions', 'u', 'n.locked_by_uid = u.uid');
+        $query->leftJoin('users', 'u', 'n.locked_by_uid = u.uid');
+        $query->leftJoin('sessions', 's', 'n.locked_by_uid = s.uid');
         $query->fields('n');
-        $query->fields('u', array('uid'));
+        $query->fields('s', array('uid'));
+        $query->fields('u', array('access'));
         $query->condition('n.siteid', $nSiteID,'=');
-        $db_or = db_or();
+        //$db_or = db_or();
         //$db_or->condition('n.lock_refreshed_dt', $oldestallowed_dt,'<');
-        $db_or->isNull('u.uid');
-        $query->condition($db_or);
+        //$db_or->isNull('s.uid');
+        //$query->condition($db_or);
         $result = $query->execute();
+        $mycount=0;
+        $mydeleted=0;
         foreach($result as $row)
         {
+            $mycount++;
             $sTrackingID = $nSiteID.'-'.$row->IEN;
             $currently_locked_by_uid = $row->locked_by_uid;
             $delete = FALSE;
@@ -702,11 +712,30 @@ class TicketTrackingData
                 $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
                         .' because '.$currently_locked_by_uid
                         .' user is not logged in >>> '.print_r($row,TRUE);
-            } else if($row->lock_refreshed_dt < $oldestallowed_dt) {
-                //Locked ticket is too old.
-                $delete = TRUE;
-                $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
-                        .' because lock too old >>> '.print_r($row,TRUE);
+            } else {
+                $lock_refreshed_ts = strtotime($row->lock_refreshed_dt);    //Because DATE is not a timestamp!!!
+                if($lock_refreshed_ts < $oldestallowed_ts) {
+                    //Locked ticket is too old from raptor lock check.
+                    $diff = $row->lock_refreshed_ts - $oldestallowed_ts;
+                    $delete = TRUE;
+                    $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
+                            .' because lock refresh '.$lock_refreshed_ts
+                            .' ('.$row->lock_refreshed_dt.')'
+                            .' is older than '.$oldestallowed_ts
+                            .' ('.$oldestallowed_dt.')'
+                            .' diff='.$diff
+                            .' >>> '.print_r($row,TRUE);
+                } else if($row->access < $oldestallowed_ts) {
+                    //Locked ticket is too old from core table check.
+                    $diff = $row->access - $oldestallowed_ts;
+                    $delete = TRUE;
+                    $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
+                            .' because access '.$row->access
+                            .' is older than '.$oldestallowed_ts
+                            .' ('.$oldestallowed_ts.')'
+                            .' diff='.$diff
+                            .' >>> '.print_r($row,TRUE);
+                }
             }
             if($delete)
             {
@@ -714,8 +743,13 @@ class TicketTrackingData
                 {
                     $entire_delete_reason .= ' ('.$extralogmessage.')';
                 }
+                $mydeleted++;
                 $this->deleteTicketLock($sTrackingID, $currently_locked_by_uid, $entire_delete_reason);
             }
+        }
+        if($mydeleted>0)
+        {
+            error_log("Deleted $mydeleted stale locks from existing list of $mycount locks found in database.");
         }
     }
     

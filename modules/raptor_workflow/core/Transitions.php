@@ -154,7 +154,7 @@ class Transitions
         } else
         if($sCWFS == 'IA')
         {
-            $sPhrase = 'Canceled';
+            $sPhrase = 'Needs Cancel/Replace';
         } else {
             throw new \Exception('Did NOT find a valid Phrase for workflow state code=[' . $sCWFS . ']');
         }
