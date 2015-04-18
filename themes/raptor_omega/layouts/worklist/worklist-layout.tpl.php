@@ -38,7 +38,7 @@ function get_raptor_workflow_status($code,$assignmentdetails=NULL)
         "CO" => "Collaborative",
         "RV" => "Ready for Review",
         "PA" => "Protocol Acknowledged",
-        //"IA" => "Inactive",
+        "IA" => "Needs Cancel/Replace",
         "EC" => "Interpretation",
         "QA" => "QA"
     );
@@ -185,9 +185,7 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
                     <option value="AP|PA" <?php echo( $m_oUserinfo->getRoleName() == "Technologist" ? "selected" : "" ) ?>>Ready for Examination</option>
                     <option value="EC">Interpretation</option>
                     <option value="QA">QA</option>
-                    <!-- Commented out suspended per ticket 000482
-                    <option value="IA">Suspended</option>
-                    -->
+                    <option value="IA">Needs Cancel/Replace</option>
                     <option value=".*">Show All</option>
                 </select>
             </label>

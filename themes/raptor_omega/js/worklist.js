@@ -66,6 +66,8 @@
                 $.cookie('worklistFilterMode', 'QA');
             } else if (selectedWorklistFilterMode === 'EC'){
                 $.cookie('worklistFilterMode', 'EC');
+            } else if (selectedWorklistFilterMode === 'IA'){
+                $.cookie('worklistFilterMode', 'IA')
             } else {
                 $.cookie('worklistFilterMode', '');
             }
