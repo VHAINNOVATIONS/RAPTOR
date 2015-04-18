@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -53,8 +53,8 @@ function raptor_workflow_basedata()
       ))->execute();
      db_insert('raptor_workflow_state')->fields(array(
         'abbr' => 'IA',
-        'name' => 'Canceled',
-        'description' => 'The ticket has been canceled.',
+        'name' => 'Needs Cancel/Replace',
+        'description' => 'The ticket needs cancel/replace.',
       ))->execute();
      db_insert('raptor_workflow_state')->fields(array(
         'abbr' => 'PA',
