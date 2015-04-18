@@ -48,8 +48,8 @@
         /*** Column Modal Section ***/
 
 
-        // TODO: Not working
-        $('.chk-all').on('click', function (e) {
+        //check all checkbox code is here
+        $('.chk-all').on('click', function () {
             var checkbox = this.nodeName === 'INPUT' ? this : this.querySelector('input');
 
             $(':checkbox', '#worklistTable tbody tr td:first-child').prop('checked', checkbox.checked);
