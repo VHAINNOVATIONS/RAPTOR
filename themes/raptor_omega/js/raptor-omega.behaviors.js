@@ -329,7 +329,7 @@
         };
 
         var isWorklistPage = function () {
-            return location.href.split('/').indexOf('worklist') !== -1;
+            return location.href.split('/').indexOf('worklist') || location.href.split('/').indexOf('worklist?releasealltickets=TRUE') !== -1;
         };
 
         var isProtocolPage = function () {
@@ -477,9 +477,8 @@
             ;
 
             // Check each minute to see if the user needs to be logged out or not
-            setInterval(function () {
+            var runSessionAndLockChecks = setInterval(function () {
                 //userinteractionpingParam = isProtocolPage() ? '?refreshlocks' : '';
-
                 // Need to use grab the base URL from PHP to keep the URL path from breaking userinteractionpingParam
                 $.getJSON(Drupal.pageData.baseURL + '/raptor/userinteractionping', function (response) {
                     // console.log('Outer raptor/userinteractionping %s', 0, response);
@@ -545,7 +544,11 @@
 
 
         /*** Page events ***/
-
+        /*a more controlled way of handling interval function*/
+        $(document).ready(function(){
+            runSessionAndLockChecks;
+        });
+        
         // Clickable logo
         $('.logo').on('click', function (e) {
             window.location.href = Drupal.pageData.baseURL + '/worklist';
