@@ -60,6 +60,7 @@ class Menus
         {
             $item = array();
             $item['id'] = 'nav-changepassword';
+            $item['size'] = 'normal';
             $item['displayText'] = 'Change Password';
             $item['url'] = $base_url.'/raptor/changepassword';
             $item['enabled']=($this->m_uicontext == \raptor\Menus::UICONTEXT_PROTOCOL ? FALSE : TRUE);
@@ -69,6 +70,7 @@ class Menus
         } else {
             $item = array();
             $item['id'] = 'nav-editprofile';
+            $item['size'] = 'normal';
             $item['displayText'] = 'Edit Profile';
             $item['url'] = $base_url.'/raptor/editselfprofile';
             $item['enabled']=($this->m_uicontext == \raptor\Menus::UICONTEXT_PROTOCOL ? FALSE : TRUE);
@@ -81,6 +83,7 @@ class Menus
         {
             $item = array();
             $item['id'] = 'nav-manageusers';
+            $item['size'] = 'normal';
             $item['displayText'] = 'Manage Users';
             $item['url'] = $base_url.'/raptor/manageusers';
             $item['enabled']=($this->m_uicontext == \raptor\Menus::UICONTEXT_PROTOCOL ? FALSE : TRUE);
@@ -93,6 +96,7 @@ class Menus
         {
             $item = array();
             $item['id'] = 'nav-managecontraindications';
+            $item['size'] = 'normal';
             $item['displayText'] = 'Manage Contraindications';
             $item['url'] = $base_url.'/raptor/managecontraindications';
             $item['enabled']=($this->m_uicontext == \raptor\Menus::UICONTEXT_PROTOCOL ? FALSE : TRUE);
@@ -105,6 +109,7 @@ class Menus
         {
             $item = array();
             $item['id'] = 'nav-manageprotocolLibpage';
+            $item['size'] = 'normal';
             $item['displayText'] = 'Manage Protocols';
             $item['url'] = $base_url.'/raptor/manageprotocollib';
             $item['enabled']=($this->m_uicontext == \raptor\Menus::UICONTEXT_PROTOCOL ? FALSE : TRUE);
@@ -120,6 +125,7 @@ class Menus
         { 
             $item = array();
             $item['id'] = 'nav-managelists';
+            $item['size'] = 'normal';
             $item['displayText'] = 'Manage Lists';
             $item['url'] = $base_url.'/raptor/managelists';
             $item['enabled']=($this->m_uicontext == \raptor\Menus::UICONTEXT_PROTOCOL ? FALSE : TRUE);
@@ -133,6 +139,7 @@ class Menus
         {
             $item = array();
             $item['id'] = 'nav-viewReports';
+            $item['size'] = 'normal';
             $item['displayText'] = 'View Reports';
             $item['url'] = $base_url.'/raptor/viewReports';
             $item['enabled']=($this->m_uicontext == \raptor\Menus::UICONTEXT_PROTOCOL ? FALSE : TRUE);
@@ -144,6 +151,7 @@ class Menus
 
         $item = array();
         $item['id'] = 'nav-about';
+        $item['size'] = 'small';
         $item['displayText'] = 'About';
         $item['url'] = $base_url.'/raptor/about';
         $item['enabled']  = TRUE;

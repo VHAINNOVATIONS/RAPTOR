@@ -43,6 +43,7 @@ if(isset($is_protocol_page) && $is_protocol_page)
                     foreach($adminmenu as $item)
                     {
                         $li_customattrib_text = $item['indialog'] ? '' : ' data-no-dialog';
+                        $li_customattrib_text .= ' dialog-size-'.$item['size'];
                         $a_id = $item['id'];
                         $a_href = $item['url'];
                         $itemhelp = $item['helpText'];
