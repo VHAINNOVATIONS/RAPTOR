@@ -325,7 +325,6 @@ class ScheduleTicketPage
     
     /**
      * Write the values into the database.
-     * Return 0 if there was an error, else 1.
      */
     function updateDatabase($form, $myvalues)
     {
@@ -469,6 +468,12 @@ class ScheduleTicketPage
             throw new \Exception('Failed to save notes for this ticket!');
         }
 
+        //If we made it here, go ahead and mark the order as inactive.
+        $sNewWFS = 'IA';
+        $this->m_oTT->setTicketWorkflowState($nSiteID . '-' . $nIEN
+                , $nUID, $sNewWFS, $sCWFS, $updated_dt);
+
+        
         //Write success message
         $sforinfo=trim($save_scheduled_dt . ($myvalues['location_tx'] > '' ? ' in ' . $myvalues['location_tx'] : ''));
         if($sforinfo != NULL && $sforinfo != '')

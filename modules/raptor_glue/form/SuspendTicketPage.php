@@ -18,7 +18,7 @@ require_once ('FormHelper.php');
 module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 
 /**
- * Implementes the suspend ticket page.
+ * Implements the suspend ticket page.
  *
  * @author Frank Font of SAN Business Consultants
  */
