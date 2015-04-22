@@ -111,7 +111,7 @@ class AllowedActions
 
     public function allowReplaceOrder($current_wfs,&$feedback='')
     {
-        $allowed=array('AC','CO','RV','AP','PA');
+        $allowed=array('AC','CO','RV','AP','PA','IA');
         if(!in_array($current_wfs, $allowed))
         {
             $feedback = "Only active orders that have not completed examination can be replaced.";
@@ -122,7 +122,7 @@ class AllowedActions
     
     public function allowCancelOrder($current_wfs,&$feedback='')
     {
-        $allowed=array('AC','CO','RV','AP','PA');
+        $allowed=array('AC','CO','RV','AP','PA','IA');
         if(!in_array($current_wfs, $allowed))
         {
             $feedback = "Only active orders that have not completed examination can be canceled.";

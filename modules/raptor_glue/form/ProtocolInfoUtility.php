@@ -1215,8 +1215,8 @@ class ProtocolInfoUtility
             }
 
             //Is this a canceled ticket?
-            if($sCWFS == 'IA')
-            {
+            //if($sCWFS == 'IA')
+           // {
                 /* we cannot un-cancel if canceled in VISTA
                 //This is a canceled ticket
                 $form['page_action_buttons_area']['unsuspend_button'] = array('#type' => 'submit'
@@ -1224,8 +1224,8 @@ class ProtocolInfoUtility
                     , '#attributes' => array('title' => $sUnsuspendTip)
                     );
                  */
-            } else {
-                //This is NOT a canceled ticket
+            //} else {
+            //    //This is NOT a canceled ticket
                 if($userprivs['SUWI1'] == 1)
                 {
                     if($oAA->allowReplaceOrder($sCWFS))
@@ -1246,7 +1246,7 @@ class ProtocolInfoUtility
                             );
                     }
                 }
-            }
+            //}
         }
         
         //Show special workflow override buttons at the end
