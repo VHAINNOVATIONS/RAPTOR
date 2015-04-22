@@ -338,8 +338,12 @@ class ScheduleTicketPage
         
         if(!$this->looksValid($form, $myvalues))
         {
-            return 0;
+            throw new \Exception("Cannot save values because form is not valid!");
         }
+     
+        //Declare flags
+        $flag_collab = FALSE;
+        $flag_cancel = FALSE;
         
         //Get the datetime formatted for saving into the database.
         $scheduled_dt = NULL;
@@ -422,6 +426,7 @@ class ScheduleTicketPage
             } else {
                 $this->m_oTT->setCollaborationUser($sTrackingID, $nUID, 'Needs Attention', $myvalues['suggested_uid']);
             }
+            $flag_collab = TRUE;
         }
         
         //Create the schedule track record now
@@ -433,6 +438,7 @@ class ScheduleTicketPage
                 {
                     //Use a new date.
                     $candidate_canceled_dt = $updated_dt;
+                    $flag_cancel = TRUE;
                 } else {
                     //Use original date.
                     $candidate_canceled_dt = $original_canceled_dt;
@@ -441,6 +447,16 @@ class ScheduleTicketPage
                 //No cancelation.
                 $candidate_canceled_dt = NULL;
             }
+            
+            if($flag_cancel)
+            {
+                $newcomment = 'Requested cancel/replace';
+            } else if($flag_collab) {
+                $newcomment = 'Assigned a suggested collaborator';
+            } else {
+                $newcomment = 'Updated scheduling information';
+            }
+            $newcomment = $newcomment."\n".$myvalues['notes_tx'];
             
             db_merge('raptor_schedule_track')
                 ->key(array('siteid' => $nSiteID,
@@ -451,7 +467,7 @@ class ScheduleTicketPage
                         'scheduled_dt' => $save_scheduled_dt,
                         'duration_am' => (is_numeric($myvalues['duration_am']) && $myvalues['duration_am'] !== '0' ? $myvalues['duration_am'] : NULL ),
                         'location_tx' => $myvalues['location_tx'],
-                        'notes_tx' => $myvalues['notes_tx'],
+                        'notes_tx' => $newcomment,
                         'notes_critical_yn' => $myvalues['notes_critical_yn'],
                         'confirmed_by_patient_dt' => ($myvalues['confirmed_by_patient_yn'] == 1 ? ($original_confirmation_dt == NULL ? $updated_dt : $original_confirmation_dt) : NULL) ,
                         'canceled_reason_tx' => $myvalues['canceled_reason_tx'],
@@ -475,12 +491,20 @@ class ScheduleTicketPage
 
         
         //Write success message
-        $sforinfo=trim($save_scheduled_dt . ($myvalues['location_tx'] > '' ? ' in ' . $myvalues['location_tx'] : ''));
-        if($sforinfo != NULL && $sforinfo != '')
+        if($flag_cancel)
         {
-            $sforinfo = ' for ' . $sforinfo;
+            $usermsg = 'Requested cancel/replace';
+        } else if($flag_collab) {
+            $usermsg = 'Assigned a suggested collaborator';
+        } else {
+            $sforinfo=trim($save_scheduled_dt . ($myvalues['location_tx'] > '' ? ' in ' . $myvalues['location_tx'] : ''));
+            if($sforinfo != NULL && $sforinfo != '')
+            {
+                $sforinfo = ' for ' . $sforinfo;
+            }
+            $usermsg = 'Updated scheduling information'.$sforinfo;
         }
-        drupal_set_message('Pass Box settings saved for ' . $sTrackingID . ' (' . $myvalues['procName'] .')' . $sforinfo); 
+        drupal_set_message('Pass Box settings saved for ' . $sTrackingID . ' (' . $myvalues['procName'] .') ' . $usermsg); 
         
         return 1;
     }
