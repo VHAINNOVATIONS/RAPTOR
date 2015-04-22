@@ -876,7 +876,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
             //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
             $clickedvalue = 'Collaborate';
-        } elseif(isset($myvalues['commit_esig']) && trim($myvalues['commit_esig'])>'' && trim($myvalues['commit_esig'])!='CANCEL' 
+        } elseif(isset($myvalues['commit_esig']) 
+                && trim($myvalues['commit_esig'])>'' 
+                && trim($myvalues['commit_esig'])!='CANCEL' 
                 && (substr($clickedvalue,0,2) == 'QA' || substr($clickedvalue,0,2) == 'In' ))  {
             //Change the clicked button value
             $aParts = explode(' ', $clickedvalue);
@@ -1149,6 +1151,12 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             //######################
             // COMMIT TO VISTA BLOCK
             //######################
+            if(!$oAA->allowCommitNotesToVista($sCWFS, $feedback))
+            {
+                drupal_set_message($feedback,'error');
+                $bGood = FALSE;
+            }
+            
             if(!isset($myvalues['selected_vid']) || trim($myvalues['selected_vid']) == '')
             {
                 drupal_set_message('Cannot commit to Vista without a selected visit','error');

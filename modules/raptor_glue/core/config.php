@@ -9,12 +9,13 @@
 require_once '64bitVM_local.inc';
 
 defined("RAPTOR_BUILD_ID")
-    or define("RAPTOR_BUILD_ID", 'Test Candidate 20150411.1');
+    or define("RAPTOR_BUILD_ID", 'Test Candidate 20150422.1');
 
 require_once 'InternalDefs.inc';
 require_once 'TimeDefs.inc';
 require_once 'VistaDefs.inc';
 require_once 'ErrorCodeDefs.inc';
 require_once 'GeneralDefs.inc';
+require_once 'WorkflowDefs.inc';
 require_once 'MdwsDefs.inc';
 

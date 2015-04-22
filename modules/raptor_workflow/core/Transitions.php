@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -20,7 +20,7 @@ namespace raptor;
  */
 class Transitions 
 {
-    private $m_aTransitions = array(
+    private $m_aBaselineTransitions = array(
         'AC'=>array('AC','CO','RV','IA')
         ,'CO'=>array('AC','CO','RV','IA')
         ,'RV'=>array('AC','CO','RV','IA')
@@ -30,6 +30,16 @@ class Transitions
         ,'QA'=>array('QA','IA')
         ,'IA'=>array('AC')
         );
+ 
+    function __construct()
+    {
+        $loaded = module_load_include('php','raptor_glue','core/config');
+        if(!$loaded)
+        {
+            $msg = 'Failed to load the core/config values';
+            throw new \Exception($msg);      //This is fatal, so stop everything now.
+        }
+    }
     
     /**
      * Return TRUE if a ticket is available for protocoling.
@@ -65,14 +75,16 @@ class Transitions
 
     /**
      * Return array of allowed transitions from the provided workflow state.
+     * WARNING: These are allowed transitions BEFORE considering customizations!
      */
-    public function getAllowedTransitions($sFrom)
+    private function getAllowedBaselineTransitions($sFrom)
     {
-        if(!isset($this->m_aTransitions[$sFrom]))
+        if(!isset($this->m_aBaselineTransitions[$sFrom]))
         {
             throw new \Exception('Invalid from state value "'.$sFrom.'"!');
         }
-        return $m_aTransitions[$sFrom];
+        $allowedtransitions = $this->m_aBaselineTransitions[$sFrom];
+        return $allowedtransitions;
     }
     
     /**
@@ -80,7 +92,37 @@ class Transitions
      */
     public function isAllowedTransition($sFrom, $sTo)
     {
-        $aAllowed = $this->getAllowedTransitions($sFrom);
+        //Check all the custom FALSE result overrides first.
+        if(BLOCK_TICKET_STATE_PA && $sTo == 'PA')
+        {
+            return FALSE;
+        }
+        if(BLOCK_TICKET_STATE_EC && $sTo == 'EC')
+        {
+            return FALSE;
+        }
+        //Check all the custom TRUE result overrides next.
+        if(ALLOW_TICKET_STATE_SHORTCUT_TO_QA_FROM_AP && $sFrom == 'AP' && $sTo == 'QA')
+        {
+            return TRUE;
+        }
+        if(ALLOW_TICKET_STATE_SHORTCUT_TO_QA_FROM_PA && $sFrom == 'PA' && $sTo == 'QA')
+        {
+            return TRUE;
+        }
+        /*
+            die("BBBB WHY IS THIS STILL SHOWING THE BUTTON!!!!!($sFrom, $sTo)"
+                    . "<br>[".RAPTOR_BUILD_ID."]"
+                    . "<br>[".WORKFLOW_DEFS_VERSION_INFO."]"
+                    . "<br>[".ALLOW_TICKET_STATE_SHORTCUT_TO_QA_FROM_AP."]"
+                    . "<br>[".ALLOW_TICKET_STATE_SHORTCUT_TO_QA_FROM_EC."]"
+                    . "<br>[".BLOCK_TICKET_STATE_AP."]"
+                    . "<br>[".BLOCK_TICKET_STATE_EC."]"
+                    );
+         * 
+         */
+        //If we are here, simply use the baseline map as the guide.
+        $aAllowed = $this->getAllowedBaselineTransitions($sFrom);
         return in_array($sTo, $aAllowed);
     }
     
@@ -90,7 +132,7 @@ class Transitions
      * E = Examination mode
      * I = Interpretation mode
      * Q = QA mode
-     * C = Canceled mode
+     * C = Cancel/replace requested mode
      */
     public function getTicketProcessingModeCodeFromWFS($sCWFS)
     {

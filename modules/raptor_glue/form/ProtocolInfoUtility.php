@@ -1020,7 +1020,8 @@ class ProtocolInfoUtility
         return $root;
     }    
     
-    function getPageActionButtonsArea(&$form_state, $disabled, $myvalues, $has_uncommitted_data=FALSE,$commited_dt=NULL)
+    function getPageActionButtonsArea(&$form_state, $disabled, $myvalues
+            , $has_uncommitted_data=FALSE,$commited_dt=NULL)
     {
         $oContext = \raptor\Context::getInstance();
         $userinfo = $oContext->getUserInfo();
@@ -1043,21 +1044,25 @@ class ProtocolInfoUtility
             $collaborateTip = 'Assign this order a specialist with current edits saved and continue with the next available personal batch selection.';
             $approveTip = 'Save this order as approved and continue with the next available personal batch selection.';
             $suspendTip = 'Suspend this order without saving edits and continue with the next available personal batch selection.';
-            $cancelOrderTip = 'Cancel this order in VISTA and continue with the next available personal batch selection.';
+            $cancelOrderTip = 'Cancel this order in VistA and continue with the next available personal batch selection.';
             $sUnsuspendTip = 'Restore this order back to the worklist and continue with next available personal batch selection.';
-            $replaceOrderTip = 'Replace this order in VISTA with a new order and continue with the next available personal batch selection';
-            $createNewOrderTip = 'Create a new order in VISTA with continue with the next available personal batch selection';
+            $replaceOrderTip = 'Replace this order in VistA with a new order and continue with the next available personal batch selection';
+            $createNewOrderTip = 'Create a new order in VistA with continue with the next available personal batch selection';
+            $ackproAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
+            $examcompAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
         } else {
             $sRequestApproveTip = 'Save this order as ready for review and return to the worklist.';
             $releaseTip = 'Release this order without saving changes and return to the worklist.';
             $reserveTip = 'Assign this order to yourself with current edits saved and return to the worklist.';
             $collaborateTip = 'Assign this order to a specialist with current edits saved and return to the worklist.';
             $approveTip = 'Save this order as approved and return to the worklist.';
-            $cancelOrderTip = 'Cancel this order in VISTA and return to the worklist.';
+            $cancelOrderTip = 'Cancel this order in VistA and return to the worklist.';
             $suspendTip = 'Suspend this order without saving changes and return to the worklist.';
             $sUnsuspendTip = 'Restore this order back to the worklist.';
-            $replaceOrderTip = 'Replace this order in VISTA with a new order';
-            $createNewOrderTip = 'Create a new order in VISTA';
+            $replaceOrderTip = 'Replace this order in VistA with a new order';
+            $createNewOrderTip = 'Create a new order in VistA';
+            $ackproAndCommitTip = 'Mark workflow as finished and commit the details to Vista';
+            $examcompAndCommitTip = 'Mark workflow as finished and commit the details to Vista';
         }
         $feedback = NULL;
         
@@ -1086,24 +1091,49 @@ class ProtocolInfoUtility
                     , '#attributes' => array('title' => $examcompletionTip)
                     );
             }
+            
+            if($oAA->allowCommitNotesToVista($sCWFS))
+            {
+                //Check for special short circuit finish buttons
+                if($sCWFS == 'AP')
+                {
+                    $form['page_action_buttons_area']['finsh_ap_button_and_commit'] = array('#type' => 'submit'
+                        , '#value' => t('Acknowledge Protocol and Commit Details to VistA')
+                        , '#attributes' => array('title' => $ackproAndCommitTip)
+                        , '#disabled' => FALSE, 
+                        );
+                } else
+                if($sCWFS == 'PA')
+                {
+                    $form['page_action_buttons_area']['finsh_pa_button_and_commit'] = array('#type' => 'submit'
+                        , '#value' => t('Exam Completed and Commit Details to VistA')
+                        , '#attributes' => array('title' => $examcompAndCommitTip)
+                        , '#disabled' => FALSE, 
+                        );
+                }
+            }
+            
             if($oAA->allowInterpretationComplete($sCWFS))
             {
                 $form['page_action_buttons_area']['interpret_button'] = array('#type' => 'submit'
                     , '#value' => t('Interpretation Complete')
                     , '#attributes' => array('title' => $interpretationTip)
                     );
-                if($has_uncommitted_data)
+                if($oAA->allowCommitNotesToVista($sCWFS))
                 {
-                    $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
-                        , '#value' => t('Interpretation Complete and Commit Details to Vista')
-                        , '#attributes' => array('title' => $interpretationTip)
-                        , '#disabled' => FALSE,  //Not ready as of 20140810
-                        );
-                } else {
-                    $feedback = 'All procedure data has been committed to Vista';
-                    if($commited_dt != NULL)
+                    if($has_uncommitted_data)
                     {
-                        $feedback .= ' as of ' . $commited_dt;
+                        $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
+                            , '#value' => t('Interpretation Complete and Commit Details to Vista')
+                            , '#attributes' => array('title' => $interpretationTip)
+                            , '#disabled' => FALSE,  //Not ready as of 20140810
+                            );
+                    } else {
+                        $feedback = 'All procedure data has been committed to Vista';
+                        if($commited_dt != NULL)
+                        {
+                            $feedback .= ' as of ' . $commited_dt;
+                        }
                     }
                 }
             }
@@ -1113,18 +1143,21 @@ class ProtocolInfoUtility
                     , '#value' => t('QA Complete')
                     , '#attributes' => array('title' => $qaTip)
                     );
-                if($has_uncommitted_data)
+                if($oAA->allowCommitNotesToVista($sCWFS))
                 {
-                    $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
-                        , '#value' => t('QA Complete and Commit Details to Vista')
-                        , '#attributes' => array('title' => $qaTip)
-                        , '#disabled' => FALSE,  
-                        );
-                } else {
-                    $feedback = 'All procedure data has been committed to Vista';
-                    if($commited_dt != NULL)
+                    if($has_uncommitted_data)
                     {
-                        $feedback .= ' as of ' . $commited_dt;
+                        $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
+                            , '#value' => t('QA Complete and Commit Details to Vista')
+                            , '#attributes' => array('title' => $qaTip)
+                            , '#disabled' => FALSE,  
+                            );
+                    } else {
+                        $feedback = 'All procedure data has been committed to Vista';
+                        if($commited_dt != NULL)
+                        {
+                            $feedback .= ' as of ' . $commited_dt;
+                        }
                     }
                 }
             }
@@ -1214,39 +1247,26 @@ class ProtocolInfoUtility
                 }
             }
 
-            //Is this a canceled ticket?
-            //if($sCWFS == 'IA')
-           // {
-                /* we cannot un-cancel if canceled in VISTA
-                //This is a canceled ticket
-                $form['page_action_buttons_area']['unsuspend_button'] = array('#type' => 'submit'
-                    , '#value' => t('Unsuspend')
-                    , '#attributes' => array('title' => $sUnsuspendTip)
-                    );
-                 */
-            //} else {
-            //    //This is NOT a canceled ticket
-                if($userprivs['SUWI1'] == 1)
+            if($userprivs['SUWI1'] == 1)
+            {
+                if($oAA->allowReplaceOrder($sCWFS))
                 {
-                    if($oAA->allowReplaceOrder($sCWFS))
-                    {
-                        //Replace order only if allowed to cancel an order
-                        $form['page_action_buttons_area']['replace_order_button'] 
-                                = array('#markup' 
-                                    => '<input id="raptor-protocol-replace-order-button"'
-                                    . ' type="button"'
-                                    . ' value="Replace Order" title="'.$replaceOrderTip.'">');
-                    }
-                    if($oAA->allowCancelOrder($sCWFS))
-                    {
-                        //Cancel an order only if allowed to cancel an order
-                        $form['page_action_buttons_area']['cancelorder_button'] = array('#type' => 'submit'
-                            , '#value' => t('Cancel Order')
-                            , '#attributes' => array('title' => $cancelOrderTip)
-                            );
-                    }
+                    //Replace order only if allowed to cancel an order
+                    $form['page_action_buttons_area']['replace_order_button'] 
+                            = array('#markup' 
+                                => '<input id="raptor-protocol-replace-order-button"'
+                                . ' type="button"'
+                                . ' value="Replace Order" title="'.$replaceOrderTip.'">');
                 }
-            //}
+                if($oAA->allowCancelOrder($sCWFS))
+                {
+                    //Cancel an order only if allowed to cancel an order
+                    $form['page_action_buttons_area']['cancelorder_button'] = array('#type' => 'submit'
+                        , '#value' => t('Cancel Order')
+                        , '#attributes' => array('title' => $cancelOrderTip)
+                        );
+                }
+            }
         }
         
         //Show special workflow override buttons at the end

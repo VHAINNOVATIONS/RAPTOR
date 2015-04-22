@@ -716,7 +716,7 @@ class TicketTrackingData
                 $lock_refreshed_ts = strtotime($row->lock_refreshed_dt);    //Because DATE is not a timestamp!!!
                 if($lock_refreshed_ts < $oldestallowed_ts) {
                     //Locked ticket is too old from raptor lock check.
-                    $diff = $row->lock_refreshed_ts - $oldestallowed_ts;
+                    $diff = $lock_refreshed_ts - $oldestallowed_ts;
                     $delete = TRUE;
                     $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
                             .' because lock refresh '.$lock_refreshed_ts
