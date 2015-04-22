@@ -465,8 +465,8 @@ class ScheduleTicketPage
         catch(\Exception $e)
         {
             error_log('Failed to create raptor_schedule_track: ' . $e . "\nDetails..." . print_r($oInsert,true));
-            form_set_error('notes_tx','Failed to save notes for this ticket!');
-            return 0;
+            //form_set_error('notes_tx','Failed to save notes for this ticket!');
+            throw new \Exception('Failed to save notes for this ticket!');
         }
 
         //Write success message
@@ -637,6 +637,17 @@ class ScheduleTicketPage
             '#options' => $optionsConfirmed,
             '#description' => t('Has the patient confirmed this appointment?'),
         );
+
+        $form['data_entry_area1']['middlepart']['rqstalterticket'] = array(
+            '#type'     => 'fieldset',
+            '#title'    => t('Request Cancel or Replace (Moves in RAPTOR but does not change VISTA attributes)'),
+            '#attributes' => array(
+                'class' => array(
+                    'data-entry1-area'
+                )
+             ),
+            '#disabled' => $disabled,
+        );
         
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $aCancelOptions = \raptor\MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
@@ -646,7 +657,7 @@ class ScheduleTicketPage
         {
             $fulloptionlist[] = $option;
         }
-        $form['data_entry_area1']['middlepart']['canceled_reason_tx'] = array(
+        $form['data_entry_area1']['middlepart']['rqstalterticket']['canceled_reason_tx'] = array(
             "#type" => "select",
             "#title" => t("Reason for cancellation or replace order request"),
             "#options" => $fulloptionlist,

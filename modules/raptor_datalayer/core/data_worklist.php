@@ -365,7 +365,7 @@ class WorklistData
                 if(isset($sqlScheduleTrackRow->canceled_dt))
                 {
                     //If we are here, clear everything before.
-                    $showText = 'Canceled '.$sqlScheduleTrackRow->canceled_dt; 
+                    $showText = 'Cancel requested '.$sqlScheduleTrackRow->canceled_dt; 
                 }
                 if(trim($sqlScheduleTrackRow->notes_tx) > '')
                 {
