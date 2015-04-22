@@ -898,6 +898,11 @@ function raptor_about_form_builder($form, &$form_state)
             . '<ul>'
             . '<li>Time settings:'.TIME_DEFS_VERSION_INFO.'</li>'
             . '</ul>'
+            . '<h4>Site Customization Version Information</h4>'
+            . '<ul>'
+            . '<li>General: '.GENERAL_DEFS_VERSION_INFO.'</li>'
+            . '<li>Workflow: '.WORKFLOW_DEFS_VERSION_INFO.'</li>'
+            . '</ul>'
             . '</div>'
             . '</div> <!-- End about-dialog div -->';
     
