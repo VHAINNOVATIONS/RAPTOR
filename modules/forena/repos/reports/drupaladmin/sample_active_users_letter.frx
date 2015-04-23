@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Active Users Email</title>
+<frx:category>Drupal Administration</frx:category>
+<frx:options />
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+  <frx:doc type="email" />
+</frx:docgen>
+<frx:fields>
+</frx:fields>
+</head>
+<body>
+  <div frx:block="drupal/active_users" id="forena-1" frx:foreach="*" class="FrxEmailMerge">
+    <div class="email-document">
+      <div>
+        <table>
+          <tbody>
+            <tr>
+              <th>From</th>
+              <td class="email-header-from">metzlerd@evergreen.edu</td>
+            </tr>
+            <tr>
+              <th>To</th>
+              <td class="email-header-to">{mail}</td>
+            </tr>
+            <tr>
+              <th>Subject</th>
+              <td class="email-header-subject">Sample Email</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="email-body">
+        <p>Dear {name}</p>
+        <p>This is a sample letter that demonstrates the ability to
+          send email to all active users of a drupal site. Copy or save
+          this report as a different name, prior to customizing it or
+          the report will be overwritten during future upgrades to
+          forena.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+

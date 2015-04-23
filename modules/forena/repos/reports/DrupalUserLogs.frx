@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>User logs - Obsolete</title>
+<frx:category>Drupal Administration</frx:category>
+<frx:options hidden="1" />
+<frx:parameters>
+</frx:parameters>
+<frx:fields>
+</frx:fields>
+<frx:docgen />
+</head>
+<body>
+  <p>This report is obsolete and will be removed in the next major release</p>
+</body>
+</html>

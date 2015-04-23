@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>External SVG Graph Example</title>
+<frx:category>Sample</frx:category>
+<frx:options hidden="1"></frx:options>
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields>
+  <frx:field id="state" link="" format="" format-string="" target="" />
+  <frx:field id="name" link="" format="" format-string="" target="" />
+  <frx:field id="total"
+    link="reports/sample.user_distribution_simple?state={state}#test"
+    format="" format-string="" target="" />
+</frx:fields>
+<frx:menu/><frx:cache/></head>
+<body>
+  <div>
+    <p>This example demonstrates graphing with SVG in a way that supports
+    older browsers that do not support inline SVG. If using Internet Explorer prior to version
+    9 you would need an additional plugin to enable SVG support.</p>
+  </div>
+  <div frx:block="sampledb/users_by_state" id="forena-1">
+    <div
+      frx:src="reports/sample.state_graph.svg?height=400&amp;width=600"
+      frx:renderer="FrxInclude" frx:height="480" frx:width="640">
+      <p>To see a sample graph embedded in this report. Install
+        SVGGraph into your sites/all/libraries folder and enable the SVG
+        document type in the forena document types configuration.</p>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr frx:foreach="*" id="forena-2">
+          <td>{state} - {name}</td>
+          <td>{total}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

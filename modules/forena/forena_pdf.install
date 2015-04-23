@@ -1,0 +1,14 @@
+<?php
+/**
+ * @file
+ * Forena PDF installation
+ */
+
+/**
+ * Implementation of hook_uninstall
+ */
+function forena_pdf_uninstall() {
+  variable_del('forena_pdf_disable_links');
+  variable_del('forena_pdf_generator');
+  variable_del('fornea_pdf_prince_path');
+}

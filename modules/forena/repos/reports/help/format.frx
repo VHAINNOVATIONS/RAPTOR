@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Format</title>
+<frx:category>Help</frx:category>
+<frx:options hidden="1" />
+<frx:parameters>
+</frx:parameters>
+<frx:docgen />
+<frx:fields>
+  <frx:field id="title" link="reports/help.reportingwysiwyg">WYSIWYG Reporting</frx:field>
+</frx:fields>
+</head>
+<body>
+  <p>This document is no longer in use please see the {title}</p>
+</body></html>

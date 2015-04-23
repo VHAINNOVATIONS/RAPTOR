@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <booktitle>Sample database (SQLite)</booktitle>
+  <bookfolder>sample</bookfolder>
+  <chapters>
+    <chapter>
+      <title>Simple Table of States</title>
+      <subtitle>Display of the states table as a standard HTML table</subtitle>
+      <abstract>Get started with an HTML table display of all rows of the states table contained in the example database, which is in SQLite format.</abstract>
+      <link>states</link>
+    </chapter>
+    <chapter>
+      <title>Users in cities assigned to a state</title>
+      <subtitle>Report that filters based on state lookup</subtitle>
+      <abstract>Display a subset of rows in a table using a report parameter to specify the state of the rows to be displayed.</abstract>
+      <link>user_distribution_simple</link>
+    </chapter>
+    <chapter>
+      <title>Master Summary with drill down</title>
+      <subtitle>A graph containing links to another drill down report and embedded calculations.</subtitle>
+      <abstract>Graph with a related report with links back to the Report that filters based on state lookup. This report also demonstrates the
+      use of calculation fields embedded in a report. </abstract>
+      <link>state_summary</link>
+    </chapter>
+    <chapter>
+      <title>Master detail with nested blocks</title>
+      <subtitle>Display all users in each city of each state</subtitle>
+      <abstract>Display a data block of states, whereas for each state another (nested) data block of cities should be shown also.</abstract>
+      <link>state_breakdown</link>
+    </chapter>
+    <chapter>
+      <title>External SVG Graph Example</title>
+      <subtitle>An alternative for creating SVG graphs supported by older browsers</subtitle>
+      <abstract>Graph created in a way that supports older browsers that do not support inline SVG.</abstract>
+      <link>state_summary_ie8</link>
+    </chapter>
+    <chapter>
+      <title>Customized Simple Table of States</title>
+      <subtitle>Variation of the Simple Table of States report using a custom skin</subtitle>
+      <abstract>Display the states table using a custom skin in which the dataTables jQuery plugin is enabled.</abstract>
+      <link>states_custom</link>
+    </chapter>
+    <chapter>
+      <title>Sample State Graph</title>
+      <subtitle>Graph that can be referenced in another report</subtitle>
+      <abstract>Graph that needs to be referenced in another report embedded in an object tag, to make it browser compatible.</abstract>
+      <link>state_graph</link>
+    </chapter>
+    <chapter>
+      <title>SVG Graph Demo</title>
+      <subtitle>Preview of various graph types supported by SVG Graph</subtitle>
+      <abstract>Various types of graphs, combined with all sorts of available graphing options.</abstract>
+      <link>svg_demo</link>
+    </chapter>
+  </chapters>
+</book>

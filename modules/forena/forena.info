@@ -1,0 +1,14 @@
+name = Forena Reports
+description = General Report Writing Tool.
+core = 7.x
+files[] = forena.test
+files[] = ForenaViewsPlugin.inc
+testing_api = 2.x
+package = Forena
+
+; Information added by Drupal.org packaging script on 2015-03-07
+version = "7.x-4.2"
+core = "7.x"
+project = "forena"
+datestamp = "1425758003"
+

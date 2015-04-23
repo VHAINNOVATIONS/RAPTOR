@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Master Summary with drill down</title>
+<frx:category>Sample</frx:category>
+<frx:options hidden="1"></frx:options>
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields>
+  <frx:field id="state" link="" format="" format-string="" target="" />
+  <frx:field id="name" link="" format="" format-string="" target="" />
+  <frx:field id="total"
+    link="reports/sample.user_distribution_simple?state={state}#test"
+    format="" format-string="" target="" />
+  <frx:field id="summary_total" calc="sum(*/total)"/>
+</frx:fields>
+<frx:menu/><frx:cache/></head>
+<body>
+  <div>
+    <p>This report links back to the sample report 2. You can begin
+      to see the possibilities for inter-connecting reports</p>
+  </div>
+  <div frx:block="sampledb/users_by_state" id="users_by_state-block" class="FrxSVGGraph">
+    <svg id="state-chart"
+      frx:renderer="FrxSVGGraph" frx:type="bargraph"
+      frx:xpath="*[total&gt;10000]"
+      frx:color="{color}"
+      frx:link="sample.user_distribution_simple?state={state}"
+      frx:series_1="{total}" frx:label="{state}">
+    </svg>
+    <table>
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr frx:foreach="*" id="users_by_state">
+          <td>{state} - {name}</td>
+          <td>{total}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <!-- The following total is defined by the calculation defined in the above frx:field id="summary_total at the
+          top of the report -->
+        <tr>
+          <td>Total of all States</td>
+          <td>({summary_total})</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</body>
+</html>

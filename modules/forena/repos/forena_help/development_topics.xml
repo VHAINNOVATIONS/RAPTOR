@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <booktitle>Development</booktitle>
+  <bookfolder>help.development</bookfolder>
+  <chapters>
+    <chapter>
+      <title>Introduction</title>
+      <subtitle>Content at a glance</subtitle>
+      <abstract></abstract>
+      <link>intro</link>
+    </chapter>
+    <chapter>
+      <title>Available hooks</title>
+      <subtitle>Available hooks for adding reporting extensions</subtitle>
+      <abstract>Custom hooks are implemented to allow the report engine to be extended in many ways. Using OOP methodologies, any of the available classes may be extended, or new ones can be written from scratch.</abstract>
+      <link>hooks</link>
+    </chapter>
+    <chapter>
+      <title>Custom Formatters</title>
+      <subtitle>Implement custom formatters either in control objects or in data plugin objects</subtitle>
+      <abstract>Implementing a formatter requires the implementation of Formatter Methods and a Formats Registration Function.</abstract>
+      <link>formats</link>
+    </chapter>
+  </chapters>
+</book>

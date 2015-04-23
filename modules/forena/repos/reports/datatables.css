@@ -1,0 +1,37 @@
+@CHARSET "UTF-8";
+
+/*Styling of dataTables displays*/
+ 
+div.dataTables_length,
+div.dataTables_filter,
+div.dataTables_paginate,
+div.dataTables_info {
+  padding: 0.35em 0.25em; 
+  font-size: 1.0em;
+  margin: 1.0em 0.5em;
+  line-height: 100%;
+}
+
+div.dataTables_length {
+  float: right;
+  width: 31%;
+}
+ 
+div.dataTables_filter {
+  float: left;
+  width: 62%;
+}
+
+div.dataTables_info {
+  float: left;
+  width: 31%;
+}
+ 
+div.dataTables_paginate {
+  float: right;
+  width: 62%;
+}
+
+table.dataTable {
+    float: left;
+}

@@ -1,0 +1,10 @@
+@CHARSET "UTF-8";
+
+#forena-query-builder-form .forena-filter div {
+	display: inline-block;
+}
+
+.ui-autocomplete #ui-active-menuitem{ 
+	background-color: #eee; 
+}
+

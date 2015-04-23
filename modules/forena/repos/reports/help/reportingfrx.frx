@@ -1,0 +1,1166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+  <!ENTITY nbsp "&#160;">
+  <!ENTITY reg "&#174;">
+  <!ENTITY copy "&#169;">
+  ]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+  <title>FRX Reporting Reference</title>
+  <frx:category>Help</frx:category>
+  <frx:options hidden="1" skin="tutorial_skin"/>
+  <frx:fields>
+    <frx:field id="title" link="reports/help.reportingfrx#{link}"/>
+    <frx:field id="wysiwyg_editor" link="reports/help.reportingwysiwyg"
+               target="_blank">WYSIWYG reporting user interface
+    </frx:field>
+    <frx:field id="data_renderers" link="reports/help.renderers"
+               target="_blank">Data Renderers Guide
+    </frx:field>
+    <frx:field id="reportingfrx_general" link="reports/help.reportingfrx#general"
+               target="_self">General Report Options
+    </frx:field>
+    <frx:field id="reportingfrx_datacontexts" link="reports/help.reportingfrx#datacontexts"
+               target="_self">data context
+    </frx:field>
+    <frx:field id="reportingfrx_parameters" link="reports/help.reportingfrx#parameters"
+               target="_self">Report parameters
+    </frx:field>
+    <frx:field id="renderers_intro" link="reports/help.renderers"
+               target="_self">Data Renderers Guide
+    </frx:field>
+    <frx:field id="skip_id_issue" link="https://www.drupal.org/node/2222743"
+               target="_blank">Ability to have no id in frx:foreach elements
+    </frx:field>
+    <frx:field id="jamesdixon" link="https://www.drupal.org/u/jamesdixon" target="_blank">jamesdixon</frx:field>
+    <frx:field id="report_layout" link="reports/help.reportingfrx#layout"
+               target="_self">Report Layout
+    </frx:field>
+    <frx:field id="general_report_options" link="reports/help.reportingfrx#general"
+               target="_self">General Report Options
+    </frx:field>
+    <frx:field id="report_time" link="">{report.time}</frx:field>
+    <frx:field id="report_name" link="">{report.name}</frx:field>
+    <frx:field id="report_format" link="">{report.format}</frx:field>
+    <frx:field id="my_reports" link="forena" target="_self">My Reports</frx:field>
+  </frx:fields>
+  <frx:parameters/>
+  <frx:docgen/>
+</head>
+<body>
+<div class="toc" id="help-toc-1" frx:block="forena_help/reportingfrx_topics">
+  <h3>Including</h3>
+  <ul>
+    <li id="help-toc-2" frx:foreach="/book/chapters/chapter">{title}<span frx:if="{subtitle}">: {subtitle}.</span></li>
+  </ul>
+
+</div>
+<h2 id="intro">Forena Reports XML</h2>
+
+<p>
+  Forena reports are defined using the <strong><em>F</em>orena <em>R</em>eport
+  <em>X</em>ML</strong> (frx) template format. Templates are <abbr
+  title="eXtensible HyperText Markup Language">XHTML</abbr> documents which are extended by some custom <abbr
+  title="HyperText Markup Language">HTML</abbr> tags and attributes. The result should be something familiar to anyone
+  that
+  uses <abbr title="HyperText Markup Language">HTML</abbr>.
+</p>
+
+<p>These reports are stored as .frx files on the reporting server, and may be edited with any
+  text editor directly, or via the {wysiwyg_editor}.</p>
+
+<p>
+  This guide documents the available <abbr title="Forena Report XML">FRX</abbr> elements and attributes, and is best
+  used in
+  combination with the {data_renderers}.
+</p>
+
+<h2 id="anatomy">Anatomy of an FRX File</h2>
+
+<h3 id="frx_newfile">Creating a new frx file</h3>
+
+<p>To create a brand new report, just create a new .frx file in your report directory with a minimal set of XHTML
+  content, as further explained below.</p>
+
+<p>
+  Each .frx file should start with the mandatory lines at the very top of any .frx file. These lines specify XML
+  version,
+  DOCTYPE and XML entities. Checkout
+  <strong>default.frx</strong> in the root of the Forena module directory for a good sample to start from. Note that
+  sometimes
+  you may have more then just those 4 lines, i.e. when using HTML entities such as &reg; or &copy;. In such case an
+  extra
+  <strong>ENTITY</strong> line is added to those lines, to match the entity name with its entity number. Browse the .frx
+  source
+  file of this tutorial for a sample containing such extra ENTITY lines.
+</p>
+
+<p>
+  These mandatory 4 lines should be followed by a <strong>html</strong> tag, and a corresponding <strong>/html</strong>,
+  which
+  should include the lines starting from the <strong>head</strong> tag and ending with the <strong>/body</strong> tag,
+  as in
+  this example:
+</p>
+<html frx:renderer="FrxSource" id="frxsrc-16">
+<head>
+  <title>
+  </title>
+  <frx:category>
+  </frx:category>
+  <frx:options>
+  </frx:options>
+  <frx:parameters>
+  </frx:parameters>
+  <frx:docgen>
+  </frx:docgen>
+  <frx:fields>
+  </frx:fields>
+  <frx:menu/>
+  <frx:cache/>
+  <frx:data/>
+  <style/>
+</head>
+<body>
+</body>
+</html>
+<p>
+  <strong>Note</strong>: most of the tags shown above are optional, though it appears to be a good practice to have them
+  available already in the .frx file whenever a reports requires some of them.
+</p>
+
+<h3 id="frx_example">Example of an frx file</h3>
+
+<p>Here is an example of a report definition for a very simple report:
+</p>
+<html frx:renderer="FrxSource" id="frxsrc-2">
+<head>
+  <title>A sample report</title>
+  <frx:category>Sample</frx:category>
+  <frx:options hidden="0" skin="skin_file_name"/>
+</head>
+<body>
+<div frx:block="sampledb/states">
+  <p frx:foreach="*">{code} - {name}</p>
+</div>
+</body>
+</html>
+
+<h3 id="frx_common">Commonly used FRX elements and attributes</h3>
+
+<p>The above .frx example illustrates some of the most commonly used FRX elements and attributes (custom HTML tags),
+  i.e.:
+</p>
+<table>
+  <tr id="xmlns_frx">
+    <th>xmlns:frx element</th>
+    <td>Defines the document as a Forena Report XML template document. It should appear at the top of every .frx
+      file, and exactly as shown here.
+    </td>
+  </tr>
+  <tr id="frx_category">
+    <th>frx:category attribute</th>
+    <td>Set the category that you want the report to appear when listing reports.</td>
+  </tr>
+  <tr id="frx_options">
+    <th>frx:options attribute</th>
+    <td>Sets some specific options that apply to the entire report, e.g. to display the report using a specific skin.
+      Refer
+      to {reportingfrx_general} for additional information about this FRX attribute.
+    </td>
+  </tr>
+  <tr id="frx_block">
+    <th>frx:block attribute</th>
+    <td>Loads data from the defined data block (in this case <strong>sample/sampleXML</strong>). Data blocks are usually
+      parameterized queries. If you are a developer, you might want to read more about defining data blocks in the
+      Forena Data
+      source.
+    </td>
+  </tr>
+  <tr id="frx_foreach">
+    <th>frx:foreach attribute</th>
+    <td>Causes the containing tag to be repeated for every row returned in
+      the data block. The attribute value can be any valid XPATH expression, but is often simply '*', which creates a
+      repeating
+      pattern for every row or element returned by the query.
+    </td>
+  </tr>
+  <tr id="parameters_attr">
+    <th>frx:parameters</th>
+    <td>when used in conjunction with the <strong>frx:block</strong> attribute overrides the parameters provided to the
+      block
+      that is run. When used these values are merged with the values of the current {reportingfrx_datacontexts} prior to
+      calling
+      the data block. Refer to {reportingfrx_parameters} for additional information about this FRX attribute.
+    </td>
+  </tr>
+  <tr id="renderer">
+    <th>frx:renderer</th>
+    <td>uses a custom class to render this object. How the tag is rendered is defined by implementation of the renderer.
+      Typical syntax looks something like <strong>frx:renderer="FrxSVGGraph"</strong> or
+      <strong>frx:renderer="FrxXML"</strong>.
+      Other attributes are interpreted directly from the {renderers_intro}. Refer to the {renderers_intro} for
+      additional
+      information about this FRX attribute.
+    </td>
+  </tr>
+</table>
+
+<h3 id="frx_advanced">Advanced FRX attributes</h3>
+
+<p>Some more advanced FRX attributes:
+</p>
+<table>
+  <tr id="skip_root">
+    <th>frx:skip_root attribute</th>
+    <td>Causes the current node of the report to not be rendered, but children will be rendered as normal. This is most
+      commonly used when you want the frx:foreach to not render the node containing the frx:foreach attribute.
+    </td>
+  </tr>
+  <tr id="skip_id">
+    <th>frx:skip_id attribute</th>
+    <td>To ignore the id of this element, use <strong>frx:skip_id="true"</strong>. For more details check out the
+      issue about {skip_id_issue}. Thanks {jamesdixon} for your contribution via that issue.
+    </td>
+  </tr>
+  <tr id="invalid_link">
+    <th>frx:invalid_link attribute</th>
+    <td>Validates links prior to presenting them, and supports the following values:
+      <ul>
+        <li><strong>remove</strong> - Remove the field (do not render it).</li>
+        <li><strong>text</strong> - Render the text without the link.</li>
+        <li><strong>disable</strong> - Disable the link by removing its href attribute. This will also add a
+          class="disabled"
+          on the link for CSS styling.
+        </li>
+      </ul>
+    </td>
+  </tr>
+</table>
+<h2 id="general">General Report Options</h2>
+
+<p>The general options of a report are used to set these specifications of a report:
+</p>
+<ul>
+  <li>Report title.</li>
+  <li>Visibility options.</li>
+  <li>Menu options.</li>
+  <li>Report caching options.</li>
+</ul>
+<p>
+  Here is an example illustrating various general report options, which are further explained below.
+</p>
+<html frx:renderer="FrxSource" id="frxsrc-11">
+<head>
+  <title>A sample report</title>
+  ...
+  <frx:category>Example</frx:category>
+  ...
+  <frx:options hidden="0" skin="skin_file_name"/>
+  ...
+  <frx:menu enabled="1" path="reports/my1strpt" args=":myparm1/:myparm2" type="normal-item" title="My 1st Report"
+            weight="5" plid="270" menu_name="navigation"/>
+  ...
+  <frx:cache duration="+1 hour" per_user="1" per_doctype="1"/>
+  ...
+</head>
+<body>
+...
+</body>
+</html>
+<h3>Report title</h3>
+
+<p>
+  The <strong>title</strong> element specifies the report's page title and tab title.
+</p>
+
+<h3>Visibility options</h3>
+
+<p>
+  The <strong>frx:category</strong> element specifies under which group the report appears under the {my_reports} list.
+  A report
+  without a category will not show up in the list.
+</p>
+
+<p>The <strong>frx:options</strong> element specifies various options of the report, as shown in the above example. The
+  following properties may be defined:
+</p>
+<table>
+  <tbody>
+  <tr>
+    <th>hidden</th>
+    <td>Indicate if the report is to be included or excluded in the My Reports list, using either of the following
+      values:
+      <ul>
+        <li><strong>0</strong> - Include the report in the list of reports.</li>
+        <li><strong>1</strong> - Exclude the report in the list of reports regardless of the Category set for the
+          report.
+        </li>
+      </ul>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<p>Note that the <strong>frx:options</strong> element is also used to specify some of the {report_layout} options of a
+  report, i.e.:
+</p>
+<table>
+  <tbody>
+  <tr>
+    <th>skin</th>
+    <td>Specify an alternate skin for the report, whereas <strong>skin_file_name</strong> is the filename of the skin,
+      without the .skinfo file extension of it.
+    </td>
+  </tr>
+  <tr>
+    <th>form</th>
+    <td>This attribute has been deprecated and has been superseded by the <strong>skin=</strong> attribute.</td>
+  </tr>
+  </tbody>
+</table>
+<h3>Menu options</h3>
+
+<p>
+  The <strong>frx:menu</strong> element specifies the properties of a Drupal menu link to be created pointing to the
+  report, as
+  shown in the above example. The following properties may be defined:
+</p>
+<table>
+  <tbody>
+  <tr>
+    <th>enabled</th>
+    <td>Indicate if the menu item is to be enabled or disabled, using either of the following values:
+      <ul>
+        <li><strong>1</strong> - Enable the report's menu item.</li>
+        <li><strong>0</strong> - Disable the report's menu item.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>path</th>
+    <td>The site relative path for the menu item.</td>
+  </tr>
+  <tr>
+    <th>args</th>
+    <td>Additional parameters that should be extracted after the menu path using a :parm syntax, e.g. :parma/:parmb.
+    </td>
+  </tr>
+  <tr>
+    <th>type</th>
+    <td>Use standard conventions for creating a menu item in the format of normal menu items, tabbed menus, etc.</td>
+  </tr>
+  <tr>
+    <th>title</th>
+    <td>The <strong>title</strong> of the menu item to be created.</td>
+  </tr>
+  <tr>
+    <th>weight</th>
+    <td>The <strong>weight</strong> of the menu item to be created.</td>
+  </tr>
+  <tr>
+    <th>plid</th>
+    <td>The <strong>plid</strong> of the menu item to be created.</td>
+  </tr>
+  <tr>
+    <th>menu_name</th>
+    <td>The name of the menu in which the menu item is to be created.</td>
+  </tr>
+  </tbody>
+</table>
+<p>
+  <strong>Note</strong>: changes to menu properties only become
+  in effect after clearing the Drupal cache.
+</p>
+
+<h3>Report caching options</h3>
+
+<p>
+  The <strong>frx:cache</strong> element specifies the caching properties of each report, as shown in the above example.
+  The
+  following properties may be defined:
+</p>
+<table>
+  <tbody>
+  <tr>
+    <th>duration</th>
+    <td>The duration that a cached report remains in the cache. Use <a
+      href="http://php.net/manual/en/datetime.formats.relative.php" target="_blank"> relative formats</a>
+      according to the php documentation.
+    </td>
+  </tr>
+  <tr>
+    <th>per_user</th>
+    <td>1 indicates that caches will be maintained for each drupal UID.</td>
+  </tr>
+  <tr>
+    <th>per_doctype</th>
+    <td>1 indicates that caches will be maintained for each document type. CSV files will be rendered differently than
+      other
+      files.
+    </td>
+  </tr>
+  </tbody>
+</table>
+<h2 id="doctypes">Document Types</h2>
+
+<p>The normal output of any report is an HTML document. It which can optionally be exported
+  in several common document formats. The document types options are used to set the available formats in which a
+  report can be saved.</p>
+
+<p>Here is an example illustrating some of the document types options</p>
+<html frx:renderer="FrxSource" id="frxsrc-7">
+<head>
+  ...
+  <frx:docgen>
+    <frx:doc type="web"/>
+    <frx:doc type="csv"/>
+    <frx:doc type="email"/>
+    <frx:doc type="html"/>
+    <frx:doc type="svg"/>
+    <frx:doc type="doc"/>
+    <frx:doc type="xls"/>
+    <frx:doc type="xml"/>
+  </frx:docgen>
+  ...
+</head>
+<body>
+...
+</body>
+</html>
+
+<p>
+  The <strong>frx:docgen</strong> element specifies the document types options of the report, as shown in the above
+  example. Add
+  a <strong>frx:doc</strong> element for each format to be allowed for the report as follows:
+</p>
+<table>
+  <tr>
+    <th>web</th>
+    <td>Web page (= the entire content of the webpage containing the report).</td>
+  </tr>
+  <tr>
+    <th>csv</th>
+    <td>Comma Separated Values.</td>
+  </tr>
+  <tr>
+    <th>email</th>
+    <td>eMail message.</td>
+  </tr>
+  <tr>
+    <th>html</th>
+    <td>HyperText Markup Language (= the body part of the webpage containing the report).</td>
+  </tr>
+  <tr>
+    <th>pdf</th>
+    <td>Adobe PDF document requires either use of third party libraries (<a href="http://www.mpdf1.com" target="_blank">mPDF</a> or
+      <a href="http://princeXML.com" target="_blank">PrinceXML</a>) or a subscription
+      to <a href="http://docraptor.com" target="_blank">DocRaptor</a>
+    document generation services.</td>
+  </tr>
+  <tr>
+    <th>svg</th>
+    <td>Scalable Vector Graphics.</td>
+  </tr>
+  <tr>
+    <th>doc</th>
+    <td>MS Word format.</td>
+  </tr>
+  <tr>
+    <th>xls</th>
+    <td>MS Excel format.</td>
+  </tr>
+  <tr>
+    <th>xml</th>
+    <td>eXtensible Markup Language.</td>
+  </tr>
+</table>
+<h2 id="layout">Layout</h2>
+
+<p>The report layout options are used to set these specifications of a report:
+</p>
+<ul>
+  <li>Look and feel options.</li>
+  <li>Report specific CSS styles.</li>
+  <li>The layout of the report body.</li>
+</ul>
+<p>
+  Here is an example illustrating various general layout options, which are further explained below.
+</p>
+
+<html frx:renderer="FrxSource" id="frxsrc-3">
+<head>
+  ...
+  <frx:options hidden="0" skin="skin_file_name"/>
+  ...
+  <frx:fields/>
+  <style>
+    div.FrxTable {
+      line-height: 2.5;
+      color: #FF6633;
+    }
+  </style>
+  <frx:menu/>
+  <frx:cache/>
+</head>
+<body>
+This is the very first line of the report body.
+...
+<div frx:block="sampledb/states" id="state-block" class="FrxTable">
+  <table>
+    <thead>
+    <tr>
+      <th>code</th>
+      <th>name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr frx:foreach="*" id="state">
+      <td>{code}</td>
+      <td>{name}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+...
+And this is the very last line of the report body.
+</body>
+</html>
+
+
+<h3>Look and feel options</h3>
+
+<p>The <strong>frx:options</strong> element specifies various options of the report, as shown in the above example. The
+  following properties may be defined:
+</p>
+<table>
+  <tbody>
+  <tr>
+    <th>skin</th>
+    <td>Specify an alternate skin for the report, whereas <strong>skin_file_name</strong> is the filename of the skin,
+      without the .skinfo file extension of it.
+    </td>
+  </tr>
+  </tbody>
+</table>
+<p>Note that the <strong>frx:options</strong> element is also used to specify some of the {general_report_options} of a
+  report, i.e.:
+</p>
+<table>
+  <tbody>
+  <tr>
+    <th>hidden</th>
+    <td>Indicate if the report is to be included or excluded in the My Reports list, using either of the following
+      values:
+      <ul>
+        <li><strong>0</strong> - Include the report in the list of reports.</li>
+        <li><strong>1</strong> - Exclude the report in the list of reports regardless of the Category.</li>
+      </ul>
+    </td>
+  </tr>
+  </tbody>
+</table>
+<h3>Report specific CSS styles.</h3>
+
+<p>
+  Use the <strong>style</strong> element within the <strong>head</strong> element to specify small CSS snippets that can
+  be used
+  anywhere in the report. Using a style content as in the above example will change the look-and-feel of the table
+  content a
+  little bit. In this specific case the height of the table rows will be higher then the height for standard table
+  displays,
+  while the color of the text in the table cells is shown in a kind of orange.
+</p>
+
+<h3>The layout of the report body.</h3>
+
+<p>
+  The <strong>body</strong> element specifies the content of the HTML body. Using a body content as in the above example
+  will
+  create a report for which the actual body will start with a line like "This is the very first line of the report body
+  ...", it
+  will end with a line like "... And this is the very last line of the report body.".<br/> The <strong>div</strong> tag
+  in
+  between those 2 lines is to include the actual data from the sampledb/states data block. In this case the data block
+  is shown
+  using a traditional table.
+</p>
+
+<h2 id="parameters">Parameters</h2>
+
+<p>
+  URL query parameters can be passed directly into the SQL queries that drive the report. However, there are many
+  circumstances
+  where you may want to prompt users for specific data prior to generating a report. In such cases you can use a set of
+  <strong>frx:parm</strong>
+  elements contained in a <strong>frx:parameters</strong> element in the head section of the .frx file to define
+  parameters, as
+  in this example:
+</p>
+
+<head frx:renderer="FrxSource" id="frxsrc-6">
+  <title>My Report Title</title>
+  <frx:parameters>
+    <frx:parm id="state" label="State" require="1"
+              desc="Select a state from the list."
+              data_source="sampledb/states" data_field="" type="select">WA
+    </frx:parm>
+  </frx:parameters>
+</head>
+<p>
+  The id of each <strong>frx:parm</strong> element should match the parameters in the data block, and will further
+  control how
+  the user is prompted for each data element. The text contained in the <strong>frx:parm</strong> element defines the
+  "default" value for the parameter.
+  The following attributes are supported in the <strong>frx:parm</strong>
+  element:
+</p>
+<table>
+  <tr>
+    <th>id</th>
+    <td>The id of the parameter, which must match what is expected in the data block. This field is required.</td>
+  </tr>
+  <tr>
+    <th>label</th>
+    <td>The parameter's label or prompt shown to the user.</td>
+  </tr>
+  <tr>
+    <th>desc</th>
+    <td>The description provided for each label.</td>
+  </tr>
+  <tr>
+    <th>require</th>
+    <td>Set to 1 to require this before form submission.</td>
+  </tr>
+  <tr>
+    <th>type</th>
+    <td>Type of control to use for prompting the user. Supports the following values:
+      <ul>
+        <li><strong>textfield</strong> normal text input box (default).</li>
+        <li><strong>select</strong> - Normal select with a single value.</li>
+        <li><strong>multiselect</strong> - Select box with multiple values possible. Only use this with sql parameters
+          that can
+          be used as arrays or "in" clauses.
+        </li>
+        <li><strong>selectajax</strong> - Select with an AJAX refresh on every selection change. This is good when you
+          need to
+          have one select statement's values dependent on another.
+        </li>
+        <li><strong>checkbox</strong> - Single checkbox returning a value of 0 or 1.</li>
+        <li><strong>checkboxes</strong> - Multiple checkboxes that can be used to provide a list of options based on a
+          data_source.
+        </li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <th>data_source</th>
+    <td>The <strong>data block</strong> used to provide values for radio buttons, check-boxes or select lists. The value
+      should be a data block that users of this report will have access to. <strong>Note</strong>: this is indeed
+      assumed to be a
+      data <strong>block</strong>, and not a data <strong>source</strong>.
+    </td>
+  </tr>
+  <tr>
+    <th>data_field</th>
+    <td>The name of the column from the data block in <strong>data source</strong> that is used for the select <strong>value</strong>.
+      If omitted, then the 1st column of the data block is used as the data_field.
+    </td>
+  </tr>
+  <tr>
+    <th>label_field</th>
+    <td>The name of the column from the data block in <strong>data source</strong> that is used for the select <strong>label</strong>
+      (description). If omitted, then the 2nd column of the data block is used as the label_field, provided such 2nd
+      column exists
+      (if not, then the 1st column is used instead).
+    </td>
+  </tr>
+</table>
+
+<h2 id="fields">Fields</h2>
+
+<p>
+  In the head section of the .frx file, you will find a series of <strong>frx:field</strong> elements contained in a
+  <strong>frx:fields</strong>
+  element. These elements define special formatting rules for report fields referenced in the .frx file, as in this
+  example:
+</p>
+<html frx:renderer="FrxSource" id="frxsrc-12">
+<head>
+  <title>A sample report</title>
+  ...
+  <frx:fields>
+    <frx:field id="state" link="" format="" format-string="" target=""/>
+    <frx:field id="name" link="" format="" format-string="" target=""/>
+    <frx:field id="total" link="reports/sample.user_distribution_simple?state={state}#test"
+               format="" format-string="" target="">OH
+    </frx:field>
+  </frx:fields>
+</head>
+<body>
+...
+</body>
+</html>
+<p>Each report field allows for configuring various properties of it, i.e.:
+</p>
+<ul>
+  <li>The formatting of the field's output.</li>
+  <li>The field's links to be created.</li>
+  <li>The field's default value to be displayed if no value is present.</li>
+</ul>
+<p>
+  Each report field for which a <strong>frx:field</strong> element is specified, is identified by the required <strong>id</strong>
+  attribute. The following reference describes the attributes availalabe in the
+</p>
+<table>
+  <thead>
+  <th>Attribute</th>
+  <th>Description</th>
+  </thead>
+  <tbody>
+  <tr>
+    <td>add-query</td>
+    <td>Forces add of all report parameters to the generated <strong>link</strong>.</td>
+  </tr>
+  <tr>
+    <td>calc</td>
+    <td>Xpath expression used to calculate this field.</td>
+  </tr>
+  <tr>
+    <td>class</td>
+    <td>The class to use on the link generated by the <strong>link</strong> attribute</td>
+  </tr>
+  <tr>
+    <td>context</td>
+    <td>Context used by the <strong>calc</strong> attribute</td>
+  </tr>
+  <tr>
+    <td>format</td>
+    <td>Indicates the formatter to be used with this field</td>
+  </tr>
+  <tr>
+    <td>format-string</td>
+    <td>Provides further instructions to the formatter specified in <strong>format</strong></td>
+  </tr>
+  <tr>
+    <td>id</td>
+    <td>Indicates the token/field replacement for which this field definition applies.</td>
+  </tr>
+  <tr>
+    <td>link</td>
+    <td>Makes an link out of the field using the path specified.</td>
+  </tr>
+  <tr>
+    <td>rel</td>
+    <td>Indicates the <strong>rel</strong> attribute used when creating the <strong>link</strong>.</td>
+  </tr>
+  <tr>
+    <td>target</td>
+    <td>When used with link specifies the link target.</td>
+  </tr>
+  </tbody>
+</table>
+<p>
+  These attributes are described in greater detail below.
+</p>
+
+<h3>Field output formatting</h3>
+
+<p>
+  The <strong>frx:field</strong> element supports field <strong>formatting</strong>. Fields can be formatted a number of
+  different ways by specifying the <strong>format</strong> and <strong>format-string</strong> attribute for a field. The
+  following table illustrates the supported options:
+</p>
+<table>
+  <tbody>
+  <tr>
+    <th>Format</th>
+    <th>Description</th>
+    <th>Format String</th>
+  </tr>
+  <tr>
+    <td>drupal_date_format</td>
+    <td>Formats a Drupal date. Drupal dates are natively large numbers that are expressed as the number of seconds since
+      the UNIX epoch date.
+    </td>
+    <td>Use <strong>small</strong>, <strong>medium</strong> or <strong>large</strong> to specify any of the site defined
+      dates, or alternatively specify a custom date format. See <a href="http://php.net/manual/en/function.date.php"
+                                                                   target="_blank">http://php.net/manual/en/function.date.php</a>
+      for possibilities for custom formatting.
+    </td>
+  </tr>
+  <tr>
+    <td>drupal_node_content</td>
+    <td>Loads content from the given nid and display it using teaser or full display.</td>
+    <td>Specify <strong>teaser</strong> to get teaser view.</td>
+  </tr>
+  <tr>
+    <td>drupal_translation</td>
+    <td>Use Drupal's translation API to translate the value prior to display.</td>
+    <td>Specify a field that contains the serialized data used for translations (e.g. watchdog table). Normally you can
+      leave this blank.
+    </td>
+  </tr>
+  <tr>
+    <td>xhtml</td>
+    <td>Field contains XHTML Data. Use this to decode any htmlencoded data in the element and treat it as valid XHTML.
+      If you see html as source in your report consider
+      using this format.
+    </td>
+    <td>Specify an input filter to run the data through after the XHTML decoding to use any of drupals input filter
+      "markup extending" capabilities.
+    </td>
+  </tr>
+  <tr>
+    <td>iso_date</td>
+    <td>ISO standard dates are of the form, YYYY-MM-DD followed by a 24 hour timestamp (e.g. 2012-12-01 20:30:30). Dates
+      in this format may be reformatted.
+    </td>
+    <td>Use <strong>small</strong>, <strong>medium</strong> or <strong>large</strong> to specify any of the site defined
+      date formats, or alternatively specify a custom date format. See <a
+        href="http://php.net/manual/en/function.date.php" target="_blank">http://php.net/manual/en/function.date.php</a>
+      for possibilities for custom formatting.
+    </td>
+  </tr>
+  <tr>
+    <td>number</td>
+    <td>Use the PHP number formatter function.</td>
+    <td>Indicate a sample numeric format for decimal places and thousands separator. (eg. 9.999.00).</td>
+  </tr>
+  <tr>
+    <td>sprintf</td>
+    <td>Use PHP's sprintf function for adding labels and such.</td>
+    <td>See <a href="http://us.php.net/manual/en/function.sprintf.php" target="_blank">http://us.php.net/manual/en/function.sprintf.php</a>
+      for possibilities.
+    </td>
+  </tr>
+  <tr>
+    <td>template</td>
+    <td>The field being referenced is a foreana template. The data is assumed to be valid xhtml with normal forena
+      fields that will be replaced based on the current
+      data context.
+    </td>
+    <td>Indicates the machine name of an input format that is used to process the data after bing run through forena's
+      templating system.
+    </td>
+  </tr>
+  </tbody>
+</table>
+<h3>Field linking</h3>
+
+<p>The <strong>frx:field</strong> element supports following attributes related to field <strong>linking</strong>:
+</p>
+<table>
+  <tr>
+    <th>link</th>
+    <td>Specify the URL that the field is to be linked to as in this example. You can refer to any tokens in the current
+      content using the normal curly brace syntax:
+
+      <html frx:renderer="FrxSource" id="frxsrc-8">
+      <head>
+        ...
+        <frx:fields>
+          <frx:field id="profile" link="profile/{some_field_name}"
+                     format="" format-string="" target=""/>
+        </frx:fields>
+      </head>
+      <body>
+      ...
+      </body>
+      </html>
+      This will create a link to this <strong>some_field_name</strong> 's profile.
+    </td>
+  </tr>
+  <tr>
+    <th>rel</th>
+    <td>Relationship attribute to apply to the link.</td>
+  </tr>
+  <tr>
+    <th>class</th>
+    <td>Class to be applied to the link.</td>
+  </tr>
+  <tr>
+    <th>target</th>
+    <td>The value of the target attribute in the link to be created, such as <strong>_blank</strong> to open the link in
+      a new browser window or tab. Target values that begin with <strong>popup</strong> will be opened in a new window
+      using JavaScript.
+    </td>
+  </tr>
+</table>
+<h3>Field default value</h3>
+
+<p>The <strong>frx:field</strong> element supports following attributes related to the <strong>default value</strong> of
+  the field:
+</p>
+<table>
+  <tr>
+    <th>default value</th>
+    <td>The value to be displayed in the report output when no value exists.</td>
+  </tr>
+</table>
+<h3>Field calculations</h3>
+
+<p>The <strong>frx:field</strong> element supports redefining fields as complex calculations using xpath expressions.
+  These expressions
+  are evaluated for the current selected data using PHP's DOMXMPATH evaluate method. Specify the the calculation you
+  want to perform in the <strong>calc</strong> attribute of
+  the field element. You can also use the forena field tokens in these calculations to further enhance the kinds of
+  calculations you can perform.
+</p>
+
+<p>
+  Additional information on xpath expression syntax may be found in the <a
+  href="http://www.w3schools.com/xpath/xpath_operators.asp">XPath Operators</a> seciton of the w3schools
+  XPath Tutorial.
+</p>
+
+<h2 id="datacontexts">Data Contexts</h2>
+
+<p>Any data from any other section of a report may be used by referencing those data by their id. For example: if you
+  place
+  an id attribute on the tag that you place an frx:foreach attribute on (e.g id='state' frx:foreach='*'), then you can
+  reference
+  any data element in that data context using that id as follows:</p>
+
+<div frx:renderer="FrxSource">... {state.name} ...</div>
+<p>Additional data contexts may be added to the document in the <strong>head</strong> section of the document. Data in
+  the head section
+  of the document is preloaded before the report renders. The example below illustrates the syntax for preloading data
+  in the head section:</p>
+<head frx:renderer="FrxSource">
+  ..
+  <frx:data id="state" block="sampledb/state"/>
+</head>
+<p>
+  Additional data that is only needed for the rendering of the report may be included by leaving of the block attribute
+  and specifying XML data
+  as child elements of an frx:data element as in the following example.
+</p>
+<head frx:renderer="FrxSource">
+  ..
+  <frx:data id="scale">
+    <scale min="0" max="50" red="255" green="0" blue="0" red_scale="0" green_scale="255" blue_scale="0"/>
+    <scale min="50" max="100" red="255" green="255" blue="0" red_scale="-255" green_scale="-100" blue_scale="0"/>
+    <scale min="100" max="101" red="0" green="100" blue="100" red_scale="0" green_scale="0" blue_scale="0"/>
+  </frx:data>
+</head>
+<p>In addition, data in the head section can be loaded into drupals settings objects for use later in javascript. as in
+  the following:
+</p>
+<head frx:renderer="FrxSource">
+  ...
+  <frx:data block="sampledb/users_by_state" json="stateSummary"/>
+</head>
+<p>
+  The data in the above example would be accessible to the javascript by referencing the object property
+  <strong>Drupal.settings.forenaData.stateSummary</strong>.
+</p>
+<div>
+  <h3>The Site Context (site)</h3>
+  <p>This predefined context provides useful information about the context of your drupal site.  The following values are always
+  available:</p>
+  <table>
+    <thead>
+    <tr>
+      <th>Property</th><th>Sample</th><th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>site.args</td><td>See XML Below</td><td>The path as returned by drupals args function</td>
+      </tr>
+      <tr>
+        <td>site.base_path</td><td>{site.base_path}</td><td>Root relative reference to your site.  Useful when referencing assets.</td>
+      </tr>
+      <tr>
+        <td>site.base_url</td><td>{site.base_url}</td><td>Full url reference to the base url of your site</td>
+      </tr>
+      <tr>
+        <td>site.destination</td><td>{site.destination}</td><td>Return of drupal_get_destination</td>
+      </tr>
+      <tr>
+        <td>site.language</td><td>See XML Below</td><td>Full language object which can be converted to XML an caclulations based on it</td>
+      </tr>
+      <tr>
+        <td>site.page</td><td>{site.page}</td><td>Root relative reference to the current drupal page</td>
+      </tr>
+      <tr>
+        <td>site.theme_dir</td><td>{site.theme_dir}</td><td>Directory of current theme.</td>
+      </tr>
+      <tr>
+        <td>site.theme_path</td><td>{site.theme_path}</td><td>Root relative reference to the current theme.</td>
+      </tr>
+      <tr>
+        <td>site.uid</td><td>{site.uid}</td><td>The id of the current user</td>
+      </tr>
+      <tr>
+        <td>site.user_name</td><td>{site.user_name}</td><td>The name of the current user.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    You can use the following XML as a reference for deriving calculations from this object.
+  </p>
+  <div frx:renderer="FrxXML" context="site"/>
+</div>
+<div>
+  <h3>The Report Context (report)</h3>
+  <p>The Report data context is always available to help provide information regarding the current report.</p>
+  <table>
+  <thead>
+  <tr>
+    <th>Property</th><th>Sample</th><th>Description</th>
+  </tr>
+  </thead>
+    <tr>
+      <td></td>
+    </tr>
+  <tbody>
+  <tr>
+    <td>report.name</td><td>{report.name}</td><td>Machine name of the current report.</td>
+  </tr>
+  <tr>
+    <td>report.link</td><td>{report.link}</td><td>The site relative path where you will find this report. </td>
+  </tr>
+  <tr>
+    <td>report.language</td><td>{report.language}</td><td>The language code of the current report.</td>
+  </tr>
+  <tr>
+    <td>report.format</td><td>{report.format}</td><td>The document format that the report is being viewed. </td>
+  </tr>
+  <tr>
+    <td>report.time</td><td>{report.time}</td><td>The time that this report was rendered.</td>
+  </tr>
+  </tbody>
+  </table>
+</div>
+
+<div>
+  <h3>The FrxReport Context (FrxReport)</h3>
+
+  <p>
+    A custom FrxReport context is provided to allow you to embed reports easily. For example, consider the <strong>Simple
+    Table of States</strong> report, which is located the report repository in a subdirectory named
+    <strong>sample</strong>, in report
+    template <strong>states.frx</strong>. This report may be embedded in another report simply by including the string
+    <strong>FrxReport.sample.states</strong>,
+    enclosed by curly braces, anywhere in a report, as in this example:
+  </p>
+
+  <div frx:renderer="FrxSource">... {FrxReport.sample.states} ...</div>
+  <p>
+    It is important to understand that the data from the current context will be used as parameters to the report when
+    this context
+    is used.
+  </p>
+
+
+</div>
+<div>
+  <h3>Custom Contexts</h3>
+
+  <p>Modules may provide their own custom data contexts either by adding them in a hook_forena_parameters_alter
+    implementation
+    or by implementing a custom context class of their own.</p>
+</div>
+
+<div>
+
+<h2 id="conditionalrendering">Conditional Element Rendering</h2>
+
+<p>
+  By adding the <strong>frx:if="some_test"</strong> attribute to any HTML tag, that HTML tag is only rendered if
+  <strong>some_test</strong>
+  evaluates to true. The normal php rules apply to values specified here: <strong>frx:if="0"</strong> evaluates to
+  false, while
+  <strong>frx:if="1"</strong> evaluates to true.
+</p>
+
+<h3>Using token replacements in frx:if attributes</h3>
+
+<p>
+  Normally you would use token replacements in the attribute to map this to some column
+  in the database or value of a tag in case of data stores in XML format. As an illustration, consider this example:
+</p>
+
+<div frx:renderer="FrxSource" id="frxsrc-1">
+  ...
+  <sometag frx:if="{my_column}">something surrounded by sometag</sometag>
+  ...
+</div>
+<p>
+  This would cause the tag <strong>sometag</strong> and its children only to be rendered if the
+  <strong>my_column</strong> field
+  in the database returned true.
+</p>
+
+<h3>Using conditions in frx:if attributes</h3>
+
+<p>Here is a variation of the previous example:
+</p>
+
+<div frx:renderer="FrxSource" id="frxsrc-13">
+  ...
+  <sometag frx:if="{type[text()='article']}">something related to article and surrounded by sometag</sometag>
+  ...
+</div>
+<p>
+  In the above example the tag <strong>sometag</strong> and its children would only be rendered if the
+  <strong>type</strong>
+  field in the SQL query were <strong>article</strong>.
+</p>
+
+<h3>Using negations in frx:if attributes</h3>
+
+<p>You may use an <strong>exclamation point</strong> to indicate negation as in this example:
+</p>
+
+<div frx:renderer="FrxSource" id="frxsrc-14">
+  ...
+  <sometag frx:if="!{my_column}">something surrounded by sometag</sometag>
+  ...
+</div>
+<p>
+  This frx:if attribute would only evaluate to true if <strong>my_column</strong> was not present or zero.
+</p>
+
+<h3>Combining multiple conditions in frx:if attributes</h3>
+
+<p>
+  Because of the way PHP string expressions work, listing multiple conditions in an frx:if attribute is interpreted as
+  an <strong>OR</strong>.
+  As an illustration, consider this example:
+</p>
+
+<div frx:renderer="FrxSource" id="frxsrc-4">
+  ...
+  <sometag frx:if="{my_column}{your_column}">something surrounded by sometag</sometag>
+  ...
+</div>
+<p>
+  This frx:if attribute would evaluate to true if either column <strong>my_column</strong> OR
+  <strong>your_column</strong>
+  contains data. If instead you need to use an <strong>AND</strong> operator, separate the conditions by <strong>&amp;amp;</strong>
+  as in this example:
+</p>
+
+<div frx:renderer="FrxSource" id="frxsrc-5">
+  ...
+  <sometag frx:if="{my_column}&amp;{your_column}">something surrounded by sometag</sometag>
+  ...
+</div>
+<p>
+  This frx:if attribute would evaluate to true only if both columns <strong>my_column</strong> AND
+  <strong>your_column</strong>
+  evaluated to true.
+</p>
+</div>
+<div>
+<h2 id="tokens">Token Replacement</h2>
+<p>Each field in the report is referenced by an XPATH expression enclosed by curly braces, as in this example:</p>
+<div frx:renderer="FrxSource">... {SomeXpathExpression} ...</div>
+<p>In its simplest form the XPATH expression can be thought of as the name of the field in the database, but when using
+  more
+  complex data sources, there is a lot that can be done using these XPATH expressions.</p>
+</div>
+</body>
+</html>

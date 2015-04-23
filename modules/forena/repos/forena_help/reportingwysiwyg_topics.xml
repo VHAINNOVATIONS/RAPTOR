@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <booktitle>WYSIWYG Reporting</booktitle>
+  <bookfolder>help.reportingwysiwyg</bookfolder>
+  <chapters>
+    <chapter>
+      <title>Introduction</title>
+      <subtitle>Content at a glance</subtitle>
+      <abstract></abstract>
+      <link>intro</link>
+    </chapter>
+    <chapter>
+      <title>Create A New Report</title>
+      <subtitle>Steps to start the creation of a new report</subtitle>
+      <abstract></abstract>
+      <link>create</link>
+    </chapter>
+    <chapter>
+      <title>Manage Data Blocks</title>
+      <subtitle>Add, edit or remove data blocks in a report</subtitle>
+      <abstract></abstract>
+      <link>datablocks</link>
+    </chapter>
+    <chapter>
+      <title>General Report Options</title>
+      <subtitle>Specify general options of a report</subtitle>
+      <abstract></abstract>
+      <link>general</link>
+    </chapter>
+    <chapter>
+      <title>Document Types</title>
+      <subtitle>Select enabled document formats for optionally saving a report</subtitle>
+      <abstract></abstract>
+      <link>doctypes</link>
+    </chapter>
+    <chapter>
+      <title>Report Layout Options</title>
+      <subtitle>Specify various layout options for a report</subtitle>
+      <abstract></abstract>
+      <link>layout</link>
+    </chapter>
+    <chapter>
+      <title>Report Parameters</title>
+      <subtitle>Specify various parameter options for a report</subtitle>
+      <abstract></abstract>
+      <link>parameters</link>
+    </chapter>
+    <chapter>
+      <title>Configure Report Fields</title>
+      <subtitle>Define special formatting rules for any report field</subtitle>
+      <abstract></abstract>
+      <link>fields</link>
+    </chapter>
+  </chapters>
+</book>

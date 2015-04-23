@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <booktitle>Rendering Data</booktitle>
+  <bookfolder>help.renderers</bookfolder>
+  <chapters>
+    <chapter>
+      <title>Introduction</title>
+      <subtitle>Content at a glance</subtitle>
+      <abstract></abstract>
+      <link>intro</link>
+    </chapter>
+    <chapter>
+      <title>FrxTitle</title>
+      <subtitle>Replace the report's page title and tab title by token replaced values</subtitle>
+      <abstract></abstract>
+      <link>frxtitle</link>
+    </chapter>
+    <chapter>
+      <title>FrxMyReports</title>
+      <subtitle>Display the user's list of reports, optionally limited to a single category</subtitle>
+      <abstract></abstract>
+      <link>frxmyreports</link>
+    </chapter>
+    <chapter>
+      <title>FrxSource</title>
+      <subtitle>Display markup as a code snippet, without token replacement</subtitle>
+      <abstract></abstract>
+      <link>frxsource</link>
+    </chapter>
+    <chapter>
+      <title>FrxXML</title>
+      <subtitle>Display the XML data source of the current data context, useful for debugging also</subtitle>
+      <abstract></abstract>
+      <link>frxxml</link>
+    </chapter>
+    <chapter>
+      <title>FrxParameterForm</title>
+      <subtitle>Customize various aspects of the rendering of the report parameters input form</subtitle>
+      <abstract></abstract>
+      <link>frxparameterform</link>
+    </chapter>
+    <chapter>
+      <title>FrxSVGGraph</title>
+      <subtitle>Render a graph (chart) in SVG format, using the PHP SVGGraph library</subtitle>
+      <abstract></abstract>
+      <link>frxsvggraph</link>
+    </chapter>
+    <chapter>
+      <title>FrxInclude</title>
+      <subtitle>Include another report as an asset with the appropriate tag, such as external SVG assets</subtitle>
+      <abstract></abstract>
+      <link>frxinclude</link>
+    </chapter>
+    <chapter>
+      <title>FrxCrosstab</title>
+      <subtitle>Display of a table in crosstab format</subtitle>
+      <abstract></abstract>
+      <link>frxcrosstab</link>
+    </chapter>
+  </chapters>
+</book>

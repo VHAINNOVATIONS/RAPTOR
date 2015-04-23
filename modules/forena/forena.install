@@ -1,0 +1,62 @@
+<?php
+// $Id$
+/**
+ * @file
+ * Installation api for module
+ */
+/**
+ * Implementation of hook_schema
+ *
+ * @return unknown
+ */
+function forena_schema() {
+
+  $schema['forena_repositories'] = array(
+    'fields' => array(
+       'repository' => array('type' => 'varchar', 'length' => '63', 'not null' => TRUE),
+       'title' => array('type' => 'varchar', 'length' => '63'),
+       'enabled' => array('type' => 'int', 'not null' => TRUE),
+       'config' => array('type' => 'text'),
+  ),
+    'primary_key' => array('repository'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Obsolete clear cache
+ */
+function forena_update_7401()  {
+  // Clear cache mechanism no longer needed
+}
+
+/**
+ * Remove forena_reports table
+ */
+function forena_update_7402() {
+  if (db_table_exists('forena_reports')) db_drop_table('forena_reports');
+}
+
+function forena_install() {
+  $filters = filter_formats();
+  // Set default input format.
+  $report_path = variable_get('file_' . file_default_scheme() . '_path', conf_path() . '/files/reports');
+  @drupal_mkdir($report_path);
+}
+
+/**
+ * Implementation of hook uninstall
+ */
+function forena_uninstall() {
+  // Delete all variables.
+  variable_del('forena_default_form');
+  variable_del('forena_doc_defaults');
+  variable_del('forena_doc_formats');
+  variable_del('forena_default_formats');
+  variable_del('forena_email_override');
+  variable_del('forena_input_format');
+  variable_del('forena_last_report_path');
+  variable_del('forena_report_repos');
+  variable_del('forena_skins');
+}

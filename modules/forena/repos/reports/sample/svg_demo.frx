@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>SVG Graph Demo</title>
+<frx:category>Sample</frx:category>
+<frx:options hidden="1" />
+<frx:parameters></frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields>
+  <frx:field id="state" link="" format="" format-string="" target="" />
+  <frx:field id="name" link="" format="" format-string="" target="" />
+  <frx:field id="total" link="reports/sample.user_distribution_simple?state={state}#test" format="" format-string="" target="" />
+  <frx:field id="svggraph_library" link="http://www.goat1000.com/svggraph.php" target="_blank">PHP SVGGraph</frx:field>
+  <frx:field id="state_summary" link="reports/sample.state_summary">Master Summary with drill down</frx:field>
+  <frx:field id="state_graph" link="reports/sample.state_graph?height=400&amp;width=600">state graph</frx:field>
+</frx:fields>
+<frx:menu />
+<frx:cache />
+<style>
+.graphs {
+	clear: both;
+	display: block;
+	width: 100%;
+}
+
+/* Make sure the SVG fills the containing div*/
+.graph-sample svg {
+	width: 100%;
+	height: 100%;
+	vertical-align: top;
+}
+
+.graph-description {
+	width: 32%;
+	display: inline-block;
+	clear: left;
+	margin-top: 1em;
+	vertical-align: top;
+}
+
+.graph-sample {
+	width: 66%;
+	clear: right;
+	margin-top: 1em;
+	padding: 0;
+	display: inline-block;
+	vertical-align: top;
+}
+
+/* When the display area gets to small make sure the containers get big*/
+@media only screen and (max-width:800px) {
+	.graph-sample,.graph-description {
+		width: 100%;
+	}
+}
+</style>
+</head>
+<body>
+  <p>The goal of this demo is to show some of the {svggraph_library} features, and to help reduce the learning curve to get
+    you started with creating your own SVG Graphs.</p>
+  <p>
+    SVG (Scalable Vector Graphics) is a widely-deployed royalty-free graphics format developed and maintained by the <a
+      href="http://www.w3.org/Graphics/SVG/" target="_blank">W3C SVG Working Group</a>.
+  </p>
+  <p>
+    The {state_summary} sample that comes with <a href="https://drupal.org/project/forena" target="_blank">Forena</a>, includes
+    an SVG graph. It's named the <strong>state graph</strong> and comes with a set of predefined graph generation
+    options, such as colors (green and yellow), graph type (bargraph), data selection criteria (total at least 10000), etc. This
+    included state graph is actually another sample that comes with forena, though it is hidden (using a forena option to do so)
+    in the list of sample reports. Checkout this {state_graph} link to see it anyhow. 
+  </p>
+  <p>
+    Even though forena does an amazing job in creating SVG graphs, it is not (yet) obvious to get started with creating your own
+    forena based SVG Graphs. And this because, as delivered, the <strong>state graph</strong>:
+  </p>
+  <ul>
+    <li>is the very only SVG sample within the delivered samples.</li>
+    <li>contains some predefined options that take some time to learn about.</li>
+  </ul>
+  <p>
+    That's why this <strong>SVG Graph Demo</strong> was created ... enjoy reviewing it!
+  </p>
+  <div class="graphs">
+    <div class="graph-description">
+      <p>
+        To get started, how about this vertical <strong>BarGraph</strong> (in <strong>3D</strong>, so it is actually <strong>Bar3DGraph</strong>)
+        with like 20 different <strong>colors</strong>:
+      </p>
+    </div>
+    <div class="graph-sample">
+      <svg id="Bar3DGraph" frx:block="sampledb/users_by_state" frx:renderer="FrxSVGGraph" frx:type="Bar3DGraph"
+        frx:xpath="*[total&gt;10000]" frx:link="sample.user_distribution_simple?state={state}" frx:series_1="{total}"
+        frx:label="{state}" frx:back_colour="white" frx:graph_title_colour="red" frx:graph_title_font_size="12"
+        frx:graph_title="Vertical BarGraph in 3D (graph with vertical bars)" frx:graph_title_position="bottom"
+        frx:label_v="Total nr of users" frx:label_h="State" frx:label_font="georgia" frx:label_font_size="14"
+        frx:label_colour="purple" frx:colour_1="pink" frx:colour_2="brown" frx:colour_3="red" frx:colour_4="gold"
+        frx:colour_5="orange" frx:colour_6="yellow" frx:colour_7="green" frx:colour_8="olive" frx:colour_9="lightgreen"
+        frx:colour_10="azure" frx:colour_11="lavender" frx:colour_12="cyan" frx:colour_13="royalblue" frx:colour_14="blue"
+        frx:colour_15="orchid" frx:colour_16="purple" frx:colour_17="indigo" frx:colour_18="gray" frx:colour_19="black"
+        frx:colour_20="ivory">
+	  </svg>
+    </div>
+    <div class="graph-description">
+      <p>
+        Here is a sample of a <strong>CylinderGraph</strong> with fewer <strong>colors</strong> than the BarGraph
+        before:
+      </p>
+    </div>
+    <div class="graph-sample">
+      <svg id="CylinderGraph" frx:block="sampledb/users_by_state" frx:renderer="FrxSVGGraph" frx:type="CylinderGraph"
+        frx:xpath="*[total&gt;10000]" frx:link="sample.user_distribution_simple?state={state}" frx:series_1="{total}"
+        frx:label="{state}" frx:back_colour="white" frx:graph_title_colour="red" frx:graph_title_font_size="12"
+        frx:graph_title="Vertical CylinderGraph (graph with vertical cylinders)" frx:graph_title_position="bottom"
+        frx:label_v="Total nr of users" frx:label_h="State" frx:label_font="georgia" frx:label_font_size="14"
+        frx:label_colour="purple" frx:colour_1="red" frx:colour_2="blue">
+	  </svg>
+    </div>
+    <div class="graph-description">
+      <p>
+        Let's find out what a <strong>LineGraph</strong> would look like, using green triangles as <strong>markers</strong>, the
+        line that connects the markers should be a blue dashed line (dashes of 3 pixels combined with 3 pixels of gap), and the
+        area under the line should be filled in red, using 25% opacity for that filled area:
+      </p>
+    </div>
+    <div class="graph-sample">
+      <svg id="LineGraph" frx:block="sampledb/users_by_state" frx:renderer="FrxSVGGraph" frx:type="LineGraph"
+        frx:xpath="*[total&gt;10000]" frx:link="sample.user_distribution_simple?state={state}" frx:series_1="{total}"
+        frx:label="{state}" frx:back_colour="white" frx:graph_title_colour="red" frx:graph_title_font_size="12"
+        frx:graph_title="LineGraph (graph with a line joining the data points)" frx:graph_title_position="bottom"
+        frx:label_v="Total nr of users" frx:label_h="State" frx:label_font="georgia" frx:label_font_size="14"
+        frx:label_colour="purple" frx:colour_1="red" frx:fill_under="true" frx:fill_opacity="0.25" frx:marker_colour="green"
+        frx:marker_type="triangle" frx:stroke_colour="blue" frx:line_dash="3">
+	  </svg>
+    </div>
+    <div class="graph-description">
+      <p>
+        Here is the <strong>ScatterGraph</strong> variation, using purple diamonds as <strong>markers</strong>, and with an
+        extra <strong>best fit line</strong> added to it to draw a straight (red) line through the data points (using 7 pixels
+        dashes combined with 7 pixels of gap).
+      </p>
+      <p>Let's also zoom into the more interesting part of all the data included in the graph, i.e. start the Y-axis only
+        from 7000, and increment the Y-axis values with 1000 (to get more detailed Y-axis data starting from 7000):</p>
+    </div>
+    <div class="graph-sample">
+      <svg id="ScatterGraph" frx:block="sampledb/users_by_state" frx:renderer="FrxSVGGraph" frx:type="ScatterGraph"
+        frx:xpath="*[total&gt;10000]" frx:link="sample.user_distribution_simple?state={state}" frx:series_1="{total}"
+        frx:label="{state}" frx:back_colour="white" frx:graph_title_colour="red" frx:graph_title_font_size="12"
+        frx:graph_title="ScatterGraph (graph with markers drawn at horizontal and vertical points)"
+        frx:graph_title_position="bottom" frx:label_v="Total nr of users" frx:label_h="State" frx:label_font="georgia"
+        frx:label_font_size="14" frx:label_colour="purple" frx:marker_colour="purple" frx:marker_type="diamond"
+        frx:best_fit="straight" frx:best_fit_colour="red" frx:best_fit_dash="7" frx:axis_min_v="7000" frx:grid_division_v="1000">
+	  </svg>
+    </div>
+    <div class="graph-description">
+      <p>
+        Let's change to a <strong>PieGraph</strong> (also in <strong>3D</strong>, so it is actually <strong>Pie3DGraph</strong>).
+      </p>
+      <p>
+        And let's use lots of <strong>colors</strong> (purple, cyan, red, blue, gold, green, indigo, orange, brown, pink, ...):
+      </p>
+    </div>
+    <div class="graph-sample">
+      <svg id="Pie3DGraph" frx:block="sampledb/users_by_state" frx:renderer="FrxSVGGraph" frx:type="Pie3DGraph"
+        frx:xpath="*[total&gt;10000]" frx:link="sample.user_distribution_simple?state={state}" frx:series_1="{total}"
+        frx:label="{state}" frx:back_colour="white" frx:graph_title_colour="red" frx:graph_title_font_size="12"
+        frx:graph_title="PieGraph in 3D (chart with slices)" frx:graph_title_position="bottom" frx:label_v="Total nr of users"
+        frx:label_h="State" frx:label_font="georgia" frx:label_font_size="14" frx:label_colour="black" frx:colour_1="pink"
+        frx:colour_2="brown" frx:colour_3="red" frx:colour_4="gold" frx:colour_5="orange" frx:colour_6="yellow"
+        frx:colour_7="green" frx:colour_8="olive" frx:colour_9="lightgreen" frx:colour_10="azure" frx:colour_11="lavender"
+        frx:colour_12="cyan" frx:colour_13="royalblue" frx:colour_14="blue" frx:colour_15="orchid" frx:colour_16="purple"
+        frx:colour_17="indigo" frx:colour_18="white" frx:colour_19="gray" frx:colour_20="ivory">
+	  </svg>
+    </div>
+    <div class="graph-description">
+      <p>
+        Here is a sample of a <strong>RadarGraph</strong> 
+        using red triangles as <strong>markers</strong>, the line that connects the markers should be a purple dashed line
+        (dashes of 3 pixels combined with 3 pixels of gap), and the area within the line should be filled in green, using 40%
+        opacity for that filled area:
+      </p>
+    </div>
+    <div class="graph-sample">
+      <svg id="Radargraph" frx:block="sampledb/users_by_state" frx:renderer="FrxSVGGraph" frx:type="Radargraph"
+        frx:xpath="*[total&gt;10000]" frx:link="sample.user_distribution_simple?state={state}" frx:series_1="{total}"
+        frx:label="{state}" frx:back_colour="white" frx:graph_title_colour="red" frx:graph_title_font_size="12"
+        frx:graph_title="RadarGraph (graph with values measured from the centre point instead of the X-axis)"
+        frx:graph_title_position="bottom" frx:label_v="Total nr of users" frx:label_font="georgia" frx:label_font_size="14"
+        frx:label_space="45" frx:label_colour="purple" frx:colour_1="green" frx:axis_min_v="3000" frx:axis_max_v="28000"
+        frx:grid_division_v="5000" frx:fill_under="true" frx:fill_opacity="0.40" frx:marker_colour="red"
+        frx:marker_type="triangle" frx:stroke_colour="purple" frx:line_dash="3">
+	  </svg>
+    </div>
+    <div class="graph-description">
+      <p>
+        Let's return to a <strong>BarGraph</strong> with <strong>horizontal</strong> bars, actually a <strong>HorizontalBarGraph</strong>.
+        Let's only show states with a <strong>total nr of users</strong> of at least 12000 (instead of 10000) and we need to
+        swap the labels also.
+      </p>
+      <p>
+        This horizontal BarGraph looks rather ugly, no? The data labels below the chart have become unreadable, even enlarging
+        the <strong>width</strong> of the graph a bit won't really help (too much data-labels to be shown).
+      </p>
+    </div>
+    <div class="graph-sample">
+      <svg id="BarGraphH-Ugly" frx:block="sampledb/users_by_state" frx:renderer="FrxSVGGraph" frx:type="HorizontalBarGraph"
+        frx:xpath="*[total&gt;12000]" frx:link="sample.user_distribution_simple?state={state}" frx:series_1="{total}"
+        frx:label="{state}" frx:back_colour="white" frx:graph_title_colour="red" frx:graph_title_font_size="12"
+        frx:graph_title="Horizontal Bargraph (graph with horizontal bars)" frx:graph_title_position="bottom" frx:label_v="State"
+        frx:label_h="Total nr of users" frx:label_font="georgia" frx:label_font_size="14" frx:label_colour="purple"
+        frx:colour_1="red" frx:colour_2="blue">
+	  </svg>
+    </div>
+    <div class="graph-description">
+      <p>
+        By applying some <strong>advanced SVG Graph features</strong> it is possible to enhance the previous graph to something
+        that looks already much better.
+      </p>
+    </div>
+    <div class="graph-sample">
+      <svg id="BarGraphH-Great" frx:block="sampledb/users_by_state" frx:renderer="FrxSVGGraph" frx:type="HorizontalBarGraph"
+        frx:xpath="*[total&gt;12000]" frx:link="sample.user_distribution_simple?state={state}" frx:series_1="{total}"
+        frx:label="{state}" frx:back_colour="white" frx:graph_title_colour="red" frx:graph_title_font_size="12"
+        frx:graph_title="Refined Horizontal Bargraph (graph with horizontal bars)" frx:graph_title_position="bottom"
+        frx:label_v="State" frx:label_h="Total nr of users" frx:label_font="georgia" frx:label_font_size="14"
+        frx:label_colour="purple" frx:colour_1="red" frx:colour_2="blue" frx:axis_min_h="10000" frx:grid_division_h="2500"
+        frx:division_size_h="2" frx:division_size_v="0" frx:show_subdivisions="true" frx:subdivision_size="5">
+	  </svg>
+    </div>
+  </div>
+  <div>
+    <p>In case you haven't noticed yet, all graphs above also includes drill-down links. Just click on any of
+      the colored items in any of the charts to view another report with the selected data.</p>
+    <p>As a reminder: this is just an introduction to create SVG Graphs. We haven't even mentioned some of the additional
+      features, such as:</p>
+    <ul>
+      <li><strong>stacked</strong> and <strong>grouped</strong> variations of horizontal or vertical BarGraphs or
+        CylinderGraphs, which out-of-the-box are supported also (can't cover everything in an introduction ...).</li>
+      <li><strong>MultiRadarGraph</strong> variations of RadarGraphs.</li>
+    </ul>
+
+  </div>
+</body>
+</html>

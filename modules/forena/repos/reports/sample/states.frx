@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Simple Table of States</title>
+<frx:category>Sample</frx:category>
+<frx:options hidden="1"></frx:options>
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields/><frx:menu/><frx:cache/></head>
+<body>
+  <div frx:block="sampledb/states" id="state-block" class="FrxTable">
+    <table>
+      <thead>
+        <tr>
+          <th>code</th>
+          <th>name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr frx:foreach="*" id="state" class="test {code}">
+          <td>{code}</td>
+          <td>{name}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

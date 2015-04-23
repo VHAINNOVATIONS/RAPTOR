@@ -1,0 +1,41 @@
+;
+;  skinfo file used for my reports.
+;  
+name = Sample Custom Skin
+description = Skin used in customized reports. 
+;
+; -----------------------------------------------------------
+;
+; JavaScript libraries to be added.
+;
+; Make the dataTables plugin available:
+;
+scripts[] = dataTables/media/js/jquery.dataTables.min.js
+;
+; Use (enable) some dataTables features (by specifying so in a custom JS file):
+; 
+scripts[] = datatables.js
+;
+; -----------------------------------------------------------
+;
+; Stylesheet inclusions:
+; 
+stylesheets[all][] = datatables.css
+;
+; -----------------------------------------------------------
+;
+; Settings for Forena Classes to further control how Forena renders reports:
+; 
+; Disable helper classes such as even and odd:
+; FrxReport[noHelperClasses] = true
+; 
+; Control the root element tag name using the following:
+; FrxXMLDoc[rootElementName] = node 
+;
+; ---------------------------------------------------------
+;
+; Add arbitrary values to reference them in the report using the skin data context: 
+; 
+; company_name = My Cool Company
+; 
+; (doing so allows for referencing {skin.company_name} anywhere in a report).

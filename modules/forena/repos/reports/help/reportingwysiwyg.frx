@@ -1,0 +1,511 @@
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+<!ENTITY reg "&#174;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>WYSIWYG Reporting</title>
+<frx:category>Help</frx:category>
+<frx:options hidden="1" skin="tutorial_skin" />
+<frx:fields>
+  <frx:field id="title" link="reports/help.reportingwysiwyg#{link}" />
+  <frx:field id="admin_reports" link="admin/structure/forena">admin/structure/forena</frx:field>
+  <frx:field id="my_reports" link="forena" target="_self">My Reports</frx:field>
+  <frx:field id="skins_guide" link="reports/help.skins" target="_blank">Skins guide</frx:field>
+  <frx:field id="crosstab_template" link="reports/help.renderers#frxcrosstab"
+    target="_blank">Crosstab template</frx:field>
+  <frx:field id="svggraph_template" link="reports/help.renderers#frxsvggraph"
+    target="_blank">SVG Graph template</frx:field>
+</frx:fields>
+<frx:parameters />
+<frx:docgen />
+</head>
+<body>
+  <div class="toc" id="help-toc-1" frx:block="forena_help/reportingwysiwyg_topics">
+    <h3>Including</h3>
+    <ul>
+      <li id="help-toc-2" frx:foreach="/book/chapters/chapter">{title}<span frx:if="{subtitle}">: {subtitle}.</span></li>
+    </ul>
+
+  </div>
+	<h2 id="intro">Introduction</h2>
+	<p>
+		Forena is built of the idea of using <abbr title="Structered Query Language">SQL</abbr> to get data out of a database 
+		and use XHTML and CSS to format it into web reports. It is designed to leverage existing knowledge of <abbr
+			title="HyperText Markup Language">HTML</abbr>, <abbr title="Cascading Style Sheets">CSS</abbr>, <abbr
+			title="Structered Query Language">SQL</abbr> and JavaScript to help you create rich interactive web reports.
+	</p>
+	<p>
+		A <strong>What You See Is What You Get </strong>(WYSIWYG) compatible report editor is provided to make the creation of a basic
+		reports very easy. You don't have to know <abbr title="eXtensible HyperText Markup Language">XHTML</abbr> and <abbr
+			title="Cascading Style Sheets">CSS</abbr> to create a simple report, but the more you now about <abbr
+			title="HyperText Markup Language">HTML</abbr> and <abbr title="Cascading Style Sheets">CSS</abbr>, the more you will be able
+		to achieve.
+	</p>
+	<p>
+		The main differences with other open source reporting solutions such as JasperReports <sup>&reg;</sup> or mondrian are:
+	</p>
+
+	<ol>
+		<li>Forena leverages <abbr title="HyperText Markup Language">HTML</abbr> and <abbr title="eXtensible Markup Language">XML</abbr>
+			in ways that these report engines do not. In Forena everything is <abbr title="eXtensible HyperText Markup Language">XHTML</abbr>
+			natively, so that is your templating language. This means rather than having users enter parameters, most often they are
+			doing <em>click-through</em> drilling down to their data. Forena produces paper as a secondary thing rather than a primary
+			concern. We are NOT interested in printing most of the time, but rather exploring the data.
+		</li>
+		<li>Forena lets you consume hierarchical data from non-relational sources such as RSS feeds, etc (anything in <abbr
+			title="eXtensible Markup Language">XML</abbr> format) and has special considerations for databases that can generate <abbr
+			title="eXtensible Markup Language">XML</abbr> natively (e.g. Postgres or Oracle SQL).
+		</li>
+		<li>Forena is designed to make generating data sources and reports be report developer friendly. Data queries
+			, often called data blocks,  are simple files that can be version controlled and edited using normal development toos. They are often parameterized <abbr
+			title="Structered Query Language">SQL</abbr> files, so they don't take much to use. Time from a good select statement to a
+			report is typically 5 minutes or less.
+		</li>
+		<li>Forena doesn't require a Java stack! So you can install it on a hosting service, etc.</li>
+	</ol>
+	<p>
+		Novice users may want to start by creating reports using the built-in <abbr title="What You See Is What You Get">WYSIWYG</abbr>
+		report editor. Users with knowledge of <abbr title="eXtensible HyperText Markup Language">XHTML</abbr>, <abbr
+			title="Cascading Style Sheets">CSS</abbr> and <abbr title="eXtensible Markup Language">XML</abbr> may choose to edit the
+		FRX report definition files directly. The <abbr
+			title="Forena Report XML">FRX</abbr> Reporting Guide is available for those who are interested in doing so.
+	</p>
+	<h2 id="create">Creating a Report</h2>
+	<p>To create a new report using the WYSIWYG report editor, use either of these methods to do so:</p>
+	<ul>
+		<li>Use the menu option Create Report, which is typically located in the navigation menu block, provided it is enabled in your site.</li>
+		<li>Visit the {admin_reports} page and select the Create New Report link on that page.</li>
+	</ul>
+	<h3>Specify the Title and Name</h3>
+	<p>
+		The <strong>Title</strong> field indicates the title of the report as it will appear for the user. In this example we'll use
+		"Test Simple Report" as the title of our report.
+	</p>
+	<p>
+		The <strong>Report Name</strong> is a unique name that is used to save the report definition. In this example we
+		will use test/simple as the Report Name, which implies that our report will be stored in directory <strong>test</strong>, and
+		that the filename of our report will be <strong>simple.frx</strong> The .frx extension is automatically added to the
+		filename. 
+	</p>
+	<p>
+		For this simple report, you can leave the remaining fields blank, and hit the CREATE button. After doing so, you'll
+		be taken to the Report Editing screen, which has an URL like /reports/test.simple/edit.
+		Notice the warning message at the top of this edit screen, which states "All changes are stored temporarily. Click Save to
+		make your changes permanent. Click Cancel to discard your changes.".
+	</p>
+	<h3>Save the Report</h3>
+	<p>Saving the report will  store all details in the .frx file we specified and display an informational message at the top of the screen, which states "Your report,
+		test/simple has been saved.". Voilà!</p>
+	<p>Note that your test/simple report does NOT show up in the list of reports shown via menu item {my_reports}. 
+	   That's because we have not specified a category yet for our report, something we'll be doing via
+		the General Tab later on.</p>
+	<h3>Retrieving your report</h3>
+	<p>To retrieve your report later on, go to URL /reports/test.simple. If you want to change
+		the report definition click on the tiny edit icon.</p>
+	<h2 id="datablocks">Data Blocks</h2>
+	<p>Data blocks correspond to a specific query to a database or application. These data blocks are typically created
+      by a site administrator or developer.</p>
+	<h3>Adding a first Data Block to your report</h3>
+	<p>
+		Data blocks can be added to a report via the Report Editing screen. To add such a data block to our test/simple report, click
+		on the tiny icon with a green plus sign labeled "Insert Data" which can be found on the Report Editing screen. 
+		After doing so, you will be taken to the <strong>Select Data Block</strong> screen. Select a
+		data block to be used on the report. You may search for the name of any provided data blocks.
+	</p>
+	<p>
+		For this report, we'll use one of the sample queries, i.e. <strong>sampledb/users_by_state</strong>. Select this data block by
+		just clicking on it, which will take you to the <strong>Preview Data Block</strong> screen. If the selected data block was
+		contains parameters you'll be prompted to enter a values.  You must be able to generate data previews prior to selecting a data block.
+	</p>
+	<p>The Preview Data Block screen gives you a preview of the data included in the data block you selected. This preview
+		shows a sample table layout of the data returned by that data block. You may need to specify required parameters in a report
+		in order to generate sample data before your report preview can be created. You cannot use the editor to add data to
+		the report unless you can provide parameters that cause the query to actually return data. Keep pressing Preview until you
+		see the data that you're expecting in the report. Don't worry if the preview shows too many fields, or isn't quite in the
+		right format. You'll be able to control that in the Layout tab later on.</p>
+	<p>
+		To confirm your data block selection press the <strong>Select</strong> button, which will take you to the <strong>Add
+			Data</strong> screen. Using the Add Data screen
+		you can customize the columns of the selected data block (their order, which ones to include/exclude, etc), and optionally
+		enter a header for it. You can also select any of the available templates to decide the basic look
+		and feel of the data block that you are adding to the report. Some of these templates are straight forward, such as the <strong>Simple
+			Table display</strong>. Here are some of the more sophisticated data block templates to choose:
+	</p>
+	<ul>
+		<li>{crosstab_template}.</li>
+		<li>{svggraph_template}.</li>
+	</ul>
+	<p>
+		<strong>Note:</strong> by using the WYSIWYG editor you don't have to know about the .frx syntax of any of these
+		templates, but the constructed report will still be an .frx file saved on the file system which may be manipulated directly.
+	</p>
+	<p>Use the Preview button to see the effects of your customizations. Feel free to experiment with these templates to get a
+		report that looks as close as possible to the design you are looking for. Note that you will be able to further customize
+		these layouts later on by using the layout tab on the report editor screen.</p>
+	<p>
+		When you're finished selecting your customizations on the Add Data screen, use the <strong>Insert</strong> button to 
+		add the selected data block to the report. 
+	</p>
+	<h3>Adding additional Data Blocks to your report</h3>
+	<p>
+		The steps required for adding additional Data Blocks to your report are mostly similar to the steps to add a first Data Block
+		to your report using the tiny icon with a green plus sign. If the additional data block is to be inserted
+		before the already existing one, use the icon <strong>above</strong> the existing data block. If however the additional data
+		block is to be inserted after the already existing one, use the icon <strong>below</strong> the existing data block.
+	</p>
+	<h3>Editing Data Blocks in your report</h3>
+	<p>Sometimes you may want to edit the presentation of an existing data block in a report, here are a few samples
+		why you'd want to do so:</p>
+
+	<ul>
+		<li>Add some extra columns to the report</li>
+		<li>Remove some of the existing columns in the report</li>
+		<li>Change the order of presentation of the columns</li>
+	</ul>
+	<p>
+		To edit an existing data block in the report, go to the report edit screen and click on the hyperlink related to the data
+		block to be edited. This will take you to the <strong>Edit Block</strong> screen. The features available on this Edit Block
+		screen are identical to those on the <strong>Add Data</strong> screen.
+	</p>
+	<h3>Removing Data Blocks from your report</h3>
+	<p>
+		If you want to remove a data block from the report, go to the report edit screen and click on the tiny icon with a red minus
+		sign, and which says "Remove Data" if you move your mouse pointer over it. After doing so, you will be taken to a screen that
+		says something like <strong>Are you sure you would like to remove the ... content</strong>. Select the <strong>Yes</strong>
+		button to confirm the removal of the data block from your report or <strong>No</strong> to cancel your request.
+	</p>
+	<h2 id="general">General</h2>
+	<p>
+		Using the <strong>General</strong> tab on the report editing screen, you can specify various general options of the report. If
+		you're not yet on the report editing screen, you can access it by clicking on the tiny edit icon shown when viewing the
+		report.
+	</p>
+	<p>Explanation of the available options on this form are as follows:</p>
+	<ul>
+		<li><strong>Title</strong> - The title of the report, which can be used to modify the original title that was entered
+			when the report was first created.</li>
+		<li>Use the <strong>Visibility</strong> options to enter these specifications of the report:
+			<ul>
+				<li><strong>Category</strong> - This controls under which group the report appears under the {my_reports} list. A
+					report without a category will not show up in it.</li>
+				<li><strong>Hidden</strong> - Checking this checkbox will cause the report not to be listed in the {my_reports} list regardless of Category.</li>
+			</ul>
+		</li>
+		<li><strong>Menu</strong> - Click on the menu link to expand it so that some additional options related to it become
+			visible. By checking the <strong>Provide a menu link</strong> checkbox, some additional options will become
+			available to actually specify the various options to create a Drupal menu pointing to the report, i.e.:
+			<ul>
+				<li><strong>Menu Path</strong> - The site relative path for the menu item. Parameters may be embedded in the url using
+					a :parm syntax (e.g. states/:state).</li>
+				<li><strong>Additional Arguments </strong> - Additional parameters that should be extracted after the menu path using a
+					:parm syntax (e.g. :parma/:parmb.)</li>
+				<li><strong>Type of menu to create</strong> - Use standard conventions for creating a menu item in the format of normal
+					menu items, tabbed menus, etc.</li>
+			</ul> <strong>Note</strong>: changes to values of menu options  only become visible after clearing the Drupal cache.</li>
+		<li id="report-caching"><strong>Cache</strong> - Click on the cache link to expand it so that some additional options
+			related to it become visible. These additional options can be used to enable some options related to the caching of the
+			report, which is a technique to reduce the resources required for rendering the report, in situations such as:
+			<ul>
+				<li>reports containing data that don't change a lot (e.g. you know that the nature of the report's data only change on
+					a daily basis).</li>
+				<li>reports that are about some pretty hefty analysis,( e.g. queries that give sums/aggregate for
+					large numbers of rows). </li>
+			</ul> Available caching options are:
+			<ul>
+				<li><strong>Duration</strong> - The duration that a cached report remains in the cache. Use <a href="http://php.net/manual/en/datetime.formats.relative.php"
+					target="_blank"> relative formats</a> according to the php documentation.</li>
+				<li><strong>Per User </strong> - Indicate if you want the cache to be by user.</li>
+				<li><strong>Per Document Type</strong> - Indicate if you want the cache to be by Document Type.</li>
+			</ul></li>
+	</ul>
+	<p>
+		Use the <strong>Update</strong> button to update changes to the report and return to the preview screen.  Your changes will not 
+		be saved until the <strong>Save</strong> button is selected.</p>
+	<h2 id="doctypes">Document Types</h2>
+	<p>The output of any report is normally an HTML document.  It can  optionally be exported in several common document formats.</p>
+	<p>The exact list of document types available for your report is determined by your site
+		administrator and may include:</p>
+	<table>
+		<tr>
+			<th>csv</th>
+			<td>Comma Separated Values.</td>
+		</tr>
+		<tr>
+			<th>email</th>
+			<td>eMail message.</td>
+		</tr>
+		<tr>
+			<th>html</th>
+			<td>HyperText Markup Language without the drupal theme.</td>
+		</tr>
+		<tr>
+		    <th>PDF</th>
+		    <td>Adobe Portable Document Format</td>
+		</tr>
+		<tr>
+			<th>svg</th>
+			<td>Scalable Vector Graphics.</td>
+		</tr>
+		<tr>
+			<th>doc</th>
+			<td>MS Word format.</td>
+		</tr>
+		<tr>
+			<th>xls</th>
+			<td>MS Excel format.</td>
+		</tr>
+		<tr>
+			<th>xml</th>
+			<td>eXtensible Markup Language.</td>
+		</tr>
+	</table>
+	<p>
+		Using the <strong>Document Types</strong> tab on the report editing screen, you can check one or more of the
+		available options to add a corresponding link to your report. If you're not yet on the report editing screen, you can access
+		it by clicking on the tiny edit icon shown when viewing the report. 
+	</p>
+	<h2 id="layout">Layout</h2>
+	 <p>
+    Using the <strong>layout</strong> tab on the report editing screen, you can specify various layout options of the report.
+  </p>
+  <p>Explanation of the available options on this form are as follows:
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <th>Skin</th>
+        <td><p>The skin of a report determines the look and feel of the report and allows you to leverage a common set of CSS and
+          JavaScript libraries to make the most out of your reports. In conventional report writers this can be thought of as what
+          kind of paper form the report printed on. These days most layout is controlled by Cascading Style Sheets (CSS) and
+          JavaScript libraries.</p>
+          <p> A site administrator may enable additional report skins by creating corresponding .skinfo
+          files. These .skinfo files define which specific CSS files and JavaScript files will get included when that skin is
+          selected in a report. </p>
+          <p>
+          Refer to the {skins_guide} for more information on defining custom skins.</p>  
+        </td>
+      </tr>
+      <tr>
+        <th>Body</th>
+        <td>
+           Here you can edit directly the contents of the report.  This can be used when you need more customization than can be provided using 
+           the custom templates provided by forena.  For more information how to specify a proper body section and the use of the special frx attributes 
+           in the html, see the FRX Reporting guide. 
+        </td>
+      </tr>
+      <tr>
+        <th>CSS Styles</th>
+        <td><p>Specify small CSS snippets that can be used anywhere in the report, as in this example:</p>
+            <pre>div.FrxTable { 
+              line-height: 2.5; color: #FF6633; 
+            }
+            </pre>
+          <p>This will change the look-and-feel of the table content a little bit. In this specific case the height of the
+          table rows will be higher then the height for standard table displays, while the color of the text in the table cells is
+          shown in a kind of orange.</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="parameters">Parameters</h2>
+    <p>
+    Parameters can be used to provided inputs to a report. Using the <strong>Parameters</strong> tab on the report editing screen,
+    you can enter new report parameters, and/or edit or delete existing parameters.
+  </p>
+  <p>
+    To add a new parameter, click on the General tab, and then click on the link that says <strong>Add Parameter</strong>. After
+    doing so, you will be taken to the <strong>Parameters</strong> screen. Available options are: 
+  </p>
+  <table >
+    <tbody>
+      <tr>
+        <th>label</th>
+        <td>The label displayed to the user when prompted in the parameters form.</td>
+      </tr>
+      <tr>
+        <th>id</th>
+        <td>The unique id for the report parameter. Generally these must match exactly the parameters expected by the data values.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    Enter an appropriate value for each of these fields, and confirm them by pressing the <strong>Add</strong> button, which will
+    take you to the next Edit screen.
+  </p>
+  <p>
+    On the <strong>Parameters</strong> screen, click the tiny gear icon next labeled 'Configure
+    Parameter'. This will allow you to further specify the following: 
+    </p>
+  <table>
+    <tbody>
+      <tr>
+        <th>label</th>
+        <td>The label displayed to the user when prompted in the parameters form.</td>
+      </tr>
+      <tr>
+        <th>require</th>
+        <td>Indicate of a value for this parameter is required to display the report. If there is not a default value, the user will be prompted to enter a value.</td>
+      </tr>
+      <tr>
+        <th>default value</th>
+        <td>Value to be used when none is specified.</td>
+      </tr>
+      <tr>
+        <th>description</th>
+        <td>Tell the users about what the parameter is used for as well as proper formats for entry.</td>
+      </tr>
+      <tr>
+        <th>Input Control Type</th>
+        <td>Indicates the type of control or widget used prompt for user input.</td>
+      </tr>
+			<tr>
+				<th>Source Data</th>
+				<td>Used in conjunction with the control field to determine which values will be made available to radio buttons,
+					check-boxes or select lists. The value should be a <strong>data block</strong> that users of this report will have access
+					to. Blocks should be written to return key value pairs for use in these controls.
+				</td>
+			</tr>
+			<tr>
+				<th>Data Field</th>
+				<td>The name of the column from the data block specified in <strong>Data Source</strong> that is used to populate the
+					return <strong>values</strong> of the select or radio buttons. If omitted,
+					then the 1st column of the data block is used as the Data Field.
+				</td>
+			</tr>
+			<tr>
+				<th>Label Field</th>
+				<td>The name of the column from the data block specified in <strong>Source Data</strong> that is used to populate the <strong>labels</strong>
+					of select or radio buttons. If omitted, then the 2nd column of the data block is used as the Label Field, provided such 2nd
+					column exists.  If the query returns only one column the Data Field column is used. 
+				</td>
+			</tr>
+			<tr>
+        <th>Options</th>
+        <td>Used to configure the Input Control Type.</td>
+      </tr>
+      <tr>
+        <th>Class</th>
+        <td>Specify the html class to be applied to this parameter.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2 id="fields">Fields</h2>
+  <p>Fields in the report are the tokens which are used to substitute data into the report. These report fields are found
+    between the curly braces, and exists in multiple flavors:</p>
+
+  <ul>
+    <li>Data fields as contained in the report's data blocks</li>
+    <li>The fields defined on the spot while editing the report, and this by just typing the variable name (= token) of the
+      field, surrounded by curly braces, anywhere within the body part of the report.</li>
+    <li>The fields corresponding to the arbitrary variables defined in a report skin file.</li>
+  </ul>
+  <p>
+    Select on the gear symbol next to the first use of the particular report field to configure the following properties:</p>
+  <ul>
+    <li>The formatting of the field's output.</li>
+    <li>The field's links to be created.</li>
+    <li>The field's default value to be displayed if no value is present.</li>
+  </ul>
+  <p>
+  The options available to configure these properties are further detailed below.
+  </p>
+  <h3>Field output formatting</h3>
+  <p>
+    Fields can be formatted a number of different ways depending on the format and format-string specified for each field. The
+    following table illustrates the supported options:
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <th>Format</th>
+        <th>Description</th>
+        <th>Format String</th>
+      </tr>
+      <tr>
+        <td>drupal_date_format</td>
+        <td>Formats a Drupal date. Drupal dates are natively large numbers that are expressed as the number of seconds since
+          the UNIX epoch date.</td>
+        <td>Use <strong>small</strong>, <strong>medium</strong> or <strong>large</strong> to specify any of the site defined
+          dates, or alternatively specify a custom date format. See <a href="http://php.net/manual/en/function.date.php"
+          target="_blank">http://php.net/manual/en/function.date.php</a> for possibilities for custom formatting.
+        </td>
+      </tr>
+      <tr>
+        <td>drupal_node_content</td>
+        <td>Loads content from the given nid and display it using teaser or full display.</td>
+        <td>Specify <strong>teaser</strong> to get teaser view.
+        </td>
+      </tr>
+      <tr>
+        <td>drupal_translation</td>
+        <td>Use Drupal's translation API to translate the value prior to display.</td>
+        <td>Specify a field containing the serialized data used for translations (e.g. watchdog table). Normally
+          you can leave this blank.</td>
+      </tr>
+      <tr>
+        <td>iso_date</td>
+        <td>ISO standard dates are of the form, YYYY-MM-DD followed by a 24 hour timestamp (e.g. 2012-12-01 20:30:30). Dates in
+          this format may be reformatted.</td>
+        <td>Use <strong>small</strong>, <strong>medium</strong> or <strong>large</strong> to specify any of the site defined
+          date formats, or alternatively specify a custom date format. See <a href="http://php.net/manual/en/function.date.php"
+          target="_blank">http://php.net/manual/en/function.date.php</a> for possibilities for custom formatting.
+        </td>
+      </tr>
+      <tr>
+        <td>number</td>
+        <td>Use the PHP number formatter function.</td>
+        <td>Indicate a sample numeric format for decimal places and thousands separator. (eg. 9.999.00).</td>
+      </tr>
+      <tr>
+        <td>sprintf</td>
+        <td>Use PHP's sprintf function for adding labels and such.</td>
+        <td>See <a href="http://us.php.net/manual/en/function.sprintf.php" target="_blank">http://us.php.net/manual/en/function.sprintf.php</a>
+          for possibilities.
+        </td>
+      </tr>
+      <tr>
+        <td>template</td>
+        <td>The field is expected to contain a template containing further tokens for expansion.  This is useful for form letter data that
+          may be stored in the database.</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Field linking</h3>
+  <p>Fields can be transformed into hyperlinks also. The following table illustrates the supported options:
+  </p>
+  <table>
+    <tr>
+      <th>Link</th>
+      <td>Specify a site relative URL. When specified, all references to this field in the report will be displayed as a links
+        to the URL specified.</td>
+    </tr>
+    <tr>
+      <th>Pass through URL parameters</th>
+      <td>Automatically pass through URL parameters on this link.</td>
+    </tr>
+    <tr>
+      <th>rel</th>
+      <td>Relationship attribute to apply to the link.</td>
+    </tr>
+    <tr>
+      <th>class</th>
+      <td>CSS class applied to be applied to the link.</td>
+    </tr>
+    <tr>
+      <th>Target</th>
+      <td>Specify a target of the page you want the window to open in. BLANK can be used to always open a page in a new
+        window. If you specify a target beginning with the word "popup", Forena will automatically open up the window in a
+        popup.</td>
+    </tr>
+  </table>
+  <h3>Field default value</h3>
+  <table>
+    <tr>
+      <th>Default Value</th>
+      <td>The value to use when no value is present in the data.</td>
+    </tr>
+  </table>
+</body>
+</html>

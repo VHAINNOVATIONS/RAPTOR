@@ -1,0 +1,47 @@
+;
+;  Example info file that will use the datatables plugin if loaded in sites/all/modules or reports directory.
+;
+;  Scripts are searched for first in the reports directory, second in the site relative file system 
+;  and thirdly in the sites/all/libraries folder. 
+;  
+name = Default Skin
+description = Default skin for use with Forena. 
+; ------------------------------------------------------
+; Javascript libraries can be added.  Forena will
+; automatically search sites/all/libraries in 
+; addition to the report directories. 
+; 
+scripts[] = dataTables/media/js/jquery.dataTables.min.js
+scripts[] = default_skin.js
+; -----------------------------------------------------------
+;  Sample stylesheet inclusion the usual types are supported (e.g. screen, print)
+;  Also not that if you ar using mMPDF or Prince, you can speify stylesheets 
+;  in the form
+; 
+stylesheets[all][] = table_padding.css
+; ---------------------------
+; 
+;  Sample graphing Graph defaults uncomment to experiment.
+; 
+; FrxSVGGraph[colors][] = red 
+; FrxSVGGraph[colors][] = blue
+;---------------------------
+; Settings for Forena Classes
+; 
+; The following settings can be used to further control how forena renders reprots 
+; 
+; Disable helper classes such as even and odd 
+; FrxReport[noHelperClasses] = true
+; 
+; Control the root element taga name using teh following. 
+; FrxXMLDoc[rootElementName] = node 
+; ---------------------------------------------------------
+; Arbitrary values may be added and referenced in the report as
+; using the skin data context.  For exmaple if you uncomment the following: 
+; 
+; company_name = My Cool Company
+; 
+; Then you could reference {skin.company_name} anywhere in your report.
+FrxSVGGraph[legend_position] = outer right -5 5
+FrxSVGGraph[add_js] = TRUE
+FrxSVGGraph[semantic_classes] = 1

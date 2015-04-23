@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Customized Simple Table of States</title>
+<frx:category>Sample</frx:category>
+<frx:options hidden="1" skin="custom_skin"></frx:options>
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields>
+  <frx:field id="{sample_states}" link="reports/sample.states"/>  
+</frx:fields>
+<frx:menu />
+<frx:cache />
+</head>
+<body>
+	<div>
+		<p>
+			This report is a variation of the <a href="./sample.states"
+				target="_self">Simple Table of States</a> report that uses a <strong>custom skin</strong> for the 
+			  following customizations:
+	  </p>
+				<ul>
+					<li>The table is displayed using the dataTables plugin by
+						adding the JavaScript <strong>datatables_features.js</strong> in
+						the custom skin. which adds various widgets to operate on the
+						data contained in the table, such as (above the table) the search
+						box and the number of entries to be shown, and (below the table)
+						the pagination and the number of rows. Type a few
+						letters in the search box to get the idea.  See the dataTables documentation 
+						for more information on this JQuery plugin.
+					</li>
+					<li>The presentation of the dataTables controls are themed by adding the stylesheet <strong>datatables_styling.css</strong>
+						in the custom skin.
+					</li>
+					<li>Some of Forena's default styling is refined (e.g. the size
+						of the edit icons), by adding the stylesheet <strong>forena_styling.css</strong>
+						in the custom skin.
+					</li>
+				</ul>
+	</div>
+	<div frx:block="sampledb/states" id="state-block" class="FrxTable">
+		<table>
+			<thead>
+				<tr>
+					<th>code</th>
+					<th>name</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr frx:foreach="*" id="state" class="test {code}">
+					<td>{code}</td>
+					<td>{name}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

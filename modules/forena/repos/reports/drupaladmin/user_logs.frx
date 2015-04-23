@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Logs for User</title>
+<frx:category>Drupal Administration</frx:category>
+<frx:options />
+<frx:parameters>
+  <frx:parm id="name" label="User Name" require="1" desc=""
+    data_source="" data_field="" type="" />
+</frx:parameters>
+<frx:fields>
+  <frx:field id="name" link="" format="" format-string="" target="">Anonymous</frx:field>
+  <frx:field id="type" link="" format="" format-string="" target="" />
+  <frx:field id="message" link="" format="drupal_translation"
+    format-string="variables" target="" />
+  <frx:field id="timestamp" link="" format="drupal_date_format"
+    format-string="small" target="" />
+  <frx:field id="details" link="admin/reports/event/{wid}" format=""
+    format-string="" target="">Details</frx:field>
+</frx:fields>
+<frx:docgen />
+</head>
+<body>
+  <div id="forena-1" frx:block="drupal/users_in_logs">
+    <h3 frx:if="!{parm.name}">Select the <strong>user name</strong> for which you want to retrieve log entries<br />
+    (enter it as a parameter on the collapsible parameter form above).</h3>
+    <div frx:if="{parm.name}">
+      <h3>Most recent log entries for user <strong>{parm.name}</strong>
+      (limited to the first 100 entries only).</h3>
+    </div>
+  </div>
+  <table id="forena-2" frx:block="drupal/user_logs">
+    <thead>
+      <tr>
+        <th width="200">Type</th>
+        <th width="200">Message</th>
+        <th>Timestamp</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr id="forena-3" frx:foreach="*">
+        <td>{type}</td>
+        <td>{message}</td>
+        <td>{timestamp}</td>
+        <td>{details}</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

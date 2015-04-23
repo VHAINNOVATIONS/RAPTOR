@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Sample State Graph</title>
+<frx:category>Sample</frx:category>
+<frx:options hidden="1"></frx:options>
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields>
+  <frx:field id="state" link="" format="" format-string="" target="" />
+  <frx:field id="name" link="" format="" format-string="" target="" />
+  <frx:field id="total"
+    link="reports/sample.user_distribution_simple?state={state}#test"
+    format="" format-string="" target="" />
+</frx:fields>
+<frx:menu/><frx:cache/></head>
+<body>
+  <div>
+    <p>To be browser compatible, this chart really needs to be
+      referenced in another report embedded in an object tag.</p>
+    <svg id="state-chart" frx:block="sampledb/users_by_state"
+      frx:renderer="FrxSVGGraph" frx:type="bargraph"
+      frx:xpath="*[total&gt;10000]"
+      frx:link="sample.user_distribution_simple?state={state}"
+      frx:series_1="{total}" frx:label="{state}">
+    </svg>
+  </div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Master detail with nested blocks</title>
+<frx:category>Sample</frx:category>
+<frx:options hidden="1"></frx:options>
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields/><frx:menu/><frx:cache/></head>
+<body>
+  <div>
+    <p>Master/Detail reporting only works when the column name in
+      the master report is the same as the parameter name required by
+      the detail report. In this case state. You can override these by
+      passing in a where clause in the query.</p>
+  </div>
+  <div frx:block="sampledb/users_by_state">
+    <div frx:foreach="*" id="state">
+      <h3>{name}</h3>
+      <div frx:block="sampledb/distribution">
+        <table>
+          <thead>
+            <tr>
+              <th width="80%">city</th>
+              <th width="20%">users</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr frx:foreach="*">
+              <td>{city}</td>
+              <td>{users}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>{state.total}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

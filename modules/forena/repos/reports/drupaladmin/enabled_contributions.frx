@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Enabled Modules and Themes</title>
+<frx:category>Drupal Administration</frx:category>
+<frx:options hidden="0" />
+<frx:parameters>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+
+</head>
+<body>
+  <div frx:block="drupal/enabled_modules" id="forena-1">
+    <table>
+      <thead>
+        <tr>
+          <th>name</th>
+          <th>owner</th>
+          <th>weight</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr frx:foreach="*" id="forena-2">
+          <td>{name}</td>
+          <td>{owner}</td>
+          <td>{weight}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
+

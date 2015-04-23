@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <booktitle>Accessing Data</booktitle>
+  <bookfolder>help.data</bookfolder>
+  <chapters>
+    <chapter>
+      <title>Data Sources</title>
+      <subtitle>Understanding Data Sources and options to define them</subtitle>
+      <abstract>Data Sources establish a connection to an external database, and define its related repository, which is a directory on the web server that will contain all data block files related to that data source.</abstract>
+      <link>datasources</link>
+    </chapter>
+    <chapter>
+      <title>About Data Blocks</title>
+      <subtitle>Understanding Data Blocks and how to create them</subtitle>
+      <abstract>Data Blocks contain the actual data retrieved from a data source as they will be shown in a report.</abstract>
+      <link>datablocks</link>
+    </chapter>
+    <chapter>
+      <title>Data Blocks Security</title>
+      <subtitle>Granting access to the data retrieved by a data block</subtitle>
+      <abstract>Data Blocks Security defines the authorization required to access the data retrieved by a Data Block.</abstract>
+      <link>datablocksecurity</link>
+    </chapter>
+    <chapter>
+      <title>SQL Parameters</title>
+      <subtitle>About SQL Parameters and their Data Types</subtitle>
+      <abstract>SQL Parameters are named tokens contained in the specifications of a Data Block, which will be replaced with the value of a parameter from the report when the SQL query is executed.</abstract>
+      <link>sqlparameters</link>
+    </chapter>
+    <chapter>
+      <title>Conditional SQL</title>
+      <subtitle>Creating SQL containing optional filters</subtitle>
+      <abstract>Conditional SQL is a technique using either the --IF directive or the --SWITCH directive. It can be used in the specifications of Data Blocks to specify sections of an SQL statement that are only included if a particular parameter is present.</abstract>
+      <link>conditionalsql</link>
+    </chapter>
+    <chapter>
+      <title>Data Block Includes</title>
+      <subtitle>Creating Data Blocks from other Data Blocks</subtitle>
+      <abstract>Data Block Includes is a technique using the --INCLUDE directive. It can be used in the specifications of Data Blocks to specify other Data Blocks to be included in it.</abstract>
+      <link>datablockincludes</link>
+    </chapter>
+    <chapter>
+      <title>Drupal Entities</title>
+      <subtitle>Create Data Blocks that load Drupal entities</subtitle>
+      <abstract>Load Drupal entities instead of selecting columns from the database.</abstract>
+      <link>drupalentities</link>
+    </chapter>
+    <chapter>
+      <title>Raw Mode Queries</title>
+      <subtitle>Reduce memory consumption when exporting data</subtitle>
+      <abstract>Memory consumption can be reduced by specifying a return_type option of raw in the Data Block</abstract>
+      <link>rawmodequeries</link>
+    </chapter>
+  </chapters>
+</book>

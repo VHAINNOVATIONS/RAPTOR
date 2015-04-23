@@ -1,0 +1,165 @@
+<?php
+/**
+ * @file
+ * Forena pdf generation module
+ * @author metzlerd
+ */
+
+/**
+ * Implementation of hook_menu
+ */
+function forena_pdf_menu() {
+  $items = array();
+  $items['admin/config/content/forena/pdf'] = array(
+    'title' => 'PDF',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('forena_pdf_configure'),
+    'access arguments' => array('administer forena reports'),
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_forena_document_types
+ */
+function forena_pdf_forena_document_types() {
+  $items = array();
+  $pdf_generator = variable_get('forena_pdf_generator', '');
+  if ($pdf_generator) {
+    include_once('docformats/' . $pdf_generator . '.inc');
+    $items['pdf'] = array(
+      'class' => $pdf_generator,
+      'title' => t('PDF Document'),
+    );
+  }
+  return $items;
+}
+
+/**
+ * Implementation of configuration form.
+ * @param unknown_type $formid
+ * @param unknown_type $form_state
+ */
+function forena_pdf_configure($formid, &$form_state)  {
+  $path = variable_get('forena_pdf_prince_path', '/usr/local/bin/prince');
+  $disable_links = variable_get('forena_pdf_disable_links', TRUE);
+  $pdf_options = array(
+    '' => t('None') ,
+    'FrxPrincePDF' => t('Prince XML'),
+    'FrxMPDF' => t('MPDF'),
+    'FrxDocRaptor' => t('DocRaptor PDF generation Service'),
+  );
+  $pdf_generator = variable_get('forena_pdf_generator', '');
+
+  $mpdf_path = t('MDPF Libarary not found. Please install so sites/all/libraries/mpdf/mpdf.php exists.');
+  if (forena_library_file('mpdf')) {
+    $mpdf_path = 'sites/all/libraries/mpdf';
+  }
+  else {
+    unset($pdf_options['FrxMPDF']);
+  }
+  $prince_path = t('Prince XML library not found.  Please install so sites/all/libraries/prince/prince.php exists.');
+
+  if (forena_library_file('prince')) {
+    $prince_path = 'sites/all/libraries/prince';
+  }
+  else {
+    unset($pdf_options['FrxPrincePDF']);
+  }
+  if (isset($form_state['values']['forena_pdf_generator'])) $pdf_generator = $form_state['values']['forena_pdf_generator'];
+  $form['forena_pdf_generator'] = array(
+    '#type' => 'select',
+    '#title' => t('PDF Generation Method'),
+    '#options' => $pdf_options,
+    '#default_value' => $pdf_generator,
+    '#ajax' => array('wrapper' => 'config-wrapper', 'callback' => 'forena_pdf_config_callback'),
+  );
+
+  $form['forena_pdf_disable_links'] = array(
+    '#type' => 'checkbox',
+    '#title' => ('Disable links in PDF Documents'),
+    '#description' => t('When checked links in reports will not appear as links in PDF documents.'),
+    '#default_value' => $disable_links,
+  );
+  $form['config'] = array('#prefix' => '<div id="config-wrapper">', '#suffix' => '</div>');
+  $form['config']['mpdf'] = array('#type' => 'fieldset', '#title' => t('MPDF library'), '#access' => $pdf_generator == 'FrxMPDF');
+  $form['config']['mpdf']['library'] = array(
+    '#type' => 'item',
+    '#title' => 'Installation path',
+    '#markup' => $mpdf_path,
+  );
+
+  $form['config']['prince'] = array('#type' => 'fieldset', '#title' => t('Prince XML'), '#access' => $pdf_generator == 'FrxPrincePDF');
+
+  $form['config']['prince']['library'] = array(
+    '#type' => 'item',
+    '#title' => t('PHP Library path'),
+    '#markup' => $prince_path,
+  );
+
+  $form['config']['prince']['forena_pdf_prince_path'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to binary'),
+    '#description' => t('Specify the location of the prince executable (e.g. /usr/local/bin/prince'),
+    '#required' => TRUE,
+    '#default_value' => $path,
+  );
+
+  $docraptor_url = variable_get('fornea_pdf_docrapter_url', 'https://docraptor.com/docs');
+  $docraptor_key = variable_get('forena_pdf_docraptor_key', '');
+  $docraptor_test = variable_get('forena_pdf_docraptor_test', TRUE);
+  $form['config']['docraptor'] = array('#type' => 'fieldset', '#title' => t("DocRaptor PDF Generation Service"), '#access' => $pdf_generator == 'FrxDocRaptor');
+
+  $form['config']['docraptor']['forena_pdf_docraptor_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('URL to Docraptor Service'),
+    '#description' => t('Specify the URL to the PDF Document Generation Service'),
+    '#default_value' => $docraptor_url,
+  );
+
+  $form['config']['docraptor']['forena_pdf_docraptor_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('DocRaptor API Key'),
+    '#description' => t('Enter the API key for your DocRaptor account here.'),
+    '#default_value' => $docraptor_key,
+  );
+
+  $form['config']['docraptor']['forena_pdf_docraptor_test'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Test Mode Document Generation'),
+    '#desciption' => t('Generating Documents in Test mode generally does not count towards document counts, but places
+      a TEST DOCUMENT header at the top of every page of the document'),
+    '#default_value' => $docraptor_test,
+  );
+
+  $form['submit'] = array('#type' => 'submit', '#value' => 'Save');
+  return $form;
+}
+
+function forena_pdf_config_callback($form, &$form_state) {
+  return $form['config'];
+}
+
+function forena_pdf_configure_submit($form, &$form_state) {
+  variable_set('forena_pdf_generator', $form_state['values']['forena_pdf_generator']);
+  variable_set('forena_pdf_prince_path', $form_state['values']['forena_pdf_prince_path']);
+  variable_set('forena_pdf_disable_links', $form_state['values']['forena_pdf_disable_links']);
+  variable_set('forena_pdf_docraptor_url', $form_state['values']['forena_pdf_docraptor_url']);
+  variable_set('forena_pdf_docraptor_key', $form_state['values']['forena_pdf_docraptor_key']);
+  variable_set('forena_pdf_docraptor_test', $form_state['values']['forena_pdf_docraptor_test']);
+  drupal_set_message(t('Options Saved'));
+}
+
+/**
+ * Implements hook_permission().
+ */
+function forena_pdf_permission()
+{
+  return array(
+    'use forena pdf document generation service' => array(
+      'title' => 'Use PDF Document Generation Service',
+      'description' => 'Document generation service may have per document charges associated with it.',
+    ),
+  );
+}

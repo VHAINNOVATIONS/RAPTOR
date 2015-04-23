@@ -1,0 +1,115 @@
+ul.forena-doclinks { 
+  margin: 0 0.5em;
+  display: block; 
+  float: right; 
+  width: 10em;	
+  clear: right; 
+  text-align: right; 
+}
+
+ul.forena-doclinks li {
+  list-style: none; 
+  display: inline; 
+}
+
+#forena-block-preview table {
+	width : 100%;
+}
+
+.forena-editor-links {
+	display: block; 
+	float: right; 
+	width: 5em; 
+	clear: right; 
+	text-align: right;
+}
+
+.forena-editor-links a { text-decoration: none;  }
+
+
+ul.forena-doclinks { 
+	margin-left: 0; 
+}
+
+
+.paging_full_numbers a.paginate_button,
+ 	.paging_full_numbers a.paginate_active {
+	border: 1px solid;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	padding: 2px 5px;
+	margin: 0 3px;
+	cursor: pointer;
+	background-color : #eee	; 
+}
+
+#FrxCrosstab-columns div { 
+	display: inline; 
+	margin-right: 1em; 
+}
+
+.paging_full_numbers {
+	width: 400px;
+	height: 22px;
+	line-height: 2em;
+}
+
+.paging_full_numbers a:active {
+	outline: none
+}
+
+.paging_full_numbers a:hover {
+	text-decoration: none;
+}
+
+.dataTables_wrapper {
+		clear: both;
+  	zoom: 1; /* Feeling sorry for IE */
+    margin-bottom: 4em; 
+}
+
+.dataTables_processing {
+	border: 1px solid #ddd;
+	background-color: white;
+}
+
+.dataTables_wrapper input {
+	border: solid 1px; 
+	}
+
+.dataTables_length {
+	width: 40%;
+	float: right;
+	text-align: right;
+}
+
+.dataTables_filter {
+	width: 50%;
+	float: left;
+}
+
+.dataTables_info {
+	width: 60%;
+	float: left;
+}
+
+.dataTables_paginate {
+	float: right;
+	text-align: right;
+}
+
+.forena-edit-links img, .forena-editor-links img,
+.forena-field-config img { height: 1.3em; vertical-align: middle; }
+.forena-edit-links a, .forena-editor-links a { display: inline-block;
+  padding: 0.2em;
+  background-color: #eee; 
+  border: solid 1px #ddd;
+  text-decoration: none; 
+  font-size: 1.1em; 
+  vertical-align: middle; 
+  margin-bottom: 0.5em; 
+  border-radius: .5em; }
+
+.forena-edit-links a:hover { text-decoration: none;  }
+
+

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<frx:category>Help</frx:category>
+<frx:options hidden="1" />
+<frx:parameters>
+</frx:parameters>
+<frx:docgen />
+<frx:fields>
+  <frx:field id="title" link="reports/help.development">Developement Guide</frx:field>
+</frx:fields>
+</head>
+<body>
+  <p>This document is no longer in use please see the {title}</p>
+</body>
+</html>

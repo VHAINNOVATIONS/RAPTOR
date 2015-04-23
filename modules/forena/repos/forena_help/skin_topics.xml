@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <booktitle>Skins and Theming</booktitle>
+  <bookfolder>help.skins</bookfolder>
+  <chapters>
+    <chapter>
+      <title>Introduction</title>
+      <subtitle>Content at a glance</subtitle>
+      <abstract></abstract>
+      <link>intro</link>
+    </chapter>
+    <chapter>
+      <title>Defining Skins</title>
+      <subtitle>How to create a .skinfo file</subtitle>
+      <abstract>Overview of skins and how they are formatted.</abstract>
+      <link>define</link>
+    </chapter>
+    <chapter>
+      <title>Assigning Skins</title>
+      <subtitle>Set default skins and assign custom skins to reports </subtitle>
+      <abstract></abstract>
+      <link>assign</link>
+    </chapter>
+    <chapter>
+      <title>CSS Libraries</title>
+      <subtitle>Add CSS libraries to a skin</subtitle>
+      <abstract></abstract>
+      <link>css</link>
+    </chapter>
+    <chapter>
+      <title>JavaScript Libraries</title>
+      <subtitle>Add JavaScript libraries for use in reports</subtitle>
+      <abstract></abstract>
+      <link>javascript</link>
+    </chapter>
+    <chapter>
+      <title>Example</title>
+      <subtitle>Sample containing custom JS and CSS files</subtitle>
+      <abstract></abstract>
+      <link>example</link>
+    </chapter>
+    <chapter>
+      <title>Configuration Options</title>
+      <subtitle>Defining skin configuration options</subtitle>
+      <abstract></abstract>
+      <link>options</link>
+    </chapter>
+  </chapters>
+</book>

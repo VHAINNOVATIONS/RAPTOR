@@ -1,0 +1,129 @@
+<?php
+/**
+ * @file
+ * Provides the ability to create saved queries
+ * and to test sql data blocks.
+ */
+
+/**
+ * Implementation of hook_menu
+ */
+function forena_query_menu() {
+  $items = array();
+
+  $items['admin/structure/forena/data/add'] = array(
+  	'type' => MENU_CALLBACK,
+    'title' => 'Create new SQL Query',
+    'access arguments' => array('build forena sql blocks'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('forena_query_create_block_form'),
+    'file' => 'forena_query.inc',
+  );
+
+  $items['admin/structure/forena/data/%/edit']  = array(
+    'type' => MENU_CALLBACK,
+    'title' => 'SQL Editor',
+    'access callback' => 'forena_query_editor_access',
+    'access arguments' => array(4, 'create'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('forena_query_editor', 4),
+    'file' => 'forena_query.inc',
+  );
+
+  $items['admin/structure/forena/data/%/delete']  = array(
+      'type' => MENU_CALLBACK,
+      'title' => 'Delete/Revert Custom Data Query',
+      'access callback' => 'forena_query_editor_access',
+      'access arguments' => array(4, 'delete'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('forena_query_delete_form', 4),
+      'file' => 'forena_query.inc',
+  );
+
+  $items['forena-query/table_autocomplete'] = array(
+  	'type' => MENU_CALLBACK,
+    'access arguments' => array('build forena sql blocks'),
+    'page callback' => 'forena_query_autocomplete',
+    'file' => 'forena_query.inc'
+  );
+
+  $items['forena-query/table_autocomplete_simple'] = array(
+      'type' => MENU_CALLBACK,
+      'access arguments' => array('build forena sql blocks'),
+      'page callback' => 'forena_query_autocomplete_simple',
+      'file' => 'forena_query.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Access function based on data b
+ * @param unknown $block_name
+ * @param string $action
+ * @return boolean
+ */
+function forena_query_editor_access($block_name, $action='create') {
+  $block_name = str_replace('.', '/', $block_name);
+  @list($provider,$block) = explode('/', $block_name);
+  return user_access("access $provider data")  && user_access("$action $provider blocks");
+}
+
+
+/**
+ * Implementation of hook_permission
+ */
+function forena_query_permission() {
+  $perms =  array(
+    'build forena sql blocks' => array('title' => 'Build Forena Data Blocks using SQL',
+    	'description' => 'Direct access to SQL should not be given without understanding of security ramifications'),
+      'forena data security' => array('title' => 'Manage data security',
+      'description' => 'Allows to create new data queries and alter security on saved queries.') ,
+  );
+  foreach (Frx::RepoMan()->repositories as $repos => $conf) {
+    $name = $conf['title'] ? $conf['title'] : $repos;
+    $perms['create '. $repos . ' blocks'] = array('title' =>  'Create ' . $name . ' Data Blocks');
+    $perms['delete '. $repos . ' blocks'] = array('title' =>  'Delete ' . $name . ' Data Blocks');
+
+  }
+  return $perms;
+}
+
+/**
+ * Implmentation of hook_requirements
+ * @param unknown $phase
+ */
+function forena_query_requirements($phase) {
+  $requirements = array();
+  switch ($phase) {
+  	case 'runtime':
+  	  $writeable = is_writable(Frx::DataFile()->dir);
+  	  if (!$writeable) {
+    	  $requirements['fornea_writable'] = array(
+    	      'title' => 'Forena Data Directory',
+    	      'value' => Frx::File()->dir,
+    	      'severity' => REQUIREMENT_ERROR,
+    	      'description' => t('The directory must be writable by the web user in order to create custom SQL data sources. '),
+    	  ) ;
+  	  }
+  }
+}
+
+function forena_query_forena_query_builders() {
+
+  return array(
+  	'FrxQueryBuilder' => array('class' => 'FrxQueryBuilder',
+       'file' => 'builders/FrxQueryBuilder.inc'),
+  );
+}
+
+
+/**
+ * Return permission as to whether the user can save data
+ * in the repository.
+ * @param $repos string
+ */
+function forena_query_access_repository($repos) {
+  @list($repos, $block) = @explode('/', $repos, 2);
+  return user_access('create ' . $repos . ' blocks');
+}

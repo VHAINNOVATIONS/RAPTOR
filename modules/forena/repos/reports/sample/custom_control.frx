@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Report with Custom Control</title>
+<frx:category>Sample</frx:category>
+<frx:options hidden="1"></frx:options>
+<frx:fields />
+<frx:parameters />
+<frx:docgen />
+<frx:fields/><frx:menu/><frx:cache/></head>
+<body>
+  <p>This report is obsolete and will be removed in the next major release</p>
+</body>
+</html>

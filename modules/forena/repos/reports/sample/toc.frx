@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Sample reports and graphs</title>
+<frx:category>Help</frx:category>
+<frx:options hidden="0"/>
+<frx:parameters>
+	<frx:parm id="show_chapters" require="0" data_source="forena_help/switches" data_field="codenum" label_field="label"
+		type="select">1</frx:parm>
+	<frx:parm id="show_subtitle" require="0" data_source="forena_help/switches" data_field="codenum" label_field="label"
+		type="select">1</frx:parm>
+	<frx:parm id="show_abstract" require="0" data_source="forena_help/switches" data_field="codenum" label_field="label"
+		type="select">0</frx:parm>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields>
+	<frx:field id="title" link="reports/{/book/bookfolder}.{link}" format="" format-string="" target=""></frx:field>
+	<frx:field id="booktitle" link="reports/{/book/bookfolder}" format="" format-string="" target=""></frx:field>
+</frx:fields>
+<frx:menu enabled="1" path="reports/samples" type="normal-item" title="Reporting Samples" weight="20" menu_name="navigation" />
+<frx:cache />
+</head>
+<body>
+	<div frx:renderer="FrxParameterForm" frx:title="Refine Table Of Contents Details" frx:collapsible="1" frx:collapsed="1"
+		frx:submit="Show Refined Table Of Contents" id="parmeter-form">
+		<table>
+			<tbody>
+				<tr>
+					<th>Show chapters: {show_chapters}</th>
+					<th>Show chapter subtitle: {show_subtitle}</th>
+					<th>Show chapter abstract: {show_abstract}</th>
+				</tr>
+				<tr>
+					<td>Select 'Yes' to show chapters,<br /> or 'No' to excluded them.
+					</td>
+					<td>Select 'Yes' to show subtitles,<br /> or 'No' to excluded them.
+					</td>
+					<td>Select 'Yes' to show abstracts,<br /> or 'No' to excluded them.
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<p>{submit}</p>
+	</div>
+	<div class="frx-block" id="sample-1" frx:block="sampledb/sample_topics">
+		<div frx:if="!{parm.show_chapters}">{booktitle}</div>
+		<div frx:if="{parm.show_chapters}">
+			<hr />
+			<h3>{/book/booktitle}</h3>
+			<ul>
+				<li id="sample-2" frx:foreach="/book/chapters/chapter">{title} <span frx:if="{subtitle}&amp;{parm.show_subtitle}">-
+						{subtitle}.</span>
+					<blockquote frx:if="{abstract}&amp;{parm.show_abstract}">{abstract}</blockquote>
+				</li>
+			</ul>
+		</div>
+	</div>
+</body>
+</html>

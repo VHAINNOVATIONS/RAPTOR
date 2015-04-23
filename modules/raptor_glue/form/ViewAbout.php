@@ -21,6 +21,63 @@ namespace raptor;
 class ViewAbout
 {
 
+    private function getGeneralCustomizationItems($wrapperfirst='<ul>',$itemprefix='<li>',$wrapperlast='</ul>')
+    {
+        $html = '';
+        $items = array();
+        if (!REQUIRE_ACKNOWLEDGE_DEFAULTS)
+        {
+            $items[] = 'Does NOT require acknowledge default values';
+        }
+        if (DISABLE_TICKET_AGE1_SCORING)
+        {
+            $items[] = 'Ticket age scoring1 is disabled';
+        }
+        if (DISABLE_TICKET_AGE2_SCORING)
+        {
+            $items[] = 'Ticket age scoring2 is disabled';
+        }
+        $items[] = 'Default visit days='.DEFAULT_GET_VISIT_DAYS;
+        if(count($items) > 0)
+        {
+            $html = $wrapperfirst 
+                    . $itemprefix 
+                    . implode($itemprefix, $items)
+                    . $wrapperlast;
+        }
+        return $html;
+    }
+    
+    private function getWorkflowCustomizationItems($wrapperfirst='<ul>',$itemprefix='<li>',$wrapperlast='</ul>')
+    {
+        $html = '';
+        $items = array();
+        if (ALLOW_TICKET_STATE_SHORTCUT_TO_QA_FROM_AP)
+        {
+            $items[] = 'Has shortcut to QA from Approved';
+        }
+        if (ALLOW_TICKET_STATE_SHORTCUT_TO_QA_FROM_PA)
+        {
+            $items[] = 'Has shortcut to QA from Acknowledged';
+        }
+        if (BLOCK_TICKET_STATE_PA)
+        {
+            $items[] = 'Disabled Acknowledged ticket state';
+        }
+        if (BLOCK_TICKET_STATE_EC)
+        {
+            $items[] = 'Disabled Exam Completed ticket state';
+        }
+        if(count($items) > 0)
+        {
+            $html = $wrapperfirst 
+                    . $itemprefix 
+                    . implode($itemprefix, $items)
+                    . $wrapperlast;
+        }
+        return $html;
+    }
+    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -39,19 +96,25 @@ class ViewAbout
                 . '</td>'
                 . '<td style="vertical-align:top">'
                 . '<b>RAPTOR Version Information</b>'
-                . '<ul>'
-                . '<li>App Build:'.RAPTOR_BUILD_ID.'</li>'
-                . '<li>Machine ID:'.RAPTOR_CONFIG_ID.'</li>'
-                . '<li>MDWS version: '.$mdwsversion.'</li>'
-                . '<li>VISTA Site: '.VISTA_SITE.'</li>'
-                . '</ul>'
+                . '<table class="about-info">'
+                . '<tr><td>App Build</td><td>'.RAPTOR_BUILD_ID.'</td></tr>'
+                . '<tr><td>Machine ID</td><td>'.RAPTOR_CONFIG_ID.'</td></tr>'
+                . '<tr><td>MDWS version</td><td>'.$mdwsversion.'</td></tr>'
+                . '<tr><td>VISTA Site</td><td>'.VISTA_SITE.'</td></tr>'
+                . '</table>'
                 . '<b>Site Customization Version Information</b>'
-                . '<ul>'
-                . '<li>General: '.GENERAL_DEFS_VERSION_INFO.'</li>'
-                . '<li>Workflow: '.WORKFLOW_DEFS_VERSION_INFO.'</li>'
-                . '<li>Time:'.TIME_DEFS_VERSION_INFO.'</li>'
-                . '<li>VistA:'.VISTA_DEFS_VERSION_INFO.'</li>'
-                . '</ul>'
+                . '<table class="about-info">'
+                . '<tr><td>General</td>'
+                . '<td>'.GENERAL_DEFS_VERSION_INFO
+                . $this->getGeneralCustomizationItems()
+                . '</td></tr>'
+                . '<tr><td>Workflow</td>'
+                . '<td>'.WORKFLOW_DEFS_VERSION_INFO
+                . $this->getWorkflowCustomizationItems()
+                . '</td></tr>'
+                . '<tr><td>Time</td><td>'.TIME_DEFS_VERSION_INFO.'</td></tr>'
+                . '<tr><td>VistA</td><td>'.VISTA_DEFS_VERSION_INFO.'</td></tr>'
+                . '</table>'
                 . '</td>'
                 . '</tr>'
                 . '</table>'

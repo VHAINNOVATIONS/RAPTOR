@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+<!ENTITY reg "&#174;">
+<!ENTITY copy "&#169;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Site Building Guide</title>
+<frx:category>Help</frx:category>
+<frx:options hidden="1" skin="tutorial_skin" />
+<frx:fields>
+  <frx:field id="title" link="reports/help.sitebuilding#{link}" />
+  <frx:field id="feeds_module" link="https://drupal.org/project/feeds" target="_blank">Feeds module</frx:field>
+  <frx:field id="bean_module" link="https://drupal.org/project/bean" target="_blank">Bean module</frx:field>
+  <frx:field id="views_module" link="https://drupal.org/project/views" target="_blank">Views module</frx:field>
+  <frx:field id="masquerade_module" link="https://drupal.org/project/masquerade" target="_blank">Masquerade module</frx:field>  
+  <frx:field id="enable_locale" link="admin/modules#core" target="_blank">enable module locale</frx:field>
+  <frx:field id="tutorial_toc_report" link="reports/help.toc" target="_blank">Documentation Table Of Contents</frx:field>
+  <frx:field id="admin_content_blocks" link="admin/content/blocks" target="_blank">Admin / Content / Blocks</frx:field>
+  <frx:field id="block_add" link="block/add" target="_blank">Add Block</frx:field>
+  <frx:field id="block_add_forena" link="block/add/forena" target="_blank">Block / Add / Forena</frx:field>
+  <frx:field id="admin_structure_block" link="admin/structure/block" target="_blank">Admin / Structure / Block</frx:field>
+  <frx:field id="wysiwyg_editor" link="reports/help.reportingwysiwyg"
+    target="_self">WYSIWYG reporting user interface</frx:field>
+  <frx:field id="forena_issue_queue" link="https://www.drupal.org/node/829210" target="_blank">Forena Issue Queue</frx:field>
+  <frx:field id="text_formats" link="reports/help.setup#text-formats"
+    target="_self">Text formats configuration</frx:field>
+  <frx:field id="ckeditor_issue" link="https://www.drupal.org/node/2140683"
+    target="_blank">CKEditor</frx:field>  
+</frx:fields>
+<frx:parameters />
+<frx:docgen />
+</head>
+<body>
+  <div class="toc" id="help-toc-1" frx:block="forena_help/sitebuilding_topics">
+    <h3>Including</h3>
+    <ul>
+      <li id="help-toc-2" frx:foreach="/book/chapters/chapter">{title}<span frx:if="{subtitle}">: {subtitle}.</span></li>
+    </ul>
+
+  </div>
+  <h2 id="intro">Introduction</h2>
+  	<p>This guide documents how to further enhance a Forena implementation by taking advantage of various integrations
+		of Forena with other Drupal modules that further extend Forena's capabilities, such as:</p>
+	<ul>
+		<li>Use the locale module included in Drupal to enable translation of reports in multiple languages.</li>
+		<li>Use the {feeds_module} to create nodes using Forena data blocks and/or reports.</li>
+		<li>Use the {bean_module} to create drupal blocks out of Forena reports.</li>
+		<li>Use the {views_module} with Forena to create additional more complicated layouts than can typically be created
+			using views. Forena provides a views rowstyle plugin that lets you use a forena report to format the output of a view.</li>
+		<li>Use the {masquerade_module} to review (experiment with) all sorts of Forena related authorizations.</li>
+		<li>Use a <strong>WYSIWYG editor</strong> to edit the body of a report, to avoid editing the specifications of the report
+			body using XHTML tags.
+		</li>
+	</ul>
+	<h2 id="locale">Translating Reports</h2>
+		<p>Forena includes support for report translations in multiple languages. To enable this support simply
+		{enable_locale} which is included in Drupal core. Unlike other approaches at localization, because Forena allows full HTML markup, each report must be translated into the target language. </p>
+	<h2 id="feeds">Feeds Importing</h2>
+		<p>Using the Forena integration with the {feeds_module} it is possible to import data blocks and reports as
+		Drupal nodes or Drupal users).</p>
+	<p>
+		For a  tutorial about the available features check out the video about <a
+			href="http://www.youtube.com/watch?v=bg4P747DmE8" target="_blank">How to import data and reports based on data as Drupal
+			nodes</a>.
+	</p>
+	<h2 id="bean">Bean Integration</h2>
+	<p>
+		For anyone not familiar yet with the {bean_module}, here is a quote from the bean project page: <strong>Bean</strong> is an
+		acronym that stands for <strong>B</strong>lock <strong>E</strong>ntities <strong>A</strong>ren't <strong>N</strong>odes. Drupal blocks placed in
+		regions are currently not entities, but the BEAN module creates block entities that can be placed in regions of your theme.
+	</p>
+	<p>
+		By using the Forena integration with the {bean_module}, it is possible to create Drupal blocks that display Forena reports.  An instance of a 
+		particular report with a particular set of parameters can be created as a block using the bean module. 
+	</p>
+	<p>
+		<strong>Notes</strong>:
+	</p>
+	<ul>
+		<li>This integration was implemented without creating a {bean_module} dependency in Forena. If the {bean_module} is
+			 installed and enabled, the integration can be used.</li>
+		<li>Don't confuse Drupal blocks with Forena's data blocks.  There are different concepts.</li>
+	</ul>
+	<h3>Example</h3>
+
+	<p>
+		As an illustration of how to use this feature, let's create a block showing a condensed version of the {tutorial_toc_report} report:
+	</p>
+	<ol>
+		<li>Ensure that the {bean_module} is available (installed and enabled).</li>
+		<li>Navigate to the {admin_content_blocks} page. Select 
+			{block_add}. If <strong>Forena report</strong> was the only option available block types (i.e. no other Drupal
+			module is in use that also integrates with the {bean_module}), then the {block_add} link will take you straight to the
+			{block_add_forena} page Otherwise refine your selection until you get to this page.
+		</li>
+		<li>Enter these options on this {block_add_forena} page:
+			<table>
+				<tr>
+					<th>Label</th>
+					<td>Forena Docs</td>
+				</tr>
+				<tr>
+					<th>Title</th>
+					<td>Reporting Documentation</td>
+				</tr>
+				<tr>
+					<th>Select a report (within Settings)</th>
+					<td>help/toc</td>
+				</tr>
+				<tr>
+					<th>URL Parameters (within Settings)</th>
+					<td>show_chapters=0</td>
+				</tr>
+			</table> After you entered these values, hit the <strong>save</strong> button.
+		</li>
+		<li>After saving this newly created block you'll be rerouted to the
+			{admin_content_blocks} page again. This page will now display a table with at least a line corresponding
+			to the newly created block.
+
+		</li>
+		<li>At this point we have the requested Forena report block available, but it isn't showing up anywhere yet, because the
+			block is has not been placed into a region of our theme. Visit the {admin_structure_block} to place this block in your theme per 
+			the normal drupal instructions. 
+		</li>
+	</ol>		
+	<h2 id="viewsrowstyle">Views Integration</h2>
+		<p>Using the Forena integration with the {views_module}, it is possible to use Forena reports as a views row
+		style, so that in a view you can use the Forena templating engine to do the formatting. Although this can be done 
+		through the views templating engine Forena users may find they have more control with this engine.</p>
+	<h2 id="wysiwygeditors">WYSIWYG Editors</h2>
+	<p>
+		Forena's {wysiwyg_editor} facilitates the editing of the <strong>body</strong> of a report using a WYSIWYG editor (so that you
+		are not assumed to be familiar with HTML tags to understand or edit the specifications of the report body). But because of the
+		custom (FRX) attributes, some challenges need to be addressed:
+	</p>
+	<ul>
+		<li>Forena will (a) save away custom attributes in the report body before presenting it for editing via a WYSIWYG editor
+			and (b) merge them back in after editing ended.</li>
+		<li>Forena adds back the special tags that were stripped based on id attributes, but it also makes sure that there is an
+			id on every HTML tag that has an FRX attribute.</li>
+	</ul>
+	<p>Some recommendations to prevent issues when attempting to enable a WYSIWYG editor for editing the body of a report:</p>
+	<ul>
+		<li>Complete your homework first regarding {text_formats}! Doing so will prevent a lot of trouble with just any WYSIWYG editor.</li>
+		<li>Be careful in selecting a WYSIWYG editor so that it doesn't conflict with the FRX attributes.  At a minimum id attributes 
+		cannot be stripped by the editor.  Forena makes an attempt to read any custom attributes based on html id attributes, but if these 
+		are stripped, all custom frx:attributes can cause problems.</li>
+	</ul>
+	<p>Some more details about available WYSIWYG editors for editing the body of a report:</p>
+	<ul>
+		<li><strong>TinyMCE</strong> editor works provided when configured with these options:
+			<ul>
+				<li>Verify HTML.</li>
+				<li>Remove Line Breaks.</li>
+				<li>Convert Font Tags to Styles.</li>
+			</ul> Warning: TincyMCE will strip out SVG graphs from any report it is used to edit.
+		</li>
+		<li>It should work with other WYSIWYG HTML editors, however {ckeditor_issue} seems to cause problems as it strips id attributes by default. You will 
+		    need to set the allowed Content option on CKEditor to make sure it does not strip them.</li>
+	</ul>
+	<p>If you have experience with other editors that you'd recommend to  include here, or you noticed anything
+		that's incomplete, please report about it in the {forena_issue_queue}.</p>
+</body>
+</html>

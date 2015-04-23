@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <booktitle>Setup</booktitle>
+  <bookfolder>help.setup</bookfolder>
+  <chapters>
+    <chapter>
+      <title>Introduction</title>
+      <subtitle>Overview of Forena</subtitle>
+      <abstract></abstract>
+      <link>intro</link>
+    </chapter>
+    <chapter>
+      <title>Installation and Configuration</title>
+      <subtitle>Drupal installation tasks related to the Forena module</subtitle>
+      <abstract>Drupal related tasks to install the <a href="https://drupal.org/project/forena" target="_blank">Forena module</a>.</abstract>
+      <link>installation</link>
+    </chapter>
+    <chapter>
+      <title>Granting Permissions</title>
+      <subtitle>Grant various levels of access specific to reports and charts</subtitle>
+      <abstract>Learn what permissions forena advertizes and their meaning.</abstract>
+      <link>permissions</link>
+    </chapter>
+    <chapter>
+      <title>Enable SVGGraph</title>
+      <subtitle>SVGGraph Library Installation</subtitle>
+      <abstract>Install the <a href="http://www.goat1000.com/svggraph.php" target="_blank">PHP SVG Graph library</a> to create all sorts of graphs (charts), such as piecharts, barcharts, radarcharts, etc.</abstract>
+      <link>svggraph</link>
+    </chapter>
+    <chapter>
+      <title>Enable DataTables</title>
+      <subtitle>DataTables Library Installation</subtitle>
+      <abstract>Install the <a href="http://www.datatables.net/" target="_blank">DataTables library</a> to use the dataTables JQuery plugin, which adds all sorts of interesting features to display (render) an HTML table, such as presenting paged tables (pagination), filtering of rows, etc.</abstract>
+      <link>datatables</link>
+    </chapter>
+    <chapter>
+      <title>Upgrading from Prior Versions</title>
+      <subtitle>Special considerations for upgrading from prior software versions</subtitle>
+      <abstract>After upgrading from a previous software version, some special modifications may be required for custom reports that were created in a prior release</abstract>
+      <link>upgrading</link>
+    </chapter>
+  </chapters>
+</book>

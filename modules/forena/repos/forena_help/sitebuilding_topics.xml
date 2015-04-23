@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<book>
+  <booktitle>Site Building</booktitle>
+  <bookfolder>help.sitebuilding</bookfolder>
+  <chapters>
+    <chapter>
+      <title>Introduction</title>
+      <subtitle>Content at a glance</subtitle>
+      <abstract></abstract>
+      <link>intro</link>
+    </chapter>
+    <chapter>
+      <title>Translating Reports</title>
+      <subtitle>Create reports in multiple languages</subtitle>
+      <abstract>Implement support for reports in multiple languages simply by enabling Drupal's core module local.</abstract>
+      <link>locale</link>
+    </chapter>
+    <chapter>
+      <title>Feeds Importing</title>
+      <subtitle>Create nodes using data blocks and/or reports</subtitle>
+      <abstract>Use data blocks (and reports!) as input for importing using the <a href="https://drupal.org/project/feeds" target="_blank">Feeds module</a> (to create Drupal nodes (or users) from it).</abstract>
+      <link>feeds</link>
+    </chapter>
+    <chapter>
+      <title>Bean Integration</title>
+      <subtitle>Create Drupal blocks out of reports</subtitle>
+      <abstract>Use the <a href="https://drupal.org/project/bean" target="_blank">Bean module</a> to create blocks with a specific block type, which display a report in a Drupal block.</abstract>
+      <link>bean</link>
+    </chapter>
+    <chapter>
+      <title>Views Row Style</title>
+      <subtitle>Create more complicated layouts than can typically be created using views</subtitle>
+      <abstract>Extend the capabilities of the <a href="https://drupal.org/project/views" target="_blank">Views module</a>, by using a report as a views row style, so that in a view you can use the templating engine to format the output of a view, e.g. if a highly customized HTML is needed.</abstract>
+      <link>viewsrowstyle</link>
+    </chapter>
+    <chapter>
+      <title>WYSIWYG Editors</title>
+      <subtitle>Enhance the report editing experience for users not familiar with (x)HTML</subtitle>
+      <abstract>Facilitate the editing of the report body using a wysiwyg editor (instead of editing HTML tags).</abstract>
+      <link>wysiwygeditors</link>
+    </chapter>
+  </chapters>
+</book>

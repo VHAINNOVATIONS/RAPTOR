@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<switches>
+  <switch>
+    <codenum>0</codenum>
+    <label>No</label>
+    <codechar>N</codechar>
+    <boolean>false</boolean>
+    <status>Disabled</status>
+  </switch>
+  <switch>
+    <codenum>1</codenum>
+    <label>Yes</label>
+    <codechar>Y</codechar>
+    <boolean>true</boolean>
+    <status>Enabled</status>
+  </switch>
+</switches>

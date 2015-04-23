@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Role Details</title>
+<frx:category>Drupal Administration</frx:category>
+<frx:options/>
+<frx:parameters>
+  <frx:parm id="rid" label="Role" data_source="drupal/roles" type="select" require="1"></frx:parm>
+</frx:parameters>
+<frx:docgen>
+</frx:docgen>
+<frx:fields>
+  <frx:field id="user.name"/>
+  <frx:field id="user.view" link="user/{uid}" target="_blank">View Profile</frx:field>
+  <frx:field id="user.edit" link="user/{uid}/edit" target="_blank">Edit Profile</frx:field>
+  <frx:field id="user.id"/>
+  <frx:field id="permissions.edit" link="admin/people/permissions/{rid}" target="_blank">Edit Permissions</frx:field>
+</frx:fields>
+<style/><frx:menu/><frx:cache/>
+</head>
+<body>
+  <div frx:renderer="FrxParameterForm" frx:title="Select a Role" frx:collapsible="1" frx:collapsed="0"
+     frx:submit="Show users and their permissions" id="parmeter-form">
+  <p>Role: {rid}</p>
+  <p>{submit}</p>
+  </div>
+  <div frx:block="drupal/role" frx:foreach="*" id="role">
+    <h2 frx:renderer="FrxTitle" >Role: {name}</h2>
+  </div>
+  <div frx:block="drupal/users_in_role">
+    <table>
+      <thead>
+        <tr>
+          <th>User Name</th>
+          <th>User Id</th>
+          <th colspan="2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="user" frx:foreach="*">
+          <td><strong>{user.name}</strong></td>
+          <td>{user.uid}</td>
+          <td>{user.view}</td>
+          <td>{user.edit}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div frx:block="drupal/role_permissions">
+    <table>
+      <thead>
+        <tr>
+          <th>Permissions granted to {role.name} </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr frx:foreach="*">
+          <td>{permission}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

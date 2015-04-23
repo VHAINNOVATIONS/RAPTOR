@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root [
+<!ENTITY nbsp "&#160;">
+]>
+<html xmlns:frx="urn:FrxReports">
+<head>
+<title>Active Users</title>
+<frx:category>Drupal Administration</frx:category>
+<frx:options />
+<frx:parameters>
+</frx:parameters>
+<frx:docgen />
+<frx:fields>
+  <frx:field id="name" link="user/{uid}/edit" format="" format-string=""
+    target="" />
+  <frx:field id="mail" link="" format="" format-string="" target="" />
+  <frx:field id="login" link="" format="drupal_date_format"
+    format-string="small" target="" />
+  <frx:field id="logs" link="reports/drupaladmin.user_logs?name={name}"
+    format="" format-string="" target="">logs</frx:field>
+</frx:fields>
+</head>
+<body>
+  <div id="forena-1" frx:block="drupal/active_users">
+    <table>
+      <thead>
+        <tr>
+          <td>User</td>
+          <td>Email</td>
+          <td>Last Logged in</td>
+          <td>&nbsp;</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="forena-2" frx:foreach="*">
+          <td>{name}</td>
+          <td>{mail}</td>
+          <td>{login}</td>
+          <td>{logs}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
