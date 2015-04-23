@@ -879,35 +879,7 @@ function raptor_glue_editatriskrareradioisotope_form_builder_submit($form, &$for
 
 function raptor_about_form_builder($form, &$form_state)
 {
-    global $base_url;
-    
-    $mdwsversion = '2.5';   //TODO get from a query
-    $logomarkup = "<img alt='RAPTOR Logo' src='$base_url/sites/all/modules/raptor_glue/images/raptor_large_logo.png'>";
-    $html = '<div id="about-dialog" style="margin-left:auto;margin-right:auto;">'
-            . '<div id="about-logo" style="float:left">'
-            . $logomarkup
-            . '</div>'
-            . '<div id="about-version-details">'
-            . '<h3>RAPTOR Version Information</h3>'
-            . '<ul>'
-            . '<li>App Build:'.RAPTOR_BUILD_ID.'</li>'
-            . '<li>Machine ID:'.RAPTOR_CONFIG_ID.'</li>'
-            . '<li>MDWS version: '.$mdwsversion.'</li>'
-            . '<li>VISTA Site: '.VISTA_SITE.'</li>'
-            . '</ul>'
-            . '<ul>'
-            . '<li>Time settings:'.TIME_DEFS_VERSION_INFO.'</li>'
-            . '</ul>'
-            . '<h4>Site Customization Version Information</h4>'
-            . '<ul>'
-            . '<li>General: '.GENERAL_DEFS_VERSION_INFO.'</li>'
-            . '<li>Workflow: '.WORKFLOW_DEFS_VERSION_INFO.'</li>'
-            . '</ul>'
-            . '</div>'
-            . '</div> <!-- End about-dialog div -->';
-    
-    $form = array();
-    $form[] = array('#markup' => $html );
-    
-    return $form;
+    module_load_include('php', 'raptor_glue', 'form/ViewAbout');
+    $oPI = new \raptor\ViewAbout();
+    return $oPI->getForm($form, $form_state);
 }

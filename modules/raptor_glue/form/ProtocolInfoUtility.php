@@ -13,7 +13,7 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_glue', 'core/TermMapping');
+module_load_include('php', 'raptor_glue', 'utility/TermMapping');
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
 module_load_include('php', 'raptor_datalayer', 'config/ListUtils');
 module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
