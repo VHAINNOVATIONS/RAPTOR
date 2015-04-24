@@ -21,9 +21,9 @@ namespace raptor;
 class Transitions 
 {
     private $m_aBaselineTransitions = array(
-        'AC'=>array('AC','CO','RV','IA')
-        ,'CO'=>array('AC','CO','RV','IA')
-        ,'RV'=>array('AC','CO','RV','IA')
+        'AC'=>array('AC','CO','RV','IA','AP')
+        ,'CO'=>array('AC','CO','RV','IA','AP')
+        ,'RV'=>array('AC','CO','RV','IA','AP')
         ,'AP'=>array('PA','IA')
         ,'PA'=>array('EC','IA')
         ,'EC'=>array('QA','IA')
