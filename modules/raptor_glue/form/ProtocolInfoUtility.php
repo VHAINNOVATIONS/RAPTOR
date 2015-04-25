@@ -1061,8 +1061,8 @@ class ProtocolInfoUtility
             $sUnsuspendTip = 'Restore this order back to the worklist.';
             $replaceOrderTip = 'Replace this order in VistA with a new order';
             $createNewOrderTip = 'Create a new order in VistA';
-            $ackproAndCommitTip = 'Mark workflow as finished and commit the details to Vista';
-            $examcompAndCommitTip = 'Mark workflow as finished and commit the details to Vista';
+            $ackproAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
+            $examcompAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
         }
         $feedback = NULL;
         
@@ -1124,12 +1124,12 @@ class ProtocolInfoUtility
                     if($has_uncommitted_data)
                     {
                         $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
-                            , '#value' => t('Interpretation Complete and Commit Details to Vista')
+                            , '#value' => t('Interpretation Complete and Commit Details to VistA')
                             , '#attributes' => array('title' => $interpretationTip)
                             , '#disabled' => FALSE,  //Not ready as of 20140810
                             );
                     } else {
-                        $feedback = 'All procedure data has been committed to Vista';
+                        $feedback = 'All procedure data has been committed to VistA';
                         if($commited_dt != NULL)
                         {
                             $feedback .= ' as of ' . $commited_dt;
@@ -1148,12 +1148,12 @@ class ProtocolInfoUtility
                     if($has_uncommitted_data)
                     {
                         $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
-                            , '#value' => t('QA Complete and Commit Details to Vista')
+                            , '#value' => t('QA Complete and Commit Details to VistA')
                             , '#attributes' => array('title' => $qaTip)
                             , '#disabled' => FALSE,  
                             );
                     } else {
-                        $feedback = 'All procedure data has been committed to Vista';
+                        $feedback = 'All procedure data has been committed to VistA';
                         if($commited_dt != NULL)
                         {
                             $feedback .= ' as of ' . $commited_dt;

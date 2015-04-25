@@ -83,7 +83,7 @@ class DBTicketSchema
               'type' => 'datetime',
               'mysql_type' => 'datetime',  
               'not null' => FALSE,
-              'description' => 'When the exam details were committed to Vista',
+              'description' => 'When the exam details were committed to VistA',
             ),
             'updated_dt' => array(
               'type' => 'datetime',

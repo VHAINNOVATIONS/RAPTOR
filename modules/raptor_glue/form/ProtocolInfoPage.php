@@ -2034,14 +2034,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         
         if($bSuccess)
         {
-            drupal_set_message('Committed patient data to Vista');
+            drupal_set_message('Committed patient data to VistA');
         } else {
             if($errormsg != NULL)
             {
                 error_log('failed commit to vista>>> '.$errormsg);
                 drupal_set_message($errormsg,'error');
             } else {
-                drupal_set_message('Trouble committing patient data to Vista','error');
+                drupal_set_message('Trouble committing patient data to VistA','error');
             }
         }
         error_log('Finished commitDataToVista on ticket '.$nSiteID.'-'.$nIEN.' at '.microtime());

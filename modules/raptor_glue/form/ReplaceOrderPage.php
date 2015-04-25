@@ -1348,7 +1348,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             $form['data_entry_area1']['action_buttons']['next'] = array('#type' => 'submit'
                     ,'#id' => 'replace-order-submit-next-button' 
                     , '#attributes' => array('class' => array('admin-action-button')
-                        , 'title'=>'Commit all the values to Vista')
+                        , 'title'=>'Commit all the values to VistA')
                     , '#value' => t('Finish >>')
                     , '#disabled' => $disabled || $finishnotallowed,
             );
