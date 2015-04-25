@@ -25,7 +25,10 @@ function raptor_glue_form_user_login_alter( &$form, $form_state )
     $form['#attributes']['autocomplete'] = 'off';
     $form['values']['name']['#attributes']['autocomplete'] = 'off';
     $form['values']['pass']['#attributes']['autocomplete'] = 'off';
-    $form['#validate'] = array( 'user_login_name_validate', 'user_login_authenticate_validate', 'raptor_glue_login_validate', 'user_login_final_validate' );
+    $form['#validate'] = array( 'user_login_name_validate'
+        , 'user_login_authenticate_validate'
+        , 'raptor_glue_login_validate'
+        , 'user_login_final_validate' );
 }
 
 function raptor_glue_login_validate( $form, &$form_state )
@@ -211,10 +214,15 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
 
 function raptor_glue_user_login(&$edit, $account) 
 {
-    if (!isset($_POST['form_id']) || $_POST['form_id'] != 'user_pass_reset' || variable_get('login_destination_immediate_redirect', FALSE)) 
+    if (!isset($_POST['form_id']) 
+            || $_POST['form_id'] != 'user_pass_reset' 
+            || variable_get('login_destination_immediate_redirect', FALSE)) 
     {
-        //login_destination_perform_redirect('login');
-        $edit['redirect'] = 'worklist';
+        if(user_is_logged_in()) //20150424
+        {
+            //login_destination_perform_redirect('login');
+            $edit['redirect'] = 'worklist';
+        }
     }
 }
 
@@ -253,10 +261,12 @@ function raptor_glue_deleteuser_form()
     return drupal_get_form("raptor_glue_deleteuser_form_builder");
 }
 
+/*DEPRECATED
 function raptor_glue_login_form() 
 {
     return drupal_get_form("raptor_glue_login_form_builder");
 }
+*/
 
 function raptor_glue_chgpwd_form() 
 {
@@ -408,6 +418,10 @@ function raptor_kickout_accountconflict_form_builder($form, &$form_state)
 function raptor_kickout_timeout_form_builder($form, &$form_state)
 {
     global $base_url;
+
+     //Kill the actual session now otherwise the login link will fail!
+    session_destroy(); 
+    
     if(user_is_logged_in())
     {
         $redirect_title = 'Logout page link';
@@ -417,10 +431,10 @@ function raptor_kickout_timeout_form_builder($form, &$form_state)
         $redirect_url = $base_url.'/user/login'; //.$user->name.'/my-argument';
     }
 
+    //Provide the link.
     $form[]['info'] = array(
         '#markup' => '<h1>Your RAPTOR session has timed out</h1>'
                     .'<p>Links: <a href="'.$redirect_url.'">'.$redirect_title.'</a></p>');
-
     //drupal_exit();
     return $form;
 }
@@ -596,7 +610,10 @@ function raptor_glue_form_alter(&$form, &$form_state, $form_id)
 {
   
   // Autofocus on the username field.
-  if ($form_id == 'user_login' || $form_id == 'user_register_form' || $form_id == 'user_pass') 
+  if ($form_id == 'user_login' 
+          || $form_id == 'user_login_block'
+          || $form_id == 'user_register_form' 
+          || $form_id == 'user_pass') 
   {
     $form['name']['#attributes']['autofocus'] = 'autofocus';
   }
@@ -606,21 +623,26 @@ function raptor_glue_form_alter(&$form, &$form_state, $form_id)
   global $base_url;
   switch ($form_id) {
     case 'user_login':
+    case 'user_login_block':
         drupal_set_title(t('RAPTOR Login'));
         break;
 
     case 'user_register_form':
-        drupal_set_message('Contact your RAPTOR Site Administrator to create an account.', 'warning');
+        drupal_set_message('Contact your RAPTOR Site Administrator to create an account.'
+                , 'warning');
         drupal_goto($base_url.'/user/login');
         break;
 
     case 'user_pass':
-        drupal_set_message('RAPTOR uses Vista authentication for users.  Contact your RAPTOR Site Administrator if you need more information.', 'warning');
+        drupal_set_message('RAPTOR uses VistA authentication for users.'
+                . '  Contact your RAPTOR Site Administrator if you need more information.'
+                , 'warning');
         drupal_goto($base_url.'/user/login');
         break;
     
     case 'user_profile_form':
-        error_log('User '.$user->name.' triggered goto user/logout because form_id='.$form_id);
+        error_log('User '.$user->name
+                .' triggered goto user/logout because form_id='.$form_id);
         drupal_goto($base_url.'/user/logout');
         break;
     default:

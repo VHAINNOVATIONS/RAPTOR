@@ -10,9 +10,9 @@ defined("TIME_DEFS_VERSION_INFO")
 
 //This much inactive time triggers user logout (user gets prompted to stay)
 defined("USER_TIMEOUT_SECONDS")
-    or define("USER_TIMEOUT_SECONDS", 900); //3720);
+    or define("USER_TIMEOUT_SECONDS", 5);   //900); //3720);
 defined("USER_TIMEOUT_GRACE_SECONDS")
-    or define("USER_TIMEOUT_GRACE_SECONDS", 180);   //Prompt shows for this long
+    or define("USER_TIMEOUT_GRACE_SECONDS", 5); //180);   //Prompt shows for this long
 defined("USER_ALIVE_INTERVAL_SECONDS")
     or define("USER_ALIVE_INTERVAL_SECONDS", 60);
 
@@ -28,7 +28,7 @@ defined("SESSION_KEY_TIMEOUT_SECONDS")
 
 //Additional number of seconds system waits to allow elegant process to kickout first.
 defined("KICKOUT_DIRTYPADDING")
-    or define("KICKOUT_DIRTYPADDING", 90);
+    or define("KICKOUT_DIRTYPADDING", 5);   //90);
 
 //Session change conflict check delay
 defined("CONFLICT_CHECK_DELAY_SECONDS")

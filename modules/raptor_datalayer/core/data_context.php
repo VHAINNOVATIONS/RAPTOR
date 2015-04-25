@@ -293,7 +293,7 @@ class Context
             {
                 //Convert this session instance into instance for the UID, normal occurrence to do this after a login.
                 $candidate->m_nUID = $tempUID;
-                $candidate->serializeNow('Set the uid to the user->uid');
+                $candidate->serializeForNewLogin('Set the uid to the user->uid');
             } else 
             if($candidate->m_nUID > -1 && $candidate->getUID() !== $tempUID)
             {
@@ -965,13 +965,36 @@ class Context
                 "ERRDETAIL"=>$ex);
         }
     }
+
+    /**
+     * Call this once when user is logging in so age of login page is not issue.
+     */
+    private function serializeForNewLogin($logMsg = ''
+            , $bSystemDrivenAction=TRUE
+            , $nSessionRefreshDelayOverride=NULL)
+    {
+        error_log('CONTEXT called serializeForNewLogin');
+        $_SESSION['CREATED'] = time();  //Created as of now!
+        
+        //Help prevent long lived configuration errors.
+        $maxlimit = USER_TIMEOUT_SECONDS+USER_TIMEOUT_GRACE_SECONDS+KICKOUT_DIRTYPADDING;
+        if($maxlimit < USER_ALIVE_INTERVAL_SECONDS)
+        {
+            error_log('Config ERROR detected: '."$maxlimit < USER_ALIVE_INTERVAL_SECONDS");
+            drupal_set_message("Session may timeout without warning.  Contact administrator to correct the interval settings!","error");
+        }
+        
+        //Now serialize it.
+        $this->serializeNow($logMsg,$bSystemDrivenAction,$nSessionRefreshDelayOverride,FALSE);
+    }
     
     /**
      * We call this whenever we change something significant in the instance.
      */
     private function serializeNow($logMsg = ''
             , $bSystemDrivenAction=TRUE
-            , $nSessionRefreshDelayOverride=NULL)
+            , $nSessionRefreshDelayOverride=NULL
+            , $checkSessionTimeout=TRUE)
     {
         if($bSystemDrivenAction)
         {
@@ -1043,34 +1066,45 @@ class Context
     public function forceSessionRefresh($grace_seconds
             , $ignore_session_timeout=FALSE)
     {
-        $kickout = FALSE;
-        if(!$ignore_session_timeout)
+        if(!user_is_logged_in() || $this->getUID() == 0)
         {
-            $limit_max = USER_TIMEOUT_SECONDS 
-                    + USER_TIMEOUT_GRACE_SECONDS 
-                    + KICKOUT_DIRTYPADDING;
-            if (!isset($_SESSION['CREATED']) || (time() - $_SESSION['CREATED']) > $limit_max) 
+            //Never time out if no one is logged in anyways.
+             $_SESSION['CREATED'] = time();  // update creation time
+        } else {
+            $kickout = FALSE;
+            $currentpath = current_path();
+            if(!$ignore_session_timeout)
             {
-                error_log('WORKFLOWDEBUG>>>Session key timeout of '
-                        .$limit_max
-                        .' seconds reached so kickout activated for uid='
-                        .$this->getUID());
-                $usermsg = 'Session canceled because '
-                        . 'there was no user activity for over '
-                        . $limit_max . ' seconds.';
-                $this->forceKickoutNow($usermsg,ERRORCODE_KICKOUT_TIMEOUT,$this);
-                $kickout=TRUE;
+                $limit_max = USER_TIMEOUT_SECONDS 
+                        + USER_TIMEOUT_GRACE_SECONDS 
+                        + KICKOUT_DIRTYPADDING;
+                if (!isset($_SESSION['CREATED']) 
+                        || (time() - $_SESSION['CREATED']) > $limit_max) 
+                {
+                    error_log('WORKFLOWDEBUG>>>Session key timeout of '
+                            .$limit_max
+                            .' seconds reached so kickout activated for uid='
+                            .$this->getUID()
+                            ."\nURL at limit timeout = ".$currentpath);
+                    $usermsg = 'Session canceled because '
+                            . 'there was no user activity for over '
+                            . $limit_max . ' seconds.';
+                    $this->forceKickoutNow($usermsg,ERRORCODE_KICKOUT_TIMEOUT,$this);
+                    $kickout=TRUE;
+                }
             }
-        }
-        if (!$kickout 
-                && (!isset($_SESSION['CREATED']) 
-                        || (time() - $_SESSION['CREATED']) > $grace_seconds))
-        {
-            // session started more than SESSION_REFRESH_DELAY seconds ago
-            error_log('WORKFLOWDEBUG>>>Session key timeout of '
-                    .$grace_seconds.' seconds reached so generated new key for uid='.$this->getUID());
-            session_regenerate_id(FALSE);   // change session ID for the current session and invalidate old session ID
-            $_SESSION['CREATED'] = time();  // update creation time
+            if (!$kickout 
+                    && (!isset($_SESSION['CREATED']) 
+                            || (time() - $_SESSION['CREATED']) > $grace_seconds))
+            {
+                // session started more than SESSION_REFRESH_DELAY seconds ago
+                error_log('WORKFLOWDEBUG>>>Session key timeout of '
+                        .$grace_seconds
+                        .' seconds reached so generated new key for uid='.$this->getUID()
+                        ."\nURL at key timeout = ".$currentpath);
+                session_regenerate_id(FALSE);   // change session ID for the current session and invalidate old session ID
+                $_SESSION['CREATED'] = time();  // update creation time
+            }
         }
     }
     
