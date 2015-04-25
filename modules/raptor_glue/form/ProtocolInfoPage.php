@@ -879,8 +879,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         } elseif(isset($myvalues['commit_esig']) 
                 && trim($myvalues['commit_esig'])>'' 
                 && trim($myvalues['commit_esig'])!='CANCEL' 
-                && (substr($clickedvalue,0,2) == 'QA' || substr($clickedvalue,0,2) == 'In' ))  {
-            //Change the clicked button value
+                && (substr($clickedvalue,0,2) == 'QA' 
+                        || substr($clickedvalue,0,3) == 'Ack' 
+                        || substr($clickedvalue,0,4) == 'Exam' 
+                        || substr($clickedvalue,0,2) == 'In' ))  {
+            //Change the clicked button value to COMMIT!!! This triggers VISTA Commit elsewhere!
             $aParts = explode(' ', $clickedvalue);
             $clickedvalue = 'Commit to Vista from ' . $aParts[0]; 
             $form_state['clicked_button']['#value'] = $clickedvalue;
@@ -1473,7 +1476,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         
         $sFullTicketID = $nSiteID . '-' . $nIEN;
 
-        if(isset($myvalues['collaboration_uid']) && is_numeric($myvalues['collaboration_uid']))
+        if(isset($myvalues['collaboration_uid']) 
+                && is_numeric($myvalues['collaboration_uid']))
         {
             //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
             $clickedvalue = 'Collaborate';
@@ -1636,15 +1640,29 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             } else
             if(strpos($clickedvalue,'Commit') !== FALSE)
             {
+                //NOTE: The 'Commit' button text is added by the looksValidFormState function!!!
                 //######################
                 // COMMIT TO VISTA BLOCK
                 //######################
+                
                 $sNewWFS = 'QA';    //Stays in QA forever
                 if(strpos($clickedvalue,'Interpret') !== FALSE) 
                 {
-                    $bSuccess = $this->m_oUtility->saveAllInterpretationFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                    $bSuccess = $this->m_oUtility->
+                            saveAllInterpretationFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
                 } elseif(strpos($clickedvalue,'QA') !== FALSE) {
-                    $bSuccess = $this->m_oUtility->saveAllQAFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                    $bSuccess = $this->m_oUtility->
+                            saveAllQAFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                } elseif(strpos($clickedvalue,'Exam') !== FALSE) {
+                    $bSuccess = $this->m_oUtility->
+                            saveAllExamFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                } elseif(strpos($clickedvalue,'Acknowledge') !== FALSE) {
+                    $aAnswers = isset($myvalues['questions']['thisuser']) ? $myvalues['questions']['thisuser'] : NULL;
+                    $bSuccess = $this->saveChecklist($nSiteID,$nIEN,$nUID,$updated_dt,$aAnswers);
+                    if($bSuccess)
+                    {
+                        $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
+                    }
                 } else {
                     throw new \Exception('Did not recognize button click value ['.$clickedvalue.']');
                 }
@@ -1656,10 +1674,18 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                         $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
                         if(substr($clickedvalue,0,5) == 'Inter') {
                             //We were in interpret mode so write the QA message
-                            $successMsg = ('Interpretation completed and updated VISTA for ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                            $successMsg = ('Interpretation completed and updated VistA for ' 
+                                    . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                        } elseif(strpos($clickedvalue,'Exam') !== FALSE) {
+                            $successMsg = ('Exam completed and updated VistA for ' 
+                                    . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                        } elseif(strpos($clickedvalue,'Acknowledge') !== FALSE) {
+                            $successMsg = ('Acknowledged and updated VistA for ' 
+                                    . $sFullTicketID . ' (' . $myvalues['procName'] .')');
                         } else {
                             //Write success message for QA mode
-                            $successMsg = ('QA completed and updated VISTA for ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                            $successMsg = ('QA completed and updated VistA for ' 
+                                    . $sFullTicketID . ' (' . $myvalues['procName'] .')');
                         }
                     }
                 }
@@ -1957,7 +1983,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             }
                             if($encounterString == NULL)
                             {
-                                die('Did NOT find an encounter string for $selected_vid=['.$selected_vid.'] in '.print_r($aVisits,TRUE));
+                                throw new \Exception('Did NOT find an encounter string for $selected_vid=['.$selected_vid.'] in '.print_r($aVisits,TRUE));
                             }
                         } else {
                             throw new \Exception('Did not find any selected visit for the VISTA writeback!');

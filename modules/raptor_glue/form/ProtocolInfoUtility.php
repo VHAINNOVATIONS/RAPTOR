@@ -1097,7 +1097,7 @@ class ProtocolInfoUtility
                 //Check for special short circuit finish buttons
                 if($sCWFS == 'AP')
                 {
-                    $form['page_action_buttons_area']['finsh_ap_button_and_commit'] = array('#type' => 'submit'
+                    $form['page_action_buttons_area']['finish_ap_button_and_commit'] = array('#type' => 'submit'
                         , '#value' => t('Acknowledge Protocol and Commit Details to VistA')
                         , '#attributes' => array('title' => $ackproAndCommitTip)
                         , '#disabled' => FALSE, 
@@ -1105,7 +1105,7 @@ class ProtocolInfoUtility
                 } else
                 if($sCWFS == 'PA')
                 {
-                    $form['page_action_buttons_area']['finsh_pa_button_and_commit'] = array('#type' => 'submit'
+                    $form['page_action_buttons_area']['finish_pa_button_and_commit'] = array('#type' => 'submit'
                         , '#value' => t('Exam Completed and Commit Details to VistA')
                         , '#attributes' => array('title' => $examcompAndCommitTip)
                         , '#disabled' => FALSE, 

@@ -1,8 +1,9 @@
 <?php
 /**
+ * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -66,13 +67,10 @@ class ChooseVisitPage
     }
     
     /**
-     * Write the values into the database.
-     * Return 0 if there was an error, else 1.
+     * This form does not actually write the the database.
      */
     function updateDatabase($form, $myvalues)
     {
-        //TODO
-
         //Write success message
         drupal_set_message('Visit '.$myvalues['selected_vid'].' selected ');
         

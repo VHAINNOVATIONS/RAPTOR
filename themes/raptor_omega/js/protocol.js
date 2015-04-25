@@ -510,9 +510,12 @@
                     }
                 });
 
-        // Interpretation Complete and Commit Details to Vista
-        // QA Complete and Commit Details to Vista
-        $('#edit-interpret-button-and-commit, #edit-qa-button-and-commit').on('click', function (e) {
+        //POSSIBLE TODO 4/25 --- Instead of commit based on ID use a class name such as 'trigger-choosevist'?
+        // Interpretation Complete and Commit Details to VistA
+        // QA Complete and Commit Details to VistA
+        // Acknowledge and Commit Details to VistA
+        // Exam Complete and Commit Details to VistA
+        $('#edit-interpret-button-and-commit, #edit-qa-button-and-commit, #edit-finish-ap-button-and-commit, #edit-finish-pa-button-and-commit').on('click', function (e) {
             e.preventDefault();
             Drupal.behaviors.raptorShowAdministerDialog(
                     'Choose Visit',

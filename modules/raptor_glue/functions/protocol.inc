@@ -209,6 +209,9 @@ function raptor_glue_protocolinfo_form_builder_validate($form, &$form_state)
     return $oPI->looksValidFormState($form, $form_state);
 }
 
+/**
+ * This is called by explict Form API value setting
+ */ 
 function raptor_glue_protocolinfo_form_builder_submit($form, &$form_state) 
 {
     $clickedbutton = $form_state['clicked_button'];
@@ -240,6 +243,7 @@ function raptor_glue_protocolinfo_form_builder_submit($form, &$form_state)
                 || substr($clickedvalue,0,4) == 'Exam' 
                 || substr($clickedvalue,0,5) == 'Inter'
                 || substr($clickedvalue,0,2) == 'QA'
+                || substr($clickedvalue,0,3) == 'Ack'
                 || substr($clickedvalue,0,6) == 'Commit')
         {
             $form_state['redirect'] = array(
