@@ -145,7 +145,7 @@ class TicketTrackingData
         {
             $msg = 'Only tickets in the active or approved or collaborate status can be reserved!  Ticket ' . $sTrackingID . ' is in the [' .$sCWFS. '] state!';
             error_log($msg);
-            die($msg);
+            throw new \Exception($msg);
         }
 
         //Create the raptor_ticket_collaboration record now

@@ -703,8 +703,10 @@ class ScheduleTicketPage
             "#required" => FALSE,
             );        
         
-        if($myvalues['show_collaboration_options'])
+        if(!$myvalues['show_collaboration_options'])
         {
+            $form['hiddenthings']['suggested_uid'] = array('#type' => 'hidden', '#value' => $myvalues['suggested_uid']);
+        } else {
             if(is_array($myvalues['assignment_options']))
             {
                 $options = $myvalues['assignment_options'];
@@ -721,14 +723,14 @@ class ScheduleTicketPage
                 "#required" => FALSE,
                 );        
 
-            $form['data_entry_area1']['bottom']['notes_tx'] = array(
-                '#type'          => 'textarea',
-                '#title'         => t('Notes'),
-                '#rows'          => 3,
-                '#disabled'      => $disabled,
-                '#default_value' => $myvalues['notes_tx'],
-            );
         }
+        $form['data_entry_area1']['bottom']['notes_tx'] = array(
+            '#type'          => 'textarea',
+            '#title'         => t('Notes'),
+            '#rows'          => 3,
+            '#disabled'      => $disabled,
+            '#default_value' => $myvalues['notes_tx'],
+        );
 
         $form['hiddenthings']['notes_critical_yn'] = array('#type' => 'hidden', '#value' => 0); //Else errors later
         /*$optionsConfirmed = array(0 => t('No') , 1 => t('Yes'));
