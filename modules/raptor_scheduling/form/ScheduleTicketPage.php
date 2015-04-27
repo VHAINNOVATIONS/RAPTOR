@@ -222,11 +222,20 @@ class ScheduleTicketPage
         $bHaveGoodDate = FALSE;
         $bHaveGoodTime = FALSE;
         $bHaveGoodDuration = FALSE;
+        $bLooksLikeCancelRequest = FALSE;
+        $bLooksLikeCollabRequest = FALSE;
 
         //Clean up some values.
         $myvalues['location_tx']    = trim($myvalues['location_tx']);
         $myvalues['duration_am']    = trim($myvalues['duration_am']);
         $myvalues['notes_tx']       = trim($myvalues['notes_tx']);
+        $myvalues['canceled_reason_tx'] = trim($myvalues['canceled_reason_tx']);
+        
+        if($myvalues['canceled_reason_tx'] > '')
+        {
+            $bLooksLikeCancelRequest = FALSE;
+        }
+
         
         if($myvalues['duration_am'] > '')
         {
@@ -420,7 +429,7 @@ class ScheduleTicketPage
         if( $bCond1 ) 
         {
             //Yes, assign the ticket to the selected user.
-            if($myvalues['suggested_uid']  == NULL)
+            if($myvalues['suggested_uid'] == NULL)
             {
                 $this->m_oTT->setCollaborationUser($sTrackingID, $nUID, 'Scheduler clearing', NULL);
             } else {
@@ -484,11 +493,21 @@ class ScheduleTicketPage
             throw new \Exception('Failed to save notes for this ticket!');
         }
 
-        //If we made it here, go ahead and mark the order as inactive.
-        $sNewWFS = 'IA';
-        $this->m_oTT->setTicketWorkflowState($nSiteID . '-' . $nIEN
-                , $nUID, $sNewWFS, $sCWFS, $updated_dt);
-
+        if($flag_cancel)
+        {
+            //If we made it here, go ahead and mark the order as inactive.
+            $sNewWFS = 'IA';
+            $this->m_oTT->setTicketWorkflowState($nSiteID . '-' . $nIEN
+                    , $nUID, $sNewWFS, $sCWFS, $updated_dt);
+        } else {
+            if($sCWFS == 'IA')
+            {
+                //Move it back to active state.
+                $sNewWFS = 'AC';
+                $this->m_oTT->setTicketWorkflowState($nSiteID . '-' . $nIEN
+                        , $nUID, $sNewWFS, $sCWFS, $updated_dt);
+            }
+        }
         
         //Write success message
         if($flag_cancel)
@@ -497,12 +516,17 @@ class ScheduleTicketPage
         } else if($flag_collab) {
             $usermsg = 'Assigned a suggested collaborator';
         } else {
-            $sforinfo=trim($save_scheduled_dt . ($myvalues['location_tx'] > '' ? ' in ' . $myvalues['location_tx'] : ''));
-            if($sforinfo != NULL && $sforinfo != '')
+            if($sCWFS == 'IA' && $sNewWFS = 'AC')
             {
-                $sforinfo = ' for ' . $sforinfo;
+                $usermsg = 'Now active instead of cancel/replace';
+            } else {
+                $sforinfo=trim($save_scheduled_dt . ($myvalues['location_tx'] > '' ? ' in ' . $myvalues['location_tx'] : ''));
+                if($sforinfo != NULL && $sforinfo != '')
+                {
+                    $sforinfo = ' for ' . $sforinfo;
+                }
+                $usermsg = 'Updated scheduling information'.$sforinfo;
             }
-            $usermsg = 'Updated scheduling information'.$sforinfo;
         }
         drupal_set_message('Pass Box settings saved for ' . $sTrackingID . ' (' . $myvalues['procName'] .') ' . $usermsg); 
         

@@ -1,0 +1,35 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Apr 15, 2015, 4:35:59 PM
+    Author     : UMDY
+*/
+
+.tableCSS {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tableCSS td, th {
+    font-size: 1em;
+    border: 1.5px solid #299E83;
+    padding: 3px 7px 2px 7px;
+}
+
+.tableCSS th {
+    font-size: 1.1em;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 4px;
+    background-color: white;
+    color: blue;
+}
+
+.tableCSS tr.alt td {
+    color: #000000;
+    background-color: #EAF2D3;
+}
