@@ -51,3 +51,7 @@
 .wrapper.cf{
     z-index: 0;
 }
+
+.pending_column{
+    width: 18px;
+}
