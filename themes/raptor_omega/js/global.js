@@ -21,6 +21,7 @@
                 .order([1, 'desc'])
                 .draw();
     });
-
+ 
+    
 }(document, jQuery));
 
