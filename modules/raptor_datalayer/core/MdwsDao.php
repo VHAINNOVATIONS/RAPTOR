@@ -85,7 +85,11 @@ class MdwsDao implements IMdwsDao {
         {
             global $base_url;
             drupal_set_message('TIP: <a href="'.$base_url.'/user/logout">Logout</a> and <a href="'.$base_url.'/user/login">log back in</a></a>');
-            throw new \Exception('Not authenticated in MdwsDao instance ' . $this->instanceTimestamp .  '(previous authentication was '.$this->authenticationTimestamp.')' . ": Must authenticate before requesting data>>>" . Context::debugGetCallerInfo(2,10));
+            throw new \Exception('Not authenticated in MdwsDao instance ' 
+                    . $this->instanceTimestamp 
+                    .  '(previous authentication was '
+                    .$this->authenticationTimestamp.')' 
+                    . ": Must authenticate before requesting data>>>" . Context::debugGetCallerInfo(2,10));
         }
         //error_log('TODO:makeQuery  --- about to do stuff in makeQuery for '.$functionToInvoke.'...');
         
