@@ -300,13 +300,14 @@
                         modal: true,
                         autoOpen: true
                     });
-                    $(".top").remove();
-
+                    
+                    var edit_ranking_mode_content = $('#edit-ranking-mode-modal');
+                    var admin_header = edit_ranking_mode_content.find('.top');
+                    admin_header.hide();
               })
               .on('click', '.raptor-dialog-cancel', function (e) {
                 $('#edit-ranking-mode-modal').dialog('close');
               });
-
         });
 
         // Edit Top Work Order button
