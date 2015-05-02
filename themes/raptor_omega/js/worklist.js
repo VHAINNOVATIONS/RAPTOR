@@ -295,11 +295,12 @@
                     .remove()
                     .end()
                     .dialog({
-                        width: 1000,
+                        width: 1098,
                         height: 800,
                         modal: true,
                         autoOpen: true
                     });
+                    $(".top").remove();
 
               })
               .on('click', '.raptor-dialog-cancel', function (e) {

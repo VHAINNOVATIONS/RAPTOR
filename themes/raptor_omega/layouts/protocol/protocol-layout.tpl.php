@@ -6,6 +6,7 @@ require_once 'ArrayValue.php';
 global $raptor_context;
 global $raptor_protocoldashboard;
 global $raptor_protocol_content;
+global $base_url;
 //$protocol_input = $raptor_protocol_content["Input"]["Protocol"];
 
 $protocol_input = render($page['content']);

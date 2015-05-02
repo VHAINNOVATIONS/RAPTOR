@@ -26,7 +26,7 @@ $minilogourl = $base_url.'/sites/all/themes/raptor_omega/images/topminilogo.png'
 </script>
 
 <div class="top">
-    <a title="Click to return to worklist without saving changes" href="<?php echo($base_url); ?>/worklist"<div class="mini-logo"></div></a>
+    <a title="Click to return to worklist without saving changes" href="<?php echo($base_url); ?>/worklist"><div class="mini-logo"></div></a>
     <div class="top-nav">
         <ul>
             <li>Logged in as <?php echo $fullname ;?> </li>
