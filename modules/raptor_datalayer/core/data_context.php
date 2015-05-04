@@ -169,7 +169,7 @@ class Context
                 . "\tSystemAction ts = ".$this->m_nInstanceSystemActionTimestamp);
         if(!is_numeric($nUID))
         {
-            die('The UID passed into contructor of Context must be numeric, but instead got "'.$nUID.'"');
+            throw new \Exception('The UID passed into contructor of Context must be numeric, but instead got "'.$nUID.'"');
         }
 
         $this->m_nUID = $nUID;
@@ -177,7 +177,7 @@ class Context
         $this->m_nLastUpdateTimestamp = microtime(TRUE);  
         $this->m_nInstanceUserActionTimestamp = time();
         $this->m_nInstanceSystemActionTimestamp = time();
-        Context::debugDrupalMsg('<h1>Hi from CONSTRUCTOR('.$nUID.') Context: New instance created at [' . microtime(TRUE) . ']</h1>' . $this->getContextHtmlDebugInfo(),'status');
+        //Context::debugDrupalMsg('<h1>Hi from CONSTRUCTOR('.$nUID.') Context: New instance created at [' . microtime(TRUE) . ']</h1>' . $this->getContextHtmlDebugInfo(),'status');
     }    
 
     /**
@@ -318,6 +318,8 @@ class Context
             
         } else {
             //No session already exists, so we will create a new one.
+            error_log("Creating new session for uid=".$tempUID);
+            /*
             error_log('CONTEXTgetInstance::WORKFLOWDEBUG'
                     . '>>>NO EXISTING SESSION!!! '
                     . 'Not using an existing session: '
@@ -326,6 +328,7 @@ class Context
                     . " CALLER==> " . Context::debugGetCallerInfo(10));
             Context::debugDrupalMsg('Not using an existing session: '
                     . 'bSessionResetFlagDetected='.$bSessionResetFlagDetected);
+            */
             $bLocalReset=TRUE;
             $candidate=NULL;
             $wmodeParam='P';    //Hardcode assumption for now.
