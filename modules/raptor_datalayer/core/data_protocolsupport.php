@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -16,10 +16,9 @@ namespace raptor;
 module_load_include('php', 'raptor_glue', 'core/config');
 module_load_include('php', 'raptor_formulas', 'core/Labs');
 
-require_once ("data_worklist.php");
-require_once ("data_context.php");
-//require_once ("config.php");
-require_once ('RuntimeResultCache.php');
+require_once 'data_worklist.php';
+require_once 'data_context.php';
+require_once 'RuntimeResultCache.php';
 
 
 /**
@@ -1227,7 +1226,7 @@ class ProtocolSupportingData
     {
         //$serviceResponse = $this->m_oContext->getEMRService()->getSurgicalPathologyReports(array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>0));
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgicalPathologyReports"
-                , array('fromDate'=>'', 'toDate'=>'', 'nrpts'=>$max_reports));
+                , array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>$max_reports));
         $result = array();
         if(!isset($serviceResponse->getSurgicalPathologyReportsResult
                 ->arrays->TaggedSurgicalPathologyRptArray->count)) return $result;
