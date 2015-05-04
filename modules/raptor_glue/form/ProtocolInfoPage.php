@@ -2612,7 +2612,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             if($modality == '' || $modality == 'Unknown')
             {
                 //This will happen if no modality was specified in the protocol template.
-                error_log('No modality was specified in the protocol template for '.print_r($protocolValues,TRUE));
+                //error_log('No modality was specified in the protocol template for '.print_r($protocolValues,TRUE));
                 $possibleDups = TRUE;   //Assume we could have duplicates. 
             } else {
                 $modalitycount = 0;
