@@ -545,10 +545,14 @@ class TicketTrackingData
                 error_log($entire_delete_reason);
             }
         } else {
-            error_log('Expected to delete one ticket="'.$sTrackingID.'"'
-                    . ' but instead deleted '.$deleted.' records!'
-                    . ' >>>query='.print_r($query,TRUE)
-                    );
+            //Don't bother if there was nothing to delete.
+            if($deleted != 0)
+            {
+                error_log('Expected to delete one ticket="'.$sTrackingID.'"'
+                        . ' but instead deleted '.$deleted.' records!'
+                        . ' >>>query='.print_r($query,TRUE)
+                        );
+            }
         }
         return $deleted;
     }
