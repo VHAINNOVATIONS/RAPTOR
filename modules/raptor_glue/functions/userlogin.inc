@@ -35,12 +35,13 @@ function raptor_glue_login_validate( $form, &$form_state )
 {
     $username = trim($form_state['values']['name']);
     $password = trim($form_state['values']['pass']);
-    error_log("login validating username=[$username] password=[$password]");
-    $errmsg = null;
+    $havepassword = (trim($password) != '' ? 'Yes' : 'No!');
+    error_log("login validating username=[$username] password was provided=[$havepassword]");
+    $fatalerrmsg = null;
     $isvalid = raptor_glue_check_user( $username, $password, $fatalerrmsg );
     if ($isvalid === TRUE )
     {
-        error_log("login validated username=[$username] password=[$password] Is valid user");
+        error_log("login validated username=[$username] Is valid user");
         $candidateuser = user_load_by_name($username);
         if( $candidateuser == null || $candidateuser === FALSE )
         {
@@ -62,7 +63,7 @@ function raptor_glue_login_validate( $form, &$form_state )
     if($fatalerrmsg != null)
     {
         //Too important not to stop everything here.
-        die('FATAL ERROR MESSAGE>>>'.$fatalerrmsg);
+        throw new \Exception('FATAL ERROR MESSAGE>>>'.$fatalerrmsg);
     }
     // else drop through to the end and return nothing - Drupal will handle the rejection for us   
 }
