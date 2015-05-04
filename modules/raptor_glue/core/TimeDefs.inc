@@ -1,7 +1,7 @@
 <?php
 
 defined("TIME_DEFS_VERSION_INFO")
-    or define("TIME_DEFS_VERSION_INFO", 'DEBUG 20150424.2');
+    or define("TIME_DEFS_VERSION_INFO", '20150504.1');
 
 /*
  * These are TIME dependent settings
@@ -10,17 +10,17 @@ defined("TIME_DEFS_VERSION_INFO")
 
 //This much inactive time triggers user logout (user gets prompted to stay)
 defined("USER_TIMEOUT_SECONDS")
-    or define("USER_TIMEOUT_SECONDS", 90);//900); //3720);
+    or define("USER_TIMEOUT_SECONDS", 900); //3720);
 defined("USER_TIMEOUT_GRACE_SECONDS")
-    or define("USER_TIMEOUT_GRACE_SECONDS", 30);//180);   //Prompt shows for this long
+    or define("USER_TIMEOUT_GRACE_SECONDS", 180);   //Prompt shows for this long
 defined("USER_ALIVE_INTERVAL_SECONDS")
-    or define("USER_ALIVE_INTERVAL_SECONDS", 15);//60);
+    or define("USER_ALIVE_INTERVAL_SECONDS", 60);
 
 //This much inactive time triggers loss of an edit lock (keep this number pretty big)
 defined("USER_EDITLOCK_TIMEOUT_SECONDS")
-    or define("USER_EDITLOCK_TIMEOUT_SECONDS", 120);    //5000);
+    or define("USER_EDITLOCK_TIMEOUT_SECONDS", 5000);
 defined("USER_EDITLOCK_ALIVE_INTERVAL_SECONDS")
-    or define("USER_EDITLOCK_ALIVE_INTERVAL_SECONDS", 15);  //60);
+    or define("USER_EDITLOCK_ALIVE_INTERVAL_SECONDS", 60);
 
 //This does not log the user out, only refreshes the session key (warning: invalidates form data!)
 defined("SESSION_KEY_TIMEOUT_SECONDS")

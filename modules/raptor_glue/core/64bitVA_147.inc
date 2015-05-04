@@ -1,10 +1,10 @@
 <?php
 
 defined("RAPTOR_CONFIG_ID")
-    or define("RAPTOR_CONFIG_ID", "20150317.1 for TEST 203 AppServer2");
+    or define("RAPTOR_CONFIG_ID", "20150504.1 for VA 147 AppServer2");
 
 defined("RAPTOR_ROOT_URL")
-    or define("RAPTOR_ROOT_URL", "http://10.203.12.5/RAPTOR/");
+    or define("RAPTOR_ROOT_URL", "http://10.184.38.147/RAPTOR/");
 
 defined("EMRSERVICE_URL")
     or define("EMRSERVICE_URL", "http://localhost/mdws2.5/emrsvc.asmx");
@@ -18,10 +18,10 @@ defined("QUERYSERVICE_LOCAL_FILE")
 
 //Point to HYDRA server
 defined("VIX_HTML_VIEWER_URL")
-    or define("VIX_HTML_VIEWER_URL", "http://10.203.12.5:9000/hydra/viewer");
+    or define("VIX_HTML_VIEWER_URL", "http://10.184.38.147:9000/hydra/viewer");
 
 //Point to VIX server
 defined("VIX_STUDIES_URL")
-    or define("VIX_STUDIES_URL", "http://10.203.12.3:8090/RaptorWebApp/secure/restservices/raptor/studies/");
+    or define("VIX_STUDIES_URL", "http://10.184.38.149:8090/RaptorWebApp/secure/restservices/raptor/studies/");
 defined("VIX_THUMBNAIL_URL")
-    or define("VIX_THUMBNAIL_URL", "http://10.203.12.3:8090/RaptorWebApp/token/thumbnail");
+    or define("VIX_THUMBNAIL_URL", "http://10.184.38.149:8090/RaptorWebApp/token/thumbnail");
