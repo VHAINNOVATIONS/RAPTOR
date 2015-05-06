@@ -1111,7 +1111,10 @@ function raptor_glue_resetsecondssincelastaction_form_builder($form, &$form_stat
 function raptor_glue_userinteractionping_form_builder($form, &$form_state)
 {
     $refreshlocks = isset($_GET['refreshlocks']);
-    $resetsecondssincelastaction = $refreshlocks || isset($_GET['resetsecondssincelastaction']);
+    $rssla = isset($_GET['resetsecondssincelastaction']);
+    $resetsecondssincelastaction = $refreshlocks || $rssla;
+    
+    $inputsinfo = array('rl'=>$refreshlocks,'rs'=>$rssla);
     
     global $user;
 
@@ -1217,6 +1220,7 @@ function raptor_glue_userinteractionping_form_builder($form, &$form_state)
     $aResult = array(
             'thisuser' =>$aUserAliveStuff
             , 'tickets'=>$aTicketStuff
+            , 'inputinfo'=>$inputsinfo
         );
     if($resetsecondssincelastaction)
     {
