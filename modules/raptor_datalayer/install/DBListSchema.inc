@@ -456,7 +456,7 @@ class DBListSchema
               'type' => 'int',
               'not null' => TRUE,
               'default' => 0,
-              'description' => 'If 1 then user can schedule a procedure',
+              'description' => 'If 1 then user edit pass box',
             ),
             'lockSP1' => array(
               'type' => 'int',

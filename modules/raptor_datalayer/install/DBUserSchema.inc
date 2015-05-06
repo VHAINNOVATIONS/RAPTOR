@@ -155,7 +155,7 @@ class DBUserSchema
               'type' => 'int',
               'not null' => TRUE,
               'default' => 0,
-              'description' => 'If 1 then user can schedule a procedure',
+              'description' => 'If 1 then user can edit pass box',
             ),
               
             'VREP1' => array(
