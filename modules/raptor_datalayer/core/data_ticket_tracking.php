@@ -686,8 +686,10 @@ class TicketTrackingData
     {
         //error_log('STARTING deleteAllStaleTicketLocks');
         $maxage = USER_EDITLOCK_TIMEOUT_SECONDS;
+        $maxloginage = USER_EDITLOCK_TIMEOUT_SECONDS * 10;  //Failsafe based on login time
         $oldestallowed_ts = time() - $maxage;
         $oldestallowed_dt = date("Y-m-d H:i:s", $oldestallowed_ts);
+        $oldestlogin_ts = time() - $maxloginage;
         //First check the raptor table
         $query = db_select('raptor_ticket_lock_tracking', 'n');
         $query->leftJoin('users', 'u', 'n.locked_by_uid = u.uid');
@@ -729,14 +731,15 @@ class TicketTrackingData
                             .' ('.$oldestallowed_dt.')'
                             .' diff='.$diff
                             .' >>> '.print_r($row,TRUE);
-                } else if($row->access < $oldestallowed_ts) {
+                } else if($row->access < $oldestlogin_ts) {
                     //Locked ticket is too old from core table check.
+                    $oldestlogin_dt = date("Y-m-d H:i:s", $oldestlogin_ts);
                     $diff = $row->access - $oldestallowed_ts;
                     $delete = TRUE;
                     $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
                             .' because access '.$row->access
-                            .' is older than '.$oldestallowed_ts
-                            .' ('.$oldestallowed_ts.')'
+                            .' is older than '.$oldestlogin_ts
+                            .' (login access '.$oldestlogin_dt.')'
                             .' diff='.$diff
                             .' >>> '.print_r($row,TRUE);
                 }

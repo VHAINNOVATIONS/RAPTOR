@@ -1124,6 +1124,7 @@ function raptor_glue_userinteractionping_form_builder($form, &$form_state)
     
     $authenticated = 'no';
     $useridleseconds = 9999999;
+    $locks = array('unknown');
     $aEditLocks = array();
     $aViewLocks = array();
     $sTrackingID = NULL;
@@ -1174,20 +1175,20 @@ function raptor_glue_userinteractionping_form_builder($form, &$form_state)
                     $oTT->updateTicketEditLock($sTrackingID, $nUID);
                 }
             } catch (\Exception $ex) {
-                throw new \Exception('Cannot refresh lock on "'.$sTrackingID.'" for user "'.$nUID.'"');
+                throw new \Exception('Cannot refresh lock on "'.$sTrackingID
+                        .'" for user "'.$nUID.'" because '.$ex->getMessage(), 9955, $ex);
             }
-        } else {
-            //Get all the lock information.
-            $locks = $oTT->getAllTicketLockDetails();
-            foreach($locks['tickets'] as $tid=>$oneticket)
+        }
+        //Get all the lock information.
+        $locks = $oTT->getAllTicketLockDetails();
+        foreach($locks['tickets'] as $tid=>$oneticket)
+        {
+            $oneticket['trackingid'] = $tid;
+            if($oneticket['locked_type_cd'] == 'E')
             {
-                $oneticket['trackingid'] = $tid;
-                if($oneticket['locked_type_cd'] == 'E')
-                {
-                    $aEditLocks[] = $oneticket;
-                } else {
-                    $aViewLocks[] = $oneticket;
-                }
+                $aEditLocks[] = $oneticket;
+            } else {
+                $aViewLocks[] = $oneticket;
             }
         }
     } catch (\Exception $ex) {
