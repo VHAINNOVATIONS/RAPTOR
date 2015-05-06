@@ -1003,7 +1003,7 @@ class UserPageHelper
                 $ticprivs[] = array('SUWI1','Can cancel a ticket'); 
                 $ticprivs[] = array('CE1','Can complete an exam'); 
                 $ticprivs[] = array('QA1','Can QA an exam'); 
-                $ticprivs[] = array('SP1','Can schedule a procedure'); 
+                $ticprivs[] = array('SP1','Can edit pass box'); 
                 foreach($ticprivs as $ticpriv)
                 {
                     $this->addCheckboxFormAPIElement(
