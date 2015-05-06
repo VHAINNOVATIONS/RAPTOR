@@ -691,10 +691,10 @@ class TicketTrackingData
         //First check the raptor table
         $query = db_select('raptor_ticket_lock_tracking', 'n');
         $query->leftJoin('users', 'u', 'n.locked_by_uid = u.uid');
-        $query->leftJoin('sessions', 's', 'n.locked_by_uid = s.uid');
+        //too many rows $query->leftJoin('sessions', 's', 'n.locked_by_uid = s.uid');
         $query->fields('n');
-        $query->fields('s', array('uid'));
-        $query->fields('u', array('access'));
+        //$query->fields('s', array('uid'));
+        $query->fields('u', array('uid','access'));
         $query->condition('n.siteid', $nSiteID,'=');
         //$db_or = db_or();
         //$db_or->condition('n.lock_refreshed_dt', $oldestallowed_dt,'<');
