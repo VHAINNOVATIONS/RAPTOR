@@ -1,7 +1,7 @@
 <?php
 
 defined("TIME_DEFS_VERSION_INFO")
-    or define("TIME_DEFS_VERSION_INFO", 'DEBUG 20150505.1');
+    or define("TIME_DEFS_VERSION_INFO", 'DEBUG 20150507.1');
 
 /*
  * These are TIME dependent settings
@@ -22,11 +22,11 @@ defined("TIME_DEFS_VERSION_INFO")
 // Production recommendation for USER_TIMEOUT_GRACE_SECONDS=180
 // Production recommendation for USER_ALIVE_INTERVAL_SECONDS=60
 defined("USER_TIMEOUT_SECONDS")
-    or define("USER_TIMEOUT_SECONDS", 60);//900);
+    or define("USER_TIMEOUT_SECONDS", 900);
 defined("USER_TIMEOUT_GRACE_SECONDS")
-    or define("USER_TIMEOUT_GRACE_SECONDS", 15);//180);   //Prompt shows for this long
+    or define("USER_TIMEOUT_GRACE_SECONDS", 180);   //Prompt shows for this long
 defined("USER_ALIVE_INTERVAL_SECONDS")
-    or define("USER_ALIVE_INTERVAL_SECONDS", 10);//60);
+    or define("USER_ALIVE_INTERVAL_SECONDS", 60);
 
 //This much inactive time triggers loss of an edit lock (keep this number pretty big)
 //Make sure USER_EDITLOCK_TIMEOUT_SECONDS is at least 3 times bigger than USER_EDITLOCK_ALIVE_INTERVAL_SECONDS

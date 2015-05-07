@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -18,7 +18,7 @@ require_once 'data_user.php';
 require_once 'MdwsDaoFactory.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR141006A');
+    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150507A');
 
 defined("DISABLE_CONTEXT_DEBUG")
     or define("DISABLE_CONTEXT_DEBUG", TRUE);
@@ -79,8 +79,8 @@ class Context
     {
         if(count($this->m_aLocalCache) > 1000)
         {
-            //Trim the stale stuff out of the cache.
-            error_log('TODO -- Trim the local cache because too big now!!!');
+            //Leave evidence of possible tuning requirement.
+            error_log("Administrator warning: The local cache size at $sKey is ".$this->m_aLocalCache);
         }
         $aItem['hit'] = 0;
         $aItem['value'] = $oValue;
@@ -275,9 +275,11 @@ class Context
         
         global $user;
         $bLocalReset = FALSE;
+        $bAccountConflictDetected = FALSE;      //Set to true if something funny is going on.
+        $bContextDetectIdleTooLong = FALSE;
         if(user_is_logged_in())
         {
-            $tempUID = $user->uid;   
+            $tempUID = $user->uid;
         } else {
             $tempUID = 0;
         }
@@ -334,7 +336,6 @@ class Context
             $wmodeParam='P';    //Hardcode assumption for now.
         }
         
-        $bAccountConflictDetected = FALSE;      //Set to true if something funny is going on.
         if($candidate==NULL)    // $nElapsedSeconds > MAXINACTIVITYSECONDS 
         {
             $bLocalReset=TRUE;
@@ -474,7 +475,6 @@ class Context
         
         if ($bLocalReset) {
             //Clear existing context except for any user login info.
-            global $user;
             $tempUID = $user->uid;
             $candidate = new \raptor\Context($tempUID);
             if(isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]))
@@ -492,8 +492,21 @@ class Context
             Context::debugDrupalMsg('[' . $candidate->m_nInstanceTimestamp . '] Got context from cache! UID='.$candidate->getUID());
         }
 
+        if($user->uid > 0)
+        {
+            $useridleseconds = intval($candidate->getUserIdleSeconds());
+            $max_idle = USER_TIMEOUT_SECONDS 
+                    + USER_TIMEOUT_GRACE_SECONDS 
+                    + USER_ALIVE_INTERVAL_SECONDS
+                    + KICKOUT_DIRTYPADDING;
+            if($useridleseconds > $max_idle)
+            {
+                $bContextDetectIdleTooLong = TRUE;
+            }
+        }
+        
         //Now trigger logout if account conflict was detected.
-        if($bAccountConflictDetected)
+        if($bAccountConflictDetected || $bContextDetectIdleTooLong)
         {
             //Don't get stuck in an infinite loop.
             if(substr($candidate->m_sVistaUserID,0,8) !== 'kickout_')
@@ -502,22 +515,32 @@ class Context
                 if(!isset($candidate->m_aForceLogoutReason))
                 {
                     //Not already set, so set it now.
-                    $usermsg = 'You are kicked out because another workstation has'
-                            . ' logged in as the same'
-                            . ' RAPTOR user account "'
-                            . $candidate->m_sVistaUserID.'"';
+                    if($bContextDetectIdleTooLong)
+                    {
+                        $useridleseconds = intval($candidate->getUserIdleSeconds());
+                        $usermsg = 'You are kicked out because context has detected excessive'
+                                . " idle time of $useridleseconds seconds";
+                        $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
+                        $kickoutlabel = 'TIMEOUT';
+                    } else {
+                        $usermsg = 'You are kicked out because another workstation has'
+                                . ' logged in as the same'
+                                . ' RAPTOR user account "'
+                                . $candidate->m_sVistaUserID.'"';
+                        $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
+                        $kickoutlabel = 'ACCOUNT CONFLICT';
+                    }
                     drupal_set_message($usermsg, 'error');
-                    $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
                     $candidate->m_aForceLogoutReason = array();
                     $candidate->m_aForceLogoutReason['code'] = $errorcode;
                     $candidate->m_aForceLogoutReason['text'] = $usermsg;
                     $candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
                     $candidate->m_sVAPassword = NULL;
-                    //$candidate->serializeNow(); //Store this now!!!
                 }
 
                 $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
-                error_log('CONTEXT KICKOUT ACCOUNT CONFLICT DETECTED ON ['.$candidate->m_sVistaUserID.'] >>> ' 
+                error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
+                        . $candidate->m_sVistaUserID . '] >>> ' 
                         . time() . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
                 
                 $candidate->forceSessionRefresh(0);  //Invalidate any current form data now!
