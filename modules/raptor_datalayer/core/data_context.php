@@ -1066,44 +1066,26 @@ class Context
      * We need to refresh the session at least before the server invalidates it.
      * @param type $grace_seconds do not refresh if newer than this
      */
-    public function forceSessionRefresh($grace_seconds
-            , $ignore_session_timeout=FALSE)
+    public function forceSessionRefresh($grace_seconds=-1)
     {
         if(!user_is_logged_in() || $this->getUID() == 0)
         {
             //Never time out if no one is logged in anyways.
              $_SESSION['CREATED'] = time();  // update creation time
         } else {
-            $kickout = FALSE;
-            $currentpath = current_path();
-            if(!$ignore_session_timeout)
+            if($grace_seconds < 0)
             {
-                $limit_max = USER_TIMEOUT_SECONDS 
-                        + USER_TIMEOUT_GRACE_SECONDS 
-                        + KICKOUT_DIRTYPADDING;
-                if (!isset($_SESSION['CREATED']) 
-                        || (time() - $_SESSION['CREATED']) > $limit_max) 
-                {
-                    error_log('WORKFLOWDEBUG>>>Session key timeout of '
-                            .$limit_max
-                            .' seconds reached so kickout activated for uid='
-                            .$this->getUID()
-                            ."\nURL at limit timeout = ".$currentpath);
-                    $usermsg = 'Session canceled because '
-                            . 'there was no user activity for over '
-                            . $limit_max . ' seconds.';
-                    $this->forceKickoutNow($usermsg,ERRORCODE_KICKOUT_TIMEOUT,$this);
-                    $kickout=TRUE;
-                }
+                //Use the configured default.
+                $grace_seconds = SESSION_KEY_TIMEOUT_SECONDS;
             }
-            if (!$kickout 
-                    && (!isset($_SESSION['CREATED']) 
-                            || (time() - $_SESSION['CREATED']) > $grace_seconds))
+            if ((!isset($_SESSION['CREATED']) 
+                || (time() - $_SESSION['CREATED']) > $grace_seconds))
             {
+                $currentpath = current_path();
                 // session started more than SESSION_REFRESH_DELAY seconds ago
                 error_log('WORKFLOWDEBUG>>>Session key timeout of '
                         .$grace_seconds
-                        .' seconds reached so generated new key for uid='.$this->getUID()
+                        .' seconds (grace seconds) reached so generated new key for uid='.$this->getUID()
                         ."\nURL at key timeout = ".$currentpath);
                 session_regenerate_id(FALSE);   // change session ID for the current session and invalidate old session ID
                 $_SESSION['CREATED'] = time();  // update creation time
