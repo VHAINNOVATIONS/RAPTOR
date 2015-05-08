@@ -27,6 +27,19 @@ class LoadUtils
         $aLines = file($sPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         return $aLines;
     }    
+
+    public static function loadAboutBasedata()
+    {
+        $created_dt = date("Y-m-d H:i:s", time());
+        $inserted = db_insert('raptor_about')
+           ->fields(array(
+            'category_nm' => 'DBSchemaVersion',
+            'info_tx' => 'Initial installation',
+            'info_ct' => 1, //UPDATE THIS VALUE IF THE SCHEMA CHANGES!!!!!!
+            'created_dt' => $created_dt,
+            ))
+           ->execute();
+    }
     
     public static function loadUserBasedata($clearusers=FALSE)
     {

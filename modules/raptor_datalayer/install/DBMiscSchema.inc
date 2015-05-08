@@ -1,5 +1,6 @@
 <?php
 /**
+ * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
  * Open Source VA Innovation Project 2011-2014
@@ -25,6 +26,37 @@ class DBMiscSchema
     public function addToSchema(&$schema)
     {
 
+        $schema['raptor_about'] = array(
+          'description' => 'Information about this RAPTOR installation',
+          'fields' => array(
+            'category_nm' => array(
+              'type' => 'varchar',
+              'length' => 20,
+              'not null' => TRUE,
+              'description' => 'Information category',
+            ),
+            'info_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'The information text to show',
+            ),
+            'info_ct' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+              'default' => 1,
+              'description' => 'Informational number, sometimes useful for versioning',
+            ),
+            'created_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this record was created',
+            ),
+          ),
+        );
+        
         $schema['raptor_boilerplate_helper'] = array(
           'description' => 'Text snippets',
           'fields' => array(

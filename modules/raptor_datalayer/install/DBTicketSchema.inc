@@ -1,8 +1,9 @@
 <?php
 /**
+ * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -817,6 +818,128 @@ class DBTicketSchema
           ),
         );
 
+        $schema['raptor_ticket_exam_settings_sofar'] = array(
+          'description' => 'Ticket exam values as provided so far by an examiner.  This is a backup record that is deleted once final values are saved.',
+          'fields' => array(
+            'siteid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'ID for the site',
+            ),
+            'IEN' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 1,
+              'description' => 'Ticket identifier within the site',
+            ),
+            'current_workflow_state_cd' => array(
+              'type' => 'varchar',
+              'length' => 2,
+              'not null' => TRUE,
+              'description' => 'Current workflow state code',
+            ),
+            'hydration_none_yn' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'True if value is NONE',
+            ),
+            'hydration_oral_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'hydration oral default value',
+            ),
+            'hydration_iv_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'hydration iv default value',
+            ),
+            'sedation_none_yn' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'True if value is NONE',
+            ),
+            'sedation_oral_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'sedation oral default value',
+            ),
+            'sedation_iv_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'sedation iv default value',
+            ),
+            'contrast_none_yn' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'True if value is NONE',
+            ),
+            'contrast_enteric_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'contrast enteric default value',
+            ),
+            'contrast_iv_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'contrast iv default value',
+            ),
+            'radioisotope_none_yn' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'True if value is NONE',
+            ),
+            'radioisotope_enteric_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'radioisotope enteric default value',
+            ),
+            'radioisotope_iv_tx' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'description' => 'radioisotope iv default value',
+            ),
+            'consent_received_kw' => array(
+              'type' => 'varchar',
+              'length' => 8,
+              'not null' => FALSE,
+              'default' => '',
+              'description' => 'Consent received values are yes, no, or leave null (unknown).',
+            ),
+            'author_uid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'The user that selected these values',
+            ),
+            'created_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this record was created',
+            ),
+          ),
+        );
+        
         $schema['raptor_ticket_exam_settings_replaced'] = array(
           'description' => 'Replaced ticket exam values as provided by exam completer',
           'fields' => array(
@@ -947,6 +1070,95 @@ class DBTicketSchema
 
         $schema['raptor_ticket_exam_radiation_dose'] = array(
           'description' => 'Radiation exposure associated with an exam',
+          'fields' => array(
+            'siteid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'ID for the site',
+            ),
+            'IEN' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'Ticket identifier within the site',
+            ),
+            'patientid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'ID for the patient',
+            ),
+            'sequence_position' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 1,
+              'description' => 'Order of exposures for an exam',
+            ),
+            'dose' => array(
+              'type' => 'float',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'Amount of exposure',
+            ),
+            'uom' => array(
+              'type' => 'varchar',
+              'length' => 32,
+              'not null' => TRUE,
+              'description' => 'Unit of measure for the exposure',
+            ),
+            'dose_type_cd' => array(
+              'type' => 'char',
+              'length' => 1,
+              'not null' => TRUE,
+              'description' => 'E=Estimated,A=Actual',
+            ),
+            'dose_source_cd' => array(
+              'type' => 'char',
+              'length' => 1,
+              'not null' => TRUE,
+              'description' => 'R=Radioisotope, E=Equipment Other, C=CTDIvol, D=DLP',
+            ),
+            'dose_target_area_id' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+              'description' => 'Target area lookup of codes',
+            ),
+            'dose_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this dose was received',
+            ),
+            'data_provider' => array(
+              'type' => 'varchar',
+              'length' => 32,
+              'not null' => FALSE,
+              'default' => '',
+              'description' => 'Data provider for this record',
+            ),
+            'author_uid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'The user that associated with entry of this value',
+            ),
+            'created_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this record was created',
+            ),
+          ),
+          'primary key' => array('siteid', 'IEN', 'dose_source_cd', 'sequence_position'),
+        );
+
+        $schema['raptor_ticket_exam_radiation_dose_sofar'] = array(
+          'description' => 'Radiation exposure values so far associated with an exam.  This is a backup record that is deleted once final values are saved.',
           'fields' => array(
             'siteid' => array(
               'type' => 'int',
@@ -1164,6 +1376,46 @@ class DBTicketSchema
           ),
         );
 
+        $schema['raptor_ticket_exam_notes_sofar'] = array(
+          'description' => 'Ticket exam notes so far.  This is a backup record that is deleted once final values are saved.',
+          'fields' => array(
+            'siteid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'ID for the site',
+            ),
+            'IEN' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 1,
+              'description' => 'Ticket identifier within the site',
+            ),
+            'notes_tx' => array(
+              'type' => 'varchar',
+              'length' => 1024,
+              'not null' => TRUE,
+              'default' => '',
+              'description' => 'notes text',
+            ),
+            'author_uid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'The user that created these notes',
+            ),
+            'created_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this record was created',
+            ),
+          ),
+        );
+        
         $schema['raptor_ticket_interpret_notes'] = array(
           'description' => 'Ticket interpretation notes',
           'fields' => array(
