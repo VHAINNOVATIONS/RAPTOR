@@ -114,7 +114,7 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
         $pbatch=NULL;
         if($rawrtid === null || substr($rawrtid,0,1) !== '[' || substr($rawrtid,-1) !== ']')
         {
-            die("The rawrtid parameter MUST start with [ and end with ] bracket!");
+            throw new \Exception("The rawrtid parameter MUST start with [ and end with ] bracket!");
         }
         $clean_rawrtid = substr($rawrtid, 1, -1);
         $oContext->setSelectedTrackingID($clean_rawrtid);
@@ -266,12 +266,12 @@ function raptor_glue_viewscannedprotocol_form_builder($form, &$form_state)
 {
     if(!isset($_GET['protocol_shortname']))
     {
-        die("Missing required protocol_shortname url parameter!");
+        throw new \Exception("Missing required protocol_shortname url parameter!");
     }
     $psn = $_GET['protocol_shortname'];
     if(is_numeric($psn))
     {
-        die("Invalid psn url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid psn url parameter: that value MUST NOT be numeric!");
     }
 
     $showclose = isset($_GET['showclose']);
@@ -284,12 +284,12 @@ function raptor_glue_viewprotocollib_form_builder($form, &$form_state)
 {
     if(!isset($_GET['protocol_shortname']))
     {
-        die("Missing required protocol_shortname url parameter!");
+        throw new \Exception("Missing required protocol_shortname url parameter!");
     }
     $psn = $_GET['protocol_shortname'];
     if(is_numeric($psn))
     {
-        die("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
     }
 
     $oPI = new \raptor\ViewProtocolLibPage($psn);
@@ -302,12 +302,12 @@ function raptor_glue_deleteprotocollib_form_builder($form, &$form_state)
 {
     if(!isset($_GET['protocol_shortname']))
     {
-        die("Missing required protocol_shortname url parameter!");
+        throw new \Exception("Missing required protocol_shortname url parameter!");
     }
     $psn = $_GET['protocol_shortname'];
     if(is_numeric($psn))
     {
-        die("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
     }
 
     $oPI = new \raptor\DeleteProtocolLibPage($psn);
@@ -320,24 +320,20 @@ function raptor_glue_deleteprotocollib_form_builder_submit($form, &$form_state)
 {
     if(!isset($_GET['protocol_shortname']))
     {
-        die("Missing required protocol_shortname url parameter!");
+        throw new \Exception("Missing required protocol_shortname url parameter!");
     }
     $psn = $_GET['protocol_shortname'];
     if(is_numeric($psn))
     {
-        die("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
     }
     $oPI = new \raptor\DeleteProtocolLibPage($psn);
     $myvalues = $form_state['values'];
-    $isokay = $oPI->updateDatabase($form, $myvalues);
-    if($isokay)
-    {
-        //Success!
-        $form_state['redirect'] = array(
-            $oPI->getGobacktoURL()
-           ,$oPI->getGobacktoURLParams()
-          );
-    }
+    $oPI->updateDatabase($form, $myvalues);
+    $form_state['redirect'] = array(
+        $oPI->getGobacktoURL()
+       ,$oPI->getGobacktoURLParams()
+      );
 }
 function raptor_glue_editprotocollib_form_builder($form, $form_state)
 {
@@ -348,11 +344,11 @@ function raptor_glue_editprotocollib_form_builder($form, $form_state)
     } else if(isset($myvalues['protocol_shortname'])) {
         $psn = $myvalues['protocol_shortname'];
     } else {
-        die("Missing required protocol_shortname url parameter! !!!! See fs=".print_r($form_state['values'],TRUE));
+        throw new \Exception("Missing required protocol_shortname url parameter! !!!! See fs=".print_r($form_state['values'],TRUE));
     }
     if(is_numeric($psn))
     {
-        die("Invalid protocol_shortname url parameter: that value MUST be text!");
+        throw new \Exception("Invalid protocol_shortname url parameter: that value MUST be text!");
     }
 
     $oPI = new \raptor\EditProtocolLibPage($psn);
@@ -372,12 +368,12 @@ function raptor_glue_editprotocollib_form_builder_submit($form, &$form_state)
 {
     if(!isset($_GET['protocol_shortname']))
     {
-        die("Missing required protocol_shortname url parameter!");
+        throw new \Exception("Missing required protocol_shortname url parameter!");
     }
     $psn = $_GET['protocol_shortname'];
     if(is_numeric($psn))
     {
-        die("Invalid protocol_shortname url parameter: that value MUST be text!");
+        throw new \Exception("Invalid protocol_shortname url parameter: that value MUST be text!");
     }
 
     $myvalues = $form_state['values'];

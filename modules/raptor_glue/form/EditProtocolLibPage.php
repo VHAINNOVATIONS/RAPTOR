@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -68,7 +68,6 @@ class EditProtocolLibPage extends \raptor\ChildEditBasePage
 
     /**
      * Write the values into the database.
-     * @param type associative array where 'username' MUST be one of the values so we know what record to update.
      */
     function updateDatabase($form, $myvalues)
     {

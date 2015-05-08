@@ -57,7 +57,7 @@ class DeleteProtocolLibPage extends \raptor\ChildEditBasePage
     }
     
     /**
-     * Remove the record IF there are no records referencing this user.
+     * Remove the protocol.
      */
     function updateDatabase($form, $myvalues)
     {
@@ -65,43 +65,41 @@ class DeleteProtocolLibPage extends \raptor\ChildEditBasePage
         //Perform some data quality checks now.
         if(!isset($myvalues['protocol_shortname']))
         {
-            die("Cannot delete record because missing protocol_shortname in array!\n" . var_dump($myvalues));
+            throw new \Exception("Cannot delete record because missing"
+                    . " protocol_shortname in array!\n" . print_r($myvalues, TRUE));
         }
 
-        $updated_dt = date("Y-m-d H:i", time());
-        
-
-        $protocol_shortname = $myvalues['protocol_shortname'];
-        
-        //Backup all the existing records.
-        $this->m_oPageHelper->copyProtocolLibToReplacedTable($protocol_shortname);
-        $this->m_oPageHelper->copyKeywordsToReplacedTable($protocol_shortname);
-        $this->m_oPageHelper->copyTemplateValuesToReplacedTable($protocol_shortname);
-        
-        //Delete all the records.
-        $num_deleted = db_delete('raptor_protocol_lib')
-          ->condition('protocol_shortname', $protocol_shortname)
-          ->execute();            
-        $num_deleted = db_delete('raptor_protocol_keywords')
-          ->condition('protocol_shortname', $protocol_shortname)
-          ->execute();            
-        $num_deleted = db_delete('raptor_protocol_template')
-          ->condition('protocol_shortname', $protocol_shortname)
-          ->execute();            
-
-        //Success?  
-        if($num_deleted == 1)
+        try
         {
+            $updated_dt = date("Y-m-d H:i", time());
+
+            $protocol_shortname = $myvalues['protocol_shortname'];
+
+            //Backup all the existing records.
+            $this->m_oPageHelper->copyProtocolLibToReplacedTable($protocol_shortname, $existingfileinfo);
+            $this->m_oPageHelper->copyKeywordsToReplacedTable($protocol_shortname);
+            $this->m_oPageHelper->copyTemplateValuesToReplacedTable($protocol_shortname);
+
+            //Delete all the records.
+            db_delete('raptor_protocol_lib')
+              ->condition('protocol_shortname', $protocol_shortname)
+              ->execute();            
+            db_delete('raptor_protocol_keywords')
+              ->condition('protocol_shortname', $protocol_shortname)
+              ->execute();            
+            db_delete('raptor_protocol_template')
+              ->condition('protocol_shortname', $protocol_shortname)
+              ->execute();            
+
             $feedback = 'The '.$protocol_shortname.' protocol has been succesfully deleted.';
             drupal_set_message($feedback);
-            return 1;
-        } 
 
-        //We are here because we failed.
-        $feedback = 'Trouble deleting '.$protocol_shortname.' protocol!';
-        error_log($feedback . ' delete reported ' . $num_deleted);
-        drupal_set_message($feedback, 'warning');
-        return 0;
+        } catch (\Exception $ex) {
+            $feedback = 'Trouble deleting '.$protocol_shortname.' protocol because '.$ex->getMessage();
+            error_log($feedback);
+            drupal_set_message($feedback, 'warning');
+            throw $ex;
+        }
     }
     
     /**
