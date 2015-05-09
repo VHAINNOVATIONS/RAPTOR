@@ -274,8 +274,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     private function loadExamFieldValues($nSiteID,$nIEN,&$myvalues,$newerthan_dt=NULL)
     {
         $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
-        $initial_population = TRUE;
         $load_sofar_tables = ($sCWFS == 'PA');  //No exam values are final yet
+        $relevant_protocol_shortname = $myvalues['protocol1_nm'];
         try
         {
             $query = db_select('raptor_ticket_exam_settings', 'n');
@@ -352,7 +352,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         
         try
         {
-            $myvalues['notes_tx'] = $this->getExamNotesText($nSiteID, $nIEN, $initial_population);
+            $myvalues['exam_notes_tx'] = $this->getExamNotesText($nSiteID, $nIEN
+                    , $relevant_protocol_shortname);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam notes radiation dose information for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
@@ -489,14 +490,17 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     /**
      * Just return the text that the user can edit.
      */
-    function getExamNotesText($nSiteID,$nIEN,$initial_population=FALSE)
+    function getExamNotesText($nSiteID,$nIEN,$protocol_shortname=NULL)
     {
         $notes_tx = '';
-        if($initial_population)
+        //Treat this as an initial population?
+        $query = db_select('raptor_ticket_exam_notes_sofar', 'n');
+        $query->fields('n')
+            ->condition('siteid', $nSiteID,'=')
+            ->condition('IEN', $nIEN,'=');
+        $result = $query->execute();
+        if($result->rowCount() > 0)
         {
-            //TODO --- whatever was in the template
-            $notes_tx = 'TODO PUT INITIAL NOTES FROM TEMPLATE HERE';
-        } else {
             //Return anything that has been saved sofar without commit
             $query = db_select('raptor_ticket_exam_notes_sofar', 'n');
             $query->fields('n')
@@ -513,7 +517,20 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $record = $result->fetchAssoc();
                 $notes_tx = $record['notes_tx'];
             }
+        } else {
+            //Nothing has been saved yet.
+            if($protocol_shortname == NULL)
+            {
+                //Special case where no template was used.
+                $notes_tx = '';
+            } else {
+                //Populate with whatever was in the protocol template
+                $oPLPH = new \raptor\ProtocolLibPageHelper();
+                $map = $oPLPH->getTemplateMap($protocol_shortname);
+                $notes_tx = $map['examnotes_tx'];
+            }
         }
+        
         return $notes_tx;
     }
     

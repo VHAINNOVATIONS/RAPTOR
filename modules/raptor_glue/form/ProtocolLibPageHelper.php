@@ -142,6 +142,22 @@ class ProtocolLibPageHelper
         $myvalues['icd_codes'] = NULL;
     }
     
+    
+    public function getTemplateMap($protocol_shortname)
+    {
+        $map = NULL;
+        try
+        {
+            $result = db_select('raptor_protocol_template','p')
+                    ->fields('p')
+                    ->condition('protocol_shortname', $protocol_shortname, '=')
+                    ->execute();
+            $map = $result->fetchAssoc();
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+        return $map;
+    }
 
     /**
      * We have to backup the original values before we change them.

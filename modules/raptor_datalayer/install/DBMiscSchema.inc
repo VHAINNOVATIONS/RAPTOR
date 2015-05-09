@@ -46,14 +46,14 @@ class DBMiscSchema
               'unsigned' => TRUE,
               'not null' => FALSE,
               'default' => 1,
-              'description' => 'Informational number, sometimes useful for versioning',
+              'description' => 'Major info number, sometimes useful for versioning',
             ),
             'minor_ct' => array(
               'type' => 'int',
               'unsigned' => TRUE,
               'not null' => FALSE,
               'default' => 1,
-              'description' => 'Informational number, sometimes useful for versioning',
+              'description' => 'Minor info number, sometimes useful for versioning',
             ),
             'created_dt' => array(
               'type' => 'datetime',

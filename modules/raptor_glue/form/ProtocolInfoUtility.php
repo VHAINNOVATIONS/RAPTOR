@@ -25,7 +25,8 @@ module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
 module_load_include('php', 'raptor_workflow', 'core/AllowedActions');
 
 require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol_ajax.inc');
-require_once ('FormHelper.php');
+require_once 'FormHelper.php';
+require_once 'ProtocolLibPageHelper.php';
 
 /**
  * Utilities for the ProtocolInfo form content.
@@ -2307,7 +2308,10 @@ class ProtocolInfoUtility
                 {
                     //Always show this in each section that can have default values!
                     $root[$section_name.'_fieldset_col3']['reset_'.$section_name] = array(
-                        '#markup' => "\n".'<div class="reset-values-button-container" name="reset-section-values"><a href="javascript:setDefaultValuesInSection('."'".$section_name."',getTemplateDataJSON()".')" title="The default values for ' . $section_name . ' will be restored">RESET</a></div>', 
+                        '#markup' => "\n"
+                        .'<div class="reset-values-button-container" name="reset-section-values"><a href="javascript:setDefaultValuesInSection('
+                        ."'".$section_name."',getTemplateDataJSON()"
+                        .')" title="The default values for ' . $section_name . ' will be restored">RESET</a></div>', 
                         '#disabled' => $disabled,
                     );
                 }
@@ -3593,37 +3597,39 @@ class ProtocolInfoUtility
             //Create the raptor_ticket_exam_notes record now
             try
             {
-                if(isset($myvalues['exam_notes_tx']) 
-                        && trim($myvalues['exam_notes_tx']) !== '')
+                if($use_sofar_tables)
                 {
-                    if($use_sofar_tables)
-                    {
-                        $oMerge = db_merge('raptor_ticket_exam_notes_sofar')
-                                ->key(array(
-                                    'siteid' => $nSiteID,
-                                    'IEN' => $nIEN,
-                                    'author_uid' => $nUID,
-                                ))
-                            ->fields(array(
-                                'notes_tx' => $myvalues['exam_notes_tx'],
-                                'created_dt' => $updated_dt,
-                            ))
-                            ->execute();
-                    } else {
-                        $oInsert = db_insert('raptor_ticket_exam_notes')
-                            ->fields(array(
+                    //Create the record EVEN if there are no notes!
+                    $oMerge = db_merge('raptor_ticket_exam_notes_sofar')
+                            ->key(array(
                                 'siteid' => $nSiteID,
                                 'IEN' => $nIEN,
-                                'notes_tx' => $myvalues['exam_notes_tx'],
                                 'author_uid' => $nUID,
-                                'created_dt' => $updated_dt,
                             ))
-                            ->execute();
-                        //Now delete any 'so far' note entries
-                        $nDeleted = db_delete('raptor_ticket_exam_notes_sofar')
-                            ->condition('siteid',$nSiteID,'=')
-                            ->condition('IEN',$nIEN,'=')
-                            ->execute();
+                        ->fields(array(
+                            'notes_tx' => $myvalues['exam_notes_tx'],
+                            'created_dt' => $updated_dt,
+                        ))
+                        ->execute();
+                } else {
+                    //Only create the record if there are some notes.
+                    if(isset($myvalues['exam_notes_tx']) 
+                            && trim($myvalues['exam_notes_tx']) !== '')
+                    {
+                            $oInsert = db_insert('raptor_ticket_exam_notes')
+                                ->fields(array(
+                                    'siteid' => $nSiteID,
+                                    'IEN' => $nIEN,
+                                    'notes_tx' => $myvalues['exam_notes_tx'],
+                                    'author_uid' => $nUID,
+                                    'created_dt' => $updated_dt,
+                                ))
+                                ->execute();
+                            //Now delete any 'so far' note entries
+                            $nDeleted = db_delete('raptor_ticket_exam_notes_sofar')
+                                ->condition('siteid',$nSiteID,'=')
+                                ->condition('IEN',$nIEN,'=')
+                                ->execute();
                     }
                 }
             }
