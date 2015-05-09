@@ -95,10 +95,7 @@
      * to keep the session active*/
     $(document).on('change keypress keyup keydown', 'input, select, textarea', function () {
         //alert("Something is happening");
-
         window.onbeforeunload = confirmOnPageExit;
-        $.get(Drupal.pageData.baseURL + '/raptor/userinteractionping?resetsecondssincelastaction', function () { /* Intentionally left blank */
-        });
     });
 
     'use strict';

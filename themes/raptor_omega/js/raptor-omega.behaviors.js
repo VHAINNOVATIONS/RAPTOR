@@ -292,8 +292,6 @@
 
 
     $(document).ready(function () {
-
-
         /*** Idle timeout ***/
 
         var countdownIntervalId = 0,
@@ -327,6 +325,7 @@
         var isLoginPage = function () {
             return location.href.indexOf('user/login') !== -1 || location.href.indexOf('raptor/kickout_timeout') !== -1;
         };
+       
 
         var isWorklistPage = function () {
             return location.href.split('/').indexOf('worklist') || location.href.split('/').indexOf('worklist?releasealltickets=TRUE') !== -1;
@@ -339,6 +338,9 @@
         var lastChange = {};
 
         if (!isLoginPage()) {
+            $.get(Drupal.pageData.baseURL + '/raptor/userinteractionping?resetsecondssincelastaction', function () { /* Intentionally left blank */
+                });
+            //alert("reset seconds");
             // Ensure user isn't timed out if they are actively editing information on the page
             lastChange.lastAjaxCall = new Date(); // Idle time gets reset when page is first loaded
             lastChange.alivePingIntervalSeconds = 60; // This determines how often key presses and form changes reset the user's idle time
@@ -367,13 +369,12 @@
 
                 now = new Date();
                 secondsSinceLastAjaxCall = (now - lastChange.lastAjaxCall) / 1000;
-
                 if (secondsSinceLastAjaxCall > lastChange.alivePingIntervalSeconds) {
                     resetSecondsSinceLastActionAjaxCall();
 
                     //alert("resetting keep alive seconds");
                 }
-            }
+            };
 
             // Keep user from being timed out if they change any form values
             // Keep user from being timed out if they type anything
