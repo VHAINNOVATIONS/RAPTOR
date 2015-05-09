@@ -1036,6 +1036,7 @@ class ProtocolInfoUtility
         $examcompletionTip = 'Save all current settings and mark the examination as completed.';
         $interpretationTip = 'Save interpretation notes.';
         $qaTip = 'Save QA notes.';
+        $saveSoFarTip = 'Save values of page so far and continue adding more values on this page';
         if($oContext->hasPersonalBatchStack())
         {
             $sRequestApproveTip = 'Save this order as ready for review and continue with next available personal batch selection.';
@@ -1086,6 +1087,10 @@ class ProtocolInfoUtility
             }
             if($oAA->allowExamComplete($sCWFS))
             {
+                $form['page_action_buttons_area']['savesofar_button'] = array('#type' => 'submit'
+                    , '#value' => t('Save Exam Values')
+                    , '#attributes' => array('title' => $saveSoFarTip)
+                    );
                 $form['page_action_buttons_area']['examcompleted_button'] = array('#type' => 'submit'
                     , '#value' => t('Exam Completed')
                     , '#attributes' => array('title' => $examcompletionTip)
@@ -3243,7 +3248,8 @@ class ProtocolInfoUtility
      * Saves values when in exam mode.
      * @return boolean
      */
-    public function saveAllExamFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues)
+    public function saveAllExamFieldValues($nSiteID, $nIEN, $nUID
+            , $sCWFS, $sNewWFS, $updated_dt, $myvalues)
     {
         $patientDFN = NULL;
         try
@@ -3253,6 +3259,14 @@ class ProtocolInfoUtility
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {
             throw new \Exception('Failed to get the dashboard to save exam fields',91111,$ex);
+        }
+        
+        $use_sofar_tables = FALSE;
+        if($sNewWFS == 'SAVE_SOFAR')
+        {
+            //We will use sofar table for notes.
+            $use_sofar_tables = TRUE;   //Because this is just saving work sofar
+            $sNewWFS = $sCWFS;          //Because we will NOT change the workflow
         }
             
         //Create the raptor_ticket_exam_settings record now
@@ -3379,7 +3393,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             $radiation_dose_tx = isset($myvalues['exam_dlp_radiation_dose_tx']) ? trim($myvalues['exam_dlp_radiation_dose_tx']) : '';
             $uom = isset($myvalues['exam_dlp_radiation_dose_uom_tx']) ? trim($myvalues['exam_dlp_radiation_dose_uom_tx']) : '';
@@ -3397,7 +3412,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             $radiation_dose_tx = isset($myvalues['exam_other_radiation_dose_tx']) ? trim($myvalues['exam_other_radiation_dose_tx']) : '';
             $uom = isset($myvalues['exam_other_radiation_dose_uom_tx']) ? trim($myvalues['exam_other_radiation_dose_uom_tx']) : '';
@@ -3415,7 +3431,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             
             $radiation_dose_tx = isset($myvalues['exam_radioisotope_radiation_dose_tx']) ? trim($myvalues['exam_radioisotope_radiation_dose_tx']) : '';
@@ -3434,7 +3451,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             
             $littlename = 'fluoroQ';
@@ -3460,7 +3478,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             $littlename = 'fluoroS';
             $littlecode = 'S';
@@ -3485,7 +3504,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             $littlename = 'fluoroT';
             $littlecode = 'T';
@@ -3510,7 +3530,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             $littlename = 'fluoroH';
             $littlecode = 'H';
@@ -3535,7 +3556,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             $littlename = 'fluoro5';
             $littlecode = 'U';
@@ -3560,7 +3582,8 @@ class ProtocolInfoUtility
                         , $dose_type_cd
                         , $dose_source_cd
                         , $data_provider
-                        , $updated_dt);                
+                        , $updated_dt
+                        , $use_sofar_tables);                
             }
             
         }
@@ -3570,9 +3593,24 @@ class ProtocolInfoUtility
             //Create the raptor_ticket_exam_notes record now
             try
             {
-                if(isset($myvalues['exam_notes_tx']) && trim($myvalues['exam_notes_tx']) !== '')
+                if(isset($myvalues['exam_notes_tx']) 
+                        && trim($myvalues['exam_notes_tx']) !== '')
                 {
-                    $oInsert = db_insert('raptor_ticket_exam_notes')
+                    if($use_sofar_tables)
+                    {
+                        $oMerge = db_merge('raptor_ticket_exam_notes_sofar')
+                                ->key(array(
+                                    'siteid' => $nSiteID,
+                                    'IEN' => $nIEN,
+                                    'author_uid' => $nUID,
+                                ))
+                            ->fields(array(
+                                'notes_tx' => $myvalues['exam_notes_tx'],
+                                'created_dt' => $updated_dt,
+                            ))
+                            ->execute();
+                    } else {
+                        $oInsert = db_insert('raptor_ticket_exam_notes')
                             ->fields(array(
                                 'siteid' => $nSiteID,
                                 'IEN' => $nIEN,
@@ -3581,6 +3619,12 @@ class ProtocolInfoUtility
                                 'created_dt' => $updated_dt,
                             ))
                             ->execute();
+                        //Now delete any 'so far' note entries
+                        $nDeleted = db_delete('raptor_ticket_exam_notes_sofar')
+                            ->condition('siteid',$nSiteID,'=')
+                            ->condition('IEN',$nIEN,'=')
+                            ->execute();
+                    }
                 }
             }
             catch(\Exception $e)
@@ -3598,11 +3642,73 @@ class ProtocolInfoUtility
         return $bSuccess;
     }
     
-    function writeRadiationDoseDetails($nSiteID, $nIEN, $nPatientID, $nUID
+    /**
+     * Replace records if there were already some there.
+     */
+    function writeRadiationDoseDetails($nSiteID, $nIEN
+            , $nPatientID, $nUID
             , $radiation_dose_tx
-            , $uom,$dose_dt, $dose_type_cd, $dose_source_cd, $data_provider
-            , $updated_dt)
+            , $uom,$dose_dt
+            , $dose_type_cd
+            , $dose_source_cd
+            , $data_provider
+            , $updated_dt
+            , $write_to_sofar=FALSE)
     {
+        
+        if(!$write_to_sofar)
+        {
+            //We are committing to the real table.
+            try
+            {
+                //See if we already have a records of values.
+                $result = db_select('raptor_ticket_exam_radiation_dose','p')
+                        ->fields('p')
+                        ->condition('siteid',$nSiteID,'=')
+                        ->condition('IEN',$nIEN,'=')
+                        ->condition('dose_type_cd',$dose_type_cd,'=')
+                        ->execute();
+                while($record = $result->fetchAssoc())
+                {
+                    //Replace the record but save the values.
+                    $oInsert = db_insert('raptor_ticket_exam_radiation_dose_replaced')
+                            ->fields(array(
+                                'siteid' =>$record['siteid'],
+                                'IEN' => $record['IEN'],
+                                'patientid' => $record['patientid'],
+
+                                'sequence_position' => $record['sequence_position'],
+                                'dose' => $record['dose'],
+                                'uom' => $record['uom'],
+
+                                'dose_dt' => $record['dose_dt'],
+                                'dose_type_cd' => $record['dose_type_cd'],
+                                'dose_source_cd' => $record['dose_source_cd'],
+                                'data_provider' => $record['data_provider'],
+
+                                'author_uid' => $record['author_uid'],
+
+                                'original_created_dt' => $record['created_dt'],
+                                'replaced_dt' => $updated_dt,
+                            ))
+                            ->execute();
+                }
+                $nDeleted = db_delete('raptor_ticket_exam_radiation_dose')
+                    ->condition('siteid',$nSiteID,'=')
+                    ->condition('IEN',$nIEN,'=')
+                    ->condition('dose_type_cd',$dose_type_cd,'=')
+                    ->execute();
+            } catch(\Exception $ex) {
+                error_log('Failed to create raptor_ticket_exam_radiation_dose_replaced: ' . print_r($ex,TRUE));
+                throw $ex;
+            }
+            $targettablename = 'raptor_ticket_exam_radiation_dose';
+        } else {
+            //We are only saving values so far.
+            $targettablename = 'raptor_ticket_exam_radiation_dose_sofar';
+        }
+        
+        //Do we have anything to write?
         if($radiation_dose_tx != '')
         {
             $dose_values = explode(',', $radiation_dose_tx);
@@ -3612,7 +3718,7 @@ class ProtocolInfoUtility
                 $sequence_num++;
                 try
                 {
-                    $oInsert = db_insert('raptor_ticket_exam_radiation_dose')
+                    $oInsert = db_insert($targettablename)
                             ->fields(array(
                                     'siteid' => $nSiteID,
                                     'IEN' => $nIEN,
@@ -3632,9 +3738,11 @@ class ProtocolInfoUtility
                             ))
                             ->execute();
                 } catch (\Exception $ex) {
-                        error_log('Failed to create raptor_ticket_exam_radiation_dose: ' . print_r($ex,TRUE));
-                        drupal_set_message('Failed to save exam dose information for this ticket because ' . $ex->getMessage(),'error');
+                        error_log('Failed to create '.$targettablename.': ' . print_r($ex,TRUE));
+                        drupal_set_message('Failed to save exam dose information for this ticket because ' 
+                                . $ex->getMessage(),'error');
                         $bSuccess = FALSE;
+                        throw $ex;
                 }
             }
         }

@@ -1243,7 +1243,6 @@ class DBTicketSchema
               'description' => 'When this record was created',
             ),
           ),
-          'primary key' => array('siteid', 'IEN', 'dose_source_cd', 'sequence_position'),
         );
         
         $schema['raptor_ticket_exam_radiation_dose_replaced'] = array(

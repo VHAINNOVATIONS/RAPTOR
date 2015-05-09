@@ -85,7 +85,7 @@ class AddRadiationDoseHxEntryPage
 
         //TODO
         return TRUE;
-        
+        /*
         $radiation_dose_tx = '1.88,2.99,3,88.1,99.2';
         $uom = 'MyUOM';
         $dose_dt = $updated_dt;
@@ -106,6 +106,7 @@ class AddRadiationDoseHxEntryPage
         }
         
         return TRUE;
+         */
     }
     
 
@@ -146,7 +147,7 @@ class AddRadiationDoseHxEntryPage
                             ->execute();
                 } catch (\Exception $ex) {
                         error_log('Failed to create raptor_ticket_exam_radiation_dose: ' . print_r($ex,TRUE));
-                        drupal_set_message('Failed to save exam dose information for this ticket because ' . $ex->getMessage(),'error');
+                        drupal_set_message('Failed to add exam dose information for this ticket because ' . $ex->getMessage(),'error');
                         $bSuccess = FALSE;
                 }
             }

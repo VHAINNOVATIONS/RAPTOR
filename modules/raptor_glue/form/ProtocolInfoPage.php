@@ -270,13 +270,12 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     
     /**
      * Load the myvalues array with all the exam values
-     * @param type $nSiteID
-     * @param type $nIEN
-     * @param type $myvalues
-     * @param type $newerthan_dt
      */
     private function loadExamFieldValues($nSiteID,$nIEN,&$myvalues,$newerthan_dt=NULL)
     {
+        $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
+        $initial_population = TRUE;
+        $load_sofar_tables = ($sCWFS == 'PA');  //No exam values are final yet
         try
         {
             $query = db_select('raptor_ticket_exam_settings', 'n');
@@ -293,8 +292,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 if($result->rowCount() > 1)
                 {
                     //Critical this should NEVER be allowed to happen!
-                    die('Too many exam records for ' . $nIEN . '!');
+                    throw new \Exception('Too many exam records for ' . $nIEN . '!');
                 }
+                $initial_population = FALSE;
                 
                 $myvalues['exam_data_from_database'] = TRUE;
                 
@@ -328,6 +328,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
             } else {
                 //No saved data, simply provide initial values.
+                $initial_population = TRUE;
                 $myvalues['exam_data_from_database'] = FALSE;
                 $myvalues['exam_data_created_dt'] = NULL;
                 $myvalues['exam_author_uid'] = NULL;
@@ -346,50 +347,77 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $msg = 'Unable to load exam information for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
         
+        try
+        {
+            $myvalues['notes_tx'] = $this->getExamNotesText($nSiteID, $nIEN, $initial_population);
+        } catch (\Exception $ex) {
+            $msg = 'Unable to load exam notes radiation dose information for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
+            error_log($msg);
+            drupal_set_message($msg,'error');
+            throw $ex;
+        }
+                
         //Get the CTDIvol radiation dose information.
         try
         {
             $dose_source_cd = 'C';
-            $myvalues['exam_ctdivol_radiation_dose_map'] = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd, $newerthan_dt);
+            $myvalues['exam_ctdivol_radiation_dose_map'] 
+                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd
+                            , $newerthan_dt
+                            , $load_sofar_tables);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam CTDIvol radiation dose information for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
         
         //Get the DLP  radiation dose information.
         try
         {
             $dose_source_cd = 'D';
-            $myvalues['exam_dlp_radiation_dose_map'] = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd, $newerthan_dt);
+            $myvalues['exam_dlp_radiation_dose_map'] 
+                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd
+                            , $newerthan_dt
+                            , $load_sofar_tables);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam CTDIvol radiation dose information for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
         
         //Get the other equipment radiation dose information.
         try
         {
             $dose_source_cd = 'E';
-            $myvalues['exam_other_radiation_dose_map'] = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd, $newerthan_dt);
+            $myvalues['exam_other_radiation_dose_map'] 
+                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd
+                            , $newerthan_dt
+                            , $load_sofar_tables);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam machine-produced radiation exposure data for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
         
         //Get the radioisotope radiation dose information.
         try
         {
             $dose_source_cd = 'R';
-            $myvalues['exam_radioisotope_radiation_dose_map'] = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd, $newerthan_dt);
+            $myvalues['exam_radioisotope_radiation_dose_map'] 
+                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd
+                            , $newerthan_dt
+                            , $load_sofar_tables);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam radioisotope radiation dose information for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
         
         try
@@ -397,66 +425,116 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $dose_source_cd = 'Q';
             $littlename='fluoroQ';
             $myvalues['exam_'.$littlename.'_radiation_dose_map'] 
-                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd, $newerthan_dt);
+                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd
+                            , $newerthan_dt
+                            , $load_sofar_tables);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam '.$littlename
                     .' radiation dose information for '
                     . 'ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
         try
         {
             $dose_source_cd = 'S';
             $littlename='fluoroS';
             $myvalues['exam_'.$littlename.'_radiation_dose_map'] 
-                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd, $newerthan_dt);
+                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd
+                            , $newerthan_dt
+                            , $load_sofar_tables);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam '.$littlename
                     .' radiation dose information for '
                     . 'ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
         try
         {
             $dose_source_cd = 'T';
             $littlename='fluoroT';
             $myvalues['exam_'.$littlename.'_radiation_dose_map'] 
-                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd, $newerthan_dt);
+                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd
+                            , $newerthan_dt
+                            , $load_sofar_tables);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam '.$littlename
                     .' radiation dose information for '
                     . 'ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
         try
         {
             $dose_source_cd = 'H';
             $littlename='fluoroH';
             $myvalues['exam_'.$littlename.'_radiation_dose_map'] 
-                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd, $newerthan_dt);
+                    = $this->getRadiationDoseMap($nSiteID, $nIEN, $dose_source_cd
+                            , $newerthan_dt
+                            , $load_sofar_tables);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam '.$littlename
                     .' radiation dose information for '
                     . 'ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             error_log($msg);
             drupal_set_message($msg,'error');
+            throw $ex;
         }
-        
-        
+    }
+
+    /**
+     * Just return the text that the user can edit.
+     */
+    function getExamNotesText($nSiteID,$nIEN,$initial_population=FALSE)
+    {
+        $notes_tx = '';
+        if($initial_population)
+        {
+            //TODO --- whatever was in the template
+            $notes_tx = 'TODO PUT INITIAL NOTES FROM TEMPLATE HERE';
+        } else {
+            //Return anything that has been saved sofar without commit
+            $query = db_select('raptor_ticket_exam_notes_sofar', 'n');
+            $query->fields('n')
+                ->condition('siteid', $nSiteID,'=')
+                ->condition('IEN', $nIEN,'=');
+            $result = $query->execute();
+            if($result->rowCount() > 0)
+            {
+                if($result->rowCount() > 1)
+                {
+                    //Critical this should NEVER be allowed to happen!
+                    throw new \Exception('Too many exam note "sofar" records for ' . $nSiteID . '-' . $nIEN . '!');
+                }
+                $record = $result->fetchAssoc();
+                $notes_tx = $record['notes_tx'];
+            }
+        }
+        return $notes_tx;
     }
     
     /**
      * Get the records for one ticket.
      */
-    function getRadiationDoseMap($nSiteID,$nIEN,$dose_source_cd=NULL,$newerthan_dt=NULL)
+    function getRadiationDoseMap($nSiteID,$nIEN
+            ,$dose_source_cd=NULL
+            ,$newerthan_dt=NULL
+            ,$use_sofar=FALSE)
     {
+        if($use_sofar)
+        {
+            $sourcetablename = 'raptor_ticket_exam_radiation_dose_sofar';
+        } else {
+            $sourcetablename = 'raptor_ticket_exam_radiation_dose';
+        }
         $dose_map = array();
         try
         {
-            $query = db_select('raptor_ticket_exam_radiation_dose', 'n');
+            $query = db_select($sourcetablename, 'n');
             $query->fields('n')
                 ->condition('siteid', $nSiteID,'=')
                 ->condition('IEN', $nIEN,'=');
@@ -481,7 +559,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 }
             }
         } catch (\Exception $ex) {
-            $msg = 'Trouble getting radiation dose map information for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
+            $msg = 'Trouble getting '.$sourcetablename.' map information for ticket ['
+                    .$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
             throw new \Exception($msg);
         }
         return $dose_map;
@@ -1035,6 +1114,19 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
 
         } else
+        if(substr($clickedvalue,0,9) == 'Save Exam')
+        {
+            //#################
+            // SAVE EXAM SO FAR
+            //#################
+
+            if(!$oAA->allowExamComplete($sCWFS, $feedback))
+            {
+                drupal_set_message($feedback,'error');
+                $bGood = FALSE;
+            }
+
+        } else
         if(substr($clickedvalue,0,4) == 'Exam')
         {
             //####################
@@ -1292,7 +1384,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             //Did not recognize the button STOP EVERYTHING!
             $diemsg = ('Did NOT recognize the ['.$clickedvalue.'] button pressed in looksValid function!!!>>>'.print_r($myvalues,TRUE));
             error_log($diemsg);
-            die($diemsg);
+            throw new \Exception($diemsg);
         }
         
         if(!$bGood)
@@ -1465,6 +1557,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     {
         $bSuccess = TRUE;   //Assume happy case.
         $successMsg = NULL;
+        $removeTicketLock = TRUE;
         
         $nSiteID = $this->m_oContext->getSiteID();
         $nIEN = $myvalues['tid'];
@@ -1601,6 +1694,28 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     
                     //Write success message
                     $successMsg = ('Exam completed ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                }
+            } else
+            if(substr($clickedvalue,0,9) == 'Save Exam')
+            {
+                //#####################
+                // SAVE EXAM DATA BLOCK
+                //#####################
+
+                $removeTicketLock = FALSE;
+                $sNewWFS = 'SAVE_SOFAR';    //Special keyword for function
+                $bSuccess = $this->m_oUtility->
+                        saveAllExamFieldValues($nSiteID, $nIEN, $nUID
+                                , $sCWFS
+                                , $sNewWFS
+                                , $updated_dt
+                                , $myvalues);
+                if($bSuccess)
+                {
+                    $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
+                    
+                    //Write success message
+                    $successMsg = ('Saved current exam values ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
                 }
             } else
             if(substr($clickedvalue,0,5) == 'Inter')
@@ -1913,8 +2028,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
         }
         
-        //Remove any lock if we had one.
-        $this->m_oTT->markTicketUnlocked($sTrackingID, $nUID);
+        if($removeTicketLock)
+        {
+            //Remove any lock if we had one.
+            $this->m_oTT->markTicketUnlocked($sTrackingID, $nUID);
+        }
         
         return $bSuccess;
     }
