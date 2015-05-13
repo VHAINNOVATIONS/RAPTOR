@@ -1710,7 +1710,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
                     
                     //Write success message
-                    $successMsg = ('Exam completed ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                    $successMsg = ('Examined patient for ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
                 }
             } else
             if(substr($clickedvalue,0,9) == 'Save Exam')
@@ -1809,7 +1809,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             $successMsg = ('Interpretation completed and updated VistA for ' 
                                     . $sFullTicketID . ' (' . $myvalues['procName'] .')');
                         } elseif(strpos($clickedvalue,'Exam') !== FALSE) {
-                            $successMsg = ('Exam completed and updated VistA for ' 
+                            $successMsg = ('Examined patient and updated VistA for ' 
                                     . $sFullTicketID . ' (' . $myvalues['procName'] .')');
                         } elseif(strpos($clickedvalue,'Acknowledge') !== FALSE) {
                             $successMsg = ('Acknowledged and updated VistA for ' 
