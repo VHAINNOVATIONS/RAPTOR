@@ -325,7 +325,7 @@
         var isLoginPage = function () {
             return location.href.indexOf('user/login') !== -1 || location.href.indexOf('raptor/kickout_timeout') !== -1;
         };
-       
+
 
         var isWorklistPage = function () {
             return location.href.split('/').indexOf('worklist') || location.href.split('/').indexOf('worklist?releasealltickets=TRUE') !== -1;
@@ -339,7 +339,14 @@
 
         if (!isLoginPage()) {
             $.get(Drupal.pageData.baseURL + '/raptor/userinteractionping?resetsecondssincelastaction', function () { /* Intentionally left blank */
+            });
+            //initial call to lock the ticket
+            if (isProtocolPage()) {
+
+                $.get(Drupal.pageData.baseURL + '/raptor/userinteractionping?refreshlocks', function () {/* Intentionally left blank */
                 });
+
+            }
             //alert("reset seconds");
             // Ensure user isn't timed out if they are actively editing information on the page
             lastChange.lastAjaxCall = new Date(); // Idle time gets reset when page is first loaded
@@ -407,7 +414,7 @@
                 //console.log("Locked TID array is now " + lockedTIDSRecords);
             }
             ;
-            
+
             var removeLockedTID = function (tid) {
                 if (lockedTIDSRecords.indexOf(tid) !== -1) {
                     //console.log("Removing TID "+tid);
@@ -417,7 +424,7 @@
                 }
             }
             ;
-            
+
             var checkLockedTID = function (tid) {
                 return lockedTIDSRecords.indexOf(tid);
             };
@@ -463,10 +470,10 @@
                     var removeLocks = worklistTable
                             .cells(function (idx, data, node) {
                                 var lockedProtocol = response.tickets.edit_locks[i];
-                                if(checkLockedTID(lockedProtocol.IEN)===-1 && data!==lockedProtocol.IEN && lockedProtocol.locked_by_uid !== Drupal.pageData.userID){
+                                if (checkLockedTID(lockedProtocol.IEN) === -1 && data !== lockedProtocol.IEN && lockedProtocol.locked_by_uid !== Drupal.pageData.userID) {
                                     removeLockedTID(lockedProtocol.IEN);
                                     return true;
-                                }else{
+                                } else {
                                     return false;
                                 }
                             })
@@ -482,7 +489,7 @@
                 //userinteractionpingParam = isProtocolPage() ? '?refreshlocks' : '';
                 // Need to use grab the base URL from PHP to keep the URL path from breaking userinteractionpingParam
                 $.getJSON(Drupal.pageData.baseURL + '/raptor/userinteractionping', function (response) {
-                    // console.log('Outer raptor/userinteractionping %s', 0, response);
+                    //console.log('Outer raptor/userinteractionping %s', 0, response.thisuser.alive_ping_interval_seconds);
 
                     if (!timeoutWarningIsDisplayed) {
                         // User may have logged out and is no longer authenticated
@@ -546,10 +553,9 @@
 
         /*** Page events ***/
         /*a more controlled way of handling interval function*/
-        $(document).ready(function(){
-            runSessionAndLockChecks;
-        });
-        
+        runSessionAndLockChecks;
+
+
         // Clickable logo
         $('.logo').on('click', function (e) {
             window.location.href = Drupal.pageData.baseURL + '/worklist';
