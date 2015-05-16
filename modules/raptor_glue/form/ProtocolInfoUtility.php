@@ -488,7 +488,7 @@ class ProtocolInfoUtility
         $form['protocolinput'][] = $radioisotopearea;
         
         //Allergy
-        $allergyarea = $this->getYesNoRadioTypeSection('allergy', 'Allergy'
+        $allergyarea = $this->getYesNoRadioTypeSection('allergy', 'Allergy (patient has)'
                     , $disableChildInput
                     , $myvalues
                     , NULL
@@ -497,7 +497,7 @@ class ProtocolInfoUtility
         $form['protocolinput'][] = $allergyarea;
         
         //Claustrophobic
-        $claustrophobicarea = $this->getYesNoRadioTypeSection('claustrophobic', 'Claustrophobic'
+        $claustrophobicarea = $this->getYesNoRadioTypeSection('claustrophobic', 'Claustrophobic (patient is)'
                     , $disableChildInput
                     , $myvalues
                     , NULL
