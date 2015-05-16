@@ -1,7 +1,7 @@
 <?php
 
 defined("ERRORCODE_DEFS_VERSION_INFO")
-    or define("ERRORCODE_DEFS_VERSION_INFO", '20150314.2');
+    or define("ERRORCODE_DEFS_VERSION_INFO", '20150516.1');
 
 /*
  * These are error code settings
@@ -19,6 +19,11 @@ defined('ERRORCODE_VISTATIMEOUT')
 defined('ERRORCODE_AUTHENTICATION')
     or define('ERRORCODE_AUTHENTICATION', 99502);
 
+defined('ERRORCODE_UNABLE_LOAD_PROTOCOLDATA')
+    or define('ERRORCODE_UNABLE_LOAD_PROTOCOLDATA', 99111);
+
+defined('ERRORCODE_UNABLE_LOAD_EXAMDATA')
+    or define('ERRORCODE_UNABLE_LOAD_EXAMDATA', 99112);
 
 function error_data_log($msg)
 {

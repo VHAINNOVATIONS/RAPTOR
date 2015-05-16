@@ -65,6 +65,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     static function setAllValuesNull(&$myvalues)
     {
+        $myvalues['protocol1_nm'] = NULL;
+        $myvalues['protocol2_nm'] = NULL;
+        
         $myvalues['hydration_oral_id'] = NULL;
         $myvalues['hydration_iv_id'] = NULL;
         $myvalues['hydration_oral_customtx'] = NULL;
@@ -84,7 +87,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $myvalues['radioisotope_iv_id'] = NULL;
         $myvalues['radioisotope_enteric_customtx'] = NULL;
         $myvalues['radioisotope_iv_customtx'] = NULL;
-        //MORE TODO
     }
 
     /**
@@ -264,7 +266,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
         } catch (\Exception $ex) {
             $msg = 'Unable to load protocol information for ticket ['.$nSiteID.'-'.$nIEN.']';
-            throw new \Exception($msg,9111,$ex);
+            throw new \Exception($msg,ERRORCODE_UNABLE_LOAD_PROTOCOLDATA,$ex);
         }
     }
     
@@ -275,7 +277,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     {
         $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
         $load_sofar_tables = ($sCWFS == 'PA');  //No exam values are final yet
-        $relevant_protocol_shortname = $myvalues['protocol1_nm'];
+        $relevant_protocol_shortname = isset($myvalues['protocol1_nm']) ? $myvalues['protocol1_nm'] : NULL;
+        if($relevant_protocol_shortname == NULL)
+        {
+            //This should never be allowed to happen.
+            throw new \Exception("Expected to find a protocol selection "
+                    . "for {$nSiteID}-{$nIEN} before pulling exam values!!!"
+                    , ERRORCODE_UNABLE_LOAD_EXAMDATA);
+        }
         try
         {
             $query = db_select('raptor_ticket_exam_settings', 'n');
@@ -2318,11 +2327,13 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         
         //Get all the protocol settings
+        $relevant_protocol_shortname = NULL;
         $this->loadProtocolFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
         if($getvalues['protocol_data_from_database'])
         {
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved Date',$getvalues,'protocol_data_created_dt');
             $author_uid = $getvalues['protocol_approval_author_uid'];
+            $relevant_protocol_shortname = $getvalues['protocol1_nm'];
             $userinfo = $oAllUsers->getByUID($author_uid);
             $fullname = $userinfo->getFullName();
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
@@ -2411,6 +2422,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         {
             $noteTextArray[] = '';
         }
+        $getvalues['protocol1_nm'] = $relevant_protocol_shortname;  //Because need for exam collection
         $this->loadExamFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
         if($getvalues['exam_data_from_database'])
         {

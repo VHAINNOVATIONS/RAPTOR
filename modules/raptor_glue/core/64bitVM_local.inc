@@ -10,9 +10,9 @@ defined("RAPTOR_ROOT_URL")
     or define("RAPTOR_ROOT_URL", "http://localhost/RSite500/RAPTOR/");
 
 defined("EMRSERVICE_URL")
-    or define("EMRSERVICE_URL", "http://localhost/mdws2.5/emrsvc.asmx");
+    or define("EMRSERVICE_URL", "http://127.0.0.1/mdws2.5/emrsvc.asmx");
 defined("QUERYSERVICE_URL")
-    or define("QUERYSERVICE_URL", "http://localhost/mdws2.5/querysvc.asmx");
+    or define("QUERYSERVICE_URL", "http://127.0.0.1/mdws2.5/querysvc.asmx");
 
 defined("EMRSERVICE_LOCAL_FILE")
     or define("EMRSERVICE_LOCAL_FILE", "C:\\inetpub\\wwwroot\\RSite500\\RAPTOR\\sites\\all\\modules\\raptor_datalayer\\core\\emrsvc.wsdl");
