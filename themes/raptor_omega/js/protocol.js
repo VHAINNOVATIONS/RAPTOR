@@ -69,7 +69,7 @@
     //The function below will warn the users about unsaved changes if they 
     //try to navigate away from the screen
     var confirmOnPageExit = function (e) {
-        e = e || window.event;
+        e = e || $(window).event;
         var message = "You are about to navigate away from this page without saving your changes.";
         if (e) {
             e.returnValue = message;
@@ -80,24 +80,32 @@
     setInterval(function () {
         if (!$('#timeout-warning').is(':hidden')) {
             window.onbeforeunload = null;
-            $(window).scrollTo('#timeout-warning', 800);
+            window.scrollTo('#timeout-warning', 800);
         }
     }, 5000);
 
 
     //disable confirmation message for submit buttons
     $(document).on('click', '.form-submit', function () {
+        console.log("You've hit submit button!");
         window.onbeforeunload = null;
+        console.log(navigator.userAgent + "\nValue of onbeforeunload " + window.onbeforeunload);
     });
 
 
     /*If the user presses a key, types something in or makes an ajax call, we have to reset action seconds
      * to keep the session active*/
-    $(document).on('change keypress keyup keydown', 'input, select, textarea', function () {
-        //alert("Something is happening");
+    $(document).on('keypress keyup keydown change', 'input, select, textarea', function () {
+        //console.log("Something is happening");
         window.onbeforeunload = confirmOnPageExit;
     });
-
+    
+    //dectects changes in drop down menus
+    $(document).on('click','.form-select', function(){
+        //console.log("Something is happening");
+        window.onbeforeunload = confirmOnPageExit;
+    });
+    
     'use strict';
     // this function is strict...
 
