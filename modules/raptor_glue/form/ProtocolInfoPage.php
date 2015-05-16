@@ -60,11 +60,12 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     }
 
     /**
-     * Set all key values of the myvalues array as null
+     * Set all key values of the myvalues array as NULL/empty
      * @param array $myvalues for ALL values
      */
     static function setAllValuesNull(&$myvalues)
     {
+        //Protocol relevant values
         $myvalues['protocol1_nm'] = NULL;
         $myvalues['protocol2_nm'] = NULL;
         
@@ -87,6 +88,23 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $myvalues['radioisotope_iv_id'] = NULL;
         $myvalues['radioisotope_enteric_customtx'] = NULL;
         $myvalues['radioisotope_iv_customtx'] = NULL;
+        
+        //Exam relevant values
+        $myvalues['exam_data_from_database'] = FALSE;
+        $myvalues['exam_data_created_dt'] = NULL;
+        $myvalues['exam_author_uid'] = NULL;
+
+        $myvalues['exam_hydration_oral_tx'] = NULL;
+        $myvalues['exam_hydration_iv_tx'] = NULL;
+        $myvalues['exam_sedation_oral_tx'] = NULL;
+        $myvalues['exam_sedation_iv_tx'] = NULL;
+        $myvalues['exam_contrast_enteric_tx'] = NULL;
+        $myvalues['exam_contrast_iv_tx'] = NULL;
+        $myvalues['exam_radioisotope_enteric_tx'] = NULL;
+        $myvalues['exam_radioisotope_iv_tx'] = NULL;
+        $myvalues['exam_consent_received_kw'] = NULL;
+
+        $myvalues['exam_notes_tx'] = NULL;        
     }
 
     /**
@@ -272,19 +290,15 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     
     /**
      * Load the myvalues array with all the exam values
+     * NOTE: The protocl1_nm might be empty.  This can happen if some exam data
+     * was already collected and ticket was sent back to protocol
+     * We do NOT want to lose the exam data entered so far, so keep it.
      */
     private function loadExamFieldValues($nSiteID,$nIEN,&$myvalues,$newerthan_dt=NULL)
     {
         $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
         $load_sofar_tables = ($sCWFS == 'PA');  //No exam values are final yet
         $relevant_protocol_shortname = isset($myvalues['protocol1_nm']) ? $myvalues['protocol1_nm'] : NULL;
-        if($relevant_protocol_shortname == NULL)
-        {
-            //This should never be allowed to happen.
-            throw new \Exception("Expected to find a protocol selection "
-                    . "for {$nSiteID}-{$nIEN} before pulling exam values!!!"
-                    , ERRORCODE_UNABLE_LOAD_EXAMDATA);
-        }
         try
         {
             $query = db_select('raptor_ticket_exam_settings', 'n');
@@ -358,7 +372,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             drupal_set_message($msg,'error');
             throw $ex;
         }
-        
+
         try
         {
             $myvalues['exam_notes_tx'] = $this->getExamNotesText($nSiteID, $nIEN
