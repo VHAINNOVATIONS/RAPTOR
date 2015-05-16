@@ -60,11 +60,15 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     }
 
     /**
-     * Set all key values of the myvalues array as null
+     * Set all key values of the myvalues array as NULL/empty
      * @param array $myvalues for ALL values
      */
     static function setAllValuesNull(&$myvalues)
     {
+        //Protocol relevant values
+        $myvalues['protocol1_nm'] = NULL;
+        $myvalues['protocol2_nm'] = NULL;
+        
         $myvalues['hydration_oral_id'] = NULL;
         $myvalues['hydration_iv_id'] = NULL;
         $myvalues['hydration_oral_customtx'] = NULL;
@@ -84,7 +88,23 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $myvalues['radioisotope_iv_id'] = NULL;
         $myvalues['radioisotope_enteric_customtx'] = NULL;
         $myvalues['radioisotope_iv_customtx'] = NULL;
-        //MORE TODO
+        
+        //Exam relevant values
+        $myvalues['exam_data_from_database'] = FALSE;
+        $myvalues['exam_data_created_dt'] = NULL;
+        $myvalues['exam_author_uid'] = NULL;
+
+        $myvalues['exam_hydration_oral_tx'] = NULL;
+        $myvalues['exam_hydration_iv_tx'] = NULL;
+        $myvalues['exam_sedation_oral_tx'] = NULL;
+        $myvalues['exam_sedation_iv_tx'] = NULL;
+        $myvalues['exam_contrast_enteric_tx'] = NULL;
+        $myvalues['exam_contrast_iv_tx'] = NULL;
+        $myvalues['exam_radioisotope_enteric_tx'] = NULL;
+        $myvalues['exam_radioisotope_iv_tx'] = NULL;
+        $myvalues['exam_consent_received_kw'] = NULL;
+
+        $myvalues['exam_notes_tx'] = NULL;        
     }
 
     /**
@@ -264,18 +284,21 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
         } catch (\Exception $ex) {
             $msg = 'Unable to load protocol information for ticket ['.$nSiteID.'-'.$nIEN.']';
-            throw new \Exception($msg,9111,$ex);
+            throw new \Exception($msg,ERRORCODE_UNABLE_LOAD_PROTOCOLDATA,$ex);
         }
     }
     
     /**
      * Load the myvalues array with all the exam values
+     * NOTE: The protocl1_nm might be empty.  This can happen if some exam data
+     * was already collected and ticket was sent back to protocol
+     * We do NOT want to lose the exam data entered so far, so keep it.
      */
     private function loadExamFieldValues($nSiteID,$nIEN,&$myvalues,$newerthan_dt=NULL)
     {
         $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
         $load_sofar_tables = ($sCWFS == 'PA');  //No exam values are final yet
-        $relevant_protocol_shortname = $myvalues['protocol1_nm'];
+        $relevant_protocol_shortname = isset($myvalues['protocol1_nm']) ? $myvalues['protocol1_nm'] : NULL;
         try
         {
             $query = db_select('raptor_ticket_exam_settings', 'n');
@@ -349,7 +372,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             drupal_set_message($msg,'error');
             throw $ex;
         }
-        
+
         try
         {
             $myvalues['exam_notes_tx'] = $this->getExamNotesText($nSiteID, $nIEN
@@ -2318,11 +2341,13 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         
         //Get all the protocol settings
+        $relevant_protocol_shortname = NULL;
         $this->loadProtocolFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
         if($getvalues['protocol_data_from_database'])
         {
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved Date',$getvalues,'protocol_data_created_dt');
             $author_uid = $getvalues['protocol_approval_author_uid'];
+            $relevant_protocol_shortname = $getvalues['protocol1_nm'];
             $userinfo = $oAllUsers->getByUID($author_uid);
             $fullname = $userinfo->getFullName();
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
@@ -2411,6 +2436,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         {
             $noteTextArray[] = '';
         }
+        $getvalues['protocol1_nm'] = $relevant_protocol_shortname;  //Because need for exam collection
         $this->loadExamFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
         if($getvalues['exam_data_from_database'])
         {
