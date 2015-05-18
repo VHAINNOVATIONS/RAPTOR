@@ -128,7 +128,7 @@ class AddRulePage
                       . ' rule because ' . $ex->getMessage());
             error_log("$msg\n" 
                       . print_r($myvalues, TRUE) . '>>>'. print_r($ex, TRUE));
-            throw new Exception($msg, 99910, $ex);
+            throw new \Exception($msg, 99910, $ex);
         }
       
         //If we are here then we had success.
