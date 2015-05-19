@@ -87,9 +87,8 @@
 
     //disable confirmation message for submit buttons
     $(document).on('click', '.form-submit', function () {
-        console.log("You've hit submit button!");
+        //console.log("You've hit submit button!");
         window.onbeforeunload = null;
-        console.log(navigator.userAgent + "\nValue of onbeforeunload " + window.onbeforeunload);
     });
 
 
@@ -100,7 +99,7 @@
         window.onbeforeunload = confirmOnPageExit;
     });
     
-    //dectects changes in drop down menus
+    //dectects changes in drop down selectors which make ajax calls on protocol page
     $(document).on('click','.form-select', function(){
         //console.log("Something is happening");
         window.onbeforeunload = confirmOnPageExit;
@@ -479,6 +478,7 @@
                         $protocolForm.prop('selected_vid').value = selectedVid;
                         $protocolForm.prop('commit_esig').value = eSig;
                         // debugger
+                        window.onbeforeunload = null;
                         $protocolForm.trigger('submit');
                     }
                 })
