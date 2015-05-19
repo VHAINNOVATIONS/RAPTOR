@@ -118,7 +118,7 @@ class EditRulePage
                       . ' rule because ' . $ex->getMessage());
             error_log("$msg\n" 
                       . print_r($myvalues, TRUE) . '>>>'. print_r($ex, TRUE));
-            throw new Exception($msg, 99910, $ex);
+            throw new \Exception($msg, 99910, $ex);
         }
         if ($num_updated !== 1) 
         {
@@ -127,7 +127,7 @@ class EditRulePage
                     . '; instead edited ' . $num_updated);
             error_log("$msg\n" 
                       . print_r($myvalues, TRUE));
-            throw new Exception($msg);
+            throw new \Exception($msg);
         }
         
         //Returns 1 if everything was okay.

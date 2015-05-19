@@ -22,7 +22,7 @@ class MdwsUtils {
         $soapResult = $mdwsDao->makeQuery('getVariableValue', array('arg'=>$arg));
         
         if (isset($soapResult->getVariableValueResult->fault)) {
-            throw new Exception('Error calling GVV: '.$soapResult->getVariableValueResult->fault->message);
+            throw new \Exception('Error calling GVV: '.$soapResult->getVariableValueResult->fault->message);
         }
         
         return $soapResult->getVariableValueResult->text;
