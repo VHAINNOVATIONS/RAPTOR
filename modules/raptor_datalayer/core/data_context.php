@@ -1170,11 +1170,10 @@ class Context
                             ))
                             ->execute();
                     } catch (\Exception $ex) {
-                        error_log('Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
+                        error_context_log('Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
                     }
                 }
                 error_context_log($sMsg);
-                //die($sMsg);
             }
         }
         return $this->m_mdwsClient;

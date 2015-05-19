@@ -131,10 +131,11 @@ class MdwsDao implements IMdwsDao {
                     error_log('TODO:makeQuery  --- deal with a fault?>>>' . $TOResult->fault->message);
                     if (strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_1) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_2) !== FALSE ||
-                            strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_3) !== FALSE) {
+                            strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_3) !== FALSE ||
+                            strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_4) !== FALSE) {
                         // TODO:makeQuery  - determine where the creds will be stored - these vars are undefined
                         $this->initClient();
-                        error_log('TODO:makeQuery  --- get the credentials now???>>>' . $TOResult->fault->message);
+                        error_log('makeQuery  --- getting the credentials for fault resolution now>>>' . $TOResult->fault->message);
                         $this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                         return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
                     } // TODO:makeQuery  - may need to add more else if statements here to catch other recoverable timeout conditions

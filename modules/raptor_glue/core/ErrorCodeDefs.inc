@@ -1,7 +1,7 @@
 <?php
 
 defined("ERRORCODE_DEFS_VERSION_INFO")
-    or define("ERRORCODE_DEFS_VERSION_INFO", '20150516.1');
+    or define("ERRORCODE_DEFS_VERSION_INFO", '20150519.1');
 
 /*
  * These are error code settings
@@ -24,6 +24,16 @@ defined('ERRORCODE_UNABLE_LOAD_PROTOCOLDATA')
 
 defined('ERRORCODE_UNABLE_LOAD_EXAMDATA')
     or define('ERRORCODE_UNABLE_LOAD_EXAMDATA', 99112);
+
+defined('ERRORCODE_UNABLE_ADD_DATA')
+    or define('ERRORCODE_UNABLE_ADD_DATA', 99121);
+
+defined('ERRORCODE_UNABLE_UPDATE_DATA')
+    or define('ERRORCODE_UNABLE_UPDATE_DATA', 99122);
+
+defined('ERRORCODE_UNABLE_DELETE_DATA')
+    or define('ERRORCODE_UNABLE_DELETE_DATA', 99123);
+
 
 function error_data_log($msg)
 {

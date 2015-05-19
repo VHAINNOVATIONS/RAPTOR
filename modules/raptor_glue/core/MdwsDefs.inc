@@ -1,7 +1,7 @@
 <?php
 
 defined("MDWS_DEFS_VERSION_INFO")
-    or define("MDWS_DEFS_VERSION_INFO", '20150314.1');
+    or define("MDWS_DEFS_VERSION_INFO", '20150519.1');
 
 /*
  * These are MDWS specific settings
@@ -37,4 +37,8 @@ defined("MDWS_CXN_TIMEOUT_ERROR_MSG_2")
 
 defined("MDWS_CXN_TIMEOUT_ERROR_MSG_3")
     or define("MDWS_CXN_TIMEOUT_ERROR_MSG_3", "There is no logged in connection");
+
+defined("MDWS_CXN_TIMEOUT_ERROR_MSG_4")
+    or define("MDWS_CXN_TIMEOUT_ERROR_MSG_4", 'Timeout waiting for response from VistA');
+
 

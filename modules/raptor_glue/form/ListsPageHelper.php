@@ -122,7 +122,7 @@ class ListsPageHelper
             }
             return count($aParsedRows);
         } catch (\Exception $ex) {
-            throw new \Exception('Failed update of '.$tablename.'!',9999,$ex);
+            throw new \Exception('Failed update of '.$tablename.'!',ERRORCODE_UNABLE_UPDATE_DATA,$ex);
         }
         if(count($rowerrors)>0)
         {
