@@ -39,7 +39,13 @@ class LanguageInference
         $ma = NULL;
         if(strlen($haystack) > 2)
         {
-            $first3 = substr($haystack,0,3);
+            if(substr($haystack,0,1) == '*')
+            {
+                //Ignore the first character completely.
+                $first3 = substr($haystack,1,3);
+            } else {
+                $first3 = substr($haystack,0,3);
+            }
             $real_modality_pos = strpos($this->m_supported_modalities, $first3);  
             //Were they nice enough to prefix with the modality?
             if($real_modality_pos !== FALSE)
