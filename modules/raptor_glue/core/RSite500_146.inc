@@ -1,10 +1,17 @@
 <?php
 
 defined("RAPTOR_CONFIG_ID")
-    or define("RAPTOR_CONFIG_ID", "20150504.1 for VA 146 AppServer1");
+    or define("RAPTOR_CONFIG_ID", "20150522.1 500 for VA 146 AppServer1");
+	
+/*
+ * These are RAPTOR INSTANCE specific settings
+ */
+
+defined("VISTA_SITE")
+    or define("VISTA_SITE", '500');	
 
 defined("RAPTOR_ROOT_URL")
-    or define("RAPTOR_ROOT_URL", "http://10.184.38.146/RAPTOR/");
+    or define("RAPTOR_ROOT_URL", "http://10.184.38.146/RSite500/RAPTOR");
 
 defined("EMRSERVICE_URL")
     or define("EMRSERVICE_URL", "http://localhost/mdws2.5/emrsvc.asmx");
@@ -12,9 +19,9 @@ defined("QUERYSERVICE_URL")
     or define("QUERYSERVICE_URL", "http://localhost/mdws2.5/querysvc.asmx");
 
 defined("EMRSERVICE_LOCAL_FILE")
-    or define("EMRSERVICE_LOCAL_FILE", "C:\\inetpub\\wwwroot\\RAPTOR\\sites\\all\\modules\\raptor_datalayer\\core\\emrsvc.wsdl");
+    or define("EMRSERVICE_LOCAL_FILE", "C:\\inetpub\\wwwroot\\RSite500\\sites\\all\\modules\\raptor_datalayer\\core\\emrsvc.wsdl");
 defined("QUERYSERVICE_LOCAL_FILE")
-    or define("QUERYSERVICE_LOCAL_FILE", "C:\\inetpub\\wwwroot\\RAPTOR\\sites\\all\\modules\\raptor_datalayer\\core\\querysvc.wsdl");
+    or define("QUERYSERVICE_LOCAL_FILE", "C:\\inetpub\\wwwroot\\RSite500\\sites\\all\\modules\\raptor_datalayer\\core\\querysvc.wsdl");
 
 //Point to HYDRA server
 defined("VIX_HTML_VIEWER_URL")

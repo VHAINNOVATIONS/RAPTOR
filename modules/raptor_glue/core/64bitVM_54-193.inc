@@ -1,10 +1,14 @@
 <?php
 
-//54-193 64 bit VM
-//Updated 20150125 after MDWS updated
-
 defined("RAPTOR_CONFIG_ID")
-    or define("RAPTOR_CONFIG_ID", "Config for DEV 54-193");
+    or define("RAPTOR_CONFIG_ID", "20150522.1 Config for DEV 54-193");
+	
+/*
+ * These are RAPTOR INSTANCE specific settings
+ */
+
+defined("VISTA_SITE")
+    or define("VISTA_SITE", '500');	
 
 defined("RAPTOR_ROOT_URL")
     or define("RAPTOR_ROOT_URL", "http://54.243.129.193/RSite500/RAPTOR/");

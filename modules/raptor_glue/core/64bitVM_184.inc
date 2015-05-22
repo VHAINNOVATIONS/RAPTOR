@@ -1,9 +1,14 @@
 <?php
 
-//184 VM (updated 20150131)
-
 defined("RAPTOR_CONFIG_ID")
-    or define("RAPTOR_CONFIG_ID", "Config for TEST 184.73.210.16");
+    or define("RAPTOR_CONFIG_ID", "20150522.1 Config for TEST 184.73.210.16");
+
+/*
+ * These are RAPTOR INSTANCE specific settings
+ */
+
+defined("VISTA_SITE")
+    or define("VISTA_SITE", '500');	
 
 defined("RAPTOR_ROOT_URL")
     or define("RAPTOR_ROOT_URL", "http://184.73.210.16:/RSite500/RAPTOR/");

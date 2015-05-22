@@ -1,9 +1,16 @@
 <?php
     
-//LOCAL 32bit VM
+//DEPRECATED CONFIGURATION UPGRADE IF YOU ARE USING THIS ONE!!!!
 
 defined("RAPTOR_CONFIG_ID")
-    or define("RAPTOR_CONFIG_ID", "Config for TEST 32bit localhost");
+    or define("RAPTOR_CONFIG_ID", "20150522.1 Config for TEST 32bit localhost");
+
+/*
+ * These are RAPTOR INSTANCE specific settings
+ */
+
+defined("VISTA_SITE")
+    or define("VISTA_SITE", '500');	
 
 defined("RAPTOR_ROOT_URL")
     or define("RAPTOR_ROOT_URL", "http://localhost/drupal/");

@@ -1,10 +1,14 @@
 <?php
     
-//LOCAL 64bit VM
-//Updated 20150125 after MDWS updated
-
 defined("RAPTOR_CONFIG_ID")
-    or define("RAPTOR_CONFIG_ID", "Config for DEV 64bit localhost");
+    or define("RAPTOR_CONFIG_ID", "20150522.1 Config for DEV 64bit localhost");
+
+/*
+ * These are RAPTOR INSTANCE specific settings
+ */
+
+defined("VISTA_SITE")
+    or define("VISTA_SITE", '500');	
 
 defined("RAPTOR_ROOT_URL")
     or define("RAPTOR_ROOT_URL", "http://localhost/RSite500/RAPTOR/");
