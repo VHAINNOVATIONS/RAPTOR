@@ -110,10 +110,16 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     /**
      * Load the myvalues array with all the protocol values
      */
-    private function loadProtocolFieldValues($nSiteID,$nIEN,&$myvalues,$newerthan_dt=NULL)
+    private function loadProtocolFieldValues($nSiteID,$nIEN,&$myvalues
+            , $newerthan_dt=NULL
+            , $protocol_lib_map=NULL)
     {
         try
         {
+            if($protocol_lib_map == NULL)
+            {
+                $protocol_lib_map = $this->getProtocolLibMap();
+            }
             $query = db_select('raptor_ticket_protocol_settings', 'n');
             $query->fields('n')
                 ->condition('siteid', $nSiteID,'=')
@@ -128,7 +134,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 if($result->rowCount() > 1)
                 {
                     //Critical this should NEVER be allowed to happen!
-                    die('Too many protocol records for ' . $nIEN . '!');
+                    throw new \Exception('Too many protocol records for ' . $nIEN . '!');
                 }
                 
                 $myvalues['protocol_data_from_database'] = TRUE;
@@ -138,8 +144,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $myvalues['protocol_data_created_dt'] = $record['created_dt'];
                 $myvalues['protocol_approval_author_uid'] = $record['author_uid'];
                 
-                $myvalues['protocol1_nm'] = $record['primary_protocol_shortname'];
-                $myvalues['protocol2_nm'] = $record['secondary_protocol_shortname'];
+                $shortname1 = $record['primary_protocol_shortname'];
+                $metadata1 = $protocol_lib_map[$shortname1];
+                $myvalues['protocol1_nm'] = $shortname1;
+                $myvalues['protocol1_fullname'] = $metadata1['name'];
+                $shortname2 = $record['secondary_protocol_shortname'];
+                $metadata2 = $protocol_lib_map[$shortname2];
+                $myvalues['protocol2_nm'] = $shortname2;
+                $myvalues['protocol2_fullname'] = $metadata2['name'];
                 if($record['hydration_none_yn'] == 1)
                 {
                     $myvalues['hydration_radio_cd'] = '';
@@ -2352,8 +2364,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $fullname = $userinfo->getFullName();
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
 
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Primary Selection',$getvalues,'protocol1_nm');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Secondary Selection',$getvalues,'protocol2_nm');
+            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Primary Selection ID',$getvalues,'protocol1_nm');
+            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Primary Selection NAME',$getvalues,'protocol1_fullname');
+            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Secondary Selection ID',$getvalues,'protocol2_nm');
+            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Secondary Selection NAME',$getvalues,'protocol2_fullname');
             
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Oral Hydration',$getvalues,'hydration_oral_customtx');
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Hydration',$getvalues,'hydration_iv_customtx');
@@ -2656,13 +2670,25 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         return NULL;
     }
     
-    /**
-     * @return array of all option values for the form
-     */
     function getAllOptions()
     {
-        //TODO
+        //LEAVE EMPTY
     }
+
+    private function getProtocolLibMap()
+    {
+        $aMap = array();
+        $query = db_select('raptor_protocol_lib','p')
+                ->fields('p');
+        $result = $query->execute();
+        while($record = $result->fetchAssoc())
+        {
+            $key = $record['protocol_shortname'];
+            $aMap[$key] = $record;
+        }
+        return $aMap;
+    }
+    
     
     /**
      * Return all properties of a protocol from the library.
