@@ -14,6 +14,12 @@
 namespace raptor;
 
 require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
+module_load_include('php', 'raptor_datalayer', 'core/data_context');
+module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
+module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
 
 
 /**
@@ -146,13 +152,38 @@ class GetRadiationDoseHxTab
      */
     private function getRadDoseDetails($patientid)
     {
+
+        $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+        $totalnotes = 0;
+        $lowts = NULL;
+        $hights = NULL;
+        $notesdetail = $oPSD->getNotesDetail();
+        foreach($notesdetail as $data_row) 
+        {
+            if($data_row['Type'] == 'RAPTOR NOTE')
+            {
+                //Parse thie one
+                $totalnotes++;
+                $sThisTS = $data_row['Date'];
+                $thists = strtotime($sThisTS);
+                if($lowts == NULL || $lowts > $thists)
+                {
+                    $lowts = $thists;
+                    $sLowTS = $sThisTS;
+                }
+                if($hights == NULL || $hights < $thists)
+                {
+                    $hights = $thists;
+                    $sHighTS = $sThisTS;
+                }
+            }
+        }
+        
         $infopackage = array();
         $modalitysummary = array();
         $cutdate = mktime(0, 0, 0, date('n')-12, 1, date('y')); //12 months ago
-        $totalnotes = 0;
-        for($i=1;$i<16;$i++) //TODO loop through VistA
+        for($i=1;$i<$totalnotes;$i++) //TODO loop through VistA
         {
-            $totalnotes++;
             $oneitem = array();
             if($i < 5)
             {
@@ -211,8 +242,8 @@ class GetRadiationDoseHxTab
         $infopackage['modalitysummary'] = $modalitysummary;
         $infopackage['modalitydetail'] = $modalitydetail;
         $infopackage['total_notes'] = $totalnotes;
-        $infopackage['oldest_note_dt'] = 'FIRSTDATETODO';
-        $infopackage['newest_note_dt'] = 'NEWESTDATETODO';
+        $infopackage['oldest_note_dt'] = $sLowTS;
+        $infopackage['newest_note_dt'] = $sHighTS;
         $infopackage['12m_ago_date'] = $cutdate;
         return $infopackage;
     }
@@ -249,7 +280,7 @@ class GetRadiationDoseHxTab
          '#markup' => '<div class="introblurb">'
             . '<h2>Information presented here is derived only from the available RAPTOR VistA notes.</h2>'
             . '<ul>'
-            . '<li>First available RAPTOR VistA note is dated '.$oldest_note_dt
+            . '<li>Oldest available RAPTOR VistA note is dated '.$oldest_note_dt
             . '<li>Newest available RAPTOR VistA note is dated '.$newest_raddose_dt
             . '<li>Total RAPTOR VistA notes found is '.$totalnotes
             . '</ul>'
