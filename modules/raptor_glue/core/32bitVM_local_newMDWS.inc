@@ -13,7 +13,7 @@ defined("VISTA_SITE")
     or define("VISTA_SITE", '500');	
 
 defined("RAPTOR_ROOT_URL")
-    or define("RAPTOR_ROOT_URL", "http://localhost/drupal/");
+    or define("RAPTOR_ROOT_URL", "http://localhost/drupal/raptor/");
 
 // NEW latest MDWS installation w/ order writing APIs uses new path
 defined("EMRSERVICE_URL")

@@ -11,7 +11,7 @@ defined("VISTA_SITE")
     or define("VISTA_SITE", '500');	
 
 defined("RAPTOR_ROOT_URL")
-    or define("RAPTOR_ROOT_URL", "http://10.184.38.146/RSite500/RAPTOR");
+    or define("RAPTOR_ROOT_URL", "http://10.184.38.146/RSite500/RAPTOR/");
 
 defined("EMRSERVICE_URL")
     or define("EMRSERVICE_URL", "http://localhost/mdws2.5/emrsvc.asmx");
