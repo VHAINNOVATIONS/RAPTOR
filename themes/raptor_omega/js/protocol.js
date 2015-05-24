@@ -78,9 +78,10 @@
     };
 
     setInterval(function () {
-        if (!$('#timeout-warning').is(':hidden')) {
+        if ($('#timeout-warning').is(':visible')) {
             window.onbeforeunload = null;
-            window.scrollTo('#timeout-warning', 800);
+            //direct user's attention to timeout warning, scroll up
+            $("html, body").animate({scrollTop: "0px"},1000);
         }
     }, 5000);
 

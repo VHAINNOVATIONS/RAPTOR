@@ -367,6 +367,7 @@
                 } else {
                     $.get(Drupal.pageData.baseURL + '/raptor/userinteractionping?refreshlocks', function () { /* Intentionally left blank */
                     });
+                    //console.log('refreshing locks');
                 }
                 lastChange.lastAjaxCall = new Date();
             };
@@ -378,14 +379,14 @@
                 secondsSinceLastAjaxCall = (now - lastChange.lastAjaxCall) / 1000;
                 if (secondsSinceLastAjaxCall > lastChange.alivePingIntervalSeconds) {
                     resetSecondsSinceLastActionAjaxCall();
-
                     //alert("resetting keep alive seconds");
                 }
             };
 
             // Keep user from being timed out if they change any form values
             // Keep user from being timed out if they type anything
-            $(document).on('change keypress', 'input, select, textarea', function () {
+            $(document).on('keypress change click', 'input, select, textarea, .form-select', function () {
+                //console.log('action being recorded');
                 resetSecondsSinceLastAction();
             });
 
@@ -486,10 +487,11 @@
 
             // Check each minute to see if the user needs to be logged out or not
             var runSessionAndLockChecks = setInterval(function () {
-                //userinteractionpingParam = isProtocolPage() ? '?refreshlocks' : '';
+                var userinteractionpingParam = isProtocolPage() ? '?refreshlocks' : '';
                 // Need to use grab the base URL from PHP to keep the URL path from breaking userinteractionpingParam
                 $.getJSON(Drupal.pageData.baseURL + '/raptor/userinteractionping', function (response) {
                     //console.log('Outer raptor/userinteractionping %s', 0, response.thisuser.alive_ping_interval_seconds);
+                    //console.log('idle seconds %s',0,response.thisuser.idle_seconds)
 
                     if (!timeoutWarningIsDisplayed) {
                         // User may have logged out and is no longer authenticated
