@@ -117,13 +117,6 @@ class ProtocolSupportingData
      */
     function getMedicationsDetail()
     {
-//      EXAMPLE OUTPUT:
-//                return array(
-//            array("Med"=>"medA","AtRisk"=>"Y","Status"=>"status 123"),
-//            array("Med"=>"medB","AtRisk"=>"Y","Status"=>"status 123"),
-//            array("Med"=>"medC","AtRisk"=>"Y","Status"=>"status 123"),
-//            );
-
         //$serviceResponse = $this->m_oContext->getEMRService()->getAllMeds();
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getAllMeds", NULL);
         
@@ -980,11 +973,6 @@ class ProtocolSupportingData
         $aJustEGFRDate['MIN_EGFR_60DAYS'] = NULL;
         $aJustEGFRDate['MIN_EGFR_90DAYS'] = NULL;
         
-//      EXAMPLE OUTPUT:
-//        return array(
-//            array("DiagDate"=>"2014-01-01","Creatinine"=>123,"eGFR"=>123.54,"Ref"=>"asdfasdf asdf asdf"),
-//            array("DiagDate"=>"2014-01-15","Creatinine"=>123,"eGFR"=>123.54,"Ref"=>"asdfasdf asdf asdf"),
-//        );
         $isProc = true;     //$oContext->getProcedure()->isProcedure();
 
         //$wl = new WorklistData($this->m_oContext);
@@ -1101,23 +1089,7 @@ class ProtocolSupportingData
                }
                $eGFRUnits = " mL/min/1.73 m^2";
                $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
-               /*
-               $EGFR_ALERT_WARN_END_LEVEL = 60; //TODO -- make admin configurable
-               $EGFR_ALERT_BAD_END_LEVEL = 30;  //TODO -- make admin configurable
-               if($eGFR > '')
-               {
-                    if($eGFR < $EGFR_ALERT_BAD_END_LEVEL)
-                    {
-                        $eGFR_Health = 'bad';
-                    } else if($eGFR < $EGFR_ALERT_WARN_END_LEVEL) {
-                        $eGFR_Health = 'warn';
-                    } else {
-                        $eGFR_Health = 'good';
-                    }
-               } else {
-                   $eGFR_Health = '';
-               }
-                */
+
                //$renalLabs[] = array('date'=>$lab['date'], 'creatinineLabel'=>$creatinineLabel, 'creatinineValue'=>$value, 'eGFRDisplayValue'=>$eGFR." ".$eGFRUnits, 'eGFRValue'=>$eGFR, 'eGRRSource'=>$eGFRSource);
                $aDiagLabs[] = array('DiagDate'=>$lab['date']
                        , 'Creatinine'=>$value
@@ -1310,11 +1282,6 @@ class ProtocolSupportingData
      */
     function getSurgeryReportsDetail()
     {        
-//        EXAMPLE OUTPUT:        
-//        return array(
-//           array("Title"=>"the surg1","ReportDate"=>"2013-11-11","Details"=>"asdlf lkaslkdfkl ablation asdlkalsdjf"), 
-//           array("Title"=>"the surg2","ReportDate"=>"2013-12-11","Details"=>"asdlf lkaslkdfkl ablation asdlkalsdjf"), 
-//        ); 
 
         //$serviceResponse = $this->m_oContext->getEMRService()->getSurgeryReportsWithText();
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgeryReportsWithText", NULL);
@@ -1385,11 +1352,6 @@ class ProtocolSupportingData
      */
     function getProblemsListDetail()
     {
-//        EXAMPLE OUTPUT:        
-//        return array(
-//            array("Title"=>"probs 1 title","OnsetDate"=>"2014-01-01","Details"=>"asdfljlk klasdfjklklj  alkjasdfjklljkas sadrfkljlk"),
-//            array("Title"=>"probs 2 title","OnsetDate"=>"2014-02-01","Details"=>"asdfljlk klasdfjklklj  alkjasdfjklljkas sadrfkljlk"),
-//        );         
         //$serviceResponse = $this->m_oContext->getEMRService()->getProblemList(array('type'=>'active'));
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getProblemList", array('type'=>'active'));
         $result = array();       
@@ -1464,11 +1426,6 @@ class ProtocolSupportingData
      */
     function getNotesDetail()
     {
-        // EXAMPLE OUTPUT:
-        //        return array(
-        //            array("Type"=>"type1","Date"=>"2013-05-08","Details"=>"asdflkkl asdfkllk asdfklkl notes notes notes"),            
-        //            array("Type"=>"type2","Date"=>"2013-05-08","Details"=>"asdflkkl asdfkllk asdfklkl notes notes notes"),            
-        //        ); 
         //$serviceResponse = $this->m_oContext->getEMRService()->getNotesWithText(array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>0));
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getNotesWithText", array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>0));
         $result = array();
@@ -1540,11 +1497,6 @@ class ProtocolSupportingData
      */
     function getRadiologyReportsDetail()
     {
-//      EXAMPLE OUTPUT:
-//        return array(
-//            array("Title"=>"radiology report1","ReportedDate"=>"2013-12-15","Details"=>"rad report detail asdlkflj asdlfjkkjl ljkalkjsdf"),
-//            array("Title"=>"radiology report2","ReportedDate"=>"2013-12-15","Details"=>"rad report detail asdlkflj asdlfjkkjl ljkalkjsdf"),
-//        );
         //$serviceResponse = $this->m_oContext->getEMRService()->getRadiologyReports(array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>0));
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getRadiologyReports", array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>0));
 
@@ -1626,7 +1578,4 @@ class ProtocolSupportingData
         }
         return $result;
     }
-
-    
-
 }
