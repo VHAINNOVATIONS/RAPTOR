@@ -13,134 +13,54 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+module_load_include('php', 'raptor_datalayer', 'core/data_context');
 module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
-module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
-module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
-
-require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
-require_once 'ProtocolInfoUtility.php';
-
+module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
+module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
 
 /**
- * This class returns content for the protocol library tab
+ * This class returns the VistA Notes tab content
  *
  * @author Frank Font of SAN Business Consultants
  */
-class GetProtocolLibTab
+class GetNotesTab
 {
-
-    private $m_oContext = null;
-    private $m_oUtility = NULL;
-    private $m_oMOP = NULL;
-    private $m_oLI = NULL;
+    private $m_oContext = NULL;
     
-    function __construct()
+     //Call same function as in EditUserPage here!
+    function __construct($oContext)
     {
-        $this->m_oContext = \raptor\Context::getInstance();
-        $this->m_oUtility = new \raptor\ProtocolInfoUtility();
-        $this->m_oMOP = new \raptor_formulas\MatchOrderToProtocol();
-        $this->m_oLI = new \raptor_formulas\LanguageInference();
-    }
-
-    /**
-     * Get the values to populate the form.
-     * @return type result of the queries as an array
-     */
-    function getFieldValues()
-    {
-        $myvalues = array();
-        $oTT = new \raptor\TicketTrackingData();
-        $nIEN = $this->m_oContext->getSelectedTrackingID(); //TODO change response to be SID-IEN
-        $sSiteID = $this->m_oContext->getSiteID();
-        $sTrackingID = $oTT->getTrackingID($sSiteID,$nIEN);
-        if($nIEN > '')
+        $this->m_oContext = $oContext;
+        if(!$oContext->hasSelectedTrackingID())
         {
-            $oWL = new \raptor\WorklistData($this->m_oContext);
-            $aOneRow = $oWL->getDashboardMap();
-
-            $myvalues = array();
-            $myvalues['IEN'] = $nIEN;
-            $myvalues['procName'] = $aOneRow['Procedure'];
-            $myvalues['ticketType'] = $oTT->getTicketProcessingMode($sTrackingID);
-            
+            throw new \Exception('Did NOT find a selected Tracking ID.  Go back to the worklist and select a ticket first.');
         }
-        return $myvalues;
-    }    
-
-    public function getPlainFormattedKeywordsForTable($aKeywords)
-    {
-            $kw1 = isset($aKeywords[1]) ? $aKeywords[1] : array();
-            $kw2 = isset($aKeywords[2]) ? $aKeywords[2] : array();
-            $kw3 = isset($aKeywords[3]) ? $aKeywords[3] : array();
-            $allKeywords = array_merge($kw1,$kw2,$kw3);
-            // Concatenate into a comma-separated list and clean up formatting
-            $keywords = implode(",",$allKeywords);
-            // Clean up duplicate commas and add a space afterwards
-            $keywords = preg_replace("/,+/", ", ", $keywords);
-            // Remove trailing commas
-            $keywords = preg_replace("/,$/", "", $keywords);
-            return $keywords;
     }
-    
-    public function getFormattedKeywordsForTable($aKeywords)
-    {
-            $keywords = '';
-            $kw1 = isset($aKeywords[1]) ? $aKeywords[1] : array();
-            $kw2 = isset($aKeywords[2]) ? $aKeywords[2] : array();
-            $kw3 = isset($aKeywords[3]) ? $aKeywords[3] : array();
 
-            $kwc = 0;
-            $gotlevel2=FALSE;
-            $keywords .= '<div class="keywords"><ol>';
-            if(count($kw1)>0)
-            {
-                $mycontents = implode(', ',$kw1);
-                if(trim($mycontents) > '')
-                {
-                    $kwc++;
-                    $keywords .= '<li title="Most significant keywords">';
-                    $keywords .= $mycontents;
-                }
-            }
-            if($kwc > 0)
-            {
-                if(count($kw2)>0)
-                { 
-                    $mycontents = implode(', ',$kw2);
-                    if(trim($mycontents) > '')
-                    {
-                        $keywords .= '<li title="Moderate significance">';
-                        $kwc++;
-                        $keywords .= $mycontents;
-                        $gotlevel2=TRUE;
-                    }
-                }
-                if(count($kw3)>0)
-                {
-                    $mycontents = implode(', ',$kw3);
-                    if(trim($mycontents) > '')
-                    {
-                        if(!$gotlevel2)
-                        {
-                            //Handle the gap.
-                            $keywords .= '<li>Empty level2';
-                        }
-                        $keywords .= '<li title="Least significance">';
-                        $kwc++;
-                        $keywords .= $mycontents;
-                    }
-                }
-            }
-            if($kwc == 0)
-            {
-                $keywords = 'No keywords';
-            } else {
-                $keywords .= '</ol></div>';
-            }
-            return $keywords;
+    private static function raptor_print_details($data)
+    {
+        //return print_r($text,TRUE);
+        $result = "";
+
+        $result .= "<div class=\"hide\"><dl>";
+
+        if (is_array($data)) {
+
+          foreach($data as $key => $value) {
+            $result .= "<dt>".$key.":</dt>";
+            $result .= "<dd>".$value."</dd>";
+          }
+
+        } else {
+          $result .= $data;
+        }
+
+        $result .= "</dl></div>";
+
+        return $result;
     }
-    
     
     /**
      * Get all the form contents for rendering
@@ -158,139 +78,27 @@ class GetProtocolLibTab
             '#suffix' => '</div>', 
             '#tree' => TRUE,
         );
-
         
+        $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+        $radiology_reports_detail = $oPSD->getNotesDetail();
         
-        $orderProcName = $myvalues['procName']; //We are scoring relative to this
-        $show_scores = ($orderProcName > '');
-        
-        $kwmap = $this->m_oUtility->getKeywordMap();
-        
-        $rows = "\n";
-        
-        //Figure out if a selection has already been made.
-        $selectedpsn = isset($myvalues['protocol_shortname']) ? $myvalues['protocol_shortname'] : '';
-        if($selectedpsn > '')
+        $rows = '';
+        foreach($radiology_reports_detail as $data_row) 
         {
-            $default_linktext = 'replace selection';
-        } else {
-            $default_linktext = 'select';
-        }
-        
-        //Create the join query.
-        $query = db_select('raptor_protocol_lib','p')
-                ->fields('p')
-                ->fields('t', array(
-                    'consent_req_kw',
-                    'hydration_oral_tx', 
-                    'hydration_iv_tx', 
-                    'sedation_iv_tx', 
-                    'sedation_oral_tx', 
-                    'contrast_iv_tx', 
-                    'contrast_enteric_tx', 
-                    'radioisotope_iv_tx',
-                    'radioisotope_enteric_tx'
-                ))
-                ->orderBy('name');
-        $query->leftJoin('raptor_protocol_template','t'
-                ,'p.protocol_shortname = t.protocol_shortname');       
-        $result = $query->execute();
-        foreach($result as $item) 
-        {
-            $protocol_shortname = $item->protocol_shortname;
-            $filename = $item->filename;
-            $longname = $item->name;
-            $uploaded_dt = $item->updated_dt;   //TODO use original_file_upload_dt
-            $modality_abbr = $item->modality_abbr;
-            $contrast_yn = $item->contrast_yn;
-            if(isset($kwmap[$protocol_shortname]))
-            {
-                $keywords =$this->getFormattedKeywordsForTable($kwmap[$protocol_shortname]);
-            } else {
-                $keywords = '';
-            }
-            $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($orderProcName);
-            $matchscore = $this->m_oMOP->getProtocolMatchScore($cluesmap
-                    , $protocol_shortname
-                    , $longname
-                    , $modality_abbr
-                    , $contrast_yn
-                    , $kwmap);
-            if(trim($filename) > '' && $filename != 'no-filename')
-            {
-                $uri = 'public://library/'.$filename;
-                $url = file_create_url($uri);
-                global $base_url;
-                $pageurl = $base_url . '/raptor/viewscannedprotocol?'
-                        . 'protocol_shortname='.$protocol_shortname.'&showclose';
-                //$shortnamelink = "<a title='doc uploaded $uploaded_dt' target='_blank' href='$pageurl'>$protocol_shortname</a>";
-                $shortnamelink = "<a title='doc uploaded $uploaded_dt' "
-                        . "href='#' onclick='window.open(\"$pageurl\",\"_blank\");"
-                        . "return false;'>$protocol_shortname</a>";
-            } else {
-                $shortnamelink = $protocol_shortname;
-            }
-            
-            if($myvalues['ticketType'] !== 'P')
-            {
-                $protocolnamecontent = $protocol_shortname;
-            } else {
-                $protocolnamecontent = '<a href="#"'
-                        . ' class="select-protocol"'
-                        . ' data-protocol_shortname="'.$protocol_shortname.'"'
-                        . '>'
-                        .$default_linktext
-                        .'</a>';
-            }
-            
             $rows .= "\n".'<tr>'
-                  . '<td>'.$shortnamelink.'</td>'
-                  . '<td>'.($show_scores ? $matchscore : 'NA').'</td>'
-                  . '<td>'.$protocolnamecontent.'</td>'
-                  . '<td>'.$longname.'</td>'
-                  . '<td>'.$modality_abbr.'</td>'
-                  . '<td>'.$item->consent_req_kw.'</td>'
-                  . '<td>'.$keywords.'</td>'
-                  . '<td><ul>'
-                    .(!empty($item->hydration_oral_tx) ? '<li>'.$item->hydration_oral_tx.'</li>' : '')
-                    .(!empty($item->hydration_iv_tx) ? '<li>'.$item->hydration_iv_tx.'</li>' : '')
-                  . '</ul></td>'
-                  . '<td><ul>'
-                    .(!empty($item->sedation_oral_tx) ? '<li>'.$item->sedation_oral_tx.'</li>' : '')
-                    .(!empty($item->sedation_iv_tx) ? '<li>'.$item->sedation_iv_tx.'</li>' : '')
-                  . '</ul></td>'
-                  . '<td><ul>'
-                    .(!empty($item->contrast_enteric_tx) ? '<li>'.$item->contrast_enteric_tx.'</li>' : '')
-                    .(!empty($item->contrast_iv_tx) ? '<li>'.$item->contrast_iv_tx.'</li>' : '')
-                  . '</ul></td>'
-                  . '<td><ul>'
-                    .(!empty($item->radioisotope_enteric_tx) ? '<li>'.$item->radioisotope_enteric_tx.'</li>' : '')
-                    .(!empty($item->radioisotope_iv_tx) ? '<li>'.$item->radioisotope_iv_tx.'</li>' : '')
-                  . '</ul></td>'
+                  . '<td>'.$data_row["Type"].'</td>'
+                  . '<td>'.$data_row["Date"].'</td>'
+                  . '<td><a href="#" class="raptor-details">'.$data_row["Snippet"].'</a>'.GetNotesTab::raptor_print_details($data_row["Details"]).'</td>'
                   . '</tr>';
         }
-
-        if($show_scores)
-        {
-            $matchscore_title="Higher matching scores indicate higher possible relevance to the order";
-        } else {
-            $matchscore_title="No match score computed because no order text was available";
-        }
-        $form["data_entry_area1"]['table_container']['protocols'] = array('#type' => 'item',
-                 '#markup' => '<table id="getprotocollibtab-table" class="dataTable">'
+        
+        $form["data_entry_area1"]['table_container']['reports'] = array('#type' => 'item',
+                 '#markup' => '<table id="selected-notes" class="dataTable">'
                             . '<thead>'
                             . '<tr>'
-                            . '<th title="Each protocol in the library has a unique identifier">Short Name</th>'
-                            . '<th title="'.$matchscore_title.'">MS</th>'
-                            . '<th title="Shortcut to select the protocol for this order">Select Protocol for Order</th>'
-                            . '<th title="The descriptive long name of this protocol">Long Name</th>'
-                            . '<th>Modality</th>'
-                            . '<th>Consent Required</th>'
-                            . '<th>Keywords</th>'
-                            . '<th>Hydration Settings</th>'
-                            . '<th>Sedation Settings</th>'
-                            . '<th>Contrast Settings</th>'
-                            . '<th>Radionuclide Settings</th>'
+                            . '<th>Title</th>'
+                            . '<th>Date</th>'
+                            . '<th>Details</th>'
                             . '</tr>'
                             . '</thead>'
                             . '<tbody>'

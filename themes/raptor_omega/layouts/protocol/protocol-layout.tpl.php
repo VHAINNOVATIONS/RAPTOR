@@ -16,7 +16,7 @@ $protocol_input = render($page['content']);
 $pathology_reports_detail = $raptor_protocol_content["Reference"]["PathologyReportsDetail"];
 $surgery_reports_detail = $raptor_protocol_content["Reference"]["SurgeryReportsDetail"];
 $problems_list_detail = $raptor_protocol_content["Reference"]["ProblemsListDetail"];
-$notes_detail = $raptor_protocol_content["Reference"]["NotesDetail"];
+//deprecated 20150524 $notes_detail = $raptor_protocol_content["Reference"]["NotesDetail"];
 //$radiology_reports_detail = $raptor_protocol_content["Reference"]["RadiologyReportsDetail"][0];
 $order_overview = $raptor_protocol_content["Reference"]["OrderOverview"];
 $medications_detail = $raptor_protocol_content["Reference"]["MedicationsDetail"];
@@ -633,54 +633,12 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
               <li>
                 <input type="radio" name="tabs" id="tab9" accesskey="n">
                 <label for="tab9">Notes</label>
-                <div id="tab-content9" class="tab-content animated fadeIn">
+                <div id="tab-content10" class="tab-content animated fadeIn">
+<iframe id="iframe_a" style="display:none;" name="iframe_a" width="100%" height="600px" ></iframe>
 
                   <!-- Readonly -->
-                  <section class="read-only2">
-                    <!-- <h3>Medications Page</h3>
-                    <p>Content goes here...</p> -->
-                    <h3>Selected Notes</h3>
-                    <table class="dataTable" id="selected-notes">
-                      <thead>
-                        <tr>
-                          <th>Type</th>
-                          <th>Date</th>
-                          <th>Details</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <?php foreach($notes_detail as $data_row) { ?>
-                        <tr>
-                          <td><?php echo $data_row["Type"] ?></td>
-                          <td><?php echo $data_row["Date"] ?></td>
-                          <td><a href="#" class="raptor-details"><?php echo $data_row["Snippet"] ?></a> <?php echo raptor_print_details($data_row["Details"]) ?>
-                          </td>
-                        </tr>
-                        <?php } ?>
-                      </tbody>
-                    </table>
-                    <!--
-                    <h3>Rest of Notes</h3>
-                    <table class="dataTable dashboard-table">
-                      <thead>
-                        <tr>
-                          <th>Type</th>
-                          <th>Date</th>
-                          <th>Details</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <-- ?php foreach($notes_detail as $data_row) { ?>
-                        <tr>
-                          <td><-- ?php echo $data_row["Type"] ?></td>
-                          <td><-- ?php echo $data_row["Date"] ?></td>
-                          <td><a href="#" class="raptor-details"><-- ?php echo $data_row["Snippet"] ?></a> <-- ?php echo raptor_print_details($data_row["Details"]) ?>
-                          </td>
-                        </tr>
-                        <-- ?php } ?>
-                      </tbody>
-                    </table>
-                    -->
+                  <section class="read-only2" data-url="<?php echo($base_url) ?>/raptor/getnotestab">
+                    
                   </section> 
                   <!-- end of Readonly -->
 

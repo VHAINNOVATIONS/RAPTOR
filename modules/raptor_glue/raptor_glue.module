@@ -354,6 +354,17 @@ function raptor_glue_menu()
         'type' => MENU_CALLBACK,
     );
     
+    $items['raptor/getnotestab'] = array(
+        'title' => 'VistA Notes',
+        'page callback' => 'raptor_glue_getnotestab_form',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,        
+        'description' => t('VistA Notes tab content'),
+        'file' => 'GetNotesTab.php',
+        'file path' => RAPTOR_GLUE_MODULE_PATH . '/form/',
+        'type' => MENU_CALLBACK,
+    );
+    
     $items['raptor/getradrptstab'] = array(
         'title' => 'Radiology Reports',
         'page callback' => 'raptor_glue_getradrptstab_form',
@@ -849,6 +860,11 @@ function raptor_glue_runtests_form()
     return drupal_get_form("raptor_glue_runtests_form_builder");
 }
 
+function raptor_glue_getnotestab_form() 
+{
+    return drupal_get_form("raptor_glue_getnotestab_form_builder");
+}
+
 function raptor_glue_getradrptstab_form() 
 {
     return drupal_get_form("raptor_glue_getradrptstab_form_builder");
@@ -857,6 +873,16 @@ function raptor_glue_getradrptstab_form()
 function raptor_glue_getradiationdosehxtab_form() 
 {
     return drupal_get_form("raptor_glue_getradiationdosehxtab_form_builder");
+}
+
+function raptor_glue_getnotestab_form_builder($form, &$form_state)
+{
+    $oContext = \raptor\Context::getInstance();    
+    $oPI = new \raptor\GetNotesTab($oContext);
+    $form = array();
+    $disabled = FALSE;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
 }
 
 function raptor_glue_getradrptstab_form_builder($form, &$form_state)

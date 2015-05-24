@@ -21,7 +21,7 @@ module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
 module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
 
 /**
- * This class returns the Admin Information input content
+ * This class returns the VistA Radiology Reports tab content
  *
  * @author Frank Font of SAN Business Consultants
  */
@@ -35,7 +35,7 @@ class GetRadiologyReportsTab
         $this->m_oContext = $oContext;
         if(!$oContext->hasSelectedTrackingID())
         {
-            die('Did NOT find a selected Tracking ID.  Go back to the worklist and select a ticket first.');
+            throw new \Exception('Did NOT find a selected Tracking ID.  Go back to the worklist and select a ticket first.');
         }
     }
 
@@ -56,7 +56,7 @@ class GetRadiologyReportsTab
         {
             if($oContext == NULL || $oContext=='') 
             {
-                die('Must provide context instance!!!!');
+                throw new \Exception('Must provide context instance!!!!');
             }
             $aImageInfo = raptor_imageviewing_getAvailImageMetadata($oContext, $patientDFN, $patientICN, $reportID, $caseNumber);
             if($aImageInfo['imageCount'] > 0)

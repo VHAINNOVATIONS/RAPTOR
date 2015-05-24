@@ -3113,7 +3113,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $raptor_protocol_content['Reference']['PathologyReportsDetail'] = $oPSD->getPathologyReportsDetail();
         $raptor_protocol_content['Reference']['SurgeryReportsDetail'] = $oPSD->getSurgeryReportsDetail();
         $raptor_protocol_content['Reference']['ProblemsListDetail'] = $oPSD->getProblemsListDetail();
-        $raptor_protocol_content['Reference']['NotesDetail'] = $oPSD->getNotesDetail();
+        //deprecated 20150524 $raptor_protocol_content['Reference']['NotesDetail'] = $oPSD->getNotesDetail();
         $raptor_protocol_content['Reference']['RadiologyReportsDetail'] = $oPSD->getRadiologyReportsDetail();
         $raptor_protocol_content['Reference']['Graph']['Thumbnail'] = $oGD->getThumbnailGraphValues();
         $raptor_protocol_content['Reference']['Graph']['Labs'] = $oGD->getLabsGraphValues();
