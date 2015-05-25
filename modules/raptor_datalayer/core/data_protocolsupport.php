@@ -1424,7 +1424,7 @@ class ProtocolSupportingData
      * The notes detail
      * @return type array of arrays
      */
-    function getNotesDetail()
+    function getNotesDetail($usenl2br=FALSE)
     {
         //$serviceResponse = $this->m_oContext->getEMRService()->getNotesWithText(array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>0));
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getNotesWithText", array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>0));
@@ -1464,7 +1464,10 @@ class ProtocolSupportingData
                 $tempRpt['location'] = isset($RptTO->location) ? $RptTO->location : " ";
                 $tempRpt['facility'] = isset($RptTO->location->name) ? $RptTO->location->name : " ";
                 $tempRpt['text'] = isset($RptTO->text) ? $RptTO->text : "No Details Available";
-                $tempRpt['text'] = nl2br($tempRpt['text']);
+                if($usenl2br)
+                {
+                    $tempRpt['text'] = nl2br($tempRpt['text']);
+                }
 
                 $tempRpt['hasAddendum'] = isset($RptTO->hasAddendum) ? $RptTO->hasAddendum : " ";
                 $tempRpt['isAddendum'] = isset($RptTO->isAddendum) ? $RptTO->isAddendum : " ";

@@ -148,10 +148,12 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $metadata1 = $protocol_lib_map[$shortname1];
                 $myvalues['protocol1_nm'] = $shortname1;
                 $myvalues['protocol1_fullname'] = $metadata1['name'];
+                $myvalues['protocol1_modality_abbr'] = $metadata1['modality_abbr'];
                 $shortname2 = $record['secondary_protocol_shortname'];
                 $metadata2 = $protocol_lib_map[$shortname2];
                 $myvalues['protocol2_nm'] = $shortname2;
                 $myvalues['protocol2_fullname'] = $metadata2['name'];
+                $myvalues['protocol2_modality_abbr'] = $metadata2['modality_abbr'];
                 if($record['hydration_none_yn'] == 1)
                 {
                     $myvalues['hydration_radio_cd'] = '';
@@ -2364,10 +2366,18 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $fullname = $userinfo->getFullName();
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
 
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Primary Selection ID',$getvalues,'protocol1_nm');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Primary Selection NAME',$getvalues,'protocol1_fullname');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Secondary Selection ID',$getvalues,'protocol2_nm');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Secondary Selection NAME',$getvalues,'protocol2_fullname');
+            $this->addFormattedVistaNoteRow($noteTextArray
+                    ,'Protocol Primary Selection ID',$getvalues,'protocol1_nm');
+            $this->addFormattedVistaNoteRow($noteTextArray
+                    ,'Protocol Primary Selection NAME',$getvalues,'protocol1_fullname');
+            $this->addFormattedVistaNoteRow($noteTextArray
+                    ,'Protocol Primary Selection MODALITY',$getvalues,'protocol1_modality_abbr');
+            $this->addFormattedVistaNoteRow($noteTextArray
+                    ,'Protocol Secondary Selection ID',$getvalues,'protocol2_nm');
+            $this->addFormattedVistaNoteRow($noteTextArray
+                    ,'Protocol Secondary Selection NAME',$getvalues,'protocol2_fullname');
+            $this->addFormattedVistaNoteRow($noteTextArray
+                    ,'Protocol Secondary Selection MODALITY',$getvalues,'protocol2_modality_abbr');
             
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Oral Hydration',$getvalues,'hydration_oral_customtx');
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Hydration',$getvalues,'hydration_iv_customtx');

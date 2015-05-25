@@ -50,11 +50,11 @@ class GetNotesTab
 
           foreach($data as $key => $value) {
             $result .= "<dt>".$key.":</dt>";
-            $result .= "<dd>".$value."</dd>";
+            $result .= "<dd>".nl2br($value)."</dd>";
           }
 
         } else {
-          $result .= $data;
+          $result .= nl2br($data);
         }
 
         $result .= "</dl></div>";

@@ -31,6 +31,13 @@ class GetRadiationDoseHxTab
 {
     private $m_oContext;
     private $m_oDD;
+
+    const PROT_PRIMARY_ID = '[Protocol Primary Selection ID] ::=';
+    const PROT_PRIMARY_NM = '[Protocol Primary Selection NAME] ::=';
+    const PROT_PRIMARY_MODALITY = '[Protocol Primary Selection MODALITY] ::=';
+    const PROT_SECONDARY_ID = '[Protocol Secondary Selection ID] ::=';
+    const PROT_SECONDARY_NM = '[Protocol Secondary Selection NAME] ::=';
+    const PROT_SECONDARY_MODALITY = '[Protocol Secondary Selection MODALITY] ::=';
     
     function __construct($tid = NULL)
     {
@@ -175,6 +182,41 @@ class GetRadiationDoseHxTab
                 {
                     $hights = $thists;
                     $sHighTS = $sThisTS;
+                }
+                $sDetail = print_r($data_row["Details"],TRUE);   //Get the entire string contents
+                $aDetails = explode("\n",$sDetail);
+                $prot_primary_id=NULL;
+                $prot_primary_name=NULL;
+                $prot_primary_modality_abbr=NULL;
+                $prot_secondary_id=NULL;
+                $prot_secondary_name=NULL;
+                $prot_secondary_modality_abbr=NULL;
+                foreach($aDetails as $detail_row)
+                {
+                    if(($p1 = strpos($detail_row, self::PROT_PRIMARY_ID)) !== FALSE)
+                    {
+                        $prot_primary_id = trim(substr($detail_row, strlen(self::PROT_PRIMARY_ID)));
+                    } else
+                    if(($p1 = strpos($detail_row, self::PROT_PRIMARY_NM)) !== FALSE)
+                    {
+                        $prot_primary_name = trim(substr($detail_row, strlen(self::PROT_PRIMARY_NM)));
+                    } else
+                    if(($p1 = strpos($detail_row, self::PROT_PRIMARY_MODALITY)) !== FALSE)
+                    {
+                        $prot_primary_modality_abbr = trim(substr($detail_row, strlen(self::PROT_PRIMARY_MODALITY)));
+                    } else
+                    if(($p1 = strpos($detail_row, self::PROT_SECONDARY_ID)) !== FALSE)
+                    {
+                        $prot_secondary_id = trim(substr($detail_row, strlen(self::PROT_SECONDARY_ID)));
+                    } else
+                    if(($p1 = strpos($detail_row, self::PROT_SECONDARY_NM)) !== FALSE)
+                    {
+                        $prot_secondary_name = trim(substr($detail_row, strlen(self::PROT_SECONDARY_NM)));
+                    } else
+                    if(($p1 = strpos($detail_row, self::PROT_SECONDARY_MODALITY)) !== FALSE)
+                    {
+                        $prot_secondary_modality_abbr = trim(substr($detail_row, strlen(self::PROT_SECONDARY_MODALITY)));
+                    } 
                 }
             }
         }
