@@ -154,11 +154,78 @@ class GetRadiationDoseHxTab
         return $result;
     }
     
+    private function updatecollection(&$modalitysummary,&$modalitydetail
+            ,$cutdatetimestamp
+            ,$modality_abbr
+            ,$id
+            ,$name
+            ,$date
+            ,$timestamp)
+    {
+        $oneitem = array();
+        $oneitem['modality'] = $modality_abbr;
+        $oneitem['id'] = $id;
+        $oneitem['name'] = $name;
+        $oneitem['date'] = $date;
+        $oneitem['timestamp'] = $timestamp;
+        $isinrange = ($cutdatetimestamp < $timestamp);
+
+        //Update the modality grouping too
+        $mkey = $oneitem['modality'];
+        if(!array_key_exists($mkey,$modalitysummary))
+        {
+            $modalitydetail[$mkey] = array();
+            $modalitysummary[$mkey] = array();
+            $modalitysummaryitem = array();
+            $modalitysummaryitem['allcount'] = 1;
+            if($isinrange)
+            {
+                $modalitysummaryitem['12mcount'] = 1;            
+            }
+        } else {
+            $modalitysummaryitem = $modalitysummary[$mkey];
+            $modalitysummaryitem['allcount'] += 1;
+            if($isinrange)
+            {
+                $modalitysummaryitem['12mcount'] += 1;            
+            }
+        }
+        $modalitysummary[$mkey]= $modalitysummaryitem;
+        $modalitydetailgroup = $modalitydetail[$mkey];
+        $nkey = $oneitem['id'].'_'.$oneitem['name'];
+        if(!array_key_exists($nkey,$modalitydetailgroup))
+        {
+            //Simply add the new entry
+            $ndet = array();
+            $ndet['id'] = $oneitem['id'];
+            $ndet['name'] = $oneitem['name'];
+            $ndet['allcount'] = 1;
+            if($isinrange)
+            {
+                $ndet['12mcount'] = 1;
+            }
+        } else {
+            //Update the exising entry
+            $ndet = $modalitydetailgroup[$nkey];
+            $ndet['allcount'] += 1;
+            if($isinrange)
+            {
+                $ndet['12mcount'] += 1;
+            }
+        }
+        $modalitydetail[$mkey][$nkey] = $ndet;
+    }
+    
     /**
      * Scroll through all the RAPTOR VistA notes for this patient
      */
     private function getRadDoseDetails($patientid)
     {
+        $infopackage = array();
+        $modalitysummary = array();
+        $modalitydetail = array();
+        $cutdate = mktime(0, 0, 0, date('n')-12, 1, date('y')); //12 months ago
+        $cutdatetimestamp = mktime(0, 0, 0, date('n')-12, 1, date('y')); //12 months ago
 
         $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         $totalnotes = 0;
@@ -218,12 +285,32 @@ class GetRadiationDoseHxTab
                         $prot_secondary_modality_abbr = trim(substr($detail_row, strlen(self::PROT_SECONDARY_MODALITY)));
                     } 
                 }
+                if($prot_primary_modality_abbr !== NULL)
+                {
+                    $this->updatecollection($modalitysummary
+                            ,$modalitydetail
+                            ,$cutdatetimestamp
+                            ,$prot_primary_modality_abbr
+                            ,$prot_primary_id
+                            ,$prot_primary_name
+                            ,$sThisTS
+                            ,$thists);
+                }
+                if($prot_secondary_modality_abbr !== NULL)
+                {
+                    $this->updatecollection($modalitysummary
+                            ,$modalitydetail
+                            ,$cutdatetimestamp
+                            ,$prot_secondary_modality_abbr
+                            ,$prot_secondary_id
+                            ,$prot_secondary_name
+                            ,$sThisTS
+                            ,$thists);
+                }
             }
         }
         
-        $infopackage = array();
-        $modalitysummary = array();
-        $cutdate = mktime(0, 0, 0, date('n')-12, 1, date('y')); //12 months ago
+        /*
         for($i=1;$i<$totalnotes;$i++) //TODO loop through VistA
         {
             $oneitem = array();
@@ -280,7 +367,8 @@ class GetRadiationDoseHxTab
             }
             $modalitydetail[$mkey][$nkey] = $ndet;
         }
-
+        */
+        
         $infopackage['modalitysummary'] = $modalitysummary;
         $infopackage['modalitydetail'] = $modalitydetail;
         $infopackage['total_notes'] = $totalnotes;

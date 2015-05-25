@@ -149,11 +149,18 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $myvalues['protocol1_nm'] = $shortname1;
                 $myvalues['protocol1_fullname'] = $metadata1['name'];
                 $myvalues['protocol1_modality_abbr'] = $metadata1['modality_abbr'];
-                $shortname2 = $record['secondary_protocol_shortname'];
-                $metadata2 = $protocol_lib_map[$shortname2];
-                $myvalues['protocol2_nm'] = $shortname2;
-                $myvalues['protocol2_fullname'] = $metadata2['name'];
-                $myvalues['protocol2_modality_abbr'] = $metadata2['modality_abbr'];
+                if(isset($record['secondary_protocol_shortname']) && $record['secondary_protocol_shortname'] != NULL)
+                {
+                    $shortname2 = $record['secondary_protocol_shortname'];
+                    $metadata2 = $protocol_lib_map[$shortname2];
+                    $myvalues['protocol2_nm'] = $shortname2;
+                    $myvalues['protocol2_fullname'] = $metadata2['name'];
+                    $myvalues['protocol2_modality_abbr'] = $metadata2['modality_abbr'];
+                } else {
+                    $myvalues['protocol2_nm'] = NULL;
+                    $myvalues['protocol2_fullname'] = NULL;
+                    $myvalues['protocol2_modality_abbr'] = NULL;
+                }
                 if($record['hydration_none_yn'] == 1)
                 {
                     $myvalues['hydration_radio_cd'] = '';
