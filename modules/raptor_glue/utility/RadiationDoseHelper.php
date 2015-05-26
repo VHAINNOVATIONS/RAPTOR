@@ -41,6 +41,32 @@ class RadiationDoseHelper
         , 'T'=>'min'
         , 'H'=>'Hz'
         );
+
+    private static $dose_source_cd_littlename_map = array(
+          'R'=>'radioisotope'
+        , 'E'=>'other'
+        , 'C'=>'ctdivol'
+        , 'D'=>'dlp'
+        , 'Q'=>'fluroQ'
+        , 'S'=>'fluoroS'
+        , 'T'=>'fluoroT'
+        , 'H'=>'fluoroH'
+        );
+    
+    private static $dose_type_cd_map = array(
+          'E'=>'Estimated'
+        , 'A'=>'Actual'
+        , 'U'=>'Unknown Quality');
+
+    public static function getDoseSourceLittlenameMap()
+    {
+        return self::$dose_source_cd_littlename_map;
+    }
+    
+    public static function getDoseTypeTermMap()
+    {
+        return self::$dose_type_cd_map;
+    }
     
     public static function getDoseSourceTermMap()
     {
@@ -50,6 +76,20 @@ class RadiationDoseHelper
     public static function getDoseSourceDefaultUOMMap($source_cd)
     {
         return self::$dose_source_cd_uom_map;
+    }
+
+    public static function getLittlenameForDoseSource($source_cd)
+    {
+        return self::$dose_source_cd_littlename_map[$source_cd];
+    }
+    
+    public static function getDoseTypeTermForTypeCode($dose_type_cd,$wrapinparen=TRUE)
+    {
+        if(array_key_exists($dose_type_cd, self::$dose_type_cd_map))
+        {
+            return '('.self::$dose_type_cd_map[$dose_type_cd].']';
+        }
+        return NULL;
     }
     
     public static function getDefaultTermForDoseSource($source_cd)

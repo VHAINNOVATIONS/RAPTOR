@@ -2568,7 +2568,7 @@ class ProtocolInfoUtility
         }
         if($default_dose_value == NULL)
         {
-            $default_dose_value = RadiationDoseHelper::getDefaultTermForDoseSource('R');
+            $default_dose_value = RadiationDoseHelper::getDefaultUOMForDoseSource('R'); 
         }
         $sName = 'exam_radioisotope_radiation_dose_tx';
         $root[$sFieldsetKeyName][$sName] = array(
@@ -2623,7 +2623,7 @@ class ProtocolInfoUtility
                         , 'exam_ct_dose_fieldset'
                         , 'Machine-Produced Radiation Dose CT'
                         , 'CTDIvol', 'CTDIvol'
-                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
+                        , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
                         , 'exam_ctdivol_radiation_dose_map'
                         , 'exam_ctdivol_radiation_dose_tx'
                         , 'exam_ctdivol_radiation_dose_uom_tx'
@@ -2633,7 +2633,7 @@ class ProtocolInfoUtility
                         , 'exam_ct_dose_fieldset'
                         , 'Machine-Produced Radiation Dose CT'
                         , 'DLP', 'DLP'
-                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
+                        , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
                         , 'exam_dlp_radiation_dose_map'
                         , 'exam_dlp_radiation_dose_tx'
                         , 'exam_dlp_radiation_dose_uom_tx'
@@ -2645,7 +2645,7 @@ class ProtocolInfoUtility
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy'
                         , 'Air Kerma', 'Air Kerma'
-                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
+                        , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
                         , 'exam_'.$littlename.'_radiation_dose_uom_tx'
@@ -2656,7 +2656,7 @@ class ProtocolInfoUtility
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy'
                         , 'DAP', 'DAP'
-                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
+                        , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
                         , 'exam_'.$littlename.'_radiation_dose_uom_tx'
@@ -2667,7 +2667,7 @@ class ProtocolInfoUtility
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy Time'
                         , 'Fluoroscopy Time', 'Fluoroscopy Time'
-                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
+                        , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
                         , 'exam_'.$littlename.'_radiation_dose_uom_tx'
@@ -2678,7 +2678,7 @@ class ProtocolInfoUtility
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy Frame Rate'
                         , 'Fluoroscopy Frame Rate', 'Fluoroscopy Frame Rate'
-                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
+                        , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
                         , 'exam_'.$littlename.'_radiation_dose_uom_tx'
@@ -2691,7 +2691,7 @@ class ProtocolInfoUtility
                         , 'exam_other_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Other'
                         , 'Other', 'other'
-                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
+                        , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
                         , 'exam_other_radiation_dose_map'
                         , 'exam_other_radiation_dose_tx'
                         , 'exam_other_radiation_dose_uom_tx'

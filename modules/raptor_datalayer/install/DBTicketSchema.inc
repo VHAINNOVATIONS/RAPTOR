@@ -1113,7 +1113,7 @@ class DBTicketSchema
               'type' => 'char',
               'length' => 1,
               'not null' => TRUE,
-              'description' => 'E=Estimated,A=Actual,U=Unknown',
+              'description' => 'E=Estimated,A=Actual,U=Unknown Quality',
             ),
             'dose_source_cd' => array(
               'type' => 'char',
@@ -1202,7 +1202,7 @@ class DBTicketSchema
               'type' => 'char',
               'length' => 1,
               'not null' => TRUE,
-              'description' => 'E=Estimated,A=Actual,U=Unknown',
+              'description' => 'E=Estimated,A=Actual,U=Unknown Quality',
             ),
             'dose_source_cd' => array(
               'type' => 'char',
@@ -1288,7 +1288,7 @@ class DBTicketSchema
               'type' => 'char',
               'length' => 1,
               'not null' => TRUE,
-              'description' => 'E=Estimated, A=Actual, U=Unknown',
+              'description' => 'E=Estimated, A=Actual, U=Unknown Quality',
             ),
             'dose_source_cd' => array(
               'type' => 'char',

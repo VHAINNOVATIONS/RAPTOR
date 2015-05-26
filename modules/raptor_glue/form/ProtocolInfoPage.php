@@ -2487,6 +2487,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Enteric Radionuclide',$getvalues,'exam_radioisotope_enteric_tx');
             $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Radionuclide',$getvalues,'exam_radioisotope_iv_tx');
             $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Consent Received',$getvalues,'exam_consent_received_kw');
+            
+            /*
             $dose_details = $getvalues['exam_radioisotope_radiation_dose_map'];
             if(is_array($dose_details))
             {
@@ -2517,6 +2519,33 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     }
                 }
             }
+            */
+            
+            //Process ALL the possible radiation dose input areas.
+            $littlename_map = RadiationDoseHelper::getDoseSourceLittlenameMap();
+            foreach($littlename_map as $dose_source_code=>$littlename)
+            {
+                $dose_details = $getvalues['exam_'.$littlename.'_radiation_dose_map'];
+                if(is_array($dose_details))
+                {
+                    $category_term=RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_code);
+                    foreach($dose_details as $uom=>$values)
+                    {
+                        $this->addFormattedVistaNoteRow($noteTextArray
+                                , 'Exam Note '
+                                    . $category_term
+                                    . ' Radiation Exposure UoM',$uom);
+                        foreach($values as $dose_record)
+                        {
+                            $dose = $dose_record['dose'];
+                            $qcd = $dose_record['dose_type_cd'];
+                            $qterm = RadiationDoseHelper::getDoseTypeTermMap($qcd);
+                            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note '.$category_term.' Radiation Exposure Data',$dose.' '.$uom.$qterm);
+                        }
+                    }
+                }
+            }
+            
         }
         $prevnotes = $this->getExamNotes($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
         foreach($prevnotes as $prevnoteinfo)
