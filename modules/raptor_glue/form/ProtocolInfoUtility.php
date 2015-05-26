@@ -1022,8 +1022,11 @@ class ProtocolInfoUtility
         return $root;
     }    
     
-    function getPageActionButtonsArea(&$form_state, $disabled, $myvalues
-            , $has_uncommitted_data=FALSE,$commited_dt=NULL)
+    function getPageActionButtonsArea(&$form_state
+            , $disabled
+            , $myvalues
+            , $has_uncommitted_data=FALSE
+            , $commited_dt=NULL)
     {
         $oContext = \raptor\Context::getInstance();
         $userinfo = $oContext->getUserInfo();
@@ -1031,6 +1034,25 @@ class ProtocolInfoUtility
         $nSiteID = $this->m_oContext->getSiteID();
         $nIEN = $myvalues['tid'];
         $sCWFS = $this->getCurrentWorkflowState($nSiteID, $nIEN);
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+
+        $configuredVistaCommit=TRUE;
+        $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_GENERAL;
+        $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_GENERAL;
+        if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
+        {
+            //Write to the log and continue.
+            error_log("WARNING VISTA not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
+            $configuredVistaCommit = FALSE;
+        }
+        $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_SAFETY_CKLST;
+        $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST;
+        if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
+        {
+            //Write to the log and continue.
+            error_log("WARNING VISTA not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
+            $configuredVistaCommit = FALSE;
+        }
         
         $acknowledgeTip = 'Acknowledge the presented protocol so the exam can begin.';
         $unapproveTip = 'Save this order as unapproved so protocol items can be edited.';
@@ -1053,6 +1075,7 @@ class ProtocolInfoUtility
             $createNewOrderTip = 'Create a new order in VistA with continue with the next available personal batch selection';
             $ackproAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
             $examcompAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
+            $interpretationAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
         } else {
             $sRequestApproveTip = 'Save this order as ready for review and return to the worklist.';
             $releaseTip = 'Release this order without saving changes and return to the worklist.';
@@ -1066,7 +1089,15 @@ class ProtocolInfoUtility
             $createNewOrderTip = 'Create a new order in VistA';
             $ackproAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
             $examcompAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
+            $interpretationAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
         }
+        if(!$configuredVistaCommit)
+        {
+            $ackproAndCommitTip = 'VistA not configured to support this!  Contact system admin.';
+            $examcompAndCommitTip = 'VistA not configured to support this!  Contact system admin.';
+            $interpretationAndCommitTip = 'VistA not configured to support this!  Contact system admin.';
+        }
+        
         $feedback = NULL;
         
         $form['page_action_buttons_area'] = array(
@@ -1107,7 +1138,7 @@ class ProtocolInfoUtility
                     $form['page_action_buttons_area']['finish_ap_button_and_commit'] = array('#type' => 'submit'
                         , '#value' => t('Acknowledge Protocol and Commit Details to VistA')
                         , '#attributes' => array('title' => $ackproAndCommitTip)
-                        , '#disabled' => FALSE, 
+                        , '#disabled' => !$configuredVistaCommit, 
                         );
                 } else
                 if($sCWFS == 'PA')
@@ -1115,7 +1146,7 @@ class ProtocolInfoUtility
                     $form['page_action_buttons_area']['finish_pa_button_and_commit'] = array('#type' => 'submit'
                         , '#value' => t('Exam Completed and Commit Details to VistA')
                         , '#attributes' => array('title' => $examcompAndCommitTip)
-                        , '#disabled' => FALSE, 
+                        , '#disabled' => !$configuredVistaCommit, 
                         );
                 }
             }
@@ -1132,8 +1163,8 @@ class ProtocolInfoUtility
                     {
                         $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
                             , '#value' => t('Interpretation Complete and Commit Details to VistA')
-                            , '#attributes' => array('title' => $interpretationTip)
-                            , '#disabled' => FALSE,  //Not ready as of 20140810
+                            , '#attributes' => array('title' => $interpretationAndCommitTip)
+                            , '#disabled' => !$configuredVistaCommit,
                             );
                     } else {
                         $feedback = 'All procedure data has been committed to VistA';
@@ -1157,7 +1188,7 @@ class ProtocolInfoUtility
                         $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
                             , '#value' => t('QA Complete and Commit Details to VistA')
                             , '#attributes' => array('title' => $qaTip)
-                            , '#disabled' => FALSE,  
+                            , '#disabled' => !$configuredVistaCommit,  
                             );
                     } else {
                         $feedback = 'All procedure data has been committed to VistA';

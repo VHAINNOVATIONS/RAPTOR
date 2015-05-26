@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -25,7 +25,7 @@ require_once 'FormHelper.php';
 require_once 'ProtocolPageUtils.inc';
 
 /**
- * Implementes the cancel order page.
+ * Implementes the replace order page.
  *
  * @author Frank Font of SAN Business Consultants
  */

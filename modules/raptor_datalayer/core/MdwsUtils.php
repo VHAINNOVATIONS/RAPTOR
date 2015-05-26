@@ -761,19 +761,31 @@ class MdwsUtils {
                 || !isset($soapResult->getNoteTitlesResult->results)) {
             throw new \Exception('Invalid results when attempting to verify note title/IEN: '.print_r($soapResult, TRUE));
         }
-        
-        $rsltAry = $soapResult->getNoteTitlesResult->results->taggedResults;
-        foreach ($rsltAry as $rslt) {
-            $namesTaggedTextAry = $rsltAry->textArray;
-            if (!is_array($namesTaggedTextAry)) {
-                $namesTaggedTextAry = array($namesTaggedTextAry);
-            }
-            
-            foreach ($namesTaggedTextAry as $nameTaggedText) {
-                // look for matching note title + IEN
-                if ($nameTaggedText->string == $noteTitle && $rsltAry->tag == $noteTitleIEN) {
-                    return true;
-                } 
+        if (!is_array($soapResult->getNoteTitlesResult->results->TaggedText->taggedResults->TaggedText)) 
+        {
+            $rsltAry = array($soapResult->getNoteTitlesResult->results->TaggedText->taggedResults->TaggedText);
+        } else {
+            $rsltAry = $soapResult->getNoteTitlesResult->results->TaggedText->taggedResults->TaggedText;
+        }
+        foreach ($rsltAry as $rslt) 
+        {
+            $theIEN=$rslt->tag;
+            if($noteTitleIEN == $theIEN)
+            {
+                $titlesAry=$rslt->textArray->string;
+                error_log("DEBUG z looknow verifyNoteTitleMapping>>>ien=$theIEN titlesAry=".print_r($titlesAry,TRUE));
+                if(!is_array($titlesAry))
+                {
+                    $titlesAry = array($titlesAry);
+                }
+                foreach($titlesAry as $title)
+                {
+                    error_log("DEBUG zz inloop looknow verifyNoteTitleMapping>>>ien=$theIEN title=".print_r($title,TRUE));
+                    if($noteTitle == $title)
+                    {
+                        return TRUE;
+                    }
+                }
             }
         }
         // if not found, return false
