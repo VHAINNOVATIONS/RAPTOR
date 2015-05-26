@@ -2545,12 +2545,13 @@ class ProtocolInfoUtility
             '#maxlength' => 100,
             '#default_value' => $default_value,
         );
+        $tmpuom = RadiationDoseHelper::getDefaultUOMForDoseSource('R'); 
         if(isset($myvalues['exam_radioisotope_radiation_dose_tx']) 
                 || isset($myvalues['exam_radioisotope_radiation_dose_uom_tx']))
         {
             //Use this value if we find it.
             $default_dose_value = isset($myvalues['exam_radioisotope_radiation_dose_tx']) ? $myvalues['exam_radioisotope_radiation_dose_tx'] : '';
-            $default_dose_uom = isset($myvalues['exam_radioisotope_radiation_dose_uom_tx']) ? $myvalues['exam_radioisotope_radiation_dose_uom_tx'] : '';
+            $default_dose_uom = isset($myvalues['exam_radioisotope_radiation_dose_uom_tx']) ? $myvalues['exam_radioisotope_radiation_dose_uom_tx'] : $tmpuom;
             $default_dose_value_type_cd = isset($myvalues['exam_radioisotope_radiation_dose_type_cd']) ? $myvalues['exam_radioisotope_radiation_dose_type_cd'] : '';
         } else {
             //Derive a default from the dose map.
@@ -2568,7 +2569,7 @@ class ProtocolInfoUtility
         }
         if($default_dose_value == NULL)
         {
-            $default_dose_value = RadiationDoseHelper::getDefaultUOMForDoseSource('R'); 
+            $default_dose_value = '';
         }
         $sName = 'exam_radioisotope_radiation_dose_tx';
         $root[$sFieldsetKeyName][$sName] = array(

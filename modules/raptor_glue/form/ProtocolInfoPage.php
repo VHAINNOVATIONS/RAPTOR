@@ -2525,12 +2525,15 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $littlename_map = RadiationDoseHelper::getDoseSourceLittlenameMap();
             foreach($littlename_map as $dose_source_code=>$littlename)
             {
-                $dose_details = $getvalues['exam_'.$littlename.'_radiation_dose_map'];
+                $formfieldname = 'exam_'.$littlename.'_radiation_dose_map';
+                $dose_details = $getvalues[$formfieldname];
+                error_log("1 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code ($formfieldname) >>>".print_r($dose_details,TRUE));
                 if(is_array($dose_details))
                 {
                     $category_term=RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_code);
                     foreach($dose_details as $uom=>$values)
                     {
+                        error_log("2 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code uom=$uom >>>".print_r($values,TRUE));
                         $this->addFormattedVistaNoteRow($noteTextArray
                                 , 'Exam Note '
                                     . $category_term
