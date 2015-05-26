@@ -2356,7 +2356,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
             $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Date',$created_dt);
             $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Text',$notes_tx);
+            $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Text',$notes_tx,NULL,TRUE);
         }
         if(count($noteTextArray)>0)
         {
@@ -2430,7 +2430,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Date',$created_dt);
             $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Text',$notes_tx);
+            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Text',$notes_tx,NULL,TRUE);
         }
         if(count($noteTextArray)>0)
         {
@@ -2545,7 +2545,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
             $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Date',$created_dt);
             $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Text',$notes_tx);
+            $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Text',$notes_tx, NULL, TRUE);
         }
         if(count($noteTextArray)>0)
         {
@@ -2573,7 +2573,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
             $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Date',$created_dt);
             $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Text',$notes_tx);
+            $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Text',$notes_tx,NULL,TRUE);
         }
     }
 
@@ -2617,7 +2617,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         return $details_array;
     }
     
-    function addFormattedVistaNoteRow(&$noterows,$label_for_row,$value_container,$key=NULL)
+    function addFormattedVistaNoteRow(&$noterows,$label_for_row,$value_container
+            ,$key=NULL
+            ,$addterminationmarker=FALSE)
     {
         if(!is_array($value_container))
         {
@@ -2630,6 +2632,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             {
                 $noterows[] = '[' . $label_for_row .'] ::= ' . $value_container[$key];
             }
+        }
+        if($addterminationmarker)
+        {
+            $noterows[] = '[' . $label_for_row .' END]';
         }
     }
 
