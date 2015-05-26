@@ -470,7 +470,7 @@ class GetRadiationDoseHxTab
         
         $form["data_entry_area1"]['table_container']['doseaverages'] = array('#type' => 'item',
          '#markup' => '<h3>Modality/Procedure Summary</h3>'
-            . '<p>The total PROTOCOL counts and averages available to RAPTOR for this patient.</p>'
+            . '<p>The total PROTOCOL counts and facility averages available to RAPTOR for this patient.</p>'
             . '<table id="my-raptor-radiationmodalitydetail-table" class="dataTable">'
             . '<thead>'
             . '<th>Modality</th>'

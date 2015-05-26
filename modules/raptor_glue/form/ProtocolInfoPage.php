@@ -1462,7 +1462,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     function validateRadiationDoseInputs($bGood
             , $radiation_dose_tx
             , $uom, $value_type_cd, $src_type_name
-            , $dose_fieldname, $uom_fieldname, $value_type_fieldname)
+            , $dose_fieldname
+            , $uom_fieldname
+            , $value_type_fieldname)
     {
         if($radiation_dose_tx > '')
         {

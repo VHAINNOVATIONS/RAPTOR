@@ -14,6 +14,7 @@
 namespace raptor;
 
 module_load_include('php', 'raptor_glue', 'utility/TermMapping');
+module_load_include('php', 'raptor_glue', 'utility/RadiationDoseHelper');
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
 module_load_include('php', 'raptor_datalayer', 'config/ListUtils');
 module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
@@ -2505,6 +2506,7 @@ class ProtocolInfoUtility
                     || $modality_abbr == 'NM';
         
         $sFieldsetKeyName = 'exam_radioisotope_fieldset';
+        $dose_source_cd = 'R';
         if($modality_abbr == 'NM')
         {
             $nmareatitle = FormHelper::getTitleAsUnrequiredField('Radionuclide Administered', $disabled);
@@ -2566,7 +2568,7 @@ class ProtocolInfoUtility
         }
         if($default_dose_value == NULL)
         {
-            $default_dose_value = '';
+            $default_dose_value = RadiationDoseHelper::getDefaultTermForDoseSource('R');
         }
         $sName = 'exam_radioisotope_radiation_dose_tx';
         $root[$sFieldsetKeyName][$sName] = array(
@@ -2616,55 +2618,67 @@ class ProtocolInfoUtility
             if($modality_abbr == 'CT')
             {
                 //Specifically a CT device
+                $dose_source_cd = 'C';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_ct_dose_fieldset'
                         , 'Machine-Produced Radiation Dose CT'
-                        , 'CTDIvol', 'CTDIvol', 'mGy' 
+                        , 'CTDIvol', 'CTDIvol'
+                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
                         , 'exam_ctdivol_radiation_dose_map'
                         , 'exam_ctdivol_radiation_dose_tx'
                         , 'exam_ctdivol_radiation_dose_uom_tx'
                         , 'exam_ctdivol_radiation_dose_type_cd');
+                $dose_source_cd = 'D';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_ct_dose_fieldset'
                         , 'Machine-Produced Radiation Dose CT'
-                        , 'DLP', 'DLP', 'mGycm'
+                        , 'DLP', 'DLP'
+                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
                         , 'exam_dlp_radiation_dose_map'
                         , 'exam_dlp_radiation_dose_tx'
                         , 'exam_dlp_radiation_dose_uom_tx'
                         , 'exam_dlp_radiation_dose_type_cd');
             } else if($modality_abbr == 'FL') {
                 $littlename = 'fluoroQ';
+                $dose_source_cd = 'Q';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy'
-                        , 'Air Kerma', 'Air Kerma', 'mGy/min'
+                        , 'Air Kerma', 'Air Kerma'
+                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
                         , 'exam_'.$littlename.'_radiation_dose_uom_tx'
                         , 'exam_'.$littlename.'_radiation_dose_type_cd');
                 $littlename = 'fluoroS';
+                $dose_source_cd = 'S';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy'
-                        , 'DAP', 'DAP', 'mGy*cm^2'
+                        , 'DAP', 'DAP'
+                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
                         , 'exam_'.$littlename.'_radiation_dose_uom_tx'
                         , 'exam_'.$littlename.'_radiation_dose_type_cd');
                 $littlename = 'fluoroT';
+                $dose_source_cd = 'T';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy Time'
-                        , 'Minutes', 'Minutes', 'min'
+                        , 'Fluoroscopy Time', 'Fluoroscopy Time'
+                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
                         , 'exam_'.$littlename.'_radiation_dose_uom_tx'
                         , 'exam_'.$littlename.'_radiation_dose_type_cd');
                 $littlename = 'fluoroH';
+                $dose_source_cd = 'H';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy Frame Rate'
-                        , 'Frame Rate', 'Frame Rate', 'Hz'
+                        , 'Fluoroscopy Frame Rate', 'Fluoroscopy Frame Rate'
+                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
                         , 'exam_'.$littlename.'_radiation_dose_uom_tx'
@@ -2672,10 +2686,12 @@ class ProtocolInfoUtility
                         , TRUE, FALSE, FALSE);
             } else {
                 //Other kind of device
+                $dose_source_cd = 'E';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_other_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Other'
-                        , 'Other', 'other', 'mGy'
+                        , 'Other', 'other'
+                        , RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd) 
                         , 'exam_other_radiation_dose_map'
                         , 'exam_other_radiation_dose_tx'
                         , 'exam_other_radiation_dose_uom_tx'
@@ -2731,7 +2747,8 @@ class ProtocolInfoUtility
             , $typecd_valuename
             , $is_collapsible=TRUE
             , $is_collapsed=FALSE
-            , $allow_multiple_values=TRUE)
+            , $allow_multiple_values=TRUE
+            , $use_entirelycustomlabels=FALSE)
     {
         //Create the container
         if(!isset($root) || !array_key_exists($sFieldsetKeyName, $root))
