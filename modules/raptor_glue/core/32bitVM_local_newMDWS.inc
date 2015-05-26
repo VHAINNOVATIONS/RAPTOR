@@ -2,16 +2,22 @@
     
 //DEPRECATED CONFIGURATION UPGRADE IF YOU ARE USING THIS ONE!!!!
 
-defined("RAPTOR_CONFIG_ID")
-    or define("RAPTOR_CONFIG_ID", "20150522.1 Config for TEST 32bit localhost");
+defined('RAPTOR_CONFIG_ID')
+    or define('RAPTOR_CONFIG_ID', '20150526.1 Config for TEST 32bit localhost');
 
 /*
  * These are RAPTOR INSTANCE specific settings
  */
 
-defined("VISTA_SITE")
-    or define("VISTA_SITE", '500');	
+//VISTA values that might change per site
+defined('VISTA_SITE')
+    or define('VISTA_SITE', '500');	
+defined('VISTA_NOTEIEN_RAPTOR_GENERAL')
+    or define('VISTA_NOTEIEN_RAPTOR_GENERAL', '142');
+defined('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST')
+    or define('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST', '149');
 
+//Other site specific values
 defined("RAPTOR_ROOT_URL")
     or define("RAPTOR_ROOT_URL", "http://localhost/drupal/raptor/");
 
