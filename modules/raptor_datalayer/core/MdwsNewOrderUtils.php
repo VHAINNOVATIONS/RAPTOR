@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * MDWS Integration and VISTA collaboration: Joel Mewton
@@ -107,6 +107,10 @@ class MdwsNewOrderUtils {
         if (isset($dialog->commonProcedures) 
                 && isset($dialog->commonProcedures->ClinicalProcedureTO)
                 && count($dialog->commonProcedures->ClinicalProcedureTO) > 0) {
+            if (!is_array($dialog->commonProcedures->ClinicalProcedureTO)) {
+                //20150525
+                $dialog->commonProcedures->ClinicalProcedureTO = array($dialog->commonProcedures->ClinicalProcedureTO);
+            }            
             $commonProcs = array();
             $commonProcCount = count($dialog->commonProcedures->ClinicalProcedureTO);
             for ($i = 0; $i < $commonProcCount; $i++) {
@@ -123,6 +127,10 @@ class MdwsNewOrderUtils {
                 && isset($dialog->shortList->ClinicalProcedureTO)
                 && count($dialog->shortList->ClinicalProcedureTO) > 0) {
             $shortList = array();
+            if (!is_array($dialog->shortList->ClinicalProcedureTO)) {
+                //20150525
+                $dialog->shortList->ClinicalProcedureTO = array($dialog->shortList->ClinicalProcedureTO);
+            }            
             $shortListCount = count($dialog->shortList->ClinicalProcedureTO);
             for ($i = 0; $i < $shortListCount; $i++) {
                 $procId = $dialog->shortList->ClinicalProcedureTO[$i]->id;
@@ -138,6 +146,10 @@ class MdwsNewOrderUtils {
                 && isset($dialog->lastSevenDaysExams->ImagingExamTO)
                 && count($dialog->lastSevenDaysExams->ImagingExamTO) > 0) {
             $exams = array();
+            if (!is_array($dialog->lastSevenDaysExams->ImagingExamTO)) {
+                //20150525
+                $dialog->lastSevenDaysExams->ImagingExamTO = array($dialog->lastSevenDaysExams->ImagingExamTO);
+            }            
             $examsCount = count($dialog->lastSevenDaysExams->ImagingExamTO);
             for ($i = 0; $i < $examsCount; $i++) {
                 $examId = $dialog->lastSevenDaysExams->ImagingExamTO[$i]->id;
@@ -202,12 +214,12 @@ class MdwsNewOrderUtils {
         $classCode = $args['classCode'];
         $contractSharingIen = $args['contractSharingIen'];
         $submitTo = $args['submitTo'];
-        $pregnant = $args['pregnant'];
-        $isolation = $args['isolation'];
+        $pregnant = isset($args['pregnant']) ? $args['pregnant'] : '';
+        $isolation = isset($args['isolation']) ? $args['isolation'] : '';
         $reasonForStudy = $args['reasonForStudy'];
         $clinicalHx = \raptor\StringUtils::joinStrings($args['clinicalHx'], '|'); // 'Line 1|followed by 2|and three';
         $startDateTime = \raptor\StringUtils::convertPhpDateTimeToISO($args['startDateTime']);
-        $preOpDateTime = \raptor\StringUtils::convertPhpDateTimeToISO($args['preOpDateTime']);
+        $preOpDateTime = isset($args['preOpDateTime']) ? \raptor\StringUtils::convertPhpDateTimeToISO($args['preOpDateTime']) : '';
         $modifierIds = \raptor\StringUtils::joinStrings($args['modifierIds'], '|');
         $eSig = isset($args['eSig']) ? $args['eSig'] : '';
         $orderCheckOverrideReason = isset($args['orderCheckOverrideReason']) ? $args['orderCheckOverrideReason'] : '';
@@ -321,6 +333,7 @@ class MdwsNewOrderUtils {
         }
         
         if (isset($soapResult[0]->fault)) {
+            error_log('SOAP FAULT FOUND>>>'.print_r($soapResult,TRUE));
             throw new \Exception('There was a problem fetching order checks: '.$soapResult[0]->fault->message);
         }
         

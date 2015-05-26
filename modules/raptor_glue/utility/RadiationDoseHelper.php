@@ -47,7 +47,7 @@ class RadiationDoseHelper
         , 'E'=>'other'
         , 'C'=>'ctdivol'
         , 'D'=>'dlp'
-        , 'Q'=>'fluroQ'
+        , 'Q'=>'fluoroQ'
         , 'S'=>'fluoroS'
         , 'T'=>'fluoroT'
         , 'H'=>'fluoroH'
