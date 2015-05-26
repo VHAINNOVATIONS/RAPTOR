@@ -2456,7 +2456,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $author_uid = $record['author_uid'];
             $userinfo = $oAllUsers->getByUID($author_uid);
             $fullname = $userinfo->getFullName();
-            $noteTextArray[] = $sRowLabel . $rule_nm . ' acknowledged by ' . $fullname . ' on '. $acknowledged_dt;
+            $writevalue = 'acknowledged by ' . $fullname . ' on '. $acknowledged_dt;
+            $labeltext = 'Contraindication Acknowledgement ' . $rule_nm;
+            $this->addFormattedVistaNoteRow($noteTextArray,$labeltext,$writevalue);
         }
         if(count($noteTextArray)>0)
         {
