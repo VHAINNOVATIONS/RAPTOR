@@ -2488,52 +2488,21 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Radionuclide',$getvalues,'exam_radioisotope_iv_tx');
             $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Consent Received',$getvalues,'exam_consent_received_kw');
             
-            /*
-            $dose_details = $getvalues['exam_radioisotope_radiation_dose_map'];
-            if(is_array($dose_details))
-            {
-                foreach($dose_details as $uom=>$values)
-                {
-                    $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Radionuclide Radiation UoM',$uom);
-                    foreach($values as $dose_record)
-                    {
-                        $dose = $dose_record['dose'];
-                        $qcd = $dose_record['dose_type_cd'];
-                        $qterm = ($qcd == 'E' ? ' (Estimate)' : ($qcd == 'A' ? ' (Actual)' : (trim($qcd) > '' ? ' ('.$qcd.')' : '' )));
-                        $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Radionuclide Radiation Dose',$dose.' '.$uom.$qterm);
-                    }
-                }
-            }
-            $dose_details = $getvalues['exam_other_radiation_dose_map'];
-            if(is_array($dose_details))
-            {
-                foreach($dose_details as $uom=>$values)
-                {
-                    $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Machine-Produced Radiation Exposure UoM',$uom);
-                    foreach($values as $dose_record)
-                    {
-                        $dose = $dose_record['dose'];
-                        $qcd = $dose_record['dose_type_cd'];
-                        $qterm = ($qcd == 'E' ? ' (Estimate)' : ($qcd == 'A' ? ' (Actual)' : (trim($qcd) > '' ? ' ('.$qcd.')' : '' )));
-                        $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Machine-Produced Radiation Exposure Data',$dose.' '.$uom.$qterm);
-                    }
-                }
-            }
-            */
-            
             //Process ALL the possible radiation dose input areas.
             $littlename_map = RadiationDoseHelper::getDoseSourceLittlenameMap();
             foreach($littlename_map as $dose_source_code=>$littlename)
             {
-                $formfieldname = 'exam_'.$littlename.'_radiation_dose_map';
-                $dose_details = $getvalues[$formfieldname];
-                error_log("1 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code ($formfieldname) >>>".print_r($dose_details,TRUE));
+                $formfield_valuemap_name = 'exam_'.$littlename.'_radiation_dose_map';
+                $dose_details = $getvalues[$formfield_valuemap_name];
+                error_log("1 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code ($formfield_valuemap_name) >>>"
+                    . print_r($dose_details,TRUE));
                 if(is_array($dose_details))
                 {
                     $category_term=RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_code);
                     foreach($dose_details as $uom=>$values)
                     {
-                        error_log("2 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code uom=$uom >>>".print_r($values,TRUE));
+                        error_log("2 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code uom=$uom >>>"
+                            . print_r($values,TRUE));
                         $this->addFormattedVistaNoteRow($noteTextArray
                                 , 'Exam Note '
                                     . $category_term

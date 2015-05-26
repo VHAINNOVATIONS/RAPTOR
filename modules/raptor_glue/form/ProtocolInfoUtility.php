@@ -2619,26 +2619,28 @@ class ProtocolInfoUtility
             if($modality_abbr == 'CT')
             {
                 //Specifically a CT device
+                $littlename = 'ctdivol';
                 $dose_source_cd = 'C';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_ct_dose_fieldset'
                         , 'Machine-Produced Radiation Dose CT'
                         , 'CTDIvol', 'CTDIvol'
                         , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
-                        , 'exam_ctdivol_radiation_dose_map'
-                        , 'exam_ctdivol_radiation_dose_tx'
-                        , 'exam_ctdivol_radiation_dose_uom_tx'
-                        , 'exam_ctdivol_radiation_dose_type_cd');
+                        , 'exam_'.$littlename.'_radiation_dose_map'
+                        , 'exam_'.$littlename.'_radiation_dose_tx'
+                        , 'exam_'.$littlename.'_radiation_dose_uom_tx'
+                        , 'exam_'.$littlename.'_radiation_dose_type_cd');
+                $littlename = 'dlp';
                 $dose_source_cd = 'D';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
                         , 'exam_ct_dose_fieldset'
                         , 'Machine-Produced Radiation Dose CT'
                         , 'DLP', 'DLP'
                         , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
-                        , 'exam_dlp_radiation_dose_map'
-                        , 'exam_dlp_radiation_dose_tx'
-                        , 'exam_dlp_radiation_dose_uom_tx'
-                        , 'exam_dlp_radiation_dose_type_cd');
+                        , 'exam_'.$littlename.'_radiation_dose_map'
+                        , 'exam_'.$littlename.'_radiation_dose_tx'
+                        , 'exam_'.$littlename.'_radiation_dose_uom_tx'
+                        , 'exam_'.$littlename.'_radiation_dose_type_cd');
             } else if($modality_abbr == 'FL') {
                 $littlename = 'fluoroQ';
                 $dose_source_cd = 'Q';
@@ -3398,6 +3400,34 @@ class ProtocolInfoUtility
         
         if($bSuccess)
         {
+            
+            //Process ALL the possible radiation dose input areas.
+            $littlename_map = RadiationDoseHelper::getDoseSourceLittlenameMap();
+            foreach($littlename_map as $dose_source_code=>$littlename)
+            {
+                $radiation_dose_tx = isset($myvalues['exam_'.$littlename.'_radiation_dose_tx']) ? trim($myvalues['exam_'.$littlename.'_radiation_dose_tx']) : '';
+                $uom = isset($myvalues['exam_'.$littlename.'_radiation_dose_uom_tx']) ? trim($myvalues['exam_'.$littlename.'_radiation_dose_uom_tx']) : '';
+                $dose_type_cd = isset($myvalues['exam_'.$littlename.'_radiation_dose_type_cd']) ? trim($myvalues['exam_'.$littlename.'_radiation_dose_type_cd']) : '';
+                error_log("save 1 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code ($radiation_dose_tx)");
+                if($radiation_dose_tx != '')
+                {
+                    $nPatientID = $patientDFN;
+                    $data_provider = 'tech during exam';
+                    $dose_dt = $updated_dt;
+                    error_log("save 2 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code ($radiation_dose_tx) write!");
+                    $this->writeRadiationDoseDetails($nSiteID, $nIEN, $nPatientID, $nUID
+                            , $radiation_dose_tx
+                            , $uom
+                            , $dose_dt
+                            , $dose_type_cd
+                            , $dose_source_code
+                            , $data_provider
+                            , $updated_dt
+                            , $use_sofar_tables);                
+                }
+            }
+            /*
+            
             //Now write the dose information.
             $radiation_dose_tx = isset($myvalues['exam_ctdivol_radiation_dose_tx']) ? trim($myvalues['exam_ctdivol_radiation_dose_tx']) : '';
             $uom = isset($myvalues['exam_ctdivol_radiation_dose_uom_tx']) ? trim($myvalues['exam_ctdivol_radiation_dose_uom_tx']) : '';
@@ -3607,6 +3637,8 @@ class ProtocolInfoUtility
                         , $updated_dt
                         , $use_sofar_tables);                
             }
+             * 
+             */
             
         }
 
@@ -3679,9 +3711,12 @@ class ProtocolInfoUtility
             , $updated_dt
             , $write_to_sofar=FALSE)
     {
-        
-        if(!$write_to_sofar)
+        error_log("a DEBUG LOOK writeRadiationDoseDetails 1 ($write_to_sofar)>>> $nSiteID-$nIEN :: $nPatientID, $nUID >> sourcecode=$dose_source_cd dose values=$radiation_dose_tx");
+        if($write_to_sofar)
         {
+            //We are only saving values so far.
+            $targettablename = 'raptor_ticket_exam_radiation_dose_sofar';
+        } else {
             //We are committing to the real table.
             try
             {
@@ -3690,7 +3725,7 @@ class ProtocolInfoUtility
                         ->fields('p')
                         ->condition('siteid',$nSiteID,'=')
                         ->condition('IEN',$nIEN,'=')
-                        ->condition('dose_type_cd',$dose_type_cd,'=')
+                        ->condition('dose_source_cd',$dose_source_cd,'=')
                         ->execute();
                 while($record = $result->fetchAssoc())
                 {
@@ -3720,17 +3755,15 @@ class ProtocolInfoUtility
                 $nDeleted = db_delete('raptor_ticket_exam_radiation_dose')
                     ->condition('siteid',$nSiteID,'=')
                     ->condition('IEN',$nIEN,'=')
-                    ->condition('dose_type_cd',$dose_type_cd,'=')
+                    ->condition('dose_source_cd',$dose_source_cd,'=')
                     ->execute();
             } catch(\Exception $ex) {
                 error_log('Failed to create raptor_ticket_exam_radiation_dose_replaced: ' . print_r($ex,TRUE));
                 throw $ex;
             }
             $targettablename = 'raptor_ticket_exam_radiation_dose';
-        } else {
-            //We are only saving values so far.
-            $targettablename = 'raptor_ticket_exam_radiation_dose_sofar';
         }
+        error_log("a DEBUG LOOK writeRadiationDoseDetails 2 table=$targettablename ($write_to_sofar)>>> $nSiteID-$nIEN :: $nPatientID, $nUID >> sourcecode=$dose_source_cd dose values=$radiation_dose_tx");
         
         //Do we have anything to write?
         if($radiation_dose_tx != '')
@@ -3769,6 +3802,7 @@ class ProtocolInfoUtility
                         throw $ex;
                 }
             }
+            error_log("a DEBUG LOOK writeRadiationDoseDetails 3 table=$targettablename inserted $sequence_num ($write_to_sofar)>>> $nSiteID-$nIEN :: $nPatientID, $nUID >> sourcecode=$dose_source_cd dose values=$radiation_dose_tx");
         }
     }
 
