@@ -92,7 +92,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $myvalues['modecode'] = NULL;
         $myvalues['category'] = NULL;
         $myvalues['submitto'] = NULL;
-        $myvalues['isolation'] = NULL;
+        $myvalues['isolation'] = 3; //Default to UNKNOWN
         $myvalues['pregnant'] = NULL;
         $myvalues['reasonforstudy'] = NULL;
         $myvalues['clinhist'] = NULL;
@@ -135,15 +135,15 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'submitto', 'Submit To');
             
             $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'isolation', 'Isolation');
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'pregnant', 'Pregnant');
+            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'pregnant', 'Pregnant');  //TODO
             
             $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'reasonforstudy', 'Reason for Study');
             
             $goodtrack[] = FormHelper::validate_date_field_not_empty($myvalues, 'datedesired_dateonly', 'Desired Date');
             $goodtrack[] = FormHelper::validate_time_field_not_empty($myvalues, 'datedesired_timeonly', 'Desired Time');
             
-            $goodtrack[] = FormHelper::validate_date_field_not_empty($myvalues, 'preopdate_dateonly', 'Preop Date');
-            $goodtrack[] = FormHelper::validate_time_field_not_empty($myvalues, 'preopdate_timeonly', 'Preop Time');
+            //$goodtrack[] = FormHelper::validate_date_field_not_empty($myvalues, 'preopdate_dateonly', 'Preop Date');
+            //$goodtrack[] = FormHelper::validate_time_field_not_empty($myvalues, 'preopdate_timeonly', 'Preop Time');
             
             //Make sure we know what kind of modality this order applies to.
             $language_infer = new \raptor_formulas\LanguageInference();
@@ -1053,7 +1053,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             $form['data_entry_area1']['toppart']['WB1']['LB2']['isolation'] = array(
                 "#type" => "radios",
                 "#empty_option"=>t('- Select -'),
-                "#title" => FormHelper::getTitleAsRequiredField("Isolation"),
+                "#title" => FormHelper::getTitleAsUnrequiredField("Isolation"),
                 "#options" => array(1=>t('Yes'),2=>t('No'),3=>t('Unknown')),
                 "#default_value" => $myvalues['isolation'],
                 "#disabled" => $disabled_step2,
@@ -1157,7 +1157,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                         ),
                 '#size' => 10, 
                 '#maxlength' => 10, 
-                '#title'         => FormHelper::getTitleAsRequiredField('PreOp Scheduled'),
+                '#title'         => FormHelper::getTitleAsUnrequiredField('PreOp Scheduled'),
                 "#disabled" => $disabled_step2,
                 "#default_value" => $preopdate_dateonly,
                 "#description" => t('What is the preop date? (MM/DD/YYYY)'),
@@ -1176,7 +1176,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                         ),
                 '#size' => 5, 
                 '#maxlength' => 5, 
-                '#title'     => FormHelper::getTitleAsRequiredField('Preop Time'),
+                '#title'     => FormHelper::getTitleAsUnrequiredField('Preop Time'),
                 "#disabled" => $disabled_step2,
                 "#default_value" => $preopdate_timeonly,
                 "#description" => t('What is the preop start time? (HH:MM military time)'),
