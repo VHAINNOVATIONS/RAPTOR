@@ -133,6 +133,10 @@ class GetRadiologyReportsTab
         
         $patientDFN=$raptor_protocoldashboard['PatientID'];
         $patientICN=$raptor_protocoldashboard['mpiPid'];
+        if(trim($patientICN) == '')
+        {
+            error_log("WARNING NO PATIENTICN found for PATIENTDFN=".$patientDFN);
+        }
         
         $rows = '';
         foreach($radiology_reports_detail as $data_row) 

@@ -2539,8 +2539,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                         {
                             $dose = $dose_record['dose'];
                             $qcd = $dose_record['dose_type_cd'];
-                            $qterm = RadiationDoseHelper::getDoseTypeTermMap($qcd);
-                            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note '.$category_term.' Radiation Exposure Data',$dose.' '.$uom.$qterm);
+                            $qterm = RadiationDoseHelper::getDoseTypeTermForTypeCode($qcd);
+                            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note '.$category_term.' Radiation Exposure Data'
+                                    ,$dose.' '.$uom.$qterm);
                         }
                     }
                 }
