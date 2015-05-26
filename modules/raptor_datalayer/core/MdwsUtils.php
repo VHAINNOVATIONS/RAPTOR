@@ -773,14 +773,12 @@ class MdwsUtils {
             if($noteTitleIEN == $theIEN)
             {
                 $titlesAry=$rslt->textArray->string;
-                error_log("DEBUG z looknow verifyNoteTitleMapping>>>ien=$theIEN titlesAry=".print_r($titlesAry,TRUE));
                 if(!is_array($titlesAry))
                 {
                     $titlesAry = array($titlesAry);
                 }
                 foreach($titlesAry as $title)
                 {
-                    error_log("DEBUG zz inloop looknow verifyNoteTitleMapping>>>ien=$theIEN title=".print_r($title,TRUE));
                     if($noteTitle == $title)
                     {
                         return TRUE;
