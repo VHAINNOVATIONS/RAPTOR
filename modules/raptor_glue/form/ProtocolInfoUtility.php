@@ -1093,9 +1093,9 @@ class ProtocolInfoUtility
         }
         if(!$configuredVistaCommit)
         {
-            $ackproAndCommitTip = 'VistA not configured to support this!  Contact system admin.';
-            $examcompAndCommitTip = 'VistA not configured to support this!  Contact system admin.';
-            $interpretationAndCommitTip = 'VistA not configured to support this!  Contact system admin.';
+            $ackproAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
+            $examcompAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
+            $interpretationAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
         }
         
         $feedback = NULL;
