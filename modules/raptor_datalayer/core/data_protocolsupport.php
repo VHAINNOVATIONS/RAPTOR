@@ -266,32 +266,71 @@ class ProtocolSupportingData
             $displayVitals[$i]['CVP'] = " ";
             $displayVitals[$i]['Blood Glucose'] = " ";
 
+            $defBPUnits = NULL;
+            $defPulseUnits = NULL;
+            $defPainUnits = NULL;
+            $defPOXUnits = '%';
+            $defTempUnits = NULL;
+            $defWtUnits = NULL;
+            $defHtUnits = NULL;
             $defaultUnits = explode(",", $vitalsSetTO->units);
             for($z=0; $z < count($defaultUnits); $z++)
             {
-               $tempUnit = explode(":", $defaultUnits[$z]);
-                switch ($z):
-                    case 0:
+                $tempUnit = explode(":", $defaultUnits[$z]);
+                if($tempUnit[0] == 'BP')
+                {
+                    if(trim($tempUnit[1]) > '')
+                    {
                         $defBPUnits = $tempUnit[1];
-                        break;
-                    case 1:
+                    }
+                } else 
+                if($tempUnit[0] == 'HT')
+                {
+                    if(trim($tempUnit[1]) > '')
+                    {
+                        $defHtUnits = $tempUnit[1];
+                    }
+                } else 
+                if($tempUnit[0] == 'PULSE')
+                {
+                    if(trim($tempUnit[1]) > '')
+                    {
                         $defPulseUnits = $tempUnit[1];
-                        break;
-                    case 2:
+                    }
+                } else 
+                if($tempUnit[0] == 'PAIN')
+                {
+                    if(trim($tempUnit[1]) > '')
+                    {
                         $defPainUnits = $tempUnit[1];
-                        break;
-                    case 3:
+                    }
+                } else 
+                if($tempUnit[0] == 'POx')
+                {
+                    //Only assign if not blank.  20150527
+                    if(trim($tempUnit[1]) > '')
+                    {
                         $defPOXUnits = $tempUnit[1];
-                        break;
-                    case 4:
+                    }
+                } else 
+                if($tempUnit[0] == 'TEMP')
+                {
+                    //Only assign if not blank.  20150527
+                    if(trim($tempUnit[1]) > '')
+                    {
                         $defTempUnits = $tempUnit[1];
-                        break;
-                    case 4:
+                    }
+                } else 
+                if($tempUnit[0] == 'WT')
+                {
+                    //Only assign if not blank.  20150527
+                    if(trim($tempUnit[1]) > '')
+                    {
                         $defWtUnits = $tempUnit[1];
-                        break;
-                endswitch;
+                    }
+                }
             }
-            
+ 
             //Now loop through all the records.
             for($j=0; $j<$numVitalsTO; $j++)
             {
@@ -314,7 +353,8 @@ class ProtocolSupportingData
                     if(strcasecmp('temperature', $vital->type->name) == 0)
                     {
                         $thiskey = 'Temp';
-                        $displayVitals[$i][$thiskey] = $vital->value1." ".$units;
+                        $displayVitals[$i][$thiskey] = $vital->value1." " 
+                                . (trim($units) == '' ? $defTempUnits : $units);
                         if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))
                         {
                             $aLatestValueDate[$thiskey] = $rawTime;
@@ -323,8 +363,14 @@ class ProtocolSupportingData
                     } elseif(strcasecmp('height', $vital->type->name) == 0)
                     {
                         $thiskey = 'Height';
-                        $cms = round($vital->value1*2.54, 1);
-                        $displayVitals[$i][$thiskey] = $vital->value1." ".$units." (".$cms." cm)";
+                        $thisunits = trim($units) == '' ? $defHtUnits : $units;
+                        if($thisunits == 'in')
+                        {
+                            $cms = round($vital->value1*2.54, 1);
+                            $displayVitals[$i][$thiskey] = $vital->value1." ".$thisunits." (".$cms." cm)";
+                        } else {
+                            $displayVitals[$i][$thiskey] = $vital->value1." ".$thisunits;
+                        }
                         if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))
                         {
                             $aLatestValueDate[$thiskey] = $rawTime;
@@ -332,8 +378,14 @@ class ProtocolSupportingData
                         }
                     } elseif(strcasecmp('weight', $vital->type->name) == 0){
                         $thiskey = 'Weight';
-                        $kgs = round($vital->value1*0.45359237, 1);
-                        $displayVitals[$i][$thiskey] = $vital->value1." ".$units." (".$kgs." kg)";
+                        $thisunits = trim($units) == '' ? $defWtUnits : $units;
+                        if($thisunits == 'lb')
+                        {
+                            $kgs = round($vital->value1*0.45359237, 1);
+                            $displayVitals[$i][$thiskey] = $vital->value1." ".$thisunits." (".$kgs." kg)";
+                        } else {
+                            $displayVitals[$i][$thiskey] = $vital->value1." ".$thisunits;
+                        }
                         if($vital->value1 > '')
                         {
                             if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))
@@ -352,7 +404,8 @@ class ProtocolSupportingData
                         }
                     } elseif(strcasecmp('blood pressure', $vital->type->name) == 0) {
                         $thiskey = 'Blood Pressure';
-                        $displayVitals[$i][$thiskey] = $vital->value1." ".$units;
+                        $displayVitals[$i][$thiskey] = $vital->value1." "  
+                                . (trim($units) == '' ? $defBPUnits : $units);
                         if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))
                         {
                             $aLatestValueDate[$thiskey] = $rawTime;
@@ -360,7 +413,8 @@ class ProtocolSupportingData
                         }
                     } elseif(strcasecmp('pulse', $vital->type->name) == 0) {
                         $thiskey = 'Pulse';
-                        $displayVitals[$i][$thiskey] = $vital->value1." ".$units;
+                        $displayVitals[$i][$thiskey] = $vital->value1." " 
+                                . (trim($units) == '' ? $defPulseUnits : $units);
                         if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))
                         {
                             $aLatestValueDate[$thiskey] = $rawTime;
@@ -376,7 +430,8 @@ class ProtocolSupportingData
                         }
                     } elseif(strcasecmp('pain', $vital->type->name) == 0){
                         $thiskey = 'Pain';
-                        $displayVitals[$i][$thiskey] = $vital->value1." ".$units;
+                        $displayVitals[$i][$thiskey] = $vital->value1." "
+                                . (trim($units) == '' ? $defPainUnits : $units);
                         if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))
                         {
                             $aLatestValueDate[$thiskey] = $rawTime;
@@ -392,7 +447,8 @@ class ProtocolSupportingData
                         }
                     } elseif(strcasecmp('Pulse Oxymetry', $vital->type->name) == 0){
                         $thiskey = 'Pox';
-                        $displayVitals[$i][$thiskey] = $vital->value1." ".($units == "" ? $defPOXUnits : $units);
+                        $displayVitals[$i][$thiskey] = $vital->value1." " 
+                                . (trim($units) == '' ? $defPOXUnits : $units);
                         if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))
                         {
                             $aLatestValueDate[$thiskey] = $rawTime;
