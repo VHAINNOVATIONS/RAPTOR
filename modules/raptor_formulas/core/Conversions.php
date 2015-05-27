@@ -79,14 +79,26 @@ class Conversions
                 's'=>array(
                     'm' => '\$inputvalue * 0.0166667',
                 ),
+                'sec'=>array(
+                    'min' => '\$inputvalue * 0.0166667',
+                ),
                 'm'=>array(
                     's' => '\$inputvalue * 60',
+                ),
+                'min'=>array(
+                    'sec' => '\$inputvalue * 60',
                 ),
                 'h'=>array(
                     's' => '\$inputvalue * 3600',
                 ),
+                'hour'=>array(
+                    'sec' => '\$inputvalue * 3600',
+                ),
                 'h'=>array(
                     'm' => '\$inputvalue * 60',
+                ),
+                'hour'=>array(
+                    'min' => '\$inputvalue * 60',
                 ),
             );
     
@@ -107,7 +119,7 @@ class Conversions
             eval("\$answer = \"$formula\";");
             return $answer;
         } catch (\Exception $ex) {
-            throw new \Exception("Cannot convert \"$from\" to \"$to\" because ".$ex->getMessage());
+            throw new \Exception("Cannot convert \"$from\" units to \"$to\" units because ".$ex->getMessage());
         }
     }
     
