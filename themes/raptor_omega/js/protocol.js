@@ -94,14 +94,17 @@
 
 
     /*If the user presses a key, types something in or makes an ajax call, we have to reset action seconds
-     * to keep the session active*/
-    $(document).on('keypress keyup keydown change', 'input, select, textarea', function () {
+     * to keep the session active
+     * Correction: not every ajax call is counted as a change - users were getting warnings by just clicking tabs,
+     * solved by removing the 'chage' keyword from event handler keypress...etc*/
+    $(document).on('keypress keyup keydown', 'input, select, textarea, .checkbox', function () {
         //console.log("Something is happening");
         window.onbeforeunload = confirmOnPageExit;
     });
     
+       
     //dectects changes in drop down selectors which make ajax calls on protocol page
-    $(document).on('click','.form-select', function(){
+    $(document).on('click','.form-select, .form-checkbox', function(){
         //console.log("Something is happening");
         window.onbeforeunload = confirmOnPageExit;
     });
