@@ -130,12 +130,13 @@ class GetRadiologyReportsTab
         $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         $radiology_reports_detail = $oPSD->getRadiologyReportsDetail();
         $raptor_protocoldashboard = $oDD->getDashboardDetails();
-        
+        $sTrackingIDfromDD = $raptor_protocoldashboard['Tracking ID'];
         $patientDFN=$raptor_protocoldashboard['PatientID'];
         $patientICN=$raptor_protocoldashboard['mpiPid'];
         if(trim($patientICN) == '')
         {
-            error_log("WARNING NO PATIENTICN found for PATIENTDFN=".$patientDFN);
+            error_log("ERROR on $sTrackingIDfromDD NO PATIENTICN(mpiPid) found for PATIENTDFN=".$patientDFN);
+            error_log("DEBUG ENTIRE DD for missing PATIENTICN(mpiPid) on $sTrackingIDfromDD >>>".print_r($raptor_protocoldashboard,TRUE));
         }
         
         $rows = '';

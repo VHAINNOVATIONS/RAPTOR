@@ -666,7 +666,7 @@ class WorklistData
     {
         if($override_tracking_id !== NULL)
         {
-            //TODO -- Change this side-effect so override does NOT alter the context for the session!!!!
+            //Potential enhancement note: Change this side-effect so override does NOT alter the context for the session.
             $this->m_oContext->setSelectedTrackingID($override_tracking_id);        
         }
         
