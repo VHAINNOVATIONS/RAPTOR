@@ -381,7 +381,8 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                         {
                             if(in_array($onemed, $medications_atrisk_hits))
                             {
-                                $searchedmarkup[] = "<span style='background-color: yellow; font-weight: bold;'>$onemed</span>";
+                                $searchedmarkup[] 
+                                        = "<span class='medical-value-danger' style='background-color: yellow; font-weight: bold;'>$onemed</span>";
                             } else {
                                 $searchedmarkup[] = $onemed;
                             }

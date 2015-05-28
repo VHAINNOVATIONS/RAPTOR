@@ -1135,9 +1135,8 @@ class ProtocolSupportingData
             $refRange[$key] = $row['refRange'];
             $rawTime[$key] = $row['rawTime'];
         }
-//        if(empty($name))
-//            return array('renal' => $renalLabs, 'coagulation' => $coagulationLabs);
 
+        
         if(isset($name) && is_array($name)) //20140603
         {
             array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedLabs);
@@ -1146,7 +1145,7 @@ class ProtocolSupportingData
 
         $creatinineLabel = 'Creatinine';
         $eGFRLabel = "eGFR";
-        foreach($sortedLabs as $lab)
+        foreach($sortedLabs as $key => $lab)
         {
             $name = $lab['name'];
             $foundCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
@@ -1169,23 +1168,33 @@ class ProtocolSupportingData
                 $alert = $lab['value'] > $upperLimit;
             else
                 $alert = FALSE;
-            $value = $alert ? "<span class='medical-value-danger'>** ".$lab['value']." ".$lab['units']." **</span>" : $lab['value']." ".$lab['units'];
+            $value = $alert ? "<span class='medical-value-danger'>** "
+                    .$lab['value']." ".$lab['units']
+                    ." **</span>" : $lab['value']." ".$lab['units'];
 
             $rawValue = $lab['value'];
             $units = $lab['units'];
+            $creatinineRefRange = '';
+            $eGFRRefRange = '';
 
             if($foundCreatinine)
             {
+                $creatinineRefRange = $lab['refRange'];
                 $foundEGFR = FALSE;
                 $checkDate = $lab['date'];
                 $dDate = strtotime($checkDate);
                 foreach($sortedLabs as $checkLab)
                 {
-                    if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE){
-                        $foundEGFR = TRUE;
-                        $eGFR = $checkLab['value'];
-                        $eGFRSource = "";
-                        break;
+                    if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
+                    {
+                        if($checkDate == $checkLab['date'])
+                        {
+                            $foundEGFR = TRUE;
+                            $eGFR = $checkLab['value'];
+                            $eGFRRefRange = $checkLab['refRange'];
+                            $eGFRSource = " (eGFR from VistA)";
+                            break;
+                        }
                     }
                 }
                 if(!$foundEGFR)
@@ -1199,7 +1208,7 @@ class ProtocolSupportingData
                      $ethnicityCorrection = $isAfricanAmerican ? 1.212 : 1;
                      $eGFR = 186 * pow($eGFRValue, -1.154) * pow($age, -0.203) * $F * $ethnicityCorrection;
                      $eGFR = round($eGFR,0);
-                     $eGFRSource = " (calc)";
+                     $eGFRSource = " (eGFR calculated)";
                }
                $eGFRUnits = " mL/min/1.73 m^2";
                $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
@@ -1207,9 +1216,10 @@ class ProtocolSupportingData
                //$renalLabs[] = array('date'=>$lab['date'], 'creatinineLabel'=>$creatinineLabel, 'creatinineValue'=>$value, 'eGFRDisplayValue'=>$eGFR." ".$eGFRUnits, 'eGFRValue'=>$eGFR, 'eGRRSource'=>$eGFRSource);
                $aDiagLabs[] = array('DiagDate'=>$lab['date']
                        , 'Creatinine'=>$value
-                       , 'eGFR'=>$eGFR
+                       , 'eGFR'=>"$eGFR $eGFRUnits"
                        , 'eGFR_Health'=>$eGFR_Health
-                       , 'Ref'=>$eGFRSource);
+                       , 'Ref'=>trim("$eGFRSource $creatinineRefRange $eGFRRefRange")
+                   );
 
                //Assign to the EGFR array.
                if($eGFR > '')
@@ -1284,6 +1294,7 @@ class ProtocolSupportingData
         
         $aResult = array($aDiagLabs, $aJustEGFR);
         $this->m_oRuntimeResultCache->addToCache($sThisResultName, $aResult);
+        
         return $aResult;
     }    
     

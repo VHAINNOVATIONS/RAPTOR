@@ -3131,8 +3131,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $atriskmeds= $oLO->getAtRiskMedsKeywords();
         $aMedsBundle = $oPSD->getMedicationsDetail($atriskmeds);
 
-error_log("LOOK MEDSBUNDLE>>>>".print_r($aMedsBundle,TRUE));        
-        
         $raptor_protocol_content = array();
         //$formContent = raptor_glue_protocolinfo_form_inputarea();
         //$raptor_protocol_content['Input']['Protocol'] = '<h1>THIS GLOBAL ENTRY HAS BEEN DEPRECATED!</h1>'; //drupal_render($formContent);
