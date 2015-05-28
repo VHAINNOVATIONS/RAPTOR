@@ -19,7 +19,9 @@ $problems_list_detail = $raptor_protocol_content["Reference"]["ProblemsListDetai
 //deprecated 20150524 $notes_detail = $raptor_protocol_content["Reference"]["NotesDetail"];
 //$radiology_reports_detail = $raptor_protocol_content["Reference"]["RadiologyReportsDetail"][0];
 $order_overview = $raptor_protocol_content["Reference"]["OrderOverview"];
-$medications_detail = $raptor_protocol_content["Reference"]["MedicationsDetail"];
+$aMedBundle = $raptor_protocol_content["Reference"]["MedicationsBundle"];
+$medications_detail = $aMedBundle['details'];
+$medications_atrisk_hits = $aMedBundle['atrisk_hits'];
 $vitals_summary = $raptor_protocol_content["Reference"]["VitalsSummary"];
 $vitals_detail = $raptor_protocol_content["Reference"]["VitalsDetail"];
 $allergies_detail = $raptor_protocol_content["Reference"]["AllergiesDetail"];
@@ -370,7 +372,23 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                 <div id="tab-content2" class="tab-content animated fadeIn">
                   <!-- Readonly -->
                   <section class="read-only2">
-                    <p>Searched for at risk meds: <?php echo implode(', ', $aAtRiskMeds); ?></p>
+                    <p>Searched for at risk meds: 
+                        <?php 
+                        $searchedmarkup = array();
+                        //echo implode(', ', $aAtRiskMeds); 
+                        //error_log("LOOK THEME ATRISKHITS>>> ".print_r($medications_atrisk_hits,TRUE));
+                        foreach($aAtRiskMeds as $onemed)
+                        {
+                            if(in_array($onemed, $medications_atrisk_hits))
+                            {
+                                $searchedmarkup[] = "<span style='background-color: yellow; font-weight: bold;'>$onemed</span>";
+                            } else {
+                                $searchedmarkup[] = $onemed;
+                            }
+                        }
+                        echo implode(', ', $searchedmarkup); 
+                        ?>
+                    </p>
                     <table class="dataTable">
                       <thead>
                         <tr>

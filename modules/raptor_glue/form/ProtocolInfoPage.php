@@ -2878,7 +2878,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         
         //Get meds to pass in.
         $aMeds = array();
-        $aMedDetail = $oPSD->getMedicationsDetail();
+        $aMedBundle = $oPSD->getMedicationsDetail();
+        $aMedDetail = $aMedBundle['details'];
         foreach($aMedDetail as $aMedItem)
         {
             $aMeds[] = $aMedItem['Med'];
@@ -3127,13 +3128,18 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         $oGD = new \raptor\GraphData($this->m_oContext);
         $oLO = new \raptor\ListOptions();
+        $atriskmeds= $oLO->getAtRiskMedsKeywords();
+        $aMedsBundle = $oPSD->getMedicationsDetail($atriskmeds);
 
+error_log("LOOK MEDSBUNDLE>>>>".print_r($aMedsBundle,TRUE));        
+        
         $raptor_protocol_content = array();
         //$formContent = raptor_glue_protocolinfo_form_inputarea();
-        $raptor_protocol_content['Input']['Protocol'] = '<h1>THIS GLOBAL ENTRY HAS BEEN DEPRECATED!</h1>'; //drupal_render($formContent);
+        //$raptor_protocol_content['Input']['Protocol'] = '<h1>THIS GLOBAL ENTRY HAS BEEN DEPRECATED!</h1>'; //drupal_render($formContent);
+        $raptor_protocol_content['AtRiskMeds'] = $atriskmeds;
         $raptor_protocol_content['Reference']['OrderOverview'] = $oPSD->getOrderOverview();
         $raptor_protocol_content['Reference']['VitalsSummary'] = $oPSD->getVitalsSummary();
-        $raptor_protocol_content['Reference']['MedicationsDetail'] = $oPSD->getMedicationsDetail();
+        $raptor_protocol_content['Reference']['MedicationsBundle'] = $aMedsBundle;
         $raptor_protocol_content['Reference']['VitalsDetail'] = $oPSD->getVitalsDetail();
         $raptor_protocol_content['Reference']['AllergiesDetail'] = $oPSD->getAllergiesDetail();
         $raptor_protocol_content['Reference']['ProcedureLabsDetail'] = $oPSD->getProcedureLabsDetail();
@@ -3147,7 +3153,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $raptor_protocol_content['Reference']['Graph']['Thumbnail'] = $oGD->getThumbnailGraphValues();
         $raptor_protocol_content['Reference']['Graph']['Labs'] = $oGD->getLabsGraphValues();
         $raptor_protocol_content['Reference']['Graph']['Vitals'] = $oGD->getVitalsGraphValues();
-        $raptor_protocol_content['AtRiskMeds'] = $oLO->getAtRiskMedsKeywords();
     }
     
     

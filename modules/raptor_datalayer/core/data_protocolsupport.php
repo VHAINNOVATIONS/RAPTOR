@@ -110,43 +110,58 @@ class ProtocolSupportingData
         return $this->getKeywordsFromTable('raptor_atrisk_bloodthinner');
     }
     
-    //TODO atRisk value is not yet properly calculated - must involve contra-indications logic
     /**
      * @abstract Return array of medications for a patient. Patient must be set in MDWS context. 
      * @return array
      */
-    function getMedicationsDetail()
+    function getMedicationsDetail($atriskmeds=NULL)
     {
         //$serviceResponse = $this->m_oContext->getEMRService()->getAllMeds();
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getAllMeds", NULL);
         
         $displayMeds = array();
+        $atriskhits = array();
+        $bundle = array('details' => $displayMeds, 'atrisk_hits'=>$atriskhits);
         
         if(!isset($serviceResponse->getAllMedsResult->count))
-                return $displayMeds;
+        {
+                return $bundle;
+        }
         $numMeds = $serviceResponse->getAllMedsResult->count;
         
         if($numMeds == 0)
-            return $displayMeds;
+        {
+            return $bundle;
+        }
  
+        if($atriskmeds==NULL)
+        {
+            $atriskmeds = array();
+            $checkatrisk = FALSE;
+        } else {
+            $checkatrisk = TRUE;
+        }
+        
+        $displayMedsLast = array();
         for ($i=0; $i<$numMeds; $i++){
             // Check to see if 'arrays' is actually an array or just an object
             $objType = gettype($serviceResponse->getAllMedsResult->arrays);
-            //Finally get the allergies
             if ($objType == 'array')
                 $medications = $serviceResponse->getAllMedsResult->arrays->TaggedMedicationArray[$i];
             elseif ($objType == 'object')
                 $medications = $serviceResponse->getAllMedsResult->arrays->TaggedMedicationArray;
             else {
-                return $displayMeds;
+                return $bundle;
             }
             
             $n = $medications->count;
             if($n == 0)
-                return $displayMeds;
+            {
+                return $bundle;
+            }
             
-            for ($j=0; $j<$n; $j++){
-                
+            for ($j=0; $j<$n; $j++)
+            {
                 // Check to see if is actually an array or just an object
                 $objType = gettype($medications->meds->MedicationTO);
                 if ($objType == 'array')
@@ -154,18 +169,61 @@ class ProtocolSupportingData
                 elseif ($objType == 'object')
                     $med = $medications->meds->MedicationTO;
                 else {
-                    return $displayMeds;
+                    $med = NULL;
                 }
-                $tempMeds = array();
-                $tempMeds['Med'] = isset($med->name) ? $med->name : " ";
-                $tempMeds['AtRisk'] = " ";
-                $tempMeds['Status'] = isset($med->status) ? $med->status : " ";
-                $displayMeds[$j] = $tempMeds;
+                if($med !== NULL)
+                {
+                    $tempMeds = array();
+                    if(isset($med->name))
+                    {
+                        $medname = trim($med->name);
+                        $tempMeds['Med'] = $medname;
+                        $tempMeds['Status'] = isset($med->status) ? $med->status : " ";
+                        if($checkatrisk)
+                        {
+                            $atriskmatchtext = self::findSubstringMatchInArray($medname, $atriskmeds);
+                            $atrisk = $atriskmatchtext !== FALSE;
+                            $tempMeds['AtRisk'] = ($atrisk ? 'YES' : 'no');
+                            if($atrisk)
+                            {
+                                $atriskhits[$atriskmatchtext] = $atriskmatchtext;   //Set the key and value the same!
+                                $displayMeds[] = $tempMeds;
+                            } else {
+                                $displayMedsLast[] = $tempMeds;
+                            }
+                        } else {
+                            $tempMeds['AtRisk'] = '';
+                            $displayMeds[] = $tempMeds;
+                        }
+                    }
+                }
             }
         }
-        return $displayMeds;
+        foreach($displayMedsLast as $medsinfo)
+        {
+            $displayMeds[] = $medsinfo;
+        }
+        $bundle = array('details' => $displayMeds, 'atrisk_hits'=>$atriskhits);
+        return $bundle;
     }
 
+    private static function findSubstringMatchInArray($needle, $haystackarray)
+    {
+        $cleanneedle = strtoupper(trim($needle));
+        foreach($haystackarray as $check)
+        {
+            $cleancheck = strtoupper(trim($check));
+            if(FALSE !== strpos($cleancheck,$cleanneedle))
+            {
+                return $check;
+            }
+            if(FALSE !== strpos($cleanneedle,$cleancheck))
+            {
+                return $check;
+            }
+        }
+        return FALSE;
+    }
     
     /**
      * Create the following three arrays of data and group them into one returned array.
