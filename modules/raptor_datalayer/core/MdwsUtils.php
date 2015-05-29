@@ -386,7 +386,9 @@ class MdwsUtils {
         return $result;
     }
 
-    
+    /**
+     * NOTE: SOME CODE REDUNDANCY WITH data_protocolsupport.php LABS EGFR LOGIC!
+     */
     public static function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs=1000)
     {
         
@@ -457,6 +459,7 @@ class MdwsUtils {
             {
                 $foundEGFR = FALSE;
                 $checkDate = $lab['date'];
+                /*
                 foreach($sortedLabs as $checkLab)
                 {
                     if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
@@ -467,9 +470,23 @@ class MdwsUtils {
                         break;
                     }
                 }
+                 */
+                foreach($sortedLabs as $checkLab)
+                {
+                    if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
+                    {
+                        if($checkDate == $checkLab['date'])
+                        {
+                            $foundEGFR = TRUE;
+                            $eGFR = $checkLab['value'];
+                            $eGFRSource = " (eGFR from VistA)";
+                            break;
+                        }
+                    }
+                }
                 if(!$foundEGFR)
                 {
-                    $eGFRSource = ' (calc)';
+                    $eGFRSource = ' (calculated)';
                     $eGFR = $labsformulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican);
                  }
                //$eGFRUnits = " mL/min/1.73 m^2";
@@ -532,7 +549,7 @@ class MdwsUtils {
                 }
             }
         }
-            
+error_log("LOOK MDWSUTILS labs>>>".print_r($displayLabsResult,TRUE));            
         return $displayLabsResult;
     }
     
