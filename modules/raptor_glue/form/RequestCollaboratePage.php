@@ -88,9 +88,9 @@ class RequestCollaboratePage
         $bGood = TRUE;
         if(!isset($myvalues['collaborator_uid']) || !is_numeric($myvalues['collaborator_uid']))
         {
-            die('look collaboration form failed>>>'.print_r($myvalues,TRUE));
-            //$bGood = FALSE;
-            //form_set_error('availableusers','No user has been selected');
+            $msg = 'ERROR look collaboration form failed because no collaborator_uid was provided>>>'.print_r($myvalues,TRUE);
+            error_log($msg);
+            throw new \Exception($msg);
         }
         return $bGood;
     }

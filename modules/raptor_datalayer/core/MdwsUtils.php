@@ -549,7 +549,6 @@ class MdwsUtils {
                 }
             }
         }
-error_log("LOOK MDWSUTILS labs>>>".print_r($displayLabsResult,TRUE));            
         return $displayLabsResult;
     }
     
