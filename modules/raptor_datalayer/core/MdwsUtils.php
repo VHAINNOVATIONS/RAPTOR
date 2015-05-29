@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * MDWS Integration and VISTA collaboration: Joel Mewton
@@ -286,10 +286,14 @@ class MdwsUtils {
         //error_log('Starting convertSoapVitalsToGraph as user '.$user->name.' maxdates='.$max_dates);
         
         if (!isset($typeArray) || count($typeArray) === 0) {
-            throw new \Exception("Invalid vital types argument:".print_r($typeArray,TRUE));
+            $errmsg = 'Invalid vital types argument:'.print_r($typeArray,TRUE);
+            error_log("ERROR: $errmsg");
+            throw new \Exception($errmsg);
         }
         if (isset($vitals->getVitalSignsResult->fault)) {
-            throw new \Exception($vitals->getVitalSignsResult->fault->message);
+            $errmsg = $vitals->getVitalSignsResult->fault->message;
+            error_log("ERROR detected in convertSoapVitalsToGraph fault=$errmsg");
+            throw new \Exception($errmsg);
         }
         
         $result = array();
@@ -317,8 +321,8 @@ class MdwsUtils {
             $datetime = MdwsUtils::convertYYYYMMDDToDatetime($currentVitalsSet->timestamp);
             $signsCount = count($currentVitalsSet->vitalSigns->VitalSignTO);
             $aryForTimestamp = array();
-            $aryForTimestamp["date"] = $just_date;      //Only the date
-            $aryForTimestamp["datetime"] = $datetime;   //The date and the time
+            $aryForTimestamp['date'] = $just_date;      //Only the date
+            $aryForTimestamp['datetime'] = $datetime;   //The date and the time
             $count_data_items_thisrecord = 0;   //Reset everytime.
             for ($j = 0; $j < $signsCount; $j++) 
             {
@@ -336,15 +340,18 @@ class MdwsUtils {
                 
                 if (in_array($currentType, $typeArray)) 
                 {
-                    if ($currentType === "Temperature") 
+                    if(is_numeric( $currentSign->value1))   //20150528
                     {
-                        $aryForTimestamp["temperature"] = $currentSign->value1;
-                        $count_data_items_thisrecord++;
-                    }
-                    else if ($currentType === "Pulse") 
-                    {
-                        $aryForTimestamp["pulse"] = $currentSign->value1;
-                        $count_data_items_thisrecord++;
+                        if ($currentType === 'Temperature') 
+                        {
+                            $aryForTimestamp['temperature'] = $currentSign->value1;
+                            $count_data_items_thisrecord++;
+                        }
+                        else if ($currentType === 'Pulse') 
+                        {
+                            $aryForTimestamp['pulse'] = $currentSign->value1;
+                            $count_data_items_thisrecord++;
+                        }
                     }
                 }
             }
@@ -459,18 +466,6 @@ class MdwsUtils {
             {
                 $foundEGFR = FALSE;
                 $checkDate = $lab['date'];
-                /*
-                foreach($sortedLabs as $checkLab)
-                {
-                    if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
-                    {
-                        $foundEGFR = TRUE;
-                        $eGFR = $checkLab['value'];
-                        $eGFRSource = "";
-                        break;
-                    }
-                }
-                 */
                 foreach($sortedLabs as $checkLab)
                 {
                     if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
@@ -488,11 +483,11 @@ class MdwsUtils {
                 {
                     $eGFRSource = ' (calculated)';
                     $eGFR = $labsformulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican);
-                 }
-               //$eGFRUnits = " mL/min/1.73 m^2";
-               $formattedDate = MdwsUtils::convertYYYYMMDDToDate($lab['rawTime']);
-               $datetime = MdwsUtils::convertYYYYMMDDToDatetime($lab['rawTime']);  //added 20141104 
-               $result[] = array('date'=>$formattedDate, 'egfr'=>$eGFR, 'datetime'=>$datetime);
+                }
+                //$eGFRUnits = " mL/min/1.73 m^2";
+                $formattedDate = MdwsUtils::convertYYYYMMDDToDate($lab['rawTime']);
+                $datetime = MdwsUtils::convertYYYYMMDDToDatetime($lab['rawTime']);  //added 20141104 
+                $result[] = array('date'=>$formattedDate, 'egfr'=>$eGFR, 'datetime'=>$datetime);
             }
         }
         return $result;

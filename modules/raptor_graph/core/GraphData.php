@@ -2,7 +2,7 @@
 /**
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -34,9 +34,9 @@ class GraphData
     function getThumbnailGraphValues()
     {
         // TODO - this data should probably be cached somewhere so a call to MDWS isn't made every time...
-        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery("getVitalSigns", NULL);
+        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
         $max_dates = 5;
-        $result = MdwsUtils::convertSoapVitalsToGraph(array("Temperature"), $soapResult, $max_dates);
+        $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
         if(!is_array($result))
         {
             $result = array();
@@ -47,9 +47,9 @@ class GraphData
     function getVitalsGraphValues()
     {
         // TODO - this data should probably be cached somewhere so a call to MDWS isn't made every time...
-        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery("getVitalSigns", NULL);
+        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
         $max_dates = 20;
-        $result = MdwsUtils::convertSoapVitalsToGraph(array("Temperature", "Pulse"), $soapResult, $max_dates);
+        $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
         if(!is_array($result))
         {
             $result = array();
