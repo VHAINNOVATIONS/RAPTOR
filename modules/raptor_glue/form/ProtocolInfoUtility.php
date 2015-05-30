@@ -1137,7 +1137,8 @@ class ProtocolInfoUtility
                 {
                     $form['page_action_buttons_area']['finish_ap_button_and_commit'] = array('#type' => 'submit'
                         , '#value' => t('Acknowledge Protocol and Commit Details to VistA')
-                        , '#attributes' => array('title' => $ackproAndCommitTip)
+                        , '#attributes' => array('title' => $ackproAndCommitTip
+                                ,'class'=>array('commit-to-vista'))
                         , '#disabled' => !$configuredVistaCommit, 
                         );
                 } else
@@ -1145,7 +1146,8 @@ class ProtocolInfoUtility
                 {
                     $form['page_action_buttons_area']['finish_pa_button_and_commit'] = array('#type' => 'submit'
                         , '#value' => t('Exam Completed and Commit Details to VistA')
-                        , '#attributes' => array('title' => $examcompAndCommitTip)
+                        , '#attributes' => array('title' => $examcompAndCommitTip
+                                ,'class'=>array('commit-to-vista'))
                         , '#disabled' => !$configuredVistaCommit, 
                         );
                 }
@@ -1163,7 +1165,8 @@ class ProtocolInfoUtility
                     {
                         $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
                             , '#value' => t('Interpretation Complete and Commit Details to VistA')
-                            , '#attributes' => array('title' => $interpretationAndCommitTip)
+                            , '#attributes' => array('title' => $interpretationAndCommitTip
+                                    ,'class'=>array('commit-to-vista'))
                             , '#disabled' => !$configuredVistaCommit,
                             );
                     } else {
@@ -1187,7 +1190,8 @@ class ProtocolInfoUtility
                     {
                         $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
                             , '#value' => t('QA Complete and Commit Details to VistA')
-                            , '#attributes' => array('title' => $qaTip)
+                            , '#attributes' => array('title' => $qaTip
+                                    ,'class'=>array('commit-to-vista'))
                             , '#disabled' => !$configuredVistaCommit,  
                             );
                     } else {

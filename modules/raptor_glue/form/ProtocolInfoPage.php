@@ -1006,6 +1006,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $clickedvalue = $clickedbutton['#value'];
  //drupal_set_message('111 LOOK myvalues at clicked=['.$form_state['clicked_button']['#value'].']');        
         
+            error_log("LOOK DEBUG COMMIT TOP [$clickedvalue]".print_r($clickedbutton,TRUE));
+        
         if(isset($myvalues['collaboration_uid']) && trim($myvalues['collaboration_uid']) > '')
         {
             if(!is_numeric($myvalues['collaboration_uid']))
@@ -1027,6 +1029,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $aParts = explode(' ', $clickedvalue);
             $clickedvalue = 'Commit to Vista from ' . $aParts[0]; 
             $form_state['clicked_button']['#value'] = $clickedvalue;
+            error_log("LOOK DEBUG COMMIT [$clickedvalue]>>>".print_r($aParts,TRUE));
         }
 
         //Special checks here
