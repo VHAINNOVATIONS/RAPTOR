@@ -1097,12 +1097,18 @@ class ProtocolSupportingData
 
         //$patientInfo = $this->m_oContext->getPatient();
         $ethnicity = $patientInfo['ethnicity'];
-        $gender = strtoupper($patientInfo['gender']);
+        $gender = strtoupper(trim($patientInfo['gender']));
         $age = $patientInfo['age'];
         // @TODO adjust for DOB
         $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
                              (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
-        $isFemale = $gender === 'FEMALE';
+        $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
+        if(!$isMale)
+        {
+            $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
+        } else {
+            $isFemale = FALSE;
+        }
 
         $filteredLabs = array();
         $allLabs = $this->getDisplayLabs();

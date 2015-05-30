@@ -402,14 +402,20 @@ class MdwsUtils {
         module_load_include('php', 'raptor_formulas', 'core/Labs');
         $labsformulas = new \raptor_formulas\Labs();
         
-        $ethnicity = is_null($patientInfo) ? 'white' : $patientInfo['ethnicity'];
-        $gender = is_null($patientInfo) ? 'male' : strtoupper($patientInfo['gender']);
-        $age = is_null($patientInfo) ? 18 : $patientInfo['age'];
+        //Removing default of white male age 20150530
+        $ethnicity = is_null($patientInfo) ? ' ' : $patientInfo['ethnicity'];
+        $gender = is_null($patientInfo) ? ' ' : trim(strtoupper($patientInfo['gender']));
+        $age = is_null($patientInfo) ? 0 : $patientInfo['age']; //Changed default to 0 instead of 18
         // @TODO adjust for DOB
         $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
                              (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
-        $isFemale = $gender === 'FEMALE';
-
+        $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
+        if(!$isMale)
+        {
+            $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
+        } else {
+            $isFemale = FALSE;
+        }
         $nCreatinine = 0;
         $filteredLabs = array();
         $foundCreatinine = FALSE;
