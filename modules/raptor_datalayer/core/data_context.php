@@ -321,16 +321,6 @@ class Context
         } else {
             //No session already exists, so we will create a new one.
             error_log("Creating new session for uid=".$tempUID);
-            /*
-            error_log('CONTEXTgetInstance::WORKFLOWDEBUG'
-                    . '>>>NO EXISTING SESSION!!! '
-                    . 'Not using an existing session: '
-                    . 'bSessionResetFlagDetected='.$bSessionResetFlagDetected 
-                    . ' from '. $_SERVER['REMOTE_ADDR'] 
-                    . " CALLER==> " . Context::debugGetCallerInfo(10));
-            Context::debugDrupalMsg('Not using an existing session: '
-                    . 'bSessionResetFlagDetected='.$bSessionResetFlagDetected);
-            */
             $bLocalReset=TRUE;
             $candidate=NULL;
             $wmodeParam='P';    //Hardcode assumption for now.
@@ -382,11 +372,15 @@ class Context
                             {
                                 $other = $resultOther->fetchAssoc();
                                 $me = $resultMe->fetchAssoc();
+                                $conflict_logic_info=array();
                                 if($other['ipaddress'] == $me['ipaddress'])
                                 {
                                     //This is on same machine.
+                                    $nSesElapsedSeconds = (time() - $_SESSION['CREATED']);
+                                    $conflict_logic_info['same-machine-elapsed-seconds'] 
+                                            = $nSesElapsedSeconds;
                                     if (!isset($_SESSION['CREATED']) 
-                                            || (time() - $_SESSION['CREATED']) < CONFLICT_CHECK_DELAY_SECONDS)
+                                            || $nSesElapsedSeconds < CONFLICT_CHECK_DELAY_SECONDS)
                                     {
                                         //Allow for possibility that the session ID has changed for a single user
                                         $bAccountConflictDetected = FALSE;
@@ -399,24 +393,28 @@ class Context
                                     //Simple check
                                     $bAccountConflictDetected 
                                             = $other['most_recent_action_dt'] >= $me['most_recent_action_dt'];
+                                    $conflict_logic_info['simple date check'] = $bAccountConflictDetected;
                                 }
                                 if($bAccountConflictDetected)
                                 {
                                     error_log('CONTEXTgetInstance::Account conflict has '
-                                            . 'been detected for UID=['.$tempUID.'] this '
-                                            . 'user at '.$_SERVER['REMOTE_ADDR']
+                                            . 'been detected at '.$_SERVER['REMOTE_ADDR']
+                                            . ' for UID=['.$tempUID.']'
+                                            . ' this user at '.$me['ipaddress']
                                             . ' other user at '.$other['ipaddress'] 
                                             . 'user sessionid ['.$mysessionid.']'
                                             . ' other sessionid ['.$other['sessionid'].']' 
                                             . '>>> TIMES = other[' 
                                             . $other['most_recent_action_dt'] 
                                             . '] vs this['
-                                            . $me['most_recent_action_dt'] . ']');
+                                            . $me['most_recent_action_dt'] 
+                                            . '] logicinfo='
+                                            .print_r($conflict_logic_info,TRUE));
                                 } else {
                                     error_log('CONTEXTgetInstance::No account conflict detected '
                                             . 'on check (es='.$nElapsedSeconds.') for UID=['.$tempUID.'] '
-                                            . 'this user at '.$_SERVER['REMOTE_ADDR']. ' other '
-                                            . 'user at '.$other['ipaddress'] 
+                                            . 'this user at '.$_SERVER['REMOTE_ADDR']
+                                            . ' other user at '.$other['ipaddress'] 
                                             . '>>> TIMES = other[' 
                                             . $other['most_recent_action_dt'] 
                                             . '] vs this['
