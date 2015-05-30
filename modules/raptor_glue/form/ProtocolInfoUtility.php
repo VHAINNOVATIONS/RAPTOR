@@ -1115,7 +1115,9 @@ class ProtocolInfoUtility
             {
                 $form['page_action_buttons_area']['acknowledge_button'] = array('#type' => 'submit'
                     , '#value' => t('Acknowledge Protocol')
-                    , '#attributes' => array('title' => $acknowledgeTip)
+                    , '#attributes' => array('title' => $acknowledgeTip
+                                ,'class'=>array('state-completed')
+                            )
                     );
             }
             if($oAA->allowExamComplete($sCWFS))
@@ -1126,7 +1128,8 @@ class ProtocolInfoUtility
                     );
                 $form['page_action_buttons_area']['examcompleted_button'] = array('#type' => 'submit'
                     , '#value' => t('Exam Completed')
-                    , '#attributes' => array('title' => $examcompletionTip)
+                    , '#attributes' => array('title' => $examcompletionTip
+                                ,'class'=>array('state-completed'))
                     );
             }
             
@@ -1157,7 +1160,8 @@ class ProtocolInfoUtility
             {
                 $form['page_action_buttons_area']['interpret_button'] = array('#type' => 'submit'
                     , '#value' => t('Interpretation Complete')
-                    , '#attributes' => array('title' => $interpretationTip)
+                    , '#attributes' => array('title' => $interpretationTip
+                                            ,'class'=>array('state-completed'))
                     );
                 if($oAA->allowCommitNotesToVista($sCWFS))
                 {
@@ -1182,7 +1186,8 @@ class ProtocolInfoUtility
             {
                 $form['page_action_buttons_area']['qa_button'] = array('#type' => 'submit'
                     , '#value' => t('QA Complete')
-                    , '#attributes' => array('title' => $qaTip)
+                    , '#attributes' => array('title' => $qaTip
+                                ,'class'=>array('state-completed'))
                     );
                 if($oAA->allowCommitNotesToVista($sCWFS))
                 {

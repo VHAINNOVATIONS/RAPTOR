@@ -33,7 +33,7 @@ class LoadUtils
         $sPath = drupal_get_path('module', 'raptor_reports').'/install/'.$sFilename;
         $text = file_get_contents($sPath);
         
-        error_log('>>> LOOK >>>>'.$sPath."\n>>>\n".$text);
+        //error_log('>>> LOOK >>>>'.$sPath."\n>>>\n".$text);
         
         return $text;
     }    

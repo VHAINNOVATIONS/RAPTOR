@@ -483,7 +483,7 @@
                         $protocolForm.prop('commit_esig').value = eSig;
                         // debugger
                         window.onbeforeunload = null;
-                        $protocolForm.trigger('submit');
+                        $protocolForm.trigger('state-completed');
                     }
                 })
                 .on('click', '#request-raptor-protocol-collaboration', function (e) {
