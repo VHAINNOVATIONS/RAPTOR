@@ -209,6 +209,10 @@ class MdwsUtils {
         }
     }
     
+    /**
+     * POSSIBLY NOT USED SO MARKING DEPRECATED 20150601
+     * @deprecated since 20150601
+     */
     public static  function getPatientFromSelectResult($serviceResponse) {
         $result = array();
         

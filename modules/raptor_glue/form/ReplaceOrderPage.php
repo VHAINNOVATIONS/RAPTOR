@@ -138,7 +138,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'submitto', 'Submit To');
             
             $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'isolation', 'Isolation');
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'pregnant', 'Pregnant');  //TODO
+            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'pregnant', 'Pregnant');  
             
             $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'reasonforstudy', 'Reason for Study');
             
@@ -528,7 +528,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $clickednext = $actioncode == 'n';
         $clickedback = $actioncode == 'b';
         $clickedfinish = $actioncode == 'f';
-    
+
         $diagnosesteps = 'init';
         $formhost = $myvalues['formhost'];
         if(isset($form_state['values'])) 
@@ -595,6 +595,28 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
 
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $myIEN = $myvalues['tid'];
+        
+        $oDD = new \raptor\DashboardData($this->m_oContext);
+        $rpd = $oDD->getDashboardDetails();
+        $gender = trim($rpd['PatientGender']);
+        $age = intval(trim($rpd['PatientAge']));
+        $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
+        if(!$isMale)
+        {
+            $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
+        } else {
+            $isFemale = FALSE;
+        }
+        if($isFemale && $age > 59 && !is_int($myvalues['pregnant']))
+        {
+            //Assume default not pregnant for anyone too old to bear children.
+            $myvalues['pregnant'] = 2;
+        //} else {
+        //    error_log("LOOK PREGINFO TOP isfemale=[$isFemale] age=[$age] defvalue={$myvalues['pregnant']}");
+        }
+
+        //die('LOOK NOW '.print_r($rpd,TRUE));  
+        
         //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
         $orginalProviderDuz = $myvalues['originalOrderProviderDuz'];
         $canOrderBeDCd = $myvalues['canOrderBeDCd'];
@@ -805,19 +827,6 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             '#disabled' => $disabled,
         );
 
-        $oDD = new \raptor\DashboardData($this->m_oContext);
-        $rpd = $oDD->getDashboardDetails();
-        $gender = trim($rpd['PatientGender']);
-        $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
-        if(!$isMale)
-        {
-            $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
-        } else {
-            $isFemale = FALSE;
-        }
-        //die('LOOK NOW '.print_r($rpd,TRUE));  
-          
-          
         $aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
         
         $form['data_entry_area1']['toppart']['cancelreason'] = array(
@@ -904,7 +913,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             }
             //$locations = MdwsUtils::getHospitalLocations($mdwsDao, $lastitemtext);
             $locations = $this->m_oPS->getAllHospitalLocations($mdwsDao);
-error_log("LOOK LOCATIONS 123 lastitem=[$lastitemtext]>>>".print_r($locations,TRUE));
+//error_log("LOOK LOCATIONS itemcount=[".count($locations)."]>>>".print_r($locations,TRUE));
             
             $neworderlocation = FormHelper::getKeyOfValue($locations, $rpd['PatientLocation']);
             if($neworderlocation === FALSE)
@@ -1088,20 +1097,12 @@ error_log("LOOK LOCATIONS 123 lastitem=[$lastitemtext]>>>".print_r($locations,TR
                 '#prefix' => "\n<div id='rb2'>\n",
                 '#suffix' => "\n</div>\n",
             );
-
+error_log("LOOK PREGINFO age=[$age] value=[{$myvalues['pregnant']}]");
             if($isMale)
             {
                 //Never ask for a male.
-                $form['data_entry_area1']['toppart']['WB1']['RB2']['ignore-pregnant'] = array(
-                    "#type" => "radios",
-                    "#title" => FormHelper::getTitleAsUnrequiredField("Pregnant"),
-                    "#options" => array(1=>t('Yes'),2=>t('No'),3=>t('Unknown')),
-                    "#default_value" => 2,
-                    "#disabled" => TRUE,
-                    );        
                 $form['hiddenthings']['pregnant'] = array('#type' => 'hidden', '#value' => '2');
             } else {
-                //Ask for a female.
                 $form['data_entry_area1']['toppart']['WB1']['RB2']['pregnant'] = array(
                     "#type" => "radios",
                     "#title" => FormHelper::getTitleAsRequiredField("Pregnant"),

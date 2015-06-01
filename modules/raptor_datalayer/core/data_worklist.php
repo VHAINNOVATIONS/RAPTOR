@@ -294,7 +294,7 @@ class WorklistData
                 $t[WorklistData::WLIDX_ASSIGNEDUSER] = '';
             }
 
-            $t[WorklistData::WLIDX_ORDERSTATUS]  = 'TODO ORDER STATUS';   //Placeholder for Order Status
+            $t[WorklistData::WLIDX_ORDERSTATUS]  = '?ORDER STATUS?';   //Placeholder for Order Status
                     
             $t[WorklistData::WLIDX_EDITINGUSER]      = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
 
