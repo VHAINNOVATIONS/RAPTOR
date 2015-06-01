@@ -188,7 +188,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
             <td><?php echo($raptor_protocoldashboard["PatientDOB"]) ?></td>
             <td><?php echo($raptor_protocoldashboard["PatientEthnicity"]) ?></td>
             <td><?php echo $order_overview["AtP"] ?></td>
-            <td>M</td>
+            <td><?php echo($raptor_protocoldashboard["PatientGender"]) ?></td>
           </tr>
         </table>
   
