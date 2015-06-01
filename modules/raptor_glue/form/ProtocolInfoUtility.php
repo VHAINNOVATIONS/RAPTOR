@@ -1122,10 +1122,6 @@ class ProtocolInfoUtility
             }
             if($oAA->allowExamComplete($sCWFS))
             {
-                $form['page_action_buttons_area']['savesofar_button'] = array('#type' => 'submit'
-                    , '#value' => t('Save Exam Values')
-                    , '#attributes' => array('title' => $saveSoFarTip)
-                    );
                 $form['page_action_buttons_area']['examcompleted_button'] = array('#type' => 'submit'
                     , '#value' => t('Exam Completed')
                     , '#attributes' => array('title' => $examcompletionTip
@@ -1154,6 +1150,14 @@ class ProtocolInfoUtility
                         , '#disabled' => !$configuredVistaCommit, 
                         );
                 }
+            }
+            if($oAA->allowExamComplete($sCWFS))
+            {
+                //Moved to the right of the commit.
+                $form['page_action_buttons_area']['savesofar_button'] = array('#type' => 'submit'
+                    , '#value' => t('Save Exam Values')
+                    , '#attributes' => array('title' => $saveSoFarTip)
+                    );
             }
             
             if($oAA->allowInterpretationComplete($sCWFS))

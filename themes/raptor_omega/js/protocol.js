@@ -483,8 +483,7 @@
                         $protocolForm.prop('commit_esig').value = eSig;
                         // debugger
                         window.onbeforeunload = null;
-                        $chooseVisitForm.trigger('submit');
-                        //$protocolForm.trigger('submit'); //uncomment this line if commit to vista is broken
+                        $protocolForm.trigger('submit');
                     }
                 })
                 .on('click', '#request-raptor-protocol-collaboration', function (e) {
