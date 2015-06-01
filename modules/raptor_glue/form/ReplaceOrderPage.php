@@ -16,6 +16,7 @@ namespace raptor;
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
 module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
 module_load_include('php', 'raptor_datalayer', 'core/MdwsUtils');
 module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
 module_load_include('php', 'raptor_datalayer', 'core/MdwsNewOrderUtils');
@@ -31,13 +32,15 @@ require_once 'ProtocolPageUtils.inc';
  */
 class ReplaceOrderPage extends \raptor\ASimpleFormPage
 {
-    private $m_oContext = null;
-    private $m_oTT = null;
+    private $m_oContext = NULL;
+    private $m_oTT = NULL;
+    private $m_oPS = NULL;
 
     function __construct()
     {
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oTT = new \raptor\TicketTrackingData();
+        $this->m_oPS = new \raptor\ProtocolSupportingData($this->m_oContext);
     }
 
     /**
@@ -893,21 +896,33 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             
             //Important NOT to mark fields as #required else BACK will fail!!!
             $imagingTypeId = intval($myvalues['neworderimagetype']);
-            $locations = MdwsUtils::getHospitalLocations($mdwsDao);
+            if(is_array($locations))
+            {
+                $lastitemtext = end($locations);
+            } else {
+                $lastitemtext = '';
+            }
+            //$locations = MdwsUtils::getHospitalLocations($mdwsDao, $lastitemtext);
+            $locations = $this->m_oPS->getAllHospitalLocations($mdwsDao);
+error_log("LOOK LOCATIONS 123 lastitem=[$lastitemtext]>>>".print_r($locations,TRUE));
+            
             $neworderlocation = FormHelper::getKeyOfValue($locations, $rpd['PatientLocation']);
             if($neworderlocation === FALSE)
             {
                 $neworderlocation = NULL;
             }
-            $neworderlocation = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'neworderlocation', $neworderlocation);
+            $neworderlocation = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues
+                    , 'neworderlocation', $neworderlocation);
             $form['data_entry_area1']['toppart']['neworderlocation'] = array(
-                "#type" => "select",
-                "#empty_option"=>t('- Select -'),
-                "#title" => FormHelper::getTitleAsRequiredField('Ordering Location'),
-                "#options" => $locations,
-                "#description" => t("Select location"),
-                "#default_value" => $neworderlocation,
-                "#disabled" => $disabled_step2,
+                '#prefix' => '<div id="dropdown-orderlocations-replace">',
+                '#suffix' => '</div>',
+                '#type' => 'select',
+                '#empty_option'=>t('- Select -'),
+                '#title' => FormHelper::getTitleAsRequiredField('Ordering Location'),
+                '#options' => $locations, // MdwsUtils::getHospitalLocations($mdwsDao,$lastitemtext), //$locations,
+                '#description' => t('Select location'),
+                '#default_value' => $neworderlocation,
+                '#disabled' => $disabled_step2,
                 );        
                 
             $raw_orderitems = MdwsNewOrderUtils::getOrderableItems($mdwsDao, $imagingTypeId);

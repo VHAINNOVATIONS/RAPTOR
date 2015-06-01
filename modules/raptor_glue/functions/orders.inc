@@ -11,6 +11,10 @@
  * These are order specifcic global functions.
  */
 
+function raptor_replace_order_orderlocations($form, $form_state) {
+  return "<h1>DRUPAL AJAX STUFF HAPPENED</h1>\n".$form['neworderlocation'];
+}
+
 function raptor_glue_cancelorders_form() 
 {
     module_load_include('php', 'raptor_glue', 'form/CancelOrdersPage');

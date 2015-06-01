@@ -225,6 +225,45 @@ class ProtocolSupportingData
         return FALSE;
     }
     
+    public function getAllHospitalLocations($mdwsDao)
+    {
+        $sThisResultName = 'getAllHospitalLocations';
+        $aCachedResult = $this->m_oRuntimeResultCache->checkCache($sThisResultName);
+        if($aCachedResult !== null)
+        {
+            //Found it in the cache!
+            return $aCachedResult;
+        }
+        $queries = 1;
+        $locations = MdwsUtils::getHospitalLocations($mdwsDao);   
+        $prevend = end($locations);
+        $lastitem = $prevend;
+        while(is_array($locations) && end($locations) > '')
+        {
+            $queries++;
+            $morelocations = MdwsUtils::getHospitalLocations($mdwsDao, $lastitem);
+            $lastitem = end($morelocations);
+            if($prevend > $lastitem)
+            {
+                foreach($morelocations as $k=>$v)
+                {
+                    if($v < $prevend)
+                    {
+                        //Wraps starting here.
+                        break;
+                    }
+                    $locations[$k] = $v;
+                }
+                //We are done
+                break;
+            }
+            $locations = array_merge($locations, $morelocations);
+            $prevend = $lastitem;
+        }
+        $this->m_oRuntimeResultCache->addToCache($sThisResultName, $locations);
+        return $locations;
+    }
+    
     /**
      * Create the following three arrays of data and group them into one returned array.
      * 1 DisplayVitals -- All available vitals formatted for display

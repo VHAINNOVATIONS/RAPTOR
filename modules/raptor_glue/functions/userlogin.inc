@@ -158,9 +158,10 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
                     {
                         //We are here because the authentication failed.
                         error_log('Failed subsystem authentication of user ['
-                                .$username.'] (pwd=['.$password.']) with uid=['
-                                .$drupaluser->uid.']: Details=' 
-                                . print_r($result,true));
+                                .$username.'] (pwdprovided=['
+                                .($password > ''?'yes':'no')
+                                .']) with uid=['
+                                .$drupaluser->uid.']');
                         $isvalid = FALSE;
                     }
                 }
