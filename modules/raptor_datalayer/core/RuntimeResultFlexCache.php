@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -13,89 +13,100 @@
 
 namespace raptor;
 
-require_once ('data_context.php');
+require_once 'data_context.php';
 
 
 /**
- * The RuntimeResultCache is a singleton that caches results at runtime.
+ * The RuntimeResultFlexCache is a singleton that caches results at runtime.
+ * This session level cache has a configurable expiration time.
  *
  * @author Frank Font of SAN Business Consultants
  */
-class RuntimeResultCache 
+class RuntimeResultFlexCache 
 {
-    private $m_oContext = NULL;
     private $m_sGroupName = NULL;
-    private $m_aRuntimeResultCache = NULL;
     private static $m_aGroups = array();
     
-    private function __construct($oContext, $sGroupName)
+    private function __construct($sGroupName)
     {
-        $this->m_oContext = $oContext;
         $this->m_sGroupName = $sGroupName;
-        $this->m_aRuntimeResultCache = array();
-        error_log('Created cache for ['.$this->m_sGroupName.']');
     }
     
     /**
      * Get the existing cache for the group or create a new one
-     * @param type $oContext current conext instance
-     * @param type $sGroupName name of the cache array
-     * @param type $bReset if TRUE then no existing cache is returned, only new empty one
-     * @return instance of RuntimeResultCache class
+     * @return instance of RuntimeResultFlexCache class
      */
-    public static function getInstance($oContext, $sGroupName, $bReset=FALSE)
+    public static function getInstance($sGroupName, $bReset=FALSE)
     {
-        if(!isset(RuntimeResultCache::$m_aGroups[$sGroupName]) || $bReset )
+        if(!isset(RuntimeResultFlexCache::$m_aGroups[$sGroupName]) || $bReset )
         {
-            RuntimeResultCache::$m_aGroups[$sGroupName] = new RuntimeResultCache($oContext,$sGroupName);
+            RuntimeResultFlexCache::$m_aGroups[$sGroupName] = new RuntimeResultFlexCache($sGroupName);
+            if(!isset($_SESSION['RuntimeResultFlexCache']))
+            {
+                $cacheroot = array();
+            } else {
+                $cacheroot = $_SESSION['RuntimeResultFlexCache'];
+            }
+            if(!isset($cacheroot[$sGroupName]) || $bReset)
+            {
+                $cacheroot[$sGroupName] = array();
+                $_SESSION['RuntimeResultFlexCache'] = $cacheroot;
+            }
         }
-        return RuntimeResultCache::$m_aGroups[$sGroupName];
+        return RuntimeResultFlexCache::$m_aGroups[$sGroupName];
     }
     
     /**
-     * Add the result to the cache.
-     * @param type $sThisResultName
-     * @param type $aResult
+     * Add the result data to the cache.
      */
-    public function addToCache($sThisResultName,$aResult)
+    public function addToCache($sThisResultName,$aResult,$nMaxDataAgeSeconds=600)
     {
-        $nCLU = $this->m_oContext->getLastUpdateTimestamp();
-        if(!isset($this->m_aRuntimeResultCache[$nCLU]))
+        $cacheroot = $_SESSION['RuntimeResultFlexCache'];
+        if($this->m_sGroupName == NULL || !isset($cacheroot[$this->m_sGroupName]))
         {
-            //Remove any existing keys since they are old now.
-            $this->m_aRuntimeResultCache = array();
-            
-            //Create cache key for this.
-            $this->m_aRuntimeResultCache[$nCLU] = array();
+            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can add $sThisResultName!");
         }
-        $this->m_aRuntimeResultCache[$nCLU][$sThisResultName] = $aResult;
+        $groupcache = $cacheroot[$this->m_sGroupName];
+        if(!isset($groupcache[$sThisResultName]))
+        {
+            $groupcache[$sThisResultName] = array();
+        }
+        $groupcache[$sThisResultName]['creation_time'] = time();
+        $groupcache[$sThisResultName]['max_age_seconds'] = $nMaxDataAgeSeconds;
+        $groupcache[$sThisResultName]['data'] = $aResult;
+        $cacheroot[$this->m_sGroupName] = $groupcache;
+        $_SESSION['RuntimeResultFlexCache'] = $cacheroot;
     }
     
     /**
      * Side effect of the check is that it prepares the cache to accept a new result.
-     * @param type $resultName
      * @return NULL if not found in cache, else the result from the cache.
      */
     public function checkCache($sThisResultName)
     {
-        $aResult = NULL;    //Assume no result cached.
-        $nCLU = $this->m_oContext->getLastUpdateTimestamp();
-        //error_log('Trying cache for ['.$this->m_sGroupName.']['.$sThisResultName.'] using '.$nCLU);
-        if(isset($this->m_aRuntimeResultCache[$nCLU]))
+        $cacheroot = $_SESSION['RuntimeResultFlexCache'];
+        if($this->m_sGroupName == NULL || !isset($cacheroot[$this->m_sGroupName]))
         {
-            //Yes, we have a key do we have cache for this call?
-            if(isset($this->m_aRuntimeResultCache[$nCLU][$sThisResultName]))
+            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can read $sThisResultName!");
+        }
+        $groupcache = $cacheroot[$this->m_sGroupName];
+        if(isset($groupcache[$sThisResultName]))
+        {
+            $foundcache = $groupcache[$sThisResultName];
+            //Make sure cache data is not too old
+            $currenttime = time();
+            $createdtime = $foundcache['creation_time'];
+            $data_age = $currenttime - $createdtime;
+            $max_age_seconds = $foundcache['max_age_seconds'];                
+            if($data_age > 0)// $max_age_seconds)
             {
-                //Short circut now to return the cached result.
-                //error_log('Successfully hit cache for ['.$this->m_sGroupName.']['.$sThisResultName.'] using '.$nCLU);
-                $aResult = $this->m_aRuntimeResultCache[$nCLU][$sThisResultName];
+                //Cache data is stale, kill it.
+                $groupcache[$sThisResultName] = array();
+                $_SESSION['RuntimeResultFlexCache'] = $cacheroot;
+            } else {
+                //We have good cache data, use it.
+                $aResult = $foundcache['data'];
             }
-        } else {
-            //Remove any existing keys since they are old now.
-            $this->m_aRuntimeResultCache = array();
-            
-            //Create cache key for this.
-            $this->m_aRuntimeResultCache[$nCLU] = array();
         }
         return $aResult;
     }

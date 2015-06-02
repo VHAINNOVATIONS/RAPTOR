@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -13,7 +13,7 @@
 
 namespace raptor;
 
-require_once ('data_context.php');
+require_once 'data_context.php';
 
 
 /**
@@ -33,7 +33,7 @@ class RuntimeResultCache
         $this->m_oContext = $oContext;
         $this->m_sGroupName = $sGroupName;
         $this->m_aRuntimeResultCache = array();
-        error_log('Created cache for ['.$this->m_sGroupName.']');
+        //error_log('Created cache for ['.$this->m_sGroupName.']');
     }
     
     /**

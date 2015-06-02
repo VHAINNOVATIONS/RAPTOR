@@ -19,6 +19,7 @@ module_load_include('php', 'raptor_formulas', 'core/Labs');
 require_once 'data_worklist.php';
 require_once 'data_context.php';
 require_once 'RuntimeResultCache.php';
+require_once 'RuntimeResultFlexCache.php';
 
 
 /**
@@ -33,12 +34,13 @@ class ProtocolSupportingData
     private $m_aDashboardMap;
     private $m_aPatientInfo;
     private $m_oRuntimeResultCache;    //Cache results.
+    private $m_oRuntimeResultFlexCache;    //Cache results.
    
     function __construct($oContext)
     {
-        $this->m_aResultCache = array(); 
         $this->m_oContext = $oContext;
         $this->m_oRuntimeResultCache = \raptor\RuntimeResultCache::getInstance($this->m_oContext,'ProtocolSupportingData');
+        $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('ProtocolSupportingData');
         $wl = new WorklistData($this->m_oContext);
         $this->m_aDashboardMap = $wl->getDashboardMap();   // getWorklistForProtocolSupport();
         $this->m_aPatientInfo = $wl->getPatient($this->m_aDashboardMap["PatientID"]);
@@ -225,23 +227,20 @@ class ProtocolSupportingData
         return FALSE;
     }
     
-    public function getAllHospitalLocations($mdwsDao)
+    public function getAllHospitalLocations($mdwsDao,$maxqueries=100,$startingitem='')
     {
         $sThisResultName = 'getAllHospitalLocations';
-        error_log("LOOK DEBUG starting getAllHospitalLocations");
-        $aCachedResult = $this->m_oRuntimeResultCache->checkCache($sThisResultName);
+        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
         if($aCachedResult !== null)
         {
             //Found it in the cache!
-            error_log("LOOK DEBUG found in cache getAllHospitalLocations");
             return $aCachedResult;
         }
         $queries = 1;
-        $locations = MdwsUtils::getHospitalLocations($mdwsDao);   
+        $locations = MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
         $prevend = end($locations);
         $lastitem = $prevend;
-        $MAXQUERIES = 111;     //TODO remove limit!!!!
-        while(is_array($locations) && end($locations) > '' && $queries < $MAXQUERIES)
+        while(is_array($locations) && end($locations) > '' && $queries < $maxqueries)
         {
             $queries++;
             $morelocations = MdwsUtils::getHospitalLocations($mdwsDao, $lastitem);
@@ -263,12 +262,12 @@ class ProtocolSupportingData
             $locations = array_merge($locations, $morelocations);
             $prevend = $lastitem;
         }
-        if($queries >= $MAXQUERIES)
+        if($queries >= $maxqueries)
         {
             error_log("WARNING in getAllHospitalLocations stopped queries after $queries executed!!!");
+            $locations['getmore'] = '* Get More Locations *';
         }
-        error_log("LOOK DEBUG getAllHospitalLocations queries=$queries");
-        $this->m_oRuntimeResultCache->addToCache($sThisResultName, $locations);
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations);
         return $locations;
     }
     
