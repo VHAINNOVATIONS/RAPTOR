@@ -44,13 +44,17 @@ class RuntimeResultFlexCache
             if(!isset($_SESSION['RuntimeResultFlexCache']))
             {
                 $cacheroot = array();
+                $flagroot = array();
             } else {
                 $cacheroot = $_SESSION['RuntimeResultFlexCache'];
+                $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
             }
             if(!isset($cacheroot[$sGroupName]) || $bReset)
             {
                 $cacheroot[$sGroupName] = array();
                 $_SESSION['RuntimeResultFlexCache'] = $cacheroot;
+                $flagroot[$sGroupName] = array();
+                $_SESSION['RuntimeResultFlexCache_flags'] = $flagroot;
             }
         }
         return RuntimeResultFlexCache::$m_aGroups[$sGroupName];
@@ -67,34 +71,99 @@ class RuntimeResultFlexCache
     /**
      * Mark a cache as building
      */
+    public function isCacheBuilding($sThisResultName)
+    {
+        return ($this->getCacheFlagValue($sThisResultName,'building') == TRUE);
+    }
+
+    /**
+     * If 0 then no need to wait, else try again after result seconds.
+     */
+    public function getCacheBuildingRetrySeconds($sThisResultName)
+    {
+        $foundinfo = $this->getCacheFlagInfo($sThisResultName,'building');
+        if($foundinfo == NULL)
+        {
+            return 0;
+        }
+        return $foundinfo['retry_seconds'];
+    }
+    
+    /**
+     * Mark a cache as building
+     */
     public function clearCacheBuilding($sThisResultName,$nRetrySeconds=5,$nFailTimeoutSeconds=100)
     {
         $this->clearCacheFlag($sThisResultName,'building');
     }
     
     /**
-     * Update a cache flag action
+     * Update a cache flag values
      */
     private function updateCacheFlag($sThisResultName,$flagname,$flagvalue,$nRetrySeconds=5,$nFailTimeoutSeconds=100)
     {
         $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
         if($this->m_sGroupName == NULL)
         {
-            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can flag[$flagname]=[$flagvalue] $sThisResultName!");
+            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can set flag[$flagname]=[$flagvalue] of $sThisResultName!");
         }
         $groupflag = $flagroot[$this->m_sGroupName];
         if(!isset($groupflag[$sThisResultName]))
         {
             $groupflag[$sThisResultName] = array();
         }
-        $groupflag[$sThisResultName][$flagname] = $flagvalue;
-        $groupflag[$sThisResultName]['creation_time'] = time();
-        $groupflag[$sThisResultName]['retry_seconds'] = $nRetrySeconds;
-        $groupflag[$sThisResultName]['fail_timeout_seconds'] = $nFailTimeoutSeconds;
+        $groupflag[$sThisResultName][$flagname]['value'] = $flagvalue;
+        $groupflag[$sThisResultName][$flagname]['creation_time'] = time();
+        $groupflag[$sThisResultName][$flagname]['retry_seconds'] = $nRetrySeconds;
+        $groupflag[$sThisResultName][$flagname]['fail_timeout_seconds'] = $nFailTimeoutSeconds;
         $flagroot[$this->m_sGroupName] = $groupflag;
         $_SESSION['RuntimeResultFlexCache_flags'] = $flagroot;
     }
 
+    /**
+     * Get the flag value
+     */
+    private function getCacheFlagValue($sThisResultName,$flagname)
+    {
+        $foundcache = getCacheFlagInfo($sThisResultName,$flagname);
+        if($foundcache == NULL)
+        {
+            return NULL;
+        }
+        return $foundcache[$flagname]['value'];
+    }
+
+    /**
+     * Get the flag information
+     */
+    private function getCacheFlagInfo($sThisResultName,$flagname)
+    {
+        $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
+        if($this->m_sGroupName == NULL)
+        {
+            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can read flag[$flagname] of $sThisResultName!");
+        }
+        $groupflag = $flagroot[$this->m_sGroupName];
+        if(!isset($groupflag[$sThisResultName]) || !isset($groupflag[$sThisResultName][$flagname]))
+        {
+            //Not set.
+            return NULL;
+        }
+        $foundcache = $groupflag[$sThisResultName];
+        //It exists, but is it still valid?
+        $currenttime = time();
+        $creation_time = $foundcache['creation_time'];
+        $flag_age = $currenttime - $creation_time;
+        $fail_timeout_seconds = $foundcache['fail_timeout_seconds'];                
+        if($flag_age > $fail_timeout_seconds)
+        {
+            //Kill it.
+            $this->clearCacheFlag($sThisResultName, $flagname);
+            return NULL;
+        }
+        return $foundcache;
+    }
+    
     /**
      * Update a cache flag action
      */
@@ -103,7 +172,7 @@ class RuntimeResultFlexCache
         $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
         if($this->m_sGroupName == NULL)
         {
-            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can flag[$flagname]=[$actionvalue] $sThisResultName!");
+            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can clear flag[$flagname] of $sThisResultName!");
         }
         $groupflag = $flagroot[$this->m_sGroupName];
         if(!isset($groupflag[$sThisResultName]) || !isset($groupflag[$sThisResultName][$flagname]))
@@ -137,6 +206,7 @@ class RuntimeResultFlexCache
         $groupcache[$sThisResultName]['data'] = $aResult;
         $cacheroot[$this->m_sGroupName] = $groupcache;
         $_SESSION['RuntimeResultFlexCache'] = $cacheroot;
+        $this->clearCacheBuilding($sThisResultName);
     }
     
     /**
@@ -145,6 +215,16 @@ class RuntimeResultFlexCache
      */
     public function checkCache($sThisResultName)
     {
+        //See if we are already building a cache.
+        $aResult = NULL;
+        $retry_seconds = $this->getCacheBuildingRetrySeconds($sThisResultName);
+        while($retry_seconds > 0)
+        {
+            error_log("Waiting for $sThisResultName to build, will retry in $retry_seconds seconds.");
+            sleep($retry_seconds);
+            $retry_seconds = $this->getCacheBuildingRetrySeconds($sThisResultName);
+        }
+        //Now check for an available cache.
         $cacheroot = $_SESSION['RuntimeResultFlexCache'];
         if($this->m_sGroupName == NULL || !isset($cacheroot[$this->m_sGroupName]))
         {

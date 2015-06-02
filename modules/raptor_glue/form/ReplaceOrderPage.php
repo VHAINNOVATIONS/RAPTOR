@@ -905,16 +905,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             
             //Important NOT to mark fields as #required else BACK will fail!!!
             $imagingTypeId = intval($myvalues['neworderimagetype']);
-            if(is_array($locations))
-            {
-                $lastitemtext = end($locations);
-            } else {
-                $lastitemtext = '';
-            }
-            //$locations = MdwsUtils::getHospitalLocations($mdwsDao, $lastitemtext);
             $locations = $this->m_oPS->getAllHospitalLocations($mdwsDao);
-//error_log("LOOK LOCATIONS itemcount=[".count($locations)."]>>>".print_r($locations,TRUE));
-            
             $neworderlocation = FormHelper::getKeyOfValue($locations, $rpd['PatientLocation']);
             if($neworderlocation === FALSE)
             {

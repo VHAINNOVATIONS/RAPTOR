@@ -227,15 +227,23 @@ class ProtocolSupportingData
         return FALSE;
     }
     
-    public function getAllHospitalLocations($mdwsDao,$maxqueries=100,$startingitem='')
+    public function getAllHospitalLocations($mdwsDao,$maxqueries=120,$startingitem='',$prependlist=NULL)
     {
         $sThisResultName = 'getAllHospitalLocations';
-        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
-        if($aCachedResult !== null)
+        error_log("DEBUG FLEXCACHE calling $sThisResultName... flags>>>".print_r($_SESSION['RuntimeResultFlexCache_flags'],TRUE)
+                ."\ncache>>>".print_r($_SESSION['RuntimeResultFlexCache_flags'],TRUE));
+        if($prependlist == NULL)
         {
-            //Found it in the cache!
-            return $aCachedResult;
+            $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
+            if($aCachedResult !== NULL)
+            {
+                //Found it in the cache!
+                error_log("DEBUG FLEXCACHE $sThisResultName got hit!");
+                return $aCachedResult;
+            }
         }
+        error_log("DEBUG FLEXCACHE $sThisResultName mark building!");
+        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
         $queries = 1;
         $locations = MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
         $prevend = end($locations);
@@ -267,7 +275,12 @@ class ProtocolSupportingData
             error_log("WARNING in getAllHospitalLocations stopped queries after $queries executed!!!");
             $locations['getmore'] = '* Get More Locations *';
         }
+        if($prependlist !== NULL)
+        {
+            $locations = array_merge($prependlist, $locations);
+        }
         $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations);
+        error_log("DEBUG FLEXCACHE $sThisResultName done building! >>> ".print_r($locations,TRUE));
         return $locations;
     }
     
