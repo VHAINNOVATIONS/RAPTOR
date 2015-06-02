@@ -55,6 +55,67 @@ class RuntimeResultFlexCache
         }
         return RuntimeResultFlexCache::$m_aGroups[$sGroupName];
     }
+
+    /**
+     * Mark a cache as building
+     */
+    public function markCacheBuilding($sThisResultName,$nRetrySeconds=5,$nFailTimeoutSeconds=100)
+    {
+        $this->updateCacheFlag($sThisResultName,'building',TRUE,$nRetrySeconds,$nFailTimeoutSeconds);
+    }
+
+    /**
+     * Mark a cache as building
+     */
+    public function clearCacheBuilding($sThisResultName,$nRetrySeconds=5,$nFailTimeoutSeconds=100)
+    {
+        $this->clearCacheFlag($sThisResultName,'building');
+    }
+    
+    /**
+     * Update a cache flag action
+     */
+    private function updateCacheFlag($sThisResultName,$flagname,$flagvalue,$nRetrySeconds=5,$nFailTimeoutSeconds=100)
+    {
+        $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
+        if($this->m_sGroupName == NULL)
+        {
+            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can flag[$flagname]=[$flagvalue] $sThisResultName!");
+        }
+        $groupflag = $flagroot[$this->m_sGroupName];
+        if(!isset($groupflag[$sThisResultName]))
+        {
+            $groupflag[$sThisResultName] = array();
+        }
+        $groupflag[$sThisResultName][$flagname] = $flagvalue;
+        $groupflag[$sThisResultName]['creation_time'] = time();
+        $groupflag[$sThisResultName]['retry_seconds'] = $nRetrySeconds;
+        $groupflag[$sThisResultName]['fail_timeout_seconds'] = $nFailTimeoutSeconds;
+        $flagroot[$this->m_sGroupName] = $groupflag;
+        $_SESSION['RuntimeResultFlexCache_flags'] = $flagroot;
+    }
+
+    /**
+     * Update a cache flag action
+     */
+    private function clearCacheFlag($sThisResultName,$flagname)
+    {
+        $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
+        if($this->m_sGroupName == NULL)
+        {
+            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can flag[$flagname]=[$actionvalue] $sThisResultName!");
+        }
+        $groupflag = $flagroot[$this->m_sGroupName];
+        if(!isset($groupflag[$sThisResultName]) || !isset($groupflag[$sThisResultName][$flagname]))
+        {
+            //Already missing.
+            return FALSE;
+        }
+        unset($groupflag[$sThisResultName][$flagname]);
+        $flagroot[$this->m_sGroupName] = $groupflag;
+        $_SESSION['RuntimeResultFlexCache_flags'] = $flagroot;
+        return TRUE;
+    }
     
     /**
      * Add the result data to the cache.
@@ -95,10 +156,10 @@ class RuntimeResultFlexCache
             $foundcache = $groupcache[$sThisResultName];
             //Make sure cache data is not too old
             $currenttime = time();
-            $createdtime = $foundcache['creation_time'];
-            $data_age = $currenttime - $createdtime;
+            $creation_time = $foundcache['creation_time'];
+            $data_age = $currenttime - $creation_time;
             $max_age_seconds = $foundcache['max_age_seconds'];                
-            if($data_age > 0)// $max_age_seconds)
+            if($data_age > $max_age_seconds)
             {
                 //Cache data is stale, kill it.
                 $groupcache[$sThisResultName] = array();
