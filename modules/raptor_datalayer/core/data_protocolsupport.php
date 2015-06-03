@@ -229,21 +229,25 @@ class ProtocolSupportingData
     
     public function getAllHospitalLocations($mdwsDao,$maxqueries=120,$startingitem='',$prependlist=NULL)
     {
+        $debugkey = microtime();
         $sThisResultName = 'getAllHospitalLocations';
-        error_log("DEBUG FLEXCACHE calling $sThisResultName... flags>>>".print_r($_SESSION['RuntimeResultFlexCache_flags'],TRUE)
-                ."\ncache>>>".print_r($_SESSION['RuntimeResultFlexCache_flags'],TRUE));
+        error_log("DEBUG $debugkey FLEXCACHE calling $sThisResultName... flags>>>" 
+                . print_r($_SESSION['RuntimeResultFlexCache_flags'],TRUE)
+                . "\ncache>>>".print_r($_SESSION['RuntimeResultFlexCache_flags'],TRUE));
         if($prependlist == NULL)
         {
             $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
             if($aCachedResult !== NULL)
             {
                 //Found it in the cache!
-                error_log("DEBUG FLEXCACHE $sThisResultName got hit!");
+                error_log("DEBUG $debugkey FLEXCACHE $sThisResultName got HIT!");
                 return $aCachedResult;
             }
         }
-        error_log("DEBUG FLEXCACHE $sThisResultName mark building!");
+        error_log("DEBUG $debugkey FLEXCACHE $sThisResultName mark building! START SLEEP");
         $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
+        sleep(20);  //TODO REMOVE THIS
+        error_log("DEBUG $debugkey FLEXCACHE $sThisResultName mark building! DONE SLEEP");
         $queries = 1;
         $locations = MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
         $prevend = end($locations);
@@ -280,7 +284,7 @@ class ProtocolSupportingData
             $locations = array_merge($prependlist, $locations);
         }
         $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations);
-        error_log("DEBUG FLEXCACHE $sThisResultName done building! >>> ".print_r($locations,TRUE));
+        error_log("DEBUG $debugkey FLEXCACHE $sThisResultName done building! >>> ".print_r($locations,TRUE));
         return $locations;
     }
     

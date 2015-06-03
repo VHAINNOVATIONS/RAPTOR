@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -841,6 +841,106 @@ class DBMiscSchema
           ),
           'primary key' => array('minutes'),
         );
+
+        
+        $schema['raptor_cache_data'] = array(
+          'description' => 'Runtime cached data',
+          'fields' => array(
+            'uid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'Who owns this data',
+            ),
+            'created_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this record was created',
+            ),
+            'retry_delay' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'Seconds to wait before retry a cache read',
+            ),
+            'max_age' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'This data expires after this many seconds',
+            ),
+            'group_name' => array(
+              'type' => 'varchar',
+              'length' => 50,
+              'not null' => TRUE,
+              'description' => 'Group to which this data belongs',
+            ),
+            'item_name' => array(
+              'type' => 'varchar',
+              'length' => 50,
+              'not null' => TRUE,
+              'description' => 'Specific name of data in the group',
+            ),
+            'item_data' => array(
+              'type' => 'blob',
+              'mysql_type' => 'mediumblob',
+              'not null' => TRUE,
+              'description' => 'The cached data',
+            ),
+          ),
+          'primary key' => array('uid','group_name','item_name'),
+        );
+
+        $schema['raptor_cache_flag'] = array(
+          'description' => 'Runtime cache flags',
+          'fields' => array(
+            'uid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'Who owns this data',
+            ),
+            'created_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this record was created',
+            ),
+            'retry_delay' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'Seconds to wait before retry a flag read',
+            ),
+            'max_age' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'This flag expires after this many seconds',
+            ),
+            'group_name' => array(
+              'type' => 'varchar',
+              'length' => 50,
+              'not null' => TRUE,
+              'description' => 'Group to which this flag belongs',
+            ),
+            'item_name' => array(
+              'type' => 'varchar',
+              'length' => 50,
+              'not null' => TRUE,
+              'description' => 'Specific name of flag in the group',
+            ),
+            'item_value' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'Value of the flag',
+            ),
+          ),
+          'primary key' => array('uid','group_name','item_name'),
+        );
+		        
         
     }    
     
