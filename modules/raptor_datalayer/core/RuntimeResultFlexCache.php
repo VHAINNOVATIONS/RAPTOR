@@ -155,6 +155,7 @@ error_log("DEBUG FLEXCACHE getCacheBuildingRetrySeconds got data $this\n\tDATA="
             $nRetrySeconds
             ,$nFailTimeoutSeconds
             ,$sThisResultName
+            ,$flagname    
             ,$flagvalue);        
         
         
@@ -162,12 +163,14 @@ error_log("DEBUG updateCacheFlag FLEXCACHE bottom>>>".$this);
         $this->endUserCriticalSection();
     }
 
-    private function getRaptorCacheFlagInfo($flagname)
+    private function getRaptorCacheFlagInfo($item_name, $flag_name)
     {
         $result = db_select('raptor_cache_flag', 'u')
+                    ->fields('u')
                     ->condition('uid', $this->m_uid, '=')
                     ->condition('group_name', $this->m_sGroupName,'=')
-                    ->condition('item_name', $flagname,'=')
+                    ->condition('item_name', $item_name,'=')
+                    ->condition('flag_name', $flag_name,'=')
                     ->execute();
         return $result->fetchAssoc();    
     }
@@ -175,6 +178,7 @@ error_log("DEBUG updateCacheFlag FLEXCACHE bottom>>>".$this);
     private function getRaptorCacheDataInfo($item_name)
     {
         $result = db_select('raptor_cache_data', 'u')
+                    ->fields('u')
                     ->condition('uid', $this->m_uid, '=')
                     ->condition('group_name', $this->m_sGroupName,'=')
                     ->condition('item_name', $item_name,'=')
@@ -182,12 +186,13 @@ error_log("DEBUG updateCacheFlag FLEXCACHE bottom>>>".$this);
         return $result->fetchAssoc();    
     }
     
-    private function clearRaptorCacheFlag($item_name)
+    private function clearRaptorCacheFlag($item_name,$flag_name)
     {
             $query = db_delete('raptor_cache_flag')
                 ->condition('uid', $this->m_uid,'=')
                 ->condition('group_name', $this->m_sGroupName,'=')
                 ->condition('item_name', $item_name,'=')
+                ->condition('flag_name', $flag_name,'=')
                 ->execute();    
     }
     
@@ -239,7 +244,8 @@ error_log("DEBUG updateCacheFlag FLEXCACHE bottom>>>".$this);
              $retry_delay
             ,$max_age
             ,$item_name
-            ,$item_value)
+            ,$flag_name
+            ,$flag_value)
     {
         try
         {
@@ -248,6 +254,7 @@ error_log("DEBUG updateCacheFlag FLEXCACHE bottom>>>".$this);
                 ->key(array('uid'=>$this->m_uid,
                     'group_name'=>$this->m_sGroupName,
                     'item_name' => $item_name,
+                    'flag_name' => $flag_name,
                 ))
                 ->fields(array(
                     'uid' => $this->m_uid,    
@@ -256,7 +263,8 @@ error_log("DEBUG updateCacheFlag FLEXCACHE bottom>>>".$this);
                     'retry_delay' => $retry_delay,    
                     'max_age' => $max_age,    
                     'item_name' => $item_name,
-                    'item_value' => $item_value,
+                    'flag_name' => $flag_name,
+                    'flag_value' => $flag_value,
                 ))
                 ->execute();
         } catch (\Exception $ex) {
@@ -269,7 +277,7 @@ error_log("DEBUG updateCacheFlag FLEXCACHE bottom>>>".$this);
      */
     private function getCacheFlagValue($sThisResultName,$flagname)
     {
-        $foundcache = getCacheFlagInfo($sThisResultName,$flagname);
+        $foundcache = $this->getCacheFlagInfo($sThisResultName,$flagname);
         if($foundcache == NULL)
         {
 error_log("DEBUG getCacheFlagValue($flagname) FLEXCACHE is NULL!");
@@ -331,6 +339,7 @@ error_log("DEBUG getCacheFlagValue($flagname) FLEXCACHE is [ {$foundcache[$flagn
             throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can read flag[$flagname] of $sThisResultName!");
         }
         $this->startUserCriticalSection();
+        $this->getRaptorCacheFlagInfo($sThisResultName,$flagname);
         try
         {
             $groupflag = $flagroot[$this->m_sGroupName];
@@ -387,7 +396,7 @@ error_log("FAILED getCacheFlagInfo($flagname) FLEXCACHE >>>".print_r($ex));
         $flagroot[$this->m_sGroupName] = $groupflag;
         $_SESSION['RuntimeResultFlexCache_flags'] = $flagroot;
         
-        $this->clearRaptorCacheFlag($sThisResultName);
+        $this->clearRaptorCacheFlag($sThisResultName,$flagname);
         $this->endUserCriticalSection();
         return TRUE;
     }

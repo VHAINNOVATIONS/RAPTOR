@@ -929,16 +929,22 @@ class DBMiscSchema
               'type' => 'varchar',
               'length' => 50,
               'not null' => TRUE,
+              'description' => 'Specific name of item in the group',
+            ),
+            'flag_name' => array(
+              'type' => 'varchar',
+              'length' => 20,
+              'not null' => TRUE,
               'description' => 'Specific name of flag in the group',
             ),
-            'item_value' => array(
+            'flag_value' => array(
               'type' => 'int',
               'unsigned' => TRUE,
               'not null' => TRUE,
               'description' => 'Value of the flag',
             ),
           ),
-          'primary key' => array('uid','group_name','item_name'),
+          'primary key' => array('uid','group_name','item_name','flag_name'),
         );
 		        
         
