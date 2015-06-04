@@ -231,9 +231,6 @@ class ProtocolSupportingData
     {
         $debugkey = microtime();
         $sThisResultName = 'getAllHospitalLocations';
-        error_log("DEBUG $debugkey FLEXCACHE calling $sThisResultName... flags>>>" 
-                . print_r($_SESSION['RuntimeResultFlexCache_flags'],TRUE)
-                . "\ncache>>>".print_r($_SESSION['RuntimeResultFlexCache_flags'],TRUE));
         if($prependlist == NULL)
         {
             $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
@@ -284,6 +281,7 @@ class ProtocolSupportingData
             $locations = array_merge($prependlist, $locations);
         }
         $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations);
+        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
         error_log("DEBUG $debugkey FLEXCACHE $sThisResultName done building! >>> ".print_r($locations,TRUE));
         return $locations;
     }

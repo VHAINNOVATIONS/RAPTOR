@@ -18,7 +18,7 @@ require_once 'data_context.php';
 
 /**
  * The RuntimeResultFlexCache is a singleton that caches results at runtime.
- * This session level cache has a configurable expiration time.
+ * This database level cache has a configurable expiration time.
  *
  * @author Frank Font of SAN Business Consultants
  */
@@ -41,22 +41,13 @@ class RuntimeResultFlexCache
     {
         try
         {
-            $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
-            $groupflag = $flagroot[$this->m_sGroupName];
-            $groupflagkeys = array_keys($groupflag);
-            $cacheroot = $_SESSION['RuntimeResultFlexCache'];
-            $groupcache = $cacheroot[$this->m_sGroupName];
-            $groupcachekeys = array_keys($groupcache);
-            
-            return "WORK IN PROGRESS RuntimeResultFlexCache Instance for group "
-            . "{$this->m_sGroupName} created {$this->m_nCreatedTime}..."
-            . "\n\t{$this->m_nCreatedTime}\tFLAG KEYS=" . print_r($groupflagkeys,TRUE)
-            . "\n\t{$this->m_nCreatedTime}\tCACHE KEYS=" . print_r($groupcachekeys,TRUE)
-            . "\n\t{$this->m_nCreatedTime}\tFLAG DETAILS=" . print_r($groupflag,TRUE)
-            . "\n\t{$this->m_nCreatedTime}\tCACHE DETAILS=" . print_r($groupcache,TRUE);
+            return "WORK IN PROGRESS RuntimeResultFlexCache Instance for {$this->m_uid}"
+            . " in group {$this->m_sGroupName}"
+            . " created {$this->m_nCreatedTime}";
         } catch (\Exception $ex) {
-            return "RuntimeResultFlexCache Instance for group "
-            . "{$this->m_sGroupName} created {$this->m_nCreatedTime} trouble in tostring->" 
+            return "RuntimeResultFlexCache Instance for {$this->m_uid}"
+            . " in group {$this->m_sGroupName}"
+            . " created {$this->m_nCreatedTime} trouble in tostring->" 
             . print_r($ex,TRUE);
         }
     }    
@@ -69,21 +60,6 @@ class RuntimeResultFlexCache
         if(!isset(RuntimeResultFlexCache::$m_aGroups[$sGroupName]) || $bReset )
         {
             RuntimeResultFlexCache::$m_aGroups[$sGroupName] = new RuntimeResultFlexCache($sGroupName);
-            if(!isset($_SESSION['RuntimeResultFlexCache']))
-            {
-                $cacheroot = array();
-                $flagroot = array();
-            } else {
-                $cacheroot = $_SESSION['RuntimeResultFlexCache'];
-                $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
-            }
-            if(!isset($cacheroot[$sGroupName]) || $bReset)
-            {
-                $cacheroot[$sGroupName] = array();
-                $_SESSION['RuntimeResultFlexCache'] = $cacheroot;
-                $flagroot[$sGroupName] = array();
-                $_SESSION['RuntimeResultFlexCache_flags'] = $flagroot;
-            }
         }
         return RuntimeResultFlexCache::$m_aGroups[$sGroupName];
     }
@@ -123,75 +99,51 @@ error_log("DEBUG FLEXCACHE getCacheBuildingRetrySeconds got data $this\n\tDATA="
     /**
      * Mark a cache as building
      */
-    public function clearCacheBuilding($sThisResultName,$nRetrySeconds=5,$nFailTimeoutSeconds=100)
+    public function clearCacheBuilding($sThisResultName)
     {
-        $this->clearCacheFlag($sThisResultName,'building');
+        $this->clearRaptorCacheFlag($sThisResultName,'building');
     }
     
-    /**
-     * Update a cache flag values
-     */
-    private function updateCacheFlag($sThisResultName,$flagname,$flagvalue,$nRetrySeconds=5,$nFailTimeoutSeconds=100)
-    {
-        if($this->m_sGroupName == NULL)
-        {
-            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can set flag[$flagname]=[$flagvalue] of $sThisResultName!");
-        }
-        $this->startUserCriticalSection();
-        $this->updateRaptorCacheFlag(
-            $nRetrySeconds
-            ,$nFailTimeoutSeconds
-            ,$sThisResultName
-            ,$flagname    
-            ,$flagvalue);        
-        $this->endUserCriticalSection();
-    }
-
     private function getRaptorCacheFlagInfo($item_name, $flag_name)
     {
-        $this->startUserCriticalSection();
-        $result = db_select('raptor_cache_flag', 'u')
-                    ->fields('u')
-                    ->condition('uid', $this->m_uid, '=')
-                    ->condition('group_name', $this->m_sGroupName,'=')
-                    ->condition('item_name', $item_name,'=')
-                    ->condition('flag_name', $flag_name,'=')
-                    ->execute();
-        $foundinfo = $result->fetchAssoc();
-        if(!isset($foundinfo['flag_name']))
+        try
         {
-            //We do not have it.
-            $this->endUserCriticalSection();
-            return NULL;
+            $result = db_select('raptor_cache_flag', 'u')
+                        ->fields('u')
+                        ->condition('uid', $this->m_uid, '=')
+                        ->condition('group_name', $this->m_sGroupName,'=')
+                        ->condition('item_name', $item_name,'=')
+                        ->condition('flag_name', $flag_name,'=')
+                        ->execute();
+            $foundinfo = $result->fetchAssoc();
+            if(!isset($foundinfo['flag_name']))
+            {
+                //We do not have it.
+                return NULL;
+            }
+            //Make sure not timed out.
+            $current_time = time();
+            $created_dt = strtotime($foundinfo['created_dt']);
+            $flag_age = $current_time - $created_dt;
+            $max_age = $foundinfo['max_age'];                
+            if($flag_age > $max_age)
+            {
+                //Kill it.
+                $this->clearRaptorCacheFlag($item_name, $flag_name);
+                return NULL;
+            }
+            return $foundinfo;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        //Make sure not timed out.
-        $currenttime = time();
-        $creation_time = $foundinfo['creation_dt'];
-        $flag_age = $currenttime - $creation_time;
-        $max_age = $foundinfo['max_age'];                
-        if($flag_age > $max_age)
-        {
-            //Kill it.
-            $this->clearRaptorCacheFlag($item_name, $flagname);
-            $this->endUserCriticalSection();
-            return NULL;
-        }
-        return $foundinfo;
     }
 
     private function getRaptorCacheFlagValue($item_name, $flag_name)
     {
-        $result = db_select('raptor_cache_flag', 'u')
-                    ->fields('u')
-                    ->condition('uid', $this->m_uid, '=')
-                    ->condition('group_name', $this->m_sGroupName,'=')
-                    ->condition('item_name', $item_name,'=')
-                    ->condition('flag_name', $flag_name,'=')
-                    ->execute();
-        $record = $result->fetchAssoc();
-        if(isset($record['flag_value']))
+        $foundinfo = $this->getRaptorCacheFlagInfo($item_name, $flag_name);
+        if(isset($foundinfo['flag_value']))
         {
-            return $record['flag_value'];
+            return $foundinfo['flag_value'];
         }
         return NULL;
     }
@@ -204,7 +156,27 @@ error_log("DEBUG FLEXCACHE getCacheBuildingRetrySeconds got data $this\n\tDATA="
                     ->condition('group_name', $this->m_sGroupName,'=')
                     ->condition('item_name', $item_name,'=')
                     ->execute();
-        return $result->fetchAssoc();    
+            $foundinfo = $result->fetchAssoc();
+            if(!isset($foundinfo['item_data']))
+            {
+                //We do not have it.
+error_log("DEBUG FLEXCACHE DATA INFO=NULL");                
+                return NULL;
+            }
+            //Make sure not timed out.
+            $current_time = time();
+            $created_dt = strtotime($foundinfo['created_dt']);
+            $data_age = $current_time - $created_dt;
+            $max_age = $foundinfo['max_age'];                
+            if($data_age > $max_age)
+            {
+                //Kill it.
+                $this->clearRaptorCacheData($item_name);
+error_log("DEBUG FLEXCACHE DATA INFO=NULL because OLD ($data_age > $max_age) >>>".print_r($foundinfo,TRUE));                
+                return NULL;
+            }
+error_log("DEBUG FLEXCACHE DATA INFO found = ".print_r($foundinfo,TRUE));                
+            return $foundinfo;
     }
     
     private function clearRaptorCacheFlag($item_name,$flag_name)
@@ -292,13 +264,28 @@ error_log("DEBUG FLEXCACHE getCacheBuildingRetrySeconds got data $this\n\tDATA="
             throw $ex;
         }
     }
+
+    private function inUserCriticalSection()
+    {
+        $lockname = 'raptor.' . $this->m_uid . '.' . $this->m_sGroupName;
+        try
+        {
+            $sSQL = "SELECT IS_FREE_LOCK('$lockname')";
+            $result = db_query($sSQL);
+            $lock = $result->fetchColumn(0);
+            return $lock == '1';
+        } catch (\Exception $ex) {
+            error_log("Trouble in inUserCriticalSection($lockname)>>>".print_r($ex,TRUE));
+            throw $ex;
+        }
+    }
     
     private function startUserCriticalSection()
     {
         $lockname = 'raptor.' . $this->m_uid . '.' . $this->m_sGroupName;
         try
         {
-            $sSQL = "SELECT GET_LOCK('$lockname', 5)";  //Timeout after 5 seconds
+            $sSQL = "SELECT GET_LOCK('$lockname', 2)";  //Timeout after 2 seconds
             $result = db_query($sSQL);
             $lock = $result->fetchColumn(0);
             $tries=1;
@@ -335,110 +322,18 @@ error_log("DEBUG FLEXCACHE getCacheBuildingRetrySeconds got data $this\n\tDATA="
     }
     
     /**
-     * Get the flag information
-     */
-    private function getCacheFlagInfo($sThisResultName,$flagname)
-    {
-        $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
-        if($this->m_sGroupName == NULL)
-        {
-            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can read flag[$flagname] of $sThisResultName!");
-        }
-        $this->startUserCriticalSection();
-        $this->getRaptorCacheFlagInfo($sThisResultName,$flagname);
-        try
-        {
-            $groupflag = $flagroot[$this->m_sGroupName];
-            if(!isset($groupflag[$sThisResultName]) || !isset($groupflag[$sThisResultName][$flagname]))
-            {
-                //Not set.
-error_log("DEBUG getCacheFlagInfo($flagname) FLEXCACHE is NOT SET!>>>".print_r($groupflag,TRUE)."\n\tALL STUFF=$this");
-            $this->endUserCriticalSection();
-                return NULL;
-            }
-            $foundcache = $groupflag[$sThisResultName];
-            //It exists, but is it still valid?
-            $currenttime = time();
-            $creation_time = $foundcache['creation_time'];
-            $flag_age = $currenttime - $creation_time;
-            $fail_timeout_seconds = $foundcache['fail_timeout_seconds'];                
-            if($flag_age > $fail_timeout_seconds)
-            {
-                //Kill it.
-error_log("DEBUG getCacheFlagInfo($flagname) FLEXCACHE is NOW NULL!");
-                $this->clearCacheFlag($sThisResultName, $flagname);
-            $this->endUserCriticalSection();
-                return NULL;
-            }
-error_log("DEBUG getCacheFlagInfo($flagname) FLEXCACHE is ".print_r($foundcache,TRUE));
-            $this->endUserCriticalSection();
-            return $foundcache;
-        } catch (\Exception $ex) {
-error_log("FAILED getCacheFlagInfo($flagname) FLEXCACHE >>>".print_r($ex));
-            $this->endUserCriticalSection();    //Always end it
-            throw $ex;
-        }
-    }
-    
-    /**
-     * Update a cache flag action
-     */
-    private function clearCacheFlag($sThisResultName,$flagname)
-    {
-        $flagroot = $_SESSION['RuntimeResultFlexCache_flags'];
-        if($this->m_sGroupName == NULL)
-        {
-            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can clear flag[$flagname] of $sThisResultName!");
-        }
-        $this->startUserCriticalSection();
-        $groupflag = $flagroot[$this->m_sGroupName];
-        if(!isset($groupflag[$sThisResultName]) || !isset($groupflag[$sThisResultName][$flagname]))
-        {
-            //Already missing.
-        $this->endUserCriticalSection();
-            return FALSE;
-        }
-        unset($groupflag[$sThisResultName][$flagname]);
-        $flagroot[$this->m_sGroupName] = $groupflag;
-        $_SESSION['RuntimeResultFlexCache_flags'] = $flagroot;
-        
-        $this->clearRaptorCacheFlag($sThisResultName,$flagname);
-        $this->endUserCriticalSection();
-        return TRUE;
-    }
-    
-    /**
      * Add the result data to the cache.
      */
     public function addToCache($sThisResultName,$aResult,$nMaxDataAgeSeconds=600)
     {
-        $cacheroot = $_SESSION['RuntimeResultFlexCache'];
-        if($this->m_sGroupName == NULL || !isset($cacheroot[$this->m_sGroupName]))
-        {
-            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can add $sThisResultName!");
-        }
-        $groupcache = $cacheroot[$this->m_sGroupName];
-        if(!isset($groupcache[$sThisResultName]))
-        {
-            $groupcache[$sThisResultName] = array();
-        }
-        $groupcache[$sThisResultName]['creation_time'] = time();
-        $groupcache[$sThisResultName]['max_age_seconds'] = $nMaxDataAgeSeconds;
-        $groupcache[$sThisResultName]['data'] = $aResult;
-        $cacheroot[$this->m_sGroupName] = $groupcache;
-        $_SESSION['RuntimeResultFlexCache'] = $cacheroot;
-        
         $this->updateRaptorCacheData(
             5
             ,$nMaxDataAgeSeconds
             ,$sThisResultName
             ,$aResult);        
-        
-        $this->clearCacheBuilding($sThisResultName);
     }
     
     /**
-     * Side effect of the check is that it prepares the cache to accept a new result.
      * @return NULL if not found in cache, else the result from the cache.
      */
     public function checkCache($sThisResultName)
@@ -448,37 +343,21 @@ error_log("FAILED getCacheFlagInfo($flagname) FLEXCACHE >>>".print_r($ex));
         error_log("FLEXCACHE checking1 for cache retry seconds.>>>$this");
         $retry_seconds = $this->getCacheBuildingRetrySeconds($sThisResultName);
         error_log("FLEXCACHE checking2 for cache got result of $retry_seconds retry seconds.>>>$this");
+        
+        
         while($retry_seconds > 0)
         {
             error_log("FLEXCACHE Waiting for $sThisResultName to build, will retry in $retry_seconds seconds.");
             sleep($retry_seconds);
             $retry_seconds = $this->getCacheBuildingRetrySeconds($sThisResultName);
         }
-        //Now check for an available cache.
-        $cacheroot = $_SESSION['RuntimeResultFlexCache'];
-        if($this->m_sGroupName == NULL || !isset($cacheroot[$this->m_sGroupName]))
+        
+        error_log("FLEXCACHE READING $sThisResultName the data now!>>>$this");
+        $foundinfo = $this->getRaptorCacheDataInfo($sThisResultName);
+        if(isset($foundinfo['item_data']))
         {
-            throw new \Exception("The RuntimeResultFlexCache must be initialized with a group name BEFORE you can read $sThisResultName!");
+            return unserialize($foundinfo['item_data']);
         }
-        $groupcache = $cacheroot[$this->m_sGroupName];
-        if(isset($groupcache[$sThisResultName]))
-        {
-            $foundcache = $groupcache[$sThisResultName];
-            //Make sure cache data is not too old
-            $currenttime = time();
-            $creation_time = $foundcache['creation_time'];
-            $data_age = $currenttime - $creation_time;
-            $max_age_seconds = $foundcache['max_age_seconds'];                
-            if($data_age > $max_age_seconds)
-            {
-                //Cache data is stale, kill it.
-                $groupcache[$sThisResultName] = array();
-                $_SESSION['RuntimeResultFlexCache'] = $cacheroot;
-            } else {
-                //We have good cache data, use it.
-                $aResult = $foundcache['data'];
-            }
-        }
-        return $aResult;
+        return NULL;
     }
 }
