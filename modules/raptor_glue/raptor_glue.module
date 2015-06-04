@@ -53,7 +53,7 @@ function raptor_glue_page_alter(&$page)
     if(strpos($currentpath,'/kickout_') !== FALSE)
     {
         //Get out of page alter if we are already in kickout mode!
-        error_log('HIT PAGEALTER IN KICKOUT MODE>>>[' . $currentpath 
+        error_log('HIT PAGEALTER IN KICKOUT MODE uid='.$user->uid.'>>>[' . $currentpath 
                 . '] and [' . $currentpage 
                 . ']['.print_r($user,TRUE).']');
         return;
@@ -69,10 +69,10 @@ function raptor_glue_page_alter(&$page)
             || substr($currentpage,0,14) == 'raptor_kickout' 
             || substr($currentpath,0,14) == 'raptor_kickout')
     {
-        error_log('HIT PAGEALTER>>>[' . $currentpath . '] and [' . $currentpage . ']');
+        error_log('HIT PAGEALTER uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
         return;
     }
-    error_log('TOP PAGEALTER>>>[' . $currentpath . '] and [' . $currentpage . ']');
+    error_log('TOP PAGEALTER uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
 
     //Go to our custom front page url.
     $is_front_page = drupal_is_front_page();

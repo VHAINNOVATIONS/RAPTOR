@@ -116,6 +116,34 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     {
         try
         {
+            //Initialize all values as empty, then set if we have them.
+            $myvalues['protocol_data_from_database'] = FALSE;
+            $myvalues['protocol_data_created_dt'] = NULL;
+            $myvalues['protocol_approval_author_uid'] = NULL;
+
+            $myvalues['protocol1_nm'] = NULL;
+            $myvalues['protocol2_nm'] = NULL;
+            $myvalues['hydration_radio_cd'] = NULL;
+            $myvalues['contrast_cd'] = NULL;
+            $myvalues['sedation_radio_cd'] = NULL;
+            $myvalues['radioisotope_cd'] = NULL;
+            $myvalues['allergy_cd'] = NULL;
+            $myvalues['claustrophobic_cd'] = NULL;
+            $myvalues['consentreq_radio_cd'] = NULL;
+
+            $myvalues['hydration_oral_customtx'] = NULL;
+            $myvalues['hydration_iv_customtx'] = NULL;
+            $myvalues['sedation_oral_customtx'] = NULL;
+            $myvalues['sedation_iv_customtx'] = NULL;
+            $myvalues['contrast_enteric_customtx'] = NULL;
+            $myvalues['contrast_iv_customtx'] = NULL;
+            $myvalues['radioisotope_enteric_customtx'] = NULL;
+            $myvalues['radioisotope_iv_customtx'] = NULL;
+            $myvalues['allergy_cd'] = NULL;
+            $myvalues['claustrophobic_cd'] = NULL;
+            $myvalues['consentreq_radio_cd'] = NULL;
+
+            //Set the values if we have them.
             if($protocol_lib_map == NULL)
             {
                 $protocol_lib_map = $this->getProtocolLibMap();
@@ -145,163 +173,139 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $myvalues['protocol_approval_author_uid'] = $record['author_uid'];
                 
                 $shortname1 = $record['primary_protocol_shortname'];
-                $metadata1 = $protocol_lib_map[$shortname1];
-                $myvalues['protocol1_nm'] = $shortname1;
-                $myvalues['protocol1_fullname'] = $metadata1['name'];
-                $myvalues['protocol1_modality_abbr'] = $metadata1['modality_abbr'];
-                if(isset($record['secondary_protocol_shortname']) && $record['secondary_protocol_shortname'] != NULL)
+                if($shortname1 > '')
                 {
-                    $shortname2 = $record['secondary_protocol_shortname'];
-                    $metadata2 = $protocol_lib_map[$shortname2];
-                    $myvalues['protocol2_nm'] = $shortname2;
-                    $myvalues['protocol2_fullname'] = $metadata2['name'];
-                    $myvalues['protocol2_modality_abbr'] = $metadata2['modality_abbr'];
-                } else {
-                    $myvalues['protocol2_nm'] = NULL;
-                    $myvalues['protocol2_fullname'] = NULL;
-                    $myvalues['protocol2_modality_abbr'] = NULL;
-                }
-                if($record['hydration_none_yn'] == 1)
-                {
-                    $myvalues['hydration_radio_cd'] = '';
-                } else {
-                    if(isset($record['hydration_oral_tx']))
+                    //They selected a protocol, get the metadata.
+                    $metadata1 = $protocol_lib_map[$shortname1];
+                    $myvalues['protocol1_nm'] = $shortname1;
+                    $myvalues['protocol1_fullname'] = $metadata1['name'];
+                    $myvalues['protocol1_modality_abbr'] = $metadata1['modality_abbr'];
+                    if(isset($record['secondary_protocol_shortname']) && $record['secondary_protocol_shortname'] != NULL)
                     {
-                        $myvalues['hydration_radio_cd'] = 'oral';
-                        $myvalues['hydration_oral_id'] = $record['hydration_oral_tx'];
-                    } else if(isset($record['hydration_iv_tx'])) {
-                        $myvalues['hydration_radio_cd'] = 'iv';
-                        $myvalues['hydration_iv_id'] = $record['hydration_iv_tx'];
+                        $shortname2 = $record['secondary_protocol_shortname'];
+                        $metadata2 = $protocol_lib_map[$shortname2];
+                        $myvalues['protocol2_nm'] = $shortname2;
+                        $myvalues['protocol2_fullname'] = $metadata2['name'];
+                        $myvalues['protocol2_modality_abbr'] = $metadata2['modality_abbr'];
                     } else {
+                        $myvalues['protocol2_nm'] = NULL;
+                        $myvalues['protocol2_fullname'] = NULL;
+                        $myvalues['protocol2_modality_abbr'] = NULL;
+                    }
+                    if($record['hydration_none_yn'] == 1)
+                    {
                         $myvalues['hydration_radio_cd'] = '';
-                    }
-                }
-                $myvalues['hydration_oral_customtx'] = $record['hydration_oral_tx'];
-                $myvalues['hydration_iv_customtx'] = $record['hydration_iv_tx'];
-
-                $myvalues['sedation_none_yn'] = $record['sedation_none_yn'];
-                if($record['sedation_none_yn'] == 1)
-                {
-                    $myvalues['sedation_radio_cd'] = '';
-                } else {
-                    if(isset($record['sedation_oral_tx']))
-                    {
-                        $myvalues['sedation_radio_cd'] = 'oral';
-                        $myvalues['sedation_oral_id'] = $record['sedation_oral_tx'];
-                    } else if(isset($record['sedation_iv_tx'])) {
-                        $myvalues['sedation_radio_cd'] = 'iv';
-                        $myvalues['sedation_iv_id'] = $record['sedation_iv_tx'];
                     } else {
+                        if(isset($record['hydration_oral_tx']))
+                        {
+                            $myvalues['hydration_radio_cd'] = 'oral';
+                            $myvalues['hydration_oral_id'] = $record['hydration_oral_tx'];
+                        } else if(isset($record['hydration_iv_tx'])) {
+                            $myvalues['hydration_radio_cd'] = 'iv';
+                            $myvalues['hydration_iv_id'] = $record['hydration_iv_tx'];
+                        } else {
+                            $myvalues['hydration_radio_cd'] = '';
+                        }
+                    }
+                    $myvalues['hydration_oral_customtx'] = $record['hydration_oral_tx'];
+                    $myvalues['hydration_iv_customtx'] = $record['hydration_iv_tx'];
+
+                    $myvalues['sedation_none_yn'] = $record['sedation_none_yn'];
+                    if($record['sedation_none_yn'] == 1)
+                    {
                         $myvalues['sedation_radio_cd'] = '';
+                    } else {
+                        if(isset($record['sedation_oral_tx']))
+                        {
+                            $myvalues['sedation_radio_cd'] = 'oral';
+                            $myvalues['sedation_oral_id'] = $record['sedation_oral_tx'];
+                        } else if(isset($record['sedation_iv_tx'])) {
+                            $myvalues['sedation_radio_cd'] = 'iv';
+                            $myvalues['sedation_iv_id'] = $record['sedation_iv_tx'];
+                        } else {
+                            $myvalues['sedation_radio_cd'] = '';
+                        }
+                    }
+                    $myvalues['sedation_oral_customtx'] = $record['sedation_oral_tx'];
+                    $myvalues['sedation_iv_customtx'] = $record['sedation_iv_tx'];
+
+                    $myvalues['contrast_cd'] = array('none'=>0,'enteric'=>0,'iv'=>0);
+                    $myvalues['contrast_none_yn'] = $record['contrast_none_yn'];
+                    $contrast_count=0;
+                    if(isset($record['contrast_enteric_tx']))
+                    {
+                        $contrast_count++;
+                        $myvalues['contrast_cd']['enteric'] = 'enteric';
+                        $myvalues['contrast_enteric_id'] = $record['contrast_enteric_tx'];
+                    } 
+                    if(isset($record['contrast_iv_tx'])) {
+                        $contrast_count++;
+                        $myvalues['contrast_cd']['iv'] = 'iv';
+                        $myvalues['contrast_iv_id'] = $record['contrast_iv_tx'];
+                    }
+                    if($contrast_count == 0)
+                    {
+                        $myvalues['contrast_cd']['none'] = 'none';
+                    }
+                    $myvalues['contrast_enteric_customtx'] = $record['contrast_enteric_tx'];
+                    $myvalues['contrast_iv_customtx'] = $record['contrast_iv_tx'];
+
+                    $myvalues['radioisotope_cd'] = array('none'=>0,'enteric'=>0,'iv'=>0);
+                    $myvalues['radioisotope_none_yn'] = $record['radioisotope_none_yn'];
+                    $radioisotope_count=0;
+                    if(isset($record['radioisotope_enteric_tx']))
+                    {
+                        $radioisotope_count++;
+                        $myvalues['radioisotope_cd']['enteric'] = 'enteric';
+                        $myvalues['radioisotope_enteric_id'] = $record['radioisotope_enteric_tx'];
+                    } 
+                    if(isset($record['radioisotope_iv_tx'])) {
+                        $radioisotope_count++;
+                        $myvalues['radioisotope_cd']['iv'] = 'iv';
+                        $myvalues['radioisotope_iv_id'] = $record['radioisotope_iv_tx'];
+                    } else {
+                        //die('Data corruption of profile data for IEN ' . $nIEN);
+                    }
+                    if($radioisotope_count == 0)
+                    {
+                        $myvalues['radioisotope_cd']['none'] = 'none';
+                    }
+                    $myvalues['radioisotope_enteric_customtx'] = $record['radioisotope_enteric_tx'];
+                    $myvalues['radioisotope_iv_customtx'] = $record['radioisotope_iv_tx'];
+
+                    if($record['allergy_kw'] == NULL || $record['allergy_kw'] == 'unknown')
+                    {
+                        $myvalues['allergy_cd'] = 'unknown';
+                    } else if($record['allergy_kw'] == 'yes') {
+                        $myvalues['allergy_cd'] = 'yes';
+                    } else if($record['allergy_kw'] == 'no') {
+                        $myvalues['allergy_cd'] = 'no';
+                    } else {
+                        //die('Data corruption of profile data for IEN ' . $nIEN);
+                    }
+
+                    if($record['claustrophobic_kw'] == NULL || $record['claustrophobic_kw'] == 'unknown')
+                    {
+                        $myvalues['claustrophobic_cd'] = 'unknown';
+                    } else if($record['claustrophobic_kw'] == 'yes') {
+                        $myvalues['claustrophobic_cd'] = 'yes';
+                    } else if($record['claustrophobic_kw'] == 'no') {
+                        $myvalues['claustrophobic_cd'] = 'no';
+                    } else {
+                        //die('Data corruption of profile data for IEN ' . $nIEN);
+                    }
+
+                    if($record['consent_req_kw'] == NULL || $record['consent_req_kw'] == 'unknown')
+                    {
+                        $myvalues['consentreq_radio_cd'] = 'unknown';
+                    } else if($record['consent_req_kw'] == 'yes') {
+                        $myvalues['consentreq_radio_cd'] = 'yes';
+                    } else if($record['consent_req_kw'] == 'no') {
+                        $myvalues['consentreq_radio_cd'] = 'no';
+                    } else {
+                        //die('Data corruption of profile data for IEN ' . $nIEN);
                     }
                 }
-                $myvalues['sedation_oral_customtx'] = $record['sedation_oral_tx'];
-                $myvalues['sedation_iv_customtx'] = $record['sedation_iv_tx'];
-
-                $myvalues['contrast_cd'] = array('none'=>0,'enteric'=>0,'iv'=>0);
-                $myvalues['contrast_none_yn'] = $record['contrast_none_yn'];
-                $contrast_count=0;
-                if(isset($record['contrast_enteric_tx']))
-                {
-                    $contrast_count++;
-                    $myvalues['contrast_cd']['enteric'] = 'enteric';
-                    $myvalues['contrast_enteric_id'] = $record['contrast_enteric_tx'];
-                } 
-                if(isset($record['contrast_iv_tx'])) {
-                    $contrast_count++;
-                    $myvalues['contrast_cd']['iv'] = 'iv';
-                    $myvalues['contrast_iv_id'] = $record['contrast_iv_tx'];
-                }
-                if($contrast_count == 0)
-                {
-                    $myvalues['contrast_cd']['none'] = 'none';
-                }
-                $myvalues['contrast_enteric_customtx'] = $record['contrast_enteric_tx'];
-                $myvalues['contrast_iv_customtx'] = $record['contrast_iv_tx'];
-
-                $myvalues['radioisotope_cd'] = array('none'=>0,'enteric'=>0,'iv'=>0);
-                $myvalues['radioisotope_none_yn'] = $record['radioisotope_none_yn'];
-                $radioisotope_count=0;
-                if(isset($record['radioisotope_enteric_tx']))
-                {
-                    $radioisotope_count++;
-                    $myvalues['radioisotope_cd']['enteric'] = 'enteric';
-                    $myvalues['radioisotope_enteric_id'] = $record['radioisotope_enteric_tx'];
-                } 
-                if(isset($record['radioisotope_iv_tx'])) {
-                    $radioisotope_count++;
-                    $myvalues['radioisotope_cd']['iv'] = 'iv';
-                    $myvalues['radioisotope_iv_id'] = $record['radioisotope_iv_tx'];
-                } else {
-                    //die('Data corruption of profile data for IEN ' . $nIEN);
-                }
-                if($radioisotope_count == 0)
-                {
-                    $myvalues['radioisotope_cd']['none'] = 'none';
-                }
-                $myvalues['radioisotope_enteric_customtx'] = $record['radioisotope_enteric_tx'];
-                $myvalues['radioisotope_iv_customtx'] = $record['radioisotope_iv_tx'];
-
-                if($record['allergy_kw'] == NULL || $record['allergy_kw'] == 'unknown')
-                {
-                    $myvalues['allergy_cd'] = 'unknown';
-                } else if($record['allergy_kw'] == 'yes') {
-                    $myvalues['allergy_cd'] = 'yes';
-                } else if($record['allergy_kw'] == 'no') {
-                    $myvalues['allergy_cd'] = 'no';
-                } else {
-                    //die('Data corruption of profile data for IEN ' . $nIEN);
-                }
-
-                if($record['claustrophobic_kw'] == NULL || $record['claustrophobic_kw'] == 'unknown')
-                {
-                    $myvalues['claustrophobic_cd'] = 'unknown';
-                } else if($record['claustrophobic_kw'] == 'yes') {
-                    $myvalues['claustrophobic_cd'] = 'yes';
-                } else if($record['claustrophobic_kw'] == 'no') {
-                    $myvalues['claustrophobic_cd'] = 'no';
-                } else {
-                    //die('Data corruption of profile data for IEN ' . $nIEN);
-                }
-
-                if($record['consent_req_kw'] == NULL || $record['consent_req_kw'] == 'unknown')
-                {
-                    $myvalues['consentreq_radio_cd'] = 'unknown';
-                } else if($record['consent_req_kw'] == 'yes') {
-                    $myvalues['consentreq_radio_cd'] = 'yes';
-                } else if($record['consent_req_kw'] == 'no') {
-                    $myvalues['consentreq_radio_cd'] = 'no';
-                } else {
-                    //die('Data corruption of profile data for IEN ' . $nIEN);
-                }
-
-            } else {
-                //No saved data, simply provide initial values.
-                $myvalues['protocol_data_from_database'] = FALSE;
-                $myvalues['protocol_data_created_dt'] = NULL;
-                $myvalues['protocol_approval_author_uid'] = NULL;
-                
-                $myvalues['protocol1_nm'] = NULL;
-                $myvalues['protocol2_nm'] = NULL;
-                $myvalues['hydration_radio_cd'] = NULL;
-                $myvalues['contrast_cd'] = NULL;
-                $myvalues['sedation_radio_cd'] = NULL;
-                $myvalues['radioisotope_cd'] = NULL;
-                $myvalues['allergy_cd'] = NULL;
-                $myvalues['claustrophobic_cd'] = NULL;
-                $myvalues['consentreq_radio_cd'] = NULL;
-                
-                $myvalues['hydration_oral_customtx'] = NULL;
-                $myvalues['hydration_iv_customtx'] = NULL;
-                $myvalues['sedation_oral_customtx'] = NULL;
-                $myvalues['sedation_iv_customtx'] = NULL;
-                $myvalues['contrast_enteric_customtx'] = NULL;
-                $myvalues['contrast_iv_customtx'] = NULL;
-                $myvalues['radioisotope_enteric_customtx'] = NULL;
-                $myvalues['radioisotope_iv_customtx'] = NULL;
-                $myvalues['allergy_cd'] = NULL;
-                $myvalues['claustrophobic_cd'] = NULL;
-                $myvalues['consentreq_radio_cd'] = NULL;
             }
         } catch (\Exception $ex) {
             $msg = 'Unable to load protocol information for ticket ['.$nSiteID.'-'.$nIEN.']';

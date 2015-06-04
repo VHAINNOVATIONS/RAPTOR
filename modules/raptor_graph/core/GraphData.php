@@ -34,9 +34,6 @@ class GraphData
     {
         $this->m_oContext = $oContext;
         $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('GraphData');
-        
-        
-        error_log("DEBUG GRAPH init of cache ".$this->m_oRuntimeResultFlexCache);
     }    
     
     /**
@@ -44,7 +41,6 @@ class GraphData
      */
     private function getVitalSigns()
     {
-        error_log("DEBUG GRAPH top get vitals ".$this->m_oRuntimeResultFlexCache);
         $sThisResultName = $this->m_oContext->getSelectedTrackingID() . '_raw_getVitalSigns'; //patient specific
         $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
         if($aCachedResult !== NULL)
@@ -56,7 +52,6 @@ class GraphData
         $soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
         $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $soapResult, CACHE_AGE_GRAPH_LABS);
         $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
-        error_log("DEBUG GRAPH bottom get vitals ".$this->m_oRuntimeResultFlexCache);
         return $soapResult;
     }
     
