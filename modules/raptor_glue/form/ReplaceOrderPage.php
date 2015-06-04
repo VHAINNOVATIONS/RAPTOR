@@ -611,12 +611,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         {
             //Assume default not pregnant for anyone too old to bear children.
             $myvalues['pregnant'] = 2;
-        //} else {
-        //    error_log("LOOK PREGINFO TOP isfemale=[$isFemale] age=[$age] defvalue={$myvalues['pregnant']}");
         }
 
-        //die('LOOK NOW '.print_r($rpd,TRUE));  
-        
         //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
         $orginalProviderDuz = $myvalues['originalOrderProviderDuz'];
         $canOrderBeDCd = $myvalues['canOrderBeDCd'];
@@ -952,7 +948,6 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             
             $patientId = $myvalues['PatientID'];
             $raworderoptions = MdwsNewOrderUtils::getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId);
-            //error_log("DEBUG LOOK getRadiologyOrderDialog...\n".print_r($raworderoptions,TRUE));
 
             $raw_modifiers = $raworderoptions['modifiers'];
             if(!is_array($raw_modifiers) || count($raw_modifiers) < 1)
@@ -1088,7 +1083,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 '#prefix' => "\n<div id='rb2'>\n",
                 '#suffix' => "\n</div>\n",
             );
-error_log("LOOK PREGINFO age=[$age] value=[{$myvalues['pregnant']}]");
+
             if($isMale)
             {
                 //Never ask for a male.

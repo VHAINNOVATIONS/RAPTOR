@@ -231,7 +231,6 @@ class ProtocolSupportingData
     {
         $debugkey = microtime();
         $sThisResultName = 'getAllHospitalLocations';
-        error_log("DEBUG FLEXCACHE TOP STUFF>>>{$this->m_oRuntimeResultFlexCache}");
         if($prependlist == NULL)
         {
             $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
@@ -242,7 +241,6 @@ class ProtocolSupportingData
             }
         }
         $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
-        error_log("DEBUG FLEXCACHE 222 STUFF>>>{$this->m_oRuntimeResultFlexCache}");
         $queries = 1;
         $locations = MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
         $prevend = end($locations);
