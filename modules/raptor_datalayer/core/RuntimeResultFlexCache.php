@@ -41,9 +41,38 @@ class RuntimeResultFlexCache
     {
         try
         {
-            return "WORK IN PROGRESS RuntimeResultFlexCache Instance for {$this->m_uid}"
+            $result = db_select('raptor_cache_flag', 'u')
+                        ->fields('u')
+                        ->condition('uid', $this->m_uid, '=')
+                        ->execute();
+            $flagstuff = array();
+            if($result->rowCount() > 0)
+            {
+                while($record = $result->fetchAssoc())
+                {
+                    $item_name = $record['item_name'];
+                    $flag_name = $record['flag_name'];
+                    $flagstuff[] = "{$this->m_sGroupName}.{$item_name}.{$flag_name}";
+                }
+            }
+            $result = db_select('raptor_cache_data', 'u')
+                        ->fields('u')
+                        ->condition('uid', $this->m_uid, '=')
+                        ->execute();
+            $datastuff = array();
+            if($result->rowCount() > 0)
+            {
+                while($record = $result->fetchAssoc())
+                {
+                    $item_name = $record['item_name'];
+                    $datastuff[] = "{$this->m_sGroupName}.{$item_name}";
+                }
+            }
+            return "RuntimeResultFlexCache Instance for {$this->m_uid}"
             . " in group {$this->m_sGroupName}"
-            . " created {$this->m_nCreatedTime}";
+            . " created {$this->m_nCreatedTime}"
+            . "\n\tFLEXCACHE FLAGS=".(count($flagstuff) == 0 ? print_r($flagstuff,TRUE) : 'NONE')
+            . "\n\tFLEXCACHE DATA=".(count($datastuff) == 0 ? print_r($datastuff,TRUE) : 'NONE');
         } catch (\Exception $ex) {
             return "RuntimeResultFlexCache Instance for {$this->m_uid}"
             . " in group {$this->m_sGroupName}"
@@ -77,7 +106,6 @@ class RuntimeResultFlexCache
      */
     public function isCacheBuilding($sThisResultName)
     {
-        error_log("DEBUG isCacheBuilding FLEXCACHE top>>>".$this);
         return ($this->getRaptorCacheFlagValue($sThisResultName,'building') == TRUE);
     }
 
@@ -89,10 +117,8 @@ class RuntimeResultFlexCache
         $foundinfo = $this->getRaptorCacheFlagInfo($sThisResultName,'building');
         if(!isset($foundinfo['retry_delay']))
         {
-error_log("DEBUG FLEXCACHE getCacheBuildingRetrySeconds got NULL $this");            
             return 0;
         }
-error_log("DEBUG FLEXCACHE getCacheBuildingRetrySeconds got data $this\n\tDATA=".print_r($foundinfo,TRUE));            
         return $foundinfo['retry_delay'];
     }
     
@@ -160,7 +186,6 @@ error_log("DEBUG FLEXCACHE getCacheBuildingRetrySeconds got data $this\n\tDATA="
             if(!isset($foundinfo['item_data']))
             {
                 //We do not have it.
-error_log("DEBUG FLEXCACHE DATA INFO=NULL");                
                 return NULL;
             }
             //Make sure not timed out.
@@ -172,10 +197,8 @@ error_log("DEBUG FLEXCACHE DATA INFO=NULL");
             {
                 //Kill it.
                 $this->clearRaptorCacheData($item_name);
-error_log("DEBUG FLEXCACHE DATA INFO=NULL because OLD ($data_age > $max_age) >>>".print_r($foundinfo,TRUE));                
                 return NULL;
             }
-error_log("DEBUG FLEXCACHE DATA INFO found = ".print_r($foundinfo,TRUE));                
             return $foundinfo;
     }
     
@@ -300,7 +323,6 @@ error_log("DEBUG FLEXCACHE DATA INFO found = ".print_r($foundinfo,TRUE));
                 $lock = $result->fetchCol();    
                 $tries++;
             }
-            error_log("DEBUG FLEXCACHE startUserCriticalSection($lockname) bottom $this");
         } catch (\Exception $ex) {
             error_log("Trouble in startUserCriticalSection($lockname)>>>".print_r($ex,TRUE));
             throw $ex;
@@ -314,7 +336,6 @@ error_log("DEBUG FLEXCACHE DATA INFO found = ".print_r($foundinfo,TRUE));
         {
             $sSQL = "SELECT RELEASE_LOCK('$lockname')";
             $result = db_query($sSQL);
-            error_log("DEBUG FLEXCACHE endUserCriticalSection($lockname) bottom $this");
         } catch (\Exception $ex) {
             //Do NOT throw the exception, just log it.
             error_log("Trouble in endUserCriticalSection($lockname)>>>".print_r($ex,TRUE));
@@ -339,20 +360,12 @@ error_log("DEBUG FLEXCACHE DATA INFO found = ".print_r($foundinfo,TRUE));
     public function checkCache($sThisResultName)
     {
         //See if we are already building a cache.
-        $aResult = NULL;
-        error_log("FLEXCACHE checking1 for cache retry seconds.>>>$this");
         $retry_seconds = $this->getCacheBuildingRetrySeconds($sThisResultName);
-        error_log("FLEXCACHE checking2 for cache got result of $retry_seconds retry seconds.>>>$this");
-        
-        
         while($retry_seconds > 0)
         {
-            error_log("FLEXCACHE Waiting for $sThisResultName to build, will retry in $retry_seconds seconds.");
             sleep($retry_seconds);
             $retry_seconds = $this->getCacheBuildingRetrySeconds($sThisResultName);
         }
-        
-        error_log("FLEXCACHE READING $sThisResultName the data now!>>>$this");
         $foundinfo = $this->getRaptorCacheDataInfo($sThisResultName);
         if(isset($foundinfo['item_data']))
         {

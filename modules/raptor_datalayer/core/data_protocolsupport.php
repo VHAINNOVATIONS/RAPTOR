@@ -231,20 +231,18 @@ class ProtocolSupportingData
     {
         $debugkey = microtime();
         $sThisResultName = 'getAllHospitalLocations';
+        error_log("DEBUG FLEXCACHE TOP STUFF>>>{$this->m_oRuntimeResultFlexCache}");
         if($prependlist == NULL)
         {
             $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
             if($aCachedResult !== NULL)
             {
                 //Found it in the cache!
-                error_log("DEBUG $debugkey FLEXCACHE $sThisResultName got HIT!");
                 return $aCachedResult;
             }
         }
-        error_log("DEBUG $debugkey FLEXCACHE $sThisResultName mark building! START SLEEP");
         $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
-        sleep(20);  //TODO REMOVE THIS
-        error_log("DEBUG $debugkey FLEXCACHE $sThisResultName mark building! DONE SLEEP");
+        error_log("DEBUG FLEXCACHE 222 STUFF>>>{$this->m_oRuntimeResultFlexCache}");
         $queries = 1;
         $locations = MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
         $prevend = end($locations);
@@ -282,7 +280,6 @@ class ProtocolSupportingData
         }
         $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations);
         $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
-        error_log("DEBUG $debugkey FLEXCACHE $sThisResultName done building! >>> ".print_r($locations,TRUE));
         return $locations;
     }
     
