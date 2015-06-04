@@ -21,6 +21,11 @@ require_once 'data_context.php';
 require_once 'RuntimeResultCache.php';
 require_once 'RuntimeResultFlexCache.php';
 
+defined('CACHE_AGE_LABS')
+    or define('CACHE_AGE_LABS', 60);
+
+defined('CACHE_AGE_SITEVALUES')
+    or define('CACHE_AGE_SITEVALUES', 600);
 
 /**
  * This class contains the functions that return supplemental information for the 
@@ -230,7 +235,7 @@ class ProtocolSupportingData
     public function getAllHospitalLocations($mdwsDao,$maxqueries=120,$startingitem='',$prependlist=NULL)
     {
         $debugkey = microtime();
-        $sThisResultName = 'getAllHospitalLocations';
+        $sThisResultName = 'getAllHospitalLocations';   //Not patient specific
         if($prependlist == NULL)
         {
             $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
@@ -276,7 +281,7 @@ class ProtocolSupportingData
         {
             $locations = array_merge($prependlist, $locations);
         }
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations);
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations, CACHE_AGE_SITEVALUES);
         $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
         return $locations;
     }
@@ -1047,13 +1052,14 @@ class ProtocolSupportingData
      */
     public function getDisplayLabs()
     {
-        $sThisResultName = 'getDisplayLabs';
-        $aCachedResult = $this->m_oRuntimeResultCache->checkCache($sThisResultName);
+        $sThisResultName = $this->m_oContext->getSelectedTrackingID() . '_getDisplayLabs'; //patient specific
+        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
         if($aCachedResult !== null)
         {
             //Found it in the cache!
             return $aCachedResult;
         }
+        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
 
         $displayLabsResult = array();
         
@@ -1067,11 +1073,13 @@ class ProtocolSupportingData
         $blank = " ";
         if(!isset($serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->count))
         {
-                return $displayLabsResult;
+            $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
+            return $displayLabsResult;
         }
         $numTaggedRpts = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->count;
         if($numTaggedRpts == 0)
         {
+            $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
             return $displayLabsResult;
         }
         
@@ -1101,7 +1109,8 @@ class ProtocolSupportingData
             }
         }
             
-        $this->m_oRuntimeResultCache->addToCache($sThisResultName, $displayLabsResult);
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $displayLabsResult, CACHE_AGE_LABS);
+        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
         return $displayLabsResult;
     }
     
@@ -1112,16 +1121,16 @@ class ProtocolSupportingData
      */
     function getLabsDetailData()
     {
-        $sThisResultName = 'getLabsDetailData';
-        $aCachedResult = $this->m_oRuntimeResultCache->checkCache($sThisResultName);
-        if($aCachedResult !== null)
+        $sThisResultName = $this->m_oContext->getSelectedTrackingID() . '_getLabsDetailData'; //patient specific
+        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
+        if($aCachedResult !== NULL)
         {
             //Found it in the cache!
             return $aCachedResult;
         }
+        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
 
         $labs_formulas = new \raptor_formulas\Labs();
-        
         $aDiagLabs = array();
         $aJustEGFR = array();
         
@@ -1144,11 +1153,6 @@ class ProtocolSupportingData
         $aJustEGFRDate['MIN_EGFR_90DAYS'] = NULL;
         
         $isProc = true;     //$oContext->getProcedure()->isProcedure();
-
-        //$wl = new WorklistData($this->m_oContext);
-        //$orders = $wl->getWorklistForProtocolSupport();
-        //$oneOrder = count($orders) > 0 ? $orders[0] : null;
-        //$patientInfo = $wl->getPatient($oneOrder["PatientID"]);        
         $patientInfo = $this->m_aPatientInfo;
 
         //$patientInfo = $this->m_oContext->getPatient();
@@ -1197,13 +1201,11 @@ class ProtocolSupportingData
             $refRange[$key] = $row['refRange'];
             $rawTime[$key] = $row['rawTime'];
         }
-
         
         if(isset($name) && is_array($name)) //20140603
         {
             array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedLabs);
         }
-
 
         $creatinineLabel = 'Creatinine';
         $eGFRLabel = "eGFR";
@@ -1355,7 +1357,8 @@ class ProtocolSupportingData
         }
         
         $aResult = array($aDiagLabs, $aJustEGFR);
-        $this->m_oRuntimeResultCache->addToCache($sThisResultName, $aResult);
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_LABS);
+        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
         
         return $aResult;
     }    
@@ -1525,8 +1528,6 @@ class ProtocolSupportingData
                 $tempRpt['dictationTimestamp'] = isset($RptTO->dictationTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->dictationTimestamp)) : " ";
                 $tempRpt['transcriptionTimestamp'] = isset($RptTO->transcriptionTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->transcriptionTimestamp)) : " ";
 
-//                $this->surgeryRpts[$numRpts] = $tempRpt;
-//                $this->displaySurgeryRpts[$numRpts] = array("guid"=>$tempRpt['guid'], "title"=>$tempRpt['title'], "date"=>$tempRpt['timestamp']);
                 $result[] = array("Title"=>$tempRpt['title'], "ReportDate"=>$tempRpt['timestamp'], 'Snippet' => substr($tempRpt['text'], 0, 20)."...", 'Details' => $tempRpt['text']);
             }
         }
@@ -1588,8 +1589,6 @@ class ProtocolSupportingData
 
                 $tempRpt['comment'] = isset($RptTO->comment) ? nl2br($RptTO->comment) : " ";
                 $tempRpt['organizationalProperties'] = isset($RptTO->organizationalProperties) ? nl2br($RptTO->organizationalProperties) : " ";
-//                $this->Notes[$numNotes] = $tempRpt;
-//                $this->displayNotes[$numNotes] = array("guid"=>$tempRpt['guid'], "title"=>$tempRpt['providerNarrative'], "date"=>$tempRpt['onsetDate']);
                 $result[] = array(  //"guid" => $tempRpt['guid'], 
                                     "Title"=>$tempRpt['providerNarrative'], 
                                     "OnsetDate"=>$tempRpt['onsetDate'], 
@@ -1663,10 +1662,6 @@ class ProtocolSupportingData
                 $tempRpt['itemId'] = isset($RptTO->itemId) ? $RptTO->itemId : " ";
                 $tempRpt['approvedBy'] = isset($RptTO->approvedBy) ? $RptTO->approvedBy : " ";
                 $tempRpt['status'] = isset($RptTO->status) ? $RptTO->status : " ";
-
-
-//                $this->Notes[] = $tempRpt;
-//                $this->displayNotes[] = array("guid"=>$guid, "title"=>$tempRpt['localTitle'], "date"=>$tempRpt['timestamp']);
                 
                 $result[] = array(//"guid" => $tempRpt['guid'], 
                                     "Type"=>$tempRpt['localTitle'], 
@@ -1714,8 +1709,6 @@ class ProtocolSupportingData
                     return false;
                 
                 $tempRpt = array(); 
-//                $guid = com_create_guid();
-//                $tempRpt['guid'] = $guid;
                 $tempRpt['accessionNumber'] = isset($RptTO->accessionNumber) ? $RptTO->accessionNumber : " ";
                 $tempRpt['caseNumber'] = isset($RptTO->caseNumber) ? $RptTO->caseNumber : " ";
                 $tempRpt['id'] = isset($RptTO->id) ? $RptTO->id : " ";
@@ -1741,10 +1734,6 @@ class ProtocolSupportingData
                 $tempRpt['impression'] = isset($RptTO->impression) ? $RptTO->impression : " ";
                 $tempRpt['impression'] = nl2br($tempRpt['impression']);
 
-//                $this->radRpts[] = $tempRpt;
-//                $this->displayRadRpts[] = array( "guid"=>$tempRpt['guid'], "title"=>$tempRpt['title'], "date"=>$tempRpt['timestamp']);
-//                if (!empty($tempRpt['clinicalHx']))
-//                    $this->displaySummary[] = array();
                 $result[] = 
                         array(//"guid" => $tempRpt['guid'], 
                             "Title"  => $tempRpt['title'],
