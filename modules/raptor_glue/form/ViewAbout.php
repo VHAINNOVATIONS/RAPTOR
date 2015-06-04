@@ -97,7 +97,7 @@ class ViewAbout
                 . '<td style="vertical-align:top">'
                 . '<b>RAPTOR Version Information</b>'
                 . '<table class="about-info">'
-                . '<tr><td>App Build</td><td>'.RAPTOR_BUILD_ID.'</td></tr>'
+                . '<tr><td><b>App Build</b></td><td><b>'.RAPTOR_BUILD_ID.'</b></td></tr>'
                 . '<tr><td>Machine ID</td><td>'.RAPTOR_CONFIG_ID.'</td></tr>'
                 . '<tr><td>MDWS version</td><td>'.$mdwsversion.'</td></tr>'
                 . '<tr><td>VISTA Site</td><td>'.VISTA_SITE.'</td></tr>'
