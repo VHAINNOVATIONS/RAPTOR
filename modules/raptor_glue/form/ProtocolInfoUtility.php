@@ -1042,7 +1042,7 @@ class ProtocolInfoUtility
         if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
-            error_log("WARNING VISTA not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
+            error_log("WARNING VISTA at site ".VISTA_SITE." is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
             $configuredVistaCommit = FALSE;
         }
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_SAFETY_CKLST;
@@ -1050,7 +1050,7 @@ class ProtocolInfoUtility
         if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
-            error_log("WARNING VISTA not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
+            error_log("WARNING VISTA at site ".VISTA_SITE." is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
             $configuredVistaCommit = FALSE;
         }
         

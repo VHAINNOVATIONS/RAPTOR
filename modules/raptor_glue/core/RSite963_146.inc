@@ -8,7 +8,7 @@ defined('RAPTOR_CONFIG_ID')
  */
 
 //VISTA values that might change per site
-defined("VISTA_SITE")
+defined('VISTA_SITE')
     or define("VISTA_SITE", '963');	
 defined('VISTA_NOTEIEN_RAPTOR_GENERAL')
     or define('VISTA_NOTEIEN_RAPTOR_GENERAL', '142');
