@@ -15,7 +15,10 @@ namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'core/data_context');
 module_load_include('php', 'raptor_datalayer', 'core/MdwsDao');
+module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
 
+defined('CACHE_AGE_GRAPH_LABS')
+    or define('CACHE_AGE_GRAPH_LABS', 60);
 
 /**
  * This returns data for graphs (aka charts).
@@ -24,17 +27,43 @@ module_load_include('php', 'raptor_datalayer', 'core/MdwsDao');
  */
 class GraphData
 {
-    private $m_oContext = null;
+    private $m_oContext = NULL;
+    private $m_oRuntimeResultFlexCache = NULL;
     
     function __construct($oContext)
     {
         $this->m_oContext = $oContext;
+        $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('GraphData');
+        
+        
+        error_log("DEBUG GRAPH init of cache ".$this->m_oRuntimeResultFlexCache);
     }    
+    
+    /**
+     * Leverage caching so only one call is made.
+     */
+    private function getVitalSigns()
+    {
+        error_log("DEBUG GRAPH top get vitals ".$this->m_oRuntimeResultFlexCache);
+        $sThisResultName = $this->m_oContext->getSelectedTrackingID() . '_raw_getVitalSigns'; //patient specific
+        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
+        if($aCachedResult !== NULL)
+        {
+            //Found it in the cache!
+            return $aCachedResult;
+        }
+        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
+        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $soapResult, CACHE_AGE_GRAPH_LABS);
+        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
+        error_log("DEBUG GRAPH bottom get vitals ".$this->m_oRuntimeResultFlexCache);
+        return $soapResult;
+    }
     
     function getThumbnailGraphValues()
     {
-        // TODO - this data should probably be cached somewhere so a call to MDWS isn't made every time...
-        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
+        //$soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
+        $soapResult = $this->getVitalSigns();
         $max_dates = 5;
         $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
         if(!is_array($result))
@@ -46,8 +75,8 @@ class GraphData
     
     function getVitalsGraphValues()
     {
-        // TODO - this data should probably be cached somewhere so a call to MDWS isn't made every time...
-        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
+        //$soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
+        $soapResult = $this->getVitalSigns();
         $max_dates = 20;
         $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
         if(!is_array($result))

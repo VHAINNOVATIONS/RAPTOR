@@ -1263,16 +1263,17 @@ class ProtocolSupportingData
                 }
                 if(!$foundEGFR)
                 {
-                     /*
-                      eGFR (mL/min/1.73 m^2) = 186 * [Serum Creat (mg/dL)]^-1.154 * [Age (years)]^-0.203 * F * (1.212 if African American)
-                     [F = 1 if male, F = 0.742 if female]
-                      */                
-                     $eGFRValue = $rawValue;
-                     $F = $isFemale ? 0.742 : 1;
-                     $ethnicityCorrection = $isAfricanAmerican ? 1.212 : 1;
-                     $eGFR = 186 * pow($eGFRValue, -1.154) * pow($age, -0.203) * $F * $ethnicityCorrection;
-                     $eGFR = round($eGFR,0);
-                     $eGFRSource = " (eGFR calculated)";
+                    /*
+                     eGFR (mL/min/1.73 m^2) = 186 * [Serum Creat (mg/dL)]^-1.154 * [Age (years)]^-0.203 * F * (1.212 if African American)
+                    [F = 1 if male, F = 0.742 if female]
+                    $eGFRValue = $rawValue;
+                    $F = $isFemale ? 0.742 : 1;
+                    $ethnicityCorrection = $isAfricanAmerican ? 1.212 : 1;
+                    $eGFR = 186 * pow($eGFRValue, -1.154) * pow($age, -0.203) * $F * $ethnicityCorrection;
+                    $eGFR = round($eGFR,0);
+                     */                
+                    $eGFRSource = " (eGFR calculated)";
+                    $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican); //20150624
                }
                $eGFRUnits = " mL/min/1.73 m^2";
                $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
