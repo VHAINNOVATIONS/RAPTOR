@@ -410,7 +410,6 @@ class MdwsUtils {
         $ethnicity = is_null($patientInfo) ? ' ' : $patientInfo['ethnicity'];
         $gender = is_null($patientInfo) ? ' ' : trim(strtoupper($patientInfo['gender']));
         $age = is_null($patientInfo) ? 0 : $patientInfo['age']; //Changed default to 0 instead of 18
-        // @TODO adjust for DOB
         $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
                              (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
         $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
@@ -420,8 +419,6 @@ class MdwsUtils {
         } else {
             $isFemale = FALSE;
         }
-        $nCreatinine = 0;
-        $filteredLabs = array();
         $foundCreatinine = FALSE;
         $foundEGFR = FALSE;
         $foundPLT = FALSE;

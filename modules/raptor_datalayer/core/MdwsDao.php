@@ -286,7 +286,7 @@ class MdwsDao implements IMdwsDao {
     {
 
         //$debugmsg = 'LOOK getPatientIDFromTrackingID for ['.$sTrackingID.']';
-        error_log($debugmsg);
+        //error_log($debugmsg);
         
         //Get the IEN from the tracking ID
         $aParts = (explode('-',$sTrackingID));
@@ -303,7 +303,7 @@ class MdwsDao implements IMdwsDao {
             throw new \Exception($sMsg);
         }
         //$debugmsg = 'LOOK getPatientIDFromTrackingID for IEN=['.$nIEN.']';
-        error_log($debugmsg);
+        //error_log($debugmsg);
         
         $pid = MdwsUtils::getVariableValue($this, '$P(^RAO(75.1,'.$sTrackingID.',0),U,1)');
         //$debugmsg = 'LOOK Found PID as ['.$pid.']';
@@ -312,7 +312,7 @@ class MdwsDao implements IMdwsDao {
             $msg = 'Expected to find a PID but did not find one for ticket ['.$sTrackingID.'] '
                     . '<br>Details...'.print_r($aParts,TRUE)
                     . '<br>Soapresult>>>'.print_r($serviceResponse,TRUE);
-            die($msg);
+            throw new \Exception($msg);
         }
         //error_log($debugmsg);
         return $pid;
