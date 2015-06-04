@@ -3085,7 +3085,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $aResultMap['CI_AlreadyAcknowledged'] = $nCI_AlreadyAcknowledged;
         $aResultMap['AllCIWarnings'] = $aAllCIWarnings;
         
-        $aResultMap['DEBUGINFO'] = $aCandidateData; //TODO remove this
+        //$aResultMap['DEBUGINFO'] = $aCandidateData; //TODO remove this
         
         return $aResultMap;
     }

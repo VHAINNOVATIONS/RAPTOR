@@ -177,7 +177,6 @@ class Context
         $this->m_nLastUpdateTimestamp = microtime(TRUE);  
         $this->m_nInstanceUserActionTimestamp = time();
         $this->m_nInstanceSystemActionTimestamp = time();
-        //Context::debugDrupalMsg('<h1>Hi from CONSTRUCTOR('.$nUID.') Context: New instance created at [' . microtime(TRUE) . ']</h1>' . $this->getContextHtmlDebugInfo(),'status');
     }    
 
     /**
@@ -308,13 +307,10 @@ class Context
                 $wmodeParam='P';    //Hardcode assumption for now.
             } else {
                 $bLocalReset=FALSE;
-                Context::debugDrupalMsg('<h3>Hi from Context: Using existing instance from [' 
-                        . $candidate->m_nInstanceTimestamp 
-                        . '] at [' . microtime(TRUE) 
-                        . "]</h3> ". $candidate->getContextHtmlDebugInfo());
                if(!isset($candidate->m_sVistaUserID))         
                {
-                   Context::debugDrupalMsg(microtime(TRUE) . ') DID NOT FIND USER IN EXISTING SESSION!!!!->' . print_r($candidate,TRUE),'error');
+                   //Log something and continue.
+                   error_log("WARNING: Did NOT find a USER in existing session!".print_r($candidate,TRUE));
                }
             }
             
@@ -462,9 +458,10 @@ class Context
                          */
                         //Update the session info.
                         $candidate->m_nInstanceUserActionTimestamp = time();
-                        error_log('DEBUGINFO storing m_nInstanceUserActionTimestamp as '.$candidate->m_nInstanceUserActionTimestamp);
+                        //error_log('DEBUGINFO storing m_nInstanceUserActionTimestamp as '.$candidate->m_nInstanceUserActionTimestamp);
                         $candidate->serializeNow(); //Store this now!!!
                     } catch (\Exception $ex) {
+                        //Log this but keep going.
                         error_log('CONTEXTgetInstance::Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
                     }
                 }

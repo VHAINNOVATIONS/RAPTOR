@@ -1263,7 +1263,7 @@ function raptor_glue_userinteractionping_form_builder($form, &$form_state)
     header("Content-Type: application/json");
     echo $sJSON;
 
-    error_log('DEBUGINFO ajax userinteractionping result>>>'.$sJSON);
+    //error_log('DEBUGINFO ajax userinteractionping result>>>'.$sJSON);
     
     //Stop all processing.
     drupal_exit();  //Otherwise more stuff gets added to the file.
