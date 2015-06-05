@@ -404,9 +404,9 @@ class MdwsUtils {
     {
         
         module_load_include('php', 'raptor_formulas', 'core/Labs');
-        $labsformulas = new \raptor_formulas\Labs();
+        $labs_formulas = new \raptor_formulas\Labs();
         
-        //Removing default of white male age 20150530
+        //Removed default of white male and default age 20150530
         $ethnicity = is_null($patientInfo) ? ' ' : $patientInfo['ethnicity'];
         $gender = is_null($patientInfo) ? ' ' : trim(strtoupper($patientInfo['gender']));
         $age = is_null($patientInfo) ? 0 : $patientInfo['age']; //Changed default to 0 instead of 18
@@ -435,7 +435,6 @@ class MdwsUtils {
             $date[$key] = $row['date'];
             $value[$key] = $row['value'];
             $units[$key] = $row['units'];
-            $refRange[$key] = $row['refRange'];
             $rawTime[$key] = $row['rawTime'];
         }
 
@@ -488,10 +487,15 @@ class MdwsUtils {
                 }
                 if(!$foundEGFR)
                 {
-                    $eGFRSource = ' (calculated)';
-                    $eGFR = $labsformulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican);
+                    if(is_numeric($rawValue))
+                    {
+                        $eGFRSource = ' (calculated)';
+                        $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican);
+                    } else {
+                        $eGFRSource = '';
+                        $eGFR = '';
+                    }                    
                 }
-                //$eGFRUnits = " mL/min/1.73 m^2";
                 $formattedDate = MdwsUtils::convertYYYYMMDDToDate($lab['rawTime']);
                 $datetime = MdwsUtils::convertYYYYMMDDToDatetime($lab['rawTime']);  //added 20141104 
                 $result[] = array('date'=>$formattedDate, 'egfr'=>$eGFR, 'datetime'=>$datetime);

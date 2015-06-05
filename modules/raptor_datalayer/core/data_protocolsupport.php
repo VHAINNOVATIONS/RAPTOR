@@ -1286,11 +1286,23 @@ class ProtocolSupportingData
                 }
                 if(!$foundEGFR)
                 {
-                    $eGFRSource = " (eGFR calculated)";
-                    $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican); //20150624
-               }
-               $eGFRUnits = " mL/min/1.73 m^2";
-               $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
+                    if(is_numeric($rawValue))
+                    {
+                        $eGFRSource = " (eGFR calculated)";
+                        $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican); //20150604
+                    } else {
+                        $eGFRSource = '';
+                        $eGFR = '';
+                    }
+                }
+                if($eGFR > '')
+                {
+                    $eGFRUnits = " mL/min/1.73 m^2";
+                    $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
+                } else {
+                    $eGFRUnits = '';
+                    $eGFR_Health = '';
+                }
 
                //$renalLabs[] = array('date'=>$lab['date'], 'creatinineLabel'=>$creatinineLabel, 'creatinineValue'=>$value, 'eGFRDisplayValue'=>$eGFR." ".$eGFRUnits, 'eGFRValue'=>$eGFR, 'eGRRSource'=>$eGFRSource);
                $aDiagLabs[] = array('DiagDate'=>$lab['date']
