@@ -201,26 +201,50 @@ class RuntimeResultFlexCache
             }
             return $foundinfo;
     }
+
+    /**
+     * Call this periodically to remove old or orphaned cache items
+     */
+    public static function purgeOldItems($max_ageX24hr=1)
+    {
+        $oldestallowed_ts = time() - (86400 * $max_ageX24hr);
+        $oldestallowed_dt = date("Y-m-d H:i:s", $oldestallowed_ts);
+        $result = db_delete('raptor_cache_data')
+                    ->condition('created_dt', $oldestallowed_dt, '<')
+                    ->execute();
+        $result = db_delete('raptor_cache_flag')
+                    ->condition('created_dt', $oldestallowed_dt, '<')
+                    ->execute();
+    }
     
+    /**
+     * Remove one flag
+     */
     private function clearRaptorCacheFlag($item_name,$flag_name)
     {
-            $query = db_delete('raptor_cache_flag')
-                ->condition('uid', $this->m_uid,'=')
-                ->condition('group_name', $this->m_sGroupName,'=')
-                ->condition('item_name', $item_name,'=')
-                ->condition('flag_name', $flag_name,'=')
-                ->execute();    
+        $query = db_delete('raptor_cache_flag')
+            ->condition('uid', $this->m_uid,'=')
+            ->condition('group_name', $this->m_sGroupName,'=')
+            ->condition('item_name', $item_name,'=')
+            ->condition('flag_name', $flag_name,'=')
+            ->execute();    
     }
     
+    /**
+     * Remove one data item
+     */
     private function clearRaptorCacheData($item_name)
     {
-            $query = db_delete('raptor_cache_data')
-                ->condition('uid', $this->m_uid,'=')
-                ->condition('group_name', $this->m_sGroupName,'=')
-                ->condition('item_name', $item_name,'=')
-                ->execute();    
+        $query = db_delete('raptor_cache_data')
+            ->condition('uid', $this->m_uid,'=')
+            ->condition('group_name', $this->m_sGroupName,'=')
+            ->condition('item_name', $item_name,'=')
+            ->execute();    
     }
     
+    /**
+     * Store one data item
+     */
     private function updateRaptorCacheData(
             $retry_delay
             ,$max_age
@@ -256,6 +280,9 @@ class RuntimeResultFlexCache
         }
     }
 
+    /**
+     * Store one flag item
+     */
     private function updateRaptorCacheFlag(
              $retry_delay
             ,$max_age
@@ -288,6 +315,9 @@ class RuntimeResultFlexCache
         }
     }
 
+    /**
+     * Are we in a critical section?
+     */
     private function inUserCriticalSection()
     {
         $lockname = 'raptor.' . $this->m_uid . '.' . $this->m_sGroupName;
@@ -303,6 +333,9 @@ class RuntimeResultFlexCache
         }
     }
     
+    /**
+     * Indicate we are starting a critical section
+     */
     private function startUserCriticalSection()
     {
         $lockname = 'raptor.' . $this->m_uid . '.' . $this->m_sGroupName;
@@ -329,6 +362,9 @@ class RuntimeResultFlexCache
         }
     }
 
+    /**
+     * Indicate we are completed a critical section
+     */
     private function endUserCriticalSection()
     {
         $lockname = 'raptor.' . $this->m_uid . '.' . $this->m_sGroupName;

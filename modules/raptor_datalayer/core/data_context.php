@@ -16,9 +16,10 @@ namespace raptor;
 require_once 'data_utility.php';
 require_once 'data_user.php';
 require_once 'MdwsDaoFactory.php';
+require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150507A');
+    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150605A');
 
 defined("DISABLE_CONTEXT_DEBUG")
     or define("DISABLE_CONTEXT_DEBUG", TRUE);
@@ -163,7 +164,7 @@ class Context
     
     private function __construct($nUID)
     {
-        error_log('WORKFLOWDEBUG>>>Called constructor for Context'
+        error_log('WORKFLOW Called constructor for Context'
                 . "\tInstance ts     = ".$this->m_nInstanceTimestamp
                 . "\tUserAction ts   = ".$this->m_nInstanceUserActionTimestamp
                 . "\tSystemAction ts = ".$this->m_nInstanceSystemActionTimestamp);
@@ -177,6 +178,9 @@ class Context
         $this->m_nLastUpdateTimestamp = microtime(TRUE);  
         $this->m_nInstanceUserActionTimestamp = time();
         $this->m_nInstanceSystemActionTimestamp = time();
+        
+        //Purge old cache contents now.
+        RuntimeResultFlexCache::purgeOldItems();
     }    
 
     /**
@@ -250,7 +254,6 @@ class Context
             return $candidate;
         }
     }
-    
     
     /**
      * Factory implements session singleton.
