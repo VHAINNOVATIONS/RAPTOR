@@ -650,7 +650,7 @@ class ProtocolSupportingData
     {
         $sThisResultName = 'getVitalsSummary';
         $aCachedResult = $this->m_oRuntimeResultCache->checkCache($sThisResultName);
-        if($aCachedResult !== null)
+        if($aCachedResult !== NULL)
         {
             //Found it in the cache!
             return $aCachedResult;
@@ -662,7 +662,9 @@ class ProtocolSupportingData
         $allVitals      = $parsedVitals[1];
 
         if(empty($displayVitals))
-                return $result;
+        {
+            return $result;
+        }
         
         $tempLabels = array("Temperature", "TEMP", "TEMPERATURE");
         $hrLabels = array("Heart Rate", "HR", "HEART RATE");
@@ -698,7 +700,9 @@ class ProtocolSupportingData
             $rawTime[$key] = $row['rawTime'];
         }
         if(empty($name))
+        {
             return $result;
+        }
 
         array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedVitals);
         
@@ -1178,7 +1182,6 @@ class ProtocolSupportingData
         $ethnicity = $patientInfo['ethnicity'];
         $gender = strtoupper(trim($patientInfo['gender']));
         $age = $patientInfo['age'];
-        // @TODO adjust for DOB
         $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
                              (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
         $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
@@ -1199,16 +1202,6 @@ class ProtocolSupportingData
         $foundPTT = FALSE;
         $foundHCT = FALSE;
 
-        $nCreatinine = 0;
-        $nEGFR = 0;
-        $nPLT = 0;
-        $nPT = 0;
-        $nINR = 0;
-        $nPTT = 0;
-        $nHCT = 0;
-
-        $renalLabs = array();
-        $coagulationLabs = array();
         $sortedLabs = $allLabs;
         // Obtain a list of columns
         foreach ($sortedLabs as $key => $row) 
@@ -1226,8 +1219,6 @@ class ProtocolSupportingData
             array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedLabs);
         }
 
-        $creatinineLabel = 'Creatinine';
-        $eGFRLabel = "eGFR";
         foreach($sortedLabs as $key => $lab)
         {
             $name = $lab['name'];
@@ -1251,9 +1242,9 @@ class ProtocolSupportingData
                 $alert = $lab['value'] > $upperLimit;
             else
                 $alert = FALSE;
-            $value = $alert ? "<span class='medical-value-danger'>** "
+            $value = $alert ? "<span class='medical-value-danger'>!! "
                     .$lab['value']." ".$lab['units']
-                    ." **</span>" : $lab['value']." ".$lab['units'];
+                    ." !!</span>" : $lab['value']." ".$lab['units'];
 
             $rawValue = $lab['value'];
             $units = $lab['units'];
@@ -1282,15 +1273,6 @@ class ProtocolSupportingData
                 }
                 if(!$foundEGFR)
                 {
-                    /*
-                     eGFR (mL/min/1.73 m^2) = 186 * [Serum Creat (mg/dL)]^-1.154 * [Age (years)]^-0.203 * F * (1.212 if African American)
-                    [F = 1 if male, F = 0.742 if female]
-                    $eGFRValue = $rawValue;
-                    $F = $isFemale ? 0.742 : 1;
-                    $ethnicityCorrection = $isAfricanAmerican ? 1.212 : 1;
-                    $eGFR = 186 * pow($eGFRValue, -1.154) * pow($age, -0.203) * $F * $ethnicityCorrection;
-                    $eGFR = round($eGFR,0);
-                     */                
                     $eGFRSource = " (eGFR calculated)";
                     $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican); //20150624
                }
@@ -1406,84 +1388,89 @@ class ProtocolSupportingData
      */
     function getPathologyReportsDetail($max_reports=1000)
     {
-        //$serviceResponse = $this->m_oContext->getEMRService()->getSurgicalPathologyReports(array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>0));
-        $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgicalPathologyReports"
-                , array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>$max_reports));
-        $result = array();
-        if(!isset($serviceResponse->getSurgicalPathologyReportsResult
-                ->arrays->TaggedSurgicalPathologyRptArray->count)) return $result;
-        
-        $numTaggedRpts = $serviceResponse->getSurgicalPathologyReportsResult
-                ->arrays->TaggedSurgicalPathologyRptArray->count;
-        if($numTaggedRpts > 0){
-            for($i=0; $i<$numTaggedRpts; $i++){
-                // Check to see if any Rpts were returned. If not, return
-                if(!isset($serviceResponse->getSurgicalPathologyReportsResult
-                        ->arrays->TaggedSurgicalPathologyRptArray->rpts)) return $result;
+        try
+        {
+            $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgicalPathologyReports"
+                    , array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>$max_reports));
+            $result = array();
+            if(!isset($serviceResponse->getSurgicalPathologyReportsResult
+                    ->arrays->TaggedSurgicalPathologyRptArray->count)) return $result;
 
-                // Check to see if it is an object or an array
-                $objType = gettype($serviceResponse->getSurgicalPathologyReportsResult
-                        ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt);
-                //Finally get it
-                if ($objType == 'array')
-                    $RptTO = $serviceResponse->getSurgicalPathologyReportsResult
-                        ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt[$i];
-                elseif ($objType == 'object')
-                    $RptTO = $serviceResponse->getSurgicalPathologyReportsResult
-                        ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt;
-                else
-                    return $result;
+            $numTaggedRpts = $serviceResponse->getSurgicalPathologyReportsResult
+                    ->arrays->TaggedSurgicalPathologyRptArray->count;
+            if($numTaggedRpts > 0){
+                for($i=0; $i<$numTaggedRpts; $i++){
+                    // Check to see if any Rpts were returned. If not, return
+                    if(!isset($serviceResponse->getSurgicalPathologyReportsResult
+                            ->arrays->TaggedSurgicalPathologyRptArray->rpts)) return $result;
 
-                $tempRpt = array(); 
-                $tempRpt['id'] = isset($RptTO->id) ? $RptTO->id : " ";
-                $tempRpt['title'] = isset($RptTO->title) ? $RptTO->title : " ";
-                $tempRpt['timestamp'] = isset($RptTO->timestamp) ? date("m/d/Y h:i a", strtotime($RptTO->timestamp)) : " ";
+                    // Check to see if it is an object or an array
+                    $objType = gettype($serviceResponse->getSurgicalPathologyReportsResult
+                            ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt);
+                    //Finally get it
+                    if ($objType == 'array')
+                        $RptTO = $serviceResponse->getSurgicalPathologyReportsResult
+                            ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt[$i];
+                    elseif ($objType == 'object')
+                        $RptTO = $serviceResponse->getSurgicalPathologyReportsResult
+                            ->arrays->TaggedSurgicalPathologyRptArray->rpts->SurgicalPathologyRpt;
+                    else
+                        return $result;
 
-                $tempRpt['authorID'] = isset($RptTO->author->authorID) ? $RptTO->author->authorID : " ";
-                $tempRpt['authorName'] = isset($RptTO->author->authorName) ? $RptTO->author->authorName : " ";
-                $tempRpt['authorSignature'] = isset($RptTO->author->authorSignature) ? $RptTO->author->authorSignature : " ";
-                
-                $tempRpt['facilityTag'] = isset($RptTO->facility->facilityTag) ? $RptTO->facility->facilityTag : " ";
-                $tempRpt['facilityText'] = isset($RptTO->facility->facilityText) ? $RptTO->facility->facilityText : " ";
-                $tempRpt['facilityTextArray'] = isset($RptTO->facility->facilityTextArray) ? implode($RptTO->facility->facilityTextArray) : " ";
-                $tempRpt['facilityTagResults'] = isset($RptTO->facility->facilityTagResults) ? $RptTO->facility->facilityTagResults : " ";
+                    $tempRpt = array(); 
+                    $tempRpt['id'] = isset($RptTO->id) ? $RptTO->id : " ";
+                    $tempRpt['title'] = isset($RptTO->title) ? $RptTO->title : " ";
+                    $tempRpt['timestamp'] = isset($RptTO->timestamp) ? date("m/d/Y h:i a", strtotime($RptTO->timestamp)) : " ";
 
-                $tempRpt['specimenID'] = isset($RptTO->specimen->id) ? $RptTO->specimen->id : " ";
-                $tempRpt['specimenName'] = isset($RptTO->specimen->name) ? $RptTO->specimen->name : " ";
-                $sDateThing = (string) (isset($RptTO->specimen->collectionDate) && $RptTO->specimen->collectionDate > '') ? print_r($RptTO->specimen->collectionDate,TRUE) : 'No Date';;
-                if(trim($sDateThing) == '')
-                {
-                    $sDateThing = 'Date Error';
+                    $tempRpt['authorID'] = isset($RptTO->author->authorID) ? $RptTO->author->authorID : " ";
+                    $tempRpt['authorName'] = isset($RptTO->author->authorName) ? $RptTO->author->authorName : " ";
+                    $tempRpt['authorSignature'] = isset($RptTO->author->authorSignature) ? $RptTO->author->authorSignature : " ";
+
+                    $tempRpt['facilityTag'] = isset($RptTO->facility->facilityTag) ? $RptTO->facility->facilityTag : " ";
+                    $tempRpt['facilityText'] = isset($RptTO->facility->facilityText) ? $RptTO->facility->facilityText : " ";
+                    $tempRpt['facilityTextArray'] = isset($RptTO->facility->facilityTextArray) ? implode($RptTO->facility->facilityTextArray) : " ";
+                    $tempRpt['facilityTagResults'] = isset($RptTO->facility->facilityTagResults) ? $RptTO->facility->facilityTagResults : " ";
+
+                    $tempRpt['specimenID'] = isset($RptTO->specimen->id) ? $RptTO->specimen->id : " ";
+                    $tempRpt['specimenName'] = isset($RptTO->specimen->name) ? $RptTO->specimen->name : " ";
+                    $sDateThing = (string) (isset($RptTO->specimen->collectionDate) && $RptTO->specimen->collectionDate > '') ? print_r($RptTO->specimen->collectionDate,TRUE) : 'No Date';;
+                    if(trim($sDateThing) == '')
+                    {
+                        $sDateThing = 'Date Error';
+                    }
+                    $tempRpt['specimenCollectionDate'] = $sDateThing;
+                    $tempRpt['specimenAccessionNum'] = isset($RptTO->specimen->accessionNum) ? $RptTO->specimen->accessionNum : " ";
+                    $tempRpt['specimenSite'] = isset($RptTO->specimen->site) ? $RptTO->specimen->site : " ";
+
+                    $tempRpt['specimenFacilityText'] = isset($RptTO->specimen->facility->facilityText) ? $RptTO->facility->facilityText : " ";
+                    $tempRpt['specimenFacilityTextArray'] = isset($RptTO->specimen->facility->facilityTextArray) ? implode($RptTO->facility->facilityTextArray) : " ";
+                    $tempRpt['specimenFacilityTagResults'] = isset($RptTO->specimen->facility->facilityTagResults) ? $RptTO->facility->facilityTagResults : " ";
+                    $tempRpt['specimenFacilityTag'] = isset($RptTO->specimen->facility->facilityTag) ? $RptTO->facility->facilityTag : " ";
+
+                    $tempRpt['clinicalHx'] = isset($RptTO->clinicalHx) ? $RptTO->clinicalHx : "";
+                    $tempRpt['clinicalHx'] = nl2br($tempRpt['clinicalHx']);
+                    $tempRpt['description'] = isset($RptTO->description) ? $RptTO->description : " ";
+                    $tempRpt['exam'] = isset($RptTO->exam) ? $RptTO->exam : " ";
+                    $tempRpt['exam'] = nl2br($tempRpt['exam']);
+                    $tempRpt['diagnosis'] = isset($RptTO->diagnosis) ? $RptTO->diagnosis : " ";
+                    $tempRpt['diagnosis'] = nl2br($tempRpt['diagnosis']);
+                    $tempRpt['comment'] = isset($RptTO->comment) ? $RptTO->comment : " ";
+                    $tempRpt['comment'] = nl2br($tempRpt['comment']);
+
+                    $aTemp = $this->getSnippetDetailPair($tempRpt['specimenName']);
+                    $result[] = array("Title"=>$tempRpt['title']
+                            , 'ReportDate' => $tempRpt['specimenCollectionDate']
+                            , 'Snippet' => $aTemp['Snippet']
+                            , 'Details' => $aTemp['Details']
+                            , 'Accession' => $tempRpt['specimenAccessionNum']
+                            , 'Exam'=>$tempRpt['exam'], 'Facility'=>$tempRpt['facilityTag']);
                 }
-                $tempRpt['specimenCollectionDate'] = $sDateThing;
-                $tempRpt['specimenAccessionNum'] = isset($RptTO->specimen->accessionNum) ? $RptTO->specimen->accessionNum : " ";
-                $tempRpt['specimenSite'] = isset($RptTO->specimen->site) ? $RptTO->specimen->site : " ";
-                
-                $tempRpt['specimenFacilityText'] = isset($RptTO->specimen->facility->facilityText) ? $RptTO->facility->facilityText : " ";
-                $tempRpt['specimenFacilityTextArray'] = isset($RptTO->specimen->facility->facilityTextArray) ? implode($RptTO->facility->facilityTextArray) : " ";
-                $tempRpt['specimenFacilityTagResults'] = isset($RptTO->specimen->facility->facilityTagResults) ? $RptTO->facility->facilityTagResults : " ";
-                $tempRpt['specimenFacilityTag'] = isset($RptTO->specimen->facility->facilityTag) ? $RptTO->facility->facilityTag : " ";
-                
-                $tempRpt['clinicalHx'] = isset($RptTO->clinicalHx) ? $RptTO->clinicalHx : "";
-                $tempRpt['clinicalHx'] = nl2br($tempRpt['clinicalHx']);
-                $tempRpt['description'] = isset($RptTO->description) ? $RptTO->description : " ";
-                $tempRpt['exam'] = isset($RptTO->exam) ? $RptTO->exam : " ";
-                $tempRpt['exam'] = nl2br($tempRpt['exam']);
-                $tempRpt['diagnosis'] = isset($RptTO->diagnosis) ? $RptTO->diagnosis : " ";
-                $tempRpt['diagnosis'] = nl2br($tempRpt['diagnosis']);
-                $tempRpt['comment'] = isset($RptTO->comment) ? $RptTO->comment : " ";
-                $tempRpt['comment'] = nl2br($tempRpt['comment']);
-
-                $aTemp = $this->getSnippetDetailPair($tempRpt['specimenName']);
-                $result[] = array("Title"=>$tempRpt['title']
-                        , 'ReportDate' => $tempRpt['specimenCollectionDate']
-                        , 'Snippet' => $aTemp['Snippet']
-                        , 'Details' => $aTemp['Details']
-                        , 'Accession' => $tempRpt['specimenAccessionNum']
-                        , 'Exam'=>$tempRpt['exam'], 'Facility'=>$tempRpt['facilityTag']);
             }
+            return $result;
+        } catch (\Exception $ex) {
+            error_log("Failed getPathologyReportsDetail($max_reports) because ".$ex->getMessage());
+            throw $ex;
         }
-        return $result;
     }
 
     /**
@@ -1492,66 +1479,69 @@ class ProtocolSupportingData
      */
     function getSurgeryReportsDetail()
     {        
+        try
+        {
+            //$serviceResponse = $this->m_oContext->getEMRService()->getSurgeryReportsWithText();
+            $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgeryReportsWithText", NULL);
 
-        //$serviceResponse = $this->m_oContext->getEMRService()->getSurgeryReportsWithText();
-        $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgeryReportsWithText", NULL);
-        
-        $result = array();
-        $numRpts = 0;
-        if(!isset($serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->count)) return $result;
-        $numTaggedRpts = $serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->count;
-        if($numTaggedRpts > 0){
-            for($i=0; $i<$numTaggedRpts; $i++){
-                // Check to see if any Rpts were returned. If not, return
-                if(!isset($serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->rpts)) return $result;
+            $result = array();
+            $numRpts = 0;
+            if(!isset($serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->count)) return $result;
+            $numTaggedRpts = $serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->count;
+            if($numTaggedRpts > 0){
+                for($i=0; $i<$numTaggedRpts; $i++){
+                    // Check to see if any Rpts were returned. If not, return
+                    if(!isset($serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->rpts)) return $result;
 
-                // Check to see if it is an object or an array
-                $objType = gettype($serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->rpts->SurgeryReportTO);
-                //Finally get it
-                if ($objType == 'array')
-                    $RptTO = $serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->rpts->SurgeryReportTO[$i];
-                elseif ($objType == 'object')
-                    $RptTO = $serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->rpts->SurgeryReportTO;
-                else
-                    return false;
+                    // Check to see if it is an object or an array
+                    $objType = gettype($serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->rpts->SurgeryReportTO);
+                    //Finally get it
+                    if ($objType == 'array')
+                        $RptTO = $serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->rpts->SurgeryReportTO[$i];
+                    elseif ($objType == 'object')
+                        $RptTO = $serviceResponse->getSurgeryReportsWithTextResult->arrays->TaggedSurgeryReportArray->rpts->SurgeryReportTO;
+                    else
+                        return false;
 
-                $tempRpt = array(); 
-//                $guid = com_create_guid();
-//                $tempRpt['guid'] = $guid;
-                $tempRpt['id'] = isset($RptTO->id) ? $RptTO->id : "Untitled";
-                $tempRpt['title'] = isset($RptTO->title) ? $RptTO->title : " ";
-                $tempRpt['timestamp'] = isset($RptTO->timestamp) ? date("m/d/Y h:i a", strtotime($RptTO->timestamp)) : " ";
+                    $tempRpt = array(); 
+                    $tempRpt['id'] = isset($RptTO->id) ? $RptTO->id : "Untitled";
+                    $tempRpt['title'] = isset($RptTO->title) ? $RptTO->title : " ";
+                    $tempRpt['timestamp'] = isset($RptTO->timestamp) ? date("m/d/Y h:i a", strtotime($RptTO->timestamp)) : " ";
 
-                $tempRpt['authorID'] = isset($RptTO->author->authorID) ? $RptTO->author->authorID : " ";
-                $tempRpt['authorName'] = isset($RptTO->author->authorName) ? $RptTO->author->authorName : " ";
-                $tempRpt['authorSignature'] = isset($RptTO->author->authorSignature) ? $RptTO->author->authorSignature : " ";
-                
-                $tempRpt['text'] = isset($RptTO->text) ? $RptTO->text : "No Details Available";
-                $tempRpt['text'] = nl2br($tempRpt['text']);
+                    $tempRpt['authorID'] = isset($RptTO->author->authorID) ? $RptTO->author->authorID : " ";
+                    $tempRpt['authorName'] = isset($RptTO->author->authorName) ? $RptTO->author->authorName : " ";
+                    $tempRpt['authorSignature'] = isset($RptTO->author->authorSignature) ? $RptTO->author->authorSignature : " ";
 
-                $tempRpt['facilityTag'] = isset($RptTO->facility->tag) ? $RptTO->facility->tag : " ";
-                $tempRpt['facilityText'] = isset($RptTO->facility->text) ? $RptTO->facility->text : " ";
-                $tempRpt['facilityTextArray'] = isset($RptTO->facility->textArray) ? $RptTO->facility->textArray : array(" ");
-                $tempRpt['facilityTagResults'] = isset($RptTO->facility->tagResults) ? $RptTO->facility->tagResults : " ";
+                    $tempRpt['text'] = isset($RptTO->text) ? $RptTO->text : "No Details Available";
+                    $tempRpt['text'] = nl2br($tempRpt['text']);
 
-                $tempRpt['status'] = isset($RptTO->status) ? $RptTO->status : " ";
+                    $tempRpt['facilityTag'] = isset($RptTO->facility->tag) ? $RptTO->facility->tag : " ";
+                    $tempRpt['facilityText'] = isset($RptTO->facility->text) ? $RptTO->facility->text : " ";
+                    $tempRpt['facilityTextArray'] = isset($RptTO->facility->textArray) ? $RptTO->facility->textArray : array(" ");
+                    $tempRpt['facilityTagResults'] = isset($RptTO->facility->tagResults) ? $RptTO->facility->tagResults : " ";
 
-                $tempRpt['specialtyTag'] = isset($RptTO->specialty->tag) ? $RptTO->specialty->tag : " ";
-                $tempRpt['specialtyText'] = isset($RptTO->specialty->text) ? $RptTO->specialty->text : " ";
-                $tempRpt['specialtyTextArray'] = isset($RptTO->specialty->textArray) ? $RptTO->specialty->textArray : array(" ");
-                $tempRpt['specialtyTagResults'] = isset($RptTO->specialty->tagResults) ? $RptTO->specialty->tagResults : " ";
-                
-                
-                $tempRpt['preOpDx'] = isset($RptTO->preOpDx) ? $RptTO->preOpDx : " ";
-                $tempRpt['postOpDx'] = isset($RptTO->postOpDx) ? $RptTO->postOpDx : " ";
-                $tempRpt['labWork'] = isset($RptTO->labWork) ? $RptTO->labWork : " ";
-                $tempRpt['dictationTimestamp'] = isset($RptTO->dictationTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->dictationTimestamp)) : " ";
-                $tempRpt['transcriptionTimestamp'] = isset($RptTO->transcriptionTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->transcriptionTimestamp)) : " ";
+                    $tempRpt['status'] = isset($RptTO->status) ? $RptTO->status : " ";
 
-                $result[] = array("Title"=>$tempRpt['title'], "ReportDate"=>$tempRpt['timestamp'], 'Snippet' => substr($tempRpt['text'], 0, 20)."...", 'Details' => $tempRpt['text']);
+                    $tempRpt['specialtyTag'] = isset($RptTO->specialty->tag) ? $RptTO->specialty->tag : " ";
+                    $tempRpt['specialtyText'] = isset($RptTO->specialty->text) ? $RptTO->specialty->text : " ";
+                    $tempRpt['specialtyTextArray'] = isset($RptTO->specialty->textArray) ? $RptTO->specialty->textArray : array(" ");
+                    $tempRpt['specialtyTagResults'] = isset($RptTO->specialty->tagResults) ? $RptTO->specialty->tagResults : " ";
+
+
+                    $tempRpt['preOpDx'] = isset($RptTO->preOpDx) ? $RptTO->preOpDx : " ";
+                    $tempRpt['postOpDx'] = isset($RptTO->postOpDx) ? $RptTO->postOpDx : " ";
+                    $tempRpt['labWork'] = isset($RptTO->labWork) ? $RptTO->labWork : " ";
+                    $tempRpt['dictationTimestamp'] = isset($RptTO->dictationTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->dictationTimestamp)) : " ";
+                    $tempRpt['transcriptionTimestamp'] = isset($RptTO->transcriptionTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->transcriptionTimestamp)) : " ";
+
+                    $result[] = array("Title"=>$tempRpt['title'], "ReportDate"=>$tempRpt['timestamp'], 'Snippet' => substr($tempRpt['text'], 0, 20)."...", 'Details' => $tempRpt['text']);
+                }
             }
+            return $result;
+        } catch (\Exception $ex) {
+            error_log("Failed getSurgeryReportsDetail because ".$ex->getMessage());
+            throw $ex;
         }
-        return $result;
     }
    
     /**
