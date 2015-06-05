@@ -310,65 +310,6 @@ class GetRadiationDoseHxTab
             }
         }
         
-        /*
-        for($i=1;$i<$totalnotes;$i++) //TODO loop through VistA
-        {
-            $oneitem = array();
-            if($i < 5)
-            {
-                $modality = 'CT';
-            } else {
-                if($i < 10)
-                {
-                    $modality = 'MR';
-                } else {
-                    $modality = 'NM';
-                }
-            }
-            $oneitem['modality'] = $modality;
-            $oneitem['id'] = 'demoid'.$modality.(($i & 1) ? $i : $i-1);
-            $oneitem['name'] = 'demoname'.$modality.((($i & 1) ? $i : $i-1)+2);
-            $oneitem['date'] = "dateof${i}todo";
-            
-            //Update the modality grouping too
-            $mkey = $oneitem['modality'];
-            if(!array_key_exists($mkey,$modalitysummary))
-            {
-                $modalitydetail[$mkey] = array();
-                $modalitysummary[$mkey] = array();
-                $modalitysummaryitem = array();
-                $modalitysummaryitem['allcount'] = 1;
-                //if $summaryitem['date'] within $cutdate
-                $modalitysummaryitem['12mcount'] = 1;            
-            } else {
-                $modalitysummaryitem = $modalitysummary[$mkey];
-                $modalitysummaryitem['allcount'] += 1;
-                //if $summaryitem['date'] within $cutdate
-                $modalitysummaryitem['12mcount'] += 1;            
-            }
-            $modalitysummary[$mkey]= $modalitysummaryitem;
-            $modalitydetailgroup = $modalitydetail[$mkey];
-            $nkey = $oneitem['id'].'_'.$oneitem['name'];
-            if(!array_key_exists($nkey,$modalitydetailgroup))
-            {
-                //Simply add the new entry
-                $ndet = array();
-                $ndet['id'] = $oneitem['id'];
-                $ndet['name'] = $oneitem['name'];
-                $ndet['allcount'] = 1;
-                //if $summaryitem['date'] within $cutdate
-                $ndet['12mcount'] = 1;
-            } else {
-                //Update the exising entry
-                $ndet = $modalitydetailgroup[$nkey];
-                $ndet['allcount'] += 1;
-                //if $summaryitem['date'] within $cutdate
-                $ndet['12mcount'] += 1;
-            }
-            $modalitydetail[$mkey][$nkey] = $ndet;
-        }
-        */
-        
         $infopackage['modalitysummary'] = $modalitysummary;
         $infopackage['modalitydetail'] = $modalitydetail;
         $infopackage['total_notes'] = $totalnotes;
