@@ -68,7 +68,7 @@ if(isset($is_protocol_page) && $is_protocol_page)
 
     <div class="bottom-bar" style="width:100%;" >
         <div class="top-wrapper">
-            <div title="<?php echo(RAPTOR_CONFIG_ID); ?>" class="logo"></div>
+            <div title="<?php echo("Return to worklist ("); echo(RAPTOR_CONFIG_ID); echo(' | '); echo(RAPTOR_BUILD_ID); echo(")") ?>" class="logo"></div>
             <div class="workflow-state-phrase" style="<?php echo($sWorkflowStateCSS); ?>" >
                 <span><?php echo($sWorklflowStatePhrase); ?></span>
             </div>
