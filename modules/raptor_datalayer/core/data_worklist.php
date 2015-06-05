@@ -124,24 +124,29 @@ class WorklistData
     
     private function getWorklistTrackingFromSQL() 
     {
-        
-        $sql = "SELECT * FROM raptor_ticket_tracking";
-        $sqlResult = db_query($sql);
-        $ticketTrackingResult = $this->parseSqlTicketTracking($sqlResult);
-        
-        //$sql = "SELECT * FROM raptor_ticket_collaboration WHERE active_yn";
-        $sql = "SELECT c.IEN, c.collaborator_uid, c.requester_notes_tx, c.requested_dt, u.username, u.usernametitle, u.firstname, u.lastname, u.suffix FROM raptor_ticket_collaboration c left join raptor_user_profile u on c.collaborator_uid=u.uid WHERE active_yn";
-        $sqlResult = db_query($sql);
-        $ticketCollaborationResult = $this->parseSqlTicketTracking($sqlResult);
-        
-        $sql = "SELECT * FROM raptor_schedule_track";
-        $sqlResult = db_query($sql);
-        $scheduleTrackResult = $this->parseSqlTicketTracking($sqlResult);
-        
-        return array(
-            "raptor_ticket_tracking" => $ticketTrackingResult,
-            "raptor_ticket_collaboration" => $ticketCollaborationResult,
-            "raptor_schedule_track" => $scheduleTrackResult);
+        try
+        {
+            $sql = "SELECT * FROM raptor_ticket_tracking";
+            $sqlResult = db_query($sql);
+            $ticketTrackingResult = $this->parseSqlTicketTracking($sqlResult);
+
+            //$sql = "SELECT * FROM raptor_ticket_collaboration WHERE active_yn";
+            $sql = "SELECT c.IEN, c.collaborator_uid, c.requester_notes_tx, c.requested_dt, u.username, u.usernametitle, u.firstname, u.lastname, u.suffix FROM raptor_ticket_collaboration c left join raptor_user_profile u on c.collaborator_uid=u.uid WHERE active_yn";
+            $sqlResult = db_query($sql);
+            $ticketCollaborationResult = $this->parseSqlTicketTracking($sqlResult);
+
+            $sql = "SELECT * FROM raptor_schedule_track";
+            $sqlResult = db_query($sql);
+            $scheduleTrackResult = $this->parseSqlTicketTracking($sqlResult);
+
+            return array(
+                "raptor_ticket_tracking" => $ticketTrackingResult,
+                "raptor_ticket_collaboration" => $ticketCollaborationResult,
+                "raptor_schedule_track" => $scheduleTrackResult);
+        } catch (\Exception $ex) {
+            error_log("FAILED getWorklistTrackingFromSQL ".$ex->getMessage());
+            throw $ex;
+        }
     }
 
     /**
@@ -225,9 +230,9 @@ class WorklistData
         $t = array();
         $nFound=0;
         
-        $ticketTrackingRslt = $ticketTrackingDict["raptor_ticket_tracking"];
-        $ticketCollabRslt = $ticketTrackingDict["raptor_ticket_collaboration"];
-        $scheduleTrackRslt = $ticketTrackingDict["raptor_schedule_track"];
+        $ticketTrackingRslt = $ticketTrackingDict['raptor_ticket_tracking'];
+        $ticketCollabRslt = $ticketTrackingDict['raptor_ticket_collaboration'];
+        $scheduleTrackRslt = $ticketTrackingDict['raptor_schedule_track'];
         
         for ($i=0; $i<$numOrders; $i++)
         {
@@ -556,10 +561,8 @@ class WorklistData
                 'identifier'=>''    //Mumps code for filtering etc
                 ));
             
-//die('LOOK AT getWorklistFromMDWS NOW >>>>'.print_r($result,TRUE));
-            
         } catch (\Exception $ex) {
-            $msg = 'Trouble getting worklist because '.$ex;
+            $msg = 'Failed getting worklist because '.$ex;
             error_log($msg);
             throw $ex;
         }
@@ -570,39 +573,44 @@ class WorklistData
     
     private function getWorklistItemFromMDWS($sTrackingID)
     {
-        //error_log('DEBUG called getWorklistItemFromMDWS start with ['.$sTrackingID.']');
+        try
+        {
+            //Get the IEN from the tracking ID
+            $aParts = (explode('-',$sTrackingID));
+            if(count($aParts) == 2)
+            {
+                $nIEN = $aParts[1]; //siteid-IEN
+            } else 
+            if(count($aParts) == 1)     
+            {
+                $nIEN = $aParts[0]; //Just IEN
+            } else {
+                $sMsg = 'Did NOT recognize format of tracking id ['.$sTrackingID.'] expected SiteID-IEN format!';
+                error_log($sMsg);
+                throw new \Exception($sMsg);
+            }
 
-        //Get the IEN from the tracking ID
-        $aParts = (explode('-',$sTrackingID));
-        if(count($aParts) == 2)
-        {
-            $nIEN = $aParts[1]; //siteid-IEN
-        } else 
-        if(count($aParts) == 1)     
-        {
-            $nIEN = $aParts[0]; //Just IEN
-        } else {
-            $sMsg = 'Did NOT recognize format of tracking id ['.$sTrackingID.'] expected SiteID-IEN format!';
-            error_log($sMsg);
-            throw new \Exception($sMsg);
+            $aResult = MdwsUtils::parseDdrGetsEntryInternalAndExternal($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
+                'file'=>'75.1', 
+                'iens'=>($nIEN.','),
+                'flds'=>'*', 
+                'flags'=>'IEN'
+                )));
+
+            return $aResult;
+        } catch (\Exception $ex) {
+            error_log("Failed getWorklistItemFromMDWS because ".$ex->getMessage());
+            throw $ex;
         }
-        
-        $aResult = MdwsUtils::parseDdrGetsEntryInternalAndExternal($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
-            'file'=>'75.1', 
-            'iens'=>($nIEN.','),
-            'flds'=>'*', 
-            'flags'=>'IEN'
-            )));
-
-        //error_log('DEBUG called getWorklistItemFromMDWS done with result >>>'.print_r($aResult,TRUE));
-        return $aResult;
     }
     
     public static function formatSSN($digits)
     {
         if($digits != NULL && strlen($digits) == 9)
         {
-            return $digits[0] . $digits[1] . $digits[2] . '-' . $digits[3] . $digits[4] . '-' . $digits[5] . $digits[6] . $digits[7];
+            return $digits[0] . $digits[1] . $digits[2] 
+                    . '-' . $digits[3] . $digits[4] 
+                    . '-' . $digits[5] . $digits[6] . $digits[7];
         }
         return $digits;
     }
@@ -623,34 +631,39 @@ class WorklistData
      */
     public function getWorklistRows($startIEN='')
     {
-        
-        $sThisResultName = 'getWorklistRows';
-        $aCachedResult = $this->m_oRuntimeResultCache->checkCache($sThisResultName);
-        if($aCachedResult !== null)
+        try
         {
-            //Found it in the cache!
-            return $aCachedResult;
-        }
-        
-        $mdwsResponse = $this->getWorklistFromMDWS($startIEN);
-        $sqlResponse = $this->getWorklistTrackingFromSQL();
-        
-        $currentTrackingID = $this->m_oContext->getSelectedTrackingID();
-        $parsedWorklist = $this->parseWorklist($mdwsResponse, $sqlResponse, $currentTrackingID);
+            $sThisResultName = 'getWorklistRows';
+            $aCachedResult = $this->m_oRuntimeResultCache->checkCache($sThisResultName);
+            if($aCachedResult !== null)
+            {
+                //Found it in the cache!
+                return $aCachedResult;
+            }
 
-        $dataRows = $parsedWorklist['all_rows'];
-        $pending_orders_map = $parsedWorklist['pending_orders_map'];
-        $matching_offset = $parsedWorklist['matching_offset'];
-        
-        $aResult = array('Pages'=>1
-                        ,'Page'=>1
-                        ,'RowsPerPage'=>9999
-                        ,'DataRows'=>$dataRows
-                        ,'matching_offset' => $matching_offset
-                        ,'pending_orders_map' => $pending_orders_map
-            );	
-        $this->m_oRuntimeResultCache->addToCache($sThisResultName, $aResult);
-        return $aResult;
+            $mdwsResponse = $this->getWorklistFromMDWS($startIEN);
+            $sqlResponse = $this->getWorklistTrackingFromSQL();
+
+            $currentTrackingID = $this->m_oContext->getSelectedTrackingID();
+            $parsedWorklist = $this->parseWorklist($mdwsResponse, $sqlResponse, $currentTrackingID);
+
+            $dataRows = $parsedWorklist['all_rows'];
+            $pending_orders_map = $parsedWorklist['pending_orders_map'];
+            $matching_offset = $parsedWorklist['matching_offset'];
+
+            $aResult = array('Pages'=>1
+                            ,'Page'=>1
+                            ,'RowsPerPage'=>9999
+                            ,'DataRows'=>$dataRows
+                            ,'matching_offset' => $matching_offset
+                            ,'pending_orders_map' => $pending_orders_map
+                );	
+            $this->m_oRuntimeResultCache->addToCache($sThisResultName, $aResult);
+            return $aResult;
+        } catch (\Exception $ex) {
+            error_log("Failed getWorklistRows because ".$ex->getMessage());
+            throw $ex;
+        }
     }
   
     public function getPendingOrdersMap()
@@ -664,119 +677,126 @@ class WorklistData
      */
     public function getDashboardMap($override_tracking_id=NULL)
     {
-        if($override_tracking_id !== NULL)
+        try
         {
-            //Potential enhancement note: Change this side-effect so override does NOT alter the context for the session.
-            $this->m_oContext->setSelectedTrackingID($override_tracking_id);        
-        }
-        
-        $aResult = $this->getWorklistRows();
-        $offset = $aResult['matching_offset'];
-        $all_rows = $aResult['DataRows'];
-        $row = $all_rows[$offset];
+            if($override_tracking_id !== NULL)
+            {
+                //Potential enhancement note: Change this side-effect so override does NOT alter the context for the session.
+                $this->m_oContext->setSelectedTrackingID($override_tracking_id);        
+            }
 
-        $currentTrackingID = $this->m_oContext->getSelectedTrackingID();
-        if($currentTrackingID == '')
-        {
-            throw new \Exception('Cannot get dashboard data when '
-                    . 'current tracking id is not set!  '
-                    . 'Your session may have timed out.');
-        }
-        if(!isset($row[WorklistData::WLIDX_TRACKINGID]))
-        {
-            $msg = 'Expected to get value in WLIDX_TRACKINGID of dashboard for trackingID=['
-                    .$currentTrackingID.'] but did not!';
-            error_log($msg.">>>row details=".print_r($row, TRUE));
-            throw new \Exception($msg);
-        }
-        if($currentTrackingID != $row[WorklistData::WLIDX_TRACKINGID])
-        {
-            $msg = 'Expected to get dashboard for trackingID=['
-                    .$currentTrackingID.'] but got data for ['
-                    .$row[WorklistData::WLIDX_TRACKINGID].'] instead!';
-            error_log($msg.">>>row details=".print_r($row, TRUE));
-            throw new \Exception($msg);
-        }
-        
-        $siteid = $this->m_oContext->getSiteID();
-        $tid = $row[WorklistData::WLIDX_TRACKINGID];
-        $pid = $row[WorklistData::WLIDX_PATIENTID];
-        $oPatientData = $this->getPatient($pid);
-        if($oPatientData == NULL)
-        {
-            $msg = 'Did not get patient data of pid='.$pid
-                    .' for trackingID=['.$currentTrackingID.']';
-            error_log($msg.">>>instance details=".print_r($this, TRUE));
-            throw new \Exception($msg);
-        }
-        
-        // use DDR GETS ENTRY to fetch CLINICAL Hx WP field
-        $worklistItemDict = $this->getWorklistItemFromMDWS($tid);
-        $orderFileIen = $worklistItemDict['7']['I'];
-        $orderFileRec = MdwsUtils::parseDdrGetsEntryInternalAndExternal
-           ($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
-               'file'=>'100', 
-               'iens'=>($orderFileIen.','),
-               'flds'=>'*', 
-               'flags'=>'IEN'
-           )));
+            $aResult = $this->getWorklistRows();
+            $offset = $aResult['matching_offset'];
+            $all_rows = $aResult['DataRows'];
+            $row = $all_rows[$offset];
 
- //       $details = array();
-        $t['orderingPhysicianDuz'] = $worklistItemDict['14']['I']; // get internal value of ordering provider field
-        $t['orderFileStatus'] = $orderFileRec['5']['E'];
-        // 3/11/15 JAM - helper boolean for cancelng order GUI
-        // 5 => PENDING, 11 => UNRELEASED
-        $t['canOrderBeDCd'] = $worklistItemDict['5']['I'] == '5' || $worklistItemDict['5']['I'] == '11';
-        // end 3/11/15 JAM
-        $t['orderActive'] = !key_exists('63', $orderFileRec); // field 63 in file 100 is discontinue date/time
-        // may be more to return here in the future
+            $currentTrackingID = $this->m_oContext->getSelectedTrackingID();
+            if($currentTrackingID == '')
+            {
+                throw new \Exception('Cannot get dashboard data when '
+                        . 'current tracking id is not set!  '
+                        . 'Your session may have timed out.');
+            }
+            if(!isset($row[WorklistData::WLIDX_TRACKINGID]))
+            {
+                $msg = 'Expected to get value in WLIDX_TRACKINGID of dashboard for trackingID=['
+                        .$currentTrackingID.'] but did not!';
+                error_log($msg.">>>row details=".print_r($row, TRUE));
+                throw new \Exception($msg);
+            }
+            if($currentTrackingID != $row[WorklistData::WLIDX_TRACKINGID])
+            {
+                $msg = 'Expected to get dashboard for trackingID=['
+                        .$currentTrackingID.'] but got data for ['
+                        .$row[WorklistData::WLIDX_TRACKINGID].'] instead!';
+                error_log($msg.">>>row details=".print_r($row, TRUE));
+                throw new \Exception($msg);
+            }
 
-        
-        $t['Tracking ID']       = $siteid.'-'.$tid;
-        $t['Procedure']         = $row[WorklistData::WLIDX_STUDY];
-        $t['Modality']          = $row[WorklistData::WLIDX_MODALITY];
+            $siteid = $this->m_oContext->getSiteID();
+            $tid = $row[WorklistData::WLIDX_TRACKINGID];
+            $pid = $row[WorklistData::WLIDX_PATIENTID];
+            $oPatientData = $this->getPatient($pid);
+            if($oPatientData == NULL)
+            {
+                $msg = 'Did not get patient data of pid='.$pid
+                        .' for trackingID=['.$currentTrackingID.']';
+                error_log($msg.">>>instance details=".print_r($this, TRUE));
+                throw new \Exception($msg);
+            }
 
-        $t['ExamCategory']      = $row[WorklistData::WLIDX_PATIENTCATEGORYLOCATION];
-        $t['PatientLocation']   = $row[WorklistData::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
-        $t['RequestedBy']       = $row[WorklistData::WLIDX_REQUESTINGPHYSICIAN];
-        
-        // ATTENTION FRANK: new indices for requesting location and submit to location
-        $t['RequestingLocation']= trim((isset($worklistItemDict["22"]["I"]) ? $worklistItemDict["22"]["I"] : '') );
-        $t['SubmitToLocation']  = trim((isset($worklistItemDict["20"]["I"]) ? $worklistItemDict["20"]["I"] : '') );
-        // END ATTN FRANK
-        
-        $aSchedInfo = $row[WorklistData::WLIDX_SCHEDINFO];
-        $t['SchedInfo']         = $aSchedInfo;
-        $t['RequestedDate']     = $row[WorklistData::WLIDX_DATEORDERED]; 
-        $t['DesiredDate']       = $row[WorklistData::WLIDX_DATETIMEDESIRED]; 
-        $t['ScheduledDate']     = $aSchedInfo['EventDT'];
+            // use DDR GETS ENTRY to fetch CLINICAL Hx WP field
+            $worklistItemDict = $this->getWorklistItemFromMDWS($tid);
+            $orderFileIen = $worklistItemDict['7']['I'];
+            $orderFileRec = MdwsUtils::parseDdrGetsEntryInternalAndExternal
+               ($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
+                   'file'=>'100', 
+                   'iens'=>($orderFileIen.','),
+                   'flds'=>'*', 
+                   'flags'=>'IEN'
+               )));
+
+     //       $details = array();
+            $t['orderingPhysicianDuz'] = $worklistItemDict['14']['I']; // get internal value of ordering provider field
+            $t['orderFileStatus'] = $orderFileRec['5']['E'];
+            // 3/11/15 JAM - helper boolean for cancelng order GUI
+            // 5 => PENDING, 11 => UNRELEASED
+            $t['canOrderBeDCd'] = $worklistItemDict['5']['I'] == '5' || $worklistItemDict['5']['I'] == '11';
+            // end 3/11/15 JAM
+            $t['orderActive'] = !key_exists('63', $orderFileRec); // field 63 in file 100 is discontinue date/time
+            // may be more to return here in the future
+
+
+            $t['Tracking ID']       = $siteid.'-'.$tid;
+            $t['Procedure']         = $row[WorklistData::WLIDX_STUDY];
+            $t['Modality']          = $row[WorklistData::WLIDX_MODALITY];
+
+            $t['ExamCategory']      = $row[WorklistData::WLIDX_PATIENTCATEGORYLOCATION];
+            $t['PatientLocation']   = $row[WorklistData::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
+            $t['RequestedBy']       = $row[WorklistData::WLIDX_REQUESTINGPHYSICIAN];
+
+            // ATTENTION FRANK: new indices for requesting location and submit to location
+            $t['RequestingLocation']= trim((isset($worklistItemDict["22"]["I"]) ? $worklistItemDict["22"]["I"] : '') );
+            $t['SubmitToLocation']  = trim((isset($worklistItemDict["20"]["I"]) ? $worklistItemDict["20"]["I"] : '') );
+            // END ATTN FRANK
+
+            $aSchedInfo = $row[WorklistData::WLIDX_SCHEDINFO];
+            $t['SchedInfo']         = $aSchedInfo;
+            $t['RequestedDate']     = $row[WorklistData::WLIDX_DATEORDERED]; 
+            $t['DesiredDate']       = $row[WorklistData::WLIDX_DATETIMEDESIRED]; 
+            $t['ScheduledDate']     = $aSchedInfo['EventDT'];
+
+            $t['PatientCategory']   = $row[WorklistData::WLIDX_PATIENTCATEGORYLOCATION];
+            // changed reason for study to real RFS, added 'NatureOfOrderActivity' key 
+            $t['ReasonForStudy']    = trim((isset($worklistItemDict["1.1"]["I"]) ? $worklistItemDict["1.1"]["I"] : '') );
+            $t['NatureOfOrderActivity'] = $row[WorklistData::WLIDX_NATUREOFORDERACTIVITY];
+
+            $t['RequestingLocation'] = trim((isset($worklistItemDict["22"]["E"]) ? $worklistItemDict["22"]["E"] : '') );
+            $t['RequestingLocationIen'] = trim((isset($worklistItemDict["22"]["I"]) ? $worklistItemDict["22"]["I"] : '') );
+
+            $t['ClinicalHistory']   = trim((isset($worklistItemDict["400"]) ? $worklistItemDict["400"] : '') );
+            $t['PatientID']         = $pid;
+            $t['PatientSSN']        = WorklistData::formatSSN($oPatientData['ssn']);
+            $t['Urgency']           = $row[WorklistData::WLIDX_URGENCY];
+            $t['Transport']         = $row[WorklistData::WLIDX_TRANSPORT];
+            $t['PatientName']       = $row[WorklistData::WLIDX_PATIENTNAME];
+            $t['PatientAge']        = $oPatientData['age'];
+            $t['PatientDOB']        = $oPatientData['dob'];
+            $t['PatientEthnicity']  = $oPatientData['ethnicity'];
+            $t['PatientGender']     = $oPatientData['gender'];
+            $t['ImageType']         = $row[WorklistData::WLIDX_IMAGETYPE];
+            $t['mpiPid']            = $oPatientData['mpiPid'];
+            $t['mpiChecksum']       = $oPatientData['mpiChecksum'];
+            $t['CountPendingOrders']   = $row[WorklistData::WLIDX_COUNTPENDINGORDERSSAMEPATIENT];
+            $t['MapPendingOrders']     = $row[WorklistData::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
+            $t['OrderFileIen']          = $row[WorklistData::WLIDX_ORDERFILEIEN];
+            $t['RadiologyOrderStatus']  = $row[WorklistData::WLIDX_RADIOLOGYORDERSTATUS];
+            return $t;
             
-        $t['PatientCategory']   = $row[WorklistData::WLIDX_PATIENTCATEGORYLOCATION];
-        // changed reason for study to real RFS, added 'NatureOfOrderActivity' key 
-        $t['ReasonForStudy']    = trim((isset($worklistItemDict["1.1"]["I"]) ? $worklistItemDict["1.1"]["I"] : '') );
-        $t['NatureOfOrderActivity'] = $row[WorklistData::WLIDX_NATUREOFORDERACTIVITY];
-        
-        $t['RequestingLocation'] = trim((isset($worklistItemDict["22"]["E"]) ? $worklistItemDict["22"]["E"] : '') );
-        $t['RequestingLocationIen'] = trim((isset($worklistItemDict["22"]["I"]) ? $worklistItemDict["22"]["I"] : '') );
-        
-        $t['ClinicalHistory']   = trim((isset($worklistItemDict["400"]) ? $worklistItemDict["400"] : '') );
-        $t['PatientID']         = $pid;
-        $t['PatientSSN']        = WorklistData::formatSSN($oPatientData['ssn']);
-        $t['Urgency']           = $row[WorklistData::WLIDX_URGENCY];
-        $t['Transport']         = $row[WorklistData::WLIDX_TRANSPORT];
-        $t['PatientName']       = $row[WorklistData::WLIDX_PATIENTNAME];
-        $t['PatientAge']        = $oPatientData['age'];
-        $t['PatientDOB']        = $oPatientData['dob'];
-        $t['PatientEthnicity']  = $oPatientData['ethnicity'];
-        $t['PatientGender']     = $oPatientData['gender'];
-        $t['ImageType']         = $row[WorklistData::WLIDX_IMAGETYPE];
-        $t['mpiPid']            = $oPatientData['mpiPid'];
-        $t['mpiChecksum']       = $oPatientData['mpiChecksum'];
-        $t['CountPendingOrders']   = $row[WorklistData::WLIDX_COUNTPENDINGORDERSSAMEPATIENT];
-        $t['MapPendingOrders']     = $row[WorklistData::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
-        $t['OrderFileIen']          = $row[WorklistData::WLIDX_ORDERFILEIEN];
-        $t['RadiologyOrderStatus']  = $row[WorklistData::WLIDX_RADIOLOGYORDERSTATUS];
-        return $t;
+        } catch (\Exception $ex) {
+            error_log("Failed getDashboardMap because ".$ex->getMessage());
+            throw $ex;
+        }
     }
     
     /**
@@ -786,82 +806,87 @@ class WorklistData
      */
     public function getPatient($pid)
     {
-        if(!isset($pid) || $pid == null || $pid == '')
+        if(!isset($pid) || $pid == NULL || $pid == '')
         {
-            error_log('Cannot get patient if pid is not provided!');
-            return null;
+            //Changed to throw exception on 20150605
+            throw new \Exception('Missing required parameter value in call to getPatient!');
         }
         
-        //$serviceResponse = $this->getEMRService()->select(array('DFN'=>$pid == null ? $this->getPatientID() : $pid));
-        $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("select", array('DFN'=>$pid));
-        //drupal_set_message('LOOK DFN RESULT>>>>' . print_r($serviceResponse, TRUE));
+        try
+        {
+            //$serviceResponse = $this->getEMRService()->select(array('DFN'=>$pid == null ? $this->getPatientID() : $pid));
+            $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("select", array('DFN'=>$pid));
+            //drupal_set_message('LOOK DFN RESULT>>>>' . print_r($serviceResponse, TRUE));
 
-        
-        $result = array();
-        if(!isset($serviceResponse->selectResult))
+            $result = array();
+            if(!isset($serviceResponse->selectResult))
+                    return $result;
+
+            $RptTO = $serviceResponse->selectResult;
+            if(isset($RptTO->fault))
+            { 
                 return $result;
-        
-        $RptTO = $serviceResponse->selectResult;
-        if(isset($RptTO->fault))
-        { 
-            return $result;
-        }
-        $result['patientName'] = isset($RptTO->name) ? $RptTO->name : " ";
-        $result['ssn'] = isset($RptTO->ssn) ? $RptTO->ssn : " ";
-        $result['gender'] = isset($RptTO->gender) ? $RptTO->gender : " ";
-        $result['dob'] = isset($RptTO->dob) ? date("m/d/Y", strtotime($RptTO->dob)) : " ";
-        $result['ethnicity'] = isset($RptTO->ethnicity) ? $RptTO->ethnicity : " ";
-        $result['age'] = isset($RptTO->age) ? $RptTO->age : " ";
-        $result['maritalStatus'] = isset($RptTO->maritalStatus) ? $RptTO->maritalStatus : " ";
-        $result['age'] = isset($RptTO->age) ? $RptTO->age : " ";
-        $result['mpiPid'] = isset($RptTO->mpiPid) ? $RptTO->mpiPid : " ";
-        $result['mpiChecksum'] = isset($RptTO->mpiChecksum) ? $RptTO->mpiChecksum : " ";
-        $result['localPid'] = isset($RptTO->localPid) ? $RptTO->localPid : " ";
-        $result['sitePids'] = isset($RptTO->sitePids) ? $RptTO->sitePids : " ";
-        $result['vendorPid'] = isset($RptTO->vendorPid) ? $RptTO->vendorPid : " ";
-        if(isset($RptTO->location))
-        {
-            $aLocation = $RptTO->location;
-            $room = "Room: ";
-            $room .=isset($aLocation->room)? $aLocation->room : " ";
-            $bed =  "Bed: ";
-            $bed .= (isset($aLocation->bed) ? $aLocation->bed : " " );
-            $result['location'] = $room." / ".$bed;
-        }
-        else
-        {
-            $result['location'] = "Room:? / Bed:? ";
-        }
-        $result['cwad'] = isset($RptTO->cwad) ? $RptTO->cwad : " ";
-        $result['restricted'] = isset($RptTO->restricted) ? $RptTO->restricted : " ";
-        
-        $result['admitTimestamp'] = isset($RptTO->admitTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->admitTimestamp)) : " ";
-        
-        $result['serviceConnected'] = isset($RptTO->serviceConnected) ? $RptTO->serviceConnected : " ";
-        $result['scPercent'] = isset($RptTO->scPercent) ? $RptTO->scPercent : " ";
-        $result['inpatient'] = isset($RptTO->inpatient) ? $RptTO->inpatient : " ";
-        $result['deceasedDate'] = isset($RptTO->deceasedDate) ? $RptTO->deceasedDate : " ";
-        $result['confidentiality'] = isset($RptTO->confidentiality) ? $RptTO->confidentiality : " ";
-        $result['needsMeansTest'] = isset($RptTO->needsMeansTest) ? $RptTO->needsMeansTest : " ";
-        $result['patientFlags'] = isset($RptTO->patientFlags) ? $RptTO->patientFlags : " ";
-        $result['cmorSiteId'] = isset($RptTO->cmorSiteId) ? $RptTO->cmorSiteId : " ";
-        $result['activeInsurance'] = isset($RptTO->activeInsurance) ? $RptTO->activeInsurance : " ";
-        $result['isTestPatient'] = isset($RptTO->isTestPatient) ? $RptTO->isTestPatient : " ";
-        $result['currentMeansStatus'] = isset($RptTO->currentMeansStatus) ? $RptTO->currentMeansStatus : " ";
-        $result['hasInsurance'] = isset($RptTO->hasInsurance) ? $RptTO->hasInsurance : " ";
-        $result['preferredFacility'] = isset($RptTO->preferredFacility) ? $RptTO->preferredFacility : " ";
-        $result['patientType'] = isset($RptTO->patientType) ? $RptTO->patientType : " ";
-        $result['isVeteran'] = isset($RptTO->isVeteran) ? $RptTO->isVeteran : " ";
-        $result['isLocallyAssignedMpiPid'] = isset($RptTO->isLocallyAssignedMpiPid) ? $RptTO->isLocallyAssignedMpiPid : " ";
-        $result['sites'] = isset($RptTO->sites) ? $RptTO->sites : " ";
-        $result['teamID'] = isset($RptTO->teamID) ? $RptTO->teamID : " ";
-        $result['teamName'] = isset($RptTO->name) ? $RptTO->name : "Unknown";
-        $result['teamPcpName'] = isset($RptTO->pcpName) ? $RptTO->pcpName : "Unknown";
-        $result['teamAttendingName'] = isset($RptTO->attendingName) ? $RptTO->attendingName : "Unknown";
-        $result['mpiPid'] = isset($RptTO->mpiPid) ? $RptTO->mpiPid : "Unknown";
-        $result['mpiChecksum'] = isset($RptTO->mpiChecksum) ? $RptTO->mpiChecksum : "Unknown";
+            }
+            $result['patientName'] = isset($RptTO->name) ? $RptTO->name : " ";
+            $result['ssn'] = isset($RptTO->ssn) ? $RptTO->ssn : " ";
+            $result['gender'] = isset($RptTO->gender) ? $RptTO->gender : " ";
+            $result['dob'] = isset($RptTO->dob) ? date("m/d/Y", strtotime($RptTO->dob)) : " ";
+            $result['ethnicity'] = isset($RptTO->ethnicity) ? $RptTO->ethnicity : " ";
+            $result['age'] = isset($RptTO->age) ? $RptTO->age : " ";
+            $result['maritalStatus'] = isset($RptTO->maritalStatus) ? $RptTO->maritalStatus : " ";
+            $result['age'] = isset($RptTO->age) ? $RptTO->age : " ";
+            $result['mpiPid'] = isset($RptTO->mpiPid) ? $RptTO->mpiPid : " ";
+            $result['mpiChecksum'] = isset($RptTO->mpiChecksum) ? $RptTO->mpiChecksum : " ";
+            $result['localPid'] = isset($RptTO->localPid) ? $RptTO->localPid : " ";
+            $result['sitePids'] = isset($RptTO->sitePids) ? $RptTO->sitePids : " ";
+            $result['vendorPid'] = isset($RptTO->vendorPid) ? $RptTO->vendorPid : " ";
+            if(isset($RptTO->location))
+            {
+                $aLocation = $RptTO->location;
+                $room = "Room: ";
+                $room .=isset($aLocation->room)? $aLocation->room : " ";
+                $bed =  "Bed: ";
+                $bed .= (isset($aLocation->bed) ? $aLocation->bed : " " );
+                $result['location'] = $room." / ".$bed;
+            }
+            else
+            {
+                $result['location'] = "Room:? / Bed:? ";
+            }
+            $result['cwad'] = isset($RptTO->cwad) ? $RptTO->cwad : " ";
+            $result['restricted'] = isset($RptTO->restricted) ? $RptTO->restricted : " ";
 
-        return $result;
+            $result['admitTimestamp'] = isset($RptTO->admitTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->admitTimestamp)) : " ";
+
+            $result['serviceConnected'] = isset($RptTO->serviceConnected) ? $RptTO->serviceConnected : " ";
+            $result['scPercent'] = isset($RptTO->scPercent) ? $RptTO->scPercent : " ";
+            $result['inpatient'] = isset($RptTO->inpatient) ? $RptTO->inpatient : " ";
+            $result['deceasedDate'] = isset($RptTO->deceasedDate) ? $RptTO->deceasedDate : " ";
+            $result['confidentiality'] = isset($RptTO->confidentiality) ? $RptTO->confidentiality : " ";
+            $result['needsMeansTest'] = isset($RptTO->needsMeansTest) ? $RptTO->needsMeansTest : " ";
+            $result['patientFlags'] = isset($RptTO->patientFlags) ? $RptTO->patientFlags : " ";
+            $result['cmorSiteId'] = isset($RptTO->cmorSiteId) ? $RptTO->cmorSiteId : " ";
+            $result['activeInsurance'] = isset($RptTO->activeInsurance) ? $RptTO->activeInsurance : " ";
+            $result['isTestPatient'] = isset($RptTO->isTestPatient) ? $RptTO->isTestPatient : " ";
+            $result['currentMeansStatus'] = isset($RptTO->currentMeansStatus) ? $RptTO->currentMeansStatus : " ";
+            $result['hasInsurance'] = isset($RptTO->hasInsurance) ? $RptTO->hasInsurance : " ";
+            $result['preferredFacility'] = isset($RptTO->preferredFacility) ? $RptTO->preferredFacility : " ";
+            $result['patientType'] = isset($RptTO->patientType) ? $RptTO->patientType : " ";
+            $result['isVeteran'] = isset($RptTO->isVeteran) ? $RptTO->isVeteran : " ";
+            $result['isLocallyAssignedMpiPid'] = isset($RptTO->isLocallyAssignedMpiPid) ? $RptTO->isLocallyAssignedMpiPid : " ";
+            $result['sites'] = isset($RptTO->sites) ? $RptTO->sites : " ";
+            $result['teamID'] = isset($RptTO->teamID) ? $RptTO->teamID : " ";
+            $result['teamName'] = isset($RptTO->name) ? $RptTO->name : "Unknown";
+            $result['teamPcpName'] = isset($RptTO->pcpName) ? $RptTO->pcpName : "Unknown";
+            $result['teamAttendingName'] = isset($RptTO->attendingName) ? $RptTO->attendingName : "Unknown";
+            $result['mpiPid'] = isset($RptTO->mpiPid) ? $RptTO->mpiPid : "Unknown";
+            $result['mpiChecksum'] = isset($RptTO->mpiChecksum) ? $RptTO->mpiChecksum : "Unknown";
+
+            return $result;
+        } catch (\Exception $ex) {
+            error_log("Failed getPatient because ".$ex->getMessage());
+            throw $ex;
+        }
     }
 }
 

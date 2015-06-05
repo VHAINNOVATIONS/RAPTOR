@@ -71,23 +71,29 @@ class TicketTrackingData
      */
     public function getTicketWorkflowState($sTrackingID)
     {
-        $aParts = $this->getTrackingIDParts($sTrackingID);
-        $nSiteID = $aParts[0];
-        $nIEN = $aParts[1];
-        $aWorkflowStateRecord = db_select('raptor_ticket_tracking', 'n')
-            ->fields('n')
-            ->condition('siteid', $nSiteID,'=')
-            ->condition('IEN', $nIEN,'=')
-            ->execute()
-            ->fetchAssoc();       
-        if(!isset($aWorkflowStateRecord['workflow_state']) || $aWorkflowStateRecord['workflow_state'] == '')
+        try
         {
-            $sCWFS = 'AC';
-            //drupal_set_message('Did not find ticket tracking record for '.$nSiteID.'-'.$nIEN);
-        } else {
-            $sCWFS = $aWorkflowStateRecord['workflow_state'];
-        } 
-        return $sCWFS;        
+            $aParts = $this->getTrackingIDParts($sTrackingID);
+            $nSiteID = $aParts[0];
+            $nIEN = $aParts[1];
+            $aWorkflowStateRecord = db_select('raptor_ticket_tracking', 'n')
+                ->fields('n')
+                ->condition('siteid', $nSiteID,'=')
+                ->condition('IEN', $nIEN,'=')
+                ->execute()
+                ->fetchAssoc();       
+            if(!isset($aWorkflowStateRecord['workflow_state']) || $aWorkflowStateRecord['workflow_state'] == '')
+            {
+                $sCWFS = 'AC';
+                //drupal_set_message('Did not find ticket tracking record for '.$nSiteID.'-'.$nIEN);
+            } else {
+                $sCWFS = $aWorkflowStateRecord['workflow_state'];
+            } 
+            return $sCWFS;        
+        } catch (\Exception $ex) {
+            error_log("FAILED getTicketWorkflowState ".$ex->getMessage());
+            throw $ex;
+        }
     }
     
     /**
