@@ -234,7 +234,6 @@ class ProtocolSupportingData
     
     public function getAllHospitalLocations($mdwsDao,$maxqueries=120,$startingitem='',$prependlist=NULL)
     {
-        $debugkey = microtime();
         $sThisResultName = 'getAllHospitalLocations';   //Not patient specific
         if($prependlist == NULL)
         {
@@ -287,6 +286,26 @@ class ProtocolSupportingData
     }
     
     /**
+     * Leverage caching so only one call is made.
+     */
+    public function getRawVitalSigns()
+    {
+        $sThisResultName = $this->m_oContext->getSelectedTrackingID() . '_raw_getVitalSigns'; //patient specific
+        $oCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
+        if($oCachedResult !== NULL)
+        {
+            //Found it in the cache!
+            return $oCachedResult;
+        }
+        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
+        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $soapResult, CACHE_AGE_LABS);
+        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
+        return $soapResult;
+    }
+    
+    
+    /**
      * Create the following three arrays of data and group them into one returned array.
      * 1 DisplayVitals -- All available vitals formatted for display
      * 2 AllVitals    -- All available vitals for computation use
@@ -303,8 +322,8 @@ class ProtocolSupportingData
             return $aCachedResult;
         }
         
-        
-        $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getVitalSigns", NULL);
+        $serviceResponse = $this->getRawVitalSigns();
+        //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getVitalSigns", NULL);
        
         //Initialize the component arrays.
         $displayVitals = array();

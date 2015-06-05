@@ -14,11 +14,9 @@
 namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'core/data_context');
+module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
 module_load_include('php', 'raptor_datalayer', 'core/MdwsDao');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
-
-defined('CACHE_AGE_GRAPH_LABS')
-    or define('CACHE_AGE_GRAPH_LABS', 60);
 
 /**
  * This returns data for graphs (aka charts).
@@ -29,36 +27,19 @@ class GraphData
 {
     private $m_oContext = NULL;
     private $m_oRuntimeResultFlexCache = NULL;
+    private $m_oPSD = NULL;
     
     function __construct($oContext)
     {
         $this->m_oContext = $oContext;
+        $this->m_oPSD = new \raptor\ProtocolSupportingData($oContext);
         $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('GraphData');
     }    
-    
-    /**
-     * Leverage caching so only one call is made.
-     */
-    private function getVitalSigns()
-    {
-        $sThisResultName = $this->m_oContext->getSelectedTrackingID() . '_raw_getVitalSigns'; //patient specific
-        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
-        if($aCachedResult !== NULL)
-        {
-            //Found it in the cache!
-            return $aCachedResult;
-        }
-        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
-        $soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $soapResult, CACHE_AGE_GRAPH_LABS);
-        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
-        return $soapResult;
-    }
     
     function getThumbnailGraphValues()
     {
         //$soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
-        $soapResult = $this->getVitalSigns();
+        $soapResult = $this->m_oPSD->getRawVitalSigns();
         $max_dates = 5;
         $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
         if(!is_array($result))
@@ -71,7 +52,7 @@ class GraphData
     function getVitalsGraphValues()
     {
         //$soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
-        $soapResult = $this->getVitalSigns();
+        $soapResult = $this->m_oPSD->getRawVitalSigns();
         $max_dates = 20;
         $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
         if(!is_array($result))
