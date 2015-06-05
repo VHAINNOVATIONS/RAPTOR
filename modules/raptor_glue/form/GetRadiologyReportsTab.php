@@ -125,7 +125,6 @@ class GetRadiologyReportsTab
             '#tree' => TRUE,
         );
 
-        
         $oDD = new \raptor\DashboardData($this->m_oContext);
         $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         $radiology_reports_detail = $oPSD->getRadiologyReportsDetail();
@@ -133,9 +132,18 @@ class GetRadiologyReportsTab
         $sTrackingIDfromDD = $raptor_protocoldashboard['Tracking ID'];
         $patientDFN=$raptor_protocoldashboard['PatientID'];
         $patientICN=$raptor_protocoldashboard['mpiPid'];
-        if(trim($patientICN) == '')
+        $can_getimages=TRUE;
+        if(trim($patientDFN) == '' || trim($patientICN) == '')
         {
-            error_log("ERROR on $sTrackingIDfromDD NO PATIENTICN(mpiPid) found for PATIENTDFN=".$patientDFN);
+            $can_getimages=FALSE;
+            if(trim($patientDFN) == '')
+            {
+                error_log("ERROR on $sTrackingIDfromDD NO $patientDFN(mpiPid) found for TrackingIDfromDD=".$sTrackingIDfromDD);
+            }
+            if(trim($patientICN) == '')
+            {
+                error_log("ERROR on $sTrackingIDfromDD NO PATIENTICN(mpiPid) found for PATIENTDFN=".$patientDFN);
+            }
             error_log("DEBUG ENTIRE DD for missing PATIENTICN(mpiPid) on $sTrackingIDfromDD >>>".print_r($raptor_protocoldashboard,TRUE));
         }
         
@@ -145,11 +153,23 @@ class GetRadiologyReportsTab
             $reportID=$data_row['ReportID'];
             $caseNumber=$data_row['CaseNumber'];        
             $rows .= "\n".'<tr>'
-                  . '<td>'.$data_row["Title"].'</td>'
-                  . '<td>'.$data_row["ReportedDate"].'</td>'
-                  . '<td><a href="#" class="raptor-details">'.$data_row["Snippet"].'</a>'.GetRadiologyReportsTab::raptor_print_details($data_row["Details"]).'</td>'
-                  . '<td>'.GetRadiologyReportsTab::getImageInfoAsHTML($this->m_oContext, $patientDFN, $patientICN, $reportID, $caseNumber).'</td>'
-                  . '</tr>';
+                  . '<td>'.$data_row['Title'].'</td>'
+                  . '<td>'.$data_row['ReportedDate'].'</td>'
+                  . '<td><a href="#" class="raptor-details">'
+                    .$data_row["Snippet"].'</a>'
+                    .GetRadiologyReportsTab::raptor_print_details($data_row['Details']) 
+                    .'</td>';
+            if($can_getimages)
+            {
+                $rows .= '<td>' 
+                        .GetRadiologyReportsTab::getImageInfoAsHTML($this->m_oContext, $patientDFN, $patientICN, $reportID, $caseNumber)
+                        .'</td>';
+            } else {
+                $rows .= '<td><span title="The current configuration of VistA is missing needed values to associate the patient with images.">'
+                        . 'No images available (VistA config issue)'
+                        . '</span></td>';
+            }
+            $rows .= '</tr>';
         }
         
         $form["data_entry_area1"]['table_container']['reports'] = array('#type' => 'item',
