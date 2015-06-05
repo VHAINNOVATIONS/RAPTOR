@@ -7,7 +7,7 @@
 
 namespace raptor;
 
-require_once ("data_utility.php");
+require_once 'data_utility.php';
 
 /**
  * This checks operational status of RAPTOR elements.

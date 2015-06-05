@@ -175,8 +175,9 @@ class ViewScannedProtocolLibFile
                     .'</tbody></table>';
             $form["data_entry_area1"]['table_container']['uploadhistory'] = array('#type' => 'item',
                      '#markup' => $historymarkup);
-        } catch (Exception $ex) {
-            error_log('Failed to get scanned document comments for '.$protocol_shortname.' because '.$ex->getMessage());
+        } catch (\Exception $ex) {
+            error_log('Failed to get scanned document comments for '
+                    .$protocol_shortname.' because '.$ex->getMessage());
             throw $ex;
         }
         

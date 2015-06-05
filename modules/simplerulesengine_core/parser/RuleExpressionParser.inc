@@ -291,8 +291,12 @@ class RuleExpressionParser extends \simplerulesengine\MeasureExpressionParser
                 }
                 $i++;
             }
-        } catch (Exception $ex) {
-            throw new \Exception('Expected a enclosed parameters for the '.$sFunctionName. ' function of token array ' . print_r($tokens_array,TRUE) . ' but failed because ' . $ex->getMessage());
+        } catch (\Exception $ex) {
+            throw new \Exception('Expected a enclosed parameters for the '
+                    . $sFunctionName
+                    . ' function of token array ' 
+                    . print_r($tokens_array,TRUE) 
+                    . ' but failed because ' . $ex->getMessage());
         }
         $i++;   //Leave on token that follows the closing paren.
         return $aParams;
