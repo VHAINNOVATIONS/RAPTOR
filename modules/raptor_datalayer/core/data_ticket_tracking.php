@@ -103,27 +103,33 @@ class TicketTrackingData
      */
     public function getCollaborationInfo($sTrackingID)
     {
-        $return = NULL;
-        $aParts = $this->getTrackingIDParts($sTrackingID);
-        $nSiteID = $aParts[0];
-        $nIEN = $aParts[1];
-        $result = db_select('raptor_ticket_collaboration','p')
-                ->fields('p')
-                ->condition('siteid',$nSiteID,'=')
-                ->condition('IEN',$nIEN,'=')
-                ->execute();
-        if($result == NULL)
+        try
         {
-            $nRows = 0;
-        } else {
-            $nRows = $result->rowCount();
+            $return = NULL;
+            $aParts = $this->getTrackingIDParts($sTrackingID);
+            $nSiteID = $aParts[0];
+            $nIEN = $aParts[1];
+            $result = db_select('raptor_ticket_collaboration','p')
+                    ->fields('p')
+                    ->condition('siteid',$nSiteID,'=')
+                    ->condition('IEN',$nIEN,'=')
+                    ->execute();
+            if($result == NULL)
+            {
+                $nRows = 0;
+            } else {
+                $nRows = $result->rowCount();
+            }
+            if($nRows > 0)
+            {
+                //Return the fields of the found record.
+                $return = $result->fetchAssoc();
+            }
+            return $return;
+        } catch (\Exception $ex) {
+            error_log("FAILED getCollaborationInfo ".$ex->getMessage());
+            throw $ex;
         }
-        if($nRows > 0)
-        {
-            //Return the fields of the found record.
-            $return = $result->fetchAssoc();
-        }
-        return $return;
     }
     
     /**
@@ -493,6 +499,7 @@ class TicketTrackingData
                 ->condition('locked_by_uid', $nUID,'=')
                     ->execute();
         } catch (\Exception $ex) {
+            error_log("FAILED deleteAllUserTicketLocks ".$ex->getMessage());
             throw $ex;
         }
     }
@@ -604,41 +611,50 @@ class TicketTrackingData
      */
     public function getAllTicketLockDetails()
     {
-        $details = array();
-        $details['tickets'] = array();
-        $details['users'] = array();
-
-        $this->deleteAllStaleTicketLocks(VISTA_SITE);
-        
-        $query = db_select('raptor_ticket_lock_tracking', 'n');
-        $query->join('raptor_user_profile', 'u', 'n.locked_by_uid = u.uid');
-        $query->fields('n');
-        $query->fields('u', array('username','usernametitle','firstname','lastname','suffix'))
-            ->orderBy('IEN');
-        $result = $query->execute();
-        while($record = $result->fetchAssoc())
+        try
         {
-            $oneticket = array();
-            $oneticket['siteid'] = $record['siteid'];
-            $oneticket['IEN'] = $record['IEN'];
-            $oneticket['locked_type_cd'] = $record['locked_type_cd'];
-            $oneticket['lock_started_dt'] = $record['lock_started_dt'];
-            $oneticket['lock_refreshed_dt'] = $record['lock_refreshed_dt'];
-            $lbuid = $record['locked_by_uid'];
-            $oneticket['locked_by_uid'] = $lbuid;
-            $sTID = $record['siteid'].'-'.$record['IEN'];
-            $details['tickets'][$sTID] = $oneticket;
-            if(!isset($details['users'][$lbuid]))
+            $details = array();
+            $details['tickets'] = array();
+            $details['users'] = array();
+
+            $this->deleteAllStaleTicketLocks(VISTA_SITE);
+
+            $query = db_select('raptor_ticket_lock_tracking', 'n');
+            $query->join('raptor_user_profile', 'u', 'n.locked_by_uid = u.uid');
+            $query->fields('n');
+            $query->fields('u', array('username','usernametitle','firstname','lastname','suffix'))
+                ->orderBy('IEN');
+            $result = $query->execute();
+            while($record = $result->fetchAssoc())
             {
-                //Add this user to the lookup information.
-                $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] . ' ' . $record['lastname'] . ' ' . $record['suffix']);
-                $oneuser = array();
-                $oneuser['uid'] = $lbuid;
-                $oneuser['fullname'] = $fullname;
-                $details['users'][$lbuid] = $oneuser;
+                $oneticket = array();
+                $oneticket['siteid'] = $record['siteid'];
+                $oneticket['IEN'] = $record['IEN'];
+                $oneticket['locked_type_cd'] = $record['locked_type_cd'];
+                $oneticket['lock_started_dt'] = $record['lock_started_dt'];
+                $oneticket['lock_refreshed_dt'] = $record['lock_refreshed_dt'];
+                $lbuid = $record['locked_by_uid'];
+                $oneticket['locked_by_uid'] = $lbuid;
+                $sTID = $record['siteid'].'-'.$record['IEN'];
+                $details['tickets'][$sTID] = $oneticket;
+                if(!isset($details['users'][$lbuid]))
+                {
+                    //Add this user to the lookup information.
+                    $fullname = trim($record['usernametitle'] . ' ' 
+                            . $record['firstname'] . ' ' 
+                            . $record['lastname'] . ' ' 
+                            . $record['suffix']);
+                    $oneuser = array();
+                    $oneuser['uid'] = $lbuid;
+                    $oneuser['fullname'] = $fullname;
+                    $details['users'][$lbuid] = $oneuser;
+                }
             }
+            return $details;
+        } catch (\Exception $ex) {
+            error_log("FAILED getAllTicketLockDetails because ".$ex->getMessage());
+            throw $ex;
         }
-        return $details;
     }
     
     
@@ -650,37 +666,43 @@ class TicketTrackingData
             ,$uidfilter=NULL
             ,$limit_one_rec=TRUE)
     {
-        $aParts = $this->getTrackingIDParts($sTrackingID);
-        $nSiteID = $aParts[0];
-        $nIEN = $aParts[1];
-        $query = db_select('raptor_ticket_lock_tracking', 'n')
-            ->fields('n')
-            ->condition('siteid', $nSiteID,'=')
-            ->condition('IEN', $nIEN,'=');
-        if($locktypefilter !== NULL)
+        try
         {
-            //Apply the filter.
-            $query->condition('locked_type_cd', $locktypefilter,'=');
-        }
-        if($uidfilter !== NULL)
-        {
-            //Apply the filter.
-            $query->condition('locked_by_uid', $uidfilter,'=');
-        }
-        $result = $query->execute();
-        if($result != NULL && $result->rowCount() > 0)
-        {
-            if($limit_one_rec && $result->rowCount() > 1)
+            $aParts = $this->getTrackingIDParts($sTrackingID);
+            $nSiteID = $aParts[0];
+            $nIEN = $aParts[1];
+            $query = db_select('raptor_ticket_lock_tracking', 'n')
+                ->fields('n')
+                ->condition('siteid', $nSiteID,'=')
+                ->condition('IEN', $nIEN,'=');
+            if($locktypefilter !== NULL)
             {
-                throw new \Exception('Too many edit lock records ('
-                        .$result->rowCount().') found for '
-                        .$sTrackingID.'>>>'.print_r($result,TRUE));
+                //Apply the filter.
+                $query->condition('locked_type_cd', $locktypefilter,'=');
             }
-            //Return the lock record details as an array.
-            return $result->fetchAssoc();       
+            if($uidfilter !== NULL)
+            {
+                //Apply the filter.
+                $query->condition('locked_by_uid', $uidfilter,'=');
+            }
+            $result = $query->execute();
+            if($result != NULL && $result->rowCount() > 0)
+            {
+                if($limit_one_rec && $result->rowCount() > 1)
+                {
+                    throw new \Exception('Too many edit lock records ('
+                            .$result->rowCount().') found for '
+                            .$sTrackingID.'>>>'.print_r($result,TRUE));
+                }
+                //Return the lock record details as an array.
+                return $result->fetchAssoc();       
+            }
+            //No lock record found.
+            return NULL;
+        } catch (\Exception $ex) {
+            error_log("FAILED getTicketLockDetails because ".$ex->getMessage());
+            throw $ex;
         }
-        //No lock record found.
-        return NULL;
     }
     
     /**
@@ -690,79 +712,85 @@ class TicketTrackingData
      */
     public function deleteAllStaleTicketLocks($nSiteID, $extralogmessage=NULL)
     {
-        //error_log('STARTING deleteAllStaleTicketLocks');
-        $maxage = USER_EDITLOCK_TIMEOUT_SECONDS;
-        $maxloginage = USER_EDITLOCK_TIMEOUT_SECONDS * 10;  //Failsafe based on login time
-        $oldestallowed_ts = time() - $maxage;
-        $oldestallowed_dt = date("Y-m-d H:i:s", $oldestallowed_ts);
-        $oldestlogin_ts = time() - $maxloginage;
-        //First check the raptor table
-        $query = db_select('raptor_ticket_lock_tracking', 'n');
-        $query->leftJoin('users', 'u', 'n.locked_by_uid = u.uid');
-        //too many rows $query->leftJoin('sessions', 's', 'n.locked_by_uid = s.uid');
-        $query->fields('n');
-        //$query->fields('s', array('uid'));
-        $query->fields('u', array('uid','access'));
-        $query->condition('n.siteid', $nSiteID,'=');
-        //$db_or = db_or();
-        //$db_or->condition('n.lock_refreshed_dt', $oldestallowed_dt,'<');
-        //$db_or->isNull('s.uid');
-        //$query->condition($db_or);
-        $result = $query->execute();
-        $mycount=0;
-        $mydeleted=0;
-        foreach($result as $row)
+        try
         {
-            $mycount++;
-            $sTrackingID = $nSiteID.'-'.$row->IEN;
-            $currently_locked_by_uid = $row->locked_by_uid;
-            $delete = FALSE;
-            if($row->uid  == NULL || !UserInfo::isUserOnline($row->uid))
+            //error_log('STARTING deleteAllStaleTicketLocks');
+            $maxage = USER_EDITLOCK_TIMEOUT_SECONDS;
+            $maxloginage = USER_EDITLOCK_TIMEOUT_SECONDS * 10;  //Failsafe based on login time
+            $oldestallowed_ts = time() - $maxage;
+            $oldestallowed_dt = date("Y-m-d H:i:s", $oldestallowed_ts);
+            $oldestlogin_ts = time() - $maxloginage;
+            //First check the raptor table
+            $query = db_select('raptor_ticket_lock_tracking', 'n');
+            $query->leftJoin('users', 'u', 'n.locked_by_uid = u.uid');
+            //too many rows $query->leftJoin('sessions', 's', 'n.locked_by_uid = s.uid');
+            $query->fields('n');
+            //$query->fields('s', array('uid'));
+            $query->fields('u', array('uid','access'));
+            $query->condition('n.siteid', $nSiteID,'=');
+            //$db_or = db_or();
+            //$db_or->condition('n.lock_refreshed_dt', $oldestallowed_dt,'<');
+            //$db_or->isNull('s.uid');
+            //$query->condition($db_or);
+            $result = $query->execute();
+            $mycount=0;
+            $mydeleted=0;
+            foreach($result as $row)
             {
-                //Not logged in.
-                $delete = TRUE;
-                $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
-                        .' because '.$currently_locked_by_uid
-                        .' user is not logged in >>> '.print_r($row,TRUE);
-            } else {
-                $lock_refreshed_ts = strtotime($row->lock_refreshed_dt);    //Because DATE is not a timestamp!!!
-                if($lock_refreshed_ts < $oldestallowed_ts) {
-                    //Locked ticket is too old from raptor lock check.
-                    $diff = $lock_refreshed_ts - $oldestallowed_ts;
-                    $delete = TRUE;
-                    $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
-                            .' because lock refresh '.$lock_refreshed_ts
-                            .' ('.$row->lock_refreshed_dt.')'
-                            .' is older than '.$oldestallowed_ts
-                            .' ('.$oldestallowed_dt.')'
-                            .' diff='.$diff
-                            .' >>> '.print_r($row,TRUE);
-                } else if($row->access < $oldestlogin_ts) {
-                    //Locked ticket is too old from core table check.
-                    $oldestlogin_dt = date("Y-m-d H:i:s", $oldestlogin_ts);
-                    $diff = $row->access - $oldestallowed_ts;
-                    $delete = TRUE;
-                    $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
-                            .' because access '.$row->access
-                            .' is older than '.$oldestlogin_ts
-                            .' (login access '.$oldestlogin_dt.')'
-                            .' diff='.$diff
-                            .' >>> '.print_r($row,TRUE);
-                }
-            }
-            if($delete)
-            {
-                if($extralogmessage != NULL)
+                $mycount++;
+                $sTrackingID = $nSiteID.'-'.$row->IEN;
+                $currently_locked_by_uid = $row->locked_by_uid;
+                $delete = FALSE;
+                if($row->uid  == NULL || !UserInfo::isUserOnline($row->uid))
                 {
-                    $entire_delete_reason .= ' ('.$extralogmessage.')';
+                    //Not logged in.
+                    $delete = TRUE;
+                    $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
+                            .' because '.$currently_locked_by_uid
+                            .' user is not logged in >>> '.print_r($row,TRUE);
+                } else {
+                    $lock_refreshed_ts = strtotime($row->lock_refreshed_dt);    //Because DATE is not a timestamp!!!
+                    if($lock_refreshed_ts < $oldestallowed_ts) {
+                        //Locked ticket is too old from raptor lock check.
+                        $diff = $lock_refreshed_ts - $oldestallowed_ts;
+                        $delete = TRUE;
+                        $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
+                                .' because lock refresh '.$lock_refreshed_ts
+                                .' ('.$row->lock_refreshed_dt.')'
+                                .' is older than '.$oldestallowed_ts
+                                .' ('.$oldestallowed_dt.')'
+                                .' diff='.$diff
+                                .' >>> '.print_r($row,TRUE);
+                    } else if($row->access < $oldestlogin_ts) {
+                        //Locked ticket is too old from core table check.
+                        $oldestlogin_dt = date("Y-m-d H:i:s", $oldestlogin_ts);
+                        $diff = $row->access - $oldestallowed_ts;
+                        $delete = TRUE;
+                        $entire_delete_reason = 'Deleted stale lock on '.$sTrackingID
+                                .' because access '.$row->access
+                                .' is older than '.$oldestlogin_ts
+                                .' (login access '.$oldestlogin_dt.')'
+                                .' diff='.$diff
+                                .' >>> '.print_r($row,TRUE);
+                    }
                 }
-                $mydeleted++;
-                $this->deleteTicketLock($sTrackingID, $currently_locked_by_uid, $entire_delete_reason);
+                if($delete)
+                {
+                    if($extralogmessage != NULL)
+                    {
+                        $entire_delete_reason .= ' ('.$extralogmessage.')';
+                    }
+                    $mydeleted++;
+                    $this->deleteTicketLock($sTrackingID, $currently_locked_by_uid, $entire_delete_reason);
+                }
             }
-        }
-        if($mydeleted>0)
-        {
-            error_log("Deleted $mydeleted stale locks from existing list of $mycount locks found in database.");
+            if($mydeleted>0)
+            {
+                error_log("Deleted $mydeleted stale locks from existing list of $mycount locks found in database.");
+            }
+        } catch (\Exception $ex) {
+            error_log("FAILED deleteAllStaleTicketLocks because ".$ex->getMessage());
+            throw $ex;
         }
     }
     
@@ -772,27 +800,33 @@ class TicketTrackingData
      */
     public function isTicketEditLockedByOtherUser($sTrackingID, $nUID)
     {
-        $lockrec = $this->getTicketLockDetails($sTrackingID);
-        if($lockrec == NULL)
+        try
         {
-            //No edit lock exists.
-            return FALSE;
+            $lockrec = $this->getTicketLockDetails($sTrackingID);
+            if($lockrec == NULL)
+            {
+                //No edit lock exists.
+                return FALSE;
+            }
+
+            //See if lock is still valid.
+            $nowtime = time();
+            $lockage = $nowtime - $lockrec['lock_refreshed_dt'];
+            if($lockage > USER_TIMEOUT_SECONDS + USER_TIMEOUT_GRACE_SECONDS)
+            {
+                //Ticket is too old, kill it!
+                $delete_reason = 'expired lock record: '.print_r($lockrec,TRUE);
+                $this->deleteTicketEditLock($sTrackingID, NULL, $delete_reason);
+                //No lock exists now.
+                return FALSE;
+            }
+
+            //Locked by another user?
+            return ($lockrec['locked_by_uid'] != $nUID);
+        } catch (\Exception $ex) {
+            error_log("FAILED isTicketEditLockedByOtherUser because ".$ex->getMessage());
+            throw $ex;
         }
-        
-        //See if lock is still valid.
-        $nowtime = time();
-        $lockage = $nowtime - $lockrec['lock_refreshed_dt'];
-        if($lockage > USER_TIMEOUT_SECONDS + USER_TIMEOUT_GRACE_SECONDS)
-        {
-            //Ticket is too old, kill it!
-            $delete_reason = 'expired lock record: '.print_r($lockrec,TRUE);
-            $this->deleteTicketEditLock($sTrackingID, NULL, $delete_reason);
-            //No lock exists now.
-            return FALSE;
-        }
-                
-        //Locked by another user?
-        return ($lockrec['locked_by_uid'] != $nUID);
     }
     
     /**
@@ -893,34 +927,40 @@ class TicketTrackingData
      */
     public function markTicketUnlocked($sTrackingID, $nUID)
     {
-        //Check for an existing edit lock first.
-        $lockrec = $this->getTicketLockDetails($sTrackingID,'E');
-        if($lockrec != NULL)
+        try
         {
-            //Found an edit lock.
-            if($lockrec['locked_by_uid'] != $nUID)
-            {
-                //Try again after killing all stale tickets
-                $this->deleteAllStaleTicketLocks(VISTA_SITE);   
-                $lockrec = $this->getTicketLockDetails($sTrackingID,'E');
-                if($lockrec['locked_by_uid'] != $nUID)
-                {
-                    //Hmm, was not a stale ticket.
-                    throw new \Exception('User '.$nUID
-                       .' cannot delete edit lock on '
-                       .$sTrackingID
-                       .' because it belongs to '
-                       .$lockrec['locked_by_uid']);
-                }
-            }
-            $this->deleteTicketEditLock($sTrackingID);
-        } else {
-            //No edit lock, but there may be other kinds. (e.g., View)
-            $lockrec = $this->getTicketLockDetails($sTrackingID,NULL,$nUID);
+            //Check for an existing edit lock first.
+            $lockrec = $this->getTicketLockDetails($sTrackingID,'E');
             if($lockrec != NULL)
             {
-                $this->deleteTicketNonEditLock($sTrackingID);
+                //Found an edit lock.
+                if($lockrec['locked_by_uid'] != $nUID)
+                {
+                    //Try again after killing all stale tickets
+                    $this->deleteAllStaleTicketLocks(VISTA_SITE);   
+                    $lockrec = $this->getTicketLockDetails($sTrackingID,'E');
+                    if($lockrec['locked_by_uid'] != $nUID)
+                    {
+                        //Hmm, was not a stale ticket.
+                        throw new \Exception('User '.$nUID
+                           .' cannot delete edit lock on '
+                           .$sTrackingID
+                           .' because it belongs to '
+                           .$lockrec['locked_by_uid']);
+                    }
+                }
+                $this->deleteTicketEditLock($sTrackingID);
+            } else {
+                //No edit lock, but there may be other kinds. (e.g., View)
+                $lockrec = $this->getTicketLockDetails($sTrackingID,NULL,$nUID);
+                if($lockrec != NULL)
+                {
+                    $this->deleteTicketNonEditLock($sTrackingID);
+                }
             }
+        } catch (\Exception $ex) {
+            error_log("FAILED markTicketUnlocked because ".$ex->getMessage());
+            throw $ex;
         }
     }
 }
