@@ -27,6 +27,10 @@ defined('CACHE_AGE_LABS')
 defined('CACHE_AGE_SITEVALUES')
     or define('CACHE_AGE_SITEVALUES', 600);
 
+defined('RAPTOR_DEFAULT_SNIPPET_LEN')
+    or define('RAPTOR_DEFAULT_SNIPPET_LEN', 40);
+
+
 /**
  * This class contains the functions that return supplemental information for the 
  * protocoling effort.
@@ -920,15 +924,14 @@ class ProtocolSupportingData
                 }
 
                 $allergies[$numRpts] = $tempRpt;
-                $displayAllergies[$numRpts] = array("DateReported"=>$tempRpt['timestamp'], 
-                                                    "Item"=>$tempRpt['allergenName'], 
-                                                    "CausativeAgent"=>$tempRpt['allergenType'], 
-                                                    "SignsSymptoms"=>$this->getSnippetDetailPair($tempRpt['symptoms']), 
-                                                    "DrugClasses"=>$this->getSnippetDetailPair($tempRpt['classes']), 
-                                                    "Originator"=> $tempRpt['observerName'], // . 'LOOK>>><br>'. print_r($tempRpt,TRUE), 
-                                                    //"Verified"=>$tempRpt['recorderName'], 
-                                                    "ObservedHistorical"=>$this->getSnippetDetailPair($tempRpt['comment'])); 
-                
+                $displayAllergies[$numRpts] 
+                        = array("DateReported"=>$tempRpt['timestamp'], 
+                                    "Item"=>$tempRpt['allergenName'], 
+                                    "CausativeAgent"=>$tempRpt['allergenType'], 
+                                    "SignsSymptoms"=>$this->getSnippetDetailPair($tempRpt['symptoms'],80), 
+                                    "DrugClasses"=>$this->getSnippetDetailPair($tempRpt['classes'],80), 
+                                    "Originator"=> $tempRpt['observerName'], 
+                                    "ObservedHistorical"=>$this->getSnippetDetailPair($tempRpt['comment'])); 
                 $numRpts++;
             }
         }
@@ -937,25 +940,35 @@ class ProtocolSupportingData
         return $displayAllergies;
     }
     
-    private function getSnippetDetailPair($details, $emptyText='', $useoffset=0)
+    private function getSnippetDetailPair($details
+            , $snippetLen=RAPTOR_DEFAULT_SNIPPET_LEN
+            , $emptyText=''
+            , $useoffset=0
+            )
     {
         $sSnippet = NULL;
         if(is_array($details))
         {
             //Assume first array entry has some text.
-            $sSnippet = trim(substr($details[$useoffset],0, 20));     
             $sDetails = trim($details[$useoffset]);
         } else {
-            $sSnippet = trim(substr($details, 0, 20));  
             $sDetails = trim($details);
         }
-        if($sSnippet == '')
+        if(strlen($sDetails) > $snippetLen)
         {
-            $sSnippet = $emptyText;
+            $snippet_same_as_detail = FALSE;
+            $sSnippet = trim(substr($sDetails, 0, $snippetLen)).'...';  
         } else {
-            $sSnippet .= '...';
+            $snippet_same_as_detail = TRUE;
+            $sSnippet = $sDetails;
+            if($sSnippet == '')
+            {
+                $sSnippet = $emptyText;
+            }
         }
-        return array('Snippet'=>$sSnippet, 'Details'=>$sDetails);
+        return array('Snippet'=>$sSnippet
+                , 'Details'=>$sDetails
+                , 'SnippetSameAsDetail'=>$snippet_same_as_detail);
     }
 
     /*
@@ -1527,14 +1540,24 @@ class ProtocolSupportingData
                     $tempRpt['specialtyTextArray'] = isset($RptTO->specialty->textArray) ? $RptTO->specialty->textArray : array(" ");
                     $tempRpt['specialtyTagResults'] = isset($RptTO->specialty->tagResults) ? $RptTO->specialty->tagResults : " ";
 
-
                     $tempRpt['preOpDx'] = isset($RptTO->preOpDx) ? $RptTO->preOpDx : " ";
                     $tempRpt['postOpDx'] = isset($RptTO->postOpDx) ? $RptTO->postOpDx : " ";
                     $tempRpt['labWork'] = isset($RptTO->labWork) ? $RptTO->labWork : " ";
                     $tempRpt['dictationTimestamp'] = isset($RptTO->dictationTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->dictationTimestamp)) : " ";
                     $tempRpt['transcriptionTimestamp'] = isset($RptTO->transcriptionTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->transcriptionTimestamp)) : " ";
 
-                    $result[] = array("Title"=>$tempRpt['title'], "ReportDate"=>$tempRpt['timestamp'], 'Snippet' => substr($tempRpt['text'], 0, 20)."...", 'Details' => $tempRpt['text']);
+                    $fulltext = trim($tempRpt['text']);
+                    if(strlen($fulltext) > RAPTOR_DEFAULT_SNIPPET_LEN)
+                    {
+                        $snippetText = substr($fulltext, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
+                    } else {
+                        $snippetText = $fulltext;
+                    }
+                    $result[] = array("Title"=>$tempRpt['title']
+                            , "ReportDate"=>$tempRpt['timestamp']
+                            , 'Snippet' => $snippetText 
+                            , 'Details' => $fulltext
+                            );
                 }
             }
             return $result;
@@ -1601,17 +1624,25 @@ class ProtocolSupportingData
 
                     $tempRpt['comment'] = isset($RptTO->comment) ? nl2br($RptTO->comment) : " ";
                     $tempRpt['organizationalProperties'] = isset($RptTO->organizationalProperties) ? nl2br($RptTO->organizationalProperties) : " ";
-                    $result[] = array(  //"guid" => $tempRpt['guid'], 
-                                        "Title"=>$tempRpt['providerNarrative'], 
-                                        "OnsetDate"=>$tempRpt['onsetDate'], 
-                                        "Snippet" => substr($tempRpt['providerNarrative'], 0, 20).'...',
-                                        "Details" => array('Type of Note'=>$tempRpt['typeName'], 
-                                                        'Provider Narrative'=>$tempRpt['providerNarrative'], 
-                                                        'Note Narrative'=>$tempRpt['noteNarrative'], 
-                                                        'Status'=>$tempRpt['status'], 
-                                                        'Observer'=>$tempRpt['observerName'], 
-                                                        'Comment'=>$tempRpt['comment'], 
-                                                        'Facility'=>$tempRpt['facilityTag']));
+
+                    $providerNarrative = trim($tempRpt['providerNarrative']);
+                    if(strlen($providerNarrative) > RAPTOR_DEFAULT_SNIPPET_LEN)
+                    {
+                        $snippetText = substr($providerNarrative, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
+                    } else {
+                        $snippetText = $providerNarrative;
+                    }
+                    $result[] = array(  
+                        "Title"=>$snippetText, 
+                        "OnsetDate"=>$tempRpt['onsetDate'], 
+                        "Snippet" => $snippetText,
+                        "Details" => array('Type of Note'=>$tempRpt['typeName'], 
+                                        'Provider Narrative'=>$providerNarrative, 
+                                        'Note Narrative'=>$tempRpt['noteNarrative'], 
+                                        'Status'=>$tempRpt['status'], 
+                                        'Observer'=>$tempRpt['observerName'], 
+                                        'Comment'=>$tempRpt['comment'], 
+                                        'Facility'=>$tempRpt['facilityTag']));
 
                 }
             }
@@ -1650,8 +1681,6 @@ class ProtocolSupportingData
                          return $result;
 
                     $tempRpt = array(); 
-    //                $guid = com_create_guid();
-    //                $tempRpt['guid'] = $guid;
                     $tempRpt['id'] = isset($RptTO->id) ? $RptTO->id : " ";
                     $tempRpt['timestamp'] = isset($RptTO->timestamp) ? date("m/d/Y h:i a", strtotime($RptTO->timestamp)) : " ";
                     $tempRpt['admitTimestamp'] = isset($RptTO->admitTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->admitTimestamp)) : " ";
@@ -1680,11 +1709,18 @@ class ProtocolSupportingData
                     $tempRpt['approvedBy'] = isset($RptTO->approvedBy) ? $RptTO->approvedBy : " ";
                     $tempRpt['status'] = isset($RptTO->status) ? $RptTO->status : " ";
 
-                    $result[] = array(//"guid" => $tempRpt['guid'], 
-                                        "Type"=>$tempRpt['localTitle'], 
+                    $localTitle = trim($tempRpt['localTitle']);
+                    if(strlen($localTitle) > RAPTOR_DEFAULT_SNIPPET_LEN)
+                    {
+                        $snippetText = substr($localTitle, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
+                    } else {
+                        $snippetText = $localTitle;
+                    }
+                    $result[] = array(
+                                        "Type"=>$localTitle, 
                                         "Date"=>$tempRpt['timestamp'],
-                                        "Snippet" => substr($tempRpt['localTitle'], 0, 20).'...',
-                                        "Details" => array('Type of Note'=>$tempRpt['localTitle'], 
+                                        "Snippet" => $snippetText,
+                                        "Details" => array('Type of Note'=>$localTitle, 
                                                         'Author'=>$tempRpt['authorName'], 
                                                         'Note Text'=>$tempRpt['text'], 
                                                         'Facility'=>$tempRpt['facility']));
@@ -1758,7 +1794,7 @@ class ProtocolSupportingData
                             array(//"guid" => $tempRpt['guid'], 
                                 "Title"  => $tempRpt['title'],
                                 "ReportedDate" => $tempRpt['timestamp'],
-                                "Snippet" => substr($tempRpt['title'], 0, 20).'...',
+                                "Snippet" => substr($tempRpt['title'], 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...',
                                 "Details" => array(
                                     "Procedure Name" => $tempRpt['title'],
                                     "Report Status"  => $tempRpt['status'],

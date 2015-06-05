@@ -491,8 +491,24 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                         <td><?php echo $data_row["DateReported"] ?></td>
                         <td><?php echo $data_row["Item"] ?></td>
                         <td><?php echo $data_row["CausativeAgent"] ?></td>
-                        <td><a href="#" class="raptor-details"><?php echo($data_row['SignsSymptoms']['Snippet']) ?></a><?php echo raptor_print_details($data_row['SignsSymptoms']["Details"]) ?></td>
-                        <td><a href="#" class="raptor-details"><?php echo($data_row['ObservedHistorical']['Snippet']) ?></a><?php echo raptor_print_details($data_row['ObservedHistorical']['Details']) ?></td>
+                        <?php
+                        if($data_row['SignsSymptoms']['SnippetSameAsDetail'])
+                        {
+                            $sSignsSymptomsMarkup = $data_row['SignsSymptoms']['Details'];
+                        } else {
+                            $sSignsSymptomsMarkup = "<a href='#' class='raptor-details'>{$data_row['SignsSymptoms']['Snippet']}</a>"
+                                . raptor_print_details($data_row['SignsSymptoms']['Details']);
+                        }
+                        if($data_row['ObservedHistorical']['SnippetSameAsDetail'])
+                        {
+                            $sObservedHistoricalMarkup = $data_row['ObservedHistorical']['Details'];
+                        } else {
+                            $sObservedHistoricalMarkup = "<a href='#' class='raptor-details'>{$data_row['ObservedHistorical']['Snippet']}</a>"
+                                . raptor_print_details($data_row['ObservedHistorical']['Details']);
+                        }
+                        ?>
+                        <td><?php echo $sSignsSymptomsMarkup ?></td>
+                        <td><?php echo $sObservedHistoricalMarkup ?></td>
                       </tr>
                       <?php } ?>
                     </tbody>
