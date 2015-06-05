@@ -418,7 +418,8 @@ class GetRadiationDoseHxTab
             . '</div>');
         
         $rowsmarkup = '';
-        $detrowsmarkup = '';
+        $detrowsmarkup = array();
+        $foundmodalities = array();
         foreach($modalitysummary as $mkey=>$summaryitem)
         {
             $rowsmarkup .= "\n"
@@ -431,24 +432,69 @@ class GetRadiationDoseHxTab
                     .'</td></tr>';
                 
             $modalitydetailgroup = $modalitydetail[$mkey];
-            foreach($modalitydetailgroup as $nkey=>$detailitem)
+            if(!isset($detrowsmarkup[$mkey]))
             {
-                $detrowsmarkup .= "\n"
-                        .'<tr><td>'
-                        .$mkey
-                        .'</td><td>'
-                        .$detailitem['id']
-                        .'</td><td>'
-                        .$detailitem['name']
-                        .'</td><td>'
-                        .$detailitem['12mcount']
-                        .'</td><td>'
-                        .$detailitem['allcount']
-                        .'</td><td>'
-                        .'unavailable'
-                        .'</td><td>'
-                        .'unavailable'
-                        .'</td></tr>';
+                $detrowsmarkup[$mkey] = array();
+                $foundmodalities[$mkey] = $mkey;
+            }
+            if($mkey == 'CT')
+            {
+                //Two facility average dose values
+                foreach($modalitydetailgroup as $nkey=>$detailitem)
+                {
+                    $detrowsmarkup[$mkey][] = "\n"
+                            .'<td>'
+                            .$mkey
+                            .'</td><td>'
+                            .$detailitem['id']
+                            .'</td><td>'
+                            .$detailitem['name']
+                            .'</td><td>'
+                            .$detailitem['12mcount']
+                            .'</td><td>'
+                            .$detailitem['allcount']
+                            .'</td><td>'
+                            .'unavailable'
+                            .'</td><td>'
+                            .'unavailable'
+                            .'</td>';
+                }
+            } else if($mkey == 'NM') {
+                //Only one facility average dose value
+                foreach($modalitydetailgroup as $nkey=>$detailitem)
+                {
+                    $detrowsmarkup[$mkey][] = "\n"
+                            .'<td>'
+                            .$mkey
+                            .'</td><td>'
+                            .$detailitem['id']
+                            .'</td><td>'
+                            .$detailitem['name']
+                            .'</td><td>'
+                            .$detailitem['12mcount']
+                            .'</td><td>'
+                            .$detailitem['allcount']
+                            .'</td><td>'
+                            .'unavailable'
+                            .'</td>';
+                }
+            } else {
+                //Other has no facility average dose
+                foreach($modalitydetailgroup as $nkey=>$detailitem)
+                {
+                    $detrowsmarkup[$mkey][] = "\n"
+                            .'<td>'
+                            .$mkey
+                            .'</td><td>'
+                            .$detailitem['id']
+                            .'</td><td>'
+                            .$detailitem['name']
+                            .'</td><td>'
+                            .$detailitem['12mcount']
+                            .'</td><td>'
+                            .$detailitem['allcount']
+                            .'</td>';
+                }
             }
         }
         
@@ -468,24 +514,79 @@ class GetRadiationDoseHxTab
             . '</table>'
             );
         
-        $form["data_entry_area1"]['table_container']['doseaverages'] = array('#type' => 'item',
-         '#markup' => '<h3>Modality/Procedure Summary</h3>'
-            . '<p>The total PROTOCOL counts and facility averages available to RAPTOR for this patient.</p>'
-            . '<table id="my-raptor-radiationmodalitydetail-table" class="dataTable">'
-            . '<thead>'
-            . '<th>Modality</th>'
-            . '<th>ID</th>'
-            . '<th>Protocol Name</th>'
-            . '<th>Past 12 Months</th>'
-            . '<th>All Available History</th>'
-            . '<th>Facility Exam Dose Estimate CTDIvol (mGy)</th>'
-            . '<th>Facility Exam Dose Estimate DLP (mGy*cm)</th>'
-            . '</thead>'
-            . '<tbody>'
-            . $detrowsmarkup
-            . '</tbody>'
-            . '</table>'
-            );
+        $donetables = array();
+        if(!array_keys($foundmodalities, 'CT'))
+        {
+            $form["data_entry_area1"]['table_container']['CTdoseaverages'] = array('#type' => 'item',
+             '#markup' => '<h3>CT SCAN Procedure Summary -- None found</h3>');
+        } else {
+            $donetables['CT'] = 'CT';
+            $form["data_entry_area1"]['table_container']['CTdoseaverages'] = array('#type' => 'item',
+             '#markup' => '<h3>CT SCAN Procedure Summary</h3>'
+                . '<p>The total PROTOCOL counts and facility averages available to RAPTOR for this patient.</p>'
+                . '<table id="my-raptor-radiationCTdetail-table" class="dataTable">'
+                . '<thead>'
+                . '<th>Modality</th>'
+                . '<th>ID</th>'
+                . '<th>Protocol Name</th>'
+                . '<th>Past 12 Months</th>'
+                . '<th>All Available History</th>'
+                . '<th>Facility Exam Dose Estimate CTDIvol (mGy)</th>'
+                . '<th>Facility Exam Dose Estimate DLP (mGy*cm)</th>'
+                . '</thead>'
+                . '<tbody><tr>'
+                . implode('</tr><tr>', $detrowsmarkup['CT'])
+                . '</tr></tbody>'
+                . '</table>'
+                );
+        }
+        if(!array_keys($foundmodalities, 'NM'))
+        {
+            $form["data_entry_area1"]['table_container']['NMdoseaverages'] = array('#type' => 'item',
+             '#markup' => '<h3>Nuclear Medicine Procedure Summary -- None found</h3>');
+        } else {
+            $donetables['NM'] = 'NM';
+            $form["data_entry_area1"]['table_container']['NMdoseaverages'] = array('#type' => 'item',
+             '#markup' => '<h3>Nuclear Medicine Procedure Summary</h3>'
+                . '<p>The total PROTOCOL counts and facility averages available to RAPTOR for this patient.</p>'
+                . '<table id="my-raptor-radiationNMdetail-table" class="dataTable">'
+                . '<thead>'
+                . '<th>Modality</th>'
+                . '<th>ID</th>'
+                . '<th>Protocol Name</th>'
+                . '<th>Past 12 Months</th>'
+                . '<th>All Available History</th>'
+                . '<th>Facility Exam Estimate Radionuclide Dose (mCi)</th>'
+                . '</thead>'
+                . '<tbody><tr>'
+                . implode('</tr><tr>', $detrowsmarkup['NM'])
+                . '</tr></tbody>'
+                . '</table>'
+                );
+        }
+        //Now output all the other tables, if any.
+        $othermodalities = array_diff_key($foundmodalities, $donetables);
+        foreach($othermodalities as $mkey)
+        {
+            $donetables[$mkey] = $mkey;
+            $form["data_entry_area1"]['table_container'][$mkey . 'doseaverages'] = array('#type' => 'item',
+             '#markup' => '<h3>'.$mkey.' Procedure Summary</h3>'
+                . '<p>The total PROTOCOL counts and facility averages available to RAPTOR for this patient.</p>'
+                . '<table id="my-raptor-radiation'.$mkey.'detail-table" class="dataTable">'
+                . '<thead>'
+                . '<th>Modality</th>'
+                . '<th>ID</th>'
+                . '<th>Protocol Name</th>'
+                . '<th>Past 12 Months</th>'
+                . '<th>All Available History</th>'
+                . '</thead>'
+                . '<tbody><tr>'
+                . implode('</tr><tr>', $detrowsmarkup[$mkey])
+                . '</tr></tbody>'
+                . '</table>'
+                );
+        }
+        
         
         return $form;
     }
