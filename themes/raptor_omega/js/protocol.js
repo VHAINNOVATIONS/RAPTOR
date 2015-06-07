@@ -91,8 +91,8 @@
         //console.log("You've hit submit button!");
         window.onbeforeunload = null;
     });
-
-
+    
+    
     /*If the user presses a key, types something in or makes an ajax call, we have to reset action seconds
      * to keep the session active
      * Correction: not every ajax call is counted as a change - users were getting warnings by just clicking tabs,
@@ -285,7 +285,7 @@
         $('#raptor-protocol-replace-order-button')
                 .on('click', function (e) {
                     var $dialog,
-                            spinnerHTML = '<div style="text-align: center;"><img src="sites/all/themes/raptor_omega/images/worklist-loader.gif"><br>Loading&hellip;</div>';
+                            spinnerHTML = '<div style="text-align: center;"><img src="sites/all/themes/raptor_omega/images/worklist-loader.gif"><br>Loading Information&hellip;</div>';
 
                     e.preventDefault();
 
@@ -336,7 +336,7 @@
                         url: $form.attr('action'),
                         data: $form.serialize(),
                         beforeSend: function (jqXHR, settings) {
-                            $dialog.html('<div style="text-align: center;"><img src="sites/all/themes/raptor_omega/images/worklist-loader.gif"><br>Replacing order&hellip;</div>');
+                            $dialog.html('<div style="text-align: center;"><img src="sites/all/themes/raptor_omega/images/worklist-loader.gif"><br>Loading Information&hellip;</div>');
                         },
                         success: function (response) {
                             //if we have a successful submission, the user is redirected to the updated record (look at TID)
@@ -379,7 +379,7 @@
                         url: $form.attr('action'),
                         data: $form.serialize(),
                         beforeSend: function (jqXHR, settings) {
-                            $dialog.html('<div style="text-align: center;"><img src="sites/all/themes/raptor_omega/images/worklist-loader.gif"><br>Replacing order&hellip;</div>');
+                            $dialog.html('<div style="text-align: center;"><img src="sites/all/themes/raptor_omega/images/worklist-loader.gif"><br>Loading Information&hellip;</div>');
                         },
                         success: function (response) {
                             if ($(response).find('.messages--error').length === 0) {
@@ -577,7 +577,13 @@
                 .DataTable()
                 .order([1, 'desc'])
                 .draw();
-
+        
+        // Default sort for Vitals table
+        $('.vitals-tab-table').
+                DataTable().
+                order([0,'desc']).
+                draw();
+        
         // Attaching it to the tbody ensures that any rows dynamically added or displayed via jQuery Datables will also get the functionality
         $('#protocol_container').on('click', 'tbody .raptor-details', function (e) {
             e.preventDefault();

@@ -1250,7 +1250,7 @@ class ProtocolInfoUtility
             , '#value' => t('Release back to Worklist without Saving')
             , '#attributes' 
               => array('onclick' 
-                 => 'javascript:window.location.href="'.$base_url.'/protocol?pbatch=CONTINUE&releasedticket=TRUE";return false;'
+                 => 'javascript:window.onbeforeunload=null;window.location.href="'.$base_url.'/protocol?pbatch=CONTINUE&releasedticket=TRUE";return false;'
                     ,'title' => $releaseTip)
             //, '#submit' => array('raptor_datalayer_protocolinfo_form_builder_customsubmit')
             );

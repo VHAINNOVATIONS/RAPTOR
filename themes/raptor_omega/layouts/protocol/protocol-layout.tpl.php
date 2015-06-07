@@ -370,7 +370,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                 <input type="radio" name="tabs" id="tab2" accesskey="m">
                 <label for="tab2">Medications</label>
                 <div id="tab-content2" class="tab-content animated fadeIn">
-                  <!-- Readonly -->
+                  <!-- Readonly <input type="button" class="back-to-protocol-tab" value="Back to Protocol"> -->
                   <section class="read-only2">
                     <p>Searched for at risk meds: 
                         <?php 
@@ -423,7 +423,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                   <section class="read-only2">
     				<div id="vitals-chart"></div>
 					
-                  <table class="dataTable">
+                  <table class="dataTable vitals-tab-table">
                     <thead>
                       <tr>
                         <th>Date</th>
@@ -567,7 +567,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
 
               <li>
                 <input type="radio" name="tabs" id="tab6" accesskey="h">
-                <label for="tab6">Dose Hx</label>
+                <label for="tab6">Rad Watch</label>
                 <div id="tab-content6" class="tab-content animated fadeIn">
 
                   <!-- Readonly -->
