@@ -370,7 +370,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                 <input type="radio" name="tabs" id="tab2" accesskey="m">
                 <label for="tab2">Medications</label>
                 <div id="tab-content2" class="tab-content animated fadeIn">
-                  <!-- Readonly <input type="button" class="back-to-protocol-tab" value="Back to Protocol"> -->
+                  <!-- Readonly -->
                   <section class="read-only2">
                     <p>Searched for at risk meds: 
                         <?php 
@@ -408,6 +408,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                         <?php } ?>
                       </tbody>
                     </table>
+                    <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
                   </section>
                   <!-- page content -->
 
@@ -461,7 +462,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                       <?php } ?>
                     </tbody>
                   </table>
-					
+                  <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
                 </section> 
                   <!-- end of Readonly -->
                   
@@ -513,6 +514,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                       <?php } ?>
                     </tbody>
                   </table>
+                  <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
                 </section> 
                 <!-- end of Readonly -->
 
@@ -558,7 +560,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                     </tbody>
                   </table>
 					
-					
+                    <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>		
                   </section> 
                   <!-- end of Readonly -->
                   
@@ -569,12 +571,14 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                 <input type="radio" name="tabs" id="tab6" accesskey="h">
                 <label for="tab6">Rad Watch</label>
                 <div id="tab-content6" class="tab-content animated fadeIn">
-
                   <!-- Readonly -->
                   <section class="read-only2" data-url="<?php echo($base_url) ?>/raptor/getradiationdosehxtab">
+                      
                   </section> 
                   <!-- end of Readonly -->
-
+                  <section>
+                      <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
+                  </section>
                   
                 </div>
               </li>
@@ -626,6 +630,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                         <?php } ?>
                       </tbody>
                     </table>
+                    <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
                   </section> 
                   <!-- end of Readonly -->
 
@@ -659,6 +664,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                         <?php } ?>
                       </tbody>
                     </table>
+                    <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
                   </section> 
                   <!-- end of Readonly -->
 
@@ -673,10 +679,12 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
 
                   <!-- Readonly -->
                   <section class="read-only2" data-url="<?php echo($base_url) ?>/raptor/getnotestab">
-                    
+          
                   </section> 
                   <!-- end of Readonly -->
-
+                  <section class="read-only3">
+                      <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
+                  </section>
                 </div>
               </li>
 
@@ -688,10 +696,11 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
 
                   <!-- Readonly -->
                   <section class="read-only2" data-url="<?php echo($base_url) ?>/raptor/getradrptstab">
-                    
                   </section> 
                   <!-- end of Readonly -->
-
+                  <section class="read-only3">
+                      <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
+                  </section>
                 </div>
               </li>
 
@@ -703,8 +712,10 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                   <!-- Readonly -->
                   <section class="read-only2" data-url="<?php echo($base_url) ?>/raptor/getprotocollibtab">
                   </section> 
-                  <!-- end of Readonly -- >
-
+                  <!-- end of Readonly -->
+                  <section class="read-only3">
+                      <a class="back-to-protocol-tab-link" style="cursor:pointer; color: blue;">Back to Protocol</a>
+                  </section>
                 </div>
               </li>
         </ul>

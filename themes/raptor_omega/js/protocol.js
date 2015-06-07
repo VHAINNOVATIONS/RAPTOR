@@ -593,7 +593,11 @@
         $('.logo').click(function () {
             window.location.href = Drupal.pageData.baseURL + '/worklist?releasealltickets=TRUE'
         });
-
+        
+        //Navigate back to protocol tab handler
+        $('.back-to-protocol-tab-link').on('click',function(){
+            $('#tab1').click();
+        });        
         /*
          $('#edit-interpret-button').on('click', function (e) {
          document.cookie = 'worklistFilterMode=Interpretation';
