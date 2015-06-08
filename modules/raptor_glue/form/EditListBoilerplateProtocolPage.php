@@ -29,7 +29,7 @@ class EditListBoilerplateProtocolPage extends EditListsBasePage
             ,array('category_tx','title_tx','content_tx')
             ,array(TRUE, TRUE, TRUE)
             ,array('t','t','t')
-            ,array(50,30,150)
+            ,array(50,40,250)
             ,array('Category','Title','Snippet')
             ,array('category_tx','title_tx'));
         $this->setListName('Protocol Boilerplate Text');

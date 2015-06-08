@@ -802,14 +802,14 @@ class DBMiscSchema
             ),
             'title_tx' => array(
               'type' => 'varchar',
-              'length' => 30,
+              'length' => 40,
               'not null' => TRUE,
               'default' => '',
               'description' => 'Short title for the text',
             ),
             'content_tx' => array(
               'type' => 'varchar',
-              'length' => 150,
+              'length' => 250,
               'not null' => TRUE,
               'default' => '',
               'description' => 'Description of the location',
@@ -830,14 +830,14 @@ class DBMiscSchema
             ),
             'title_tx' => array(
               'type' => 'varchar',
-              'length' => 30,
+              'length' => 40,
               'not null' => TRUE,
               'default' => '',
               'description' => 'Short title for the text',
             ),
             'content_tx' => array(
               'type' => 'varchar',
-              'length' => 150,
+              'length' => 250,
               'not null' => TRUE,
               'default' => '',
               'description' => 'Description of the location',

@@ -22,6 +22,66 @@ require_once 'data_utility.php';
  */
 class ListOptions
 {
+    
+    static function getRawBoilerplateProtocolOptions()
+    {
+        try
+        {
+            $allthevalues = array();
+            $sql = 'SELECT category_tx,title_tx,content_tx '
+                    . ' FROM raptor_boilerplate_protocol '
+                    . ' ORDER BY category_tx,title_tx';
+            $result = db_query($sql);
+            if($result->rowCount() > 0)
+            {
+                while($record = $result->fetchAssoc())
+                {
+                    $title_tx = $record['title_tx'];
+                    $content_tx = $record['content_tx'];
+                    $category_tx = $record['category_tx'];
+                    if(!array_key_exists($category_tx, $allthevalues))
+                    {
+                        $allthevalues[$category_tx] = array();
+                    }
+                    $allthevalues[$category_tx][$title_tx] = array(0 => $content_tx);   //Legacy format
+                }
+            }
+            return $allthevalues;
+        } catch (\Exception $ex) {
+            throw new \Exception('Failed getBoilerplateProtocolOptions because '.$ex->getMessage());
+        }
+    }
+
+    static function getRawBoilerplateExamOptions()
+    {
+        try
+        {
+            $allthevalues = array();
+            $sql = 'SELECT category_tx,title_tx,content_tx '
+                    . ' FROM raptor_boilerplate_exam '
+                    . ' ORDER BY category_tx,title_tx';
+            $result = db_query($sql);
+            if($result->rowCount() > 0)
+            {
+                while($record = $result->fetchAssoc())
+                {
+                    $title_tx = $record['title_tx'];
+                    $content_tx = $record['content_tx'];
+                    $category_tx = $record['category_tx'];
+                    if(!array_key_exists($category_tx, $allthevalues))
+                    {
+                        $allthevalues[$category_tx] = array();
+                    }
+                    $allthevalues[$category_tx][$title_tx] = array(0 => $content_tx);   //Legacy format
+                }
+            }
+            return $allthevalues;
+        } catch (\Exception $ex) {
+            throw new \Exception('Failed getBoilerplateExamOptions because '.$ex->getMessage());
+        }
+    }
+    
+    
     function getHydrationOptions($type, $modality_filter)
     {
         $sCoreSQL = 'SELECT option_tx FROM raptor_list_hydration';

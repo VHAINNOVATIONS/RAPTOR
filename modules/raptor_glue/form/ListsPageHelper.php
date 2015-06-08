@@ -72,7 +72,7 @@ class ListsPageHelper
                             $errors[] = 'Missing required value in column '.($nColOffset + 1).' on row ' . $nRowNumber;
                             $colerrors++;
                         } else if($maxlen < $itemlen) {
-                            $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " is missing.";
+                            $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " is too big (max $maxlen, you have $itemlen).";
                             $colerrors++;
                         } else if($fieldtype == 'n' && !is_numeric($item)) {
                             $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " should be a number.";
