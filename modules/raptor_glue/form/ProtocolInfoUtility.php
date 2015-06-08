@@ -2310,7 +2310,7 @@ class ProtocolInfoUtility
             {
                 //Create the boilerplate insertion buttons
                 $nBoilerplate     = 0;
-                $aBoilerplate     = ListUtils::getCategorizedLists("boilerplate-protocolnotes.cfg");
+                $aBoilerplate     = ListUtils::getCategorizedLists('boilerplate-protocolnotes.cfg');
                 $sBoilerplateHTML = "<div id='boilerplate'><ul>";
                 foreach ($aBoilerplate as $sCategory => $aContent)
                 {

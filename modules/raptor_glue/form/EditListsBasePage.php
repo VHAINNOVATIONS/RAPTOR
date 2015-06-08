@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -38,8 +38,13 @@ class EditListsBasePage
     
     private $mycount = 0;
     
-    function __construct($sTablename,$aFieldNames=array('keyword'),$aRequiredCols=array(TRUE),$aDataTypeCols=array('t'),$aMaxLenCols=array(40)
-            ,$aHelpText=array('Keyword'),$aOrderBy=array('keyword'))
+    function __construct($sTablename
+            ,$aFieldNames=array('keyword')
+            ,$aRequiredCols=array(TRUE)
+            ,$aDataTypeCols=array('t')
+            ,$aMaxLenCols=array(40)
+            ,$aHelpText=array('Keyword')
+            ,$aOrderBy=array('keyword'))
     {
         $this->m_sTablename = $sTablename;
         $this->m_aFieldNames = $aFieldNames;
@@ -87,7 +92,7 @@ class EditListsBasePage
     {
         if(!isset($myvalues['raw_list_rows']))
         {
-            throw new \Exception("Cannot update user record because missing raw_list_rows in array!\n" . var_dump($myvalues));
+            throw new \Exception("Cannot update user record because missing raw_list_rows in array!\n" . print_r($myvalues,TRUE));
         }
 
         $aRequiredCols = $this->m_aRequiredCols;
@@ -121,7 +126,7 @@ class EditListsBasePage
     {
         if(!isset($myvalues['raw_list_rows']))
         {
-            die("Cannot update user record because missing raw_list_rows in array!\n" . var_dump($myvalues));
+            throw new \Exception("Cannot update user record because missing raw_list_rows in array!\n" . print_r($myvalues,TRUE));
         }
 
         $tablename = $this->m_sTablename;
@@ -143,7 +148,8 @@ class EditListsBasePage
         $errors = $result['errors'];
         if(count($errors) > 0)
         {
-            drupal_set_message('Failed to update the'.$paddedln.' list because '.'<ol><li>'.implode('<li>', $errors).'</ol>','error');
+            drupal_set_message('Failed to update the'.$paddedln.' list because '
+                    .'<ol><li>'.implode('<li>', $errors).'</ol>','error');
             return FALSE;
         } else {
             $nRows = $this->m_oPageHelper->writeValues($tablename, $aFieldNames, $result['parsedrows']);
