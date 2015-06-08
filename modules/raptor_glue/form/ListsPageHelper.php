@@ -206,7 +206,7 @@ class ListsPageHelper
      * @return type renderable array
      */
     public function getForm($form, &$form_state, $disabled, $myvalues
-            , $aHelpText, $aDataTypeCols=NULL)
+            , $aHelpText, $aDataTypeCols=NULL, $aMaxLen=NULL)
     {
 
         $form['data_entry_area1'] = array(
@@ -257,7 +257,28 @@ class ListsPageHelper
             '#markup'         => "<h4>Row Format</h4>",
         );        
         
-        $helpcols = implode(' | ', $aHelpText);
+        if($aMaxLen == NULL)
+        {
+            $helpcols = implode(' | ', $aHelpText);
+        } else {
+            $col = 0;
+            $aSuperHelpText = array();
+            foreach($aHelpText as $onetext)
+            {
+                $maxlen = $aMaxLen[$col];
+                $datatype = $aDataTypeCols[$col];
+                if($datatype == 'n')
+                {
+                    $aSuperHelpText[] = "<span title='number'>$onetext</span>";
+                } else if($datatype == 'b') {
+                    $aSuperHelpText[] = "<span title='numeric no/yes indicator'>$onetext</span>";
+                } else {
+                    $aSuperHelpText[] = "<span title='text of maxlen=$maxlen'>$onetext</span>";
+                }
+                $col++;
+            }
+            $helpcols = implode(' | ', $aSuperHelpText);
+        }
         $form['data_entry_area1']['instructions'][] = array(
             '#markup'         => "<p>$helpcols<p>",
         );        

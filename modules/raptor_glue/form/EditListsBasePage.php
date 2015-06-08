@@ -180,7 +180,8 @@ class EditListsBasePage
                 , $disabled
                 , $myvalues
                 , $this->m_aHelpText
-                , $this->m_aDataTypeCols);
+                , $this->m_aDataTypeCols
+                , $this->m_aMaxLenCols);
         return $form;
     }
 }
