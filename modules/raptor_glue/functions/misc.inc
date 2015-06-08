@@ -739,7 +739,7 @@ function raptor_glue_worklist_form_builder($form, &$form_state)
         }
         drupal_set_message($msg);
     }
-    if($nUID > '' && isset($_GET['releasealltickets']))
+    if(isset($_GET['releasealltickets']))
     {
         $releasealltickets = $_GET['releasealltickets'];
         if(strtoupper($releasealltickets) == 'TRUE')
@@ -749,7 +749,11 @@ function raptor_glue_worklist_form_builder($form, &$form_state)
             $oContext = \raptor\Context::getInstance();
             $oTT = new \raptor\TicketTrackingData();
             $nUID = $oContext->getUID();
-            $oTT->deleteAllUserTicketLocks($nUID); 
+            if($nUID > '')
+            {
+                //They are logged in, delete tickets.
+                $oTT->deleteAllUserTicketLocks($nUID); 
+            }
         } else
         if(strtoupper($releasealltickets) == 'FALSE')
         {
