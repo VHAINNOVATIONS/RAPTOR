@@ -64,45 +64,6 @@ class DBMiscSchema
           ),
         );
         
-        $schema['raptor_boilerplate_helper'] = array(
-          'description' => 'Text snippets',
-          'fields' => array(
-            'category_nm' => array(
-              'type' => 'varchar',
-              'length' => 20,
-              'not null' => TRUE,
-              'description' => 'Short name for display on button',
-            ),
-            'snippet_tx' => array(
-              'type' => 'varchar',
-              'length' => 100,
-              'not null' => TRUE,
-              'description' => 'The text to show',
-            ),
-            'protocol_yn' => array(
-              'type' => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default' => 1,
-              'description' => 'Applies to PROTOCOL context?',
-            ),
-            'exam_yn' => array(
-              'type' => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default' => 1,
-              'description' => 'Applies to EXAM context?',
-            ),
-            'message_yn' => array(
-              'type' => 'int',
-              'unsigned' => TRUE,
-              'not null' => TRUE,
-              'default' => 1,
-              'description' => 'Applies to MESSAGE context?',
-            ),
-          ),
-        );
-
         $schema['raptor_cprs_codes'] = array(
           'description' => 'Relevant information about codes used in CPRS.  In general, CPRS uses CPT codes.',
           'fields' => array(
@@ -829,6 +790,62 @@ class DBMiscSchema
           'primary key' => array('location_tx'),
         );
 
+        $schema['raptor_boilerplate_protocol'] = array(
+          'description' => 'Boilerplate text options for protocol step',
+          'fields' => array(
+            'category_tx' => array(
+              'type' => 'varchar',
+              'length' => 50,
+              'not null' => TRUE,
+              'default' => '',
+              'description' => 'Category of the text',
+            ),
+            'title_tx' => array(
+              'type' => 'varchar',
+              'length' => 30,
+              'not null' => TRUE,
+              'default' => '',
+              'description' => 'Short title for the text',
+            ),
+            'content_tx' => array(
+              'type' => 'varchar',
+              'length' => 150,
+              'not null' => TRUE,
+              'default' => '',
+              'description' => 'Description of the location',
+            ),
+          ),
+          'primary key' => array('category_tx','title_tx'),
+        );
+
+        $schema['raptor_boilerplate_exam'] = array(
+          'description' => 'Boilerplate text options for exam step',
+          'fields' => array(
+            'category_tx' => array(
+              'type' => 'varchar',
+              'length' => 50,
+              'not null' => TRUE,
+              'default' => '',
+              'description' => 'Category of the text',
+            ),
+            'title_tx' => array(
+              'type' => 'varchar',
+              'length' => 30,
+              'not null' => TRUE,
+              'default' => '',
+              'description' => 'Short title for the text',
+            ),
+            'content_tx' => array(
+              'type' => 'varchar',
+              'length' => 150,
+              'not null' => TRUE,
+              'default' => '',
+              'description' => 'Description of the location',
+            ),
+          ),
+          'primary key' => array('category_tx','title_tx'),
+        );
+        
         $schema['raptor_schedule_duration'] = array(
           'description' => 'Exam duration shortcut values available for scheduling',
           'fields' => array(

@@ -85,8 +85,19 @@ function raptor_glue_editradioisotopeoptions_form()
 }
 function raptor_glue_editexamroomoptions_form() 
 {
-    return drupal_get_form("raptor_glue_editexamroomoptions_form_builder");
+    return drupal_get_form('raptor_glue_editexamroomoptions_form_builder');
 }
+
+function raptor_glue_editboilerplateprotocoloptions_form() 
+{
+    return drupal_get_form('raptor_glue_editboilerplateprotocoloptions_form_builder');
+}
+function raptor_glue_editboilerplateexamoptions_form() 
+{
+    return drupal_get_form('raptor_glue_editboilerplateexamoptions_form_builder');
+}
+
+
 function raptor_glue_editatriskmeds_form() 
 {
     return drupal_get_form("raptor_glue_editatriskmeds_form_builder");
@@ -664,6 +675,64 @@ function raptor_glue_editexamroomoptions_form_builder_submit($form, &$form_state
           );
     }
 }
+
+function raptor_glue_editboilerplateprotocoloptions_form_builder($form, &$form_state)
+{
+    $oPI = new \raptor\EditListBoilerplateProtocolPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues();    
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function raptor_glue_editboilerplateprotocoloptions_form_builder_validate($form, &$form_state) 
+{
+    $oPI = new \raptor\EditListBoilerplateProtocolPage();
+    return $oPI->looksValid($form_state['values']);
+}
+function raptor_glue_editboilerplateprotocoloptions_form_builder_submit($form, &$form_state) 
+{
+    $oPI = new \raptor\EditListBoilerplateProtocolPage();
+    if($oPI->updateDatabase($form_state['values']))
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'raptor/managelists',
+            array(
+              'query' => array(),
+            ),
+          );
+    }
+}
+
+
+function raptor_glue_editboilerplateexamoptions_form_builder($form, &$form_state)
+{
+    $oPI = new \raptor\EditListBoilerplateExamPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues();    
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function raptor_glue_editboilerplateexamoptions_form_builder_validate($form, &$form_state) 
+{
+    $oPI = new \raptor\EditListBoilerplateExamPage();
+    return $oPI->looksValid($form_state['values']);
+}
+function raptor_glue_editboilerplateexamoptions_form_builder_submit($form, &$form_state) 
+{
+    $oPI = new \raptor\EditListBoilerplateExamPage();
+    if($oPI->updateDatabase($form_state['values']))
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'raptor/managelists',
+            array(
+              'query' => array(),
+            ),
+          );
+    }
+}
+
 
 function raptor_glue_editatriskmeds_form_builder($form, &$form_state)
 {

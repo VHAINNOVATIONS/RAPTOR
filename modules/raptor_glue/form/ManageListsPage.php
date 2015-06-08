@@ -2,7 +2,7 @@
 /**
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -14,10 +14,10 @@
 namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
-require_once ('FormHelper.php');
+require_once 'FormHelper.php';
 
 /**
- * This class returns the Admin Information input content
+ * This page allows user to select from different page options.
  *
  * @author Frank Font of SAN Business Consultants
  */
@@ -111,6 +111,16 @@ class ManageListsPage
             $url = $base_url.'/raptor/editatriskrareradioisotope';
             $name = 'Edit Rare or Controlled Radionuclide List';
             $description = 'These keywords are used to detect selection of a rare or controlled radionuclide which may require advanced procurement or special ordering process.';
+            $rows .= $this->getRowMarkup($url,$name,$description);
+            
+            $url = $base_url.'/raptor/editboilerplateprotocoloptions';
+            $name = 'Edit Protocol Boilerplate Text Options';
+            $description = 'These are snippets of boilerplate text that can be selected by button click during protocol workflow phase.';
+            $rows .= $this->getRowMarkup($url,$name,$description);
+            
+            $url = $base_url.'/raptor/editboilerplateexamoptions';
+            $name = 'Edit Exam Boilerplate Text Options';
+            $description = 'These are snippets of boilerplate text that can be selected by button click during exam workflow phase.';
             $rows .= $this->getRowMarkup($url,$name,$description);
         }
         $form["data_entry_area1"]['table_container']['lists'] = array('#type' => 'item',

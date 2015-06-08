@@ -15,8 +15,8 @@
 namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
-require_once ('FormHelper.php');
-require_once ('ListsPageHelper.php');
+require_once 'FormHelper.php';
+require_once 'ListsPageHelper.php';
 
 /**
  * This class returns the base page for editing a simple keword list
@@ -59,6 +59,18 @@ class EditListsBasePage
     public function setListName($sListName)
     {
         $this->m_sListName = $sListName;
+    }
+    
+    public function hasBooleanInput()
+    {
+        foreach($this->m_aDataTypeCols as $datatype)
+        {
+            if($datatype == 'b')
+            {
+               return TRUE; 
+            }
+        }
+        return FALSE;
     }
     
     public function getListName()
@@ -164,7 +176,11 @@ class EditListsBasePage
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
-        $form = $this->m_oPageHelper->getForm($form, $form_state, $disabled, $myvalues, $this->m_aHelpText);
+        $form = $this->m_oPageHelper->getForm($form, $form_state
+                , $disabled
+                , $myvalues
+                , $this->m_aHelpText
+                , $this->m_aDataTypeCols);
         return $form;
     }
 }

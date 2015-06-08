@@ -2,7 +2,7 @@
 /**
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -16,7 +16,7 @@ namespace raptor;
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
 module_load_include('php', 'raptor_datalayer', 'core/data_user');
 
-require_once ('FormHelper.php');
+require_once 'FormHelper.php';
 
 
 /**
@@ -72,10 +72,14 @@ class ListsPageHelper
                             $errors[] = 'Missing required value in column '.($nColOffset + 1).' on row ' . $nRowNumber;
                             $colerrors++;
                         } else if($maxlen < $itemlen) {
-                            $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " should be a number.";
+                            $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " is missing.";
                             $colerrors++;
                         } else if($fieldtype == 'n' && !is_numeric($item)) {
-                            
+                            $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " should be a number.";
+                            $colerrors++;
+                        } else if($fieldtype == 'b' && ($item !== '0' && $item !== '1')) {
+                            $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " should be 0 or 1 for no/yes.";
+                            $colerrors++;
                         }
                         $nColOffset++;
                     }
@@ -201,7 +205,8 @@ class ListsPageHelper
      * Get all the form contents for rendering
      * @return type renderable array
      */
-    public function getForm($form, &$form_state, $disabled, $myvalues, $aHelpText)
+    public function getForm($form, &$form_state, $disabled, $myvalues
+            , $aHelpText, $aDataTypeCols=NULL)
     {
 
         $form['data_entry_area1'] = array(
@@ -210,6 +215,18 @@ class ListsPageHelper
             '#disabled' => $disabled,
         );
         
+        $bHasBooleanInput = FALSE;
+        if($aDataTypeCols != NULL && is_array($aDataTypeCols))
+        {
+            foreach($aDataTypeCols as $datatype)
+            {
+                if($datatype == 'b')
+                {
+                   $bHasBooleanInput = TRUE; 
+                   break;
+                }
+            }
+        }
         $bMultipleColumns = is_array($aHelpText) && count($aHelpText)>1;
 
         
@@ -244,7 +261,7 @@ class ListsPageHelper
         $form['data_entry_area1']['instructions'][] = array(
             '#markup'         => "<p>$helpcols<p>",
         );        
-        if($bMultipleColumns)
+        if($bHasBooleanInput) //$bMultipleColumns)
         {
             $form['data_entry_area1']['instructions'][] = array(
                 '#markup'         => "<p>Note: 0 = No, 1 = Yes.<p>",

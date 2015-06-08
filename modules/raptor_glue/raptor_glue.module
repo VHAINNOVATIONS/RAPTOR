@@ -603,6 +603,26 @@ function raptor_glue_menu()
         'file path' => RAPTOR_GLUE_MODULE_PATH . '/form/',
       'type' => MENU_CALLBACK,
     );
+    $items['raptor/editboilerplateprotocoloptions'] = array(
+      'title' => t('Edit Protocol Boilerplate Text Options'),
+      'page callback' => 'raptor_glue_editboilerplateprotocoloptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Protocol Boilerplate Text Options Form'),
+        'file' => 'EditListBoilerplateProtocolPage.php',
+        'file path' => RAPTOR_GLUE_MODULE_PATH . '/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editboilerplateexamoptions'] = array(
+      'title' => t('Edit Exam Boilerplate Text Options'),
+      'page callback' => 'raptor_glue_editboilerplateexamoptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Exam Boilerplate Text Options Form'),
+        'file' => 'EditListBoilerplateExamPage.php',
+        'file path' => RAPTOR_GLUE_MODULE_PATH . '/form/',
+      'type' => MENU_CALLBACK,
+    );
     
     $items['raptor/editatriskmeds'] = array(
       'title' => t('Edit At Risk Medications List'),
