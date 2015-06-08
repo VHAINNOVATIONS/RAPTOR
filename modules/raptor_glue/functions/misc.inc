@@ -739,7 +739,7 @@ function raptor_glue_worklist_form_builder($form, &$form_state)
         }
         drupal_set_message($msg);
     }
-    if(isset($_GET['releasealltickets']))
+    if($nUID > '' && isset($_GET['releasealltickets']))
     {
         $releasealltickets = $_GET['releasealltickets'];
         if(strtoupper($releasealltickets) == 'TRUE')
