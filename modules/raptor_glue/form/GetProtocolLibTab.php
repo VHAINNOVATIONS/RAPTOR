@@ -158,8 +158,6 @@ class GetProtocolLibTab
             '#suffix' => '</div>', 
             '#tree' => TRUE,
         );
-
-        
         
         $orderProcName = $myvalues['procName']; //We are scoring relative to this
         $show_scores = ($orderProcName > '');
@@ -210,12 +208,16 @@ class GetProtocolLibTab
                 $keywords = '';
             }
             $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($orderProcName);
-            $matchscore = $this->m_oMOP->getProtocolMatchScore($cluesmap
+            
+            $scoredetails = $this->m_oMOP->getProtocolMatchScore($cluesmap
                     , $protocol_shortname
                     , $longname
                     , $modality_abbr
                     , $contrast_yn
                     , $kwmap);
+            $matchscore = $scoredetails['score'];
+            $scorewhy = $scoredetails['why'];
+            $scorewhymarkup = implode('; ', $scorewhy);
             if(trim($filename) > '' && $filename != 'no-filename')
             {
                 $uri = 'public://library/'.$filename;
@@ -245,7 +247,7 @@ class GetProtocolLibTab
             
             $rows .= "\n".'<tr>'
                   . '<td>'.$shortnamelink.'</td>'
-                  . '<td>'.($show_scores ? $matchscore : 'NA').'</td>'
+                  . '<td'.($show_scores ? " title='$scorewhymarkup'>$matchscore" : ' title="No score computed">NA').'</td>'
                   . '<td>'.$protocolnamecontent.'</td>'
                   . '<td>'.$longname.'</td>'
                   . '<td>'.$modality_abbr.'</td>'

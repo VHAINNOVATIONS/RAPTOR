@@ -1470,12 +1470,13 @@ class ProtocolInfoUtility
                 //Does this also belong on the shortlist?
                 $modality_abbr = $record['modality_abbr'];
                 $contrast_yn = $record['contrast_yn'];
-                $matchscore = $this->m_oMOP->getProtocolMatchScore($cluesmap
+                $scoredetails = $this->m_oMOP->getProtocolMatchScore($cluesmap
                         , $psn
                         , $longname
                         , $modality_abbr
                         , $contrast_yn
                         , $kwmap);                
+                $matchscore = $scoredetails['score'];
                 if($matchscore > 0)
                 {
                     //Good enough on contrast check

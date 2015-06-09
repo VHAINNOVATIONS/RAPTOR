@@ -38,7 +38,7 @@ class MatchOrderToProtocol
      * @param type $modality_abbr
      * @param type $contrast_yn
      * @param type $kwmap map of keywords for each protocol shortname
-     * @return score
+     * @return array[score,why]
      */
     public function getProtocolMatchScore(
               $cluesmap
@@ -48,10 +48,12 @@ class MatchOrderToProtocol
             , $contrast_yn
             , $kwmap)
     {
+        $explained = array();
         $matchscore = 0;
         if($modality_abbr == $cluesmap['modality_abbr'])
         {
             $matchscore++;
+            $explained[] = '+1 modality_match';
         }
         if($matchscore > 0 || trim($cluesmap['modality_abbr']) == '' )
         {
@@ -61,6 +63,7 @@ class MatchOrderToProtocol
                     || ($contrast_yn == 0 && $cluesmap['contrast'] === FALSE))
             {
                 $matchscore++;  //Give it one more just because we got past the contrast filter.
+                $explained[] = '+1 y/n_contrast_match';
                 if(is_array($cluesmap['cpt_codes']))
                 {
                     foreach($cluesmap['cpt_codes'] as $cptcode)
@@ -70,11 +73,18 @@ class MatchOrderToProtocol
                 }
                 if(isset($kwmap[$psn]))
                 {
+                    $matches=0;
                     //We have keywords, so factor them in
                     foreach($kwmap[$psn] as $wg=>$kwg)
                     {
-                        $matches = $this->countMatchingWords($kwg, $cluesmap['keywords']);
-                        $matchscore += (5 - $wg) * $matches;
+                        $kwmatches = $this->countMatchingWords($kwg, $cluesmap['keywords']);
+                        if($kwmatches > 0)
+                        {
+                            $addscore = (5 - $wg) * $kwmatches;
+                            $matchscore += $addscore;
+                            $explained[] = "+$addscore kw{$wg}_matches";
+                        }
+                        $matches+=$kwmatches;
                     }
                 } else {
                     //Use the protocol library long name as a clue (not as good as real keywords)
@@ -84,10 +94,12 @@ class MatchOrderToProtocol
                 if($matches > 0)
                 {
                     $matchscore += ($matches + 1);    //MUST add one more!!!
+                    $explained[] = '+1 anymatch';
                 }
             }
         }
-        return $matchscore;
+        $scoredetails = array('score'=>$matchscore,'why'=>$explained);
+        return $scoredetails;
     }
     
     /**

@@ -66,47 +66,7 @@ class raptor_datalayer_Choices
     }
 
     /**
-     * The score is non-zero if aScoreToken items are found in aCheckToken. 
-     * Higher score means better match.  Zero means no match.
-     * 
-     * @param type $aCheckToken We will check this one
-     * @param type $aScoreToken For matches from this one
-     * @return int score 
-     */
-    private static function getProtocolMatchScore($aCheckToken,$aScoreTokenGroup,$sModality)
-    {
-        $score=0;
-        //$sss='Score Stuff:<br>';
-        foreach($aScoreTokenGroup as $nGroupPos => $aST)
-        {   
-            //$sss.=print_r($aST,true)."<br>";
-            foreach($aST as $sST)
-            {
-                if(in_array($sST,$aCheckToken))
-                {
-                    $score += 20/($nGroupPos+1);
-                }
-            }
-        } 
-        //Factor in the modality too
-        if(in_array($sModality,$aCheckToken))
-        {
-            //Position does not matter for modality
-            $score += 20;
-        }
-        //if(FALSE && strpos($sss,'ANKLE'))
-        //                    die($score."<hr>$sss<hr>CT:".print_r($aCheckToken,true)."<hr>ST:".print_r($aScoreTokenGroup,true)."<hr>M:".$sModality);
-
-        return ceil($score);
-    }
-    
-    
-
-    /**
      * Return choices of all the users.
-     * @param type $sDefaultChoiceOverrideID
-     * @param type $sRole
-     * @param type $oRemoveUser
      * @return \raptor_datalayer_Choice 
      */
     public static function getUserData($sDefaultChoiceOverrideID=NULL,$sDefaultaChoiceText=NULL,$sRemoveUserName=NULL)
