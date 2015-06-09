@@ -633,7 +633,7 @@ class DBListSchema
               'type' => 'int',
               'not null' => TRUE,
               'default' => 0,
-              'description' => 'If 1 then user can alter list of examinatino rooms',
+              'description' => 'If 1 then user can alter list of examination rooms',
             ),
             'lockEERL1' => array(
               'type' => 'int',
