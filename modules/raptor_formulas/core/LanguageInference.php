@@ -274,12 +274,12 @@ class LanguageInference
         if($codemap == NULL)
         {
                 $codemap = array();   //No literal codes codes were provided.
-                
+                /* SAMPLE TESTING DATA
                 $codemap['ctp_cd']['55555'] = '55555';
                 $codemap['radlex_cd']['RPID21'] = 'RPID21';
                 $codemap['radlex_cd']['RPID123'] = 'RPID123';
                 $codemap['icd_cd']['A'] = 'A';
-                
+                 */
         }
         $clues['codemap'] = $codemap;  
         $clues['keywords'] = $this->inferOrderPhraseKeywords($phrase);

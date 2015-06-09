@@ -1406,6 +1406,51 @@ class ProtocolInfoUtility
         return $kwmap;
     }
     
+    public function getAllProtocolCodeMap()
+    {
+        $protocol_code_map = array();
+        try
+        {
+            //Get all the code mappings for all protocols
+            $codefieldnames = array('cprs_cd','radlex_cd','cpt_cd','snomed_cd','icd_cd','loinc_cd');
+            $query = db_select('raptor_protocol_code_maps', 'n');
+            $query->fields('n')
+                ->orderBy('protocol_shortname','ASC');
+            $result = $query->execute();
+            if($result->rowCount() > 0)
+            {
+                while($record = $result->fetchAssoc())
+                {
+                    $psn = $record['protocol_shortname'];
+                    if(!isset($protocol_code_map[$psn]))
+                    {
+                        $protocol_code_map[$psn] = array();
+                    }
+                    $group = $protocol_code_map[$psn];
+                    foreach($codefieldnames as $fieldname)
+                    {
+                        $codevalue = $record[$fieldname];
+                        if($codevalue != NULL)
+                        {
+                            if(!isset($group[$fieldname]))
+                            {
+                                $group[$fieldname] = array();
+                            }
+                            $codelist = $group[$fieldname];
+                            $codelist[$codevalue] = $codevalue;
+                            $group[$fieldname] = $codelist;
+                        }
+                    }
+                    $protocol_code_map[$psn] = $group;
+                }
+            }
+            return $protocol_code_map;
+        } catch (\Exception $ex) {
+            error_log("Failed code map because ".$ex->getMessage());
+            throw new \Exception("Failed getting code map",99122,$ex);
+        }
+    }
+    
     /**
      * Get the list of protocol choices, including the short list.
      * TODO -- CACHE THESE THINGS FOR BETTER PERFORMANCE
@@ -1415,29 +1460,9 @@ class ProtocolInfoUtility
             ,$cluesmap=NULL)
     {
         
-//drupal_set_message('getProtocolChoices>>>CLUES='.print_r($cluesmap,TRUE).'<br>Contrast clue='.($cluesmap['contrast'] === NULL ? 'NULL' : $cluesmap['contrast']));
-
-        /*
-        //Get a local structure of all the template keywords
-        $kwmap = array();
-        $kwres = db_select('raptor_protocol_keywords','p')
-            ->fields('p')
-            ->orderBy('protocol_shortname', 'ASC')
-            ->orderBy('weightgroup', 'ASC')
-            ->execute();
-        while($kwrec = $kwres->fetchAssoc()) 
-        {
-            $psn = $kwrec['protocol_shortname'];
-            if(!isset($kwmap[$psn]))
-            {
-                $kwmap[$psn] = array();
-            }
-            $kw = trim($kwrec['keyword']);
-            $wg = trim($kwrec['weightgroup']);
-            $kwmap[$psn][$wg][] = $kw;
-        }
-        */
         $kwmap = $this->getKeywordMap();
+        $protocol_code_map = $this->getAllProtocolCodeMap();
+
         //Get all the protocols from the library
         $result = db_select('raptor_protocol_lib','p')
                 ->fields('p')
@@ -1475,7 +1500,8 @@ class ProtocolInfoUtility
                         , $longname
                         , $modality_abbr
                         , $contrast_yn
-                        , $kwmap);                
+                        , $kwmap
+                        , $protocol_code_map);                
                 $matchscore = $scoredetails['score'];
                 if($matchscore > 0)
                 {
@@ -1535,7 +1561,6 @@ class ProtocolInfoUtility
             {
                 if($oC->nScore >= $minscore)
                 {
-                    //$oC->sCategory = "DEBUG MINSCORE=".$minscore." THISSCORE=".$oC->nScore;
                     $aFinalList[] = $oC;
                 }
             }
