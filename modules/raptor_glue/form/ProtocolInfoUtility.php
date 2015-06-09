@@ -629,10 +629,16 @@ class ProtocolInfoUtility
             );
         }
         
-        if($sCWFS == 'QA' || $sCWFS == 'EC')
+        $oUser = $this->m_oContext->getUserInfo();
+        $bCanEditQA = $oUser->hasPrivilege('QA1');
+        if($bCanEditQA)
         {
-            $root['qa_data_entry_area1']  = $this->getQADataEntryFields($form_state, $disabled, $myvalues);
+            if($sCWFS == 'QA' || $sCWFS == 'EC')
+            {
+                $root['qa_data_entry_area1']  = $this->getQADataEntryFields($form_state, $disabled, $myvalues);
+            }
         }
+
         return $root;
     }
     
@@ -1056,7 +1062,7 @@ class ProtocolInfoUtility
         
         $acknowledgeTip = 'Acknowledge the presented protocol so the exam can begin.';
         $unapproveTip = 'Save this order as unapproved so protocol items can be edited.';
-        $unacknowledgeTip = 'Unacknowledge the presented protocol so the exam cannot begin.  Warning: Unsaved entries, if any, will be discareded.';
+        $unacknowledgeTip = 'Unacknowledge the presented protocol so the exam cannot begin.  Warning: Unsaved entries, if any, will be discarded.';
         $examcompletionTip = 'Save all current settings and mark the examination as completed.';
         $interpretationTip = 'Save interpretation notes.';
         $qaTip = 'Save QA notes.';
@@ -1113,20 +1119,26 @@ class ProtocolInfoUtility
         {
             if($oAA->allowAcknowledgeProtocol($sCWFS))
             {
-                $form['page_action_buttons_area']['acknowledge_button'] = array('#type' => 'submit'
-                    , '#value' => t('Acknowledge Protocol')
-                    , '#attributes' => array('title' => $acknowledgeTip
-                                ,'class'=>array('state-completed')
-                            )
-                    );
+                if($userprivs['CE1'] == 1)
+                {
+                    $form['page_action_buttons_area']['acknowledge_button'] = array('#type' => 'submit'
+                        , '#value' => t('Acknowledge Protocol')
+                        , '#attributes' => array('title' => $acknowledgeTip
+                                    ,'class'=>array('state-completed')
+                                )
+                        );
+                }
             }
             if($oAA->allowExamComplete($sCWFS))
             {
-                $form['page_action_buttons_area']['examcompleted_button'] = array('#type' => 'submit'
-                    , '#value' => t('Exam Completed')
-                    , '#attributes' => array('title' => $examcompletionTip
-                                ,'class'=>array('state-completed'))
-                    );
+                if($userprivs['CE1'] == 1)
+                {
+                    $form['page_action_buttons_area']['examcompleted_button'] = array('#type' => 'submit'
+                        , '#value' => t('Exam Completed')
+                        , '#attributes' => array('title' => $examcompletionTip
+                                    ,'class'=>array('state-completed'))
+                        );
+                }
             }
             
             if($oAA->allowCommitNotesToVista($sCWFS))
@@ -1134,80 +1146,95 @@ class ProtocolInfoUtility
                 //Check for special short circuit finish buttons
                 if($sCWFS == 'AP')
                 {
-                    $form['page_action_buttons_area']['finish_ap_button_and_commit'] = array('#type' => 'submit'
-                        , '#value' => t('Acknowledge Protocol and Commit Details to VistA')
-                        , '#attributes' => array('title' => $ackproAndCommitTip
-                                ,'class'=>array('commit-to-vista'))
-                        , '#disabled' => !$configuredVistaCommit, 
-                        );
+                    if($userprivs['CE1'] == 1)
+                    {
+                        $form['page_action_buttons_area']['finish_ap_button_and_commit'] = array('#type' => 'submit'
+                            , '#value' => t('Acknowledge Protocol and Commit Details to VistA')
+                            , '#attributes' => array('title' => $ackproAndCommitTip
+                                    ,'class'=>array('commit-to-vista'))
+                            , '#disabled' => !$configuredVistaCommit, 
+                            );
+                    }
                 } else
                 if($sCWFS == 'PA')
                 {
-                    $form['page_action_buttons_area']['finish_pa_button_and_commit'] = array('#type' => 'submit'
-                        , '#value' => t('Exam Completed and Commit Details to VistA')
-                        , '#attributes' => array('title' => $examcompAndCommitTip
-                                ,'class'=>array('commit-to-vista'))
-                        , '#disabled' => !$configuredVistaCommit, 
-                        );
+                    if($userprivs['CE1'] == 1)
+                    {
+                        $form['page_action_buttons_area']['finish_pa_button_and_commit'] = array('#type' => 'submit'
+                            , '#value' => t('Exam Completed and Commit Details to VistA')
+                            , '#attributes' => array('title' => $examcompAndCommitTip
+                                    ,'class'=>array('commit-to-vista'))
+                            , '#disabled' => !$configuredVistaCommit, 
+                            );
+                    }
                 }
             }
             if($oAA->allowExamComplete($sCWFS))
             {
-                //Moved to the right of the commit.
-                $form['page_action_buttons_area']['savesofar_button'] = array('#type' => 'submit'
-                    , '#value' => t('Save Exam Values')
-                    , '#attributes' => array('title' => $saveSoFarTip)
-                    );
+                if($userprivs['CE1'] == 1)
+                {
+                    //Moved to the right of the commit.
+                    $form['page_action_buttons_area']['savesofar_button'] = array('#type' => 'submit'
+                        , '#value' => t('Save Exam Values')
+                        , '#attributes' => array('title' => $saveSoFarTip)
+                        );
+                }
             }
             
             if($oAA->allowInterpretationComplete($sCWFS))
             {
-                $form['page_action_buttons_area']['interpret_button'] = array('#type' => 'submit'
-                    , '#value' => t('Interpretation Complete')
-                    , '#attributes' => array('title' => $interpretationTip
-                                            ,'class'=>array('state-completed'))
-                    );
-                if($oAA->allowCommitNotesToVista($sCWFS))
+                if($userprivs['APWI1'] == 1) //If they can approve a protocol, they can interpret
                 {
-                    if($has_uncommitted_data)
+                    $form['page_action_buttons_area']['interpret_button'] = array('#type' => 'submit'
+                        , '#value' => t('Interpretation Complete')
+                        , '#attributes' => array('title' => $interpretationTip
+                                                ,'class'=>array('state-completed'))
+                        );
+                    if($oAA->allowCommitNotesToVista($sCWFS))
                     {
-                        $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
-                            , '#value' => t('Interpretation Complete and Commit Details to VistA')
-                            , '#attributes' => array('title' => $interpretationAndCommitTip
-                                    ,'class'=>array('commit-to-vista'))
-                            , '#disabled' => !$configuredVistaCommit,
-                            );
-                    } else {
-                        $feedback = 'All procedure data has been committed to VistA';
-                        if($commited_dt != NULL)
+                        if($has_uncommitted_data)
                         {
-                            $feedback .= ' as of ' . $commited_dt;
+                            $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
+                                , '#value' => t('Interpretation Complete and Commit Details to VistA')
+                                , '#attributes' => array('title' => $interpretationAndCommitTip
+                                        ,'class'=>array('commit-to-vista'))
+                                , '#disabled' => !$configuredVistaCommit,
+                                );
+                        } else {
+                            $feedback = 'All procedure data has been committed to VistA';
+                            if($commited_dt != NULL)
+                            {
+                                $feedback .= ' as of ' . $commited_dt;
+                            }
                         }
                     }
                 }
             }
             if($oAA->allowQAComplete($sCWFS))
             {
-                $form['page_action_buttons_area']['qa_button'] = array('#type' => 'submit'
-                    , '#value' => t('QA Complete')
-                    , '#attributes' => array('title' => $qaTip
-                                ,'class'=>array('state-completed'))
-                    );
-                if($oAA->allowCommitNotesToVista($sCWFS))
+                if($userprivs['QA1'] == 1)
                 {
-                    if($has_uncommitted_data)
+                    $form['page_action_buttons_area']['qa_button'] = array('#type' => 'submit'
+                        , '#value' => t('QA Complete')
+                        , '#attributes' => array('title' => $qaTip
+                                    ,'class'=>array('state-completed'))
+                        );
+                    if($oAA->allowCommitNotesToVista($sCWFS))
                     {
-                        $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
-                            , '#value' => t('QA Complete and Commit Details to VistA')
-                            , '#attributes' => array('title' => $qaTip
-                                    ,'class'=>array('commit-to-vista'))
-                            , '#disabled' => !$configuredVistaCommit,  
-                            );
-                    } else {
-                        $feedback = 'All procedure data has been committed to VistA';
-                        if($commited_dt != NULL)
+                        if($has_uncommitted_data)
                         {
-                            $feedback .= ' as of ' . $commited_dt;
+                            $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
+                                , '#value' => t('QA Complete and Commit Details to VistA')
+                                , '#attributes' => array('title' => $qaTip
+                                        ,'class'=>array('commit-to-vista'))
+                                , '#disabled' => !$configuredVistaCommit,  
+                                );
+                        } else {
+                            $feedback = 'All procedure data has been committed to VistA';
+                            if($commited_dt != NULL)
+                            {
+                                $feedback .= ' as of ' . $commited_dt;
+                            }
                         }
                     }
                 }
@@ -1217,6 +1244,7 @@ class ProtocolInfoUtility
             {
                 if($userprivs['APWI1'] == 1)
                 {
+                    //They can approve it themselves.
                     if($oAA->allowApproveProtocol($sCWFS))
                     {
                         $form['page_action_buttons_area']['approve_button'] = array('#type' => 'submit'
@@ -1225,6 +1253,7 @@ class ProtocolInfoUtility
                             );
                     }
                 } else {
+                    //They can only request approval.
                     if($oAA->allowRequestApproveProtocol($sCWFS))
                     {
                         $form['page_action_buttons_area']['request_approve_button'] = array('#type' => 'submit'
@@ -1335,10 +1364,13 @@ class ProtocolInfoUtility
             }
             if($oAA->allowUnacknowledgeProtocol($sCWFS))
             {
-                $form['page_action_buttons_area']['unacknowledge_button'] = array('#type' => 'submit'
-                    , '#value' => t('Unacknowledge Protocol')
-                    , '#attributes' => array('title' => $unacknowledgeTip)
-                    );
+                if($userprivs['CE1'] == 1 || $userprivs['APWI1'] == 1)
+                {
+                    $form['page_action_buttons_area']['unacknowledge_button'] = array('#type' => 'submit'
+                        , '#value' => t('Unacknowledge Protocol')
+                        , '#attributes' => array('title' => $unacknowledgeTip)
+                        );
+                }
             }
         }
         
