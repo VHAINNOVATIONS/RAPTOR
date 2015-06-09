@@ -13,7 +13,7 @@
 
 namespace raptor;
 
-require_once ("ContraindicationPageHelper.php");
+require_once 'ContraindicationPageHelper.php';
 
 /**
  * This class returns the Admin Information input content
@@ -35,6 +35,15 @@ class ViewContraindicationPage
         $this->m_oContext    = \raptor\Context::getInstance();
         $this->m_rule_nm     = $rule_nm;
         $this->m_oPageHelper = new \raptor\ContraIndicationPageHelper();
+        
+        
+        module_load_include('php','raptor_datalayer','core/data_context');
+        $oContext = \raptor\Context::getInstance();
+        $oUserInfo = $oContext->getUserInfo();
+        if(!$oUserInfo->hasPrivilege('ECIR1'))
+        {
+            throw new \Exception('The user account does not privileges for this page.');
+        }
     }
 
     /**

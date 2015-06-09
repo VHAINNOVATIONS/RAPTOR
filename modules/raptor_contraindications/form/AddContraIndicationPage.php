@@ -28,6 +28,14 @@ class AddContraIndicationPage extends \simplerulesengine\AddRulePage
         parent::__construct(new \raptor\ContraIndEngine(NULL)
                 ,    array('return'=>NULL)
                 );
+        
+        module_load_include('php','raptor_datalayer','core/data_context');
+        $oContext = \raptor\Context::getInstance();
+        $oUserInfo = $oContext->getUserInfo();
+        if(!$oUserInfo->hasPrivilege('ECIR1'))
+        {
+            throw new \Exception('The user account does not privileges for this page.');
+        }
     }
     
     /**

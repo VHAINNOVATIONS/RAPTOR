@@ -16,7 +16,6 @@ namespace raptor;
 module_load_include('php','simplerulesengine_ui','form/DeleteRulePage');
 module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
 
-
 /**
  * This class returns the Admin Information input content
  *
@@ -31,6 +30,14 @@ class DeleteContraindicationPage extends \simplerulesengine\DeleteRulePage
                 ,   new \raptor\ContraIndEngine(NULL)
                 ,   array('return'=>NULL)
                 );
+        
+        module_load_include('php','raptor_datalayer','core/data_context');
+        $oContext = \raptor\Context::getInstance();
+        $oUserInfo = $oContext->getUserInfo();
+        if(!$oUserInfo->hasPrivilege('ECIR1'))
+        {
+            throw new \Exception('The user account does not privileges for this page.');
+        }
     }
     
     /**

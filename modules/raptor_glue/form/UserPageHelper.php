@@ -1089,7 +1089,7 @@ class UserPageHelper
             $swprivs[] = array('ELSO1','Can edit list of sedation options'); 
             $swprivs[] = array('ELSVO1','Can edit list of service options'); 
             $swprivs[] = array('ELRO1','Can edit radionuclide options'); 
-            $swprivs[] = array('ECIR1','Can edit contraindication results'); 
+            $swprivs[] = array('ECIR1','Can edit contraindication rules'); 
             $swprivs[] = array('EECC1','Can edit excluded CPRS metadata'); 
             $swprivs[] = array('EERL1','Can edit examination room list'); 
             $swprivs[] = array('EARM1','Can edit the list of at risk medication keywords'); 
