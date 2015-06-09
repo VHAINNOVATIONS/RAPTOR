@@ -26,6 +26,19 @@ class EditListAtRiskAllergyContrastPage extends EditListsBasePage
     function __construct()
     {
         parent::__construct('raptor_atrisk_allergy_contrast');
-        $this->setListName('Allergy Contrast');
+
+        global $base_url;
+        
+        $url = $base_url.'/raptor/editatriskallergycontrast';
+        $name = 'Edit Allergy Contrast List';
+        $description = 'These keywords are used to detect possible contrast allergies in patient.';
+        $listname = 'Allergy Contrast';
+        $reqprivs = array('EARM1'=>1);
+
+        $this->setName($name);
+        $this->setListName($listname);
+        $this->setDescription($description);
+        $this->setURL($url);
+        $this->setRequiredPrivs($reqprivs);
     }
 }

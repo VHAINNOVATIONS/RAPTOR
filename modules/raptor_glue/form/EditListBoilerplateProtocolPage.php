@@ -31,7 +31,20 @@ class EditListBoilerplateProtocolPage extends EditListsBasePage
             ,array('t','t','t')
             ,array(50,40,250)
             ,array('Category','Title','Snippet')
-            ,array('category_tx','title_tx'));
-        $this->setListName('Protocol Boilerplate Text');
+            ,array('category_tx','title_tx')
+            );
+
+        global $base_url;
+        $url = $base_url.'/raptor/editboilerplateprotocoloptions';
+        $name = 'Edit Protocol Boilerplate Text Options';
+        $description = 'These are snippets of boilerplate text that can be selected by button click during protocol workflow phase.';
+        $listname = 'Protocol Boilerplate Text';
+        $reqprivs = array('EBO1'=>1);
+
+        $this->setName($name);
+        $this->setListName($listname);
+        $this->setDescription($description);
+        $this->setURL($url);
+        $this->setRequiredPrivs($reqprivs);
     }
 }

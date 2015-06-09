@@ -56,73 +56,116 @@ class ManageListsPage
         global $base_url;
         
         $rows = "\n";
-        if($userprivs['ELHO1'] == 1)
+
+        module_load_include('php', 'raptor_glue', 'form/EditListHydrationPage');
+        $onepage = new EditListHydrationPage();
+        if($onepage->canModify())
         {
-            $rows   .= "\n".'<tr><td><a href="'.$base_url.'/raptor/edithydrationoptions">Edit Hydration Options</a></td>'
-                      .'<td>Hydration options are selectable during the protocol process.</td>'
-                      .'</tr>';
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
         }
-        if($userprivs['ELSO1'] == 1)
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListSedationPage');
+        $onepage = new EditListSedationPage();
+        if($onepage->canModify())
         {
-            $rows   .= "\n".'<tr><td><a href="'.$base_url.'/raptor/editsedationoptions">Edit Sedation Options</a></td>'
-                      .'<td>Sedation options are selectable during the protocol process.</td>'
-                      .'</tr>';
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
         }
-        if($userprivs['ELCO1'] == 1)
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListContrastPage');
+        $onepage = new EditListContrastPage();
+        if($onepage->canModify())
         {
-            $rows   .= "\n".'<tr><td><a href="'.$base_url.'/raptor/editcontrastoptions">Edit Contrast Options</a></td>'
-                      .'<td>Contrast options are selectable during the protocol process.</td>'
-                      .'</tr>';
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
         }
-        if($userprivs['ELRO1'] == 1)
+
+        module_load_include('php', 'raptor_glue', 'form/EditListRadioisotopePage');
+        $onepage = new EditListRadioisotopePage();
+        if($onepage->canModify())
         {
-            $rows   .= "\n".'<tr><td><a href="'.$base_url.'/raptor/editradioisotopeoptions">Edit Radionuclide Options</a></td>'
-                      .'<td>Radionuclide options are selectable during the protocol process.</td>'
-                      .'</tr>';
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
         }
-        if($userprivs['EERL1'] == 1)
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListExamRoomPage');
+        $onepage = new EditListExamRoomPage();
+        if($onepage->canModify())
         {
-            $rows   .= "\n".'<tr><td><a href="'.$base_url.'/raptor/editexamroomoptions">Edit Examination Room Options</a></td>'
-                      .'<td>Exam room options are selectable during the scheduling process.</td>'
-                      .'</tr>';
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
         }
-        if($userprivs['EARM1'] == 1)
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListAtRiskMedsPage');
+        $onepage = new EditListAtRiskMedsPage();
+        if($onepage->canModify())
         {
-            $url = $base_url.'/raptor/editatriskmeds';
-            $name = 'Edit At Risk Medications List';
-            $description = 'These keywords are used to highlight medical history of a patient.';
-            $rows .= $this->getRowMarkup($url,$name,$description);
-            
-            $url = $base_url.'/raptor/editatriskallergycontrast';
-            $name = 'Edit Allergy Contrast List';
-            $description = 'These keywords are used to detect possible contrast allergies in patient.';
-            $rows .= $this->getRowMarkup($url,$name,$description);
-            
-            $url = $base_url.'/raptor/editatriskbloodthinner';
-            $name = 'Edit Blood Thinner List';
-            $description = 'These keywords are used to detect possible blood thinner use by patient.';
-            $rows .= $this->getRowMarkup($url,$name,$description);
-            
-            $url = $base_url.'/raptor/editatriskrarecontrast';
-            $name = 'Edit Rare or Controlled Contrast List';
-            $description = 'These keywords are used to detect selection of a rare or controlled contrast which may require advanced procurement or special ordering process.';
-            $rows .= $this->getRowMarkup($url,$name,$description);
-            
-            $url = $base_url.'/raptor/editatriskrareradioisotope';
-            $name = 'Edit Rare or Controlled Radionuclide List';
-            $description = 'These keywords are used to detect selection of a rare or controlled radionuclide which may require advanced procurement or special ordering process.';
-            $rows .= $this->getRowMarkup($url,$name,$description);
-            
-            $url = $base_url.'/raptor/editboilerplateprotocoloptions';
-            $name = 'Edit Protocol Boilerplate Text Options';
-            $description = 'These are snippets of boilerplate text that can be selected by button click during protocol workflow phase.';
-            $rows .= $this->getRowMarkup($url,$name,$description);
-            
-            $url = $base_url.'/raptor/editboilerplateexamoptions';
-            $name = 'Edit Exam Boilerplate Text Options';
-            $description = 'These are snippets of boilerplate text that can be selected by button click during exam workflow phase.';
-            $rows .= $this->getRowMarkup($url,$name,$description);
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
         }
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListAtRiskAllergyContrastPage');
+        $onepage = new EditListAtRiskAllergyContrastPage();
+        if($onepage->canModify())
+        {
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
+        }
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListAtRiskBloodThinnerPage');
+        $onepage = new EditListAtRiskBloodThinnerPage();
+        if($onepage->canModify())
+        {
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
+        }
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListAtRiskRareContrastPage');
+        $onepage = new EditListAtRiskRareContrastPage();
+        if($onepage->canModify())
+        {
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
+        }
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListAtRiskRareRadioisotopePage');
+        $onepage = new EditListAtRiskRareRadioisotopePage();
+        if($onepage->canModify())
+        {
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
+        }
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListBoilerplateProtocolPage');
+        $onepage = new EditListBoilerplateProtocolPage();
+        if($onepage->canModify())
+        {
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
+        }
+        
+        module_load_include('php', 'raptor_glue', 'form/EditListBoilerplateExamPage');
+        $onepage = new EditListBoilerplateExamPage();
+        if($onepage->canModify())
+        {
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
+        }
+        
+        
         $form["data_entry_area1"]['table_container']['lists'] = array('#type' => 'item',
                  '#markup' => '<table class="raptor-dialog-table">'
                             . '<thead><tr><th>Action</th><th>Description</th></tr></thead>'

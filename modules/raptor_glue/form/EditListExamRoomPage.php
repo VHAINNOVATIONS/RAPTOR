@@ -31,7 +31,21 @@ class EditListExamRoomPage extends EditListsBasePage
             ,array('t',        't')
             ,array(16,         100)
             ,array('Location','Description Text')
-            ,array('location_tx'));
-        $this->setListName('Rooms');
+            ,array('location_tx')
+            );
+        
+        global $base_url;
+        
+        $url = $base_url.'/raptor/editexamroomoptions';
+        $name = 'Edit Examination Room Options';
+        $description = 'Exam room options are selectable during the scheduling process.';
+        $listname = 'Exam Rooms';
+        $reqprivs = array('EERL1'=>1);
+
+        $this->setName($name);
+        $this->setListName($listname);
+        $this->setDescription($description);
+        $this->setURL($url);
+        $this->setRequiredPrivs($reqprivs);
     }
 }

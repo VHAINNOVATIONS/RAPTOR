@@ -31,7 +31,20 @@ class EditListBoilerplateExamPage extends EditListsBasePage
             ,array('t','t','t')
             ,array(50,40,250)
             ,array('Category','Title','Snippet')
-            ,array('category_tx','title_tx'));
-        $this->setListName('Exam Boilerplate Text');
+            ,array('category_tx','title_tx')
+            );
+
+        global $base_url;
+        $url = $base_url.'/raptor/editboilerplateexamoptions';
+        $name = 'Edit Exam Boilerplate Text Options';
+        $description = 'These are snippets of boilerplate text that can be selected by button click during exam workflow phase.';
+        $listname = 'Exam Boilerplate Text';
+        $reqprivs = array('EBO1'=>1);
+
+        $this->setName($name);
+        $this->setListName($listname);
+        $this->setDescription($description);
+        $this->setURL($url);
+        $this->setRequiredPrivs($reqprivs);
     }
 }

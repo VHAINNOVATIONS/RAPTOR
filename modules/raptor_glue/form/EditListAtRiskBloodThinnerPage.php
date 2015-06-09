@@ -25,6 +25,19 @@ class EditListAtRiskBloodThinnerPage extends EditListsBasePage
     function __construct()
     {
         parent::__construct('raptor_atrisk_bloodthinner');
-        $this->setListName('Blood Thinner');
+        
+        global $base_url;
+        
+        $url = $base_url.'/raptor/editatriskbloodthinner';
+        $name = 'Edit Blood Thinner List';
+        $description = 'These keywords are used to detect possible blood thinner use by patient.';
+        $listname = 'Blood Thinner';
+        $reqprivs = array('EARM1'=>1);
+
+        $this->setName($name);
+        $this->setListName($listname);
+        $this->setDescription($description);
+        $this->setURL($url);
+        $this->setRequiredPrivs($reqprivs);
     }
 }

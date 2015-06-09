@@ -27,6 +27,19 @@ class EditListAtRiskMedsPage extends EditListsBasePage
     function __construct()
     {
         parent::__construct('raptor_atrisk_meds');
-        $this->setListName('At Risk Medications');
+
+        global $base_url;
+        
+        $url = $base_url.'/raptor/editatriskmeds';
+        $name = 'Edit At Risk Medications List';
+        $description = 'These keywords are used to highlight medical history of a patient.';
+        $listname = 'At Risk Medications';
+        $reqprivs = array('EARM1'=>1);
+
+        $this->setName($name);
+        $this->setListName($listname);
+        $this->setDescription($description);
+        $this->setURL($url);
+        $this->setRequiredPrivs($reqprivs);
     }
 }

@@ -31,6 +31,18 @@ class EditListSedationPage extends EditListsBasePage
             ,array(8,          100,    1,      1,       1)
             ,array('Category','Sedation Text','Applies to CT?','Applies to MR?','Applies to NM?')
             ,array('type_nm','option_tx'));
-        $this->setListName('Sedation');
+        
+        global $base_url;
+        $url = $base_url.'/raptor/editsedationoptions';
+        $name = 'Edit Sedation Options';
+        $description = 'Sedation options are selectable during the protocol process.';
+        $listname = 'Sedation';
+        $reqprivs = array('ELSO1'=>1);
+
+        $this->setName($name);
+        $this->setListName($listname);
+        $this->setDescription($description);
+        $this->setURL($url);
+        $this->setRequiredPrivs($reqprivs);
     }
 }

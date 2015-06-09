@@ -31,7 +31,19 @@ class EditListRadioisotopePage extends EditListsBasePage
             ,array(8,          100,    1,      1,       1)
             ,array('Category','Radionuclide Text','Applies to CT?','Applies to MR?','Applies to NM?')
             ,array('type_nm','option_tx'));
-        $this->setListName('Radionuclide');
+
+        global $base_url;
+        $url = $base_url.'/raptor/editradioisotopeoptions';
+        $name = 'Edit Radionuclide Options';
+        $description = 'Radionuclide options are selectable during the protocol process.';
+        $listname = 'Radionuclide';
+        $reqprivs = array('ELRO1'=>1);
+
+        $this->setName($name);
+        $this->setListName($listname);
+        $this->setDescription($description);
+        $this->setURL($url);
+        $this->setRequiredPrivs($reqprivs);
     }
 }
 
