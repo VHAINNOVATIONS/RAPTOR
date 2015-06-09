@@ -266,15 +266,22 @@ class LanguageInference
     
     /**
      * Natural language parsing of the order string to derive a clues map
+     * If $codemap is provided, these are literal codes from VistA for the order CPT etc)
      */
-    public function getProtocolMatchCluesMap($phrase, $cpt_codes=NULL)
+    public function getProtocolMatchCluesMap($phrase, $codemap=NULL)
     {
         $clues = array();
-        if($cpt_codes == NULL)
+        if($codemap == NULL)
         {
-                $cpt_codes = array();   //No CPT codes were provided.
+                $codemap = array();   //No literal codes codes were provided.
+                
+                $codemap['ctp_cd']['55555'] = '55555';
+                $codemap['radlex_cd']['RPID21'] = 'RPID21';
+                $codemap['radlex_cd']['RPID123'] = 'RPID123';
+                $codemap['icd_cd']['A'] = 'A';
+                
         }
-        $clues['cpt_codes'] = $cpt_codes;  
+        $clues['codemap'] = $codemap;  
         $clues['keywords'] = $this->inferOrderPhraseKeywords($phrase);
         $clues['modality_abbr'] = $this->inferModalityFromPhrase($phrase);
         $clues['contrast'] = $this->inferContrastFromPhrase($phrase);

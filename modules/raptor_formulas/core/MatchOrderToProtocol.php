@@ -46,7 +46,8 @@ class MatchOrderToProtocol
             , $longname
             , $modality_abbr
             , $contrast_yn
-            , $kwmap)
+            , $kwmap
+            , $codemap=NULL)
     {
         $explained = array();
         $matchscore = 0;
@@ -64,11 +65,35 @@ class MatchOrderToProtocol
             {
                 $matchscore++;  //Give it one more just because we got past the contrast filter.
                 $explained[] = '+1 y/n_contrast_match';
-                if(is_array($cluesmap['cpt_codes']))
+                if($codemap != NULL)
                 {
-                    foreach($cluesmap['cpt_codes'] as $cptcode)
+                    //A code map as provided for the protocol we are checking.
+                    if(is_array($cluesmap['codemap']))
                     {
-                        //TODO future phase -- give score updates for CPT code matches
+error_log("LOOK $psn we have codemap for both clue and protocol !!!!" 
+        . "\n\tCODEMAP=" . print_r($codemap,TRUE)
+        . "\n\tCLUEMAP=".print_r($cluesmap['codemap'],TRUE));
+                        //A code map was provided for the order we are checking
+                        foreach($cluesmap['codemap'] as $groupname=>$group)
+                        {
+error_log("LOOK $psn we have codemap check now for $groupname");
+                            if(isset($codemap[$groupname]))
+                            {
+error_log("LOOK $psn we have codemap check now for match IN $codemap $groupname");
+                                foreach($group as $onecode)
+                                {
+error_log("\nLOOK\t\t $psn onecode=$onecode we have codemap check now for match IN $codemap $groupname");
+                                    if(isset($codemap[$groupname][$onecode]))
+                                    {
+error_log("\nLOOK\t\t HIT!!!! $psn onecode=$onecode we have codemap check now for match IN $codemap $groupname");
+                                        //The protocol has a mapping in this group
+                                        $matchscore+=10;  //Big match
+                                        $explained[] = "+10 {$groupname}_match";
+                                        break;  //One match per group is enough
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 if(isset($kwmap[$psn]))

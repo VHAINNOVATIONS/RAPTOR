@@ -141,6 +141,50 @@ class GetProtocolLibTab
             return $keywords;
     }
     
+    private function getCodeMap()
+    {
+        $protocol_code_map = array();
+        try
+        {
+            //Get all the code mappings for all protocols
+            $codefieldnames = array('cprs_cd','radlex_cd','cpt_cd','snomed_cd','icd_cd','loinc_cd');
+            $query = db_select('raptor_protocol_code_maps', 'n');
+            $query->fields('n')
+                ->orderBy('protocol_shortname','ASC');
+            $result = $query->execute();
+            if($result->rowCount() > 0)
+            {
+                while($record = $result->fetchAssoc())
+                {
+                    $psn = $record['protocol_shortname'];
+                    if(!isset($protocol_code_map[$psn]))
+                    {
+                        $protocol_code_map[$psn] = array();
+                    }
+                    $group = $protocol_code_map[$psn];
+                    foreach($codefieldnames as $fieldname)
+                    {
+                        $codevalue = $record[$fieldname];
+                        if($codevalue != NULL)
+                        {
+                            if(!isset($group[$fieldname]))
+                            {
+                                $group[$fieldname] = array();
+                            }
+                            $codelist = $group[$fieldname];
+                            $codelist[$codevalue] = $codevalue;
+                            $group[$fieldname] = $codelist;
+                        }
+                    }
+                    $protocol_code_map[$psn] = $group;
+                }
+            }
+            return $protocol_code_map;
+        } catch (\Exception $ex) {
+            error_log("Failed code map because ".$ex->getMessage());
+            throw new \Exception("Failed getting code map",99122,$ex);
+        }
+    }
     
     /**
      * Get all the form contents for rendering
@@ -174,19 +218,12 @@ class GetProtocolLibTab
         } else {
             $default_linktext = 'select';
         }
+        
         $protocol_code_map = array();
         try
         {
-            //Get all the code mappings first.
-            //raptor_protocol_code_maps
-            
-        } catch (\Exception $ex) {
-            error_log("Failed code maps in GetProtocolLibTab because ".$ex->getMessage());
-            throw new \Exception("Failed getting protocol library",99122,$ex);
-        }
+            $protocol_code_map = $this->getCodeMap();
         
-        try
-        {
             //Create the main join query.
             $query = db_select('raptor_protocol_lib','p')
                     ->fields('p')
@@ -210,9 +247,9 @@ class GetProtocolLibTab
                 $protocol_shortname = $item->protocol_shortname;
                 if(isset($protocol_code_map[$protocol_shortname]))
                 {
-                    $codemap = $protocol_code_map[$protocol_shortname];
+                    $this_protocol_codemap = $protocol_code_map[$protocol_shortname];
                 } else {
-                    $codemap = array();
+                    $this_protocol_codemap = array();
                 }
                 $filename = $item->filename;
                 $longname = $item->name;
@@ -232,7 +269,8 @@ class GetProtocolLibTab
                         , $longname
                         , $modality_abbr
                         , $contrast_yn
-                        , $kwmap);
+                        , $kwmap
+                        , $this_protocol_codemap);
                 $matchscore = $scoredetails['score'];
                 if($show_scores)
                 {
