@@ -264,12 +264,15 @@ class LanguageInference
         return $keywords;
     }
     
+    /**
+     * Natural language parsing of the order string to derive a clues map
+     */
     public function getProtocolMatchCluesMap($phrase, $cpt_codes=NULL)
     {
         $clues = array();
         if($cpt_codes == NULL)
         {
-            $cpt_codes = array(); //TODO provide the codes associated with this order
+                $cpt_codes = array();   //No CPT codes were provided.
         }
         $clues['cpt_codes'] = $cpt_codes;  
         $clues['keywords'] = $this->inferOrderPhraseKeywords($phrase);

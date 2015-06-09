@@ -148,11 +148,11 @@ class GetProtocolLibTab
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
-        $form["data_entry_area1"] = array(
+        $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='protocollib-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
-        $form["data_entry_area1"]['table_container'] = array(
+        $form['data_entry_area1']['table_container'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-dialog-table-container">',
             '#suffix' => '</div>', 
@@ -174,111 +174,136 @@ class GetProtocolLibTab
         } else {
             $default_linktext = 'select';
         }
-        
-        //Create the join query.
-        $query = db_select('raptor_protocol_lib','p')
-                ->fields('p')
-                ->fields('t', array(
-                    'consent_req_kw',
-                    'hydration_oral_tx', 
-                    'hydration_iv_tx', 
-                    'sedation_iv_tx', 
-                    'sedation_oral_tx', 
-                    'contrast_iv_tx', 
-                    'contrast_enteric_tx', 
-                    'radioisotope_iv_tx',
-                    'radioisotope_enteric_tx'
-                ))
-                ->orderBy('name');
-        $query->leftJoin('raptor_protocol_template','t'
-                ,'p.protocol_shortname = t.protocol_shortname');       
-        $result = $query->execute();
-        foreach($result as $item) 
+        $protocol_code_map = array();
+        try
         {
-            $protocol_shortname = $item->protocol_shortname;
-            $filename = $item->filename;
-            $longname = $item->name;
-            $uploaded_dt = $item->updated_dt;   //TODO use original_file_upload_dt
-            $modality_abbr = $item->modality_abbr;
-            $contrast_yn = $item->contrast_yn;
-            if(isset($kwmap[$protocol_shortname]))
-            {
-                $keywords =$this->getFormattedKeywordsForTable($kwmap[$protocol_shortname]);
-            } else {
-                $keywords = '';
-            }
-            $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($orderProcName);
+            //Get all the code mappings first.
+            //raptor_protocol_code_maps
             
-            $scoredetails = $this->m_oMOP->getProtocolMatchScore($cluesmap
-                    , $protocol_shortname
-                    , $longname
-                    , $modality_abbr
-                    , $contrast_yn
-                    , $kwmap);
-            $matchscore = $scoredetails['score'];
-            $scorewhy = $scoredetails['why'];
-            $scorewhymarkup = implode('; ', $scorewhy);
-            if(trim($filename) > '' && $filename != 'no-filename')
+        } catch (\Exception $ex) {
+            error_log("Failed code maps in GetProtocolLibTab because ".$ex->getMessage());
+            throw new \Exception("Failed getting protocol library",99122,$ex);
+        }
+        
+        try
+        {
+            //Create the main join query.
+            $query = db_select('raptor_protocol_lib','p')
+                    ->fields('p')
+                    ->fields('t', array(
+                        'consent_req_kw',
+                        'hydration_oral_tx', 
+                        'hydration_iv_tx', 
+                        'sedation_iv_tx', 
+                        'sedation_oral_tx', 
+                        'contrast_iv_tx', 
+                        'contrast_enteric_tx', 
+                        'radioisotope_iv_tx',
+                        'radioisotope_enteric_tx'
+                    ))
+                    ->orderBy('name');
+            $query->leftJoin('raptor_protocol_template','t'
+                    ,'p.protocol_shortname = t.protocol_shortname');       
+            $result = $query->execute();
+            foreach($result as $item) 
             {
-                $uri = 'public://library/'.$filename;
-                $url = file_create_url($uri);
-                global $base_url;
-                $pageurl = $base_url . '/raptor/viewscannedprotocol?'
-                        . 'protocol_shortname='.$protocol_shortname.'&showclose';
-                //$shortnamelink = "<a title='doc uploaded $uploaded_dt' target='_blank' href='$pageurl'>$protocol_shortname</a>";
-                $shortnamelink = "<a title='doc uploaded $uploaded_dt' "
-                        . "href='#' onclick='window.open(\"$pageurl\",\"_blank\");"
-                        . "return false;'>$protocol_shortname</a>";
-            } else {
-                $shortnamelink = $protocol_shortname;
+                $protocol_shortname = $item->protocol_shortname;
+                if(isset($protocol_code_map[$protocol_shortname]))
+                {
+                    $codemap = $protocol_code_map[$protocol_shortname];
+                } else {
+                    $codemap = array();
+                }
+                $filename = $item->filename;
+                $longname = $item->name;
+                $uploaded_dt = $item->updated_dt;   //TODO use original_file_upload_dt
+                $modality_abbr = $item->modality_abbr;
+                $contrast_yn = $item->contrast_yn;
+                if(isset($kwmap[$protocol_shortname]))
+                {
+                    $keywords =$this->getFormattedKeywordsForTable($kwmap[$protocol_shortname]);
+                } else {
+                    $keywords = '';
+                }
+                $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($orderProcName);
+
+                $scoredetails = $this->m_oMOP->getProtocolMatchScore($cluesmap
+                        , $protocol_shortname
+                        , $longname
+                        , $modality_abbr
+                        , $contrast_yn
+                        , $kwmap);
+                $matchscore = $scoredetails['score'];
+                if($show_scores)
+                {
+                    $scorewhy = $scoredetails['why'];
+                    $scorewhymarkup = implode('; ', $scorewhy);
+                }
+                if(trim($filename) > '' && $filename != 'no-filename')
+                {
+                    $uri = 'public://library/'.$filename;
+                    $url = file_create_url($uri);
+                    global $base_url;
+                    $pageurl = $base_url . '/raptor/viewscannedprotocol?'
+                            . 'protocol_shortname='.$protocol_shortname.'&showclose';
+                    //$shortnamelink = "<a title='doc uploaded $uploaded_dt' target='_blank' href='$pageurl'>$protocol_shortname</a>";
+                    $shortnamelink = "<a title='doc uploaded $uploaded_dt' "
+                            . "href='#' onclick='window.open(\"$pageurl\",\"_blank\");"
+                            . "return false;'>$protocol_shortname</a>";
+                } else {
+                    $shortnamelink = $protocol_shortname;
+                }
+
+                if($myvalues['ticketType'] !== 'P')
+                {
+                    $protocolnamecontent = $protocol_shortname;
+                } else {
+                    $protocolnamecontent = '<a title="change selected protocol for this order" href="#"'
+                            . ' class="select-protocol"'
+                            . ' data-protocol_shortname="'.$protocol_shortname.'"'
+                            . '>'
+                            .$default_linktext
+                            .'</a>';
+                }
+
+                $rows .= "\n".'<tr>'
+                      . '<td>'.$shortnamelink.'</td>'
+                      . '<td'.($show_scores ? " title='$scorewhymarkup'>$matchscore" : ' title="No score computed">NA').'</td>'
+                      . '<td>'.$protocolnamecontent.'</td>'
+                      . '<td>'.$longname.'</td>'
+                      . '<td>'.$modality_abbr.'</td>'
+                      . '<td>'.$item->consent_req_kw.'</td>'
+                      . '<td>'.$keywords.'</td>'
+                      . '<td><ul>'
+                        .(!empty($item->hydration_oral_tx) ? '<li>'.$item->hydration_oral_tx.'</li>' : '')
+                        .(!empty($item->hydration_iv_tx) ? '<li>'.$item->hydration_iv_tx.'</li>' : '')
+                      . '</ul></td>'
+                      . '<td><ul>'
+                        .(!empty($item->sedation_oral_tx) ? '<li>'.$item->sedation_oral_tx.'</li>' : '')
+                        .(!empty($item->sedation_iv_tx) ? '<li>'.$item->sedation_iv_tx.'</li>' : '')
+                      . '</ul></td>'
+                      . '<td><ul>'
+                        .(!empty($item->contrast_enteric_tx) ? '<li>'.$item->contrast_enteric_tx.'</li>' : '')
+                        .(!empty($item->contrast_iv_tx) ? '<li>'.$item->contrast_iv_tx.'</li>' : '')
+                      . '</ul></td>'
+                      . '<td><ul>'
+                        .(!empty($item->radioisotope_enteric_tx) ? '<li>'.$item->radioisotope_enteric_tx.'</li>' : '')
+                        .(!empty($item->radioisotope_iv_tx) ? '<li>'.$item->radioisotope_iv_tx.'</li>' : '')
+                      . '</ul></td>'
+                      . '</tr>';
             }
-            
-            if($myvalues['ticketType'] !== 'P')
-            {
-                $protocolnamecontent = $protocol_shortname;
-            } else {
-                $protocolnamecontent = '<a href="#"'
-                        . ' class="select-protocol"'
-                        . ' data-protocol_shortname="'.$protocol_shortname.'"'
-                        . '>'
-                        .$default_linktext
-                        .'</a>';
-            }
-            
-            $rows .= "\n".'<tr>'
-                  . '<td>'.$shortnamelink.'</td>'
-                  . '<td'.($show_scores ? " title='$scorewhymarkup'>$matchscore" : ' title="No score computed">NA').'</td>'
-                  . '<td>'.$protocolnamecontent.'</td>'
-                  . '<td>'.$longname.'</td>'
-                  . '<td>'.$modality_abbr.'</td>'
-                  . '<td>'.$item->consent_req_kw.'</td>'
-                  . '<td>'.$keywords.'</td>'
-                  . '<td><ul>'
-                    .(!empty($item->hydration_oral_tx) ? '<li>'.$item->hydration_oral_tx.'</li>' : '')
-                    .(!empty($item->hydration_iv_tx) ? '<li>'.$item->hydration_iv_tx.'</li>' : '')
-                  . '</ul></td>'
-                  . '<td><ul>'
-                    .(!empty($item->sedation_oral_tx) ? '<li>'.$item->sedation_oral_tx.'</li>' : '')
-                    .(!empty($item->sedation_iv_tx) ? '<li>'.$item->sedation_iv_tx.'</li>' : '')
-                  . '</ul></td>'
-                  . '<td><ul>'
-                    .(!empty($item->contrast_enteric_tx) ? '<li>'.$item->contrast_enteric_tx.'</li>' : '')
-                    .(!empty($item->contrast_iv_tx) ? '<li>'.$item->contrast_iv_tx.'</li>' : '')
-                  . '</ul></td>'
-                  . '<td><ul>'
-                    .(!empty($item->radioisotope_enteric_tx) ? '<li>'.$item->radioisotope_enteric_tx.'</li>' : '')
-                    .(!empty($item->radioisotope_iv_tx) ? '<li>'.$item->radioisotope_iv_tx.'</li>' : '')
-                  . '</ul></td>'
-                  . '</tr>';
+        } catch (\Exception $ex) {
+            error_log("Failed main GetProtocolLibTab because ".$ex->getMessage());
+            throw new \Exception("Failed getting protocol library",99123,$ex);
         }
 
         if($show_scores)
         {
-            $matchscore_title="Higher matching scores indicate higher possible relevance to the order";
+            $matchscore_title='Higher matching scores indicate higher possible relevance to the order';
         } else {
-            $matchscore_title="No match score computed because no order text was available";
+            $matchscore_title='No match score computed because no order text was available';
         }
-        $form["data_entry_area1"]['table_container']['protocols'] = array('#type' => 'item',
+        $form['data_entry_area1']['table_container']['protocols'] = array('#type' => 'item',
                  '#markup' => '<table id="getprotocollibtab-table" class="dataTable">'
                             . '<thead>'
                             . '<tr>'

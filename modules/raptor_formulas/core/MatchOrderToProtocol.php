@@ -68,7 +68,7 @@ class MatchOrderToProtocol
                 {
                     foreach($cluesmap['cpt_codes'] as $cptcode)
                     {
-                        //TODO -- give score updates for CPT code matches
+                        //TODO future phase -- give score updates for CPT code matches
                     }
                 }
                 if(isset($kwmap[$psn]))
@@ -93,8 +93,9 @@ class MatchOrderToProtocol
                 }
                 if($matches > 0)
                 {
-                    $matchscore += ($matches + 1);    //MUST add one more!!!
-                    $explained[] = '+1 anymatch';
+                    $addscore = ($matches + 1);
+                    $matchscore += $addscore;    //MUST add one more because of THRESHOLD logic elsewhere!!!
+                    $explained[] = "+{$addscore} simplematch_bonus";
                 }
             }
         }
