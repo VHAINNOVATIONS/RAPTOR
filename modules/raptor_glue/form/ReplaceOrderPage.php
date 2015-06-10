@@ -119,7 +119,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $myvalues = $form_state['values'];
         $goodtrack = array();
         $currentstep = $this->getSubmittedStepNumber($form_state);
-        
+
         if($currentstep == 1)
         {
             $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'cancelreason', 'Replacement Reason');
@@ -334,7 +334,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     .' because '.$ex->getMessage();
             drupal_set_message($msg,'error');
             error_log($msg . "\nData Details..."
-                    .print_r($myvalues,TRUE)
+                    .Context::safeArrayDump($myvalues)
                     ."\nargs="
                     .print_r($args,TRUE)
                     );
@@ -368,7 +368,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             $msg = 'Failed to copy details from '.$nIEN.' (orderFileIen='.$orderFileIen.') '
                     .' on replace because '.$ex->getMessage();
             drupal_set_message($msg,'error');
-            error_log($msg . "\nData Details...".print_r($myvalues,TRUE));
+            error_log($msg . "\nData Details..." 
+                    . Context::safeArrayDump($myvalues));
             throw $ex;
         }
 
@@ -398,7 +399,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 $msg = 'Failed to cancel '.$nIEN.' (orderFileIen='.$orderFileIen.') '
                         .' on replace because '.$ex->getMessage();
                 drupal_set_message($msg,'error');
-                error_log($msg . "\nData Details...".print_r($myvalues,TRUE));
+                error_log($msg . "\nData Details..." 
+                        . Context::safeArrayDump($myvalues));
                 throw $ex;
             }
 

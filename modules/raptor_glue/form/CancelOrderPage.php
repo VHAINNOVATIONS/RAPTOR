@@ -3,14 +3,13 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  * 
  */ 
-
 
 namespace raptor;
 
@@ -127,31 +126,10 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         } catch (\Exception $ex) {
             drupal_set_message('Failed cancel order ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .')','error');
             error_log("Failed to cancel because ".$ex->getMessage()
-                    ."\nValue details...".print_r($myvalues,TRUE));
+                    ."\nValue details..." 
+                    . Context::safeArrayDump($myvalues));
             throw $ex;
         }
-        
-        /*
-        //Create the raptor_ticket_suspend_notes record now
-        try
-        {
-            $oInsert = db_insert('raptor_ticket_suspend_notes')
-                    ->fields(array(
-                        'siteid' => $nSiteID,
-                        'IEN' => $nIEN,
-                        'notes_tx' => 'REASON:' . $myvalues['reason'] . '<br>NOTES:' . $myvalues['notes_tx'],
-                        'author_uid' => $nUID,
-                        'created_dt' => $updated_dt,
-                    ))
-                    ->execute();
-        }
-        catch(\Exception $e)
-        {
-            error_log('Failed to create raptor_ticket_suspend_notes: ' . $e . "\nDetails..." . print_r($oInsert,true));
-            form_set_error('notes_tx','Failed to save notes for this ticket!');
-             return 0;
-        }
-        */
         
         $sNewWFS = 'IA';
         $this->m_oTT->setTicketWorkflowState($nSiteID . '-' . $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
@@ -189,7 +167,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         $sRequestedByName = $aOneRow['RequestedBy'];
         $canOrderBeDCd = $aOneRow['canOrderBeDCd'];
         $orderFileStatus = $aOneRow['orderFileStatus'];
-
         
         if(!$canOrderBeDCd)
         {
@@ -262,15 +239,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             "#description" => t("Select reason for canceling this order."),
             "#required" => TRUE,
             );        
-
-        /*
-        $form['data_entry_area1']['toppart']['notes_tx'] = array(
-            '#type'          => 'textarea',
-            '#title'         => t('Comments'),
-            '#disabled'      => $disabled,
-            '#default_value' => '',
-        );
-         */
 
         if(!$needsESIG)
         {

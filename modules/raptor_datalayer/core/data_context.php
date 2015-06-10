@@ -59,6 +59,40 @@ class Context
     private $m_aLocalCache = array();
     
     /**
+     * Return user readable dump that hides passwords.
+     */
+    public static function safeArrayDump($myarray)
+    {
+        try
+        {
+            if(is_array($myarray))
+            {
+                $dump = array();
+                foreach($myarray as $key=>$value)
+                {
+                    $uckey = strtoupper($key);
+                    if($uckey == 'ESIG' || $uckey == 'PASSWORD' || $uckey == 'PSWD')
+                    {
+                        $dump[] = "$key => !!!VALUEMASKED!!!";
+                    } else {
+                        $dump[] = "$key => " . print_r($value,TRUE);
+                    }
+                }
+                $keycount = count($dump);
+                return "SAFE ARRAY DUMP ($keycount top level keys)...\n\t" . implode("\n\t",$dump);
+            } else {
+                error_log('Expected an array in safeDumpArray but instead got ' 
+                        . $myarray);
+                return "SAFE ARRAY DUMP non-array>>>".print_r($myarray,TRUE);
+            }
+        } catch (\Exception $ex) {
+            error_log('Expected an array in safeDumpArray but instead got ' 
+                    . $myarray." and error ".$ex->getMessage());
+            return "SAFE ARRAY DUMP with exception>>>".print_r($myarray,TRUE);
+        }
+    }
+    
+    /**
      * Quick access to a few things that have immutable relationships
      */
     private function checkLocalCache($sKey)
