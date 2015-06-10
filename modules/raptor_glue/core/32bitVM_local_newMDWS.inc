@@ -3,7 +3,7 @@
 //DEPRECATED CONFIGURATION UPGRADE IF YOU ARE USING THIS ONE!!!!
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150526.1 Config for TEST 32bit localhost');
+    or define('RAPTOR_CONFIG_ID', '20150610.1 Config for TEST 32bit localhost');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -37,3 +37,9 @@ defined("VIX_THUMBNAIL_URL")
     or define("VIX_THUMBNAIL_URL", "http://localhost:8090/RaptorWebApp/token/thumbnail");
 defined("VIX_HTML_VIEWER_URL")
     or define("VIX_HTML_VIEWER_URL", "http://localhost:9000/Viewer/viewer.html");
+
+//Lab settings might be different for different sites
+defined('LAB_EGFR_ALERT_WARN_END_LEVEL')
+    or define('LAB_EGFR_ALERT_WARN_END_LEVEL', 60);
+defined('LAB_EGFR_ALERT_BAD_END_LEVEL')
+    or define('LAB_EGFR_ALERT_BAD_END_LEVEL', 30);

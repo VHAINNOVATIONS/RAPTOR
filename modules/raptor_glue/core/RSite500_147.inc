@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150526.1 500 for VA 147 AppServer2');
+    or define('RAPTOR_CONFIG_ID', '20150610.1 500 for VA 147 AppServer2');
 	
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -39,3 +39,8 @@ defined("VIX_STUDIES_URL")
 defined("VIX_THUMBNAIL_URL")
     or define("VIX_THUMBNAIL_URL", "http://10.184.38.149:8090/RaptorWebApp/token/thumbnail");
 
+//Lab settings might be different for different sites
+defined('LAB_EGFR_ALERT_WARN_END_LEVEL')
+    or define('LAB_EGFR_ALERT_WARN_END_LEVEL', 60);
+defined('LAB_EGFR_ALERT_BAD_END_LEVEL')
+    or define('LAB_EGFR_ALERT_BAD_END_LEVEL', 30);

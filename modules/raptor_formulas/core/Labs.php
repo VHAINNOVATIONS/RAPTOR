@@ -39,8 +39,8 @@ class Labs
      */
     public function get_eGFR_Health($value)
     {
-        $EGFR_ALERT_WARN_END_LEVEL = 60; //TODO -- make admin configurable
-        $EGFR_ALERT_BAD_END_LEVEL = 30;  //TODO -- make admin configurable
+        $EGFR_ALERT_WARN_END_LEVEL = LAB_EGFR_ALERT_WARN_END_LEVEL;
+        $EGFR_ALERT_BAD_END_LEVEL = LAB_EGFR_ALERT_BAD_END_LEVEL;
         if($value > '')
         {
              if($value < $EGFR_ALERT_BAD_END_LEVEL)
