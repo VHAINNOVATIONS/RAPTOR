@@ -194,7 +194,7 @@ class MatchOrderToUser
             if(DISABLE_TICKET_AGE1_SCORING)
             {
                 //This has been disabled, generally done because our test data is YEARS OLD thus all tickets get HUGE scores if not disabled!
-                $comment['disabled_age1'] = 'age1 criteria was ignored!';
+                $comment['#disabled_age1'] = 'age1 criteria was ignored!';
             } else {
                 //Factor in the age of the ticket too, older ticket scores slightly higher.
                 if(isset($aTicket[\raptor\WorklistData::WLIDX_DATETIMEDESIRED]))
@@ -221,7 +221,7 @@ class MatchOrderToUser
             if(DISABLE_TICKET_AGE2_SCORING)
             {
                 //This has been disabled, generally done because our test data is YEARS OLD thus all tickets get HUGE scores if not disabled!
-                $comment['disabled_age2'] = 'age2 criteria was ignored!';
+                $comment['#disabled_age2'] = 'age2 criteria was ignored!';
             } else {
                 if(isset($aTicket[\raptor\WorklistData::WLIDX_DATEORDERED]))
                 {

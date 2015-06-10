@@ -626,7 +626,6 @@ class WorklistData
     
     /**
      * Get all the worklist rows for the provided context
-     * @param type $oContext
      * @return type array of rows for the worklist page
      */
     public function getWorklistRows($startIEN='')
@@ -729,7 +728,7 @@ class WorklistData
             $worklistItemDict = $this->getWorklistItemFromMDWS($tid);
             $orderFileIen = $worklistItemDict['7']['I'];
             $orderFileRec = MdwsUtils::parseDdrGetsEntryInternalAndExternal
-               ($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
+               ($this->m_oContext->getMdwsClient()->makeQuery('ddrGetsEntry', array(
                    'file'=>'100', 
                    'iens'=>($orderFileIen.','),
                    'flds'=>'*', 
@@ -746,7 +745,6 @@ class WorklistData
             $t['orderActive'] = !key_exists('63', $orderFileRec); // field 63 in file 100 is discontinue date/time
             // may be more to return here in the future
 
-
             $t['Tracking ID']       = $siteid.'-'.$tid;
             $t['Procedure']         = $row[WorklistData::WLIDX_STUDY];
             $t['Modality']          = $row[WorklistData::WLIDX_MODALITY];
@@ -756,8 +754,8 @@ class WorklistData
             $t['RequestedBy']       = $row[WorklistData::WLIDX_REQUESTINGPHYSICIAN];
 
             // ATTENTION FRANK: new indices for requesting location and submit to location
-            $t['RequestingLocation']= trim((isset($worklistItemDict["22"]["I"]) ? $worklistItemDict["22"]["I"] : '') );
-            $t['SubmitToLocation']  = trim((isset($worklistItemDict["20"]["I"]) ? $worklistItemDict["20"]["I"] : '') );
+            $t['RequestingLocation']= trim((isset($worklistItemDict['22']['I']) ? $worklistItemDict['22']['I'] : '') );
+            $t['SubmitToLocation']  = trim((isset($worklistItemDict['20']['I']) ? $worklistItemDict['20']['I'] : '') );
             // END ATTN FRANK
 
             $aSchedInfo = $row[WorklistData::WLIDX_SCHEDINFO];
@@ -768,13 +766,13 @@ class WorklistData
 
             $t['PatientCategory']   = $row[WorklistData::WLIDX_PATIENTCATEGORYLOCATION];
             // changed reason for study to real RFS, added 'NatureOfOrderActivity' key 
-            $t['ReasonForStudy']    = trim((isset($worklistItemDict["1.1"]["I"]) ? $worklistItemDict["1.1"]["I"] : '') );
+            $t['ReasonForStudy']    = trim((isset($worklistItemDict['1.1']['I']) ? $worklistItemDict['1.1']['I'] : '') );
             $t['NatureOfOrderActivity'] = $row[WorklistData::WLIDX_NATUREOFORDERACTIVITY];
 
-            $t['RequestingLocation'] = trim((isset($worklistItemDict["22"]["E"]) ? $worklistItemDict["22"]["E"] : '') );
-            $t['RequestingLocationIen'] = trim((isset($worklistItemDict["22"]["I"]) ? $worklistItemDict["22"]["I"] : '') );
+            $t['RequestingLocation'] = trim((isset($worklistItemDict['22']['E']) ? $worklistItemDict['22']['E'] : '') );
+            $t['RequestingLocationIen'] = trim((isset($worklistItemDict['22']['I']) ? $worklistItemDict['22']['I'] : '') );
 
-            $t['ClinicalHistory']   = trim((isset($worklistItemDict["400"]) ? $worklistItemDict["400"] : '') );
+            $t['ClinicalHistory']   = trim((isset($worklistItemDict['400']) ? $worklistItemDict['400'] : '') );
             $t['PatientID']         = $pid;
             $t['PatientSSN']        = WorklistData::formatSSN($oPatientData['ssn']);
             $t['Urgency']           = $row[WorklistData::WLIDX_URGENCY];

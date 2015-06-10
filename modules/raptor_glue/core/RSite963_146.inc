@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150526.1 963 for VA 146 AppServer1');
+    or define('RAPTOR_CONFIG_ID', '20150610.1 963 for VA 146 AppServer1');
 
 /*
  * These are RAPTOR INSTANCE specific settings

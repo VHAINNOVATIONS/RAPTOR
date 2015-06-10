@@ -262,7 +262,14 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
                                 $rscomment = '';
                                 foreach($aRSComment as $key => $value)
                                 {
-                                    $rscomment .= "<br>$key=$value";
+                                    if($key[0] != '#')
+                                    {
+                                        if($rscomment !== '')
+                                        {
+                                            $rscomment .= "; ";
+                                        }
+                                        $rscomment .= "+{$value} $key";
+                                    }
                                 }
 
                                 $rsurl = getRankScoreIcon($score);
@@ -271,8 +278,8 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
                             ?>
                             <tr data-rawrtid="<?php echo('['.$data_row[0].']') ?>" style="<?php echo($rowStyle); ?>">
                                 <td><input type="checkbox" name="tracking-id" value="<?php echo($data_row[0]) ?>"></td>
-                                <td class="rtid_column" title='ranking score = <?php echo($score)  ?>'><?php echo($data_row[0]) ?></td>
-                                <td class="rankscore_column" title='ranking score = <?php echo($score) ?>' data='<?php echo($rscomment) ?>' >
+                                <td class="rtid_column" title='ranking score = <?php echo($score) ?>'><?php echo($data_row[0]) ?></td>
+                                <td class="rankscore_column" title='ranking score = <?php echo("$score b/c $rscomment")  ?>' data='' >
                                     <img src="<?php echo($rsurl) ?>">
                                     <p style='opacity:0;height: 0;'><?php echo($score) ?></p>
                                 </td>
