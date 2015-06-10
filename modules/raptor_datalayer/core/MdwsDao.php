@@ -157,10 +157,11 @@ class MdwsDao implements IMdwsDao {
                 }
             } else {
                 $stacktrace = \raptor\Context::debugGetCallerInfo(10);
-                error_log('Unexpected fault in makeQuery>>>'
+                error_log("Unexpected fault in makeQuery($functionToInvoke)>>>TOResult="
                         . print_r($TOResult,TRUE)
-                        . "Stack trace... ".$stacktrace);
-                throw new \Exception('MdwsDao->makeQuery unhandled exception: '
+                        . "\n\tInput args=".print_r($args,TRUE)
+                        . "\nStack trace... ".$stacktrace);
+                throw new \Exception("MdwsDao->makeQuery($functionToInvoke) unhandled exception: "
                         .$TOResult->fault->message
                         ."<br>Stack trace...".$stacktrace);
             }
@@ -168,14 +169,14 @@ class MdwsDao implements IMdwsDao {
             return $soapResult;
         } catch (\Exception $ex) {
             if (strpos($ex->getMessage(), "connection was forcibly closed") !== FALSE) {
-                error_log('TODO:makeQuery  --- 2222 connection was closed makeQuery>>>' . $ex->getMessage());
+                error_log("Exception in makeQuery($functionToInvoke) --- connection was closed makeQuery>>>" . $ex->getMessage());
                 $this->initClient();
                 $this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                 return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
             }
             // any other exceptions that may be related to timeout? add here as found
             else {
-                error_log('TODO:makeQuery  --- 2222 about to throw exception in makeQuery/else>>>' . $ex->getMessage() . '<br>TOResult=' . print_r($TOResult,TRUE));
+                error_log("Exception in makeQuery($functionToInvoke) --- about to throw exception in makeQuery/else>>>" . $ex->getMessage() . '<br>TOResult=' . print_r($TOResult,TRUE));
                 throw $ex;
             }
         }

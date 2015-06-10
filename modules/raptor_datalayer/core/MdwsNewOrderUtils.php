@@ -269,36 +269,62 @@ class MdwsNewOrderUtils {
         return $order;
     }
     
-    // NOTE: ONLY USE THIS CALL FOR NEWLY CREATED ORDERS!!! THE QUERY MAY TIMEOUT 
-    // IN PRODUCTION OTHERWISE AND CAUSE A LARGE VISTA LOAD RESULTING IN OI&T's WRATH!!!
-    // 
-    // Searches the rad/nuc med orders (75.1) file for order ID from file 100 
-    public static  function getRadiologyOrderIenFromOrderId($mdwsDao, $orderId) {
+    /**
+     * NOTE: ONLY USE THIS CALL FOR NEWLY CREATED ORDERS!!! THE QUERY MAY TIMEOUT 
+     * IN PRODUCTION OTHERWISE AND CAUSE A LARGE VISTA LOAD RESULTING IN OI&T's WRATH!!!
+     * 
+     * Searches the rad/nuc med orders (75.1) file for order ID from file 100 
+     * WARNING: Using VistA to filter was FAILING in test, so we search on client side.
+     */
+    public static  function getRadiologyOrderIenFromOrderId($mdwsDao, $orderId, $maxrecordschecked=500) {
         //$orderId = '34436;1';
-        $semiColonIdx = strpos($orderId, ';');
-        if ($semiColonIdx) {
-            $orderId = substr($orderId, 0, $semiColonIdx);
+        $orderCount = -1;
+        try
+        {
+            $semiColonIdx = strpos($orderId, ';');
+            if ($semiColonIdx) {
+                $orderId = substr($orderId, 0, $semiColonIdx);
+            }
+
+            $result = $mdwsDao->makeQuery('ddrLister', array(
+                'file'=>'75.1', 
+                'iens'=>'',   
+                'fields'=>'.01;7', 
+                'flags'=>'IPB',      
+                'maxrex'=>"$maxrecordschecked",   
+                'from'=>'',      
+                'part'=>'',        
+                'xref'=>'#',        
+                'screen'=>'',//'screen'=> 'I ($P(^(0),U,7)='.$orderId.')', 
+                'identifier'=>''
+            ));
+
+            if (!isset($result) || !isset($result->ddrListerResult)
+                    || isset($result->ddrListerResult->fault) 
+                    || !isset($result->ddrListerResult->text)) {
+                throw new \Exception('Error when attempting to locate radiology order IEN by Order file IEN: '.print_r($result));
+            }
+
+            $orderCount = count($result->ddrListerResult->text->string);
+            for ($i = $orderCount-1; $i >= 0; $i--) {
+                $resultPieces = explode('^', $result->ddrListerResult->text->string[$i]);
+                $radFileOrderIen = $resultPieces[2];    
+                if($radFileOrderIen == $orderId)
+                {
+                    return $resultPieces[0];
+                }
+            }
+        } catch (\Exception $ex) {
+            error_log("Caught exception in getRadiologyOrderIenFromOrderId($orderId) "
+                    . "with ordercount=$orderCount Error Message=".$ex->getMessage());
+            throw $ex;
         }
-                
-        $result = $mdwsDao->makeQuery("ddrLister", array(
-            'file'=>'75.1', 
-            'iens'=>'',   
-            'fields'=>'.01;7', 
-            'flags'=>'IPB',      
-            'maxrex'=>'1',   
-            'from'=>'',      
-            'part'=>'',        
-            'xref'=>'#',        
-            'screen'=> 'I ($P(^(0),U,7)='.$orderId.')', 
-            'identifier'=>''
-        ));
-        
-        if (!isset($result) || !isset($result->ddrListerResult)
-                || isset($result->ddrListerResult->fault) 
-                || !isset($result->ddrListerResult->text)) {
-            throw new \Exception('Error when attempting to locate radiology order IEN by Order file IEN: '.print_r($result));
-        }
-        
+
+        throw new \Exception("Verification of matching record in file 75.1 "
+                . "failed to find orderid=$orderId ($orderCount rows) "
+                . "in the bottom $maxrecordschecked records!"
+                . "\nResult Details>>> ".print_r($result,TRUE));
+        /* TO BE REMOVED
         $result = $result->ddrListerResult->text->string;
         // double check field 7 matches order IEN
         $resultPieces = explode('^', $result);
@@ -308,6 +334,8 @@ class MdwsNewOrderUtils {
         }
         
         return $resultPieces[0];
+         * 
+         */
     }
 
     public static function getRadiologyOrderChecks($mdwsDao, $args) {

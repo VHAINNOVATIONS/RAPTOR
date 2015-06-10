@@ -347,7 +347,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             $msg = 'Failed to create replacement of '.$nIEN
                     .' (orderFileIen='.$orderFileIen.') as user with '
                     . 'DUZ='.$myDuz
-                    .' because NO radiologyOrderId was returned!';
+                    .' because NO radiologyOrderId was returned! '
+                    . 'WARNING the new VISTA record MAY have been created BUT the RAPTOR details of the original ticket WILL NOT have been copied into the new ticket!!!';
             drupal_set_message($msg,'error');
             error_log($msg . "\nData Details..."
                     .print_r($myvalues,TRUE)
@@ -407,8 +408,9 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     , $nUID, $sNewWFS, $sCWFS, $updated_dt);
         } else {
             //Give some feedback to the user.
-            drupal_set_message("Cannot cancel ".$nSiteID . '-' . $nIEN 
-                    . " due to current VISTA status", "warn");
+            $msg = "RAPTOR created a new order BUT could not cancel existing order ".$nSiteID . '-' . $nIEN . " due to current VistA status of the existing order";
+            error_log($msg);
+            drupal_set_message($msg, 'warn');
         }
 
         //Write success message

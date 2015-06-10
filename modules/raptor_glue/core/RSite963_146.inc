@@ -11,9 +11,9 @@ defined('RAPTOR_CONFIG_ID')
 defined('VISTA_SITE')
     or define("VISTA_SITE", '963');	
 defined('VISTA_NOTEIEN_RAPTOR_GENERAL')
-    or define('VISTA_NOTEIEN_RAPTOR_GENERAL', '142');
+    or define('VISTA_NOTEIEN_RAPTOR_GENERAL', '4906');
 defined('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST')
-    or define('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST', '149');
+    or define('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST', '4907');
 
 //Other site specific values
 defined("RAPTOR_ROOT_URL")
