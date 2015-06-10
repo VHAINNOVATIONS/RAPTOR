@@ -68,6 +68,7 @@ class MatchOrderToUser
                 {
                     //Ready for review means something to this user.    20140811
                     $score += 5;
+                    $comment['review'] = 5;
                 }
             }
         } else if($aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'AP' || $aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'PA' ) {
@@ -83,12 +84,12 @@ class MatchOrderToUser
             if($aTicket[\raptor\WorklistData::WLIDX_URGENCY] == 'STAT')
             {
                 $score += 500;
-                $comment['urgency'] = 'STAT';
+                $comment['STAT'] = 500;
             } 
             else if($aTicket[\raptor\WorklistData::WLIDX_URGENCY] == 'URGENT') 
             {
                 $score += 250;
-                $comment['urgency'] = 'URGENT';
+                $comment['URGENT'] = 250;
             }    
 
             //Factor in the modality too
