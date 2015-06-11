@@ -15,6 +15,7 @@ namespace raptor;
 
 module_load_include('php', 'raptor_workflow', 'core/AllowedActions');
 module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
+module_load_include('php', 'raptor_formulas', 'core/Conversions');
 
 require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
 
@@ -795,8 +796,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             //drupal_set_message('LOOK GOT CHECLIST Q'.$record['question_shortname'].'>>>'.print_r($myvalues['questions'][$shortname],TRUE));
         }
         
-        //drupal_set_message('LOOK>>>'.print_r($myvalues,TRUE));
-        
         return $myvalues;
     }
 
@@ -1008,8 +1007,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $oAA = new \raptor\AllowedActions();    //Leverage workflow dependences from special class
         $clickedbutton = $form_state['clicked_button'];
         $clickedvalue = $clickedbutton['#value'];
- //drupal_set_message('111 LOOK myvalues at clicked=['.$form_state['clicked_button']['#value'].']');        
-        
+
         if(isset($myvalues['collaboration_uid']) && trim($myvalues['collaboration_uid']) > '')
         {
             if(!is_numeric($myvalues['collaboration_uid']))
@@ -1216,6 +1214,24 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $bGood = FALSE;
             }
 
+            //Check ALL the radiation dose inputs.
+            $alldosesources = RadiationDoseHelper::getDoseSourceLittlenameMap();
+            foreach($alldosesources as $value_type_cd=>$dose_littlename)
+            {
+                $dose_fieldname = "exam_{$dose_littlename}_radiation_dose_tx";
+                $radiation_dose_tx = isset($myvalues[$dose_fieldname]) ? trim($myvalues[$dose_fieldname]) : '';
+                if($radiation_dose_tx > '')
+                {
+                    $uom_fieldname = "exam_{$dose_littlename}_radiation_dose_uom_tx";
+                    $value_type_fieldname = "exam_{$dose_littlename}_radiation_dose_type_cd";
+                    $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
+                    $src_type_name = RadiationDoseHelper::getDefaultTermForDoseSource($value_type_cd);
+                    $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
+                            , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
+                }
+            }
+            /*
+            
             $dose_fieldname = 'exam_ctdivol_radiation_dose_tx';
             $uom_fieldname = 'exam_ctdivol_radiation_dose_uom_tx';
             $value_type_fieldname = 'exam_ctdivol_radiation_dose_type_cd';
@@ -1223,9 +1239,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             if($radiation_dose_tx > '')
             {
                 $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
-                $value_type_cd = isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
+                $value_type_cd = 'C'; //isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
                 $src_type_name = 'Device CTDIvol';
-                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom, $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
+                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
+                        , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
             }
             $dose_fieldname = 'exam_dlp_radiation_dose_tx';
             $uom_fieldname = 'exam_dlp_radiation_dose_uom_tx';
@@ -1234,9 +1251,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             if($radiation_dose_tx > '')
             {
                 $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
-                $value_type_cd = isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
+                $value_type_cd = 'D'; //isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
                 $src_type_name = 'Device DLP';
-                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom, $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
+                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
+                        , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
             }
             $dose_fieldname = 'exam_other_radiation_dose_tx';
             $uom_fieldname = 'exam_other_radiation_dose_uom_tx';
@@ -1245,9 +1263,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             if($radiation_dose_tx > '')
             {
                 $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
-                $value_type_cd = isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
+                $value_type_cd = 'E'; //isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
                 $src_type_name = 'Device Other';
-                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom, $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
+                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
+                        , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
             }
 
             
@@ -1258,10 +1277,13 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             if($radiation_dose_tx > '')
             {
                 $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
-                $value_type_cd = isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
+                $value_type_cd = 'R'; //isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
                 $src_type_name = 'radioisotope';
-                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom, $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
+                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
+                        , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
             }
+             * 
+             */
         } else
         if(substr($clickedvalue,0,14) == 'Interpretation')
         {
@@ -1465,45 +1487,77 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     function validateRadiationDoseInputs($bGood
             , $radiation_dose_tx
-            , $uom, $value_type_cd, $src_type_name
+            , $uom
+            , $value_type_cd
+            , $src_type_name
             , $dose_fieldname
             , $uom_fieldname
             , $value_type_fieldname)
     {
+        if($value_type_cd == '')
+        {
+            //Internal error that should not happen.
+            form_set_error($dose_fieldname,"No radiation type code been declared!");
+            $bGood = FALSE;
+        } else 
         if($radiation_dose_tx > '')
         {
             if($uom == '')
             {
-                    form_set_error($dose_fieldname,'Cannot leave '.$src_type_name.' radiation exposure unit of measure blank when dose values were provided');
-                    $bGood = FALSE;
+                form_set_error($dose_fieldname,'Cannot leave '.$src_type_name.' radiation exposure unit of measure blank when dose values were provided');
+                $bGood = FALSE;
             } elseif(strpos($uom,'?') !== FALSE) {
-                    form_set_error($uom_fieldname,'Cannot have question marks in '.$src_type_name.' radiation exposure unit of measure');
-                    $bGood = FALSE;
+                form_set_error($uom_fieldname,'Cannot have question marks in '.$src_type_name.' radiation exposure unit of measure');
+                $bGood = FALSE;
             } else {
-                    $dose_values = explode(',', $radiation_dose_tx);
-                    $sequence_num = 0;
-                    foreach($dose_values as $dose)
+                
+                $dose_values = explode(',', $radiation_dose_tx);
+                $sequence_num = 0;
+                foreach($dose_values as $dose)
+                {
+                    $sequence_num++;
+                    $cleandose = trim($dose);
+                    if($cleandose == '')
                     {
-                            $sequence_num++;
-                            $cleandose = trim($dose);
-                            if($cleandose == '')
-                            {
-                                    form_set_error($dose_fieldname,'Cannot have blank '.$src_type_name.' radiation dose values in a list (see position '.$sequence_num.')');
-                                    $bGood = FALSE;
-                                    break;
-                            }
-                            if(!is_numeric($cleandose))
-                            {
-                                    form_set_error($dose_fieldname,'Cannot have non-numeric '.$src_type_name.' radiation dose values in a list (see "'.$cleandose.'" at position '.$sequence_num.')');
-                                    $bGood = FALSE;
-                                    break;
-                            }
+                            form_set_error($dose_fieldname,'Cannot have blank '.$src_type_name.' radiation dose values in a list (see position '.$sequence_num.')');
+                            $bGood = FALSE;
+                            break;
                     }
-                    if($sequence_num > 0 && $value_type_cd == '')
+                    if(!is_numeric($cleandose))
                     {
-                        form_set_error($value_type_fieldname,'Must provide '.$src_type_name.' radiation dose value type');
+                            form_set_error($dose_fieldname,'Cannot have non-numeric '.$src_type_name.' radiation dose values in a list (see "'.$cleandose.'" at position '.$sequence_num.')');
+                            $bGood = FALSE;
+                            break;
+                    }
+                    $normal_uom = RadiationDoseHelper::getDefaultUOMForDoseSource($value_type_cd);
+                    if($normal_uom == '')
+                    {
+                        //Internal error that should not happen.
+                        form_set_error($dose_fieldname,"No default unit of measure exists for '$value_type_cd'!");
                         $bGood = FALSE;
+                        break;
                     }
+                    if($uom != $normal_uom)
+                    {
+                        try
+                        {
+                            $normalizeddose = \raptor_formulas\Conversions::convertAnything($uom,$normal_uom,$cleandose);
+                        } catch (\Exception $ex) {
+                            form_set_error($dose_fieldname,'Cannot normalize ' 
+                                    . $src_type_name.' radiation dose value ' 
+                                    . $cleandose 
+                                    . ' from "'.$uom.'" to "' 
+                                    . $normal_uom . '"');
+                            $bGood = FALSE;
+                            break;
+                        }
+                    }
+                }
+                if($sequence_num > 0 && $value_type_cd == '')
+                {
+                    form_set_error($value_type_fieldname,'Must provide '.$src_type_name.' radiation dose value type');
+                    $bGood = FALSE;
+                }
             }
         }
         return $bGood;
@@ -2500,15 +2554,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             {
                 $formfield_valuemap_name = 'exam_'.$littlename.'_radiation_dose_map';
                 $dose_details = $getvalues[$formfield_valuemap_name];
-                error_log("1 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code ($formfield_valuemap_name) >>>"
-                    . print_r($dose_details,TRUE));
                 if(is_array($dose_details))
                 {
                     $category_term=RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_code);
                     foreach($dose_details as $uom=>$values)
                     {
-                        error_log("2 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code uom=$uom >>>"
-                            . print_r($values,TRUE));
                         $this->addFormattedVistaNoteRow($noteTextArray
                                 , 'Exam Note '
                                     . $category_term
@@ -3164,7 +3214,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     function getForm($form, &$form_state, $disabled, $myvalues_override=NULL)
     {
-        //drupal_set_message('>>>> LOOK GETTING FORM AT '.microtime().'<br>values='.print_r($myvalues,TRUE));
         if(isset($form_state['values']) && is_array($form_state['values']))
         {
             $myvalues = $form_state['values'];

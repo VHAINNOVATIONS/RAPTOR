@@ -23,100 +23,120 @@ class Conversions
     private static $temperatureMap =
             array(
                 'F'=>array(
-                    'C' => '(\$inputvalue - 32) * 5/9',
+                    'C' => '($inputvalue - 32) * 5/9',
                 ),
                 'C'=>array(
-                    'F' => '(\$inputvalue * 9/5) + 32',
+                    'F' => '($inputvalue * 9/5) + 32',
                 ),
             );
 
     private static $lengthMap =
             array(
                 'ft'=>array(
-                    'cm' => '\$inputvalue * 30.48',
+                    'cm' => '$inputvalue * 30.48',
                 ),
                 'in'=>array(
-                    'cm' => '\$inputvalue * 2.54',
+                    'cm' => '$inputvalue * 2.54',
                 ),
                 'cm'=>array(
-                    'ft' => '\$inputvalue * 0.03281',
-                ),
-                'cm'=>array(
-                    'in' => '\$inputvalue * 0.393701',
+                    'ft' => '$inputvalue * 0.03281',
+                    'in' => '$inputvalue * 0.393701',
+                    'm' => '$inputvalue / 100',
+                    'mm' => '$inputvalue * 10',
                 ),
                 'm'=>array(
-                    'cm' => '\$inputvalue * 100',
-                ),
-                'm'=>array(
-                    'mm' => '\$inputvalue * 1000',
-                ),
-                'cm'=>array(
-                    'm' => '\$inputvalue / 100',
-                ),
-                'cm'=>array(
-                    'mm' => '\$inputvalue * 10',
+                    'cm' => '$inputvalue * 100',
+                    'mm' => '$inputvalue * 1000',
                 ),
                 'mm'=>array(
-                    'cm' => '\$inputvalue / 10',
-                ),
-                'mm'=>array(
-                    'm' => '\$inputvalue / 1000',
+                    'cm' => '$inputvalue / 10',
+                    'm' => '$inputvalue / 1000',
                 ),
             );
 
     private static $weightMap =
             array(
                 'lb'=>array(
-                    'kg' => '\$inputvalue * 0.453592',
+                    'kg' => '$inputvalue * 0.453592',
                 ),
                 'kg'=>array(
-                    'lb' => '\$inputvalue * 2.20462',
+                    'lb' => '$inputvalue * 2.20462',
                 ),
             );
 
     private static $timeMap =
             array(
                 's'=>array(
-                    'm' => '\$inputvalue * 0.0166667',
+                    'min' => '$inputvalue * 0.0166667',
+                    'sec' => '$inputvalue',
                 ),
                 'sec'=>array(
-                    'min' => '\$inputvalue * 0.0166667',
-                ),
-                'm'=>array(
-                    's' => '\$inputvalue * 60',
+                    'min' => '$inputvalue * 0.0166667',
+                    's' => '$inputvalue',
                 ),
                 'min'=>array(
-                    'sec' => '\$inputvalue * 60',
-                ),
-                'h'=>array(
-                    's' => '\$inputvalue * 3600',
+                    'sec' => '$inputvalue * 60',
                 ),
                 'hour'=>array(
-                    'sec' => '\$inputvalue * 3600',
-                ),
-                'h'=>array(
-                    'm' => '\$inputvalue * 60',
-                ),
-                'hour'=>array(
-                    'min' => '\$inputvalue * 60',
+                    'min' => '$inputvalue * 60',
+                    's' => '$inputvalue * 3600',
+                    'sec' => '$inputvalue * 3600',
                 ),
             );
     
     private static $radiationMap =
             array(
                 'mGy*mm'=>array(
-                    'mGy*cm' => '\$inputvalue TODO',
+                    'mGy*cm' => '$inputvalue TODO',
+                ),
+                'uCi'=>array(
+                    'mCi' => '$inputvalue / 1000',
+                    'Ci' => '$inputvalue / 1000000',
+                    'GBq' => '$inputvalue * 37000000',
+                ),
+                'mCi'=>array(
+                    'uCi' => '$inputvalue * 1000',
+                    'Ci' => '$inputvalue / 1000',
+                    'GBq' => '$inputvalue * 37000',
+                ),
+                'Ci'=>array(
+                    'uCi' => '$inputvalue * 1000000',
+                    'mCi' => '$inputvalue * 1000',
+                    'GBq' => '$inputvalue * 37',
                 ),
             );
 
+    private static $freqMap =
+            array(
+                'Hz'=>array(
+                    'KHz' => '$inputvalue / 1000',
+                    'MHz' => '$inputvalue / 1000000',
+                ),
+                'KHz'=>array(
+                    'Hz' => '$inputvalue * 1000',
+                    'MHz' => '$inputvalue / 1000',
+                ),
+                'MHz'=>array(
+                    'Hz' => '$inputvalue * 1000000',
+                    'KHz' => '$inputvalue / 1000',
+                ),
+            );
+    
     private static function convertFromTo($map,$from,$to,$inputvalue)
     {
         try
         {
+            if(!isset($map[$from]))
+            {
+                throw new \Exception("unsupported conversion from \"$from\"");
+            }
+            if(!isset($map[$to]))
+            {
+                throw new \Exception("unsupported conversion to \"$to\"");
+            }
             $section = $map[$from];
-            $formula = $section[$to];
-            $answer = NULL;
-            eval("\$answer = \"$formula\";");
+            $formula = "return {$section[$to]};";
+            $answer = eval($formula);
             return $answer;
         } catch (\Exception $ex) {
             throw new \Exception("Cannot convert \"$from\" units to \"$to\" units because ".$ex->getMessage());
@@ -131,8 +151,54 @@ class Conversions
             'weight'=>self::$weightMap,
             'radiation'=>self::$radiationMap,
             'time'=>self::$timeMap,
+            'frequency'=>self::$freqMap,
         );
         return $map;
+    }
+
+    private static function getMapWithTo($to)
+    {
+        $allmaps = self::getAllSupportedConversions();
+        foreach($allmaps as $onemap)
+        {
+            foreach($onemap as $from=>$submap)
+            {
+                if(isset($submap[$to]))
+                {
+                    //Found the parent map!
+                    return $onemap;
+                }
+            }
+        }
+        throw new \Exception("Conversion to units of '$to' is NOT supported");
+    }
+    
+    public static function getMapWithFrom($from)
+    {
+        $allmaps = self::getAllSupportedConversions();
+        foreach($allmaps as $onemap)
+        {
+            if(isset($onemap[$from]))
+            {
+                //Found the map!
+                return $onemap;
+            }
+        }
+        throw new \Exception("Conversion from units of '$from' is NOT supported");
+    }
+    
+    /**
+     * Use the 'FROM' units to figure out the context.
+     */
+    public static function convertAnything($from,$to,$inputvalue)
+    {
+        try
+        {
+            $map = self::getMapWithFrom($from);
+            return self::convertFromTo($map, $from, $to, $inputvalue);
+        } catch (\Exception $ex) {
+            throw new \Exception('ERROR CONVERSION FAILED '.$ex->getMessage());
+        }
     }
     
     public static function convertTemparature($from,$to,$inputvalue)
@@ -182,6 +248,16 @@ class Conversions
             return self::convertFromTo(self::$timeMap, $from, $to, $inputvalue);
         } catch (\Exception $ex) {
             throw new \Exception('ERROR TIME CONVERSION FAILED '.$ex->getMessage());
+        }
+    }
+    
+    public static function convertFrequency($from,$to,$inputvalue)
+    {
+        try
+        {
+            return self::convertFromTo(self::$freqMap, $from, $to, $inputvalue);
+        } catch (\Exception $ex) {
+            throw new \Exception('ERROR FREQUENCY CONVERSION FAILED '.$ex->getMessage());
         }
     }
 }

@@ -32,14 +32,14 @@ class RadiationDoseHelper
         );
 
     private static $dose_source_cd_uom_map = array(
-          'R'=>'mGy'
-        , 'E'=>'mCi'
-        , 'C'=>'mGy'
-        , 'D'=>'mGycm'
-        , 'Q'=>'mGy/min'
-        , 'S'=>'mGy*cm^2'
-        , 'T'=>'min'
-        , 'H'=>'Hz'
+          'R'=>UOM_NORMALIZED_RADIOISOTOPE_RADIATION
+        , 'E'=>UOM_NORMALIZED_EQUIPOTHER_RADIATION
+        , 'C'=>UOM_NORMALIZED_CTDIVOL_RADIATION
+        , 'D'=>UOM_NORMALIZED_DLP_RADIATION
+        , 'Q'=>UOM_NORMALIZED_FLUORO_AIRKERMA
+        , 'S'=>UOM_NORMALIZED_FLUORO_DAP
+        , 'T'=>UOM_NORMALIZED_TIME_RADIATION
+        , 'H'=>UOM_NORMALIZED_FREQ_RADIATION
         );
 
     private static $dose_source_cd_littlename_map = array(

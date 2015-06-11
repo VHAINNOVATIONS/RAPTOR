@@ -11,24 +11,20 @@ global $base_url;
 
 $protocol_input = render($page['content']);
 
-//$medications_detail = $raptor_protocol_content["Reference"]["MedicationsDetail"];
-//$allergies_detail = $raptor_protocol_content["Reference"]["AllergiesDetail"];
-$pathology_reports_detail = $raptor_protocol_content["Reference"]["PathologyReportsDetail"];
-$surgery_reports_detail = $raptor_protocol_content["Reference"]["SurgeryReportsDetail"];
-$problems_list_detail = $raptor_protocol_content["Reference"]["ProblemsListDetail"];
-//deprecated 20150524 $notes_detail = $raptor_protocol_content["Reference"]["NotesDetail"];
-//$radiology_reports_detail = $raptor_protocol_content["Reference"]["RadiologyReportsDetail"][0];
-$order_overview = $raptor_protocol_content["Reference"]["OrderOverview"];
-$aMedBundle = $raptor_protocol_content["Reference"]["MedicationsBundle"];
+$pathology_reports_detail = $raptor_protocol_content['Reference']['PathologyReportsDetail'];
+$surgery_reports_detail = $raptor_protocol_content['Reference']['SurgeryReportsDetail'];
+$problems_list_detail = $raptor_protocol_content['Reference']['ProblemsListDetail'];
+$order_overview = $raptor_protocol_content['Reference']['OrderOverview'];
+$aMedBundle = $raptor_protocol_content['Reference']['MedicationsBundle'];
 $medications_detail = $aMedBundle['details'];
 $medications_atrisk_hits = $aMedBundle['atrisk_hits'];
-$vitals_summary = $raptor_protocol_content["Reference"]["VitalsSummary"];
-$vitals_detail = $raptor_protocol_content["Reference"]["VitalsDetail"];
-$allergies_detail = $raptor_protocol_content["Reference"]["AllergiesDetail"];
-$diagnostic_labs_detail = $raptor_protocol_content["Reference"]["DiagnosticLabsDetail"];
-$radiology_reports_detail = $raptor_protocol_content["Reference"]["RadiologyReportsDetail"];
+$vitals_summary = $raptor_protocol_content['Reference']['VitalsSummary'];
+$vitals_detail = $raptor_protocol_content['Reference']['VitalsDetail'];
+$allergies_detail = $raptor_protocol_content['Reference']['AllergiesDetail'];
+$diagnostic_labs_detail = $raptor_protocol_content['Reference']['DiagnosticLabsDetail'];
+$radiology_reports_detail = $raptor_protocol_content['Reference']['RadiologyReportsDetail'];
 $aAtRiskMeds = $raptor_protocol_content['AtRiskMeds'];
-$modality = $raptor_protocoldashboard["Modality"];
+$modality = $raptor_protocoldashboard['Modality'];
 
 function raptor_print_details($data) 
 {

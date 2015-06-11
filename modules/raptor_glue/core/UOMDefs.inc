@@ -1,0 +1,34 @@
+<?php
+
+defined("UOM_VERSION_INFO")
+    or define("UOM_VERSION_INFO", '20150611.1');
+
+/*
+ * These are Unit of Measure settings
+ */
+
+defined('UOM_NORMALIZED_TIME_RADIATION')
+    or define('UOM_NORMALIZED_TIME_RADIATION', 'min');
+
+defined('UOM_NORMALIZED_FREQ_RADIATION')
+    or define('UOM_NORMALIZED_FREQ_RADIATION', 'Hz');
+
+defined('UOM_NORMALIZED_FLUORO_DAP')
+    or define('UOM_NORMALIZED_FLUORO_DAP', 'mGy*cm^2');
+
+defined('UOM_NORMALIZED_FLUORO_AIRKERMA')
+    or define('UOM_NORMALIZED_FLUORO_AIRKERMA', 'mGy/min');
+
+defined('UOM_NORMALIZED_DLP_RADIATION')
+    or define('UOM_NORMALIZED_DLP_RADIATION', 'mGycm');
+
+defined('UOM_NORMALIZED_CTDIVOL_RADIATION')
+    or define('UOM_NORMALIZED_CTDIVOL_RADIATION', 'mGy');
+
+defined('UOM_NORMALIZED_EQUIPOTHER_RADIATION')
+    or define('UOM_NORMALIZED_EQUIPOTHER_RADIATION', 'mCi');
+
+defined('UOM_NORMALIZED_RADIOISOTOPE_RADIATION')
+    or define('UOM_NORMALIZED_RADIOISOTOPE_RADIATION', 'mGy');
+
+

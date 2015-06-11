@@ -24,6 +24,7 @@ module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
 module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
 module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
 module_load_include('php', 'raptor_workflow', 'core/AllowedActions');
+module_load_include('php', 'raptor_formulas', 'core/Conversions');
 
 require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol_ajax.inc');
 require_once 'FormHelper.php';
@@ -390,7 +391,6 @@ class ProtocolInfoUtility
                     $modality_filter[] = $modality_abbr;
                 }
                 $template_json = json_encode($templatevalues);
-        //die("LOOK NOW TV=".print_r($metainfo,TRUE));
             } else {
                 $template_json = '';    //Nothing needed.
             }
@@ -401,8 +401,6 @@ class ProtocolInfoUtility
               . "\n</div>";
         $form['hiddenptotocolstuff'] = array('#markup' 
             => $hiddendatahtml);
-        
-        //die("LOOK NOW=".print_r($templatevalues,TRUE));
         
         //Main protocol selection
         $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
@@ -743,8 +741,6 @@ class ProtocolInfoUtility
         $trigger_comment_on_notsure_yn = $aOneQuestion['trigger_comment_on_notsure_yn'];
         $trigger_comment_on_notapplicable_yn = $aOneQuestion['trigger_comment_on_notapplicable_yn'];
         
-        //drupal_set_message('LOOK>>>'.$number.') '.$question_tx);
-
         //Look for values associated with currently logged in user.
         $aQuestion = isset($myvalues['questions']['thisuser'][$shortname]) ? $myvalues['questions']['thisuser'][$shortname] : NULL;
         if(!is_array($aQuestion))
@@ -945,8 +941,6 @@ class ProtocolInfoUtility
         );
         $root[] = array('#markup' => '<div class="safety-checklist">');
         
-        //die('LOOK all answers>>>'.print_r($myvalues['questions'],TRUE));      
-
         //Grab all the relevant questions.
         $aQuestionRef = $this->getAllQuestions($sChecklistType,$modality_abbr,$protocol_shortname);
         //First grab all the checklist questions already answered by other users.
@@ -2726,9 +2720,11 @@ class ProtocolInfoUtility
                 $littlename = 'ctdivol';
                 $dose_source_cd = 'C';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
-                        , 'exam_ct_dose_fieldset'
+                        , $dose_source_cd
+                        ,'exam_ct_dose_fieldset'
                         , 'Machine-Produced Radiation Dose CT'
-                        , 'CTDIvol', 'CTDIvol'
+                        , 'CTDIvol'
+                        , 'CTDIvol'
                         , RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd) 
                         , 'exam_'.$littlename.'_radiation_dose_map'
                         , 'exam_'.$littlename.'_radiation_dose_tx'
@@ -2737,6 +2733,7 @@ class ProtocolInfoUtility
                 $littlename = 'dlp';
                 $dose_source_cd = 'D';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
+                        , $dose_source_cd
                         , 'exam_ct_dose_fieldset'
                         , 'Machine-Produced Radiation Dose CT'
                         , 'DLP', 'DLP'
@@ -2749,6 +2746,7 @@ class ProtocolInfoUtility
                 $littlename = 'fluoroQ';
                 $dose_source_cd = 'Q';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
+                        , $dose_source_cd
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy'
                         , 'Air Kerma', 'Air Kerma'
@@ -2760,6 +2758,7 @@ class ProtocolInfoUtility
                 $littlename = 'fluoroS';
                 $dose_source_cd = 'S';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
+                        , $dose_source_cd
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy'
                         , 'DAP', 'DAP'
@@ -2771,6 +2770,7 @@ class ProtocolInfoUtility
                 $littlename = 'fluoroT';
                 $dose_source_cd = 'T';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
+                        , $dose_source_cd
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy Time'
                         , 'Fluoroscopy Time', 'Fluoroscopy Time'
@@ -2782,6 +2782,7 @@ class ProtocolInfoUtility
                 $littlename = 'fluoroH';
                 $dose_source_cd = 'H';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
+                        , $dose_source_cd
                         , 'exam_fluoro_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Fluoroscopy Frame Rate'
                         , 'Fluoroscopy Frame Rate', 'Fluoroscopy Frame Rate'
@@ -2795,6 +2796,7 @@ class ProtocolInfoUtility
                 //Other kind of device
                 $dose_source_cd = 'E';
                 $this->addFormDeviceRadiationDoseGroup($root, $myvalues, $disabled
+                        , $dose_source_cd
                         , 'exam_other_dose_fieldset'
                         , 'Machine-Produced Radiation Dose Other'
                         , 'Other', 'other'
@@ -2843,6 +2845,7 @@ class ProtocolInfoUtility
               &$root
             , $myvalues
             , $disabled
+            , $dose_source_cd
             , $sFieldsetKeyName
             , $sectiontitle
             , $itemprefix_distinction
@@ -2873,7 +2876,7 @@ class ProtocolInfoUtility
             $default_dose_value = isset($myvalues[$dose_valuesname]) ? $myvalues[$dose_valuesname] : '';
             $default_dose_uom = isset($myvalues[$uom_valuename]) ? $myvalues[$uom_valuename] : '';
             $default_dose_value_type_cd 
-                    = isset($myvalues[$typecd_valuename]) ? $myvalues[$typecd_valuename] : '';
+                    = isset($myvalues[$typecd_valuename]) ? $myvalues[$typecd_valuename] : $dose_source_cd;
         } else {
             //Derive a default from the dose map.
             $default_dose_value = NULL;
@@ -3512,13 +3515,11 @@ class ProtocolInfoUtility
                 $radiation_dose_tx = isset($myvalues['exam_'.$littlename.'_radiation_dose_tx']) ? trim($myvalues['exam_'.$littlename.'_radiation_dose_tx']) : '';
                 $uom = isset($myvalues['exam_'.$littlename.'_radiation_dose_uom_tx']) ? trim($myvalues['exam_'.$littlename.'_radiation_dose_uom_tx']) : '';
                 $dose_type_cd = isset($myvalues['exam_'.$littlename.'_radiation_dose_type_cd']) ? trim($myvalues['exam_'.$littlename.'_radiation_dose_type_cd']) : '';
-                error_log("save 1 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code ($radiation_dose_tx)");
                 if($radiation_dose_tx != '')
                 {
                     $nPatientID = $patientDFN;
                     $data_provider = 'tech during exam';
                     $dose_dt = $updated_dt;
-                    error_log("save 2 of 2 DEBUG LOOK DOSE INFO FOR source code=$dose_source_code ($radiation_dose_tx) write!");
                     $this->writeRadiationDoseDetails($nSiteID, $nIEN, $nPatientID, $nUID
                             , $radiation_dose_tx
                             , $uom
@@ -3815,7 +3816,6 @@ class ProtocolInfoUtility
             , $updated_dt
             , $write_to_sofar=FALSE)
     {
-        error_log("a DEBUG LOOK writeRadiationDoseDetails 1 ($write_to_sofar)>>> $nSiteID-$nIEN :: $nPatientID, $nUID >> sourcecode=$dose_source_cd dose values=$radiation_dose_tx");
         if($write_to_sofar)
         {
             //We are only saving values so far.
@@ -3867,15 +3867,37 @@ class ProtocolInfoUtility
             }
             $targettablename = 'raptor_ticket_exam_radiation_dose';
         }
-        error_log("a DEBUG LOOK writeRadiationDoseDetails 2 table=$targettablename ($write_to_sofar)>>> $nSiteID-$nIEN :: $nPatientID, $nUID >> sourcecode=$dose_source_cd dose values=$radiation_dose_tx");
         
         //Do we have anything to write?
         if($radiation_dose_tx != '')
         {
+            $normal_uom = RadiationDoseHelper::getDefaultUOMForDoseSource($dose_source_cd);
             $dose_values = explode(',', $radiation_dose_tx);
             $sequence_num = 0;
             foreach($dose_values as $dose)
             {
+                $cleandose = trim($dose);
+                //Is the value already normalized?  (20150611)
+                if($uom == $normal_uom)
+                {
+                    //Already normalized
+                    $normalizeddose = $cleandose;
+                } else {
+                    //Normalize the submitted value.
+                    try
+                    {
+                        $normalizeddose = \raptor_formulas\Conversions::convertAnything($uom,$normal_uom,$cleandose);
+                    } catch (\Exception $ex) {
+                        $msg = 'Cannot normalize value=' . $dose . ' of ' 
+                                . $src_type_name.' radiation dose value ' 
+                                . $cleandose 
+                                . ' from "'.$uom.'" to "' 
+                                . $normal_uom . '"';
+                        error_log($msg. ' because ' . $ex->getMessage());
+                        throw new \Exception($msg,99123,$ex);
+                    }
+                }
+                
                 $sequence_num++;
                 try
                 {
@@ -3886,8 +3908,8 @@ class ProtocolInfoUtility
                                     'patientid' => $nPatientID,
 
                                     'sequence_position' => $sequence_num,
-                                    'dose' => $dose,
-                                    'uom' => $uom,
+                                    'dose' => $normalizeddose,
+                                    'uom' => $normal_uom,
 
                                     'dose_dt' => $dose_dt,
                                     'dose_type_cd' => $dose_type_cd,
@@ -3906,7 +3928,6 @@ class ProtocolInfoUtility
                         throw $ex;
                 }
             }
-            error_log("a DEBUG LOOK writeRadiationDoseDetails 3 table=$targettablename inserted $sequence_num ($write_to_sofar)>>> $nSiteID-$nIEN :: $nPatientID, $nUID >> sourcecode=$dose_source_cd dose values=$radiation_dose_tx");
         }
     }
 
