@@ -271,6 +271,10 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
                                         $rscomment .= "+{$value} $key";
                                     }
                                 }
+                                if($rscomment > '')
+                                {
+                                    $rscomment = " b/c $rscomment";
+                                }
 
                                 $rsurl = getRankScoreIcon($score);
                                 // Change row background color if it is assigned to the current user
@@ -279,7 +283,7 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
                             <tr data-rawrtid="<?php echo('['.$data_row[0].']') ?>" style="<?php echo($rowStyle); ?>">
                                 <td><input type="checkbox" name="tracking-id" value="<?php echo($data_row[0]) ?>"></td>
                                 <td class="rtid_column" title='ranking score = <?php echo($score) ?>'><?php echo($data_row[0]) ?></td>
-                                <td class="rankscore_column" title='ranking score = <?php echo("$score b/c $rscomment")  ?>' data='' >
+                                <td class="rankscore_column" title='ranking score = <?php echo("$score$rscomment")  ?>' data='' >
                                     <img src="<?php echo($rsurl) ?>">
                                     <p style='opacity:0;height: 0;'><?php echo($score) ?></p>
                                 </td>
