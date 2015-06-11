@@ -141,7 +141,7 @@ class Conversions
         {
             return self::convertFromTo(self::$temperatureMap, $from, $to, $inputvalue);
         } catch (\Exception $ex) {
-            throw new \Exception("ERROR TEMPERATURE CONVERSION FAILED ".$ex->getMessage());
+            throw new \Exception('ERROR TEMPERATURE CONVERSION FAILED '.$ex->getMessage());
         }
     }
 
@@ -151,7 +151,7 @@ class Conversions
         {
             return self::convertFromTo(self::$lengthMap, $from, $to, $inputvalue);
         } catch (\Exception $ex) {
-            throw new \Exception("ERROR LENGTH CONVERSION FAILED ".$ex->getMessage());
+            throw new \Exception('ERROR LENGTH CONVERSION FAILED '.$ex->getMessage());
         }
     }
 
@@ -161,7 +161,7 @@ class Conversions
         {
             return self::convertFromTo(self::$weightMap, $from, $to, $inputvalue);
         } catch (\Exception $ex) {
-            throw new \Exception("ERROR WEIGHT CONVERSION FAILED ".$ex->getMessage());
+            throw new \Exception('ERROR WEIGHT CONVERSION FAILED '.$ex->getMessage());
         }
     }
 
@@ -171,7 +171,7 @@ class Conversions
         {
             return self::convertFromTo(self::$radiationMap, $from, $to, $inputvalue);
         } catch (\Exception $ex) {
-            throw new \Exception("ERROR RADIATION CONVERSION FAILED ".$ex->getMessage());
+            throw new \Exception('ERROR RADIATION CONVERSION FAILED '.$ex->getMessage());
         }
     }
     
@@ -181,7 +181,7 @@ class Conversions
         {
             return self::convertFromTo(self::$timeMap, $from, $to, $inputvalue);
         } catch (\Exception $ex) {
-            throw new \Exception("ERROR TIME CONVERSION FAILED ".$ex->getMessage());
+            throw new \Exception('ERROR TIME CONVERSION FAILED '.$ex->getMessage());
         }
     }
 }

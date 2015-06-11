@@ -128,7 +128,7 @@ class ProtocolSupportingData
     function getMedicationsDetail($atriskmeds=NULL)
     {
         //$serviceResponse = $this->m_oContext->getEMRService()->getAllMeds();
-        $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getAllMeds", NULL);
+        $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery('getAllMeds', NULL);
         
         $displayMeds = array();
         $atriskhits = array();
@@ -189,12 +189,17 @@ class ProtocolSupportingData
                     {
                         $medname = trim($med->name);
                         $tempMeds['Med'] = $medname;
-                        $tempMeds['Status'] = isset($med->status) ? $med->status : " ";
+                        $status = isset($med->status) ? $med->status : " ";
+                        $tempMeds['Status'] = $status;
+                        $cleanstatus = strtoupper(trim($status));
                         if($checkatrisk)
                         {
                             $atriskmatchtext = self::findSubstringMatchInArray($medname, $atriskmeds);
                             $atrisk = $atriskmatchtext !== FALSE;
                             $tempMeds['AtRisk'] = ($atrisk ? 'YES' : 'no');
+                            $tempMeds['warn'] = ($atrisk && ($cleanstatus == '' 
+                                    || $cleanstatus == 'ACTIVE' 
+                                    || $cleanstatus == 'PENDING')); 
                             if($atrisk)
                             {
                                 $atriskhits[$atriskmatchtext] = $atriskmatchtext;   //Set the key and value the same!
@@ -204,16 +209,24 @@ class ProtocolSupportingData
                             }
                         } else {
                             $tempMeds['AtRisk'] = '';
+                            $tempMeds['warn'] = FALSE;
                             $displayMeds[] = $tempMeds;
                         }
                     }
                 }
             }
         }
+        $bottom = array();
         foreach($displayMedsLast as $medsinfo)
         {
-            $displayMeds[] = $medsinfo;
+            if($medsinfo['warn'])
+            {
+                $displayMeds[] = $medsinfo;
+            } else {
+                $bottom[] = $medsinfo;
+            }
         }
+        $displayMeds = array_merge($displayMeds, $bottom);
         $bundle = array('details' => $displayMeds, 'atrisk_hits'=>$atriskhits);
         return $bundle;
     }

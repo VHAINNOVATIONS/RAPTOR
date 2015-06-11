@@ -227,7 +227,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                           <?php $rownum++;if($rownum > 5){$hasmore=true;break;} ?>
                           <tr>
                             <td><?php echo $data_row["Med"] ?></td>
-                            <td><?php echo $data_row["AtRisk"] ?></td>
+                            <td><span <?php echo ($data_row['warn'] ? 'class="generic-warning-area"' : ""); ?> > <?php echo $data_row["AtRisk"] ?></span></td>
                             <td><?php echo $data_row["Status"] ?></td>
                           </tr>
                           <?php } ?>
@@ -394,16 +394,19 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                       <thead>
                         <tr>
                           <th>Medication</th>
-                          <th>At Risk</th>
+                          <th>At Risk ?</th>
                           <th>Status</th>
                         </tr>
                       </thead>
                       <tbody>
                         <?php foreach($medications_detail as $data_row) { ?>
                         <tr>
-                          <td><?php echo $data_row["Med"] ?></td>
-                          <td><?php echo $data_row["AtRisk"] ?></td>
-                          <td><?php echo $data_row["Status"] ?></td>
+                          <td><?php echo $data_row['Med'] ?></td>
+                          <td><span <?php echo ($data_row['warn'] ? 'class="generic-warning-area"' : ""); ?> >
+                              <?php echo $data_row["AtRisk"] ?>
+                              </span>
+                          </td>
+                          <td><?php echo $data_row['Status'] ?></td>
                         </tr>
                         <?php } ?>
                       </tbody>

@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_BUILD_ID')
-    or define('RAPTOR_BUILD_ID', 'Test Candidate 20150610.2');
+    or define('RAPTOR_BUILD_ID', 'Test Candidate 20150611.1');
 
 /*
  * We require one of the following instance specific includes.
