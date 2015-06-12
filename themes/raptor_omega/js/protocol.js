@@ -285,7 +285,7 @@
         $('#raptor-protocol-replace-order-button')
                 .on('click', function (e) {
                     var $dialog,
-                            spinnerHTML = '<div style="text-align: center;"><img src="sites/all/themes/raptor_omega/images/worklist-loader.gif"><br>Loading Information&hellip;</div>';
+                            spinnerHTML = '<div style="text-align: center;"><img src="sites/all/themes/raptor_omega/images/worklist-loader.gif"><br>Loading order details from VistA&hellip;</div>';
 
                     e.preventDefault();
 

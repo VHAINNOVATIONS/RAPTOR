@@ -103,7 +103,7 @@
                 if ( ['edit', 'view'].indexOf(clickMode) !== -1 ) {
                     // make the page load asynchronous
                     protocolURL = Drupal.pageData.baseURL + '/protocol?rawrtid=' + myrawrtid + (clickMode === 'view' ? '&mode=VIEW' : '');
-                    Drupal.behaviors.raptorShowSpinner('Gathering protocol data');
+                    Drupal.behaviors.raptorShowSpinner('Gathering protocol data from VistA');
                     $.get(protocolURL, function (response) {
                         window.location.href = protocolURL; 
                     });
