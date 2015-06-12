@@ -122,15 +122,36 @@ class ViewReportConversionFormulas extends AReport
                 }
                 foreach($tomap as $to=>$formula)
                 {
+                    $is_also_a_from = (isset($catmap[$to]));
                     $toisdefault = array_key_exists($to,$defaultsincat);
                     if($toisdefault)
                     {
                         $title = $defaultsincat[$to];
                         $tomarkup = "<strong><span title='This is the declared $title unit of measure'>$to</span></strong>";
                         $preferred = "<strong title='Converts into $title'>Yes<strong>";
+                        if($is_also_a_from)
+                        {
+                            $tomarkup = "<strong>"
+                                    . "<span title='This is the declared $title unit of measure'>$to</span>"
+                                    . "</strong>";
+                            $preferred = "<strong title='Converts into $title'>Yes<strong>";
+                        } else {
+                            $tomarkup = "<strong><i>"
+                                    . "<span title='This is the declared $title unit of measure (There is NO conversion formula from this unit of measure)'>"
+                                    . "$to"
+                                    . "</span>"
+                                    . "</i></strong>";
+                            $preferred = "<strong title='Converts into $title'>Yes<strong>";
+                        }
                     } else {
-                        $tomarkup = $to;
-                        $preferred = 'no';
+                        if($is_also_a_from)
+                        {
+                            $tomarkup = $to;
+                            $preferred = 'no';
+                        } else {
+                            $tomarkup = "<i title='There is NO conversion formula from this unit of measure'>$to</i>";
+                            $preferred = 'no';
+                        }
                     }
                     try
                     {
