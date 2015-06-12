@@ -93,7 +93,7 @@ class GetNotesTab
         }
         
         $form["data_entry_area1"]['table_container']['reports'] = array('#type' => 'item',
-                 '#markup' => '<table id="selected-notes" class="dataTable">'
+                 '#markup' => '<table id="selected-notes" class="dataTable notes-tab-table">'
                             . '<thead>'
                             . '<tr>'
                             . '<th>Title</th>'
