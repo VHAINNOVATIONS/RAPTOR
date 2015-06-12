@@ -130,6 +130,30 @@ class Conversions
                     'mCi' => '$inputvalue * 1000',
                     'GBq' => '$inputvalue * 37',
                 ),
+                'uGy*cm^2'=>array(
+                    'mGy*cm^2' => '$inputvalue * 1000',
+                    'Gy*cm^2' => '$inputvalue * 1000000',
+                ),
+                'mGy*cm^2'=>array(
+                    'uGy*cm^2' => '$inputvalue / 1000',
+                    'Gy*cm^2' => '$inputvalue * 1000',
+                ),
+                'Gy*cm^2'=>array(
+                    'uGy*cm^2' => '$inputvalue / 1000000',
+                    'mGy*cm^2' => '$inputvalue / 1000',
+                ),
+                'uGycm'=>array(
+                    'mGycm' => '$inputvalue / 1000',
+                    'Gycm' => '$inputvalue / 1000000',
+                ),
+                'mGycm'=>array(
+                    'uGycm' => '$inputvalue * 1000',
+                    'Gycm' => '$inputvalue / 1000',
+                ),
+                'Gycm'=>array(
+                    'uGycm' => '$inputvalue * 1000000',
+                    'mGycm' => '$inputvalue * 1000',
+                ),
             );
 
     private static $freqMap =
