@@ -151,16 +151,18 @@ class Conversions
             {
                 throw new \Exception("unsupported conversion from \"$from\"");
             }
-            if(!isset($map[$to]))
+            $section = $map[$from];
+            if(!isset($section[$to]))
             {
                 throw new \Exception("unsupported conversion to \"$to\"");
             }
-            $section = $map[$from];
             $formula = "return {$section[$to]};";
             $answer = eval($formula);
             return $answer;
         } catch (\Exception $ex) {
-            throw new \Exception("Cannot convert \"$from\" units to \"$to\" units because ".$ex->getMessage());
+            throw new \Exception("Cannot convert \"$from\" units to \"$to\" units because " 
+                    . $ex->getMessage() 
+                    . "\nmap=".print_r($map,TRUE));
         }
     }
     

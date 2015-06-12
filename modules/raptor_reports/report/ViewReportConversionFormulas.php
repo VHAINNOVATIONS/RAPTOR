@@ -67,8 +67,13 @@ class ViewReportConversionFormulas extends AReport
             '#tree' => TRUE,
         );
 
-        $intro[] = 'These are the conversion formulas used by RAPTOR to convert values from one unit of measure into another unit of measure.  The formulas that convert into "preferred" units of measure are identified as our "Normalizing" formulas in this report.';
-        $intro[] = 'The preferred unit of measure for each category is configurable by each site using configuration constants.  The constants are shown in the hover text over the prefferred units in the report.';
+        $intro[] = 'These are the conversion formulas used by RAPTOR to convert values'
+                . ' from one unit of measure into another unit of measure.'
+                . '  The formulas that convert into "preferred" units of measure '
+                . 'are identified as our "Normalizing" formulas in this report.';
+        $intro[] = 'The preferred unit of measure for each category is configurable'
+                . ' by each site using configuration constants.'
+                . '  The constants are shown in the hover text over the prefferred units in the report.';
         $form['data_entry_area1']['intro']['main'] = array('#type' => 'item',
                  '#markup' => '<p>'.implode('</p><p>', $intro).'</p>'
             );
@@ -127,6 +132,12 @@ class ViewReportConversionFormulas extends AReport
                         $tomarkup = $to;
                         $preferred = 'no';
                     }
+                    try
+                    {
+                        $exampleoutput = \raptor_formulas\Conversions::convertAnything($from, $to, 1);
+                    } catch (\Exception $ex) {
+                        $exampleoutput = $ex->getMessage();
+                    }
                     $rows   .= "\n".'<tr>'
                             . "<td>$category</td>"
                             . "<td>"
@@ -135,6 +146,7 @@ class ViewReportConversionFormulas extends AReport
                             . "<td>$frommarkup</td>"
                             . "<td>$tomarkup</td>"
                             . "<td>$formula</td>"
+                            . "<td>$exampleoutput</td>"
                             .'</tr>';
                 }
             }
@@ -148,6 +160,7 @@ class ViewReportConversionFormulas extends AReport
                             . '<th title="Units the formula converts from">From Units</th>'
                             . '<th title="Units the formula converts into">To Units</th>'
                             . '<th title="The formula that converts from one unit of measure into another">Formula</th>'
+                            . '<th title="Example with input value 1">Example Unit Conversion</th>'
                             . '</tr>'
                             . '</thead>'
                             . '<tbody>'
