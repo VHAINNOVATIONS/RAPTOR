@@ -110,6 +110,11 @@ class Conversions
                     'mGy*mm' => '$inputvalue * 1000',
                     'mGy*cm' => '$inputvalue * 100',
                 ),
+                'GBq'=>array(
+                    'uCi' => '$inputvalue / 37000000',
+                    'mCi' => '$inputvalue / 37000',
+                    'Ci' => '$inputvalue / 37',
+                ),
                 'uCi'=>array(
                     'mCi' => '$inputvalue / 1000',
                     'Ci' => '$inputvalue / 1000000',
