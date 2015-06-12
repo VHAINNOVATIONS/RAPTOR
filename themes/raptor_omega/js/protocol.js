@@ -572,16 +572,44 @@
             Drupal.behaviors.loadContent(element);
         });
 
-        // Default sort for Notes table
-        $('#selected-notes')
-                .DataTable()
-                .order([1, 'desc'])
-                .draw();
         
         // Default sort for Vitals table
         $('.vitals-tab-table').
                 DataTable().
                 order([0,'desc']).
+                draw();
+        // Default sort for Allergies Tab table
+        $('.allergies-tab-table').
+                DataTable().
+                order([0,'desc']).
+                draw();
+        
+        // Default sort for Labs table
+        $('.labs-tab-table').
+                DataTable().
+                order([0,'desc']).
+                draw();
+        
+        // Default sort for clinical reports tables
+        $('.clinical-reports-tab-table-pathologly').
+                DataTable().
+                order([1,'desc']).
+                draw();
+        $('.clinical-reports-tab-table-surgery').
+                DataTable().
+                order([1,'desc']).
+                draw();
+        
+        // Default sort for Problem List table
+        $('.problem-list-tab-table').
+                DataTable().
+                order([1,'desc']).
+                draw();
+        
+        // Default sort for Notes tab tables
+        $('.notes-tab-table').
+                DataTable().
+                order([1,'desc']).
                 draw();
         
         // Attaching it to the tbody ensures that any rows dynamically added or displayed via jQuery Datables will also get the functionality

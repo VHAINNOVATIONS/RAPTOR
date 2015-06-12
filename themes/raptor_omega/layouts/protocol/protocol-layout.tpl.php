@@ -475,7 +475,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
 
                 <!-- Readonly -->
                 <section class="read-only2">
-                  <table class="dataTable">
+                  <table class="dataTable allergies-tab-table">
                     <thead>
                       <tr>
                         <th>Date Reported</th>
@@ -528,9 +528,9 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                   <!-- Readonly -->
                   <section class="read-only2">
 
-				    <div id="labs-chart"></div>
+                    <div id="labs-chart"></div>
 
-                  <table class="dataTable">
+                  <table class="dataTable labs-tab-table">
                     <thead>
                       <tr>
                         <th>Date</th>
@@ -592,7 +592,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                     <!-- <h3>Medications Page</h3>
                     <p>Content goes here...</p> -->
                     <h3>Pathology Reports</h3>
-                    <table class="dataTable">
+                    <table class="dataTable clinical-reports-tab-table-pathologly">
                       <thead>
                         <tr>
                           <th>Title</th>
@@ -611,7 +611,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                       </tbody>
                     </table>
                     <h3>Surgery Reports</h3>
-                    <table class="dataTable">
+                    <table class="dataTable clinical-reports-tab-table-surgery">
                       <thead>
                         <tr>
                           <th>Title</th>
@@ -645,7 +645,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                   <section class="read-only2">
                     <!-- <h3>Medications Page</h3>
                     <p>Content goes here...</p> -->
-                    <table class="dataTable">
+                    <table class="dataTable problem-list-tab-table">
                       <thead>
                         <tr>
                           <th>Title</th>
