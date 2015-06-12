@@ -138,7 +138,12 @@ class ChooseVisitPage
                             . $rows
                             . '</tbody>'
                             . '</table>');
-        return $elements;
+        
+        //Package up the results.
+        $bundle = array();
+        $bundle['elements'] = $elements;
+        $bundle['visitcount'] = $nVisitCount;
+        return $bundle;
     }
 
     /**
@@ -148,18 +153,26 @@ class ChooseVisitPage
     public function getForm($form, &$form_state, $disabled, $myvalues)
     {
 
-        $form['data_entry_area1']['toppart']['available_visits_table'] = $this->getTable($form, $form_state, $disabled, $myvalues);
-
-        //$form['hiddenthings']['patientid'] = array('#type' => 'hidden', '#value' => $myvalues['patientid']);
-        //$form['hiddenthings']['selected_vid'] = array('#type' => 'hidden'); //IMPORTANT DO NOT SET A DEFAULT VALUE!!!, '#default_value' => 'NOBODY');
-
-        $form['data_entry_area1']['toppart']['subform_commit_esig'] = array(
-          '#type' => 'password', 
-          '#title' => t('Vista Electronic Signature'), 
-          '#size' => 60, 
-          '#maxlength' => 60, 
-          '#required' => TRUE,
-        );        
+        $bundle = $this->getTable($form, $form_state, $disabled, $myvalues);
+        $has_visits = $bundle['visitcount'] > 0;
+        $form['data_entry_area1']['toppart']['available_visits_table'] = $bundle['elements'];
+        if($has_visits)
+        {
+            $form['data_entry_area1']['toppart']['subform_commit_esig'] = array(
+              '#type' => 'password', 
+              '#title' => t('Vista Electronic Signature'), 
+              '#size' => 60, 
+              '#maxlength' => 60, 
+              '#required' => TRUE,
+            );        
+            
+            
+        } else {
+            //This happens in test environments where we have bad test data
+            $form['data_entry_area1']['toppart']['trouble'] = array('#type' => 'item'
+                    , '#markup' => '<h1>No visits were found in VistA for this patient!'
+                . '  No action is possible without a visit.</h1>');
+        }
         
         $form["data_entry_area1"]['action_buttons'] = array(
             '#type' => 'item', 
@@ -168,18 +181,15 @@ class ChooseVisitPage
             '#tree' => TRUE,
         );
         
-        $form['data_entry_area1']['action_buttons']['okay'] = array('#type' => 'submit'
-                , '#attributes' => array('class' => array('raptor-action-button'))
-                , '#value' => t('Use Selected Visit')
-                , '#disabled' => $disabled
-        );
-        /*
-        $form['data_entry_area1']['action_buttons']['submit'] = array('#type' => 'submit'
-                , '#attributes' => array('class' => array('raptor-action-button'))
-                , '#value' => t('Use Selected Visit')
-                , '#disabled' => $disabled
-        );
-         */
+        if($has_visits)
+        {
+            $form['data_entry_area1']['action_buttons']['okay'] = array('#type' => 'submit'
+                    , '#attributes' => array('class' => array('raptor-action-button'))
+                    , '#value' => t('Use Selected Visit')
+                    , '#disabled' => $disabled
+            );
+        }
+
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
                 , '#markup' => '<input class="raptor-dialog-cancel" type="button" value="Cancel">');
         
