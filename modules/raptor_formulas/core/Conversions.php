@@ -86,8 +86,29 @@ class Conversions
     
     private static $radiationMap =
             array(
+                'mGy/min'=>array(
+                    'mGy/s' => '$inputvalue / 60',
+                    'rd/min' => '$inputvalue * 6 * 60',
+                ),
+                'mGy/s'=>array(
+                    'mGy/min' => '$inputvalue * 60',
+                    'rd/min' => '$inputvalue * 6',
+                ),
+                'rd/min'=>array(
+                    'mGy/s' => '$inputvalue / 6',
+                    'mGy/min' => '($inputvalue / 6 ) * 60',
+                ),
                 'mGy*mm'=>array(
-                    'mGy*cm' => '$inputvalue TODO',
+                    'mGy*cm' => '$inputvalue / 10',
+                    'mGy*m' => '$inputvalue / 1000',
+                ),
+                'mGy*cm'=>array(
+                    'mGy*mm' => '$inputvalue * 10',
+                    'mGy*m' => '$inputvalue / 10',
+                ),
+                'mGy*m'=>array(
+                    'mGy*mm' => '$inputvalue * 1000',
+                    'mGy*cm' => '$inputvalue * 100',
                 ),
                 'uCi'=>array(
                     'mCi' => '$inputvalue / 1000',

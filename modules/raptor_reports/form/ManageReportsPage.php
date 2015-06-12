@@ -1,8 +1,14 @@
 <?php
-
-/*
- * RAPTOR 2014
- * Copyright SAN Business Consultants for VA
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2015
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ *  
  */
 
 namespace raptor;
@@ -24,11 +30,11 @@ class ManageReportsPage
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
-        $form["data_entry_area1"] = array(
+        $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
-        $form["data_entry_area1"]['table_container'] = array(
+        $form['data_entry_area1']['table_container'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-dialog-table-container">',
             '#suffix' => '</div>', 
@@ -45,6 +51,7 @@ class ManageReportsPage
         $aReportClassNames[] = 'ViewReport2Page';
         $aReportClassNames[] = 'ViewReportContraindicationInputs';
         $aReportClassNames[] = 'ViewReportContraindicationRules';
+        $aReportClassNames[] = 'ViewReportConversionFormulas';
         $aReportClassNames[] = 'ViewReportRoomReservations';
         $aReportClassNames[] = 'ViewReportUserActivity';
         $aReportClassNames[] = 'ViewTechSupportConfigDetails';

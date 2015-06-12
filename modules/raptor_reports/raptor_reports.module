@@ -79,6 +79,16 @@ function raptor_reports_menu()
       'file' => 'ViewReportRoomReservations.php',
       'file path' => RAPTOR_REPORTS_PATH . '/report/',
     );
+    $items['raptor/showconversionformulas'] = array(
+      'title' => t('Show Conversion Formulas'),
+      'page callback' => 'raptor_reports_showconversionformulas_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Show Conversion Formulas'),
+      'type' => MENU_CALLBACK,
+      'file' => 'ViewReportConversionFormulas.php',
+      'file path' => RAPTOR_REPORTS_PATH . '/report/',
+    );
     $items['raptor/show_ci_inputs'] = array(
       'title' => t('Show Contraindication Rule Criteria Inputs'),
       'page callback' => 'raptor_reports_show_ci_inputs_form',
@@ -135,42 +145,47 @@ function raptor_reports_viewreports_form_builder($form, &$form_state)
 
 function raptor_reports_viewreports_form() 
 {
-    return drupal_get_form("raptor_reports_viewreports_form_builder");
+    return drupal_get_form('raptor_reports_viewreports_form_builder');
 }
 
 function raptor_reports_viewrepdepact1_form() 
 {
-    return drupal_get_form("raptor_reports_viewrepdepact1_form_builder");
+    return drupal_get_form('raptor_reports_viewrepdepact1_form_builder');
 }
 
 function raptor_reports_viewrepusract1_form() 
 {
-    return drupal_get_form("raptor_reports_viewrepusract1_form_builder");
+    return drupal_get_form('raptor_reports_viewrepusract1_form_builder');
 }
 
 function raptor_reports_showuseractivity_form() 
 {
-    return drupal_get_form("raptor_reports_showuseractivity_form_builder");
+    return drupal_get_form('raptor_reports_showuseractivity_form_builder');
 }
 
 function raptor_reports_showtechsupportconfigdetails_form() 
 {
-    return drupal_get_form("raptor_reports_showtechsupportconfigdetails_form_builder");
+    return drupal_get_form('raptor_reports_showtechsupportconfigdetails_form_builder');
 }
 
 function raptor_reports_show_ci_inputs_form() 
 {
-    return drupal_get_form("raptor_reports_show_ci_inputs_form_builder");
+    return drupal_get_form('raptor_reports_show_ci_inputs_form_builder');
 }
 
 function raptor_reports_show_ci_rules_form() 
 {
-    return drupal_get_form("raptor_reports_show_ci_rules_form_builder");
+    return drupal_get_form('raptor_reports_show_ci_rules_form_builder');
 }
 
 function raptor_reports_showroomreservations_form() 
 {
-    return drupal_get_form("raptor_reports_showroomreservations_form_builder");
+    return drupal_get_form('raptor_reports_showroomreservations_form_builder');
+}
+
+function raptor_reports_showconversionformulas_form() 
+{
+    return drupal_get_form('raptor_reports_showconversionformulas_form_builder');
 }
 
 function raptor_reports_viewrepdepact1_form_builder($form, &$form_state)
@@ -233,6 +248,15 @@ function raptor_reports_showtechsupportconfigdetails_form_builder($form, &$form_
 function raptor_reports_showroomreservations_form_builder($form, &$form_state)
 {
     $oPI = new \raptor\ViewReportRoomReservations();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+function raptor_reports_showconversionformulas_form_builder($form, &$form_state)
+{
+    $oPI = new \raptor\ViewReportConversionFormulas();
     $form = array();
     $disabled = false;
     $myvalues = array();    //No values for this one.
