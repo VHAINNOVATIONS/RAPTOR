@@ -58,11 +58,11 @@
         $("#header-sticky-wrapper-patient-name").hide();
         $("#header-sticky-wrapper-patient-name").sticky({topSpacing: 0});
     });
-    $(window).scroll(function(){
+    $(window).scroll(function () {
         var height = $(window).scrollTop();
-        if(height > 300){
+        if (height > 300) {
             $("#header-sticky-wrapper-patient-name").fadeIn("slow");
-        }else{
+        } else {
             $("#header-sticky-wrapper-patient-name").hide();
         }
     });
@@ -81,7 +81,7 @@
         if ($('#timeout-warning').is(':visible')) {
             window.onbeforeunload = null;
             //direct user's attention to timeout warning, scroll up
-            $("html, body").animate({scrollTop: "0px"},1000);
+            $("html, body").animate({scrollTop: "0px"}, 1000);
         }
     }, 5000);
 
@@ -91,8 +91,8 @@
         //console.log("You've hit submit button!");
         window.onbeforeunload = null;
     });
-    
-    
+
+
     /*If the user presses a key, types something in or makes an ajax call, we have to reset action seconds
      * to keep the session active
      * Correction: not every ajax call is counted as a change - users were getting warnings by just clicking tabs,
@@ -101,14 +101,14 @@
         //console.log("Something is happening");
         window.onbeforeunload = confirmOnPageExit;
     });
-    
-       
+
+
     //dectects changes in drop down selectors which make ajax calls on protocol page
-    $(document).on('click','.form-select, .form-checkbox', function(){
+    $(document).on('click', '.form-select, .form-checkbox', function () {
         //console.log("Something is happening");
         window.onbeforeunload = confirmOnPageExit;
     });
-    
+
     'use strict';
     // this function is strict...
 
@@ -572,46 +572,51 @@
             Drupal.behaviors.loadContent(element);
         });
 
-        
+
         // Default sort for Vitals table
         $('.vitals-tab-table').
                 DataTable().
-                order([0,'desc']).
+                order([0, 'desc']).
                 draw();
         // Default sort for Allergies Tab table
         $('.allergies-tab-table').
                 DataTable().
-                order([0,'desc']).
+                order([0, 'desc']).
                 draw();
-        
+
         // Default sort for Labs table
         $('.labs-tab-table').
                 DataTable().
-                order([0,'desc']).
+                order([0, 'desc']).
                 draw();
-        
+
         // Default sort for clinical reports tables
         $('.clinical-reports-tab-table-pathologly').
                 DataTable().
-                order([1,'desc']).
+                order([1, 'desc']).
                 draw();
         $('.clinical-reports-tab-table-surgery').
                 DataTable().
-                order([1,'desc']).
+                order([1, 'desc']).
                 draw();
-        
+
         // Default sort for Problem List table
         $('.problem-list-tab-table').
                 DataTable().
-                order([1,'desc']).
+                order([1, 'desc']).
                 draw();
-        
+
         // Default sort for Notes tab tables
-        $('.notes-tab-table').
-                DataTable().
-                order([1,'desc']).
-                draw();
-        
+        $('#tab9').on('click', function () {
+            //once the table is loaded, default sorting is applied
+            $(document).ajaxSuccess(function(){
+                $('.notes-tab-table').
+                    DataTable().
+                    order([1, 'desc']).
+                    draw();
+            });
+        });
+
         // Attaching it to the tbody ensures that any rows dynamically added or displayed via jQuery Datables will also get the functionality
         $('#protocol_container').on('click', 'tbody .raptor-details', function (e) {
             e.preventDefault();
@@ -621,11 +626,11 @@
         $('.logo').click(function () {
             window.location.href = Drupal.pageData.baseURL + '/worklist?releasealltickets=TRUE'
         });
-        
+
         //Navigate back to protocol tab handler
-        $('.back-to-protocol-tab-link').on('click',function(){
+        $('.back-to-protocol-tab-link').on('click', function () {
             $('#tab1').click();
-        });        
+        });
         /*
          $('#edit-interpret-button').on('click', function (e) {
          document.cookie = 'worklistFilterMode=Interpretation';
