@@ -321,6 +321,25 @@ class GetRadiationDoseHxTab
         return $infopackage;
     }
     
+    private function getFacilityDoseInfo($bundle, $psn, $dose_source_cd)
+    {
+        $sitedose_summary = $bundle['summary'];
+        if(!isset($sitedose_summary[$psn]) 
+                || !isset($sitedose_summary[$psn][$dose_source_cd]))
+        {
+            $label = 'unavailable';
+            $tip = 'No facility history found';
+        } else {
+            $label = $sitedose_summary[$psn][$dose_source_cd]['dose_avg'];
+            $tip_ct = $sitedose_summary[$psn][$dose_source_cd]['sample_ct'];
+            $tip_dt = $sitedose_summary[$psn][$dose_source_cd]['updated_dt'];
+            $tip_dtinfo = date('Y/m',strtotime($tip_dt));   //Obscure the exact time.
+            $tip = "sample size $tip_ct last updated $tip_dtinfo";
+        }
+        $markup = array('label'=>$label,'tip'=>$tip);
+        return $markup;
+    }
+    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -348,6 +367,8 @@ class GetRadiationDoseHxTab
         $oldest_note_dt = $infopackage['oldest_note_dt'];
         $newest_raddose_dt = $infopackage['newest_note_dt'];
         $totalnotes = $infopackage['total_notes'];
+        $sitedosebundle = $this->getSiteDoseTracking();
+        $sitedose_summary = $sitedosebundle['summary'];
 
         if($totalnotes > 0)
         {
@@ -397,6 +418,24 @@ class GetRadiationDoseHxTab
                 //Two facility average dose values
                 foreach($modalitydetailgroup as $nkey=>$detailitem)
                 {
+                    $psn = $detailitem['id'];
+                    if(!isset($sitedose_summary[$psn]) 
+                            || !isset($sitedose_summary[$psn]['C']))
+                    {
+                        $site_summary_CTDI = 'unavailable';
+                        $site_summary_tip_CTDI = 'No facility history found';
+                    } else {
+                        $site_summary_CTDI = $sitedose_summary[$psn]['C']['dose_avg'];
+                        $tip_ct = $sitedose_summary[$psn]['C']['sample_ct'];
+                        $tip_dt = $sitedose_summary[$psn]['C']['updated_dt'];
+                        $site_summary_tip_CTDI = "sample size $tip_ct last updated $tip_dt";
+                    }
+                    $site_summary_markup_CTDI = $this->getFacilityDoseInfo($sitedosebundle, $psn, 'C');
+                    $site_summary_CTDI_label = $site_summary_markup_CTDI['label'];
+                    $site_summary_CTDI_tip = $site_summary_markup_CTDI['tip'];
+                    $site_summary_markup_DLP = $this->getFacilityDoseInfo($sitedosebundle, $psn, 'D');
+                    $site_summary_DLP_label = $site_summary_markup_DLP['label'];
+                    $site_summary_DLP_tip = $site_summary_markup_DLP['tip'];
                     $detrowsmarkup[$mkey][] = "\n"
                             .'<td>'
                             .$mkey
@@ -409,15 +448,19 @@ class GetRadiationDoseHxTab
                             .'</td><td>'
                             .$detailitem['allcount']
                             .'</td><td>'
-                            .'unavailable'
+                            ."<span title='$site_summary_CTDI_tip'>$site_summary_CTDI_label<span>"
                             .'</td><td>'
-                            .'unavailable'
+                            ."<span title='$site_summary_DLP_tip'>$site_summary_DLP_label<span>"
                             .'</td>';
                 }
             } else if($mkey == 'NM') {
                 //Only one facility average dose value
                 foreach($modalitydetailgroup as $nkey=>$detailitem)
                 {
+                    $site_summary_markup_NM = $this->getFacilityDoseInfo($sitedosebundle, $psn, 'E');
+                    $site_summary_NM_label = $site_summary_markup_NM['label'];
+                    $site_summary_NM_tip = $site_summary_markup_NM['tip'];
+                    
                     $detrowsmarkup[$mkey][] = "\n"
                             .'<td>'
                             .$mkey
@@ -430,7 +473,7 @@ class GetRadiationDoseHxTab
                             .'</td><td>'
                             .$detailitem['allcount']
                             .'</td><td>'
-                            .'unavailable'
+                            ."<span title='$site_summary_NM_tip'>$site_summary_NM_label<span>"
                             .'</td>';
                 }
             } else {
@@ -542,8 +585,6 @@ class GetRadiationDoseHxTab
                 );
         }
         
-        $this->getSiteDoseTracking();
-        
         return $form;
     }
 
@@ -640,7 +681,6 @@ class GetRadiationDoseHxTab
             }
         }
         $bundle = array('summary'=>$summary,'details'=>$details);
-        error_log("LOOK RAD INFO BUNDLE>>>".print_r($bundle,TRUE));
         return $bundle;
     }
     
