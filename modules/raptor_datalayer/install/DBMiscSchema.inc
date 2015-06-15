@@ -1008,8 +1008,21 @@ class DBMiscSchema
               'type' => 'int',
               'unsigned' => TRUE,
               'not null' => TRUE,
-              'default' => 0,
               'description' => 'Number of samples averaged into this record',
+            ),
+            'baseline_dose_avg' => array(
+              'type' => 'float',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'Initial baseline average amount of exposure',
+            ),
+            'baseline_sample_ct' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'Number of samples averaged into baseline value of this record',
             ),
             'updated_dt' => array(
               'type' => 'datetime',

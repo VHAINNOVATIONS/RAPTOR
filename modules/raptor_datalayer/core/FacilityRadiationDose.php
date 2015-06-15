@@ -22,7 +22,28 @@ module_load_include('php', 'raptor_glue', 'utility/RadiationDoseHelper');
  */
 class FacilityRadiationDose 
 {
-    
+    /**
+     * Factor in the baseline value if there is any.
+     */
+    private function getRecordAverageDose($record)
+    {
+        $rawdose = $record['dose_avg'];
+        $sample_ct = $record['sample_ct'];
+        $baseline_sample_ct = $record['baseline_sample_ct'];
+        if($baseline_sample_ct > 0)
+        {
+            //We have a baseline that does not change, factor it in.
+            $baseline_rawdose = $record['baseline_dose_avg'];
+            $rawavgdose = (($baseline_rawdose * (float) $baseline_sample_ct) 
+                    + ($rawdose * (float) $sample_ct)) / ($baseline_sample_ct + $sample_ct);
+        } else {
+            //No baseline to factor in.
+            $rawavgdose = $rawdose;
+        }
+error_log("LOOK record=".print_r($record,TRUE));        
+        return $rawavgdose;
+    }
+            
     public function getFacilityDoseInfo($bundle, $psn, $dose_source_cd)
     {
         $sitedose_summary = $bundle['summary'];
@@ -147,10 +168,12 @@ class FacilityRadiationDose
                         $new_updated_dt = $existing_updated_dt;
                     }
                 } else {
+                    //First one to summarize
                     $new_sample_ct = $sample_ct;
-                    $new_dose_avg = $dose_avg;
+                    $new_dose_avg = $this->getRecordAverageDose($record);   //Factor in baseline first time
                     $new_updated_dt = $updated_dt;
                 }
+                
                 $onepsnsummary_level2['dose_avg'] = $new_dose_avg;
                 $onepsnsummary_level2['sample_ct'] = $new_sample_ct;
                 $onepsnsummary_level2['uom'] = $uom;

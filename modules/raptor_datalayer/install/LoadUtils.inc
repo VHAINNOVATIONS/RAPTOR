@@ -36,7 +36,7 @@ class LoadUtils
             'category_nm' => 'DBSchemaVersion',
             'info_tx' => 'Initial installation',
             'major_ct' => 2015, //Convention is use year of change for this value
-            'minor_ct' => 5, //UPDATE THIS VALUE IF THE SCHEMA CHANGES!!!!!!
+            'minor_ct' => 6, //UPDATE THIS VALUE EVERYTIME THE SCHEMA CHANGES!!!!!!
             'created_dt' => $created_dt,
             ))
            ->execute();
