@@ -58,13 +58,13 @@ class DBPatientSchema
               'type' => 'char',
               'length' => 1,
               'not null' => TRUE,
-              'description' => 'E=Estimated,A=Actual',
+              'description' => 'E=Estimated,A=Actual,U=Unknown Quality',
             ),
             'dose_source_cd' => array(
               'type' => 'char',
               'length' => 1,
               'not null' => TRUE,
-              'description' => 'R=Radioisotope, E=Equipment Other, C=CTDIvol, D=DLP',
+              'description' => 'R=Radioisotope, E=Equipment Other, C=CTDIvol, D=DLP, Fluoro=[Q,S,T,H]',
             ),
             'dose_target_area_id' => array(
               'type' => 'int',
@@ -135,13 +135,13 @@ class DBPatientSchema
               'type' => 'char',
               'length' => 1,
               'not null' => TRUE,
-              'description' => 'E=Estimated,A=Actual',
+              'description' => 'E=Estimated,A=Actual,U=Unknown Quality',
             ),
             'dose_source_cd' => array(
               'type' => 'char',
               'length' => 1,
               'not null' => TRUE,
-              'description' => 'R=Radioisotope, E=Equipment Other, C=CTDIvol, D=DLP',
+              'description' => 'R=Radioisotope, E=Equipment Other, C=CTDIvol, D=DLP, Fluoro=[Q,S,T,H]',
             ),
             'dose_target_area_id' => array(
               'type' => 'int',

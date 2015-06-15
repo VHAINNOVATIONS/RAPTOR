@@ -963,7 +963,63 @@ class DBMiscSchema
           ),
           'primary key' => array('uid','group_name','item_name','flag_name'),
         );
-		        
+        
+        $schema['raptor_protocol_radiation_dose_tracking'] = array(
+          'description' => 'Simple average radiation exposure for a protocol at a site.',
+          'fields' => array(
+            'siteid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'ID for the site',
+            ),
+            'dose_source_cd' => array(
+              'type' => 'char',
+              'length' => 1,
+              'not null' => TRUE,
+              'description' => 'R=Radioisotope, E=Equipment Other, C=CTDIvol, D=DLP, Fluoro=[Q,S,T,H]',
+            ),
+            'uom' => array(
+              'type' => 'varchar',
+              'length' => 32,
+              'not null' => TRUE,
+              'description' => 'Unit of measure for the exposure',
+            ),
+            'dose_type_cd' => array(
+              'type' => 'char',
+              'length' => 1,
+              'not null' => TRUE,
+              'description' => 'E=Estimated,A=Actual,U=Unknown Quality',
+            ),
+            'dose_avg' => array(
+              'type' => 'float',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'description' => 'Average amount of exposure',
+            ),
+            'sample_ct' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => TRUE,
+              'default' => 0,
+              'description' => 'Number of samples averaged into this record',
+            ),
+            'updated_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this record was last updated',
+            ),
+            'created_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => TRUE,
+              'description' => 'When this record was originally created',
+            ),
+          ),
+          'primary key' => array('siteid', 'dose_source_cd', 'uom', 'dose_type_cd'),
+        );
         
     }    
     

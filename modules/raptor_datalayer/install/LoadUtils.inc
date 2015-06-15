@@ -35,8 +35,8 @@ class LoadUtils
            ->fields(array(
             'category_nm' => 'DBSchemaVersion',
             'info_tx' => 'Initial installation',
-            'major_ct' => 2, //UPDATE THIS VALUE IF THE SCHEMA CHANGES!!!!!!
-            'minor_ct' => 4, //UPDATE THIS VALUE IF THE SCHEMA CHANGES!!!!!!
+            'major_ct' => 2015, //Convention is use year of change for this value
+            'minor_ct' => 5, //UPDATE THIS VALUE IF THE SCHEMA CHANGES!!!!!!
             'created_dt' => $created_dt,
             ))
            ->execute();
