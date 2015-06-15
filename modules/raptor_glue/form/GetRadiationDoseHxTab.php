@@ -20,6 +20,7 @@ module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
 module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
 module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
+module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
 
 
 /**
@@ -31,6 +32,7 @@ class GetRadiationDoseHxTab
 {
     private $m_oContext;
     private $m_oDD;
+    private $m_oFRD;
 
     const PROT_PRIMARY_ID = '[Protocol Primary Selection ID] ::=';
     const PROT_PRIMARY_NM = '[Protocol Primary Selection NAME] ::=';
@@ -50,6 +52,7 @@ class GetRadiationDoseHxTab
         
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oDD = new \raptor\DashboardData($this->m_oContext);
+        $this->m_oFRD = new \raptor\FacilityRadiationDose();
     }
     
     private function getRowMarkup($linkmarkup,$showprocdate
@@ -321,25 +324,6 @@ class GetRadiationDoseHxTab
         return $infopackage;
     }
     
-    private function getFacilityDoseInfo($bundle, $psn, $dose_source_cd)
-    {
-        $sitedose_summary = $bundle['summary'];
-        if(!isset($sitedose_summary[$psn]) 
-                || !isset($sitedose_summary[$psn][$dose_source_cd]))
-        {
-            $label = 'unavailable';
-            $tip = 'No facility history found';
-        } else {
-            $label = $sitedose_summary[$psn][$dose_source_cd]['dose_avg'];
-            $tip_ct = $sitedose_summary[$psn][$dose_source_cd]['sample_ct'];
-            $tip_dt = $sitedose_summary[$psn][$dose_source_cd]['updated_dt'];
-            $tip_dtinfo = date('Y/m',strtotime($tip_dt));   //Obscure the exact time.
-            $tip = "sample size $tip_ct last updated $tip_dtinfo";
-        }
-        $markup = array('label'=>$label,'tip'=>$tip);
-        return $markup;
-    }
-    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -367,7 +351,7 @@ class GetRadiationDoseHxTab
         $oldest_note_dt = $infopackage['oldest_note_dt'];
         $newest_raddose_dt = $infopackage['newest_note_dt'];
         $totalnotes = $infopackage['total_notes'];
-        $sitedosebundle = $this->getSiteDoseTracking();
+        $sitedosebundle = $this->m_oFRD->getSiteDoseTracking();
         $sitedose_summary = $sitedosebundle['summary'];
 
         if($totalnotes > 0)
@@ -419,21 +403,10 @@ class GetRadiationDoseHxTab
                 foreach($modalitydetailgroup as $nkey=>$detailitem)
                 {
                     $psn = $detailitem['id'];
-                    if(!isset($sitedose_summary[$psn]) 
-                            || !isset($sitedose_summary[$psn]['C']))
-                    {
-                        $site_summary_CTDI = 'unavailable';
-                        $site_summary_tip_CTDI = 'No facility history found';
-                    } else {
-                        $site_summary_CTDI = $sitedose_summary[$psn]['C']['dose_avg'];
-                        $tip_ct = $sitedose_summary[$psn]['C']['sample_ct'];
-                        $tip_dt = $sitedose_summary[$psn]['C']['updated_dt'];
-                        $site_summary_tip_CTDI = "sample size $tip_ct last updated $tip_dt";
-                    }
-                    $site_summary_markup_CTDI = $this->getFacilityDoseInfo($sitedosebundle, $psn, 'C');
+                    $site_summary_markup_CTDI = $this->m_oFRD->getFacilityDoseInfo($sitedosebundle, $psn, 'C');
                     $site_summary_CTDI_label = $site_summary_markup_CTDI['label'];
                     $site_summary_CTDI_tip = $site_summary_markup_CTDI['tip'];
-                    $site_summary_markup_DLP = $this->getFacilityDoseInfo($sitedosebundle, $psn, 'D');
+                    $site_summary_markup_DLP = $this->m_oFRD->getFacilityDoseInfo($sitedosebundle, $psn, 'D');
                     $site_summary_DLP_label = $site_summary_markup_DLP['label'];
                     $site_summary_DLP_tip = $site_summary_markup_DLP['tip'];
                     $detrowsmarkup[$mkey][] = "\n"
@@ -457,7 +430,8 @@ class GetRadiationDoseHxTab
                 //Only one facility average dose value
                 foreach($modalitydetailgroup as $nkey=>$detailitem)
                 {
-                    $site_summary_markup_NM = $this->getFacilityDoseInfo($sitedosebundle, $psn, 'E');
+                    $psn = $detailitem['id'];
+                    $site_summary_markup_NM = $this->m_oFRD->getFacilityDoseInfo($sitedosebundle, $psn, 'E');
                     $site_summary_NM_label = $site_summary_markup_NM['label'];
                     $site_summary_NM_tip = $site_summary_markup_NM['tip'];
                     
@@ -588,104 +562,6 @@ class GetRadiationDoseHxTab
         return $form;
     }
 
-    /**
-     * Get all the site dose tracking information
-     */
-    function getSiteDoseTracking()
-    {
-        $siteid=VISTA_SITE;
-        $details = array();
-        $summary = array();
-        $result = db_select('raptor_protocol_radiation_dose_tracking', 'u')
-                    ->fields('u')
-                    ->condition('siteid', $siteid, '=')
-                    ->orderBy('protocol_shortname','ASC')
-                    ->orderBy('dose_source_cd','ASC')
-                    ->execute();
-        if($result->rowCount() > 0)
-        {
-            while($record = $result->fetchAssoc())
-            {
-                $psnkey = $record['protocol_shortname'];
-                $dose_source_cd = $record['dose_source_cd'];
-                
-                //Get summary containers
-                if(!key_exists($psnkey, $summary))
-                {
-                    $summary[$psnkey] = array();
-                }
-                $onepsnsummary = $summary[$psnkey];
-                if(!key_exists($dose_source_cd, $onepsnsummary))
-                {
-                    $onepsnsummary[$dose_source_cd] = array();
-                }
-                $onepsnsummary_level2 = $onepsnsummary[$dose_source_cd];
-                
-                //Get details containers
-                if(!key_exists($psnkey, $details))
-                {
-                    $details[$psnkey] = array();
-                }
-                $onepsn = $details[$psnkey];
-                if(!key_exists($dose_source_cd, $onepsn))
-                {
-                    $onepsn[$dose_source_cd] = array();
-                }
-                $onepsn_level2 = $onepsn[$dose_source_cd];
-                
-                //Assign detail
-                $onepsn_level2['detail'][] = $record;
-                
-                //Update summary
-                $new_dose_avg = 1;
-                $new_sample_ct = 2;
-                $sample_ct = $record['sample_ct'];
-                $uom = $record['uom'];
-                $dose_avg = (float) $record['dose_avg'];
-                $updated_dt = $record['updated_dt'];
-                if(isset($onepsnsummary_level2['uom']))
-                {
-                    if($onepsnsummary_level2['uom'] != $uom)
-                    {
-                        //Todo --- gracefully normalize the values
-                        throw new \Exception("Mixed UOM are not handled at this time -- check ".print_r($record,TRUE));
-                    }
-                    $existing_sample_ct = $onepsnsummary_level2['sample_ct'];
-                    $existing_dose_avg = $onepsnsummary_level2['dose_avg'];
-                    $existing_updated_dt = $onepsnsummary_level2['updated_dt'];
-                    $new_sample_ct = $existing_sample_ct + $sample_ct;
-                    $new_dose_avg = (($existing_dose_avg * (float) $existing_sample_ct) + ($dose_avg * (float) $sample_ct)) / ($existing_sample_ct + $sample_ct);
-                    if($existing_updated_dt < $new_updated_dt)
-                    {
-                        $new_updated_dt = $updated_dt;
-                    } else {
-                        $new_updated_dt = $existing_updated_dt;
-                    }
-                } else {
-                    $new_sample_ct = $sample_ct;
-                    $new_dose_avg = $dose_avg;
-                    $new_updated_dt = $updated_dt;
-                }
-                $onepsnsummary_level2['dose_avg'] = $new_dose_avg;
-                $onepsnsummary_level2['sample_ct'] = $new_sample_ct;
-                $onepsnsummary_level2['uom'] = $uom;
-                $onepsnsummary_level2['updated_dt'] = $new_updated_dt;
-                
-                //Assign details back to top levels
-                $onepsn[$dose_source_cd] = $onepsn_level2;
-                $details[$psnkey] = $onepsn;
-                
-                //Assign summary back to top levels
-                $onepsnsummary[$dose_source_cd] = $onepsnsummary_level2;
-                $summary[$psnkey] = $onepsnsummary;
-            }
-        }
-        $bundle = array('summary'=>$summary,'details'=>$details);
-        return $bundle;
-    }
-    
-    
-    
     function getAverage($total, $count)
     {
         if($count > 0)

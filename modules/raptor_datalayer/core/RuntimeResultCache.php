@@ -33,7 +33,6 @@ class RuntimeResultCache
         $this->m_oContext = $oContext;
         $this->m_sGroupName = $sGroupName;
         $this->m_aRuntimeResultCache = array();
-        //error_log('Created cache for ['.$this->m_sGroupName.']');
     }
     
     /**
