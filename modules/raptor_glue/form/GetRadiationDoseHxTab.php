@@ -231,6 +231,8 @@ class GetRadiationDoseHxTab
         $totalnotes = 0;
         $lowts = NULL;
         $hights = NULL;
+        $sLowTS = NULL;
+        $sHighTS = NULL;
         $notesdetail = $oPSD->getNotesDetail();
         foreach($notesdetail as $data_row) 
         {
@@ -347,16 +349,28 @@ class GetRadiationDoseHxTab
         $newest_raddose_dt = $infopackage['newest_note_dt'];
         $totalnotes = $infopackage['total_notes'];
 
-        $form['data_entry_area1']['table_container']['introblurb'] = array('#type' => 'item',
-         '#markup' => '<div class="introblurb">'
-            . '<h2>Information presented here is derived only from the available RAPTOR VistA notes.</h2>'
-            . '<ul>'
-            . '<li>Oldest available RAPTOR VistA note is dated '.$oldest_note_dt
-            . '<li>Newest available RAPTOR VistA note is dated '.$newest_raddose_dt
-            . '<li>Total RAPTOR VistA notes found is '.$totalnotes
-            . '</ul>'
-                    //.'<hr><pre>'.print_r($infopackage,TRUE).'</pre>'
-            . '</div>');
+        if($totalnotes > 0)
+        {
+            $form['data_entry_area1']['table_container']['introblurb'] = array('#type' => 'item',
+             '#markup' => '<div class="introblurb">'
+                . '<h2>Information presented here is derived only from the available RAPTOR VistA notes.</h2>'
+                . '<ul>'
+                . '<li>Oldest available RAPTOR VistA note is dated '.$oldest_note_dt
+                . '<li>Newest available RAPTOR VistA note is dated '.$newest_raddose_dt
+                . '<li>Total RAPTOR VistA notes found is '.$totalnotes
+                . '</ul>'
+                        //.'<hr><pre>'.print_r($infopackage,TRUE).'</pre>'
+                . '</div>');
+        } else {
+            $form['data_entry_area1']['table_container']['introblurb'] = array('#type' => 'item',
+             '#markup' => '<div class="introblurb">'
+                . '<h2>Information presented here is derived only from the available RAPTOR VistA notes.</h2>'
+                . '<ul>'
+                . '<li>Total RAPTOR VistA notes found is '.$totalnotes
+                . '</ul>'
+                        //.'<hr><pre>'.print_r($infopackage,TRUE).'</pre>'
+                . '</div>');
+        }
         
         $rowsmarkup = '';
         $detrowsmarkup = array();
@@ -528,9 +542,109 @@ class GetRadiationDoseHxTab
                 );
         }
         
+        $this->getSiteDoseTracking();
         
         return $form;
     }
+
+    /**
+     * Get all the site dose tracking information
+     */
+    function getSiteDoseTracking()
+    {
+        $siteid=VISTA_SITE;
+        $details = array();
+        $summary = array();
+        $result = db_select('raptor_protocol_radiation_dose_tracking', 'u')
+                    ->fields('u')
+                    ->condition('siteid', $siteid, '=')
+                    ->orderBy('protocol_shortname','ASC')
+                    ->orderBy('dose_source_cd','ASC')
+                    ->execute();
+        if($result->rowCount() > 0)
+        {
+            while($record = $result->fetchAssoc())
+            {
+                $psnkey = $record['protocol_shortname'];
+                $dose_source_cd = $record['dose_source_cd'];
+                
+                //Get summary containers
+                if(!key_exists($psnkey, $summary))
+                {
+                    $summary[$psnkey] = array();
+                }
+                $onepsnsummary = $summary[$psnkey];
+                if(!key_exists($dose_source_cd, $onepsnsummary))
+                {
+                    $onepsnsummary[$dose_source_cd] = array();
+                }
+                $onepsnsummary_level2 = $onepsnsummary[$dose_source_cd];
+                
+                //Get details containers
+                if(!key_exists($psnkey, $details))
+                {
+                    $details[$psnkey] = array();
+                }
+                $onepsn = $details[$psnkey];
+                if(!key_exists($dose_source_cd, $onepsn))
+                {
+                    $onepsn[$dose_source_cd] = array();
+                }
+                $onepsn_level2 = $onepsn[$dose_source_cd];
+                
+                //Assign detail
+                $onepsn_level2['detail'][] = $record;
+                
+                //Update summary
+                $new_dose_avg = 1;
+                $new_sample_ct = 2;
+                $sample_ct = $record['sample_ct'];
+                $uom = $record['uom'];
+                $dose_avg = (float) $record['dose_avg'];
+                $updated_dt = $record['updated_dt'];
+                if(isset($onepsnsummary_level2['uom']))
+                {
+                    if($onepsnsummary_level2['uom'] != $uom)
+                    {
+                        //Todo --- gracefully normalize the values
+                        throw new \Exception("Mixed UOM are not handled at this time -- check ".print_r($record,TRUE));
+                    }
+                    $existing_sample_ct = $onepsnsummary_level2['sample_ct'];
+                    $existing_dose_avg = $onepsnsummary_level2['dose_avg'];
+                    $existing_updated_dt = $onepsnsummary_level2['updated_dt'];
+                    $new_sample_ct = $existing_sample_ct + $sample_ct;
+                    $new_dose_avg = (($existing_dose_avg * (float) $existing_sample_ct) + ($dose_avg * (float) $sample_ct)) / ($existing_sample_ct + $sample_ct);
+                    if($existing_updated_dt < $new_updated_dt)
+                    {
+                        $new_updated_dt = $updated_dt;
+                    } else {
+                        $new_updated_dt = $existing_updated_dt;
+                    }
+                } else {
+                    $new_sample_ct = $sample_ct;
+                    $new_dose_avg = $dose_avg;
+                    $new_updated_dt = $updated_dt;
+                }
+                $onepsnsummary_level2['dose_avg'] = $new_dose_avg;
+                $onepsnsummary_level2['sample_ct'] = $new_sample_ct;
+                $onepsnsummary_level2['uom'] = $uom;
+                $onepsnsummary_level2['updated_dt'] = $new_updated_dt;
+                
+                //Assign details back to top levels
+                $onepsn[$dose_source_cd] = $onepsn_level2;
+                $details[$psnkey] = $onepsn;
+                
+                //Assign summary back to top levels
+                $onepsnsummary[$dose_source_cd] = $onepsnsummary_level2;
+                $summary[$psnkey] = $onepsnsummary;
+            }
+        }
+        $bundle = array('summary'=>$summary,'details'=>$details);
+        error_log("LOOK RAD INFO BUNDLE>>>".print_r($bundle,TRUE));
+        return $bundle;
+    }
+    
+    
     
     function getAverage($total, $count)
     {

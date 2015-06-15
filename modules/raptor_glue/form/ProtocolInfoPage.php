@@ -2685,13 +2685,13 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $existing_sample_ct = $record['sample_ct'];
                 $existing_dose_avg = (float)$record['dose_avg'];
                 $new_dose_avg = (float)((float)($dose * (float)$sample_size) + (float)($existing_dose_avg * (float)$existing_sample_ct)) / ($sample_size + $existing_sample_ct);
-                $num_updated  = db_update('raptor_protocol_radiation_dose_tracking')
+                db_update('raptor_protocol_radiation_dose_tracking')
                         ->fields(array(
                             'dose_avg' => $new_dose_avg,
                             'sample_ct' => $existing_sample_ct + $sample_size,
                             'updated_dt' => $updated_dt,
                         ))
-                        ->condition('siteid',$nSiteID,'=')
+                        ->condition('siteid',$siteid,'=')
                         ->condition('protocol_shortname', $protocol_shortname, '=')
                         ->condition('dose_source_cd', $dose_source_cd,'=')
                         ->condition('uom',$uom,'=')
