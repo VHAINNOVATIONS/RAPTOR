@@ -2570,10 +2570,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             $dose = $dose_record['dose'];
                             if($sample_size == 0)
                             {
-                                $dose_avg = $dose;
+                                $dose_avg = (float) $dose;
                             } else {
                                 //Update existing average
-                                $dose_avg = (($dose_avg * $sample_size) + $dose) / ($sample_size + 1);
+                                $dose_avg = (float) ($dose_avg * ((float)$sample_size) + $dose) / ($sample_size + 1);
                             }
                             $sample_size++;
                             $qcd = $dose_record['dose_type_cd'];
@@ -2581,7 +2581,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note '.$category_term.' Radiation Exposure Data'
                                     ,$dose.' '.$uom.$qterm);
                         }
-                        $this->updateSiteDoseTracking($dose_source_code,$uom,$qcd,$dose_avg,$sample_size);
+                        $this->updateSiteDoseTracking($relevant_protocol_shortname
+                                ,$dose_source_code,$uom,$qcd,$dose_avg,$sample_size);
                     }
                 }
             }
@@ -2645,8 +2646,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     /**
      * Track radiation exposure at the site level
      */
-    private function updateSiteDoseTracking($dose_source_cd,$uom,$dose_type_cd
-            ,$dose,$sample_size=1)
+    private function updateSiteDoseTracking($protocol_shortname
+            , $dose_source_cd, $uom, $dose_type_cd
+            , $dose, $sample_size=1)
     {
         try
         {
@@ -2656,6 +2658,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $result = db_select('raptor_protocol_radiation_dose_tracking', 'u')
                         ->fields('u')
                         ->condition('siteid', $siteid, '=')
+                        ->condition('protocol_shortname', $protocol_shortname, '=')
                         ->condition('dose_source_cd', $dose_source_cd, '=')
                         ->condition('uom', $uom, '=')
                         ->condition('dose_type_cd', $dose_type_cd, '=')
@@ -2666,10 +2669,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 db_insert('raptor_protocol_radiation_dose_tracking')
                 ->fields(array(
                         'siteid'=>$siteid,
+                        'protocol_shortname'=>$protocol_shortname,
                         'dose_source_cd' => $dose_source_cd,
                         'uom' => $uom,
                         'dose_type_cd' => $dose_type_cd,
-                        'dose_avg' => $dose,
+                        'dose_avg' => ((float) $dose),
                         'sample_ct' => $sample_size,
                         'updated_dt'=>$updated_dt,
                         'created_dt'=>$updated_dt,
@@ -2679,8 +2683,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 //Update an existing record with weighted average
                 $record = $result->fetchAssoc();
                 $existing_sample_ct = $record['sample_ct'];
-                $existing_dose_avg = $record['dose_avg'];
-                $new_dose_avg = (($dose * $sample_size) + ($existing_dose_avg * $existing_sample_ct)) / ($sample_size + $existing_sample_ct);
+                $existing_dose_avg = (float)$record['dose_avg'];
+                $new_dose_avg = (float)((float)($dose * (float)$sample_size) + (float)($existing_dose_avg * (float)$existing_sample_ct)) / ($sample_size + $existing_sample_ct);
                 $num_updated  = db_update('raptor_protocol_radiation_dose_tracking')
                         ->fields(array(
                             'dose_avg' => $new_dose_avg,
@@ -2688,6 +2692,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             'updated_dt' => $updated_dt,
                         ))
                         ->condition('siteid',$nSiteID,'=')
+                        ->condition('protocol_shortname', $protocol_shortname, '=')
                         ->condition('dose_source_cd', $dose_source_cd,'=')
                         ->condition('uom',$uom,'=')
                         ->condition('dose_type_cd',$dose_type_cd,'=')
@@ -2696,7 +2701,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         } catch (\Exception $ex) {
             //During development just write to the log --- table is still new!!!!!
             error_log("Failed to update dose tracking with"
-                    . " (dsc=$dose_source_code,uom=$uom,qcd=$quality_cd,dose=$dose)"
+                    . " (psn=$protocol_shortname, dsc=$dose_source_code, uom=$uom, qcd=$quality_cd, dose=$dose)"
                     . " because ".$ex->getMessage());
         }
     }

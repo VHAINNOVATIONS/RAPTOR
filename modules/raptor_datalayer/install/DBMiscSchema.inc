@@ -974,6 +974,12 @@ class DBMiscSchema
               'default' => 0,
               'description' => 'ID for the site',
             ),
+            'protocol_shortname' => array(
+              'type' => 'varchar',
+              'length' => 20,
+              'not null' => TRUE,
+              'description' => 'Protocol short name key value',
+            ),
             'dose_source_cd' => array(
               'type' => 'char',
               'length' => 1,
@@ -1018,7 +1024,7 @@ class DBMiscSchema
               'description' => 'When this record was originally created',
             ),
           ),
-          'primary key' => array('siteid', 'dose_source_cd', 'uom', 'dose_type_cd'),
+          'primary key' => array('siteid', 'protocol_shortname', 'dose_source_cd', 'uom', 'dose_type_cd'),
         );
         
     }    
