@@ -404,10 +404,10 @@ class GetRadiationDoseHxTab
                 {
                     $psn = $detailitem['id'];
                     $site_summary_markup_CTDI = $this->m_oFRD->getFacilityDoseInfo($sitedosebundle, $psn, 'C');
-                    $site_summary_CTDI_label = $site_summary_markup_CTDI['label'];
+                    $site_summary_CTDI_label = $site_summary_markup_CTDI['dose_avg'];
                     $site_summary_CTDI_tip = $site_summary_markup_CTDI['tip'];
                     $site_summary_markup_DLP = $this->m_oFRD->getFacilityDoseInfo($sitedosebundle, $psn, 'D');
-                    $site_summary_DLP_label = $site_summary_markup_DLP['label'];
+                    $site_summary_DLP_label = $site_summary_markup_DLP['dose_avg'];
                     $site_summary_DLP_tip = $site_summary_markup_DLP['tip'];
                     $detrowsmarkup[$mkey][] = "\n"
                             .'<td>'
@@ -432,7 +432,7 @@ class GetRadiationDoseHxTab
                 {
                     $psn = $detailitem['id'];
                     $site_summary_markup_NM = $this->m_oFRD->getFacilityDoseInfo($sitedosebundle, $psn, 'E');
-                    $site_summary_NM_label = $site_summary_markup_NM['label'];
+                    $site_summary_NM_label = $site_summary_markup_NM['dose_avg'];
                     $site_summary_NM_tip = $site_summary_markup_NM['tip'];
                     
                     $detrowsmarkup[$mkey][] = "\n"

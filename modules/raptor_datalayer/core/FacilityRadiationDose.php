@@ -13,6 +13,8 @@
 
 namespace raptor;
 
+module_load_include('php', 'raptor_glue', 'utility/RadiationDoseHelper');
+
 /**
  * The functions to interact with facility radation dose tracking information
  *
@@ -30,13 +32,44 @@ class FacilityRadiationDose
             $label = 'unavailable';
             $tip = 'No facility history found';
         } else {
-            $label = $sitedose_summary[$psn][$dose_source_cd]['dose_avg'];
+            $rawdose = $sitedose_summary[$psn][$dose_source_cd]['dose_avg'];
+            $cleandose = number_format($rawdose, 2);
+            $label = $cleandose;
             $tip_ct = $sitedose_summary[$psn][$dose_source_cd]['sample_ct'];
             $tip_dt = $sitedose_summary[$psn][$dose_source_cd]['updated_dt'];
             $tip_dtinfo = date('Y/m',strtotime($tip_dt));   //Obscure the exact time.
             $tip = "sample size $tip_ct last updated $tip_dtinfo";
         }
-        $markup = array('label'=>$label,'tip'=>$tip);
+        $markup = array('dose_avg'=>$label,'tip'=>$tip);
+        return $markup;
+    }
+    
+    public function getFacilityDoseInfoCompleteSummary($bundle, $psn)
+    {
+        $sitedose_summary = $bundle['summary'];
+        if(!isset($sitedose_summary[$psn]))
+        {
+            $show_text = array();   //Empty array
+            $tip = array('No facility history found');
+        } else {
+            $show_text = array();;
+            $tip = array();
+            foreach($sitedose_summary[$psn] as $dose_source_cd=>$detail)
+            {
+                $rawdose = $detail['dose_avg'];
+                $cleandose = number_format($rawdose, 2);
+                $label = $cleandose . ' ' . $detail['uom'];
+                $tip_ct = $detail['sample_ct'];
+                $tip_dt = $detail['updated_dt'];
+                $tip_dtinfo = date('Y/m',strtotime($tip_dt));   //Obscure the exact time.
+                
+                $src_type_name = RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_cd);
+
+                $show_text[] = " $src_type_name=$label";
+                $tip[] = " $src_type_name=sample size $tip_ct last updated $tip_dtinfo";
+            }
+        }
+        $markup = array('show_text'=>$show_text,'tip'=>$tip);
         return $markup;
     }
     

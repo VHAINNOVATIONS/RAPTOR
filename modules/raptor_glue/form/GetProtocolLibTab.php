@@ -17,6 +17,7 @@ module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
 module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
 module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
 module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
+module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
 
 require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
 require_once 'ProtocolInfoUtility.php';
@@ -34,6 +35,7 @@ class GetProtocolLibTab
     private $m_oUtility = NULL;
     private $m_oMOP = NULL;
     private $m_oLI = NULL;
+    private $m_oFRD = NULL;
     
     function __construct()
     {
@@ -41,6 +43,7 @@ class GetProtocolLibTab
         $this->m_oUtility = new \raptor\ProtocolInfoUtility();
         $this->m_oMOP = new \raptor_formulas\MatchOrderToProtocol();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
+        $this->m_oFRD = new \raptor\FacilityRadiationDose();
     }
 
     /**
@@ -162,6 +165,8 @@ class GetProtocolLibTab
         $show_scores = ($orderProcName > '');
         
         $kwmap = $this->m_oUtility->getKeywordMap();
+        $sitedosebundle = $this->m_oFRD->getSiteDoseTracking();
+        $sitedose_summary = $sitedosebundle['summary'];
         
         $rows = "\n";
         
@@ -200,6 +205,18 @@ class GetProtocolLibTab
             foreach($result as $item) 
             {
                 $protocol_shortname = $item->protocol_shortname;
+                $site_summary_info = $this->m_oFRD->getFacilityDoseInfoCompleteSummary($sitedosebundle, $protocol_shortname);
+                $site_summary_show = $site_summary_info['show_text'];
+                $site_summary_tip = $site_summary_info['tip'];
+                if(count($site_summary_show) > 0)
+                {
+                    $site_summary_show_tx = '<ol><li>'.implode('<li>',$site_summary_show).'</ol>';
+                    $site_summary_tip_tx = implode(', ',$site_summary_tip);
+                } else {
+                    $site_summary_show_tx = 'None';
+                    $site_summary_tip_tx = 'No facility averages found';
+                }
+                
                 if(isset($protocol_code_map[$protocol_shortname]))
                 {
                     $this_protocol_codemap = $protocol_code_map[$protocol_shortname];
@@ -265,6 +282,7 @@ class GetProtocolLibTab
                       . '<td>'.$protocolnamecontent.'</td>'
                       . '<td>'.$longname.'</td>'
                       . '<td>'.$modality_abbr.'</td>'
+                      . '<td>'."<span title='$site_summary_tip_tx'>$site_summary_show_tx<span>".'</td>'
                       . '<td>'.$item->consent_req_kw.'</td>'
                       . '<td>'.$keywords.'</td>'
                       . '<td><ul>'
@@ -304,9 +322,10 @@ class GetProtocolLibTab
                             . '<th title="'.$matchscore_title.'">MS</th>'
                             . '<th title="Shortcut to select the protocol for this order">Select Protocol for Order</th>'
                             . '<th title="The descriptive long name of this protocol">Long Name</th>'
-                            . '<th>Modality</th>'
-                            . '<th>Consent Required</th>'
-                            . '<th>Keywords</th>'
+                            . '<th title="Equipment or technology used">Modality</th>'
+                            . '<th title="Average radiation dose tracked at facility level">Radiation Dose</th>'
+                            . '<th title="Does this protocol require patient consent?">Consent Required</th>'
+                            . '<th title="Keywords to help connect protocols to relevant procedures">Keywords</th>'
                             . '<th>Hydration Settings</th>'
                             . '<th>Sedation Settings</th>'
                             . '<th>Contrast Settings</th>'
