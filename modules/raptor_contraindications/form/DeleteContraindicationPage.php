@@ -13,6 +13,8 @@
 
 namespace raptor;
 
+require_once 'ContraindicationPageHelper.php';
+
 module_load_include('php','simplerulesengine_ui','form/DeleteRulePage');
 module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
 
@@ -48,11 +50,15 @@ class DeleteContraindicationPage extends \simplerulesengine\DeleteRulePage
     {
         $form = parent::getForm($form, $form_state, $disabled, $myvalues, $html_classname_overrides);
         global $base_url;
+        /*
         $form['data_entry_area1']['action_buttons']['cancel'] = array(
                 '#markup' => '<input class="admin-cancel-button" type="button" '
                 . ' value="Cancel" '
                 . ' data-redirect="'.$base_url.'/raptor/managecontraindications">');
         
+         */
+        $goback = $base_url.'/raptor/managecontraindications';
+        $form['data_entry_area1']['action_buttons']['cancel'] = ContraindicationPageHelper::getExitButtonMarkup($goback);
         return $form;
     }
 }

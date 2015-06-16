@@ -18,7 +18,7 @@ require_once 'ContraindicationPageHelper.php';
 /**
  * This class returns the Admin Information input content
  *
- * @author FrankWin7VM
+ * @author Frank Font of SAN Business Consultants
  */
 class ViewContraindicationPage
 {
@@ -81,47 +81,15 @@ class ViewContraindicationPage
             '#tree' => TRUE
         );
         global $base_url;
+        /*
         $worklist_url = $base_url . '/worklist';
         $form['data_entry_area1']['action_buttons']['cancel'] = array(
             '#type' => 'item',
             '#markup' => '<input class="admin-cancel-button" type="button" value="Cancel" data-redirect="'.$worklist_url.'?dialog=manageContraindications">'
         );
-        return $form;
-    }
-}
-
-
-module_load_include('php','simplerulesengine_ui','form/ViewRulePage');
-module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
-
-/**
- * This class returns the Admin Information input content
- *
- * @author Frank Font of SAN Business Consultants
- */
-class DemoViewRulePage extends \simplerulesengine\ViewRulePage
-{
-    public function __construct($rule_nm)
-    {
-        parent::__construct(
-                    $rule_nm
-                ,   new \raptor\ContraIndEngine(NULL)
-                ,   array('return'=>NULL)
-                );
-    }
-
-    /**
-     * Get all the form contents for rendering
-     * @return type renderable array
-     */
-    function getForm($form, &$form_state, $disabled, $myvalues, $html_classname_overrides=NULL)
-    {
-        $form = parent::getForm($form, $form_state, $disabled, $myvalues, $html_classname_overrides);
-        global $base_url;
-        $form['data_entry_area1']['action_buttons']['cancel'] = array(
-                '#markup' => '<input class="admin-cancel-button" type="button" '
-                . ' value="Cancel" '
-                . ' data-redirect="'.$base_url.'/raptor/managecontraindications">');
+         */
+        $goback = $base_url.'/raptor/managecontraindications';
+        $form['data_entry_area1']['action_buttons']['cancel'] = ContraindicationPageHelper::getExitButtonMarkup($goback);
         return $form;
     }
 }
