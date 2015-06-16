@@ -2,7 +2,7 @@
 /**
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -64,5 +64,24 @@ abstract class AReport
             throw new \Exception('Unable to check privs for "'.$this->getName().'" because '.$ex->getMessage(),99901,$ex);
         }
         return TRUE;
+    }
+    
+    function getExitButtonMarkup($goback='',$label='Exit')
+    {
+        if($goback == '')
+        {
+            $markup = array('#type' => 'item'
+                    , '#markup' => '<a class="admin-cancel-button" href="#">'.$label.'</a>');
+        } else {
+            $markup = array('#type' => 'item'
+                    , '#markup' => '<a class="admin-cancel-button" href="'.$goback.'">'.$label.'</a>');
+            /*
+            $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
+                    , '#markup' => '<input class="admin-cancel-button" type="button"'
+                    . ' value="Cancel"'
+                    . ' data-redirect="'.$goback.'">');
+             */
+        }
+        return $markup;
     }
 }
