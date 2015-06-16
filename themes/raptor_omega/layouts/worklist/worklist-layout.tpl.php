@@ -131,10 +131,10 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
     if($userprivs['SWI1'] != 1)
     {
         //THIS USER DOES NOT HAVE RIGHTS TO VIEW WORKLIST!
-
         //Show Drupal errors, if any.
         print $messages; //RAPTOR Omega errors
         ?>
+        <div style='margin-left:auto;margin-right:auto; border: 1px;'>
         <h3>This user account does not have patient data access privileges.</h3>
         <br>
         <?php
@@ -171,6 +171,7 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
             <?php } ?>
 
         </ul>
+        </div>
 
     <?php } else { ?>
     
