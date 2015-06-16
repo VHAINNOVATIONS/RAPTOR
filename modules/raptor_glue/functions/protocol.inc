@@ -129,7 +129,16 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
         //Go back to the worklist now!
         drupal_goto('worklist',array('redirectreason'=>'nomorertids'));
     }
-    
+    $disabled = FALSE;
+    if(isset($_REQUEST['mode'])) 
+    {
+        $showmode=  strtoupper($_REQUEST['mode']);
+        if($showmode == 'VIEW')
+        {
+            $disabled = TRUE;
+        }
+    }
+        
     $getform = TRUE;
     if($getform)
     {
@@ -139,9 +148,8 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
             drupal_set_message('<div class="personalbatchmsg">'.$pbmsg.'</div>');
         }
         $tid = $oContext->getSelectedTrackingID();
-        $oPI = new \raptor\ProtocolInfoPage($tid);
+        $oPI = new \raptor\ProtocolInfoPage($tid,$disabled);
         $form = array();
-        $disabled = FALSE;
         if(!isset($form_state['values']))
         {
             $myvalues_override = $oPI->getFieldValues();

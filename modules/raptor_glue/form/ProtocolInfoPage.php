@@ -38,13 +38,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     private $m_oTT = NULL;
     private $m_oLI = NULL;
     private $m_oFRD = NULL;
+    private $m_bFormDisabled = NULL;
     
     /**
      * Create an instance of the procotol info page.
      * @param \raptor\ContraIndEngine $oCIE
      * @throws \Exception
      */
-    function __construct($tid = NULL)
+    function __construct($tid = NULL, $disabled=FALSE)
     {
         $loaded = module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
         if(!$loaded)
@@ -53,6 +54,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             throw new \Exception($msg);      //This is fatal, so stop everything now.
         }
         
+        $this->m_bFormDisabled = $disabled;
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_tid = $tid;
         $this->m_oCIE = NULL;
@@ -3224,6 +3226,15 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     function getForm($form, &$form_state, $disabled, $myvalues_override=NULL)
     {
+        if($this->m_bFormDisabled)
+        {
+            //Disable all inputs on this form.
+            $disabled = TRUE;
+        }
+        if($disabled)
+        {
+            drupal_set_message('This ticket is currently in a view-only mode.  No changes can be saved.');
+        }
         if(isset($form_state['values']) && is_array($form_state['values']))
         {
             $myvalues = $form_state['values'];
@@ -3255,10 +3266,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $nUID = $this->m_oContext->getUID();
         $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
 
-        //$mdwsDao = $this->m_oContext->getMdwsClient();
-        //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $nIEN);
-        //$orderFileStatus = $orderDetails['orderFileStatus'];
-        
         if(!$disabled)
         {
             //Handle the locking
