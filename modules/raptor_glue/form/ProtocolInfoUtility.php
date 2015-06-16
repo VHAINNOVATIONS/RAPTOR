@@ -2298,15 +2298,15 @@ class ProtocolInfoUtility
     }
     
 
-    function getNotesSectionMarkup($section_name, $titleoverride
+    function getNotesSectionMarkup(
+              $section_name
+            , $titleoverride
             , $disabled
             , $myvalues
             , $supportEditMode=TRUE
             , $req_ack=FALSE
             , $requirevalue=FALSE)
     {
-        //$section_name = 'protocolnotes';
-        ///$titleoverride = 'Protocol Notes';
         $textfieldname = $section_name.'_tx';
 
         if($requirevalue && !$disabled)
@@ -2337,13 +2337,13 @@ class ProtocolInfoUtility
         );
         if (isset($myvalues[$textfieldname]))
         {
-            $protocolnotes_tx = $myvalues[$textfieldname];
+            $notes_tx = $myvalues[$textfieldname];
         }
         else
         {
-            $protocolnotes_tx = '';
+            $notes_tx = '';
         }
-        if($disabled && $protocolnotes_tx == '')    //20140714
+        if($disabled && $notes_tx == '')    //20140714
         {
             //Disabled and empty, dont bother showing any control.
             $root = array();
@@ -2355,7 +2355,7 @@ class ProtocolInfoUtility
                     '#type'          => 'textarea',
                     '#title'         => $cleantitleoverride,
                     '#disabled'      => $disabled,
-                    '#default_value' => $protocolnotes_tx,
+                    '#default_value' => $notes_tx,
                 );
             }
             else
@@ -2363,7 +2363,12 @@ class ProtocolInfoUtility
                 //Create the boilerplate insertion buttons
                 $nBoilerplate     = 0;
                 //$aBoilerplate     = ListUtils::getCategorizedLists('boilerplate-protocolnotes.cfg');
-                $aBoilerplate     = ListOptions::getRawBoilerplateProtocolOptions();
+                if($section_name[0] == 'e')
+                {
+                    $aBoilerplate     = ListOptions::getRawBoilerplateExamOptions();
+                } else {
+                    $aBoilerplate     = ListOptions::getRawBoilerplateProtocolOptions();
+                }
                 
                 $sBoilerplateHTML = "<div id='boilerplate'><ul>";
                 foreach ($aBoilerplate as $sCategory => $aContent)
@@ -2395,9 +2400,11 @@ class ProtocolInfoUtility
                 $myclassname = $disabled ? '' : 'raptor-active-field';
                 $root[$section_name.'_fieldset_col1'][$textfieldname] = array(
                     '#type'          => 'textarea',
-                    '#title'         => '<span class="fieldset-legend '.$myclassname.'">'.t('Protocol Notes').'</span>',
+                    '#title'         => '<span class="fieldset-legend '.$myclassname.'">'
+                                        .t($cleantitleoverride)
+                                        .'</span>',
                     '#disabled'      => $disabled,
-                    '#default_value' => $protocolnotes_tx,
+                    '#default_value' => $notes_tx,
                     '#attributes' => array('oninput' => 'notDefaultValuesInSection("'.$section_name.'")'),
                 );
                 $defaultvalue = isset($myvalues['DefaultValues'][$section_name]) ? $myvalues['DefaultValues'][$section_name] : NULL;
@@ -2418,7 +2425,7 @@ class ProtocolInfoUtility
         }
         return $root;
     }
-
+    
     static function getFirstAvailableValue($myvalues,$aNames,$sDefaultValue)
     {
         foreach($aNames as $sName)
@@ -2809,7 +2816,13 @@ class ProtocolInfoUtility
         }
         $root['exam_consent_received_fieldset'] = $this->getConsentReceivedBlock($form_state, $disabled, $myvalues);
         
-        $sName = 'exam_notes_tx';
+        $sectionname = 'exam_notes';
+        $sName = $sectionname.'_tx';
+        $root['exam_summary'][$sName]
+                = $this->getNotesSectionMarkup($sectionname, 'Examination Notes'
+                , $disabled, $myvalues);
+        /*
+        
         $default_value = isset($myvalues[$sName]) ? $myvalues[$sName] : '';
         if ($disabled)
         {
@@ -2835,6 +2848,8 @@ class ProtocolInfoUtility
                 '#disabled' => $disabled,
             );
         }
+         * 
+         */
         return $root;
     }
     
