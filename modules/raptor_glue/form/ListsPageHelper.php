@@ -303,10 +303,13 @@ class ListsPageHelper
         
         global $base_url;
         $goback = $base_url . '/raptor/managelists';
+        /*
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
                 , '#markup' => '<input class="admin-cancel-button" type="button" value="Cancel"'
                 . ' data-redirect="'.$goback.'">');
-        
+
+         */
+        $form['data_entry_area1']['action_buttons']['cancel'] = FormHelper::getExitButtonMarkup($goback);
         return $form;
     }
 }
