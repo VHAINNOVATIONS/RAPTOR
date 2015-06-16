@@ -87,7 +87,8 @@ class ViewAbout
         global $base_url;
 
         $mdwsversion = '2.5';   //TODO get from a query
-        $logomarkup = "<img style='float:right;' alt='RAPTOR Logo' src='$base_url/sites/all/modules/raptor_glue/images/raptor_large_logo.png'>";
+        $logomarkup = "<img style='float:right;' alt='RAPTOR Logo' "
+                    . " src='$base_url/sites/all/modules/raptor_glue/images/raptor_large_logo.png'>";
         $html = '<div id="about-dialog" style="margin-left:auto;margin-right:auto;">'
                 . '<fieldset>'
                 . '<table width="100%">'
@@ -103,6 +104,7 @@ class ViewAbout
                 . '<tr><td>MDWS version</td><td>'.$mdwsversion.'</td></tr>'
                 . '<tr><td>VISTA Site</td><td>'.VISTA_SITE.'</td></tr>'
                 . '</table>'
+                . '<br>'
                 . '<b>Site Customization Version Information</b>'
                 . '<table class="about-info">'
                 . '<tr><td>General</td>'
@@ -113,8 +115,9 @@ class ViewAbout
                 . '<td>'.WORKFLOW_DEFS_VERSION_INFO
                 . $this->getWorkflowCustomizationItems()
                 . '</td></tr>'
-                . '<tr><td>Time</td><td>'.TIME_DEFS_VERSION_INFO.'</td></tr>'
-                . '<tr><td>VistA</td><td>'.VISTA_DEFS_VERSION_INFO.'</td></tr>'
+                . '<tr><td>Time </td><td>'.TIME_DEFS_VERSION_INFO.'</td></tr>'
+                . '<tr><td>VistA </td><td>'.VISTA_DEFS_VERSION_INFO.'</td></tr>'
+                . '<tr><td>Units of Measure </td><td>'.UOM_VERSION_INFO.'</td></tr>'
                 . '</table>'
                 . '</td>'
                 . '</tr>'

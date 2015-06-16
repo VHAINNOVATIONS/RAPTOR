@@ -1,7 +1,7 @@
 <?php
 
 defined("VISTA_DEFS_VERSION_INFO")
-    or define("VISTA_DEFS_VERSION_INFO", '20150526.1');
+    or define("VISTA_DEFS_VERSION_INFO", 'Standard 20150526.1');
 
 /*
  * These are VISTA specific settings not expected to change by site
