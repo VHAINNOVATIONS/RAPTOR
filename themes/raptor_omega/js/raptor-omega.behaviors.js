@@ -575,7 +575,7 @@
 
         $('#administer-modal')
                 .on('click', '.raptor-dialog-submit, .admin-cancel-button', function (e) {
-                    location.href = $(this).attr('data-redirect');
+                    $('#administer-modal').dialog('close');
                 });
 
         /***** BEGIN NAVIGATION *****/
