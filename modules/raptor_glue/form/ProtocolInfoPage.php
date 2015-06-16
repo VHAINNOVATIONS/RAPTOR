@@ -62,7 +62,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
-        
     }
 
     /**
