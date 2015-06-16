@@ -114,4 +114,22 @@ abstract class ChildEditBasePage implements \raptor\PageNavigation
      */
     abstract function getForm($form, &$form_state, $disabled, $myvalues_override);
 
+    function getExitButtonMarkup($goback='',$label='Exit')
+    {
+        if($goback == '')
+        {
+            $markup = array('#type' => 'item'
+                    , '#markup' => '<a class="admin-cancel-button" href="#">'.$label.'</a>');
+        } else {
+            $markup = array('#type' => 'item'
+                    , '#markup' => '<a class="admin-cancel-button" href="'.$goback.'">'.$label.'</a>');
+            /*
+            $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
+                    , '#markup' => '<input class="admin-cancel-button" type="button"'
+                    . ' value="Cancel"'
+                    . ' data-redirect="'.$goback.'">');
+             */
+        }
+        return $markup;
+    }
 }
