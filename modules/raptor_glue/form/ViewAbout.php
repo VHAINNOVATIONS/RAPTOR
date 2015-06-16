@@ -89,6 +89,7 @@ class ViewAbout
         $mdwsversion = '2.5';   //TODO get from a query
         $logomarkup = "<img style='float:right;' alt='RAPTOR Logo' src='$base_url/sites/all/modules/raptor_glue/images/raptor_large_logo.png'>";
         $html = '<div id="about-dialog" style="margin-left:auto;margin-right:auto;">'
+                . '<fieldset>'
                 . '<table width="100%">'
                 . '<tr>'
                 . '<td>'
@@ -118,7 +119,10 @@ class ViewAbout
                 . '</td>'
                 . '</tr>'
                 . '</table>'
-                . '</div> <!-- End about-dialog div -->';
+                . '</fieldset>'
+                . '</div> '
+                . '<br><form><center><input class="raptor-dialog-cancel" type="button" value="Close"><center></form>'
+                . '<!-- End about-dialog div -->';
 
         $form = array();
         $form[] = array('#markup' => $html );
