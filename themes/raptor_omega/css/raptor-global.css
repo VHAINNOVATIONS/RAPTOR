@@ -55,3 +55,28 @@
 .pending_column{
     width: 18px;
 }
+
+#edit-boilerplate-fieldset{
+    border: 1px solid #ccc;
+    padding: 0 7px 7px 7px;
+    margin-bottom: 15px;
+    width: 1024px;
+}
+#edit-exam-notes-tx {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+
+
+.form-textarea{
+    width:1024px;
+}
+
+.grippie {
+    width: 100%;
+}

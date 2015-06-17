@@ -939,7 +939,7 @@ td li {
   #protocol_container fieldset.data-entry2-area:not([id^="edit-protocolnotes"]) [id*="-col1"], #protocol_container_styles fieldset.data-entry1-area [id*="-col1"],
   #protocol_container_styles fieldset.data-entry2-area:not([id^="edit-protocolnotes"]) [id*="-col1"] {
     border: none;
-    width: 20%;
+    width: 100%;
     float: left; }
 @media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/protocol\/raptor-omega\.protocol\.scss}line{font-family:\00003214}}
     #protocol_container fieldset.data-entry1-area [id*="-col1"] .form-type-radio > *,
@@ -956,13 +956,13 @@ td li {
     #protocol_container fieldset.data-entry1-area [id*="-col1"] .form-item :first-child,
     #protocol_container fieldset.data-entry2-area:not([id^="edit-protocolnotes"]) [id*="-col1"] .form-item :first-child, #protocol_container_styles fieldset.data-entry1-area [id*="-col1"] .form-item :first-child,
     #protocol_container_styles fieldset.data-entry2-area:not([id^="edit-protocolnotes"]) [id*="-col1"] .form-item :first-child {
-      width: 25px;
+      width: 1040px;
       margin-bottom: 14px; }
 @media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/protocol\/raptor-omega\.protocol\.scss}line{font-family:\00003228}}
     #protocol_container fieldset.data-entry1-area [id*="-col1"] .form-item :nth-child(2),
     #protocol_container fieldset.data-entry2-area:not([id^="edit-protocolnotes"]) [id*="-col1"] .form-item :nth-child(2), #protocol_container_styles fieldset.data-entry1-area [id*="-col1"] .form-item :nth-child(2),
     #protocol_container_styles fieldset.data-entry2-area:not([id^="edit-protocolnotes"]) [id*="-col1"] .form-item :nth-child(2) {
-      width: 80px; }
+      width: 1040px; }
 @media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/layouts\/protocol\/raptor-omega\.protocol\.scss}line{font-family:\00003232}}
     #protocol_container fieldset.data-entry1-area [id*="-col1"] .form-item :nth-child(3),
     #protocol_container fieldset.data-entry2-area:not([id^="edit-protocolnotes"]) [id*="-col1"] .form-item :nth-child(3), #protocol_container_styles fieldset.data-entry1-area [id*="-col1"] .form-item :nth-child(3),
