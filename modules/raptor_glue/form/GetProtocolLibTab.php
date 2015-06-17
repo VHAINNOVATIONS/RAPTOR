@@ -213,7 +213,7 @@ class GetProtocolLibTab
                     $site_summary_show_tx = '<ol><li>'.implode('<li>',$site_summary_show).'</ol>';
                     $site_summary_tip_tx = implode(', ',$site_summary_tip);
                 } else {
-                    $site_summary_show_tx = 'None';
+                    $site_summary_show_tx = 'None found';
                     $site_summary_tip_tx = 'No facility averages found';
                 }
                 
