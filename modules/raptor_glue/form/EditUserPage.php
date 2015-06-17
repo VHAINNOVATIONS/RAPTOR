@@ -259,12 +259,15 @@ class EditUserPage extends \raptor\ChildEditBasePage
             );
 
         global $base_url;
-        $gobacktoURL = $this->getGobacktoFullURL();
+        $goback = $this->getGobacktoFullURL();
+        /*
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
                 , '#markup' => '<input class="admin-cancel-button" id="user-cancel"'
                 . ' type="button" value="Cancel"'
                 . ' data-redirect="'.$gobacktoURL.'">');
 
+         */
+        $form['data_entry_area1']['action_buttons']['cancel'] = FormHelper::getExitButtonMarkup($goback);
         return $form;
     }
 }

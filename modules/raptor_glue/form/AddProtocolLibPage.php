@@ -245,11 +245,13 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
         global $base_url;
         $worklist_url = $base_url . '/worklist';
         $goback = $this->getGobacktoFullURL();
+        /*
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
                 , '#markup' => '<input class="admin-cancel-button" id="user-cancel"'
                 . ' type="button" value="Cancel"'
                 . ' data-redirect="'.$goback.'">');
-        
+         */
+        $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }
 }

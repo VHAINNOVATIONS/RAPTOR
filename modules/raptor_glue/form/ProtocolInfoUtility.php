@@ -1035,7 +1035,10 @@ class ProtocolInfoUtility
         $nIEN = $myvalues['tid'];
         $sCWFS = $this->getCurrentWorkflowState($nSiteID, $nIEN);
         $mdwsDao = $this->m_oContext->getMdwsClient();
-
+        $sTrackingID = $this->m_oTT->getTrackingID($nSiteID, $nIEN);
+        $nUID = $userinfo->getUserID();
+        $datasaveactionbuttons = 0; //Count number of active buttons that can save changes.
+        
         $configuredVistaCommit=TRUE;
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_GENERAL;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_GENERAL;
@@ -1121,6 +1124,7 @@ class ProtocolInfoUtility
                                     ,'class'=>array('state-completed')
                                 )
                         );
+                    $datasaveactionbuttons++;
                 }
             }
             if($oAA->allowExamComplete($sCWFS))
@@ -1132,6 +1136,7 @@ class ProtocolInfoUtility
                         , '#attributes' => array('title' => $examcompletionTip
                                     ,'class'=>array('state-completed'))
                         );
+                    $datasaveactionbuttons++;
                 }
             }
             
@@ -1148,6 +1153,7 @@ class ProtocolInfoUtility
                                     ,'class'=>array('commit-to-vista'))
                             , '#disabled' => !$configuredVistaCommit, 
                             );
+                        $datasaveactionbuttons++;
                     }
                 } else
                 if($sCWFS == 'PA')
@@ -1160,6 +1166,7 @@ class ProtocolInfoUtility
                                     ,'class'=>array('commit-to-vista'))
                             , '#disabled' => !$configuredVistaCommit, 
                             );
+                        $datasaveactionbuttons++;
                     }
                 }
             }
@@ -1172,6 +1179,7 @@ class ProtocolInfoUtility
                         , '#value' => t('Save Exam Values')
                         , '#attributes' => array('title' => $saveSoFarTip)
                         );
+                    $datasaveactionbuttons++;
                 }
             }
             
@@ -1184,6 +1192,7 @@ class ProtocolInfoUtility
                         , '#attributes' => array('title' => $interpretationTip
                                                 ,'class'=>array('state-completed'))
                         );
+                    $datasaveactionbuttons++;
                     if($oAA->allowCommitNotesToVista($sCWFS))
                     {
                         if($has_uncommitted_data)
@@ -1194,6 +1203,7 @@ class ProtocolInfoUtility
                                         ,'class'=>array('commit-to-vista'))
                                 , '#disabled' => !$configuredVistaCommit,
                                 );
+                            $datasaveactionbuttons++;
                         } else {
                             $feedback = 'All procedure data has been committed to VistA';
                             if($commited_dt != NULL)
@@ -1213,6 +1223,7 @@ class ProtocolInfoUtility
                         , '#attributes' => array('title' => $qaTip
                                     ,'class'=>array('state-completed'))
                         );
+                    $datasaveactionbuttons++;
                     if($oAA->allowCommitNotesToVista($sCWFS))
                     {
                         if($has_uncommitted_data)
@@ -1223,6 +1234,7 @@ class ProtocolInfoUtility
                                         ,'class'=>array('commit-to-vista'))
                                 , '#disabled' => !$configuredVistaCommit,  
                                 );
+                            $datasaveactionbuttons++;
                         } else {
                             $feedback = 'All procedure data has been committed to VistA';
                             if($commited_dt != NULL)
@@ -1245,6 +1257,7 @@ class ProtocolInfoUtility
                             , '#value' => t('Approve')
                             , '#attributes' => array('title' => $approveTip)
                             );
+                        $datasaveactionbuttons++;
                     }
                 } else {
                     //They can only request approval.
@@ -1254,6 +1267,7 @@ class ProtocolInfoUtility
                             , '#value' => t('Request Approval')
                             , '#attributes' => array('title' => $sRequestApproveTip)
                             );
+                        $datasaveactionbuttons++;
                     }
                 }
                 if($oAA->allowCollaborateTicket($sCWFS))
@@ -1263,6 +1277,7 @@ class ProtocolInfoUtility
                                 => '<input id="raptor-protocol-collaborate"'
                                 . ' type="button"'
                                 . ' value="Collaborate" title="'.$collaborateTip.'">');
+                    $datasaveactionbuttons++;
                 }
             }
         }
@@ -1312,12 +1327,14 @@ class ProtocolInfoUtility
                         , '#value' => t('Reserve ('.$assignmentBlurb.')')
                         , '#attributes' => array('title' => $reserveTip)
                         );
+                    $datasaveactionbuttons++;
                 } else {
                     //This ticket is not already in collaboration mode
                     $form['page_action_buttons_area']['reserve_button'] = array('#type' => 'submit'
                         , '#value' => t('Reserve')
                         , '#attributes' => array('title' => $reserveTip)
                         );
+                    $datasaveactionbuttons++;
                 }
             }
 
@@ -1331,6 +1348,7 @@ class ProtocolInfoUtility
                                 => '<input id="raptor-protocol-replace-order-button"'
                                 . ' type="button"'
                                 . ' value="Replace Order" title="'.$replaceOrderTip.'">');
+                    $datasaveactionbuttons++;
                 }
                 if($oAA->allowCancelOrder($sCWFS))
                 {
@@ -1339,6 +1357,7 @@ class ProtocolInfoUtility
                         , '#value' => t('Cancel Order')
                         , '#attributes' => array('title' => $cancelOrderTip)
                         );
+                    $datasaveactionbuttons++;
                 }
             }
         }
@@ -1354,6 +1373,7 @@ class ProtocolInfoUtility
                         , '#value' => t('Unapprove')
                         , '#attributes' => array('title' => $unapproveTip)
                         );
+                    $datasaveactionbuttons++;
                 }
             }
             if($oAA->allowUnacknowledgeProtocol($sCWFS))
@@ -1364,7 +1384,27 @@ class ProtocolInfoUtility
                         , '#value' => t('Unacknowledge Protocol')
                         , '#attributes' => array('title' => $unacknowledgeTip)
                         );
+                    $datasaveactionbuttons++;
                 }
+            }
+        }
+        
+        if($datasaveactionbuttons == 0)
+        {
+            //No data changing actions are possible for this ticket so RELEASE any lock that might be on it.
+            try
+            {
+                $msg = 'No data changing actions are available.';
+                if($feedback > '')
+                {
+                    $feedback .= '<br>'. $msg;
+                } else {
+                    $feedback = $msg;
+                }
+                $this->m_oTT->markTicketUnlocked($sTrackingID, $nUID);
+            } catch (\Exception $ex) {
+                //Do NOT take any action, there are many valid reason for this exception.
+                //For example, ticket was already locked by another user.
             }
         }
         
@@ -1374,6 +1414,7 @@ class ProtocolInfoUtility
                 '#markup' => ' <span class="action-area-feedback">'.t($feedback).'</span>'
                 );
         }
+        
 
         $form['page_action_buttons_area']['bottom_filler'] = array(
             '#markup' => '<br><br><br><!-- Bottom gap -->',
@@ -2298,15 +2339,15 @@ class ProtocolInfoUtility
     }
     
 
-    function getNotesSectionMarkup($section_name, $titleoverride
+    function getNotesSectionMarkup(
+              $section_name
+            , $titleoverride
             , $disabled
             , $myvalues
             , $supportEditMode=TRUE
             , $req_ack=FALSE
             , $requirevalue=FALSE)
     {
-        //$section_name = 'protocolnotes';
-        ///$titleoverride = 'Protocol Notes';
         $textfieldname = $section_name.'_tx';
 
         if($requirevalue && !$disabled)
@@ -2337,13 +2378,13 @@ class ProtocolInfoUtility
         );
         if (isset($myvalues[$textfieldname]))
         {
-            $protocolnotes_tx = $myvalues[$textfieldname];
+            $notes_tx = $myvalues[$textfieldname];
         }
         else
         {
-            $protocolnotes_tx = '';
+            $notes_tx = '';
         }
-        if($disabled && $protocolnotes_tx == '')    //20140714
+        if($disabled && $notes_tx == '')    //20140714
         {
             //Disabled and empty, dont bother showing any control.
             $root = array();
@@ -2355,7 +2396,7 @@ class ProtocolInfoUtility
                     '#type'          => 'textarea',
                     '#title'         => $cleantitleoverride,
                     '#disabled'      => $disabled,
-                    '#default_value' => $protocolnotes_tx,
+                    '#default_value' => $notes_tx,
                 );
             }
             else
@@ -2363,7 +2404,12 @@ class ProtocolInfoUtility
                 //Create the boilerplate insertion buttons
                 $nBoilerplate     = 0;
                 //$aBoilerplate     = ListUtils::getCategorizedLists('boilerplate-protocolnotes.cfg');
-                $aBoilerplate     = ListOptions::getRawBoilerplateProtocolOptions();
+                if($section_name[0] == 'e')
+                {
+                    $aBoilerplate     = ListOptions::getRawBoilerplateExamOptions();
+                } else {
+                    $aBoilerplate     = ListOptions::getRawBoilerplateProtocolOptions();
+                }
                 
                 $sBoilerplateHTML = "<div id='boilerplate'><ul>";
                 foreach ($aBoilerplate as $sCategory => $aContent)
@@ -2395,9 +2441,11 @@ class ProtocolInfoUtility
                 $myclassname = $disabled ? '' : 'raptor-active-field';
                 $root[$section_name.'_fieldset_col1'][$textfieldname] = array(
                     '#type'          => 'textarea',
-                    '#title'         => '<span class="fieldset-legend '.$myclassname.'">'.t('Protocol Notes').'</span>',
+                    '#title'         => '<span class="fieldset-legend '.$myclassname.'">'
+                                        .t($cleantitleoverride)
+                                        .'</span>',
                     '#disabled'      => $disabled,
-                    '#default_value' => $protocolnotes_tx,
+                    '#default_value' => $notes_tx,
                     '#attributes' => array('oninput' => 'notDefaultValuesInSection("'.$section_name.'")'),
                 );
                 $defaultvalue = isset($myvalues['DefaultValues'][$section_name]) ? $myvalues['DefaultValues'][$section_name] : NULL;
@@ -2418,7 +2466,7 @@ class ProtocolInfoUtility
         }
         return $root;
     }
-
+    
     static function getFirstAvailableValue($myvalues,$aNames,$sDefaultValue)
     {
         foreach($aNames as $sName)
@@ -2809,7 +2857,13 @@ class ProtocolInfoUtility
         }
         $root['exam_consent_received_fieldset'] = $this->getConsentReceivedBlock($form_state, $disabled, $myvalues);
         
-        $sName = 'exam_notes_tx';
+        $sectionname = 'exam_notes';
+        $sName = $sectionname.'_tx';
+        $root['exam_summary'][$sName]
+                = $this->getNotesSectionMarkup($sectionname, 'Examination Notes'
+                , $disabled, $myvalues);
+        /*
+        
         $default_value = isset($myvalues[$sName]) ? $myvalues[$sName] : '';
         if ($disabled)
         {
@@ -2835,6 +2889,8 @@ class ProtocolInfoUtility
                 '#disabled' => $disabled,
             );
         }
+         * 
+         */
         return $root;
     }
     

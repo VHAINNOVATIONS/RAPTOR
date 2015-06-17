@@ -1,7 +1,7 @@
 <?php
 
 defined("TIME_DEFS_VERSION_INFO")
-    or define("TIME_DEFS_VERSION_INFO", 'DEBUG 20150507.1');
+    or define("TIME_DEFS_VERSION_INFO", 'Standard 20150616.1');
 
 /*
  * These are TIME dependent settings
@@ -31,12 +31,12 @@ defined("USER_ALIVE_INTERVAL_SECONDS")
 //This much inactive time triggers loss of an edit lock (keep this number pretty big)
 //Make sure USER_EDITLOCK_TIMEOUT_SECONDS is at least 3 times bigger than USER_EDITLOCK_ALIVE_INTERVAL_SECONDS
 //The USER_EDITLOCK_ALIVE_INTERVAL_SECONDS triggers a DB update, so do not make this too frequent
-// Production recommendation for USER_EDITLOCK_TIMEOUT_SECONDS=5400
-// Production recommendation for USER_EDITLOCK_ALIVE_INTERVAL_SECONDS=120
+// Production recommendation for USER_EDITLOCK_TIMEOUT_SECONDS=900
+// Production recommendation for USER_EDITLOCK_ALIVE_INTERVAL_SECONDS=60
 defined("USER_EDITLOCK_TIMEOUT_SECONDS")
-    or define("USER_EDITLOCK_TIMEOUT_SECONDS", 100);//5400);
+    or define("USER_EDITLOCK_TIMEOUT_SECONDS", 900);
 defined("USER_EDITLOCK_ALIVE_INTERVAL_SECONDS")
-    or define("USER_EDITLOCK_ALIVE_INTERVAL_SECONDS", 10);//120);
+    or define("USER_EDITLOCK_ALIVE_INTERVAL_SECONDS", 60);
 
 //This does not log the user out, only refreshes the session key (warning: invalidates form data!)
 // Production recommendation for SESSION_KEY_TIMEOUT_SECONDS=57600

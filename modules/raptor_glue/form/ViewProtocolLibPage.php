@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -84,12 +84,15 @@ class ViewProtocolLibPage extends \raptor\ChildEditBasePage
       
         
         //Replace the buttons
-        $gobacktoURL = $this->getGobacktoFullURL();
+        $goback = $this->getGobacktoFullURL();
+        /*
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
                 , '#markup' => '<input class="admin-cancel-button" id="user-cancel"'
                 . ' type="button" value="Exit"'
-                . ' data-redirect="'.$gobacktoURL.'">');
+                . ' data-redirect="'.$goback.'">');
         
+         */
+        $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }
 }

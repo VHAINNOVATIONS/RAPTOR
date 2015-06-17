@@ -20,12 +20,6 @@ require_once 'FormHelper.php';
 
 class ProtocolPageUtils
 {
-    static function getAttributeForSelectOption($choices,$attributeName,$optionID)
-    {
-        //TODO --- check for exam
-        return $value;
-    }
-    
     /**
      * Copy all the user settings from a saved order to a new one.
      * @param type $sourceTID fully qualified source ticket id

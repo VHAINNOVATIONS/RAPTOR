@@ -332,4 +332,17 @@ class FormHelper
             return '<span class="raptor-active-field">'.t($text).'</span>';
         }
     }
+    
+    public static function getExitButtonMarkup($goback='',$label='Exit')
+    {
+        if($goback == '')
+        {
+            $markup = array('#type' => 'item'
+                    , '#markup' => '<a class="admin-cancel-button" href="#">'.$label.'</a>');
+        } else {
+            $markup = array('#type' => 'item'
+                    , '#markup' => '<a class="admin-cancel-button" href="'.$goback.'">'.$label.'</a>');
+        }
+        return $markup;
+    }
 }

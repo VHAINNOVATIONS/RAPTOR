@@ -16,17 +16,15 @@ namespace raptor;
 require_once (RAPTOR_CI_MODULE_PATH . '/core/ContraIndEngine.inc');
 
 /**
- * This class returns the Admin Information input content
+ * This class helps with forms
  *
- * @author FrankWin7VM
+ * @author Frank Font of SAN Business Consultants
  */
 class ContraindicationPageHelper
 {
     
     /**
      * Get the values to populate the form.
-     * @param type $sProtocolName the user id
-     * @return type result of the queries as an array
      */
     function getFieldValues($rule_nm)
     {
@@ -49,7 +47,6 @@ class ContraindicationPageHelper
      */
     function getAllOptions()
     {
-        //TODO
         $aOptions = array();
         return $aOptions;
     }
@@ -391,8 +388,19 @@ class ContraindicationPageHelper
             '#description' => t('Yes if rule is active, else no.')
         );
         
-
-        
         return $form;
+    }
+    
+    public static function getExitButtonMarkup($goback='',$label='Exit')
+    {
+        if($goback == '')
+        {
+            $markup = array('#type' => 'item'
+                    , '#markup' => '<a class="admin-cancel-button" href="#">'.$label.'</a>');
+        } else {
+            $markup = array('#type' => 'item'
+                    , '#markup' => '<a class="admin-cancel-button" href="'.$goback.'">'.$label.'</a>');
+        }
+        return $markup;
     }
 }

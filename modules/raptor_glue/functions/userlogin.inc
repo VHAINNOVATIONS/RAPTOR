@@ -627,6 +627,13 @@ function raptor_glue_form_alter(&$form, &$form_state, $form_id)
     case 'user_login':
     case 'user_login_block':
         drupal_set_title(t('RAPTOR Login'));
+        //The username in VistA is not public information so hide it.
+        $form['name'] = array(
+          '#type' => 'password', 
+          '#title' => t('Username:'),
+          '#description' => t('Provide your login name for RAPTOR site '.VISTA_SITE),
+          '#required' => TRUE,
+        );
         break;
 
     case 'user_register_form':

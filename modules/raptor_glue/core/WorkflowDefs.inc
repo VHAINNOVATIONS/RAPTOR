@@ -1,7 +1,7 @@
 <?php
 
 defined("WORKFLOW_DEFS_VERSION_INFO")
-    or define("WORKFLOW_DEFS_VERSION_INFO", '20150422.1');
+    or define("WORKFLOW_DEFS_VERSION_INFO", 'Custom 20150422.1');
 
 /*
  * These are Workflow settings

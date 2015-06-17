@@ -405,8 +405,7 @@ class ProtocolLibPageHelper
                         ->execute();
                 if($result->rowCount()===0)
                 {
-                    drupal_set_message('debug>>>NO RECORDS FOUND for '.$protocol_shortname);
-
+                    error_log("WARNING: NO TEMPLATE RECORDS FOUND for PROTOCOL $protocol_shortname");
                     //Set all the template keys as NULL.
                     ProtocolLibPageHelper::setAllTemplateValuesNull($myvalues);                
                 } else {
