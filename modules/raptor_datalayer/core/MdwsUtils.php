@@ -27,7 +27,8 @@ class MdwsUtils {
         
         return $soapResult->getVariableValueResult->text;
     }
-    /*
+    
+    /**
      * Turn the DDR GETS ENTRY results in to an array/dictionary by field #
      */
     public static function parseDdrGetsEntry($soapResult) {
@@ -67,7 +68,7 @@ class MdwsUtils {
         return $resultsDict;
     }
     
-        /*
+    /**
      * Turn the DDR GETS ENTRY results in to an array/dictionary by field #
      */
     public static function parseDdrGetsEntryInternalAndExternal($soapResult) {
@@ -106,7 +107,7 @@ class MdwsUtils {
         return 1;
     }
     
-    /*
+    /**
      * Using the current system time (with an optional offset, get date in VistA format
      */
     public static function getVistaDate($dateOffset) {
@@ -126,7 +127,7 @@ class MdwsUtils {
         return MdwsUtils::convertPhpDateTimeToVistaDate($curDt);
     }
     
-    /*
+    /**
      * Convert \DateTime to Vista format
      * Ex 1) MdwsUtils::convertPhpDateTimeToVista(new \DateTime('2010-12-31')) -> '3131231'
      */
@@ -138,7 +139,7 @@ class MdwsUtils {
         return ($year - 1700).$month.$day;
     }
 
-    /*
+    /**
      * Convert VistA format: 3101231 -> 2010-12-31
      */
     public static function covertVistaDateTimeToDate($vistaDateTime) {
@@ -150,7 +151,7 @@ class MdwsUtils {
         return $month."-".$day."-".$year;
     }
     
-    /*
+    /**
      * Convert VistA format: 3101231 -> 20101231
      */
     public static function covertVistaDateToYYYYMMDD($vistaDateTime) {
@@ -162,7 +163,7 @@ class MdwsUtils {
         return $year.$month.$day;
     }
 
-    /*
+    /**
      * Convert 20100101 format -> 2010-01-01
      */
     public static function convertYYYYMMDDToDate($vistaDateTime) {
@@ -174,7 +175,7 @@ class MdwsUtils {
         return $month."-".$day."-".$year;
     }
     
-    /*
+    /**
      * Convert 20100101.083400 format -> 2010-01-01 083400
      */
     public static function convertYYYYMMDDToDatetime($vistaDateTime) {
@@ -210,7 +211,7 @@ class MdwsUtils {
     }
     
     /**
-     * POSSIBLY NOT USED SO MARKING DEPRECATED 20150601
+     * NOT USED SO MARKING DEPRECATED 20150601
      * @deprecated since 20150601
      */
     public static  function getPatientFromSelectResult($serviceResponse) {
@@ -504,10 +505,6 @@ class MdwsUtils {
         return $result;
     }
     
-    static function checkEgfrFormula($egfrFormula) {
-        return true;
-    }
-
     public static function getChemHemLabs($mdwsDao)
     {
         $displayLabsResult = array();
@@ -912,14 +909,6 @@ class MdwsUtils {
         $result['mpiChecksum'] = isset($RptTO->mpiChecksum) ? $RptTO->mpiChecksum : "Unknown";
 
         return $result;
-    }
-
-    // TODO - all Vista user functions have been moved to MdwsUserUtils.php -> this light wrapper
-    // is just so existing code doesn't break. All current code using this function should
-    // be repointed to MdwsUserUtils::isProvider
-    public static function isProvider($mdwsDao, $userDuz)
-    {
-        return MdwsUserUtils::isProvider($mdwsDao, $userDuz);
     }
 
     /**
