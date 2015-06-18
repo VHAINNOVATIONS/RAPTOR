@@ -224,7 +224,7 @@ class WorklistData
             return false;
         }
         $strings = isset($MDWSResponse->ddrListerResult->text->string) ? $MDWSResponse->ddrListerResult->text->string : array();
-        //print_r($strings);
+//error_log("LOOK WORKLIST RAW>>>" . print_r($strings,TRUE));
                 
         $exploded = array();
         $t = array();

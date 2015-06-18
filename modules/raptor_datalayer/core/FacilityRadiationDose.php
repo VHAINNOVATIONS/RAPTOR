@@ -40,7 +40,7 @@ class FacilityRadiationDose
             //No baseline to factor in.
             $rawavgdose = $rawdose;
         }
-error_log("LOOK record=".print_r($record,TRUE));        
+//error_log("LOOK record=".print_r($record,TRUE));        
         return $rawavgdose;
     }
             
