@@ -109,7 +109,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $myvalues['exam_radioisotope_iv_tx'] = NULL;
         $myvalues['exam_consent_received_kw'] = NULL;
 
-        $myvalues['exam_notes_tx'] = NULL;        
+        $myvalues['examnotes_tx'] = NULL;        
     }
 
     /**
@@ -405,7 +405,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
         try
         {
-            $myvalues['exam_notes_tx'] = $this->getExamNotesText($nSiteID, $nIEN
+            $myvalues['examnotes_tx'] = $this->getExamNotesText($nSiteID, $nIEN
                     , $relevant_protocol_shortname);
         } catch (\Exception $ex) {
             $msg = 'Unable to load exam notes radiation dose information for ticket ['.$nSiteID.'-'.$nIEN.'] because '.$ex->getMessage();
@@ -760,7 +760,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $myvalues['prev_suspend_notes_tx'] = $prev_suspend_notes_tx;
         $myvalues['DefaultValues'] = null;
         $myvalues['protocolnotes_tx'] = '';
-        $myvalues['exam_notes_tx'] = '';
+        $myvalues['examnotes_tx'] = '';
         $myvalues['qa_notes_tx'] = '';
         
         $this->loadProtocolFieldValues($nSiteID,$nIEN,$myvalues);
@@ -3347,6 +3347,31 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $form['hidden_volatile_things']['commit_esig'] = array('#type' => 'hidden'); //DO NOT SET A DEFAULT VALUE!!! Set with javascript later!!!
         $form['hidden_volatile_things']['collaboration_uid'] = array('#type' => 'hidden'); //DO NOT SET A DEFAULT VALUE!!! Set with javascript later!!!
         $form['hidden_volatile_things']['collaboration_note_tx'] = array('#type' => 'hidden'); //DO NOT SET A DEFAULT VALUE!!! Set with javascript later!!!
+        
+        //Add protocol template values markup if any exist at this time
+        $modality_filter = array();
+        if(isset($myvalues['protocol1_nm']) && trim($myvalues['protocol1_nm']) > '')
+        {
+            module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
+            $oPS = new \raptor\ProtocolSettings();
+            $metainfo = $oPS->getProtocolMetaInformation($myvalues['protocol1_nm']);
+            $templatevalues = $metainfo['defaultvalues'];
+            $protocolattribs = $metainfo['attributes'];
+            $modality_abbr = $protocolattribs['modality_abbr'];
+            if($modality_abbr > '')
+            {
+                $modality_filter[] = $modality_abbr;
+            }
+            $template_json = json_encode($templatevalues);
+        } else {
+            $template_json = json_encode(array('message'=>'nothing found'));;    //Nothing needed.
+        }
+        $hiddendatahtml = "\n<div id='protocol-template-data'>"
+              . "\n<div id='json-default-values-all-sections'"
+              . " style='visibility:hidden; height:0px;'>$template_json</div>\n"
+              . "\n</div>";
+        $form['hidden_volatile_things']['protocoltemplate'] = array('#markup' 
+            => $hiddendatahtml);
         
         //PROTOCOL MODE
         $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($myvalues['procName']);

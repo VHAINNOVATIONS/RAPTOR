@@ -426,6 +426,7 @@ function getProtocolControlIDMap()
         themap['contrast'] = getCheckboxPanelControlIDMap('contrast','none','enteric','iv');
         themap['consentreq'] = getRadioControlIDMap('consentreq','unknown','no','yes');
         themap['protocolnotes'] = getNotesControlIDMap('protocolnotes');
+        themap['examnotes'] = getNotesControlIDMap('examnotes');
         themap['initialized'] = true;
         //alert('LOOK constructed protocol map >>>' + themap.toSource());
     }
@@ -518,6 +519,7 @@ function setDefaultValuesInFromProtocolTemplate()
     clearValuesInSection('radioisotope'); 
     clearValuesInSection('consentreq'); 
     clearValuesInSection('protocolnotes'); 
+    clearValuesInSection('examnotes'); 
     if(templateSectionHasDefaultValues('hydration',aTemplateData))
     {
         setDefaultValuesInSection('hydration',aTemplateData); 
@@ -541,6 +543,10 @@ function setDefaultValuesInFromProtocolTemplate()
     if(templateSectionHasDefaultValues('protocolnotes',aTemplateData))
     {
         setDefaultValuesInSection('protocolnotes',aTemplateData); 
+    }
+    if(templateSectionHasDefaultValues('examnotes',aTemplateData))
+    {
+        setDefaultValuesInSection('examnotes',aTemplateData); 
     }
 
     //Enable the child value fields now
@@ -872,6 +878,26 @@ function setDefaultValuesInSection(sectionname, aTemplateData)
             //Require acknowledgement.
             setAckRequiredForSection(sectionname);
         }
+    } else
+    if(sectionname === 'examnotes')
+    {
+        if(aTemplateData.examnotes === -1)
+        {
+            //Clear it all.
+            clearValuesInSection(sectionname);
+        } else {
+            //Set it to the values in template data.
+            var sValue = aTemplateData.examnotes.text;
+            if(sValue !== undefined && sValue !== null)
+            {
+                var id_real = id_map[sectionname]['textarea']['id'];
+                var textbox = document.getElementById(id_real);
+                textbox.value = sValue;
+            }
+
+            //Require acknowledgement.
+            setAckRequiredForSection(sectionname);
+        }
     }
 //alert('OUTOF debug look in ' + sectionname + ' set default values!-->' + JSON.stringify(aTemplateData));
 }
@@ -924,6 +950,12 @@ function clearValuesInSection(sectionname)
         activateCheckboxById(id_none);
     } else
     if(sectionname === 'protocolnotes')
+    {
+        var id_textarea = id_map[sectionname]['textarea']['id'];
+        var textbox = document.getElementById(id_textarea);
+        textbox.value = '';
+    } else
+    if(sectionname === 'examnotes')
     {
         var id_textarea = id_map[sectionname]['textarea']['id'];
         var textbox = document.getElementById(id_textarea);

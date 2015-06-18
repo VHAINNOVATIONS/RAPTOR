@@ -375,13 +375,13 @@ class ProtocolInfoUtility
         
         //PROTOCOL 
         $modality_filter = array();
+        /*
         if($template_json == NULL)
         {
             if(!$disableChildInput && isset($myvalues['protocol1_nm']) && trim($myvalues['protocol1_nm']) > '')
             {
                 module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
-                $oPS = new \raptor\ProtocolSettings();    //TODO cache it
-                //$templatevalues = $oPS->getDefaultValuesStructured($myvalues['protocol1_nm']);
+                $oPS = new \raptor\ProtocolSettings();
                 $metainfo = $oPS->getProtocolMetaInformation($myvalues['protocol1_nm']);
                 $templatevalues = $metainfo['defaultvalues'];
                 $protocolattribs = $metainfo['attributes'];
@@ -392,7 +392,7 @@ class ProtocolInfoUtility
                 }
                 $template_json = json_encode($templatevalues);
             } else {
-                $template_json = '';    //Nothing needed.
+                $template_json = json_encode(array('message'=>'nothing found'));;    //Nothing needed.
             }
         }
         $hiddendatahtml = "\n<div id='protocol-template-data'>"
@@ -401,6 +401,7 @@ class ProtocolInfoUtility
               . "\n</div>";
         $form['hiddenptotocolstuff'] = array('#markup' 
             => $hiddendatahtml);
+        */
         
         //Main protocol selection
         $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
@@ -2362,19 +2363,34 @@ class ProtocolInfoUtility
             '#title'    => $cleantitleoverride,
             '#attributes' => array(
                 'class' => array(
-                    'data-entry2-area'
+                    'data-entry2-area boilerplate-data-entry-area'
                 )
              ),
             '#disabled' => $disabled,
         );
         $root[$section_name . '_fieldset_col1'] = array(
             '#type' => 'fieldset',
+            '#attributes' => array(
+                'class' => array(
+                    'boilerplate-col1'
+                )
+             ),
         );
         $root[$section_name . '_fieldset_col3'] = array(
             '#type' => 'fieldset',
+            '#attributes' => array(
+                'class' => array(
+                    'boilerplate-col3'
+                )
+             ),
         );
         $root[$section_name . '_fieldset_row2'] = array(
             '#type' => 'fieldset',
+            '#attributes' => array(
+                'class' => array(
+                    'boilerplate-row2'
+                )
+             ),
         );
         if (isset($myvalues[$textfieldname]))
         {
@@ -2403,7 +2419,6 @@ class ProtocolInfoUtility
             {
                 //Create the boilerplate insertion buttons
                 $nBoilerplate     = 0;
-                //$aBoilerplate     = ListUtils::getCategorizedLists('boilerplate-protocolnotes.cfg');
                 if($section_name[0] == 'e')
                 {
                     $aBoilerplate     = ListOptions::getRawBoilerplateExamOptions();
@@ -2411,7 +2426,7 @@ class ProtocolInfoUtility
                     $aBoilerplate     = ListOptions::getRawBoilerplateProtocolOptions();
                 }
                 
-                $sBoilerplateHTML = "<div id='boilerplate'><ul>";
+                $sBoilerplateHTML = "<div id='boilerplate' class='boilerplate-text-options'><ul>";
                 foreach ($aBoilerplate as $sCategory => $aContent)
                 {
                     $sBoilerplateHTML.="<li class='category'>$sCategory<ul>";
@@ -2419,7 +2434,7 @@ class ProtocolInfoUtility
                     {
                         $nBoilerplate+=1;
                         $sTitle = $aItem[0];
-                        $sBoilerplateHTML.="<li><a title='$sTitle' onclick='notDefaultValuesInSection(".'"'.$section_name.'"'.")'"
+                        $sBoilerplateHTML.="<li class='boilerplate-category-item'><a title='$sTitle' onclick='notDefaultValuesInSection(".'"'.$section_name.'"'.")'"
                                 . " href='javascript:app2textareaByName(" . '"'. $textfieldname .'"' . "," . '"' . $aItem[0] . '"' 
                                 . ")'>$sName</a>";
                     }
@@ -2441,7 +2456,7 @@ class ProtocolInfoUtility
                 $myclassname = $disabled ? '' : 'raptor-active-field';
                 $root[$section_name.'_fieldset_col1'][$textfieldname] = array(
                     '#type'          => 'textarea',
-                    '#title'         => '<span class="fieldset-legend '.$myclassname.'">'
+                    '#title'         => '<span class="fieldset-legend '.$myclassname.' boilerplate-note-text-title">'
                                         .t($cleantitleoverride)
                                         .'</span>',
                     '#disabled'      => $disabled,
@@ -2456,7 +2471,7 @@ class ProtocolInfoUtility
                     //Always show this in each section that can have default values!
                     $root[$section_name.'_fieldset_col3']['reset_'.$section_name] = array(
                         '#markup' => "\n"
-                        .'<div class="reset-values-button-container" name="reset-section-values"><a href="javascript:setDefaultValuesInSection('
+                        .'<div class="reset-values-button-container boilerplate-reset-note" name="reset-section-values"><a href="javascript:setDefaultValuesInSection('
                         ."'".$section_name."',getTemplateDataJSON()"
                         .')" title="The default values for ' . $section_name . ' will be restored">RESET</a></div>', 
                         '#disabled' => $disabled,
@@ -2857,7 +2872,7 @@ class ProtocolInfoUtility
         }
         $root['exam_consent_received_fieldset'] = $this->getConsentReceivedBlock($form_state, $disabled, $myvalues);
         
-        $sectionname = 'exam_notes';
+        $sectionname = 'examnotes';
         $sName = $sectionname.'_tx';
         $root['exam_summary'][$sName]
                 = $this->getNotesSectionMarkup($sectionname, 'Examination Notes'
@@ -3818,20 +3833,20 @@ class ProtocolInfoUtility
                                 'author_uid' => $nUID,
                             ))
                         ->fields(array(
-                            'notes_tx' => $myvalues['exam_notes_tx'],
+                            'notes_tx' => $myvalues['examnotes_tx'],
                             'created_dt' => $updated_dt,
                         ))
                         ->execute();
                 } else {
                     //Only create the record if there are some notes.
-                    if(isset($myvalues['exam_notes_tx']) 
-                            && trim($myvalues['exam_notes_tx']) !== '')
+                    if(isset($myvalues['examnotes_tx']) 
+                            && trim($myvalues['examnotes_tx']) !== '')
                     {
                             $oInsert = db_insert('raptor_ticket_exam_notes')
                                 ->fields(array(
                                     'siteid' => $nSiteID,
                                     'IEN' => $nIEN,
-                                    'notes_tx' => $myvalues['exam_notes_tx'],
+                                    'notes_tx' => $myvalues['examnotes_tx'],
                                     'author_uid' => $nUID,
                                     'created_dt' => $updated_dt,
                                 ))
@@ -3847,7 +3862,7 @@ class ProtocolInfoUtility
             catch(\Exception $e)
             {
                 error_log('Failed to create raptor_ticket_exam_notes: ' . $e);
-                form_set_error('exam_notes_tx','Failed to save notes for this ticket!');
+                form_set_error('examnotes_tx','Failed to save notes for this ticket!');
                 $bSuccess = FALSE;
             }
         }
