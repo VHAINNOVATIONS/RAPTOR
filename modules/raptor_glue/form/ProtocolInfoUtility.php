@@ -2358,7 +2358,7 @@ class ProtocolInfoUtility
             $cleantitleoverride = FormHelper::getTitleAsUnrequiredField($titleoverride,$disabled);
         }
         
-        $root                                = array(
+        $root = array(
             '#type'     => 'fieldset',
             '#title'    => $cleantitleoverride,
             '#attributes' => array(
