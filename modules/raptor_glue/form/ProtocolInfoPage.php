@@ -22,6 +22,7 @@ require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
 
 require_once 'ProtocolPageUtils.inc';
 require_once 'ProtocolInfoUtility.php';
+require_once 'ProtocolInfoDataChecks.php';
 require_once 'FormHelper.php';
 
 /**
@@ -962,7 +963,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         return $bGood;
     }
-    
+
     /**
      * Sets messages and returns FALSE if there were errors.
      */
@@ -1099,6 +1100,17 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 form_set_error('claustrophobic_cd','Must make a claustrophobic selection.');
                 $bGood = FALSE;
             }
+
+            $validationdetails = ProtocolInfoDataChecks::checkNoteText('protocolnotes',$myvalues);
+            foreach($validationdetails as $fieldname=>$item)
+            {
+                if($item['errorcount'] > 0)
+                {
+                    $msgmarkup = $item['msgmarkup'];
+                    form_set_error($fieldname,$msgmarkup);
+                    $bGood = FALSE;
+                }
+            }
             
             if(!$bGood)
             {
@@ -1124,6 +1136,16 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             {
                 form_set_error('protocol1_nm','Must make a primary protocol selection.');
                 $bGood = FALSE;
+            }
+            $validationdetails = ProtocolInfoDataChecks::checkNoteText('protocolnotes',$myvalues);
+            foreach($validationdetails as $fieldname=>$item)
+            {
+                if($item['errorcount'] > 0)
+                {
+                    $msgmarkup = $item['msgmarkup'];
+                    form_set_error($fieldname,$msgmarkup);
+                    $bGood = FALSE;
+                }
             }
             
             
@@ -1217,7 +1239,18 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 form_set_error('exam_consent_received_kw','Cannot leave consent question blank.');
                 $bGood = FALSE;
             }
-
+            
+            $validationdetails = ProtocolInfoDataChecks::checkNoteText('examnotes',$myvalues);
+            foreach($validationdetails as $fieldname=>$item)
+            {
+                if($item['errorcount'] > 0)
+                {
+                    $msgmarkup = $item['msgmarkup'];
+                    form_set_error($fieldname,$msgmarkup);
+                    $bGood = FALSE;
+                }
+            }
+            
             //Check ALL the radiation dose inputs.
             $alldosesources = RadiationDoseHelper::getDoseSourceLittlenameMap();
             foreach($alldosesources as $value_type_cd=>$dose_littlename)
@@ -1234,60 +1267,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
                 }
             }
-            /*
-            
-            $dose_fieldname = 'exam_ctdivol_radiation_dose_tx';
-            $uom_fieldname = 'exam_ctdivol_radiation_dose_uom_tx';
-            $value_type_fieldname = 'exam_ctdivol_radiation_dose_type_cd';
-            $radiation_dose_tx = isset($myvalues[$dose_fieldname]) ? trim($myvalues[$dose_fieldname]) : '';
-            if($radiation_dose_tx > '')
-            {
-                $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
-                $value_type_cd = 'C'; //isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
-                $src_type_name = 'Device CTDIvol';
-                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
-                        , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
-            }
-            $dose_fieldname = 'exam_dlp_radiation_dose_tx';
-            $uom_fieldname = 'exam_dlp_radiation_dose_uom_tx';
-            $value_type_fieldname = 'exam_dlp_radiation_dose_type_cd';
-            $radiation_dose_tx = isset($myvalues[$dose_fieldname]) ? trim($myvalues[$dose_fieldname]) : '';
-            if($radiation_dose_tx > '')
-            {
-                $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
-                $value_type_cd = 'D'; //isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
-                $src_type_name = 'Device DLP';
-                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
-                        , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
-            }
-            $dose_fieldname = 'exam_other_radiation_dose_tx';
-            $uom_fieldname = 'exam_other_radiation_dose_uom_tx';
-            $value_type_fieldname = 'exam_other_radiation_dose_type_cd';
-            $radiation_dose_tx = isset($myvalues[$dose_fieldname]) ? trim($myvalues[$dose_fieldname]) : '';
-            if($radiation_dose_tx > '')
-            {
-                $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
-                $value_type_cd = 'E'; //isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
-                $src_type_name = 'Device Other';
-                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
-                        , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
-            }
-
-            
-            $dose_fieldname = 'exam_radioisotope_radiation_dose_tx';
-            $uom_fieldname = 'exam_radioisotope_radiation_dose_uom_tx';
-            $value_type_fieldname = 'exam_radioisotope_radiation_dose_type_cd';
-            $radiation_dose_tx = isset($myvalues[$dose_fieldname]) ? trim($myvalues[$dose_fieldname]) : '';
-            if($radiation_dose_tx > '')
-            {
-                $uom = isset($myvalues[$uom_fieldname]) ? trim($myvalues[$uom_fieldname]) : '';
-                $value_type_cd = 'R'; //isset($myvalues[$value_type_fieldname]) ? trim($myvalues[$value_type_fieldname]) : '';
-                $src_type_name = 'radioisotope';
-                $bGood = $this->validateRadiationDoseInputs($bGood, $radiation_dose_tx, $uom
-                        , $value_type_cd, $src_type_name, $dose_fieldname, $uom_fieldname, $value_type_fieldname);            
-            }
-             * 
-             */
         } else
         if(substr($clickedvalue,0,14) == 'Interpretation')
         {

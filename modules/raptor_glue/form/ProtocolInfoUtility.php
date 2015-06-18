@@ -29,6 +29,7 @@ module_load_include('php', 'raptor_formulas', 'core/Conversions');
 require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol_ajax.inc');
 require_once 'FormHelper.php';
 require_once 'ProtocolLibPageHelper.php';
+require_once 'ProtocolInfoDataChecks.php';
 
 /**
  * Utilities for the ProtocolInfo form content.
