@@ -22,9 +22,11 @@ require_once 'EditListsBasePage.php';
  */
 class EditListAtRiskRareContrastPage extends EditListsBasePage
 {
+    private static $reqprivs = array('EARM1'=>1);
+    
     function __construct()
     {
-        parent::__construct('raptor_atrisk_rare_contrast');
+        parent::__construct(self::$reqprivs,'raptor_atrisk_rare_contrast');
         
         global $base_url;
         
@@ -32,12 +34,10 @@ class EditListAtRiskRareContrastPage extends EditListsBasePage
         $name = 'Edit Rare or Controlled Contrast List';
         $description = 'These keywords are used to detect selection of a rare or controlled contrast which may require advanced procurement or special ordering process.';
         $listname = 'Rare Contrast';
-        $reqprivs = array('EARM1'=>1);
 
         $this->setName($name);
         $this->setListName($listname);
         $this->setDescription($description);
         $this->setURL($url);
-        $this->setRequiredPrivs($reqprivs);
     }
 }

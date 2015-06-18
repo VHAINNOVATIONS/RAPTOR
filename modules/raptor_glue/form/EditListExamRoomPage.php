@@ -22,10 +22,11 @@ require_once 'EditListsBasePage.php';
  */
 class EditListExamRoomPage extends EditListsBasePage
 {
+    private static $reqprivs = array('EERL1'=>1);
 
     function __construct()
     {
-        parent::__construct('raptor_schedule_location'
+        parent::__construct(self::$reqprivs,'raptor_schedule_location'
             ,array('location_tx','description_tx')
             ,array(true,       true)
             ,array('t',        't')
@@ -40,12 +41,10 @@ class EditListExamRoomPage extends EditListsBasePage
         $name = 'Edit Examination Room Options';
         $description = 'Exam room options are selectable during the scheduling process.';
         $listname = 'Exam Rooms';
-        $reqprivs = array('EERL1'=>1);
 
         $this->setName($name);
         $this->setListName($listname);
         $this->setDescription($description);
         $this->setURL($url);
-        $this->setRequiredPrivs($reqprivs);
     }
 }

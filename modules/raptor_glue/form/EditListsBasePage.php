@@ -41,30 +41,42 @@ class EditListsBasePage
     private $m_bUserCanEdit     = NULL;
     private $m_sURL             = NULL;
     private $mycount = 0;
-    
-    function __construct($sTablename
+    private $m_aGeneralHelpText =NULL;
+    private $m_nTextAreaColsOverride      =NULL;
+    private $m_nTextAreaMaxSizeOverride   =NULL;
+                        
+    function __construct($required_privs,$sTablename
             ,$aFieldNames=array('keyword')
             ,$aRequiredCols=array(TRUE)
             ,$aDataTypeCols=array('t')
             ,$aMaxLenCols=array(40)
-            ,$aHelpText=array('Keyword')
+            ,$aHelpTextCols=array('Keyword')
             ,$aOrderBy=array('keyword')
-            ,$required_privs=NULL)
+            ,$aGeneralHelpText=NULL
+            ,$nTextAreaColsOverride=NULL
+            ,$nTextAreaMaxSizeOverride=NULL
+            )
     {
+        
         $this->m_sTablename = $sTablename;
         $this->m_aFieldNames = $aFieldNames;
-        $this->m_aHelpText = $aHelpText;
+        $this->m_aHelpText = $aHelpTextCols;
         $this->m_aOrderBy = $aOrderBy;
         $this->m_aRequiredCols = $aRequiredCols;
         $this->m_aDataTypeCols = $aDataTypeCols;
         $this->m_aMaxLenCols = $aMaxLenCols;
-        if($required_privs !== NULL)
+        $this->m_aGeneralHelpText=$aGeneralHelpText;
+        $this->m_nTextAreaColsOverride=$nTextAreaColsOverride;
+        $this->m_nTextAreaMaxSizeOverride=$nTextAreaMaxSizeOverride;
+        if(count($required_privs) > 0 )
         {
             $this->m_aRequiredPrivs = $required_privs;
             $oContext = \raptor\Context::getInstance();
             $oUserInfo = $oContext->getUserInfo();
             $userprivs = $oUserInfo->getSystemPrivileges();
             $this->m_bUserCanEdit = $this->canModify($userprivs);
+        } else {
+            drupal_set_message("The $sTablename options can be modified by any RAPTOR user",'warning');
         }
         
         $this->m_oPageHelper = new \raptor\ListsPageHelper();
@@ -281,7 +293,10 @@ class EditListsBasePage
                 , $myvalues
                 , $this->m_aHelpText
                 , $this->m_aDataTypeCols
-                , $this->m_aMaxLenCols);
+                , $this->m_aMaxLenCols
+                , $this->m_aGeneralHelpText
+                , $this->m_nTextAreaColsOverride
+                , $this->m_nTextAreaMaxSizeOverride);
         return $form;
     }
 }

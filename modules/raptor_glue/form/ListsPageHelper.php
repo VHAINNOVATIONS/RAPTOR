@@ -81,6 +81,22 @@ class ListsPageHelper
                             $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " should be 0 or 1 for no/yes.";
                             $colerrors++;
                         }
+                        //Inspect for substitution prompts embeded in the text
+                        $looksubs = explode('[<',$item);
+                        foreach($looksubs as $onesub)
+                        {
+                            $endsub = strpos($onesub,'>]');
+                            if($endsub !== FALSE)
+                            {
+                                $userprompt = trim(substr($onesub,0,$endsub));
+                                if($userprompt == '')
+                                {
+                                    $errors[] = 'Value "'.$item.'" in column '.($nColOffset + 1).' on row ' . $nRowNumber . " is missing 'user prompt' inside the '[&lt;' start and '&gt;]' end and end markers.";
+                                    $colerrors++;
+                                }
+                            }
+                        }
+                        
                         $nColOffset++;
                     }
                     if($colerrors == 0)
@@ -205,8 +221,14 @@ class ListsPageHelper
      * Get all the form contents for rendering
      * @return type renderable array
      */
-    public function getForm($form, &$form_state, $disabled, $myvalues
-            , $aHelpText, $aDataTypeCols=NULL, $aMaxLen=NULL)
+    public function getForm($form
+            , &$form_state, $disabled, $myvalues
+            , $aColumnHelpText
+            , $aDataTypeCols=NULL
+            , $aColumnMaxLen=NULL
+            , $aGeneralHelpText=NULL
+            , $nTextAreaColsOverride=NULL
+            , $nTextAreaMaxSizeOverride=NULL)
     {
 
         $form['data_entry_area1'] = array(
@@ -227,9 +249,22 @@ class ListsPageHelper
                 }
             }
         }
-        $bMultipleColumns = is_array($aHelpText) && count($aHelpText)>1;
+        $bMultipleColumns = is_array($aColumnHelpText) && count($aColumnHelpText)>1;
 
-        
+        $form['data_entry_area1']['instructions']['contextlabel'] = array(
+            '#markup'         => "<h3>Advanced Data Entry Mode</h3>",
+        );        
+        if($aGeneralHelpText != NULL)
+        {
+            $infonum=0;
+            foreach($aGeneralHelpText as $oneitem)
+            {
+                $infonum++;
+                $form['data_entry_area1']['instructions']['custominfo'.$infonum] = array(
+                    '#markup'         => "<p>$oneitem</p>",
+                );        
+            }
+        }
         $simpleintro = 'Enter one row per item for the list.';
         if($bMultipleColumns)
         {
@@ -239,13 +274,60 @@ class ListsPageHelper
             $inputdescription = 'One row per list item.';
         }
         $form['data_entry_area1']['instructions']['basic'] = array(
-            '#markup'         => "<h3>Advanced Data Entry Mode</h3><p>$simpleintro</p>",
+            '#markup'         => "<p>$simpleintro</p>",
         );        
         
+        $totalcomputedwidth=0;
+        if($aColumnMaxLen == NULL)
+        {
+            $helpcols = implode(' | ', $aColumnHelpText);
+        } else {
+            $col = 0;
+            $aSuperHelpText = array();
+            foreach($aColumnHelpText as $onetext)
+            {
+                $maxlen = $aColumnMaxLen[$col];
+                $datatype = $aDataTypeCols[$col];
+                if($datatype == 'n')
+                {
+                    $aSuperHelpText[] = "<span title='number'>$onetext</span>";
+                } else if($datatype == 'b') {
+                    $aSuperHelpText[] = "<span title='numeric no/yes indicator'>$onetext</span>";
+                } else {
+                    $aSuperHelpText[] = "<span title='text of maxlen=$maxlen'>$onetext</span>";
+                }
+                $totalcomputedwidth+=$maxlen + 1;   //factor in delimiter too
+                $col++;
+            }
+            $helpcols = implode(' | ', $aSuperHelpText);
+        }
+        
+        if($nTextAreaMaxSizeOverride != NULL)
+        {
+            $nTextAreaMaxSize=$nTextAreaMaxSizeOverride;
+        } else {
+            $nTextAreaMaxSize=4096;
+        }
+        if($nTextAreaColsOverride != NULL)
+        {
+            $nTextAreaCols=$nTextAreaColsOverride;
+        } else {
+            if($totalcomputedwidth > 100)
+            {
+                if($totalcomputedwidth > 200)
+                {
+                    $nTextAreaCols=200;
+                } else {
+                    $nTextAreaCols=$totalcomputedwidth;
+                }
+            } else {
+                $nTextAreaCols=100;
+            }
+        }
         $form['data_entry_area1']['raw_list_rows'] = array(
             '#title'         => t('List of options'),
-            '#maxlength'     => 4096, 
-            '#cols'          => 100, 
+            '#maxlength'     => $nTextAreaMaxSize, 
+            '#cols'          => $nTextAreaCols, 
             '#rows'          => 25,            
             '#description'   => t($inputdescription),
             '#type'          => 'textarea',
@@ -257,32 +339,10 @@ class ListsPageHelper
             '#markup'         => "<h4>Row Format</h4>",
         );        
         
-        if($aMaxLen == NULL)
-        {
-            $helpcols = implode(' | ', $aHelpText);
-        } else {
-            $col = 0;
-            $aSuperHelpText = array();
-            foreach($aHelpText as $onetext)
-            {
-                $maxlen = $aMaxLen[$col];
-                $datatype = $aDataTypeCols[$col];
-                if($datatype == 'n')
-                {
-                    $aSuperHelpText[] = "<span title='number'>$onetext</span>";
-                } else if($datatype == 'b') {
-                    $aSuperHelpText[] = "<span title='numeric no/yes indicator'>$onetext</span>";
-                } else {
-                    $aSuperHelpText[] = "<span title='text of maxlen=$maxlen'>$onetext</span>";
-                }
-                $col++;
-            }
-            $helpcols = implode(' | ', $aSuperHelpText);
-        }
         $form['data_entry_area1']['instructions'][] = array(
             '#markup'         => "<p>$helpcols<p>",
         );        
-        if($bHasBooleanInput) //$bMultipleColumns)
+        if($bHasBooleanInput)
         {
             $form['data_entry_area1']['instructions'][] = array(
                 '#markup'         => "<p>Note: 0 = No, 1 = Yes.<p>",
@@ -303,12 +363,6 @@ class ListsPageHelper
         
         global $base_url;
         $goback = $base_url . '/raptor/managelists';
-        /*
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="admin-cancel-button" type="button" value="Cancel"'
-                . ' data-redirect="'.$goback.'">');
-
-         */
         $form['data_entry_area1']['action_buttons']['cancel'] = FormHelper::getExitButtonMarkup($goback);
         return $form;
     }

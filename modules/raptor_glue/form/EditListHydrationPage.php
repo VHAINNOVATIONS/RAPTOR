@@ -22,9 +22,11 @@ require_once 'EditListsBasePage.php';
  */
 class EditListHydrationPage extends EditListsBasePage
 {
+    private static $reqprivs = array('ELHO1'=>1);
+    
     function __construct()
     {
-        parent::__construct('raptor_list_hydration'
+        parent::__construct(self::$reqprivs,'raptor_list_hydration'
             ,array('type_nm','option_tx','ct_yn','mr_yn','nm_yn')
             ,array(true,       true,   true,   true,    true)
             ,array('t',        't',    'b',    'b',     'b')
@@ -37,12 +39,10 @@ class EditListHydrationPage extends EditListsBasePage
         $name = 'Edit Hydration Options';
         $description = 'Hydration options are selectable during the protocol process.';
         $listname = 'Hydration';
-        $reqprivs = array('ELHO1'=>1);
 
         $this->setName($name);
         $this->setListName($listname);
         $this->setDescription($description);
         $this->setURL($url);
-        $this->setRequiredPrivs($reqprivs);
     }
 }

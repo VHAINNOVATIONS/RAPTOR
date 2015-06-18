@@ -22,9 +22,11 @@ require_once 'EditListsBasePage.php';
  */
 class EditListAtRiskBloodThinnerPage extends EditListsBasePage
 {
+    private static $reqprivs = array('EARM1'=>1);
+    
     function __construct()
     {
-        parent::__construct('raptor_atrisk_bloodthinner');
+        parent::__construct(self::$reqprivs,'raptor_atrisk_bloodthinner');
         
         global $base_url;
         
@@ -32,12 +34,10 @@ class EditListAtRiskBloodThinnerPage extends EditListsBasePage
         $name = 'Edit Blood Thinner List';
         $description = 'These keywords are used to detect possible blood thinner use by patient.';
         $listname = 'Blood Thinner';
-        $reqprivs = array('EARM1'=>1);
 
         $this->setName($name);
         $this->setListName($listname);
         $this->setDescription($description);
         $this->setURL($url);
-        $this->setRequiredPrivs($reqprivs);
     }
 }

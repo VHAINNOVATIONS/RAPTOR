@@ -24,9 +24,11 @@ require_once 'EditListsBasePage.php';
  */
 class EditListAtRiskMedsPage extends EditListsBasePage
 {
+    private static $reqprivs = array('EARM1'=>1);
+    
     function __construct()
     {
-        parent::__construct('raptor_atrisk_meds');
+        parent::__construct(self::$reqprivs,'raptor_atrisk_meds');
 
         global $base_url;
         
@@ -34,12 +36,10 @@ class EditListAtRiskMedsPage extends EditListsBasePage
         $name = 'Edit At Risk Medications List';
         $description = 'These keywords are used to highlight medical history of a patient.';
         $listname = 'At Risk Medications';
-        $reqprivs = array('EARM1'=>1);
 
         $this->setName($name);
         $this->setListName($listname);
         $this->setDescription($description);
         $this->setURL($url);
-        $this->setRequiredPrivs($reqprivs);
     }
 }

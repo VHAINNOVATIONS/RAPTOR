@@ -21,10 +21,11 @@ require_once 'EditListsBasePage.php';
  */
 class EditListSedationPage extends EditListsBasePage
 {
+    private static $reqprivs = array('ELSO1'=>1);
 
     function __construct()
     {
-        parent::__construct('raptor_list_sedation'
+        parent::__construct(self::$reqprivs,'raptor_list_sedation'
             ,array('type_nm','option_tx','ct_yn','mr_yn','nm_yn')
             ,array(true,       true,   true,   true,    true)
             ,array('t',        't',    'b',    'b',     'b')
@@ -37,12 +38,10 @@ class EditListSedationPage extends EditListsBasePage
         $name = 'Edit Sedation Options';
         $description = 'Sedation options are selectable during the protocol process.';
         $listname = 'Sedation';
-        $reqprivs = array('ELSO1'=>1);
 
         $this->setName($name);
         $this->setListName($listname);
         $this->setDescription($description);
         $this->setURL($url);
-        $this->setRequiredPrivs($reqprivs);
     }
 }

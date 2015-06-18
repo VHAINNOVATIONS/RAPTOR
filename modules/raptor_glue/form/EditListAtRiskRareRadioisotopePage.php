@@ -22,9 +22,10 @@ require_once 'EditListsBasePage.php';
  */
 class EditListAtRiskRareRadioisotopePage extends EditListsBasePage
 {
+    private static $reqprivs = array('EARM1'=>1);
     function __construct()
     {
-        parent::__construct('raptor_atrisk_rare_radioisotope');
+        parent::__construct(self::$reqprivs,'raptor_atrisk_rare_radioisotope');
         
         global $base_url;
         
@@ -32,12 +33,10 @@ class EditListAtRiskRareRadioisotopePage extends EditListsBasePage
         $name = 'Edit Rare or Controlled Radionuclide List';
         $description = 'These keywords are used to detect selection of a rare or controlled radionuclide which may require advanced procurement or special ordering process.';
         $listname = 'Rare Radionuclide';
-        $reqprivs = array('EARM1'=>1);
 
         $this->setName($name);
         $this->setListName($listname);
         $this->setDescription($description);
         $this->setURL($url);
-        $this->setRequiredPrivs($reqprivs);
     }
 }
