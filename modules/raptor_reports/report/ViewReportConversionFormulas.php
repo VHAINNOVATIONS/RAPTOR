@@ -73,7 +73,7 @@ class ViewReportConversionFormulas extends AReport
                 . 'are identified as our "Normalizing" formulas in this report.';
         $intro[] = 'The preferred unit of measure for each category is configurable'
                 . ' by each site using configuration constants.'
-                . '  The constants are shown in the hover text over the prefferred units in the report.';
+                . '  The constants are shown in the hover text over the preferred units in the report.';
         $form['data_entry_area1']['intro']['main'] = array('#type' => 'item',
                  '#markup' => '<p>'.implode('</p><p>', $intro).'</p>'
             );
