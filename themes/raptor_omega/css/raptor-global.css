@@ -55,3 +55,39 @@
 .pending_column{
     width: 18px;
 }
+
+#edit-boilerplate-fieldset{
+    width: 1000px;
+}
+
+.form-item form-type-textarea form-item-examnotes-tx{
+    width: 1000px;
+}
+
+.boilerplate-note-text-title{
+    width: 1000px;
+}
+label[for=edit-examnotes-tx--2]{
+    width: 100% !important;
+    
+}
+
+#edit-examnotes-tx--2{
+    width: 100% !important;
+}
+
+.form-textarea-wrapper{
+    width: 500px !important;
+}
+
+.grippie{
+    width: 100% !important;
+}
+
+.boilerplate-col1{
+    width: 100% !important;
+}
+
+#edit-disabled-examnotes-tx{
+    width: 100% !important;
+}
