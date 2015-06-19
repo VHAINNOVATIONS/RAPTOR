@@ -25,6 +25,7 @@ class ViewAbout
     {
         $html = '';
         $items = array();
+        $items[] = 'Minimum protocol shortlist size is '.PROTOCOL_SHORTLIST_MIN_SIZE;
         if (!REQUIRE_ACKNOWLEDGE_DEFAULTS)
         {
             $items[] = 'Does NOT require acknowledge default values';
@@ -45,6 +46,7 @@ class ViewAbout
                     . implode($itemprefix, $items)
                     . $wrapperlast;
         }
+
         return $html;
     }
     
