@@ -31,9 +31,9 @@ class LanguageInference
     }
     
     /**
-     * NULL means no opinion
+     * NULL result means no opinion
      */
-    public function inferModalityFromPhrase($phrase)
+    public function inferModalityFromPhrase($phrase, $image_type=NULL)
     {
         $haystack = strtoupper(trim($phrase));
         $ma = NULL;
@@ -268,7 +268,7 @@ class LanguageInference
      * Natural language parsing of the order string to derive a clues map
      * If $codemap is provided, these are literal codes from VistA for the order CPT etc)
      */
-    public function getProtocolMatchCluesMap($phrase, $codemap=NULL)
+    public function getProtocolMatchCluesMap($phrase, $codemap=NULL, $image_type=NULL)
     {
         $clues = array();
         if($codemap == NULL)
@@ -283,7 +283,7 @@ class LanguageInference
         }
         $clues['codemap'] = $codemap;  
         $clues['keywords'] = $this->inferOrderPhraseKeywords($phrase);
-        $clues['modality_abbr'] = $this->inferModalityFromPhrase($phrase);
+        $clues['modality_abbr'] = $this->inferModalityFromPhrase($phrase,$image_type);
         $clues['contrast'] = $this->inferContrastFromPhrase($phrase);
         return $clues;
     }

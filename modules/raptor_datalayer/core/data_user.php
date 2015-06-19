@@ -62,6 +62,13 @@ class UserInfo
         return $this->m_oData['username'];
     }
 
+    public function getMaskedUserName($tailmasklen=4)
+    {
+        $this->readData();
+        $username = $this->m_oData['username'];
+        return self::getMaskedText($username);
+    }
+
     public function isEnabled()
     {
         $this->readData();
@@ -115,7 +122,7 @@ class UserInfo
         $oMe = new UserInfo($nUID);
         return $oMe->getRoleName();
     }
-    
+
     /**
      * Return TRUE if this user is referenced for example as a collaborator or 
      * identified as creator of a ticket etc.
@@ -735,4 +742,16 @@ class UserInfo
             throw $ex;
         }
     }
+    
+    public static function getMaskedText($texttomask, $tailmasklen=4)
+    {
+        $tail = str_repeat('*', $tailmasklen);
+        $shortlen = strlen($texttomask) - $tailmasklen;
+        if($shortlen <= 0)
+        {
+            return $tail;
+        }
+        return substr($texttomask,0,$shortlen).$tail;
+    }
+    
 }

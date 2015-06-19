@@ -9,10 +9,12 @@ if($raptor_context != NULL)
             . " " .$userinfo->getUserNameSuffix() 
             . " (" . $userinfo->getRoleName() . ")");
     $username = $userinfo->getUserName();
+    $maskedusername = $userinfo->getMaskedUserName();
     $userprivs = $userinfo->getSystemPrivileges();
 } else {
     $fullname = 'NOT LOGGED IN';
     $username=$fullname;
+    $maskedusername = $fullname;
     $userprivs = array();
     //Bad path enable user to navigate away
     error_log('There was NO session found for the current user.  This might be due to a login conflict.');
@@ -30,7 +32,7 @@ $minilogourl = $base_url.'/sites/all/themes/raptor_omega/images/topminilogo.png'
     <div class="top-nav">
         <ul>
             <li>Logged in as <?php echo $fullname ;?> </li>
-            <li><a title="<?php echo('Click for the '.$username
+            <li><a title="<?php echo('Click for the '.$maskedusername
                     . ' user to exit RAPTOR.'); ?>" 
                    href="<?php echo($base_url); ?>/user/logout">Logout</a></li>
         </ul>

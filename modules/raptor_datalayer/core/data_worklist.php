@@ -224,7 +224,6 @@ class WorklistData
             return false;
         }
         $strings = isset($MDWSResponse->ddrListerResult->text->string) ? $MDWSResponse->ddrListerResult->text->string : array();
-//error_log("LOOK WORKLIST RAW>>>" . print_r($strings,TRUE));
                 
         $exploded = array();
         $t = array();
@@ -506,7 +505,6 @@ class WorklistData
         $requestedFields[WorklistData::WLVFO_OrderFileIen] = "7I";
         $requestedFields[WorklistData::WLVFO_RadOrderStatus] = "5I";
         
-        
         // Compose argument string by concatenating field codes into semicolon-delimited list
         $argument = "";
         foreach($requestedFields as $rf)
@@ -566,7 +564,7 @@ class WorklistData
             error_log($msg);
             throw $ex;
         }
-        //error_log('DEBUG called getWorklistFromMDWS done with result >>>'.print_r($result,TRUE));
+        //error_log('DEBUG LOOK called getWorklistFromMDWS done with result >>>'.print_r($result,TRUE));
         $this->m_oRuntimeResultCache->addToCache($sThisResultName, $result);
         return $result;
     }

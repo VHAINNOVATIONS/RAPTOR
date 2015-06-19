@@ -60,7 +60,7 @@ if(isset($is_protocol_page) && $is_protocol_page)
                     
                 </ul>
             </li>
-            <li><a title="<?php echo('Click for the '.$userinfo->getUserName(). ' user to exit RAPTOR.'); ?>" 
+            <li><a title="<?php echo('Click for the '.$userinfo->getMaskedUserName(). ' user to exit RAPTOR.'); ?>" 
                    href="<?php echo($base_url); ?>/user/logout">Logout</a></li>
         </ul>
 

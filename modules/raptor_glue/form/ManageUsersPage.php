@@ -74,8 +74,11 @@ class ManageUsersPage
                 $fullname = trim($item->usernametitle 
                         . ' ' . $item->lastname 
                         . ', ' . $item->firstname);
+                
+                $maskedusername = UserInfo::getMaskedText($item->username);
+                
                 $rows   .= "\n".'<tr>'
-                        . '<td>'.$item->username.'</td>'
+                        . '<td title="'.$item->username.'">'.$maskedusername.'</td>'
                         . '<td>'.$fullname.'</td>'
                         . '<td>'.$item->role_nm.'</td>'
                         . '<td>'.($item->accountactive_yn==1 ? 'Y' : 'N' )
@@ -91,7 +94,7 @@ class ManageUsersPage
             }
         }
 
-        $form["data_entry_area1"]['table_container']['users'] = array('#type' => 'item',
+        $form['data_entry_area1']['table_container']['users'] = array('#type' => 'item',
                  '#markup' => '<table id="my-raptor-dialog-table" class="dataTable">'
                             . '<thead><tr>'
                             . '<th>Login name</th>'
