@@ -21,7 +21,7 @@ defined("DEFAULT_GET_VISIT_DAYS")
     or define("DEFAULT_GET_VISIT_DAYS", 9999); //For PROD set this to 30 days!!!!!!
 
 defined('PROTOCOL_SHORTLIST_MIN_SIZE')
-    or define('PROTOCOL_SHORTLIST_MIN_SIZE', 4);
+    or define('PROTOCOL_SHORTLIST_MIN_SIZE', 3);
 
 //Modality inference configuration items; change with care.
 defined('MATCH_MODALITY_ON_PREFIX')
