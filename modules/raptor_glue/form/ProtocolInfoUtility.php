@@ -42,6 +42,7 @@ class ProtocolInfoUtility
     private $m_oTT = NULL;
     private $m_oLI = NULL;
     private $m_oMOP = NULL;
+    private $m_oPatientDD = NULL;
     
     function __construct()
     {
@@ -49,6 +50,8 @@ class ProtocolInfoUtility
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oMOP = new \raptor_formulas\MatchOrderToProtocol();
+        $oDD = new \raptor\DashboardData($this->m_oContext);
+        $this->m_oPatientDD = $oDD->getDashboardDetails();
     }
     
     /**
@@ -1522,7 +1525,7 @@ class ProtocolInfoUtility
     
     /**
      * Get the list of protocol choices, including the short list.
-     * TODO -- CACHE THESE THINGS FOR BETTER PERFORMANCE
+     * TIP -- CACHE THESE THINGS FOR BETTER PERFORMANCE
      */
     private function getProtocolChoices($procName=NULL
             ,$sFirstElementText=''
@@ -1613,7 +1616,7 @@ class ProtocolInfoUtility
             foreach($scoretrack as $score=>$count)
             {
                 $items += $count;
-                if($items > 4)
+                if($items >= PROTOCOL_SHORTLIST_MIN_SIZE)
                 {
                     //Thats enough for our shortlist.
                     $minscore = $score;
@@ -1622,6 +1625,7 @@ class ProtocolInfoUtility
             }
 //drupal_set_message('$minscore>>>'.$minscore);
         } else {
+            //Put them all in.
             $minscore = 0;
         }
         foreach($aShortList as $k=>$list)
@@ -3457,8 +3461,8 @@ class ProtocolInfoUtility
         $patientDFN = NULL;
         try
         {
-            $oDD = new \raptor\DashboardData($this->m_oContext);
-            $raptor_protocoldashboard = $oDD->getDashboardDetails();
+            //$oDD = new \raptor\DashboardData($this->m_oContext);
+            $raptor_protocoldashboard = $this->m_oPatientDD;    // $oDD->getDashboardDetails();
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {
             throw new \Exception('Failed to get the dashboard to save exam fields',91111,$ex);

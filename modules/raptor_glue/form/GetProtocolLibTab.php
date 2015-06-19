@@ -36,6 +36,7 @@ class GetProtocolLibTab
     private $m_oMOP = NULL;
     private $m_oLI = NULL;
     private $m_oFRD = NULL;
+    private $m_aPatientDD = NULL;
     
     function __construct()
     {
@@ -44,6 +45,8 @@ class GetProtocolLibTab
         $this->m_oMOP = new \raptor_formulas\MatchOrderToProtocol();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
+        $oDD = new \raptor\DashboardData($this->m_oContext);
+        $this->m_aPatientDD = $oDD->getDashboardDetails();
     }
 
     /**
@@ -202,6 +205,8 @@ class GetProtocolLibTab
             $query->leftJoin('raptor_protocol_template','t'
                     ,'p.protocol_shortname = t.protocol_shortname');       
             $result = $query->execute();
+            $dash_modality = $this->m_aPatientDD['Modality'];
+            $image_type = $this->m_aPatientDD['ImageType'];
             foreach($result as $item) 
             {
                 $protocol_shortname = $item->protocol_shortname;
@@ -234,7 +239,7 @@ class GetProtocolLibTab
                 } else {
                     $keywords = '';
                 }
-                $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($orderProcName);
+                $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($orderProcName, NULL, $image_type, $dash_modality);
 
                 $scoredetails = $this->m_oMOP->getProtocolMatchScore($cluesmap
                         , $protocol_shortname

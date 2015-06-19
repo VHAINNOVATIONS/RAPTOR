@@ -40,6 +40,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     private $m_oLI = NULL;
     private $m_oFRD = NULL;
     private $m_bFormDisabled = NULL;
+    //private $m_oDD = NULL;
+    private $m_aPatientDD = NULL;
     
     /**
      * Create an instance of the procotol info page.
@@ -63,6 +65,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
+        //$this->m_oDD = new \raptor\DashboardData($this->m_oContext);
+        $oDD = new \raptor\DashboardData($this->m_oContext);
+        $this->m_aPatientDD = $oDD->getDashboardDetails();
     }
 
     /**
@@ -641,7 +646,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      * Provide a method that returns instance of CI engine.
      * @return contraindication engine
      */
-    function getCIE()
+    public function getCIE()
     {
         if($this->m_oCIE == NULL)
         {
@@ -649,8 +654,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $oWL = new \raptor\WorklistData($this->m_oContext);
             $aOneRow = $oWL->getDashboardMap();    //$tid);
 
-            $oDD = new \raptor\DashboardData($this->m_oContext);
-            $aDD = $oDD->getDashboardDetails();        
+            //$oDD = new \raptor\DashboardData($this->m_oContext);
+            //$aDD = $oDD->getDashboardDetails();  
+            $aDD = $this->m_aPatientDD;
             $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
             $aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
             $aEGFR = $oPSD->getEGFRDetail();
@@ -696,8 +702,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $nIEN = $tid;
         $nUID = $this->m_oContext->getUID();
 
-        $oDD = new \raptor\DashboardData($this->m_oContext);
-        $aDD = $oDD->getDashboardDetails();     //TODO REDUNDANT WITH $aOneRow????????????????      
+        //$oDD = new \raptor\DashboardData($this->m_oContext);
+        //$aDD = $oDD->getDashboardDetails();     //TODO REDUNDANT WITH $aOneRow????????????????      
+        $aDD = $this->m_aPatientDD;
         $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         
         if($this->m_oCIE == NULL)
@@ -3167,8 +3174,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
 
         //Set all the Protocol page values
-        $oDD = new \raptor\DashboardData($this->m_oContext);
-        $raptor_protocoldashboard = $oDD->getDashboardDetails();
+        //$oDD = new \raptor\DashboardData($this->m_oContext);
+        //$raptor_protocoldashboard = $oDD->getDashboardDetails();
+        $raptor_protocoldashboard = $this->m_aPatientDD;
         $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         $oGD = new \raptor\GraphData($this->m_oContext);
         $oLO = new \raptor\ListOptions();
@@ -3353,7 +3361,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             => $hiddendatahtml);
         
         //PROTOCOL MODE
-        $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($myvalues['procName']);
+        $image_type = $this->m_aPatientDD['ImageType'];
+        $dash_modality = $this->m_aPatientDD['Modality'];
+        $cluesmap = $this->m_oLI->getProtocolMatchCluesMap($myvalues['procName'],NULL, $image_type, $dash_modality);
         $form['data_entry_area1'][]  = $this->m_oUtility
                 ->getOverallProtocolDataEntryArea1($sCWFS, $form_state
                         , $protocolInputDisable

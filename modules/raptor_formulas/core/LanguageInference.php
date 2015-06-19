@@ -58,69 +58,98 @@ class LanguageInference
             {
                 //Got it, just remove the space.
                 $ma = trim($first3);
-            } else {
-                //Try to figure it out from the content.
-                if(MATCH_MODALITY_STANDARD_TERMS)
+            }
+        }
+        
+        //Still need to search?
+        if($ma == NULL && $image_type > '')
+        {
+            //Try to figure it out from the IMAGE TYPE 
+            $cleanimage_type = strtoupper(trim($image_type));
+            if(strpos($cleanimage_type,'NUCLEAR') !== FALSE)
+            {
+                $ma = 'NM';
+            } else
+            if(strpos($cleanimage_type,'CT ') !== FALSE)
+            {
+                $ma = 'CT';
+            } else
+            if(strpos($cleanimage_type,'MRI') !== FALSE 
+                    || strpos($cleanimage_type,'MAGNETIC') !== FALSE)
+            {
+                $ma = 'MR';
+            } else 
+            if(strpos($cleanimage_type,'ULTRASOUND') !== FALSE 
+                    || strpos($cleanimage_type,'ECHO') !== FALSE)
+            {
+                $ma = 'US';
+            }
+        }
+        
+        //Still need to search?
+        if($ma == NULL)
+        {
+            //Try to figure it out from the content.
+            if(MATCH_MODALITY_STANDARD_TERMS)
+            {
+                if(strpos($haystack, 'FLUORO') !== FALSE
+                        || strpos($haystack, 'ARTHROGRAM') !== FALSE
+                        )
                 {
-                    if(strpos($haystack, 'FLUORO') !== FALSE
-                            || strpos($haystack, 'ARTHROGRAM') !== FALSE
-                            )
-                    {
-                        $ma = 'FL';
-                    } else
-                    if(strpos($haystack, 'MRI') !== FALSE 
-                            || strpos($haystack, 'MAGNETIC') !== FALSE)
-                    {
-                        $ma = 'MR';
-                    } else
-                    if(strpos($haystack, 'CAT SCAN') !== FALSE 
-                            || strpos($haystack, 'CATSCAN') !== FALSE)
-                    {
-                        $ma = 'CT';
-                    } else
-                    if(strpos($haystack, 'ECHO') !== FALSE 
-                            || strpos($haystack, 'ULTRASOUND') !== FALSE)
-                    {
-                        $ma = 'US';
-                    } else
-                    if(strpos($haystack, 'NUCLEAR') !== FALSE 
-                            || strpos($haystack, 'SCAN') !== FALSE
-                            || strpos($haystack, 'BONE') !== FALSE)
-                    {
-                        $ma = 'NM';
-                    }
-                }
-                //Try the custom matches
-                if(CUSTOM_TERMS4MATCH_MR != NULL)
+                    $ma = 'FL';
+                } else
+                if(strpos($haystack, 'MRI') !== FALSE 
+                        || strpos($haystack, 'MAGNETIC') !== FALSE)
                 {
-                    $ma = $this->checkModalityMatch($haystack
-                            ,explode(',', CUSTOM_TERMS4MATCH_MR)
-                            ,'MR');
-                }
-                if($ma == NULL && CUSTOM_TERMS4MATCH_CT != NULL)
+                    $ma = 'MR';
+                } else
+                if(strpos($haystack, 'CAT SCAN') !== FALSE 
+                        || strpos($haystack, 'CATSCAN') !== FALSE)
                 {
-                    $ma = $this->checkModalityMatch($haystack
-                            ,explode(',', CUSTOM_TERMS4MATCH_CT)
-                            ,'CT');
-                }
-                if($ma == NULL && CUSTOM_TERMS4MATCH_NM != NULL)
+                    $ma = 'CT';
+                } else
+                if(strpos($haystack, 'ECHO') !== FALSE 
+                        || strpos($haystack, 'ULTRASOUND') !== FALSE)
                 {
-                    $ma = $this->checkModalityMatch($haystack
-                            ,explode(',', CUSTOM_TERMS4MATCH_NM)
-                            ,'NM');
-                }
-                if($ma == NULL && CUSTOM_TERMS4MATCH_FL != NULL)
+                    $ma = 'US';
+                } else
+                if(strpos($haystack, 'NUCLEAR') !== FALSE 
+                        || strpos($haystack, 'SCAN') !== FALSE
+                        || strpos($haystack, 'BONE') !== FALSE)
                 {
-                    $ma = $this->checkModalityMatch($haystack
-                            ,explode(',', CUSTOM_TERMS4MATCH_FL)
-                            ,'FL');
+                    $ma = 'NM';
                 }
-                if($ma == NULL && CUSTOM_TERMS4MATCH_US != NULL)
-                {
-                    $ma = $this->checkModalityMatch($haystack
-                            ,explode(',', CUSTOM_TERMS4MATCH_US)
-                            ,'US');
-                }
+            }
+            //Try the custom matches
+            if(CUSTOM_TERMS4MATCH_MR != NULL)
+            {
+                $ma = $this->checkModalityMatch($haystack
+                        ,explode(',', CUSTOM_TERMS4MATCH_MR)
+                        ,'MR');
+            }
+            if($ma == NULL && CUSTOM_TERMS4MATCH_CT != NULL)
+            {
+                $ma = $this->checkModalityMatch($haystack
+                        ,explode(',', CUSTOM_TERMS4MATCH_CT)
+                        ,'CT');
+            }
+            if($ma == NULL && CUSTOM_TERMS4MATCH_NM != NULL)
+            {
+                $ma = $this->checkModalityMatch($haystack
+                        ,explode(',', CUSTOM_TERMS4MATCH_NM)
+                        ,'NM');
+            }
+            if($ma == NULL && CUSTOM_TERMS4MATCH_FL != NULL)
+            {
+                $ma = $this->checkModalityMatch($haystack
+                        ,explode(',', CUSTOM_TERMS4MATCH_FL)
+                        ,'FL');
+            }
+            if($ma == NULL && CUSTOM_TERMS4MATCH_US != NULL)
+            {
+                $ma = $this->checkModalityMatch($haystack
+                        ,explode(',', CUSTOM_TERMS4MATCH_US)
+                        ,'US');
             }
         }
 
@@ -268,7 +297,7 @@ class LanguageInference
      * Natural language parsing of the order string to derive a clues map
      * If $codemap is provided, these are literal codes from VistA for the order CPT etc)
      */
-    public function getProtocolMatchCluesMap($phrase, $codemap=NULL, $image_type=NULL)
+    public function getProtocolMatchCluesMap($phrase, $codemap=NULL, $image_type=NULL, $modality_abbr=NULL)
     {
         $clues = array();
         if($codemap == NULL)
@@ -283,7 +312,12 @@ class LanguageInference
         }
         $clues['codemap'] = $codemap;  
         $clues['keywords'] = $this->inferOrderPhraseKeywords($phrase);
-        $clues['modality_abbr'] = $this->inferModalityFromPhrase($phrase,$image_type);
+        if($modality_abbr == NULL)
+        {
+            $clues['modality_abbr'] = $this->inferModalityFromPhrase($phrase,$image_type);
+        } else {
+            $clues['modality_abbr'] = $modality_abbr;
+        }
         $clues['contrast'] = $this->inferContrastFromPhrase($phrase);
         return $clues;
     }
