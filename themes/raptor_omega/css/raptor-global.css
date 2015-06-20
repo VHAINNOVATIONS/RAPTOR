@@ -69,7 +69,7 @@
 }
 label[for=edit-examnotes-tx--2]{
     width: 100% !important;
-    
+
 }
 
 #edit-examnotes-tx--2{
@@ -77,17 +77,43 @@ label[for=edit-examnotes-tx--2]{
 }
 
 .form-textarea-wrapper{
-    width: 500px !important;
+    width: 100% !important;
 }
 
 .grippie{
     width: 100% !important;
 }
 
+
+
+.boilerplate-col3{
+    position: relative !important;
+    top: 1em !important;
+    right: 1em !important;
+}
+/*
+.boilerplate-data-entry-area{
+    height: 350px !important;
+    margin-bottom: 0px !important;
+}
+
+
+
+.boilerplate-reset-note{
+    
+}
+
+.boilerplate-col3{
+    position: relative;
+    top: -280px;
+}
+
+
 .boilerplate-col1{
-    width: 100% !important;
+    //width: 50% !important;
 }
 
 #edit-disabled-examnotes-tx{
-    width: 100% !important;
+    //width: 100% !important;
 }
+*/
