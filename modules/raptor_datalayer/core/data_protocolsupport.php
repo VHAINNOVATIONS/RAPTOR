@@ -665,7 +665,6 @@ class ProtocolSupportingData
      */
     function getVitalsDetailOnlyLatest()
     {
-        //Array ( [Temp] => 98.5 [Height] => 71 [Weight] => 80.7 [BMI] => 25 [Blood Pressure] => 134/81 [Pulse] => 74 [Resp] => 18 [Pain] => 1 [C/G] => [Pox] => 98 [CVP] => [Blood Glucose] => ) 
         if(isset($this->getVitalsData()[2]))    //20140806
         {
             return $this->getVitalsData()[2];
@@ -704,13 +703,6 @@ class ProtocolSupportingData
         $wtLabels = array("Weight", "WT", "WEIGHT");
         $bmiLabels = array("Body Mass Index", "BMI", "BODY MASS INDEX");
         
-        $foundTemp = FALSE;
-        $foundHR = FALSE;
-        $foundBP = FALSE;
-        $foundHT = FALSE;
-        $foundWT = FALSE;
-        $foundBMI = FALSE;
-
         $nTemp = 0;
         $nHR = 0;
         $nBP = 0;
@@ -740,12 +732,13 @@ class ProtocolSupportingData
         $blank = array('date' => "", 'name' => "", 'value' => "None Found", 'units' => "");
         
         foreach($sortedVitals as $vital){
-            if($nTemp >= $nToFind && $nHR >= $nToFind && $nBP >= $nToFind && $nHT >= $nToFind && $nWT >= $nToFind && $nBMI >= $nToFind)
+            if($nTemp >= $nToFind && $nHR >= $nToFind 
+                    && $nBP >= $nToFind && $nHT >= $nToFind 
+                    && $nWT >= $nToFind && $nBMI >= $nToFind)
+            {
                 break;
-/*            
-            $v = array('date' => isset($vital['date']) ? $vital['date'] : " ", 'name' => isset($vital['name']) ? $vital['name'] : " ",
-                       'value' => isset($vital['value']) ? $vital['value'] : " ");
-*/          if(in_array(strtoupper($vital['name']), $tempLabels)){ // Temp
+            }
+            if(in_array(strtoupper($vital['name']), $tempLabels)){ // Temp
                 if ($nTemp++ < $nToFind){
                    $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
                    $vital['score'] = "1";

@@ -3148,7 +3148,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $aResultMap['CI_AlreadyAcknowledged'] = $nCI_AlreadyAcknowledged;
         $aResultMap['AllCIWarnings'] = $aAllCIWarnings;
         
-        drupal_set_message('LOOK>>>'.print_r($aCandidateData,TRUE));
+        //drupal_set_message('LOOK>>>'.print_r($aCandidateData,TRUE));
         
         return $aResultMap;
     }
