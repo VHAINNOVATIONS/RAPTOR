@@ -33,6 +33,7 @@ require_once 'ProtocolInfoDataChecks.php';
 
 /**
  * Utilities for the ProtocolInfo form content.
+ * Some methods are NOT patient specific, some are.
  *
  * @author Frank Font of SAN Business Consultants
  */
@@ -42,16 +43,23 @@ class ProtocolInfoUtility
     private $m_oTT = NULL;
     private $m_oLI = NULL;
     private $m_oMOP = NULL;
-    private $m_oPatientDD = NULL;
+    //private $m_oPatientDD = NULL;
     
     function __construct()
     {
-        $this->m_oContext = \raptor\Context::getInstance();
-        $this->m_oTT = new \raptor\TicketTrackingData();
-        $this->m_oLI = new \raptor_formulas\LanguageInference();
-        $this->m_oMOP = new \raptor_formulas\MatchOrderToProtocol();
-        $oDD = new \raptor\DashboardData($this->m_oContext);
-        $this->m_oPatientDD = $oDD->getDashboardDetails();
+        try
+        {
+            $this->m_oContext = \raptor\Context::getInstance();
+            $this->m_oTT = new \raptor\TicketTrackingData();
+            $this->m_oLI = new \raptor_formulas\LanguageInference();
+            $this->m_oMOP = new \raptor_formulas\MatchOrderToProtocol();
+            //$oDD = new \raptor\DashboardData($this->m_oContext);
+            //$this->m_oPatientDD = $oDD->getDashboardDetails();
+        } catch (\Exception $ex) {
+            error_log("Failed ProtocolInfoUtility constructor because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(10));
+            throw new \Exception("Failed ProtocolInfoUtility constructor because ".$ex->getMessage(), 99124, $ex);
+        }
     }
     
     /**
@@ -379,33 +387,6 @@ class ProtocolInfoUtility
         
         //PROTOCOL 
         $modality_filter = array();
-        /*
-        if($template_json == NULL)
-        {
-            if(!$disableChildInput && isset($myvalues['protocol1_nm']) && trim($myvalues['protocol1_nm']) > '')
-            {
-                module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
-                $oPS = new \raptor\ProtocolSettings();
-                $metainfo = $oPS->getProtocolMetaInformation($myvalues['protocol1_nm']);
-                $templatevalues = $metainfo['defaultvalues'];
-                $protocolattribs = $metainfo['attributes'];
-                $modality_abbr = $protocolattribs['modality_abbr'];
-                if($modality_abbr > '')
-                {
-                    $modality_filter[] = $modality_abbr;
-                }
-                $template_json = json_encode($templatevalues);
-            } else {
-                $template_json = json_encode(array('message'=>'nothing found'));;    //Nothing needed.
-            }
-        }
-        $hiddendatahtml = "\n<div id='protocol-template-data'>"
-              . "\n<div id='json-default-values-all-sections'"
-              . " style='visibility:hidden; height:0px;'>$template_json</div>\n"
-              . "\n</div>";
-        $form['hiddenptotocolstuff'] = array('#markup' 
-            => $hiddendatahtml);
-        */
         
         //Main protocol selection
         $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
@@ -574,7 +555,7 @@ class ProtocolInfoUtility
             $root['data_entry_area2']['page_checklist_area1'] 
                     = $this->getPageChecklistArea($form_state, $disabled, $myvalues,'Safety Checklist','SC',$modality_abbr,$protocol_shortname);
         } else if($sCWFS == 'PA' || $sCWFS == 'EC' || $sCWFS == 'QA') {
-            //Show the safety checklist in disabled mode.  TODO --- force to answer if they have not answered some checklist items!!!!
+            //Show the safety checklist in disabled mode.
             $root['data_entry_area2']['page_checklist_area1'] 
                     = $this->getPageChecklistArea($form_state, TRUE, $myvalues,'Safety Checklist','SC',$modality_abbr,$protocol_shortname);
             $root['exam_data_entry_area1'][]  
@@ -2412,6 +2393,7 @@ class ProtocolInfoUtility
         } else {
             if ($disabled)
             {
+                /*
                 #A hack to work-around CSS issue on coloring!
                 $root[$section_name.'_fieldset_col1']['disabled_'.$textfieldname] = array(
                     '#type'          => 'textarea',
@@ -2419,6 +2401,11 @@ class ProtocolInfoUtility
                     '#disabled'      => $disabled,
                     '#default_value' => $notes_tx,
                 );
+                */
+                $root[$section_name.'_fieldset_col1']['disabled_'.$textfieldname] = array(
+                        '#markup' => "<fieldset><div class='disabled-exam-notes-text'>$notes_tx</div></fieldset>"
+                    );
+                
             }
             else
             {
@@ -3453,7 +3440,7 @@ class ProtocolInfoUtility
 
     /**
      * Saves values when in exam mode.
-     * @return boolean
+     * These are PATIENT SPECIFIC values.
      */
     public function saveAllExamFieldValues($nSiteID, $nIEN, $nUID
             , $sCWFS, $sNewWFS, $updated_dt, $myvalues)
@@ -3461,8 +3448,8 @@ class ProtocolInfoUtility
         $patientDFN = NULL;
         try
         {
-            //$oDD = new \raptor\DashboardData($this->m_oContext);
-            $raptor_protocoldashboard = $this->m_oPatientDD;    // $oDD->getDashboardDetails();
+            $oDD = new \raptor\DashboardData($this->m_oContext);
+            $raptor_protocoldashboard = $oDD->getDashboardDetails();
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {
             throw new \Exception('Failed to get the dashboard to save exam fields',91111,$ex);

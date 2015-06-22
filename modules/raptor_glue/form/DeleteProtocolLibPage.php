@@ -16,7 +16,7 @@ namespace raptor;
 
 require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
 
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
+module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
 
 require_once 'FormHelper.php';
 require_once 'ProtocolLibPageHelper.php';
@@ -90,7 +90,9 @@ class DeleteProtocolLibPage extends \raptor\ChildEditBasePage
             db_delete('raptor_protocol_template')
               ->condition('protocol_shortname', $protocol_shortname)
               ->execute();            
-
+            db_delete('raptor_protocol_lib_uploads')
+              ->condition('protocol_shortname', $protocol_shortname)
+              ->execute();            
             $feedback = 'The '.$protocol_shortname.' protocol has been succesfully deleted.';
             drupal_set_message($feedback);
 
@@ -116,6 +118,22 @@ class DeleteProtocolLibPage extends \raptor\ChildEditBasePage
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
+        $oPS = new \raptor\ProtocolSettings();
+        $metainfo = $oPS->getProtocolMetaInformation($this->m_protocol_shortname);
+        $usedcount = count($metainfo['usedbyinfo']);
+        if($usedcount > 0)
+        {
+            $tickets = array();
+            foreach($metainfo['usedbyinfo'] as $key=>$details)
+            {
+                $tickets[] = $key;
+            }
+            $userinfomsg = "Cannot delete this protocol because already in use by the following $usedcount tickets: " 
+                    . implode(', ', $tickets);
+            drupal_set_message($userinfomsg, 'warning');
+            $disabled = TRUE;
+        }
+        
         $form = $this->m_oPageHelper->getForm('D',$form, $form_state, TRUE, $myvalues, 'protocol_container_styles');
         
         $form['data_entry_area1']['toppart']['protocol_shortname'] = array(

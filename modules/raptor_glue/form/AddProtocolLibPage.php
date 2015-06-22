@@ -22,7 +22,7 @@ require_once 'ProtocolLibPageHelper.php';
 require_once 'ChildEditBasePage.php';
 
 /**
- * This class returns the Admin Information input content
+ * This class implements a form to add new protocols to the library
  *
  * @author Frank Font of SAN Business Consultants
  */
@@ -33,9 +33,16 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
      //Call same function as in EditUserPage here!
     function __construct()
     {
-        $this->m_oPageHelper = new \raptor\ProtocolLibPageHelper();
-        global $base_url;
-        $this->setGobacktoURL($base_url.'/raptor/manageprotocollib');
+        try
+        {
+            $this->m_oPageHelper = new \raptor\ProtocolLibPageHelper();
+            global $base_url;
+            $this->setGobacktoURL($base_url.'/raptor/manageprotocollib');
+        } catch (\Exception $ex) {
+            error_log("Failed AddProtocolLibPage constructor because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(10));
+            throw $ex;
+        }
     }
 
     /**
@@ -44,26 +51,33 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
      */
     function getFieldValues()
     {
-        $myvalues = $this->m_oPageHelper->getFieldValues(null);
-        $myvalues['DefaultValues'] = null;
-        $myvalues['protocol_shortname'] = null;
-        $myvalues['name'] = null;
-        $myvalues['version'] = 1;
-        $myvalues['modality_abbr'] = null;
-        $myvalues['active_yn'] = 1;
-        $myvalues['service_nm'] = null;
-        $myvalues['lowerbound_weight'] = null;
-        $myvalues['upperbound_weight'] = null;
-        $myvalues['image_guided_yn'] = 0;
-        $myvalues['contrast_yn'] = 0;
-        $myvalues['radioisotope_yn'] = 0;
-        $myvalues['sedation_yn'] = 0;
-        $myvalues['yn_attribs'] = array('IG'=>$myvalues['image_guided_yn']
-                ,'C'=>$myvalues['contrast_yn']
-                ,'RI'=>$myvalues['radioisotope_yn']
-                ,'S'=>$myvalues['sedation_yn']);
-        $myvalues['filename'] = null;
-        $myvalues['protocolnotes_tx'] = NULL;        
+        try
+        {
+            $myvalues = $this->m_oPageHelper->getFieldValues(null);
+            $myvalues['DefaultValues'] = null;
+            $myvalues['protocol_shortname'] = null;
+            $myvalues['name'] = null;
+            $myvalues['version'] = 1;
+            $myvalues['modality_abbr'] = null;
+            $myvalues['active_yn'] = 1;
+            $myvalues['service_nm'] = null;
+            $myvalues['lowerbound_weight'] = null;
+            $myvalues['upperbound_weight'] = null;
+            $myvalues['image_guided_yn'] = 0;
+            $myvalues['contrast_yn'] = 0;
+            $myvalues['radioisotope_yn'] = 0;
+            $myvalues['sedation_yn'] = 0;
+            $myvalues['yn_attribs'] = array('IG'=>$myvalues['image_guided_yn']
+                    ,'C'=>$myvalues['contrast_yn']
+                    ,'RI'=>$myvalues['radioisotope_yn']
+                    ,'S'=>$myvalues['sedation_yn']);
+            $myvalues['filename'] = null;
+            $myvalues['protocolnotes_tx'] = NULL;        
+        } catch (\Exception $ex) {
+            error_log("Failed AddProtocolLibPage->getFieldValues because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
+            throw $ex;
+        }
         return $myvalues;
     }
 
@@ -107,27 +121,8 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
         $file_blob = $filedetails['file_blob'];
         $fid = $filedetails['fid'];
 
-        /*
-        if(!isset($myvalues['protocolfile']) || $myvalues['protocolfile'] == '')
-        {
-            $file=NULL;
-            $rawfilename=NULL;
-            $newfilename=NULL;
-            $filetype=NULL;
-            $filesize=NULL;
-        } else {
-            $file=$myvalues['protocolfile'];
-            $rawfilename = $file->filename;
-            $fileinfo = pathinfo($rawfilename);
-            $newfilename = $protocol_shortname.'-v'.$myvalues['version']
-                    .'.'.$fileinfo['extension'];
-            $filetype = strtoupper($fileinfo['extension']);
-            $filesize=234;  //TODO
-        }
-        */
-        
         global $user;
-        $updated_dt = date("Y-m-d H:i", time());
+        $updated_dt = date('Y-m-d H:i', time());
         try
         {
             //Setup key file upload details
@@ -226,32 +221,39 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
-        $form = $this->m_oPageHelper->getForm('A',$form, $form_state, FALSE, $myvalues, 'protocol_container_styles');
+        try
+        {
+            $form = $this->m_oPageHelper->getForm('A',$form, $form_state, FALSE, $myvalues, 'protocol_container_styles');
 
-        $protocol_shortname = '';
-        
-       //Replace the buttons
-       $form['data_entry_area1']['action_buttons'] = array(
-            '#type' => 'item', 
-            '#prefix' => '<div class="raptor-action-buttons">',
-            '#suffix' => '</div>', 
-            '#tree' => TRUE,
-        );
-        $form['data_entry_area1']['action_buttons']['create'] = array('#type' => 'submit'
-                , '#attributes' => array('class' => array('admin-action-button'), 'id' => 'admin-action-button-add')
-                , '#validate' => array('raptor_glue_addprotocollib_form_builder_customvalidate')
-                , '#value' => t('Save New Protocol'));
- 
-        global $base_url;
-        $worklist_url = $base_url . '/worklist';
-        $goback = $this->getGobacktoFullURL();
-        /*
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="admin-cancel-button" id="user-cancel"'
-                . ' type="button" value="Cancel"'
-                . ' data-redirect="'.$goback.'">');
-         */
-        $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
+            $protocol_shortname = '';
+
+           //Replace the buttons
+           $form['data_entry_area1']['action_buttons'] = array(
+                '#type' => 'item', 
+                '#prefix' => '<div class="raptor-action-buttons">',
+                '#suffix' => '</div>', 
+                '#tree' => TRUE,
+            );
+            $form['data_entry_area1']['action_buttons']['create'] = array('#type' => 'submit'
+                    , '#attributes' => array('class' => array('admin-action-button'), 'id' => 'admin-action-button-add')
+                    , '#validate' => array('raptor_glue_addprotocollib_form_builder_customvalidate')
+                    , '#value' => t('Save New Protocol'));
+
+            global $base_url;
+            $worklist_url = $base_url . '/worklist';
+            $goback = $this->getGobacktoFullURL();
+            /*
+            $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
+                    , '#markup' => '<input class="admin-cancel-button" id="user-cancel"'
+                    . ' type="button" value="Cancel"'
+                    . ' data-redirect="'.$goback.'">');
+             */
+            $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
+        } catch (\Exception $ex) {
+            error_log("Failed AddProtocolLibPage->getForm because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
+            throw $ex;
+        }
         return $form;
     }
 }

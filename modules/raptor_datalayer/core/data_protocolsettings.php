@@ -28,7 +28,43 @@ class ProtocolSettings
         $metainfo = array();
         $metainfo['attributes'] = $this->getProtocolLibItemStructured($protocol_shortname);
         $metainfo['defaultvalues'] = $this->getDefaultValuesStructured($protocol_shortname);
+        $metainfo['usedbyinfo'] = $this->getUsedByTicketsInfoStructured($protocol_shortname);
         return $metainfo;
+    }
+    
+    private function getUsedByTicketsInfoStructured($protocol_shortname)
+    {
+        $info = array();
+        try
+        {
+            //See if we already have a record of values.
+            $orcondition = db_or();
+            $orcondition->condition('primary_protocol_shortname',$protocol_shortname,'=');
+            $orcondition->condition('secondary_protocol_shortname',$protocol_shortname,'=');
+            $result = db_select('raptor_ticket_protocol_settings','p')
+                    ->fields('p')
+                    ->condition($orcondition)
+                    ->execute();
+            $nRows = $result->rowCount();
+            if($nRows > 0)
+            {
+                while($record = $result->fetchAssoc())
+                {
+                    //Replace the record but save the values.
+                    $fulltid = $record['siteid'] . '-' . $record['IEN'];
+                    $oneinfo = array();
+                    $oneinfo['current_workflow_state_cd'] = $record['current_workflow_state_cd'];
+                    $oneinfo['creatd_dt'] = $record['created_dt'];
+                    $oneinfo['isprimary'] = ($record['primary_protocol_shortname'] == $protocol_shortname);
+                    $info[$fulltid] = $oneinfo;
+                }
+            }
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getUsingTicketsStructured for psn=[$protocol_shortname] because "
+                   . $ex->getMessage()
+                   ,99234,$ex);
+        }
+        return $info;
     }
     
     private function getTableFields($tablename, $protocol_shortname)

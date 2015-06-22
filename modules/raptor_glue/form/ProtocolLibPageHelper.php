@@ -34,10 +34,17 @@ class ProtocolLibPageHelper
     
     function __construct($oContext=NULL)
     {
-        $this->m_oPI = new \raptor\ProtocolInfoUtility();
-        if($oContext == NULL)
+        try
         {
-            $this->m_oContext = \raptor\Context::getInstance();
+            $this->m_oPI = new \raptor\ProtocolInfoUtility();
+            if($oContext == NULL)
+            {
+                $this->m_oContext = \raptor\Context::getInstance();
+            }
+        } catch (\Exception $ex) {
+            error_log("Failed ProtocolLibPageHelper because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
+            throw new \Exception("Failed ProtocolLibPageHelper constructor because ".$ex->getMessage(), 99123, $ex);
         }
     }
     
@@ -47,34 +54,41 @@ class ProtocolLibPageHelper
      */
     static function setAllValuesNull(&$myvalues)
     {
-        $myvalues['active_yn'] = NULL;
-        $myvalues['DefaultValues'] = NULL;
-        $myvalues['protocol_shortname'] = NULL;
-        $myvalues['name'] = NULL;
-        $myvalues['version'] = 1;
-        $myvalues['modality_abbr'] = NULL;
-        $myvalues['active_yn'] = 1;
-        $myvalues['service_nm'] = NULL;
-        $myvalues['lowerbound_weight'] = NULL;
-        $myvalues['upperbound_weight'] = NULL;
-        $myvalues['image_guided_yn'] = 0;
-        $myvalues['contrast_yn'] = 0;
-        $myvalues['radioisotope_yn'] = 0;
-        $myvalues['sedation_yn'] = 0;
-        $myvalues['multievent_yn'] = 0;
-        //$myvalues['filename'] = NULL;   //DEPRECATED
-        $myvalues['protocolfile'] = NULL;
-        $myvalues['created_dt'] = NULL;
+        try
+        {
+            $myvalues['active_yn'] = NULL;
+            $myvalues['DefaultValues'] = NULL;
+            $myvalues['protocol_shortname'] = NULL;
+            $myvalues['name'] = NULL;
+            $myvalues['version'] = 1;
+            $myvalues['modality_abbr'] = NULL;
+            $myvalues['active_yn'] = 1;
+            $myvalues['service_nm'] = NULL;
+            $myvalues['lowerbound_weight'] = NULL;
+            $myvalues['upperbound_weight'] = NULL;
+            $myvalues['image_guided_yn'] = 0;
+            $myvalues['contrast_yn'] = 0;
+            $myvalues['radioisotope_yn'] = 0;
+            $myvalues['sedation_yn'] = 0;
+            $myvalues['multievent_yn'] = 0;
+            //$myvalues['filename'] = NULL;   //DEPRECATED
+            $myvalues['protocolfile'] = NULL;
+            $myvalues['created_dt'] = NULL;
 
-        $myvalues['data_active_yn'] = NULL;
-        $myvalues['protocolnotes_tx'] = NULL;
-        $myvalues['examnotes_tx'] = NULL;
-        $myvalues['updated_dt'] = NULL;
+            $myvalues['data_active_yn'] = NULL;
+            $myvalues['protocolnotes_tx'] = NULL;
+            $myvalues['examnotes_tx'] = NULL;
+            $myvalues['updated_dt'] = NULL;
 
-        $myvalues['data_active_yn'] = NULL;
+            $myvalues['data_active_yn'] = NULL;
 
-        //Now clear the template stuff too.
-        ProtocolLibPageHelper::setAllTemplateValuesNull($myvalues);
+            //Now clear the template stuff too.
+            ProtocolLibPageHelper::setAllTemplateValuesNull($myvalues);
+        } catch (\Exception $ex) {
+            error_log("Failed ProtocolLibPageHelper->setAllValuesNull because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
+            throw $ex;
+        }
     }
     
     /**
@@ -83,85 +97,96 @@ class ProtocolLibPageHelper
      */
     static function setAllTemplateValuesNull(&$myvalues)
     {
+        try
+        {
+            $myvalues['data_active_yn'] = NULL;
 
-        $myvalues['data_active_yn'] = NULL;
+            $myvalues['hydration_none_yn'] = NULL;
+            $myvalues['hydration_oral_tx'] = NULL;
+            $myvalues['hydration_iv_tx'] = NULL;
 
-        $myvalues['hydration_none_yn'] = NULL;
-        $myvalues['hydration_oral_tx'] = NULL;
-        $myvalues['hydration_iv_tx'] = NULL;
-        
-        $myvalues['sedation_none_yn'] = NULL;
-        $myvalues['sedation_oral_tx'] = NULL;
-        $myvalues['sedation_iv_tx'] = NULL;
-        
-        $myvalues['contrast_none_yn'] = NULL;
-        $myvalues['contrast_enteric_tx'] = NULL;
-        $myvalues['contrast_iv_tx'] = NULL;
+            $myvalues['sedation_none_yn'] = NULL;
+            $myvalues['sedation_oral_tx'] = NULL;
+            $myvalues['sedation_iv_tx'] = NULL;
 
-        $myvalues['radioisotope_none_yn'] = NULL;
-        $myvalues['radioisotope_enteric_tx'] = NULL;
-        $myvalues['radioisotope_iv_tx'] = NULL;
+            $myvalues['contrast_none_yn'] = NULL;
+            $myvalues['contrast_enteric_tx'] = NULL;
+            $myvalues['contrast_iv_tx'] = NULL;
 
-        $myvalues['allergy_kw'] = NULL; //Name in the database
-        $myvalues['allergy_cd'] = NULL;  //Name on the form
+            $myvalues['radioisotope_none_yn'] = NULL;
+            $myvalues['radioisotope_enteric_tx'] = NULL;
+            $myvalues['radioisotope_iv_tx'] = NULL;
 
-        $myvalues['claustrophobic_kw'] = NULL; //Name in the database
-        $myvalues['claustrophobic_cd'] = NULL;  //Name on the form
+            $myvalues['allergy_kw'] = NULL; //Name in the database
+            $myvalues['allergy_cd'] = NULL;  //Name on the form
 
-        $myvalues['consent_req_kw'] = NULL; //Name in the database
-        $myvalues['consentreq_radio_cd'] = NULL;  //Name on the form
+            $myvalues['claustrophobic_kw'] = NULL; //Name in the database
+            $myvalues['claustrophobic_cd'] = NULL;  //Name on the form
 
-        $myvalues['protocolnotes_tx'] = NULL;
-        $myvalues['examnotes_tx'] = NULL;
-        
-        $myvalues['updated_dt'] = NULL;
-        
-        //Also set text values expected specifically by form controls
-        $myvalues['hydration_oral_id'] = NULL;
-        $myvalues['hydration_iv_id'] = NULL;
-        $myvalues['hydration_oral_customtx'] = NULL;
-        $myvalues['hydration_iv_customtx'] = NULL;
+            $myvalues['consent_req_kw'] = NULL; //Name in the database
+            $myvalues['consentreq_radio_cd'] = NULL;  //Name on the form
 
-        $myvalues['sedation_oral_id'] = NULL;
-        $myvalues['sedation_iv_id'] = NULL;
-        $myvalues['sedation_oral_customtx'] = NULL;
-        $myvalues['sedation_iv_customtx'] = NULL;
+            $myvalues['protocolnotes_tx'] = NULL;
+            $myvalues['examnotes_tx'] = NULL;
 
-        $myvalues['contrast_enteric_id'] = NULL;
-        $myvalues['contrast_iv_id'] = NULL;
-        $myvalues['contrast_enteric_customtx'] = NULL;
-        $myvalues['contrast_iv_customtx'] = NULL;
+            $myvalues['updated_dt'] = NULL;
 
-        $myvalues['radioisotope_enteric_id'] = NULL;
-        $myvalues['radioisotope_iv_id'] = NULL;
-        $myvalues['radioisotope_enteric_customtx'] = NULL;
-        $myvalues['radioisotope_iv_customtx'] = NULL;
-        
-        $myvalues['cpt_codes'] = NULL;
-        $myvalues['radlex_codes'] = NULL;
-        $myvalues['icd_codes'] = NULL;
+            //Also set text values expected specifically by form controls
+            $myvalues['hydration_oral_id'] = NULL;
+            $myvalues['hydration_iv_id'] = NULL;
+            $myvalues['hydration_oral_customtx'] = NULL;
+            $myvalues['hydration_iv_customtx'] = NULL;
+
+            $myvalues['sedation_oral_id'] = NULL;
+            $myvalues['sedation_iv_id'] = NULL;
+            $myvalues['sedation_oral_customtx'] = NULL;
+            $myvalues['sedation_iv_customtx'] = NULL;
+
+            $myvalues['contrast_enteric_id'] = NULL;
+            $myvalues['contrast_iv_id'] = NULL;
+            $myvalues['contrast_enteric_customtx'] = NULL;
+            $myvalues['contrast_iv_customtx'] = NULL;
+
+            $myvalues['radioisotope_enteric_id'] = NULL;
+            $myvalues['radioisotope_iv_id'] = NULL;
+            $myvalues['radioisotope_enteric_customtx'] = NULL;
+            $myvalues['radioisotope_iv_customtx'] = NULL;
+
+            $myvalues['cpt_codes'] = NULL;
+            $myvalues['radlex_codes'] = NULL;
+            $myvalues['icd_codes'] = NULL;
+        } catch (\Exception $ex) {
+            error_log("Failed ProtocolLibPageHelper->setAllTemplateValuesNull because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
+            throw $ex;
+        }
     }
-    
     
     public function getTemplateMap($protocol_shortname)
     {
-        $map = NULL;
         try
         {
-            $result = db_select('raptor_protocol_template','p')
-                    ->fields('p')
-                    ->condition('protocol_shortname', $protocol_shortname, '=')
-                    ->execute();
-            $map = $result->fetchAssoc();
+            $map = NULL;
+            try
+            {
+                $result = db_select('raptor_protocol_template','p')
+                        ->fields('p')
+                        ->condition('protocol_shortname', $protocol_shortname, '=')
+                        ->execute();
+                $map = $result->fetchAssoc();
+            } catch (\Exception $ex) {
+                throw $ex;
+            }
+            return $map;
         } catch (\Exception $ex) {
+            error_log("Failed ProtocolLibPageHelper->getTemplateMap because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
             throw $ex;
         }
-        return $map;
     }
 
     /**
      * We have to backup the original values before we change them.
-     * @param type $protocol_shortname
      */
     public function copyTemplateValuesToReplacedTable($protocol_shortname)
     {
@@ -214,37 +239,42 @@ class ProtocolLibPageHelper
     public function getPostedFileDetails($myvalues, $newbasename, $fieldname='protocolfile')
     {
         $details = array();
-        
-        if(!isset($myvalues[$fieldname]) || $myvalues[$fieldname] == '')
+        try
         {
-            $details['file']=NULL;
-            $details['rawfilename']=NULL;
-            $details['newfilename']=NULL;
-            $details['filetype']=NULL;
-            $details['filesize']=NULL;
-            $details['file_blob']=NULL;
-            $details['fid']=NULL;
-        } else {
-            $details['file']=$myvalues[$fieldname];
-            $details['rawfilename'] = $details['file']->filename;
-            $fileinfo = pathinfo($details['rawfilename']);
-            $details['newfilename'] = $newbasename
-                    .'-v'.$myvalues['version']
-                    .'.'.$fileinfo['extension'];
-            $details['filetype'] = strtoupper($fileinfo['extension']);
-            $details['filesize']=$details['file']->filesize;
-            $details['fid'] = $details['file']->fid;
+            if(!isset($myvalues[$fieldname]) || $myvalues[$fieldname] == '')
+            {
+                $details['file']=NULL;
+                $details['rawfilename']=NULL;
+                $details['newfilename']=NULL;
+                $details['filetype']=NULL;
+                $details['filesize']=NULL;
+                $details['file_blob']=NULL;
+                $details['fid']=NULL;
+            } else {
+                $details['file']=$myvalues[$fieldname];
+                $details['rawfilename'] = $details['file']->filename;
+                $fileinfo = pathinfo($details['rawfilename']);
+                $details['newfilename'] = $newbasename
+                        .'-v'.$myvalues['version']
+                        .'.'.$fileinfo['extension'];
+                $details['filetype'] = strtoupper($fileinfo['extension']);
+                $details['filesize']=$details['file']->filesize;
+                $details['fid'] = $details['file']->fid;
 
-            //Load the raw file blob object
-            $fileuri = $details['file']->uri;
-            $filepath = drupal_realpath($fileuri);
-            $fp      = fopen($filepath, 'r');
-            $rawfilesize = filesize($filepath);
-            $rawcontent = fread($fp, $rawfilesize);
-            $details['file_blob'] = $rawcontent; //No need for mysqli_real_escape_string if we bind on write!
-            fclose($fp);   
+                //Load the raw file blob object
+                $fileuri = $details['file']->uri;
+                $filepath = drupal_realpath($fileuri);
+                $fp      = fopen($filepath, 'r');
+                $rawfilesize = filesize($filepath);
+                $rawcontent = fread($fp, $rawfilesize);
+                $details['file_blob'] = $rawcontent; //No need for mysqli_real_escape_string if we bind on write!
+                fclose($fp);   
+            }
+        } catch (\Exception $ex) {
+            error_log("Failed ProtocolLibPageHelper->getPostedFileDetails because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
+            throw $ex;
         }
-        
         return $details;
     }
     
@@ -342,281 +372,286 @@ class ProtocolLibPageHelper
      */
     function getFieldValues($protocol_shortname)
     {
-        
         $myvalues = array();
-        ProtocolLibPageHelper::setAllValuesNull($myvalues); //Always initialize because there are some extra values there we want null at the start.
-        $myvalues['protocol_shortname'] = $protocol_shortname;
-        $myvalues['keywords1'] = array();
-        $myvalues['keywords2'] = array();
-        $myvalues['keywords3'] = array();
-        $myvalues['upload_comment_tx'] = NULL;
-        $myvalues['filetype'] = NULL;
-        $myvalues['filesize'] = NULL;
-        
-        if($protocol_shortname != NULL)
+        try
         {
-            //Get highest scanned document version number first
-            $scanned_version = 0;
-            $protocol_version = 0;
-            $result = db_select('raptor_protocol_lib_uploads','p')
-                ->fields('p')
-                ->orderBy('version', 'DESC')
-                ->condition('protocol_shortname',$protocol_shortname,'=')
-                ->execute();
-            if(isset($result) && $result->rowCount()>0)
+            ProtocolLibPageHelper::setAllValuesNull($myvalues); //Always initialize because there are some extra values there we want null at the start.
+            $myvalues['protocol_shortname'] = $protocol_shortname;
+            $myvalues['keywords1'] = array();
+            $myvalues['keywords2'] = array();
+            $myvalues['keywords3'] = array();
+            $myvalues['upload_comment_tx'] = NULL;
+            $myvalues['filetype'] = NULL;
+            $myvalues['filesize'] = NULL;
+
+            if($protocol_shortname != NULL)
             {
-                $record = $result->fetchObject();
-                $scanned_version = $record->version;
-            }
-            
-            $result = db_select('raptor_protocol_lib','p')
+                //Get highest scanned document version number first
+                $scanned_version = 0;
+                $protocol_version = 0;
+                $result = db_select('raptor_protocol_lib_uploads','p')
                     ->fields('p')
+                    ->orderBy('version', 'DESC')
                     ->condition('protocol_shortname',$protocol_shortname,'=')
                     ->execute();
-            
-            if(isset($result) && $result->rowCount()>0)
-            {
-                //Not deleted yet.
-                $record = $result->fetchObject();
-                $myvalues['DefaultValues'] = NULL;
-                $myvalues['protocol_shortname'] = $protocol_shortname;
-                $myvalues['name'] = $record->name;
-                $protocol_version = $record->version;
-                $myvalues['modality_abbr'] = $record->modality_abbr;
-                $myvalues['service_nm'] = $record->service_nm;
-                $myvalues['lowerbound_weight'] = $record->lowerbound_weight;
-                $myvalues['upperbound_weight'] = $record->upperbound_weight;
-                $myvalues['image_guided_yn'] = $record->image_guided_yn;
-                $myvalues['contrast_yn'] = $record->contrast_yn;
-                $myvalues['radioisotope_yn'] = $record->radioisotope_yn;
-                $myvalues['sedation_yn'] = $record->sedation_yn;
-                $myvalues['multievent_yn'] = $record->multievent_yn;
-                $myvalues['filename'] = $record->filename;
-                $myvalues['original_filename'] = $record->original_filename;
-                $myvalues['original_file_upload_dt'] = $record->original_file_upload_dt;
-                $myvalues['original_file_upload_by_uid'] = $record->original_file_upload_by_uid;
-                $myvalues['active_yn'] = $record->active_yn;
-                $myvalues['created_dt'] = $record->updated_dt;
-
-                //Now get the default values, if any.
-                $result = db_select('raptor_protocol_template','p')
-                        ->fields('p')
-                        ->condition('protocol_shortname',$protocol_shortname,'=')
-                        ->execute();
-                if($result->rowCount()===0)
+                if(isset($result) && $result->rowCount()>0)
                 {
-                    error_log("WARNING: NO TEMPLATE RECORDS FOUND for PROTOCOL $protocol_shortname");
-                    //Set all the template keys as NULL.
-                    ProtocolLibPageHelper::setAllTemplateValuesNull($myvalues);                
-                } else {
                     $record = $result->fetchObject();
-                    $myvalues['data_active_yn'] = $record->active_yn;
-
-                    $myvalues['hydration_none_yn'] = $record->hydration_none_yn;
-                    $myvalues['hydration_oral_tx'] = $record->hydration_oral_tx;
-                    $myvalues['hydration_oral_id'] = $record->hydration_oral_tx;
-                    $myvalues['hydration_iv_tx'] = $record->hydration_iv_tx;
-                    $myvalues['hydration_iv_id'] = $record->hydration_iv_tx;
-                    $myvalues['hydration_oral_customtx'] = $record->hydration_oral_tx;
-                    $myvalues['hydration_iv_customtx'] = $record->hydration_iv_tx;
-
-                    $myvalues['sedation_none_yn'] = $record->sedation_none_yn;
-                    $myvalues['sedation_oral_tx'] = $record->sedation_oral_tx;
-                    $myvalues['sedation_oral_id'] = $record->sedation_oral_tx;
-                    $myvalues['sedation_iv_tx'] = $record->sedation_iv_tx;
-                    $myvalues['sedation_iv_id'] = $record->sedation_iv_tx;
-                    $myvalues['sedation_oral_customtx'] = $record->sedation_oral_tx;
-                    $myvalues['sedation_iv_customtx'] = $record->sedation_iv_tx;
-
-                    $myvalues['contrast_none_yn'] = $record->contrast_none_yn;
-                    $myvalues['contrast_enteric_tx'] = $record->contrast_enteric_tx;
-                    $myvalues['contrast_enteric_id'] = $record->contrast_enteric_tx;
-                    $myvalues['contrast_iv_tx'] = $record->contrast_iv_tx;
-                    $myvalues['contrast_iv_id'] = $record->contrast_iv_tx;
-                    $myvalues['contrast_enteric_customtx'] = $record->contrast_enteric_tx;  //custom field
-                    $myvalues['contrast_iv_customtx'] = $record->contrast_iv_tx;            //custom field
-
-                    $myvalues['radioisotope_none_yn'] = $record->radioisotope_none_yn;
-                    $myvalues['radioisotope_enteric_tx'] = $record->radioisotope_enteric_tx;
-                    $myvalues['radioisotope_enteric_id'] = $record->radioisotope_enteric_tx;
-                    $myvalues['radioisotope_iv_tx'] = $record->radioisotope_iv_tx;
-                    $myvalues['radioisotope_iv_id'] = $record->radioisotope_iv_tx;
-                    $myvalues['radioisotope_enteric_customtx'] = $record->radioisotope_enteric_tx;
-                    $myvalues['radioisotope_iv_customtx'] = $record->radioisotope_iv_tx;
-
-                    //$myvalues['allergy_kw'] = $record->allergy_kw;
-                    //$myvalues['claustrophobic_kw'] = $record->claustrophobic_kw;
-                    $myvalues['consent_req_kw'] = $record->consent_req_kw;
-
-                    $myvalues['protocolnotes_tx'] = $record->protocolnotes_tx;
-                    $myvalues['examnotes_tx'] = $record->examnotes_tx;
-                    $myvalues['updated_dt'] = $record->updated_dt;
+                    $scanned_version = $record->version;
                 }
 
-                $keyword_result = db_select('raptor_protocol_keywords','p')
+                $result = db_select('raptor_protocol_lib','p')
                         ->fields('p')
                         ->condition('protocol_shortname',$protocol_shortname,'=')
                         ->execute();
-                if($keyword_result->rowCount() > 0)
+
+                if(isset($result) && $result->rowCount()>0)
                 {
-                    foreach($keyword_result as $item)
+                    //Not deleted yet.
+                    $record = $result->fetchObject();
+                    $myvalues['DefaultValues'] = NULL;
+                    $myvalues['protocol_shortname'] = $protocol_shortname;
+                    $myvalues['name'] = $record->name;
+                    $protocol_version = $record->version;
+                    $myvalues['modality_abbr'] = $record->modality_abbr;
+                    $myvalues['service_nm'] = $record->service_nm;
+                    $myvalues['lowerbound_weight'] = $record->lowerbound_weight;
+                    $myvalues['upperbound_weight'] = $record->upperbound_weight;
+                    $myvalues['image_guided_yn'] = $record->image_guided_yn;
+                    $myvalues['contrast_yn'] = $record->contrast_yn;
+                    $myvalues['radioisotope_yn'] = $record->radioisotope_yn;
+                    $myvalues['sedation_yn'] = $record->sedation_yn;
+                    $myvalues['multievent_yn'] = $record->multievent_yn;
+                    $myvalues['filename'] = $record->filename;
+                    $myvalues['original_filename'] = $record->original_filename;
+                    $myvalues['original_file_upload_dt'] = $record->original_file_upload_dt;
+                    $myvalues['original_file_upload_by_uid'] = $record->original_file_upload_by_uid;
+                    $myvalues['active_yn'] = $record->active_yn;
+                    $myvalues['created_dt'] = $record->updated_dt;
+
+                    //Now get the default values, if any.
+                    $result = db_select('raptor_protocol_template','p')
+                            ->fields('p')
+                            ->condition('protocol_shortname',$protocol_shortname,'=')
+                            ->execute();
+                    if($result->rowCount()===0)
                     {
-                        if($item->weightgroup == 1)
+                        error_log("WARNING: NO TEMPLATE RECORDS FOUND for PROTOCOL $protocol_shortname");
+                        //Set all the template keys as NULL.
+                        ProtocolLibPageHelper::setAllTemplateValuesNull($myvalues);                
+                    } else {
+                        $record = $result->fetchObject();
+                        $myvalues['data_active_yn'] = $record->active_yn;
+
+                        $myvalues['hydration_none_yn'] = $record->hydration_none_yn;
+                        $myvalues['hydration_oral_tx'] = $record->hydration_oral_tx;
+                        $myvalues['hydration_oral_id'] = $record->hydration_oral_tx;
+                        $myvalues['hydration_iv_tx'] = $record->hydration_iv_tx;
+                        $myvalues['hydration_iv_id'] = $record->hydration_iv_tx;
+                        $myvalues['hydration_oral_customtx'] = $record->hydration_oral_tx;
+                        $myvalues['hydration_iv_customtx'] = $record->hydration_iv_tx;
+
+                        $myvalues['sedation_none_yn'] = $record->sedation_none_yn;
+                        $myvalues['sedation_oral_tx'] = $record->sedation_oral_tx;
+                        $myvalues['sedation_oral_id'] = $record->sedation_oral_tx;
+                        $myvalues['sedation_iv_tx'] = $record->sedation_iv_tx;
+                        $myvalues['sedation_iv_id'] = $record->sedation_iv_tx;
+                        $myvalues['sedation_oral_customtx'] = $record->sedation_oral_tx;
+                        $myvalues['sedation_iv_customtx'] = $record->sedation_iv_tx;
+
+                        $myvalues['contrast_none_yn'] = $record->contrast_none_yn;
+                        $myvalues['contrast_enteric_tx'] = $record->contrast_enteric_tx;
+                        $myvalues['contrast_enteric_id'] = $record->contrast_enteric_tx;
+                        $myvalues['contrast_iv_tx'] = $record->contrast_iv_tx;
+                        $myvalues['contrast_iv_id'] = $record->contrast_iv_tx;
+                        $myvalues['contrast_enteric_customtx'] = $record->contrast_enteric_tx;  //custom field
+                        $myvalues['contrast_iv_customtx'] = $record->contrast_iv_tx;            //custom field
+
+                        $myvalues['radioisotope_none_yn'] = $record->radioisotope_none_yn;
+                        $myvalues['radioisotope_enteric_tx'] = $record->radioisotope_enteric_tx;
+                        $myvalues['radioisotope_enteric_id'] = $record->radioisotope_enteric_tx;
+                        $myvalues['radioisotope_iv_tx'] = $record->radioisotope_iv_tx;
+                        $myvalues['radioisotope_iv_id'] = $record->radioisotope_iv_tx;
+                        $myvalues['radioisotope_enteric_customtx'] = $record->radioisotope_enteric_tx;
+                        $myvalues['radioisotope_iv_customtx'] = $record->radioisotope_iv_tx;
+
+                        //$myvalues['allergy_kw'] = $record->allergy_kw;
+                        //$myvalues['claustrophobic_kw'] = $record->claustrophobic_kw;
+                        $myvalues['consent_req_kw'] = $record->consent_req_kw;
+
+                        $myvalues['protocolnotes_tx'] = $record->protocolnotes_tx;
+                        $myvalues['examnotes_tx'] = $record->examnotes_tx;
+                        $myvalues['updated_dt'] = $record->updated_dt;
+                    }
+
+                    $keyword_result = db_select('raptor_protocol_keywords','p')
+                            ->fields('p')
+                            ->condition('protocol_shortname',$protocol_shortname,'=')
+                            ->execute();
+                    if($keyword_result->rowCount() > 0)
+                    {
+                        foreach($keyword_result as $item)
                         {
-                            $myvalues['keywords1'][] = $item->keyword;
-                        } else
-                        if($item->weightgroup == 2)
-                        {
-                            $myvalues['keywords2'][] = $item->keyword;
-                        } else
-                        if($item->weightgroup == 3)
-                        {
-                            $myvalues['keywords3'][] = $item->keyword;
-                        } else {
-                            die("Invalid weightgroup value for filter=" . print_r($filter, true));
+                            if($item->weightgroup == 1)
+                            {
+                                $myvalues['keywords1'][] = $item->keyword;
+                            } else
+                            if($item->weightgroup == 2)
+                            {
+                                $myvalues['keywords2'][] = $item->keyword;
+                            } else
+                            if($item->weightgroup == 3)
+                            {
+                                $myvalues['keywords3'][] = $item->keyword;
+                            } else {
+                                die("Invalid weightgroup value for filter=" . print_r($filter, true));
+                            }
                         }
                     }
-                }
-                
-                //Get the mappings.
-                $mappings = db_select('raptor_protocol_code_maps','p')
-                        ->fields('p')
-                        ->condition('protocol_shortname',$protocol_shortname,'=')
-                        ->execute();
-                $cpt_codes = array();
-                $radlex_codes = array();
-                $icd_codes = array();
-                if($mappings->rowCount() > 0)
-                {
-                    foreach($mappings as $item)
+
+                    //Get the mappings.
+                    $mappings = db_select('raptor_protocol_code_maps','p')
+                            ->fields('p')
+                            ->condition('protocol_shortname',$protocol_shortname,'=')
+                            ->execute();
+                    $cpt_codes = array();
+                    $radlex_codes = array();
+                    $icd_codes = array();
+                    if($mappings->rowCount() > 0)
                     {
-                        if(isset($item->cpt_cd))
+                        foreach($mappings as $item)
                         {
-                            $cpt_codes[] = $item->cpt_cd;
-                        }
-                        if(isset($item->radlex_cd))
-                        {
-                            $radlex_codes[] = $item->radlex_cd;
-                        }
-                        if(isset($item->icd_cd))
-                        {
-                            $icd_codes[] = $item->icd_cd;
+                            if(isset($item->cpt_cd))
+                            {
+                                $cpt_codes[] = $item->cpt_cd;
+                            }
+                            if(isset($item->radlex_cd))
+                            {
+                                $radlex_codes[] = $item->radlex_cd;
+                            }
+                            if(isset($item->icd_cd))
+                            {
+                                $icd_codes[] = $item->icd_cd;
+                            }
                         }
                     }
+
+                    //Sort the contents
+                    sort($cpt_codes);
+                    sort($radlex_codes);
+                    sort($icd_codes);
+
+                    //Format for user display
+                    $myvalues['cpt_codes'] = implode(', ', $cpt_codes);
+                    $myvalues['radlex_codes'] = implode(', ', $radlex_codes);
+                    $myvalues['icd_codes'] = implode(', ', $icd_codes);
                 }
-                
-                //Sort the contents
-                sort($cpt_codes);
-                sort($radlex_codes);
-                sort($icd_codes);
-                
-                //Format for user display
-                $myvalues['cpt_codes'] = implode(', ', $cpt_codes);
-                $myvalues['radlex_codes'] = implode(', ', $radlex_codes);
-                $myvalues['icd_codes'] = implode(', ', $icd_codes);
+                if($protocol_version > $scanned_version)
+                {
+                    $myvalues['version'] = $protocol_version;
+                } else if($protocol_version < $scanned_version) {
+                    $myvalues['version'] = $scanned_version;
+                } else {
+                    //Both were zero
+                    $myvalues['version'] = 1;
+                }
+                $myvalues['newversion'] = $myvalues['version'] + 1;
             }
-            if($protocol_version > $scanned_version)
-            {
-                $myvalues['version'] = $protocol_version;
-            } else if($protocol_version < $scanned_version) {
-                $myvalues['version'] = $scanned_version;
-            } else {
-                //Both were zero
-                $myvalues['version'] = 1;
-            }
-            $myvalues['newversion'] = $myvalues['version'] + 1;
-        }
 
-        //Properly set the YN array 20140714
-        $yn_attribs = array();
-        if(isset($myvalues['image_guided_yn']) && $myvalues['image_guided_yn'] == 1)
-        {
-            $yn_attribs['IG'] = 'IG';
-        }
-        if(isset($myvalues['contrast_yn']) && $myvalues['contrast_yn'] == 1)
-        {
-            $yn_attribs['C'] = 'C';
-        }
-        if(isset($myvalues['radioisotope_yn']) && $myvalues['radioisotope_yn'] == 1)
-        {
-            $yn_attribs['RI'] = 'RI';
-        }
-        if(isset($myvalues['sedation_yn']) && $myvalues['sedation_yn'] == 1)
-        {
-            $yn_attribs['S'] = 'S';
-        }
-        $myvalues['yn_attribs'] = $yn_attribs;
-        
-        //Derive the hydration_radio_cd value
-        if($myvalues['hydration_none_yn'] == 1)        
-        {
-            $myvalues['hydration_radio_cd'] = 'none';
-        } else {
-            if(trim($myvalues['hydration_oral_tx']) > '')
+            //Properly set the YN array 20140714
+            $yn_attribs = array();
+            if(isset($myvalues['image_guided_yn']) && $myvalues['image_guided_yn'] == 1)
             {
-                $myvalues['hydration_radio_cd'] = 'oral'; 
-            } else
-            if(trim($myvalues['hydration_iv_tx']) > '')
-            {
-                $myvalues['hydration_radio_cd'] = 'iv';
-            } else {
-                $myvalues['hydration_radio_cd'] = NULL;
+                $yn_attribs['IG'] = 'IG';
             }
-        }
-
-        //Derive the sedation_radio_cd value
-        if($myvalues['sedation_none_yn'] == 1)        
-        {
-            $myvalues['sedation_radio_cd'] = 'none';
-        } else {
-            if(trim($myvalues['sedation_oral_tx']) > '')
+            if(isset($myvalues['contrast_yn']) && $myvalues['contrast_yn'] == 1)
             {
-                $myvalues['sedation_radio_cd'] = 'oral'; 
-            } else
-            if(trim($myvalues['sedation_iv_tx']) > '')
-            {
-                $myvalues['sedation_radio_cd'] = 'iv';
-            } else {
-                $myvalues['sedation_radio_cd'] = NULL;
+                $yn_attribs['C'] = 'C';
             }
-        }
-        
-        //Derive the contrast_cd value
-        $cc = array();
-        if(isset($myvalues['contrast_none_yn']) && $myvalues['contrast_none_yn'] == 1)
-        {
-            $cc['none'] = 'none';
-        }
-        if(isset($myvalues['contrast_enteric_tx']) && $myvalues['contrast_enteric_tx'] > '')
-        {
-            $cc['enteric'] = 'enteric';
-        }
-        if(isset($myvalues['contrast_iv_tx']) && $myvalues['contrast_iv_tx'] > '')
-        {
-            $cc['iv'] = 'iv';
-        }
-        $myvalues['contrast_cd'] = $cc;
+            if(isset($myvalues['radioisotope_yn']) && $myvalues['radioisotope_yn'] == 1)
+            {
+                $yn_attribs['RI'] = 'RI';
+            }
+            if(isset($myvalues['sedation_yn']) && $myvalues['sedation_yn'] == 1)
+            {
+                $yn_attribs['S'] = 'S';
+            }
+            $myvalues['yn_attribs'] = $yn_attribs;
 
-        //Derive the radioisotope_cd value
-        $cc = array();
-        if(isset($myvalues['radioisotope_none_yn']) && $myvalues['radioisotope_none_yn'] == 1)
-        {
-            $cc['none'] = 'none';
+            //Derive the hydration_radio_cd value
+            if($myvalues['hydration_none_yn'] == 1)        
+            {
+                $myvalues['hydration_radio_cd'] = 'none';
+            } else {
+                if(trim($myvalues['hydration_oral_tx']) > '')
+                {
+                    $myvalues['hydration_radio_cd'] = 'oral'; 
+                } else
+                if(trim($myvalues['hydration_iv_tx']) > '')
+                {
+                    $myvalues['hydration_radio_cd'] = 'iv';
+                } else {
+                    $myvalues['hydration_radio_cd'] = NULL;
+                }
+            }
+
+            //Derive the sedation_radio_cd value
+            if($myvalues['sedation_none_yn'] == 1)        
+            {
+                $myvalues['sedation_radio_cd'] = 'none';
+            } else {
+                if(trim($myvalues['sedation_oral_tx']) > '')
+                {
+                    $myvalues['sedation_radio_cd'] = 'oral'; 
+                } else
+                if(trim($myvalues['sedation_iv_tx']) > '')
+                {
+                    $myvalues['sedation_radio_cd'] = 'iv';
+                } else {
+                    $myvalues['sedation_radio_cd'] = NULL;
+                }
+            }
+
+            //Derive the contrast_cd value
+            $cc = array();
+            if(isset($myvalues['contrast_none_yn']) && $myvalues['contrast_none_yn'] == 1)
+            {
+                $cc['none'] = 'none';
+            }
+            if(isset($myvalues['contrast_enteric_tx']) && $myvalues['contrast_enteric_tx'] > '')
+            {
+                $cc['enteric'] = 'enteric';
+            }
+            if(isset($myvalues['contrast_iv_tx']) && $myvalues['contrast_iv_tx'] > '')
+            {
+                $cc['iv'] = 'iv';
+            }
+            $myvalues['contrast_cd'] = $cc;
+
+            //Derive the radioisotope_cd value
+            $cc = array();
+            if(isset($myvalues['radioisotope_none_yn']) && $myvalues['radioisotope_none_yn'] == 1)
+            {
+                $cc['none'] = 'none';
+            }
+            if(isset($myvalues['radioisotope_enteric_tx']) && $myvalues['radioisotope_enteric_tx'] > '')
+            {
+                $cc['enteric'] = 'enteric';
+            }
+            if(isset($myvalues['radioisotope_iv_tx']) && $myvalues['radioisotope_iv_tx'] > '')
+            {
+                $cc['iv'] = 'iv';
+            }
+            $myvalues['radioisotope_cd'] = $cc;
+
+            $myvalues['allergy_cd'] = $myvalues['allergy_kw'];
+            $myvalues['claustrophobic_cd'] = $myvalues['claustrophobic_kw'];
+            $myvalues['consentreq_radio_cd'] = $myvalues['consent_req_kw'];
+        } catch (\Exception $ex) {
+            error_log("Failed ProtocolLibPageHelper->getFieldValues because ".$ex->getMessage()
+                    . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
+            throw $ex;
         }
-        if(isset($myvalues['radioisotope_enteric_tx']) && $myvalues['radioisotope_enteric_tx'] > '')
-        {
-            $cc['enteric'] = 'enteric';
-        }
-        if(isset($myvalues['radioisotope_iv_tx']) && $myvalues['radioisotope_iv_tx'] > '')
-        {
-            $cc['iv'] = 'iv';
-        }
-        $myvalues['radioisotope_cd'] = $cc;
-        
-        $myvalues['allergy_cd'] = $myvalues['allergy_kw'];
-        $myvalues['claustrophobic_cd'] = $myvalues['claustrophobic_kw'];
-        $myvalues['consentreq_radio_cd'] = $myvalues['consent_req_kw'];
-        
         return $myvalues;
     }
 
@@ -1557,7 +1592,7 @@ class ProtocolLibPageHelper
                 . '</ul>'
                 );
         } else {
-            $uploadlabel = 'Scanned protocol document';
+            $uploadlabel = FormHelper::getTitleAsRequiredField('Scanned protocol document');
         }
         if(!$disabled && ($formType == 'E' || $formType == 'A'))
         {

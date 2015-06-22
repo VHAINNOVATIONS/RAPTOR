@@ -696,118 +696,123 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         {
             throw new \Exception('Cannot get field values when tid is NULL!');
         }
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOneRow = $oWL->getDashboardMap($tid);
-        $nSiteID = $this->m_oContext->getSiteID();
-        $nIEN = $tid;
-        $nUID = $this->m_oContext->getUID();
-
-        //$oDD = new \raptor\DashboardData($this->m_oContext);
-        //$aDD = $oDD->getDashboardDetails();     //TODO REDUNDANT WITH $aOneRow????????????????      
-        $aDD = $this->m_aPatientDD;
-        $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-        
-        if($this->m_oCIE == NULL)
+        try
         {
-            $aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
-            $aEGFR = $oPSD->getEGFRDetail();
-        
-            $aPatientInfoForCIE = array();    //TODO move this code elsewhere
-            $aPatientInfoForCIE['GENDER'] = $aDD['PatientGender'];
-            $aPatientInfoForCIE['AGE'] = $aDD['PatientAge'];
-            $aPatientInfoForCIE['WEIGHT_KG'] = isset($aLatestVitals['Weight']) ? $aLatestVitals['Weight'] : NULL;
-            $aPatientInfoForCIE['LATEST_EGFR'] = $aEGFR['LATEST_EGFR'];
-            $aPatientInfoForCIE['MIN_EGFR_10DAYS'] = $aEGFR['MIN_EGFR_10DAYS'];
-            $aPatientInfoForCIE['MIN_EGFR_15DAYS'] = $aEGFR['MIN_EGFR_15DAYS'];
-            $aPatientInfoForCIE['MIN_EGFR_30DAYS'] = $aEGFR['MIN_EGFR_30DAYS'];
-            $aPatientInfoForCIE['MIN_EGFR_45DAYS'] = $aEGFR['MIN_EGFR_45DAYS'];
-            $aPatientInfoForCIE['MIN_EGFR_60DAYS'] = $aEGFR['MIN_EGFR_60DAYS'];
-            $aPatientInfoForCIE['MIN_EGFR_90DAYS'] = $aEGFR['MIN_EGFR_90DAYS'];
-            try
-            {
-                $oCIE = new \raptor\ContraIndEngine($aPatientInfoForCIE);        
-            } catch (\Exception $ex) {
-                $oCIE = NULL;
-                drupal_set_message('Failed to create the contraindications engine because ' . $ex->getMessage(), 'error');
-            }
-            $this->m_oCIE = $oCIE;
-        }
-        
-        //drupal_set_message(print_r($aOneRow,TRUE),'warning');
-        $prev_protocolnotes_tx = $this->m_oUtility->
-                getSchedulerNotesMarkup($nSiteID,$nIEN);
-        $prev_protocolnotes_tx .= $this->m_oUtility->
-                getCollaborationNotesMarkup($nSiteID,$nIEN);
-        $prev_protocolnotes_tx .= $this->m_oUtility->
-                getPreviousNotesMarkup('raptor_ticket_protocol_notes'
-                        ,$nSiteID,$nIEN,'core-protocol-note');
-        $prev_exam_notes_tx = $this->m_oUtility->
-                getPreviousNotesMarkup('raptor_ticket_exam_notes'
-                        ,$nSiteID,$nIEN,'exam-note');
-        $prev_interpret_notes_tx = $this->m_oUtility->
-                getPreviousNotesMarkup('raptor_ticket_interpret_notes'
-                        ,$nSiteID,$nIEN,'interpret-note');
-        $prev_qa_notes_tx = $this->m_oUtility->
-                getPreviousQANotesMarkup($nSiteID,$nIEN,'qa-note');
-        $prev_suspend_notes_tx = $this->m_oUtility->
-                getPreviousNotesMarkup('raptor_ticket_suspend_notes'
-                        ,$nSiteID,$nIEN,'suspend-note');
-        $prev_unsuspend_notes_tx = $this->m_oUtility->
-                getPreviousNotesMarkup('raptor_ticket_unsuspend_notes'
-                        ,$nSiteID,$nIEN,'unsuspend-note');
-        
-        //Get app existing protocol data
-        $myvalues = array();
-        ProtocolInfoPage::setAllValuesNull($myvalues);  //Initialize all values to NULL first.
-        $myvalues['tid'] = $tid;
-        $myvalues['procName'] = $aOneRow['Procedure'];  //TODO REDUNDANT WITH $aDD?????
-        $myvalues['prev_protocolnotes_tx'] = $prev_protocolnotes_tx;
-        $myvalues['prev_exam_notes_tx'] = $prev_exam_notes_tx;
-        $myvalues['prev_interpret_notes_tx'] = $prev_interpret_notes_tx;
-        $myvalues['prev_qa_notes_tx'] = $prev_qa_notes_tx;
-        $myvalues['prev_suspend_notes_tx'] = $prev_suspend_notes_tx;
-        $myvalues['DefaultValues'] = null;
-        $myvalues['protocolnotes_tx'] = '';
-        $myvalues['examnotes_tx'] = '';
-        $myvalues['qa_notes_tx'] = '';
-        
-        $this->loadProtocolFieldValues($nSiteID,$nIEN,$myvalues);
-        $this->loadExamFieldValues($nSiteID,$nIEN,$myvalues);
-        
-        //Get existing checklist data.
-        $myvalues['questions'] = array();
-        $query = db_select('raptor_ticket_checklist', 't');
-        $query->leftJoin('raptor_checklist_question', 'q', 't.question_shortname = q.question_shortname');
-        $query->fields('t');
-        $query->fields('q', array('relative_position','type_cd'))
-            ->condition('q.type_cd', 'SC','=')
-            ->condition('siteid', $nSiteID,'=')
-            ->condition('IEN', $nIEN,'=')
-            ->orderBy('t.author_uid', 'ASC')
-            ->orderBy('q.relative_position', 'ASC');
-        
-            //->condition('author_uid', $nUID,'=')
+            $oWL = new \raptor\WorklistData($this->m_oContext);
+            $aOneRow = $oWL->getDashboardMap($tid);
+            $nSiteID = $this->m_oContext->getSiteID();
+            $nIEN = $tid;
+            $nUID = $this->m_oContext->getUID();
 
-        $result = $query->execute();
-        while($record = $result->fetchAssoc())
-        {
-            $shortname = $record['question_shortname'];
-            if($record['author_uid'] == $nUID)  //20140810
+            //$oDD = new \raptor\DashboardData($this->m_oContext);
+            //$aDD = $oDD->getDashboardDetails();     //TODO REDUNDANT WITH $aOneRow????????????????      
+            $aDD = $this->m_aPatientDD;
+            $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+
+            if($this->m_oCIE == NULL)
             {
-                //Answer from this user.
-                $myvalues['questions']['thisuser'][$shortname] = array();
-                $myvalues['questions']['thisuser'][$shortname]['response'] = $record['answer_tx'];
-                $myvalues['questions']['thisuser'][$shortname]['comment'] = $record['comment_tx'];
-            } else {
-                //Answer from a different user.
-                $author = $record['author_uid'];
-                $myvalues['questions']['otheruser'][$author][$shortname] = array();
-                $myvalues['questions']['otheruser'][$author][$shortname]['response'] = $record['answer_tx'];
-                $myvalues['questions']['otheruser'][$author][$shortname]['comment'] = $record['comment_tx'];
+                $aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
+                $aEGFR = $oPSD->getEGFRDetail();
+
+                $aPatientInfoForCIE = array();    //TODO move this code elsewhere
+                $aPatientInfoForCIE['GENDER'] = $aDD['PatientGender'];
+                $aPatientInfoForCIE['AGE'] = $aDD['PatientAge'];
+                $aPatientInfoForCIE['WEIGHT_KG'] = isset($aLatestVitals['Weight']) ? $aLatestVitals['Weight'] : NULL;
+                $aPatientInfoForCIE['LATEST_EGFR'] = $aEGFR['LATEST_EGFR'];
+                $aPatientInfoForCIE['MIN_EGFR_10DAYS'] = $aEGFR['MIN_EGFR_10DAYS'];
+                $aPatientInfoForCIE['MIN_EGFR_15DAYS'] = $aEGFR['MIN_EGFR_15DAYS'];
+                $aPatientInfoForCIE['MIN_EGFR_30DAYS'] = $aEGFR['MIN_EGFR_30DAYS'];
+                $aPatientInfoForCIE['MIN_EGFR_45DAYS'] = $aEGFR['MIN_EGFR_45DAYS'];
+                $aPatientInfoForCIE['MIN_EGFR_60DAYS'] = $aEGFR['MIN_EGFR_60DAYS'];
+                $aPatientInfoForCIE['MIN_EGFR_90DAYS'] = $aEGFR['MIN_EGFR_90DAYS'];
+                try
+                {
+                    $oCIE = new \raptor\ContraIndEngine($aPatientInfoForCIE);        
+                } catch (\Exception $ex) {
+                    $oCIE = NULL;
+                    drupal_set_message('Failed to create the contraindications engine because ' . $ex->getMessage(), 'error');
+                }
+                $this->m_oCIE = $oCIE;
             }
-            //drupal_set_message('LOOK GOT CHECLIST Q'.$record['question_shortname'].'>>>'.print_r($myvalues['questions'][$shortname],TRUE));
+
+            //drupal_set_message(print_r($aOneRow,TRUE),'warning');
+            $prev_protocolnotes_tx = $this->m_oUtility->
+                    getSchedulerNotesMarkup($nSiteID,$nIEN);
+            $prev_protocolnotes_tx .= $this->m_oUtility->
+                    getCollaborationNotesMarkup($nSiteID,$nIEN);
+            $prev_protocolnotes_tx .= $this->m_oUtility->
+                    getPreviousNotesMarkup('raptor_ticket_protocol_notes'
+                            ,$nSiteID,$nIEN,'core-protocol-note');
+            $prev_exam_notes_tx = $this->m_oUtility->
+                    getPreviousNotesMarkup('raptor_ticket_exam_notes'
+                            ,$nSiteID,$nIEN,'exam-note');
+            $prev_interpret_notes_tx = $this->m_oUtility->
+                    getPreviousNotesMarkup('raptor_ticket_interpret_notes'
+                            ,$nSiteID,$nIEN,'interpret-note');
+            $prev_qa_notes_tx = $this->m_oUtility->
+                    getPreviousQANotesMarkup($nSiteID,$nIEN,'qa-note');
+            $prev_suspend_notes_tx = $this->m_oUtility->
+                    getPreviousNotesMarkup('raptor_ticket_suspend_notes'
+                            ,$nSiteID,$nIEN,'suspend-note');
+            $prev_unsuspend_notes_tx = $this->m_oUtility->
+                    getPreviousNotesMarkup('raptor_ticket_unsuspend_notes'
+                            ,$nSiteID,$nIEN,'unsuspend-note');
+
+            //Get app existing protocol data
+            $myvalues = array();
+            ProtocolInfoPage::setAllValuesNull($myvalues);  //Initialize all values to NULL first.
+            $myvalues['tid'] = $tid;
+            $myvalues['procName'] = $aOneRow['Procedure'];  //TODO REDUNDANT WITH $aDD?????
+            $myvalues['prev_protocolnotes_tx'] = $prev_protocolnotes_tx;
+            $myvalues['prev_exam_notes_tx'] = $prev_exam_notes_tx;
+            $myvalues['prev_interpret_notes_tx'] = $prev_interpret_notes_tx;
+            $myvalues['prev_qa_notes_tx'] = $prev_qa_notes_tx;
+            $myvalues['prev_suspend_notes_tx'] = $prev_suspend_notes_tx;
+            $myvalues['DefaultValues'] = null;
+            $myvalues['protocolnotes_tx'] = '';
+            $myvalues['examnotes_tx'] = '';
+            $myvalues['qa_notes_tx'] = '';
+
+            $this->loadProtocolFieldValues($nSiteID,$nIEN,$myvalues);
+            $this->loadExamFieldValues($nSiteID,$nIEN,$myvalues);
+
+            //Get existing checklist data.
+            $myvalues['questions'] = array();
+            $query = db_select('raptor_ticket_checklist', 't');
+            $query->leftJoin('raptor_checklist_question', 'q', 't.question_shortname = q.question_shortname');
+            $query->fields('t');
+            $query->fields('q', array('relative_position','type_cd'))
+                ->condition('q.type_cd', 'SC','=')
+                ->condition('siteid', $nSiteID,'=')
+                ->condition('IEN', $nIEN,'=')
+                ->orderBy('t.author_uid', 'ASC')
+                ->orderBy('q.relative_position', 'ASC');
+
+                //->condition('author_uid', $nUID,'=')
+
+            $result = $query->execute();
+            while($record = $result->fetchAssoc())
+            {
+                $shortname = $record['question_shortname'];
+                if($record['author_uid'] == $nUID)  //20140810
+                {
+                    //Answer from this user.
+                    $myvalues['questions']['thisuser'][$shortname] = array();
+                    $myvalues['questions']['thisuser'][$shortname]['response'] = $record['answer_tx'];
+                    $myvalues['questions']['thisuser'][$shortname]['comment'] = $record['comment_tx'];
+                } else {
+                    //Answer from a different user.
+                    $author = $record['author_uid'];
+                    $myvalues['questions']['otheruser'][$author][$shortname] = array();
+                    $myvalues['questions']['otheruser'][$author][$shortname]['response'] = $record['answer_tx'];
+                    $myvalues['questions']['otheruser'][$author][$shortname]['comment'] = $record['comment_tx'];
+                }
+                //drupal_set_message('LOOK GOT CHECLIST Q'.$record['question_shortname'].'>>>'.print_r($myvalues['questions'][$shortname],TRUE));
+            }
+        } catch (\Exception $ex) {
+            error_log("Failed getFieldValues for $tid because ".$ex->getMessage());
+            throw $ex;
         }
-        
         return $myvalues;
     }
 
@@ -2788,7 +2793,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             {
                 return $record; //['modality_abbr'];
             }
-            drupal_set_message('Expected to find a protocol library entry for "'.$protocol_shortname.'" this name but did not!','warning');
+            drupal_set_message('Expected to find a protocol library entry for name "'.$protocol_shortname.'" but did not!','warning');
         }
         //Found nothing.
         return array(
