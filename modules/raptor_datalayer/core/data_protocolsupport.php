@@ -406,6 +406,7 @@ class ProtocolSupportingData
             // Check to see if any sets vitals were returned. If not, return
             if(!isset($serviceResponse->getVitalSignsResult->arrays->TaggedVitalSignSetArray->sets->VitalSignSetTO))
                     return array($displayVitals, $allVitals);
+            
             // Check to see if the set of vitals is an object or an array
             $objType = gettype($serviceResponse->getVitalSignsResult->arrays->TaggedVitalSignSetArray->sets->VitalSignSetTO);
             //Finally get the set of vitals
@@ -416,6 +417,9 @@ class ProtocolSupportingData
             else
                 return array($displayVitals, $allVitals);
 
+//drupal_set_message("LOOK DEBUG RAW VITALS RESULT>>>".print_r($vitalsSetTO,TRUE));
+            
+            
             $numVitalsTO=count($vitalsSetTO->vitalSigns->VitalSignTO);
             if($numVitalsTO == 0)
                 return $displayVitals;
@@ -566,6 +570,7 @@ class ProtocolSupportingData
                     } elseif(strcasecmp('body mass index', $vital->type->name) == 0) {
                         $thiskey = 'BMI';
                         $displayVitals[$i][$thiskey] = $vital->value1." ".$units;
+//drupal_set_message("LOOK BMI RAW>>>".print_r($vital,TRUE));
                         if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))
                         {
                             $aLatestValueDate[$thiskey] = $rawTime;
@@ -655,7 +660,8 @@ class ProtocolSupportingData
     {
         if(isset($this->getVitalsData()[0]))
         {
-            return $this->getVitalsData()[0];
+            $details = $this->getVitalsData();
+            return $details[0];
         }
         return array(); //Return an empty array.
     }
@@ -806,10 +812,13 @@ class ProtocolSupportingData
             $score[$key] = $row['score'];
         }
         array_multisort($score, SORT_ASC, $sortedVitals);
-        $result = array("Temperature" => "", "Heart Rate" => "", "Blood Pressure" => "", "Height" => "", "Weight" => "", "Body Mass Index" => "");
-        foreach ($sortedVitals as $vital) {
-            //$result[] = array($vital['name']=>array("Date of Measurement" => $vital['date'], "Measurement Value" => $vital['value']));
-            $result[$vital['name']] = array("Date of Measurement" => $vital['date'], "Measurement Value" => $vital['value']);
+        $result = array("Temperature" => "", "Heart Rate" => ""
+            , "Blood Pressure" => "", "Height" => ""
+            , "Weight" => "", "Body Mass Index" => "");
+        foreach ($sortedVitals as $vital) 
+        {
+            $result[$vital['name']] = array("Date of Measurement" => $vital['date']
+                    , "Measurement Value" => $vital['value']);
         }
         
         // Add message for Vitals not found

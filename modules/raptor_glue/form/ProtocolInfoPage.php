@@ -3186,8 +3186,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
 
         //Set all the Protocol page values
-        //$oDD = new \raptor\DashboardData($this->m_oContext);
-        //$raptor_protocoldashboard = $oDD->getDashboardDetails();
         $raptor_protocoldashboard = $this->m_aPatientDD;
         $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         $oGD = new \raptor\GraphData($this->m_oContext);
@@ -3196,8 +3194,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $aMedsBundle = $oPSD->getMedicationsDetail($atriskmeds);
 
         $raptor_protocol_content = array();
-        //$formContent = raptor_glue_protocolinfo_form_inputarea();
-        //$raptor_protocol_content['Input']['Protocol'] = '<h1>THIS GLOBAL ENTRY HAS BEEN DEPRECATED!</h1>'; //drupal_render($formContent);
         $raptor_protocol_content['AtRiskMeds'] = $atriskmeds;
         $raptor_protocol_content['Reference']['OrderOverview'] = $oPSD->getOrderOverview();
         $raptor_protocol_content['Reference']['VitalsSummary'] = $oPSD->getVitalsSummary();
@@ -3206,11 +3202,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $raptor_protocol_content['Reference']['AllergiesDetail'] = $oPSD->getAllergiesDetail();
         $raptor_protocol_content['Reference']['ProcedureLabsDetail'] = $oPSD->getProcedureLabsDetail();
         $raptor_protocol_content['Reference']['DiagnosticLabsDetail'] = $oPSD->getDiagnosticLabsDetail();
-        //not used $raptor_protocol_content['Reference']['DoseHxDetail'] = $oPSD->getDoseHxDetail();
         $raptor_protocol_content['Reference']['PathologyReportsDetail'] = $oPSD->getPathologyReportsDetail();
         $raptor_protocol_content['Reference']['SurgeryReportsDetail'] = $oPSD->getSurgeryReportsDetail();
         $raptor_protocol_content['Reference']['ProblemsListDetail'] = $oPSD->getProblemsListDetail();
-        //deprecated 20150524 $raptor_protocol_content['Reference']['NotesDetail'] = $oPSD->getNotesDetail();
         $raptor_protocol_content['Reference']['RadiologyReportsDetail'] = $oPSD->getRadiologyReportsDetail();
         $raptor_protocol_content['Reference']['Graph']['Thumbnail'] = $oGD->getThumbnailGraphValues();
         $raptor_protocol_content['Reference']['Graph']['Labs'] = $oGD->getLabsGraphValues();
@@ -3305,7 +3299,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $modality_abbr = $protocolValues['modality_abbr'];
         $protocol_shortname = $protocolValues['protocol_shortname'];
 
-        //drupal_set_message('LOOK pn and m and p>>> '.$myvalues['procName']." [$modality_abbr][$protocol_shortname]");
         $aMapCI_AlreadyAcknowledged = $this->getAllAcknowledgedContraindicationsMap($nSiteID, $nIEN);
         $aCIResultMap = $this->getContraindicationFormMarkup($nSiteID
                 , $nIEN

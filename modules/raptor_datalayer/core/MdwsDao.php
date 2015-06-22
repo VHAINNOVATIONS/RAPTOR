@@ -128,30 +128,23 @@ class MdwsDao implements IMdwsDao {
                 if (isset($TOResult->fault)) {
                     // TODO:makeQuery  - haven't tested this auto-reconnect code atl all. need to write tests
                     // we received a fault - might be a session timeout in which case we want to handle gracefully
-                    error_log('TODO:makeQuery  --- deal with a fault?>>>' . $TOResult->fault->message);
+                    error_log('Encounted a fault in makeQuery >>>' . $TOResult->fault->message);
                     if (strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_1) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_2) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_3) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_4) !== FALSE) {
-                        // TODO:makeQuery  - determine where the creds will be stored - these vars are undefined
                         $this->initClient();
                         error_log('makeQuery  --- getting the credentials for fault resolution now>>>' . $TOResult->fault->message);
                         $this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                         return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
-                    } // TODO:makeQuery  - may need to add more else if statements here to catch other recoverable timeout conditions
+                    }
                     else {
                         $stacktrace = \raptor\Context::debugGetCallerInfo(10);
                         error_log('Found a fault in makeQuery>>>'
                                 . print_r($TOResult,TRUE)
                                 . "Stack trace... ".$stacktrace);
-                        /* commented out with JM on 20150310
-                        throw new \Exception('MdwsDao->makeQuery unhandled exception: '
-                                .$TOResult->fault->message
-                                ."<br>Stack trace...".$stacktrace);
-                         */
                         return $soapResult;
                     }
-                    //return NULL;    //20140707 - JAM: why is this returning null??
                 } else {
                     //error_log('TODO:makeQuery Good news --- no fault in makeQuery>>>'.$functionToInvoke);
                 }
