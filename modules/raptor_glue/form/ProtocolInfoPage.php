@@ -65,7 +65,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
-        //$this->m_oDD = new \raptor\DashboardData($this->m_oContext);
         $oDD = new \raptor\DashboardData($this->m_oContext);
         $this->m_aPatientDD = $oDD->getDashboardDetails();
     }
@@ -2866,8 +2865,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      * Get the markup for contraindications
      * @return map of results
      */
-    function getContraindicationFormMarkup($nSiteID, $nIEN, $myvalues, $protocolValues
-            , $oPSD, $aMapCI_AlreadyAcknowledged)
+    function getContraindicationFormMarkup($nSiteID, $nIEN, $myvalues
+            , $protocolValues
+            , $oPSD
+            , $aMapCI_AlreadyAcknowledged)
     {
         $aResultMap = array();
         
@@ -2876,6 +2877,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $this->m_oCIE = $this->getCIE();
         }
         $oCIE = $this->m_oCIE;
+        
+        $patientDashboard = $oPSD->getPatientDashboard();
+        $examcategory = strtoupper($patientDashboard['ExamCategory']);
         
         //Flag as possible duplicate order if there is more than one active order for the same modality as this one.
         $modality = $protocolValues['modality_abbr'];   //Might be unknown or blank.
@@ -2903,7 +2907,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         $aCandidateData = array();  
         $aCandidateData['IS_DIAGNOSTIC_EXAM'] = NULL;   //TODO -- get from $protocolValues
-        //$aCandidateData['IS_INPATIENT'] = NULL;   //TODO -- get from $protocolValues
+        $aCandidateData['IS_INPATIENT'] = ($examcategory == 'INPATIENT');
+        $aCandidateData['IS_OUTPATIENT'] = ($examcategory == 'OUTPATIENT');
         $aCandidateData['IS_POSSIBLE_DUP_PROC']         = $possibleDups;
         $aCandidateData['IS_IMG_GUIDED_EXAM']           = $protocolValues['image_guided_yn'];
         $aCandidateData['PROC_NM']                      = $myvalues['procName'];
@@ -3143,7 +3148,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $aResultMap['CI_AlreadyAcknowledged'] = $nCI_AlreadyAcknowledged;
         $aResultMap['AllCIWarnings'] = $aAllCIWarnings;
         
-        //$aResultMap['DEBUGINFO'] = $aCandidateData; //TODO remove this
+        drupal_set_message('LOOK>>>'.print_r($aCandidateData,TRUE));
         
         return $aResultMap;
     }

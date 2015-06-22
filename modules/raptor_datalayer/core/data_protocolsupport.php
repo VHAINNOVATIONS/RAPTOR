@@ -63,6 +63,15 @@ class ProtocolSupportingData
         }
     }
     
+    /**
+     * Return the entire raw dashboard.
+     */
+    function getPatientDashboard()
+    {
+        return $this->m_aDashboardMap;
+    }
+    
+    
     function getPendingOrdersMap()
     {
         return $this->m_aDashboardMap['MapPendingOrders'];
@@ -74,29 +83,34 @@ class ProtocolSupportingData
      */
     function getOrderOverview()
     {
-        return array("RqstBy"=>$this->m_aDashboardMap["RequestedBy"],
-                     "PCP"=>$this->m_aPatientInfo["teamPcpName"],
-                     "AtP"=>$this->m_aPatientInfo["teamAttendingName"],
-                     "RqstStdy"=>$this->m_aDashboardMap["Procedure"],
-                     "RsnStdy"=>$this->m_aDashboardMap["ReasonForStudy"],
+        return array('RqstBy'=>$this->m_aDashboardMap['RequestedBy'],
+                     'PCP'=>$this->m_aPatientInfo['teamPcpName'],
+                     'AtP'=>$this->m_aPatientInfo['teamAttendingName'],
+                     'RqstStdy'=>$this->m_aDashboardMap['Procedure'],
+                     'RsnStdy'=>$this->m_aDashboardMap['ReasonForStudy'],
                     );
     }
     
     private function getKeywordsFromTable($sTablename, $sFieldName='keyword')
     {
-        
         $rows = array();
-        $sSQL = 'SELECT ' . $sFieldName . ' '
-                . ' FROM `' . $sTablename . '` '
-                . ' ORDER BY '. $sFieldName;
-        $result = db_query($sSQL);
-        if($result->rowCount()>0)
+        try
         {
-            foreach($result as $record) 
+            $sSQL = 'SELECT ' . $sFieldName . ' '
+                    . ' FROM `' . $sTablename . '` '
+                    . ' ORDER BY '. $sFieldName;
+            $result = db_query($sSQL);
+            if($result->rowCount()>0)
             {
-                $value = $record->$sFieldName;
-                $rows[$value] = $value;
+                foreach($result as $record) 
+                {
+                    $value = $record->$sFieldName;
+                    $rows[$value] = $value;
+                }
             }
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getKeywordsFromTable($sTablename,$sFieldName) because " 
+                    . $ex->getMessage(),99345,$ex);
         }
         return $rows;
     }

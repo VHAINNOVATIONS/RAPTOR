@@ -136,6 +136,22 @@ class SREDictionary extends \simplerulesengine\ASREDictionary
             'category_nm'=>'Exam',
             'purpose_tx'=>'True if the selected protocol is for a diagnostic exam, else False.',
         );
+        $aAllInputs['IS_INPATIENT'] = array(
+            'source'=>'coded',
+            'criteria_tx'=>'DERIVED',
+            'return'=>'boolean',
+            'context'=>'candidate',
+            'category_nm'=>'Exam',
+            'purpose_tx'=>'True if INPATIENT status, else False.',
+        );
+        $aAllInputs['IS_OUTPATIENT'] = array(
+            'source'=>'coded',
+            'criteria_tx'=>'DERIVED',
+            'return'=>'boolean',
+            'context'=>'candidate',
+            'category_nm'=>'Exam',
+            'purpose_tx'=>'True if OUTPATIENT status, else False.',
+        );
         $aAllInputs['IS_IMG_GUIDED_EXAM'] = array(
             'source'=>'coded',
             'criteria_tx'=>'DERIVED',

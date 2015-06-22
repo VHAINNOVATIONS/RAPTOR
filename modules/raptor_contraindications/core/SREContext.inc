@@ -91,6 +91,8 @@ class SREContext extends \simplerulesengine\ASREContext
              'IS_DIAGNOSTIC_EXAM'
             ,'IS_IMG_GUIDED_EXAM'
             ,'IS_POSSIBLE_DUP_PROC'
+            ,'IS_INPATIENT'
+            ,'IS_OUTPATIENT'
             ,'PROC_NM','MODALITY'
             ,'GIVE_HYDRATION_ORAL'
             ,'GIVE_HYDRATION_IV'
