@@ -571,5 +571,4 @@ class GetRadiationDoseHxTab
             return 0;
         }
     }
-    
 }

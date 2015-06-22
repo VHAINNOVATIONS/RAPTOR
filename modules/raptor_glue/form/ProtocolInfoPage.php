@@ -3475,6 +3475,3 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         return $form;
     }
 }
-
-
-

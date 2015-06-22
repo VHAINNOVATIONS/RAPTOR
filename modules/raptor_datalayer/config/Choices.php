@@ -9,7 +9,6 @@
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  * @author Frank Font
- * Updated 20140516a
  */
 
 namespace raptor;
@@ -18,7 +17,6 @@ if(!defined('__MYFOLDER_CHOICES__')) {
     define('__MYFOLDER_CHOICES__',dirname(__FILE__));
 }
 
-//require_once ("../userInfo.php");
 require_once (dirname(__FILE__) . '/../core/data_listoptions.php');
 require_once ('Choice.php');
 
@@ -29,76 +27,6 @@ require_once ('Choice.php');
  */
 class raptor_datalayer_Choices 
 {
-
-    function __construct()
-    {
-        
-    }
-
-    /**
-     * These are keywords in higher value groups from left to right.
-     * Semicolon between groups, commas in side groups
-     * @param text $sScoreTokens
-     * @return array of arrays
-     */
-    private static function getScoreTokens($sScoreTokens)
-    {
-        $aRawGroup = explode(';',$sScoreTokens);
-        $aCleanScoreGroup=array();
-        foreach($aRawGroup as $sTokenGroup)
-        {
-            $aRawTokens = explode(',',$sTokenGroup);
-            $aClean = array();
-            foreach($aRawTokens as $sToken)
-            {
-                $sClean = trim($sToken);
-                if($sClean > '' && $sClean[0] != '#')
-                {
-                    $aClean[]=$sClean;
-                }
-            }
-            if(count($aClean)>0)
-            {
-                $aCleanScoreGroup[]=$aClean;
-            }
-        }
-        return $aCleanScoreGroup;
-    }
-
-    /**
-     * Return choices of all the users.
-     * @return \raptor_datalayer_Choice 
-     */
-    public static function getUserData($sDefaultChoiceOverrideID=NULL,$sDefaultaChoiceText=NULL,$sRemoveUserName=NULL)
-    {
-        
-        $oUserInfo = new UserInfo();
-        $aUserInfo=$oUserInfo->getAll();
-        
-        $aList=array();
-        if($sDefaultChoiceOverrideID!==NULL)
-        {
-            $oC = new raptor_datalayer_Choice($sDefaultChoiceOverrideID,$sDefaultaChoiceText,"");
-            $oC->bIsDefault=true;
-            $aList[]=$oC;
-        }
-        foreach($aUserInfo as $oUserInfo)
-        {
-            if($oUserInfo->getUserName() != $sRemoveUserName)
-            {
-                $sLineLabel=$oUserInfo->getRealName();
-                $sLineID=$oUserInfo->getUserName();
-                $sCategory=$oUserInfo->getRolesText();
-                $oC = new raptor_datalayer_Choice($sLineLabel,$sLineID,$sCategory);
-                $oC->bIsDefault=($sDefaultChoiceOverrideID == $sLineID);
-                $aList[]=$oC;
-            }
-        }
-        
-        return $aList;
-    }
-    
-    
     /**
      * Get value from the list.
      * @param string $sPath location of the config file
@@ -121,14 +49,6 @@ class raptor_datalayer_Choices
                     {
                         die("Improperly configured choices file: $sPath<br>CHECK LINE:$nLine<br>TEXT:$sLine<br>RAW:".print_r($aLines,TRUE));
                     }
-                    /*
-                    if($sFindID == $aChoice[0])
-                    {
-                        return $aChoice[1];
-                    } 
-                    $z.="|".$aChoice[0];
-                     * 
-                     */
                     if($sFindID == $aChoice[1])
                     {
                         return $aChoice[1];
@@ -154,8 +74,6 @@ class raptor_datalayer_Choices
         
         $aLines = file($sPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-        //$sConfigSectionName="[DEFAULT_SELECTION]";
-        //$bInConfigSection=TRUE; //Assume we start here
         $sCategory=NULL;
         $aList=array();
         if ($sDefaultChoiceOverrideID !== NULL)
@@ -183,7 +101,9 @@ class raptor_datalayer_Choices
                     $aChoice=explode('|',$sLine);
                     if(count($aChoice)!=2)
                     {
-                        die("Improperly configured choices file: $sPath<br>CHECK LINE:$nLine<br>TEXT:$sLine<br>RAW:".print_r($aLines,TRUE));
+                        throw new \Exception("Improperly configured choices file: $sPath<br>CHECK LINE:"
+                                . "$nLine<br>TEXT:$sLine<br>RAW:" 
+                                . print_r($aLines,TRUE));
                     }
                     //$oC = new raptor_datalayer_Choice($aChoice[1],$aChoice[0],$sCategory);
                     $oC = new raptor_datalayer_Choice($aChoice[1],$aChoice[1],$sCategory);
@@ -192,7 +112,6 @@ class raptor_datalayer_Choices
             }
 
         }
-
         return $aList;
     }
 
@@ -305,9 +224,6 @@ class raptor_datalayer_Choices
 
     public static function getEntericRadioisotopeMatch($sID)
     {
-        //$sPath = __MYFOLDER_CHOICES__."/list-enteric-radioisotope.cfg";
-        //return raptor_datalayer_Choices::getListItem($sPath,$sID);
-        
         $oLO = new ListOptions();   //TODO -- Cache the instance!!!!!!
         $aValues = $oLO->getRadioisotopeOptions('ENTERIC', 'ANY');
         $aValues[''] = '';  //Add empty option
@@ -320,9 +236,6 @@ class raptor_datalayer_Choices
         {
             $modality_filter = array();
         }
-
-        //$sPath = __MYFOLDER_CHOICES__."/list-oral-hydration.cfg";
-        //return raptor_datalayer_Choices::getListData($sPath,$sDefaultChoiceOverride);
 
         //TODO -- Cache the instance!!!!!!
         $oLO = new ListOptions();
@@ -342,9 +255,6 @@ class raptor_datalayer_Choices
             $modality_filter = array();
         }
 
-        //$sPath = __MYFOLDER_CHOICES__."/list-iv-hydration.cfg";
-        //return raptor_datalayer_Choices::getListData($sPath,$sDefaultChoiceOverride);
-
         //TODO -- Cache the instance!!!!!!
         $oLO = new ListOptions();
         $aValues = $oLO->getHydrationOptions('IV', 'ANY');
@@ -354,7 +264,6 @@ class raptor_datalayer_Choices
             $bFoundInList = in_array($sDefaultChoiceOverride, $aValues);
         }
         return raptor_datalayer_Choices::getListDataFromArray($aValues,$sDefaultChoiceOverride);
-        
     }
     
     public static function getOralSedationData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
@@ -364,9 +273,6 @@ class raptor_datalayer_Choices
             $modality_filter = array();
         }
 
-        //$sPath = __MYFOLDER_CHOICES__."/list-oral-sedation.cfg";
-        //return raptor_datalayer_Choices::getListData($sPath,$sDefaultChoiceOverride);
-        
         $oLO = new ListOptions();
         $aValues = $oLO->getSedationOptions('ORAL', 'ANY');
         $aValues[''] = '';  //Add empty option
@@ -376,7 +282,6 @@ class raptor_datalayer_Choices
             $bFoundInList = in_array($sDefaultChoiceOverride, $aValues);
         }
         return raptor_datalayer_Choices::getListDataFromArray($aValues,$sDefaultChoiceOverride);
-        
     }
 
     public static function getIVSedationData($sDefaultChoiceOverride, &$bFoundInList, $modality_filter=NULL)
@@ -386,9 +291,6 @@ class raptor_datalayer_Choices
             $modality_filter = array();
         }
 
-        //$sPath = __MYFOLDER_CHOICES__."/list-iv-sedation.cfg";
-        //return raptor_datalayer_Choices::getListData($sPath,$sDefaultChoiceOverride);
-        
         $oLO = new ListOptions();
         $aValues = $oLO->getSedationOptions('IV', 'ANY');
         $aValues[''] = '';  //Add empty option
@@ -397,50 +299,34 @@ class raptor_datalayer_Choices
             $bFoundInList = in_array($sDefaultChoiceOverride, $aValues);
         }
         return raptor_datalayer_Choices::getListDataFromArray($aValues,$sDefaultChoiceOverride);
-        
     }    
 
     public static function getIVRadioisotopeMatch($sID)
     {
-        //$sPath = __MYFOLDER_CHOICES__."/list-iv-radioisotope.cfg";
-        //return raptor_datalayer_Choices::getListItem($sPath,$sID);
-        
         $oLO = new ListOptions();   //TODO -- Cache the instance!!!!!!
         $aValues = $oLO->getRadioisotopeOptions('IV', 'ANY');
         $aValues[''] = '';  //Add empty option
         return raptor_datalayer_Choices::getListItemFromArray($aValues, $sID);
-        
     }    
     
     public static function getEntericContrastMatch($sID)
     {
-        //$sPath = __MYFOLDER_CHOICES__."/list-enteric-contrast.cfg";
-        //return raptor_datalayer_Choices::getListItem($sPath,$sID);
-        
         $oLO = new ListOptions();   //TODO -- Cache the instance!!!!!!
         $aValues = $oLO->getContrastOptions('ENTERIC', 'ANY');
         $aValues[''] = '';  //Add empty option
         return raptor_datalayer_Choices::getListItemFromArray($aValues, $sID);
-        
     }
     
     public static function getIVContrastMatch($sID)
     {
-        //$sPath = __MYFOLDER_CHOICES__."/list-iv-contrast.cfg";
-        //return raptor_datalayer_Choices::getListItem($sPath,$sID);
-        
         $oLO = new ListOptions();   //TODO -- Cache the instance!!!!!!
         $aValues = $oLO->getContrastOptions('IV', 'ANY');
         $aValues[''] = '';  //Add empty option
         return raptor_datalayer_Choices::getListItemFromArray($aValues, $sID);
-        
     }
     
     public static function getOralHydrationMatch($sID)
     {
-        //$sPath = __MYFOLDER_CHOICES__."/list-oral-hydration.cfg";
-        //return raptor_datalayer_Choices::getListItem($sPath,$sID);
-        
         $oLO = new ListOptions();   //TODO -- Cache the instance!!!!!!
         $aValues = $oLO->getHydrationOptions('ORAL', 'ANY');
         $aValues[''] = '';  //Add empty option
@@ -449,9 +335,6 @@ class raptor_datalayer_Choices
     
     public static function getIVHydrationMatch($sID)
     {
-        //$sPath = __MYFOLDER_CHOICES__."/list-iv-hydration.cfg";
-        //return raptor_datalayer_Choices::getListItem($sPath,$sID);
-        
         $oLO = new ListOptions();   //TODO -- Cache the instance!!!!!!
         $aValues = $oLO->getHydrationOptions('IV', 'ANY');
         $aValues[''] = '';  //Add empty option
@@ -460,9 +343,6 @@ class raptor_datalayer_Choices
     
     public static function getOralSedationMatch($sID)
     {
-        //$sPath = __MYFOLDER_CHOICES__."/list-oral-sedation.cfg";
-        //return raptor_datalayer_Choices::getListItem($sPath,$sID);
-        
         $oLO = new ListOptions();   //TODO -- Cache the instance!!!!!!
         $aValues = $oLO->getSedationOptions('ORAL', 'ANY');
         $aValues[''] = '';  //Add empty option
@@ -471,9 +351,6 @@ class raptor_datalayer_Choices
     
     public static function getIVSedationMatch($sID)
     {
-        //$sPath = __MYFOLDER_CHOICES__."/list-iv-sedation.cfg";
-        //return raptor_datalayer_Choices::getListItem($sPath,$sID);
-        
         $oLO = new ListOptions();   //TODO -- Cache the instance!!!!!!
         $aValues = $oLO->getSedationOptions('IV', 'ANY');
         $aValues[''] = '';  //Add empty option

@@ -150,7 +150,6 @@ class ContraindicationPageHelper
     {
         $aOptions = $this->getAllOptions();
 
-        //TODO - declare a non user class!!!!
         $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-profile-dataentry'>\n",
             '#suffix' => "\n</section>\n",
@@ -169,7 +168,7 @@ class ContraindicationPageHelper
             $rule_nm = '';
         }
 
-        $form["data_entry_area1"]['category_nm'] = array(
+        $form['data_entry_area1']['category_nm'] = array(
             '#type' => 'textfield',
             '#title' => t('Category Name'),
             '#default_value' => $category_nm,
@@ -209,7 +208,7 @@ class ContraindicationPageHelper
             $disabled_version = TRUE;
         }
     
-        $form["data_entry_area1"][$showfieldname_rule_nm]     = array(
+        $form['data_entry_area1'][$showfieldname_rule_nm]     = array(
             '#type' => 'textfield',
             '#title' => t('Rule Name'),
             '#default_value' => $rule_nm,
@@ -219,7 +218,7 @@ class ContraindicationPageHelper
             '#description' => t('The unique name for this rule'),
             '#disabled' => $disable_rule_nm
         );
-        $form["data_entry_area1"][$showfieldname_version]     = array(
+        $form['data_entry_area1'][$showfieldname_version]     = array(
             '#type' => 'textfield',
             '#title' => t('Version Number'),
             '#default_value' => $myvalues['version'],
@@ -230,7 +229,7 @@ class ContraindicationPageHelper
             '#disabled' => $disabled_version
         );
         
-        $form["data_entry_area1"]['summary_msg_tx']       = array(
+        $form['data_entry_area1']['summary_msg_tx']       = array(
             '#type' => 'textfield',
             '#title' => t('Summary User Message'),
             '#default_value' => $myvalues['summary_msg_tx'],
@@ -241,7 +240,7 @@ class ContraindicationPageHelper
             '#disabled' => $disabled
         );
 
-        $form["data_entry_area1"]['msg_tx']       = array(
+        $form['data_entry_area1']['msg_tx']       = array(
             '#type' => 'textarea',
             '#title' => t('Full User Message'),
             '#default_value' => $myvalues['msg_tx'],
@@ -252,7 +251,7 @@ class ContraindicationPageHelper
             '#disabled' => $disabled
         );
 
-        $form["data_entry_area1"]['explanation'] = array(
+        $form['data_entry_area1']['explanation'] = array(
             '#type' => 'textarea',
             '#title' => t('Explanation Text'),
             '#default_value' => $myvalues['explanation'],
@@ -263,9 +262,7 @@ class ContraindicationPageHelper
             '#disabled' => $disabled
         );
 
-//xxxxxxxxxxxxxx        
-
-        $form["data_entry_area1"]['trigger_crit_section'] = array(
+        $form['data_entry_area1']['trigger_crit_section'] = array(
             '#type'     => 'fieldset',
             '#title'    => t('Trigger Criteria Section'),
             '#description' => t('This rule is triggered (presented to the user at runtime) only when each of the populated trigger criteria subsections below evaluate to the boolean value of "True".  If any subsection evaluates to "False" then the rule will not trigger.'
@@ -346,7 +343,7 @@ class ContraindicationPageHelper
                     $aParamNames[] = $oParam->getName();
                 }
             }
-            $form["data_entry_area1"]['trigger_crit_section']['trigger_crit_parts'][$key] = array(
+            $form['data_entry_area1']['trigger_crit_section']['trigger_crit_parts'][$key] = array(
                 '#type' => 'textarea',
                 '#title' => t($key . ' Trigger Criteria Subsection'),
                 '#default_value' => implode(' , ',$aParamNames),
@@ -358,7 +355,7 @@ class ContraindicationPageHelper
             );
         }
  
-        $form["data_entry_area1"]['trigger_crit'] = array(
+        $form['data_entry_area1']['trigger_crit'] = array(
             '#type' => 'hidden',
             '#title' => t('Consolidated Trigger Criteria'),
             '#default_value' => $myvalues['trigger_crit'],
@@ -367,20 +364,18 @@ class ContraindicationPageHelper
             '#description' => t('DEBUGGING AREA FOR PROGRAMMER The trigger criteria to invoke the contraindication warning'),
         );
 
-//xxxxxxxxxxxxxxxxxx
-        
         $ynoptions                                   = array(
             1 => t('Yes'),
             0 => t('No')
         );
-        $form["data_entry_area1"]['req_ack_yn']    = array(
+        $form['data_entry_area1']['req_ack_yn']    = array(
             '#type' => 'radios',
             '#title' => t('Require Acknowledgement'),
             '#default_value' => isset($myvalues['req_ack_yn']) ? $myvalues['req_ack_yn'] : 1,
             '#options' => $ynoptions,
             '#description' => t('Does the user need to acknowledge this contraindication?')
         );
-        $form["data_entry_area1"]['active_yn']    = array(
+        $form['data_entry_area1']['active_yn']    = array(
             '#type' => 'radios',
             '#title' => t('Active'),
             '#default_value' => isset($myvalues['active_yn']) ? $myvalues['active_yn'] : 1,

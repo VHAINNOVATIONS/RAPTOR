@@ -73,7 +73,6 @@ class ViewContraindicationPage
         $disabled = TRUE;   //Do not let them edit.
         $form = $this->m_oPageHelper->getForm('V',$form, $form_state, $disabled, $myvalues);
         
-        //These buttons should not be in the helper..... TODO move them to the pages
         $form['data_entry_area1']['action_buttons']           = array(
             '#type' => 'item',
             '#prefix' => '<div class="raptor-action-buttons">',
@@ -81,13 +80,6 @@ class ViewContraindicationPage
             '#tree' => TRUE
         );
         global $base_url;
-        /*
-        $worklist_url = $base_url . '/worklist';
-        $form['data_entry_area1']['action_buttons']['cancel'] = array(
-            '#type' => 'item',
-            '#markup' => '<input class="admin-cancel-button" type="button" value="Cancel" data-redirect="'.$worklist_url.'?dialog=manageContraindications">'
-        );
-         */
         $goback = $base_url.'/raptor/managecontraindications';
         $form['data_entry_area1']['action_buttons']['cancel'] = ContraindicationPageHelper::getExitButtonMarkup($goback);
         return $form;
