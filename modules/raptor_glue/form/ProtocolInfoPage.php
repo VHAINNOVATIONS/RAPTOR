@@ -2866,7 +2866,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      * Get the markup for contraindications
      * @return map of results
      */
-    function getContraindicationFormMarkup($nSiteID, $nIEN, $myvalues, $protocolValues, $oPSD, $aMapCI_AlreadyAcknowledged)
+    function getContraindicationFormMarkup($nSiteID, $nIEN, $myvalues, $protocolValues
+            , $oPSD, $aMapCI_AlreadyAcknowledged)
     {
         $aResultMap = array();
         
@@ -2902,6 +2903,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         $aCandidateData = array();  
         $aCandidateData['IS_DIAGNOSTIC_EXAM'] = NULL;   //TODO -- get from $protocolValues
+        //$aCandidateData['IS_INPATIENT'] = NULL;   //TODO -- get from $protocolValues
         $aCandidateData['IS_POSSIBLE_DUP_PROC']         = $possibleDups;
         $aCandidateData['IS_IMG_GUIDED_EXAM']           = $protocolValues['image_guided_yn'];
         $aCandidateData['PROC_NM']                      = $myvalues['procName'];
