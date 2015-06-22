@@ -558,10 +558,12 @@ class ProtocolInfoUtility
             //Show the safety checklist in disabled mode.
             $root['data_entry_area2']['page_checklist_area1'] 
                     = $this->getPageChecklistArea($form_state, TRUE, $myvalues,'Safety Checklist','SC',$modality_abbr,$protocol_shortname);
+            $includeexamnotesinput = ($sCWFS == 'PA');
             $root['exam_data_entry_area1'][]  
                     = $this->getExamDataEntryFields($form_state
                             , $disableExamInput
-                            , $myvalues, $protocolValues);
+                            , $myvalues, $protocolValues
+                            , $includeexamnotesinput);
         }
 
         if($disableExamInput)
@@ -2536,7 +2538,9 @@ class ProtocolInfoUtility
     /**
      * The EXAM part of the form.
      */
-    function getExamDataEntryFields(&$form_state, $disabled, $myvalues, $protocolValues)
+    function getExamDataEntryFields(&$form_state
+            , $disabled, $myvalues, $protocolValues
+            , $includeexamnotesinput)
     {
         
         $modality_abbr = $protocolValues['modality_abbr'];
@@ -2864,11 +2868,14 @@ class ProtocolInfoUtility
         }
         $root['exam_consent_received_fieldset'] = $this->getConsentReceivedBlock($form_state, $disabled, $myvalues);
         
-        $sectionname = 'examnotes';
-        $sName = $sectionname.'_tx';
-        $root['exam_summary'][$sName]
-                = $this->getNotesSectionMarkup($sectionname, 'Examination Notes'
-                , $disabled, $myvalues);
+        if($includeexamnotesinput)
+        {
+            $sectionname = 'examnotes';
+            $sName = $sectionname.'_tx';
+            $root['exam_summary'][$sName]
+                    = $this->getNotesSectionMarkup($sectionname, 'Examination Notes'
+                    , $disabled, $myvalues);
+        }
         /*
         
         $default_value = isset($myvalues[$sName]) ? $myvalues[$sName] : '';
