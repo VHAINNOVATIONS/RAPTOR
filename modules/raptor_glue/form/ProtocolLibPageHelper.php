@@ -56,7 +56,6 @@ class ProtocolLibPageHelper
     {
         try
         {
-            $myvalues['active_yn'] = NULL;
             $myvalues['DefaultValues'] = NULL;
             $myvalues['protocol_shortname'] = NULL;
             $myvalues['name'] = NULL;
@@ -79,8 +78,6 @@ class ProtocolLibPageHelper
             $myvalues['protocolnotes_tx'] = NULL;
             $myvalues['examnotes_tx'] = NULL;
             $myvalues['updated_dt'] = NULL;
-
-            $myvalues['data_active_yn'] = NULL;
 
             //Now clear the template stuff too.
             ProtocolLibPageHelper::setAllTemplateValuesNull($myvalues);
@@ -826,7 +823,7 @@ class ProtocolLibPageHelper
 
             //Insert into raptor_protocol_template table
             $updated_dt = date("Y-m-d H:i", time());
-            $active_yn = 1;
+            $active_yn = isset($myvalues['active_yn']) ? $myvalues['active_yn'] : 1;
             if(!isset($myvalues['hydration_radio_cd']) || $myvalues['hydration_radio_cd'] == NULL)
             {
                 $hydration_none_yn = 1;
@@ -941,8 +938,6 @@ class ProtocolLibPageHelper
                     $radioisotope_iv_tx = NULL;
                 }
             }
-            
-//drupal_set_message(">>>>write $radioisotope_enteric_tx and $radioisotope_iv_tx  <br>rawentid={$myvalues['radioisotope_enteric_id']} <br>rawenttx={$myvalues['radioisotope_enteric_customtx']} ");
 
             $consent_req_kw = trim($myvalues['consentreq_radio_cd']) > '' ? $myvalues['consentreq_radio_cd'] : NULL;
 
@@ -1453,7 +1448,6 @@ class ProtocolLibPageHelper
             $protocol_shortname = NULL;
         }
 
-
         $showfieldname_version = 'version';
         $showfieldname_shortname = 'protocol_shortname';
         $disabled_shortname = $disabled;   //Default behavior
@@ -1492,7 +1486,6 @@ class ProtocolLibPageHelper
             $disabled_version = TRUE;
         }
 
-
         $form['data_entry_area1']['toppart'][$showfieldname_shortname] = array(
           '#type' => 'textfield',
           '#title' => t('Short Name'),
@@ -1527,6 +1520,14 @@ class ProtocolLibPageHelper
           '#disabled' => $disabled_version,
         );
 
+        $form['data_entry_area1']['toppart']['active_yn'] = array(
+           '#type' => 'checkbox', 
+           '#title' => t('Protocol active (Y/N)'),
+           '#default_value' => isset($myvalues['active_yn']) ? $myvalues['active_yn'] : 1, 
+           '#description' => t('User is blocked using this protocol if it is not active'),
+           '#disabled' => $disabled,
+        );
+        
         $sName                                  = 'service_nm';
         $oChoices                               = new \raptor\raptor_datalayer_Choices();   
         $aChoices                               = $oChoices->getServicesData('');

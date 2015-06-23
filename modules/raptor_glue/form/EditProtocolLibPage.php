@@ -117,7 +117,7 @@ class EditProtocolLibPage extends \raptor\ChildEditBasePage
             $image_guided_yn = (isset($yn_attribs['IG']) && $yn_attribs['IG'] === 'IG') ? 1 : 0;
             $radioisotope_yn = (isset($yn_attribs['RI']) && $yn_attribs['RI'] === 'RI') ? 1 : 0;
             $sedation_yn = (isset($yn_attribs['S']) && $yn_attribs['S'] === 'S') ? 1 : 0;
-            $active_yn = 1;
+            $active_yn = isset($myvalues['active_yn']) ? $myvalues['active_yn'] : 1;
             $multievent_yn = 0;
             $nUpdated = db_update('raptor_protocol_lib')->fields(array(
                 'name' => $myvalues['name'],

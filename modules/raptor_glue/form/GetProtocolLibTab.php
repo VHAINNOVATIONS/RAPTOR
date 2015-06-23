@@ -203,7 +203,8 @@ class GetProtocolLibTab
                     ))
                     ->orderBy('name');
             $query->leftJoin('raptor_protocol_template','t'
-                    ,'p.protocol_shortname = t.protocol_shortname');       
+                    ,'p.protocol_shortname = t.protocol_shortname');
+            $query->condition('t.active_yn',1,'=');
             $result = $query->execute();
             $dash_modality = $this->m_aPatientDD['Modality'];
             $image_type = $this->m_aPatientDD['ImageType'];

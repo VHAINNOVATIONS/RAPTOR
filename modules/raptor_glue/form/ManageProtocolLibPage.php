@@ -151,9 +151,11 @@ class ManageProtocolLibPage
                         .$item->original_file_upload_dt.'">Yes</span>';
             }
             $keywords = $this->getFormattedKeywordsForTable($protocol_shortname);
+            $active_markup = $item->active_yn == 1 ? '<b>Yes</b>' : 'No';
             $rows .= "\n".'<tr>'
                   . '<td>'.$protocol_shortname.'</td>'
                   . '<td>'.$item->name.'</td>'
+                  . '<td>'.$active_markup.'</td>'
                   . '<td>'.$item->modality_abbr.'</td>'
                   . '<td>'.$item->version.'</td>'
                   . '<td>'.$docuploadedmarkup.'</td>'
@@ -169,6 +171,7 @@ class ManageProtocolLibPage
                             . '<tr>'
                             . '<th>Short Name</th>'
                             . '<th>Long Name</th>'
+                            . '<th title="Only active protocols are available for use on new exams">Is Active</th>'
                             . '<th>Modality</th>'
                             . '<th>Version</th>'
                             . '<th>Doc Uploaded</th>'
