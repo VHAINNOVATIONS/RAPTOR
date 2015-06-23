@@ -89,12 +89,6 @@ class ProtocolInfoUtility
     
     function getCustomListBlockAnalysis($myvalues, $sr_type, $sr_name, $sr_empty_value, $textmap)
     {
-        /*
-        $sr_type = $details[3];
-        $sr_name = $details[4];
-        $sr_empty_value = $details[5];
-        $textmap = $details['textmap'];
-         */
         $analysis = array();
         $analysis['hasvalues'] = FALSE; //Initialize with this assumption
         if(isset($myvalues[$sr_name]))
@@ -145,6 +139,21 @@ class ProtocolInfoUtility
                         }
                     }
                 }
+            }
+        }
+        $analysis['badcombination'] = FALSE;
+        if($analysis['none'] == 1)
+        {
+            if($analysis['hasvalues'])
+            {
+                //Nothing should have been set
+                $analysis['badcombination'] = TRUE;
+            }
+        } else {
+            if(!$analysis['hasvalues'])
+            {
+                //Something needed to be set
+                $analysis['badcombination'] = TRUE;
             }
         }
         return $analysis;

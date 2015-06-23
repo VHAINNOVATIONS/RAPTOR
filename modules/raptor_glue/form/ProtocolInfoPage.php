@@ -1110,6 +1110,40 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 form_set_error('claustrophobic_cd','Must make a claustrophobic selection.');
                 $bGood = FALSE;
             }
+            
+            //Check custom list configurations for orphan text
+            $inputchecks = array(
+                'C'=>array('Contrast','C','contrast_cd','none'
+                    ,'textmap'=>array('enteric'=>'contrast_enteric_','iv'=>'contrast_iv_')
+                    ),
+                'RI'=>array('Radionuclide','C','radioisotope_cd','none'
+                    ,'textmap'=>array('enteric'=>'radioisotope_enteric_','iv'=>'radioisotope_iv_')
+                    ),
+                'S'=>array('Sedation','R','sedation_radio_cd','none'
+                    ,'textmap'=>array('oral'=>'sedation_oral_','iv'=>'sedation_iv_')
+                    ),
+                'H'=>array('Hydration','R','hydration_radio_cd','none'
+                    ,'textmap'=>array('oral'=>'hydration_oral_','iv'=>'hydration_iv_')
+                    ),
+                );
+            foreach($inputchecks as $code=>$details)
+            {
+                $name = $details[0];
+                $sr_type = $details[1];
+                $fieldname = $details[2];
+                $sr_empty_value = $details[3];
+                $textmap = $details['textmap'];
+                $analysis = $this->m_oUtility->getCustomListBlockAnalysis($myvalues, $sr_type, $fieldname, $sr_empty_value, $textmap);         
+                $hasvalues = $analysis['hasvalues'];
+                $orphantext = isset($analysis['orphantext']);
+                $buttontypename = $sr_type == 'C' ? 'checkbox' : 'radio button';
+                if($orphantext)
+                {
+                    $msg = "There is a non-blank text Value in $name with a blank $buttontypename";
+                    form_set_error($fieldname, $msg);
+                    $bGood = FALSE;
+                }
+            }
 
             $validationdetails = ProtocolInfoDataChecks::checkNoteText('protocolnotes',$myvalues);
             foreach($validationdetails as $fieldname=>$item)
