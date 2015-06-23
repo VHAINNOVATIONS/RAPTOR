@@ -695,8 +695,6 @@ class ProtocolLibPageHelper
     {
         $updated_dt = date("Y-m-d H:i", time());
 
-        //die('LOOK writeCodeMappings >>>'.$protocol_shortname.'<br>'.$fieldname.'<br>'.print_r($cleancodes,TRUE));
-        
         try
         {
             foreach($cleancodes as $cleancode)
@@ -1001,19 +999,6 @@ class ProtocolLibPageHelper
     }
     
     /**
-     * deprecated!!!!
-    public function uploadFile($protocol_shortname, $myvalues)
-    {
-        $file = file_load($myvalues['filename']);
-        $file->status = FILE_STATUS_PERMANENT;
-        file_save($file);
-        global $user;
-        file_usage_add($file, 'raptor', 'user', $user->uid); 
-        return TRUE;
-    }
-     */
-
-    /**
      * Write all the dependent protocol records
      */
     public function writeChildLibraryRecords($protocol_shortname, $myvalues, $removeExistingRecords=FALSE, $file_blob=NULL)
@@ -1288,9 +1273,12 @@ class ProtocolLibPageHelper
         
         $yn_attribs = $myvalues['yn_attribs'];
         $checks = array(
-            'C'=>array('Contrast','hasContrastValues','yn_attribs_c','C','contrast_cd','none'),
-            'RI'=>array('Radionuclide','hasRadioisotopeValues','yn_attribs_ri','C','radioisotope_cd','none'),
-            'S'=>array('Sedation','hasSedationValues','yn_attribs_s','R','sedation_radio_cd','none'),
+            'C'=>array('Contrast','hasContrastValues','yn_attribs_c','C','contrast_cd','none'
+                ,'textmap'=>array('enteric'=>'contrast_enteric_','iv'=>'contrast_iv_')),
+            'RI'=>array('Radionuclide','hasRadioisotopeValues','yn_attribs_ri','C','radioisotope_cd','none'
+                ,'textmap'=>array('enteric'=>'radioisotope_enteric_','iv'=>'radioisotope_iv_')),
+            'S'=>array('Sedation','hasSedationValues','yn_attribs_s','R','sedation_radio_cd','none'
+                ,'textmap'=>array('oral'=>'sedation_oral_','iv'=>'sedation_iv_')),
             );
         foreach($checks as $code=>$details)
         {
@@ -1300,22 +1288,64 @@ class ProtocolLibPageHelper
             $sr_type = $details[3];
             $sr_name = $details[4];
             $sr_empty_value = $details[5];
+            $textmap = $details['textmap'];
+            $hasvalues = FALSE; //Initialize with this assumption
+            $analysis = array();
             if(isset($myvalues[$sr_name]))
             {
                 //Just go by the section radio button
                 if($sr_type == 'R')
                 {
                     //Radio
-                    $hasvalues = ($myvalues[$sr_name] !== $sr_empty_value);
+                    $buttontypename = 'radio button';
+                    $rvalue = $myvalues[$sr_name];
+                    $analysis['none'] = array('flag'=>($rvalue === 'none' ? 1 : 0));
+                    foreach($textmap as $typename=>$controlrootname)
+                    {
+                        $flagvalue = ($rvalue === $typename ? 1 : 0);
+                        $analysis[$typename] = array('flag'=>$flagvalue);
+                        $textvalue = $this->getTextFromCustomList($controlrootname,$myvalues);
+                        if(trim($textvalue) > '')
+                        {
+                            if($flagvalue > 0)
+                            {
+                                //This is a good value scenario
+                                $hasvalues = TRUE;
+                            } else {
+                                //This is a BAD value scenario
+                                $analysis['orphantext'] = $typename;
+                            }
+                        }
+                    }
                 } else {
                     //Checkboxes
-                    $cbvalue = $myvalues[$sr_name][$sr_empty_value];
-                    $hasvalues = ($cbvalue !== $sr_empty_value);
+                    $buttontypename = 'checkbox';
+                    $a = $myvalues[$sr_name];
+                    $cbvalue = $a[$sr_empty_value];
+                    $analysis['none'] = array('flag'=>($a['none'] === 'none' ? 1 : 0));
+                    foreach($textmap as $typename=>$controlrootname)
+                    {
+                        $flagvalue = $a[$typename] === $typename ? 1 : 0;
+                        $analysis[$typename] = array('flag'=>$flagvalue);
+                        $textvalue = $this->getTextFromCustomList($controlrootname,$myvalues);
+                        if(trim($textvalue) > '')
+                        {
+                            if($flagvalue > 0)
+                            {
+                                //This is a good value scenario
+                                $hasvalues = TRUE;
+                            } else {
+                                //This is a BAD value scenario
+                                $analysis['orphantext'] = $typename;
+                            }
+                        }
+                    }
                 }
             } else {
                 //Check the text fields.
                 $hasvalues =  $this->m_oPI->$func($myvalues);
             }
+            //Compare to the active categories selections
             $checkboxisset = (is_array($yn_attribs) && $yn_attribs[$code] === $code);
             if($checkboxisset)
             {
@@ -1325,11 +1355,16 @@ class ProtocolLibPageHelper
                     $bGood = FALSE;
                 }
             } else {
-                if($hasvalues)
+                if($hasvalues || $analysis['none']['flag'] != 1)
                 {
                     form_set_error($catradio, 'Did not declare category '.$name.' but the "none" flag is not set as default '.$name.' value');
                     $bGood = FALSE;
                 }
+            }
+            if(isset($analysis['orphantext']))
+            {
+                form_set_error($catradio, 'There is non-blank Default Value in '.$name.' with a blank '.$buttontypename);
+                $bGood = FALSE;
             }
         }
 
