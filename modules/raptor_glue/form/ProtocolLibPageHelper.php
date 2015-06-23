@@ -843,11 +843,11 @@ class ProtocolLibPageHelper
                     if($myvalues['hydration_radio_cd'] == 'oral')
                     {
                         //$hydration_oral_tx = trim($myvalues['hydration_oral_id']) > '' ? $myvalues['hydration_oral_id'] : $myvalues['hydration_oral_customtx'];
-                        $hydration_oral_tx = $this->getTextFromCustomList('hydration_oral_',$myvalues);
+                        $hydration_oral_tx = $this->m_oPI->getTextFromCustomList('hydration_oral_',$myvalues);
                         $hydration_iv_tx = NULL;
                     } else {
                         //$hydration_iv_tx = trim($myvalues['hydration_iv_id']) > '' ? $myvalues['hydration_iv_id'] : $myvalues['hydration_iv_customtx'];
-                        $hydration_iv_tx = $this->getTextFromCustomList('hydration_iv_',$myvalues);
+                        $hydration_iv_tx = $this->m_oPI->getTextFromCustomList('hydration_iv_',$myvalues);
                         $hydration_oral_tx = NULL;
                     }
                 }
@@ -868,11 +868,11 @@ class ProtocolLibPageHelper
                     if($myvalues['sedation_radio_cd'] == 'oral')
                     {
                         //$sedation_oral_tx = trim($myvalues['sedation_oral_id']) > '' ? $myvalues['sedation_oral_id'] : $myvalues['sedation_oral_customtx'];
-                        $sedation_oral_tx = $this->getTextFromCustomList('sedation_oral_',$myvalues);
+                        $sedation_oral_tx = $this->m_oPI->getTextFromCustomList('sedation_oral_',$myvalues);
                         $sedation_iv_tx = NULL;
                     } else {
                         //$sedation_iv_tx = trim($myvalues['sedation_iv_id']) > '' ? $myvalues['sedation_iv_id'] : $myvalues['sedation_iv_customtx'];
-                        $sedation_iv_tx = $this->getTextFromCustomList('sedation_iv_',$myvalues);
+                        $sedation_iv_tx = $this->m_oPI->getTextFromCustomList('sedation_iv_',$myvalues);
                         $sedation_oral_tx = NULL;
                     }
                 }
@@ -897,14 +897,14 @@ class ProtocolLibPageHelper
                 if($contrast_enteric_yn == 1)
                 {
                     //$contrast_enteric_tx = trim($myvalues['contrast_enteric_id'])  > '' ? $myvalues['contrast_enteric_id'] : $myvalues['contrast_enteric_customtx'];
-                    $contrast_enteric_tx = $this->getTextFromCustomList('contrast_enteric_',$myvalues);
+                    $contrast_enteric_tx = $this->m_oPI->getTextFromCustomList('contrast_enteric_',$myvalues);
                 } else {
                     $contrast_enteric_tx = NULL;
                 }
                 if($contrast_iv_yn == 1)
                 {
                     //$contrast_iv_tx = trim($myvalues['contrast_iv_id']) > '' ? $myvalues['contrast_iv_id'] : $myvalues['contrast_iv_customtx'];
-                    $contrast_iv_tx = $this->getTextFromCustomList('contrast_iv_',$myvalues);
+                    $contrast_iv_tx = $this->m_oPI->getTextFromCustomList('contrast_iv_',$myvalues);
                 } else {
                     $contrast_iv_tx = NULL;
                 }
@@ -929,14 +929,14 @@ class ProtocolLibPageHelper
                 if($radioisotope_enteric_yn == 1)
                 {
                     //$radioisotope_enteric_tx = trim($myvalues['radioisotope_enteric_id'])  > '' ? $myvalues['radioisotope_enteric_id'] : $myvalues['radioisotope_enteric_customtx'];
-                    $radioisotope_enteric_tx = $this->getTextFromCustomList('radioisotope_enteric_',$myvalues);
+                    $radioisotope_enteric_tx = $this->m_oPI->getTextFromCustomList('radioisotope_enteric_',$myvalues);
                 } else {
                     $radioisotope_enteric_tx = NULL;
                 }
                 if($radioisotope_iv_yn == 1)
                 {
                     //$radioisotope_iv_tx = trim($myvalues['radioisotope_iv_id']) > '' ? $myvalues['radioisotope_iv_id'] : $myvalues['radioisotope_iv_customtx'];
-                    $radioisotope_iv_tx = $this->getTextFromCustomList('radioisotope_iv_',$myvalues);
+                    $radioisotope_iv_tx = $this->m_oPI->getTextFromCustomList('radioisotope_iv_',$myvalues);
                 } else {
                     $radioisotope_iv_tx = NULL;
                 }
@@ -980,22 +980,6 @@ class ProtocolLibPageHelper
         }
       
         return TRUE;
-    }
-    
-    private function getTextFromCustomList($rootname,$myvalues)
-    {
-        $result_tx = NULL;
-        if($myvalues[$rootname . '_inputmode'] == 'list')
-        {
-            $result_tx = $myvalues[$rootname . 'id'];
-        } else
-        if($myvalues[$rootname . '_inputmode'] == 'customtx')
-        {
-            $result_tx = $myvalues[$rootname . 'customtx'];
-        } else {
-            $result_tx = trim($myvalues[$rootname . 'id'])  > '' ? $myvalues[$rootname . 'id'] : $myvalues[$rootname . 'customtx'];
-        }
-        return $result_tx;
     }
     
     /**
@@ -1301,62 +1285,8 @@ class ProtocolLibPageHelper
             $sr_empty_value = $details[5];
             $textmap = $details['textmap'];
             $isconditional = $details['trigger'] == 'conditional';
-            $hasvalues = FALSE; //Initialize with this assumption
-            $analysis = array();
-            if(isset($myvalues[$sr_name]))
-            {
-                //Just go by the section radio button
-                if($sr_type == 'R')
-                {
-                    //Radio
-                    $buttontypename = 'radio button';
-                    $rvalue = $myvalues[$sr_name];
-                    $analysis['none'] = array('flag'=>($rvalue === 'none' ? 1 : 0));
-                    foreach($textmap as $typename=>$controlrootname)
-                    {
-                        $flagvalue = ($rvalue === $typename ? 1 : 0);
-                        $analysis[$typename] = array('flag'=>$flagvalue);
-                        $textvalue = $this->getTextFromCustomList($controlrootname,$myvalues);
-                        if(trim($textvalue) > '')
-                        {
-                            if($flagvalue > 0)
-                            {
-                                //This is a good value scenario
-                                $hasvalues = TRUE;
-                            } else {
-                                //This is a BAD value scenario
-                                $analysis['orphantext'] = $typename;
-                            }
-                        }
-                    }
-                } else {
-                    //Checkboxes
-                    $buttontypename = 'checkbox';
-                    $a = $myvalues[$sr_name];
-                    $cbvalue = $a[$sr_empty_value];
-                    $analysis['none'] = array('flag'=>($a['none'] === 'none' ? 1 : 0));
-                    foreach($textmap as $typename=>$controlrootname)
-                    {
-                        $flagvalue = $a[$typename] === $typename ? 1 : 0;
-                        $analysis[$typename] = array('flag'=>$flagvalue);
-                        $textvalue = $this->getTextFromCustomList($controlrootname,$myvalues);
-                        if(trim($textvalue) > '')
-                        {
-                            if($flagvalue > 0)
-                            {
-                                //This is a good value scenario
-                                $hasvalues = TRUE;
-                            } else {
-                                //This is a BAD value scenario
-                                $analysis['orphantext'] = $typename;
-                            }
-                        }
-                    }
-                }
-            } else {
-                //Check the text fields.
-                $hasvalues =  $this->m_oPI->$func($myvalues);
-            }
+            $analysis = $this->m_oPI->getCustomListBlockAnalysis($myvalues, $sr_type, $sr_name, $sr_empty_value, $textmap);         
+            $hasvalues = $analysis['hasvalues'];
             if($isconditional)
             {
                 //Compare to the active categories selections

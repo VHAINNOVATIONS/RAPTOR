@@ -61,6 +61,95 @@ class ProtocolInfoUtility
             throw new \Exception("Failed ProtocolInfoUtility constructor because ".$ex->getMessage(), 99124, $ex);
         }
     }
+
+    /**
+     * A custom list can be a dropdown or a textbox switched by javascript.
+     * Return value from this hybrid control.
+     */
+    public function getTextFromCustomList($rootname, $myvalues)
+    {
+        $result_tx = NULL;
+        if($myvalues[$rootname . '_inputmode'] == 'list')
+        {
+            $result_tx = $myvalues[$rootname . 'id'];
+        } else
+        if($myvalues[$rootname . '_inputmode'] == 'customtx')
+        {
+            $result_tx = $myvalues[$rootname . 'customtx'];
+        } else {
+            if(trim($myvalues[$rootname . 'id'])  > '')
+            {
+                $result_tx = $myvalues[$rootname . 'id'];
+            } else {
+                $result_tx = $myvalues[$rootname . 'customtx'];
+            }
+        }
+        return $result_tx;
+    }
+    
+    function getCustomListBlockAnalysis($myvalues, $sr_type, $sr_name, $sr_empty_value, $textmap)
+    {
+        /*
+        $sr_type = $details[3];
+        $sr_name = $details[4];
+        $sr_empty_value = $details[5];
+        $textmap = $details['textmap'];
+         */
+        $analysis = array();
+        $analysis['hasvalues'] = FALSE; //Initialize with this assumption
+        if(isset($myvalues[$sr_name]))
+        {
+            //Just go by the section radio button
+            if($sr_type == 'R')
+            {
+                //Radio
+                $buttontypename = 'radio button';
+                $rvalue = $myvalues[$sr_name];
+                $analysis['none'] = array('flag'=>($rvalue === 'none' ? 1 : 0));
+                foreach($textmap as $typename=>$controlrootname)
+                {
+                    $flagvalue = ($rvalue === $typename ? 1 : 0);
+                    $analysis[$typename] = array('flag'=>$flagvalue);
+                    $textvalue = $this->getTextFromCustomList($controlrootname, $myvalues);
+                    if(trim($textvalue) > '')
+                    {
+                        if($flagvalue > 0)
+                        {
+                            //This is a good value scenario
+                            $analysis['hasvalues'] = TRUE;
+                        } else {
+                            //This is a BAD value scenario
+                            $analysis['orphantext'] = $typename;
+                        }
+                    }
+                }
+            } else {
+                //Checkboxes
+                $buttontypename = 'checkbox';
+                $a = $myvalues[$sr_name];
+                $analysis['none'] = array('flag'=>($a['none'] === 'none' ? 1 : 0));
+                foreach($textmap as $typename=>$controlrootname)
+                {
+                    $flagvalue = $a[$typename] === $typename ? 1 : 0;
+                    $analysis[$typename] = array('flag'=>$flagvalue);
+                    $textvalue = $this->getTextFromCustomList($controlrootname, $myvalues);
+                    if(trim($textvalue) > '')
+                    {
+                        if($flagvalue > 0)
+                        {
+                            //This is a good value scenario
+                            $analysis['hasvalues'] = TRUE;
+                        } else {
+                            //This is a BAD value scenario
+                            $analysis['orphantext'] = $typename;
+                        }
+                    }
+                }
+            }
+        }
+        return $analysis;
+    }
+
     
     /**
      * Return markup containing all the notes associated 

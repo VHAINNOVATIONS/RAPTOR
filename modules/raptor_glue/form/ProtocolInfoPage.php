@@ -1009,9 +1009,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     
     /**
      * Some checks to validate the data before we try to save it.
-     * @param array $form
-     * @param array $form_state
-     * @return TRUE or FALSE
      */
     function looksValidFormState($form, &$form_state)
     {
@@ -1031,7 +1028,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             {
                 //Stop right now if this happens.
                 $msg = 'The collaboration_uid=['.$myvalues['collaboration_uid'].'] value is not valid!  Expected a numeric ID! ';
-                die($msg . ' >>>'.print_r($myvalues,TRUE));
+                error_log($msg . ' >>>'.print_r($myvalues,TRUE));
+                throw new \Exception($msg);
             }
             //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
             $clickedvalue = 'Collaborate';
