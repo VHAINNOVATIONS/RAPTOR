@@ -69,7 +69,7 @@ class raptor_datalayer_Choices
      * @return \raptor_datalayer_Choice 
      * @deprecated since version number
      */
-    public static function getListData($sPath,$sDefaultChoiceOverrideID=NULL,$sDefaultaChoiceText=NULL)
+    public static function getListDataFromTextFile($sPath,$sDefaultChoiceOverrideID=NULL,$sDefaultaChoiceText=NULL)
     {
         
         $aLines = file($sPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -78,18 +78,16 @@ class raptor_datalayer_Choices
         $aList=array();
         if ($sDefaultChoiceOverrideID !== NULL)
         {
-            #TODO - refactor so we select in existing list if it exists there
             if ($sDefaultaChoiceText == NULL)
             {
                 $sDefaultaChoiceText=$sDefaultChoiceOverrideID;
             }
-            $oC = new raptor_datalayer_Choice($sDefaultaChoiceText,$sDefaultChoiceOverrideID,NULL,TRUE);
+            $oC = new \raptor\FormControlChoiceItem($sDefaultaChoiceText,$sDefaultChoiceOverrideID,NULL,TRUE);
             $aList[] = $oC;            
         }
 
         foreach($aLines as $nLine => $sLine)
         {
-
             if($sLine[0] == '[')
             {
                 //We hit the start of a NEW section.
@@ -105,32 +103,32 @@ class raptor_datalayer_Choices
                                 . "$nLine<br>TEXT:$sLine<br>RAW:" 
                                 . print_r($aLines,TRUE));
                     }
-                    //$oC = new raptor_datalayer_Choice($aChoice[1],$aChoice[0],$sCategory);
-                    $oC = new raptor_datalayer_Choice($aChoice[1],$aChoice[1],$sCategory);
+                    $oC = new \raptor\FormControlChoiceItem($aChoice[1],$aChoice[1],$sCategory);
                     $aList[] = $oC;
                 }
             }
-
         }
         return $aList;
     }
 
+    /**
+     * Create an array of choice instances.
+     */
     public static function getListDataFromArray($aValues,$sDefaultChoiceOverrideID=NULL,$sDefaultaChoiceText=NULL)
     {
         $aList=array();
         if ($sDefaultChoiceOverrideID !== NULL)
         {
-            #TODO - refactor so we select in existing list if it exists there
             if ($sDefaultaChoiceText == NULL)
             {
                 $sDefaultaChoiceText=$sDefaultChoiceOverrideID;
             }
-            $oC = new raptor_datalayer_Choice($sDefaultaChoiceText,$sDefaultChoiceOverrideID,NULL,TRUE);
+            $oC = new \raptor\FormControlChoiceItem($sDefaultaChoiceText,$sDefaultChoiceOverrideID,NULL,TRUE);
             $aList[] = $oC;            
         }
         foreach($aValues as $sValue)
         {
-            $oC = new raptor_datalayer_Choice($sValue,$sValue,'');
+            $oC = new \raptor\FormControlChoiceItem($sValue,$sValue,'');
             $aList[] = $oC;
         }
         return $aList;
@@ -146,7 +144,7 @@ class raptor_datalayer_Choices
                 return $$sValue;
             } 
         }
-        return $sAltValue; //.">>$sFindID<<$z>>";
+        return $sAltValue;
     }
     
     

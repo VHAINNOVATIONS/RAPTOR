@@ -1321,13 +1321,13 @@ class ProtocolLibPageHelper
             {
                 if(!$hasvalues)
                 {
-                    form_set_error($catradio, 'Declared there are '.$name.' values but none were provided');
+                    form_set_error($catradio, 'Declared category '.$name.' but no '.$name.' default value was provided');
                     $bGood = FALSE;
                 }
             } else {
                 if($hasvalues)
                 {
-                    form_set_error($catradio, 'Did not declare '.$name.' values but none flag is not set');
+                    form_set_error($catradio, 'Did not declare category '.$name.' but the "none" flag is not set as default '.$name.' value');
                     $bGood = FALSE;
                 }
             }
@@ -1649,11 +1649,22 @@ class ProtocolLibPageHelper
            '#disabled' => $disabled,
         );
 
-        $form['data_entry_area1']['toppart']['yn_attribs'] = array(
+        $form['data_entry_area1']['categories'] = array(
+            '#type'     => 'fieldset',
+            '#title'    => t('Active Categories'),
+            '#attributes' => array(
+                'class' => array(
+                    'data-entry1-area'
+                )
+             ),
+            '#disabled' => $disabled,
+        );
+        
+        $form['data_entry_area1']['categories']['yn_attribs'] = array(
            '#type' => 'checkboxes',
            '#options' => $aOptions['categories'],
            '#title' => t('Categories'),
-            '#description' => t('Checking these boxes indicates the categories for this protocol.  These values are used by the automatic protocol suggestion engine.'),
+           '#description' => t('Checking these boxes indicates the categories that have default values for this protocol.  These values are used by the automatic protocol suggestion engine.'),
            '#default_value' => $myvalues['yn_attribs'],
            '#disabled' => $disabled,
         );

@@ -57,7 +57,6 @@ class ProtocolPageUtils
      */
     static function getFAPI_select_options(&$element,$choices)
     {
-        //$choice = new raptor_datalayer_Choice('NA','NA');
         $a = array();
         $bHasValue=(isset($element['#default_value']) || isset($element['#value']));
         foreach($choices as $choice)

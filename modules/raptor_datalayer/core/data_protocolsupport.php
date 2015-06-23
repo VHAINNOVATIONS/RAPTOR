@@ -955,13 +955,17 @@ class ProtocolSupportingData
                     $tempRpt['classes'] = array(" ");
                 }
 
-                $timestamp = \DateTime::createFromFormat('m/d/Y', $tempRpt['timestamp'])->getTimestamp();
-                $sortkey = -1 * $timestamp;
-                if(!isset($rawlist[$sortkey]))
+                $dtobj = \DateTime::createFromFormat('m/d/Y', $tempRpt['timestamp']);
+                if($dtobj != '') //Sometimes we get 'not assessed' with empty timestamp
                 {
-                    $rawlist[$sortkey] = array();
+                    $timestamp = $dtobj->getTimestamp();
+                    $sortkey = -1 * $timestamp;
+                    if(!isset($rawlist[$sortkey]))
+                    {
+                        $rawlist[$sortkey] = array();
+                    }
+                    $rawlist[$sortkey][] = $tempRpt;
                 }
-                $rawlist[$sortkey][] = $tempRpt;
             }
         }
 

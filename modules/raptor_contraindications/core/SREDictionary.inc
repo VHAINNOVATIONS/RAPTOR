@@ -297,7 +297,6 @@ class SREDictionary extends \simplerulesengine\ASREDictionary
             'purpose_tx'=>'This is an array of all the contrasts selected for the patient.',
         );
         
-        
         return $aAllInputs;
     }
     
