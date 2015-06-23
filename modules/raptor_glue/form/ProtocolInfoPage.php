@@ -120,7 +120,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     /**
      * Load the myvalues array with all the protocol values
      */
-    private function loadProtocolFieldValues($nSiteID,$nIEN,&$myvalues
+    private function loadProtocolFieldValues($nSiteID,$nIEN
+            ,&$myvalues
             , $newerthan_dt=NULL
             , $protocol_lib_map=NULL)
     {
@@ -2308,12 +2309,12 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     }
 
     
-    function addUncommittedChecklistDetailsToNotesArray($nSiteID, $nIEN, $oAllUsers, $prev_commit_dt, &$noteTextArray)
+    function addUncommittedChecklistDetailsToNotesArray($nSiteID, $nIEN, $oAllUsers
+            , $prev_commit_dt, &$noteTextArray)
     {
         $tid = $nSiteID.'-'.$nIEN;
         $oWL = new \raptor\WorklistData($this->m_oContext);
         $aOrderInfo = $oWL->getDashboardMap();
-        
         $aQuestionsMetadata = $this->getAllSavedSafetyChecklistTicketData($nSiteID,$nIEN,$oAllUsers,$prev_commit_dt);
         if(count($aQuestionsMetadata)>0)
         {
@@ -2328,6 +2329,36 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $dLastDate = $aQuestionsMetadata['last_date'];
 
             $noteTextArray = array();
+            
+            //We will include protocol information into our checklist note
+            $getvalues = array();
+            $relevant_protocol_shortname = NULL;
+            $this->loadProtocolFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
+            if($getvalues['protocol_data_from_database'])
+            {
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Settings Approved Date',$getvalues,'protocol_data_created_dt');
+                $author_uid = $getvalues['protocol_approval_author_uid'];
+                $relevant_protocol_shortname = $getvalues['protocol1_nm'];
+                $userinfo = $oAllUsers->getByUID($author_uid);
+                $fullname = $userinfo->getFullName();
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
+
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Primary Selection ID',$getvalues,'protocol1_nm');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Primary Selection NAME',$getvalues,'protocol1_fullname');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Primary Selection MODALITY',$getvalues,'protocol1_modality_abbr');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Secondary Selection ID',$getvalues,'protocol2_nm');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Secondary Selection NAME',$getvalues,'protocol2_fullname');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Secondary Selection MODALITY',$getvalues,'protocol2_modality_abbr');
+            }
+            
+            //Now write the CPRS order info
             $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
             $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
             $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Embedded Due Date',$aOrderInfo,'DesiredDate');
@@ -2337,6 +2368,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $this->addFormattedVistaNoteRow($noteTextArray,'Site ID',$nSiteID);
             $this->addFormattedVistaNoteRow($noteTextArray,'Ticket IEN',$nIEN);
             $this->addFormattedVistaNoteRow($noteTextArray,'Total Responses',count($aQuestions));
+            
+            //Now write the responses
             $noteTextArray[] = '';
             foreach($aQuestions as $aQuestion)
             {
