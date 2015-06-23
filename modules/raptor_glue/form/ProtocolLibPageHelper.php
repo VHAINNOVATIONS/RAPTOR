@@ -1274,12 +1274,23 @@ class ProtocolLibPageHelper
         $yn_attribs = $myvalues['yn_attribs'];
         $checks = array(
             'C'=>array('Contrast','hasContrastValues','yn_attribs_c','C','contrast_cd','none'
-                ,'textmap'=>array('enteric'=>'contrast_enteric_','iv'=>'contrast_iv_')),
+                ,'textmap'=>array('enteric'=>'contrast_enteric_','iv'=>'contrast_iv_')
+                ,'trigger'=>'conditional'
+                ),
             'RI'=>array('Radionuclide','hasRadioisotopeValues','yn_attribs_ri','C','radioisotope_cd','none'
-                ,'textmap'=>array('enteric'=>'radioisotope_enteric_','iv'=>'radioisotope_iv_')),
+                ,'textmap'=>array('enteric'=>'radioisotope_enteric_','iv'=>'radioisotope_iv_')
+                ,'trigger'=>'conditional'
+                ),
             'S'=>array('Sedation','hasSedationValues','yn_attribs_s','R','sedation_radio_cd','none'
-                ,'textmap'=>array('oral'=>'sedation_oral_','iv'=>'sedation_iv_')),
+                ,'textmap'=>array('oral'=>'sedation_oral_','iv'=>'sedation_iv_')
+                ,'trigger'=>'conditional'
+                ),
+            'H'=>array('Hydration','hasHydrationValues','hydration_radio_cd','R','hydration_radio_cd','none'
+                ,'textmap'=>array('oral'=>'hydration_oral_','iv'=>'hydration_iv_')
+                ,'trigger'=>'always'
+                ),
             );
+
         foreach($checks as $code=>$details)
         {
             $name = $details[0];
@@ -1289,6 +1300,7 @@ class ProtocolLibPageHelper
             $sr_name = $details[4];
             $sr_empty_value = $details[5];
             $textmap = $details['textmap'];
+            $isconditional = $details['trigger'] == 'conditional';
             $hasvalues = FALSE; //Initialize with this assumption
             $analysis = array();
             if(isset($myvalues[$sr_name]))
@@ -1345,20 +1357,23 @@ class ProtocolLibPageHelper
                 //Check the text fields.
                 $hasvalues =  $this->m_oPI->$func($myvalues);
             }
-            //Compare to the active categories selections
-            $checkboxisset = (is_array($yn_attribs) && $yn_attribs[$code] === $code);
-            if($checkboxisset)
+            if($isconditional)
             {
-                if(!$hasvalues)
+                //Compare to the active categories selections
+                $checkboxisset = (is_array($yn_attribs) && $yn_attribs[$code] === $code);
+                if($checkboxisset)
                 {
-                    form_set_error($catradio, 'Declared category '.$name.' but no '.$name.' default value was provided');
-                    $bGood = FALSE;
-                }
-            } else {
-                if($hasvalues || $analysis['none']['flag'] != 1)
-                {
-                    form_set_error($catradio, 'Did not declare category '.$name.' but the "none" flag is not set as default '.$name.' value');
-                    $bGood = FALSE;
+                    if(!$hasvalues)
+                    {
+                        form_set_error($catradio, 'Declared category '.$name.' but no '.$name.' default value was provided');
+                        $bGood = FALSE;
+                    }
+                } else {
+                    if($hasvalues || !isset($analysis['none']['flag']) || $analysis['none']['flag'] != 1)
+                    {
+                        form_set_error($catradio, 'Did not declare category '.$name.' but the "none" flag is not set as default '.$name.' value');
+                        $bGood = FALSE;
+                    }
                 }
             }
             if(isset($analysis['orphantext']))
