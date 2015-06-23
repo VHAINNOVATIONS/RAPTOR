@@ -275,7 +275,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                           <tr>
                             <th>Allergy Reactant</th>
                             <th>Allergy Type</th>
-                            <th>O/H</th>
+                            <th title='Observed/Historical'>O/H</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -488,9 +488,9 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                     <tbody>
                       <?php foreach($allergies_detail as $data_row) { ?>
                       <tr>
-                        <td><?php echo $data_row["DateReported"] ?></td>
-                        <td><?php echo $data_row["Item"] ?></td>
-                        <td><?php echo $data_row["CausativeAgent"] ?></td>
+                        <td><?php echo $data_row['DateReported'] ?></td>
+                        <td><?php echo $data_row['Item'] ?></td>
+                        <td><?php echo $data_row['CausativeAgent'] ?></td>
                         <?php
                         if($data_row['SignsSymptoms']['SnippetSameAsDetail'])
                         {

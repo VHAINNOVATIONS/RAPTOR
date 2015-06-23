@@ -861,19 +861,22 @@ class ProtocolSupportingData
         
         //$serviceResponse = $this->m_oContext->getEMRService()->getAllergies();
         $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getAllergies", NULL);
-        $allergies = array();
         $displayAllergies = array();
         
-        $numRpts = 0;
         if(!isset($serviceResponse->getAllergiesResult->arrays->TaggedAllergyArray->count))
                 return $displayAllergies;
         
         $numTaggedAllergies = $serviceResponse->getAllergiesResult->arrays->TaggedAllergyArray->count;
-        if($numTaggedAllergies > 0){
-            for($i=0; $i<$numTaggedAllergies; $i++){
+        $rawlist = array();  //Build this to sort it later.
+        if($numTaggedAllergies > 0)
+        {
+            for($i=0; $i<$numTaggedAllergies; $i++)
+            {
                 // Check to see if any allergies were returned. If not, return
                 if(!isset($serviceResponse->getAllergiesResult->arrays->TaggedAllergyArray->allergies->AllergyTO))
-                        return $displayAllergies;
+                {
+                    return $displayAllergies;
+                }
                 
                 // Check to see if allergies is an object or an array
                 $objType = gettype($serviceResponse->getAllergiesResult->arrays->TaggedAllergyArray->allergies->AllergyTO);
@@ -933,9 +936,9 @@ class ProtocolSupportingData
                         $ingredient = $nIngredients == 1 ? $RptTO->drugIngredients : $RptTO->drugIngredients[$g];
                         $tempRpt['ingredients'][$g] = isset($ingredient->text) ? $ingredient->text : " ";
                     }
-                }
-                else
+                } else {
                     $tempRpt['ingredients'] = array(" ");
+                }
 
                 if(isset($RptTO->drugClasses)){
                     $objType = gettype($RptTO->drugClasses);
@@ -952,19 +955,35 @@ class ProtocolSupportingData
                     $tempRpt['classes'] = array(" ");
                 }
 
-                $allergies[$numRpts] = $tempRpt;
-                $displayAllergies[$numRpts] 
-                        = array("DateReported"=>$tempRpt['timestamp'], 
-                                    "Item"=>$tempRpt['allergenName'], 
-                                    "CausativeAgent"=>$tempRpt['allergenType'], 
-                                    "SignsSymptoms"=>$this->getSnippetDetailPair($tempRpt['symptoms'],80), 
-                                    "DrugClasses"=>$this->getSnippetDetailPair($tempRpt['classes'],80), 
-                                    "Originator"=> $tempRpt['observerName'], 
-                                    "ObservedHistorical"=>$this->getSnippetDetailPair($tempRpt['comment'])); 
-                $numRpts++;
+                $timestamp = \DateTime::createFromFormat('m/d/Y', $tempRpt['timestamp'])->getTimestamp();
+                $sortkey = -1 * $timestamp;
+                if(!isset($rawlist[$sortkey]))
+                {
+                    $rawlist[$sortkey] = array();
+                }
+                $rawlist[$sortkey][] = $tempRpt;
             }
         }
 
+        //Sort the result by date, most recent date first 20150623
+        ksort($rawlist, SORT_NUMERIC);
+        $displayAllergies = array();
+        foreach($rawlist as $sortkey=>$onechunk)
+        {
+            foreach($onechunk as $tempRpt)
+            {
+                $displayAllergies[] 
+                        = array('DateReported'=>$tempRpt['timestamp'], 
+                                    'Item'=>$tempRpt['allergenName'], 
+                                    'CausativeAgent'=>$tempRpt['allergenType'], 
+                                    'SignsSymptoms'=>$this->getSnippetDetailPair($tempRpt['symptoms'],80), 
+                                    'DrugClasses'=>$this->getSnippetDetailPair($tempRpt['classes'],80), 
+                                    'Originator'=> $tempRpt['observerName'], 
+                                    'ObservedHistorical'=>$this->getSnippetDetailPair($tempRpt['comment'])); 
+            }
+        }
+        
+        //Return the result
         $this->m_oRuntimeResultCache->addToCache($sThisResultName, $displayAllergies);
         return $displayAllergies;
     }
