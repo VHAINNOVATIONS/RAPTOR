@@ -20,7 +20,7 @@ namespace raptor_formulas;
  */
 class LanguageInference 
 {
-    private $m_supported_modalities = "MR CT NM FL US "; //Must include the space after each!
+    private $m_supported_modalities = "MR CT NM FL US "; //Must include the space after each including last one!
     
     /**
      * Return a string with the two char code, each with a trailing space!

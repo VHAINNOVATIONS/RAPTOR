@@ -13,7 +13,8 @@
 
 namespace raptor;
 
-require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
+module_load_include('inc', 'raptor_glue', 'functions/protocol');
+
 module_load_include('php', 'raptor_datalayer', 'core/data_context');
 module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
 module_load_include('php', 'raptor_datalayer', 'core/data_worklist');

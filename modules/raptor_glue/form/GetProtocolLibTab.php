@@ -19,7 +19,8 @@ module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
 module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
 module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
 
-require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
+module_load_include('inc', 'raptor_glue', 'functions/protocol');
+
 require_once 'ProtocolInfoUtility.php';
 
 

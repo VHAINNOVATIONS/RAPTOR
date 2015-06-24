@@ -13,20 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_glue', 'utility/TermMapping');
-module_load_include('php', 'raptor_glue', 'utility/RadiationDoseHelper');
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'config/ListUtils');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
-module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
-module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
-module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
-module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
-module_load_include('php', 'raptor_workflow', 'core/AllowedActions');
-module_load_include('php', 'raptor_formulas', 'core/Conversions');
-
-require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol_ajax.inc');
 require_once 'FormHelper.php';
 require_once 'ProtocolLibPageHelper.php';
 require_once 'ProtocolInfoDataChecks.php';
@@ -49,6 +35,24 @@ class ProtocolInfoUtility
     {
         try
         {
+            module_load_include('php', 'raptor_glue', 'utility/TermMapping');
+            module_load_include('php', 'raptor_glue', 'utility/RadiationDoseHelper');
+
+            module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
+            module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
+            module_load_include('php', 'raptor_formulas', 'core/Conversions');
+            
+            module_load_include('php', 'raptor_datalayer', 'config/Choices');
+            module_load_include('php', 'raptor_datalayer', 'config/ListUtils');
+            module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+            module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+            module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+            module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
+
+            module_load_include('php', 'raptor_workflow', 'core/AllowedActions');
+
+            module_load_include('inc', 'raptor_glue', 'functions/protocol_ajax');
+            
             $this->m_oContext = \raptor\Context::getInstance();
             $this->m_oTT = new \raptor\TicketTrackingData();
             $this->m_oLI = new \raptor_formulas\LanguageInference();

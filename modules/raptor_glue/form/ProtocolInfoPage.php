@@ -13,13 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_workflow', 'core/AllowedActions');
-module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
-module_load_include('php', 'raptor_formulas', 'core/Conversions');
-module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
-
-require_once (RAPTOR_GLUE_MODULE_PATH . '/functions/protocol.inc');
-
 require_once 'ProtocolPageUtils.inc';
 require_once 'ProtocolInfoUtility.php';
 require_once 'ProtocolInfoDataChecks.php';
@@ -50,6 +43,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     function __construct($tid = NULL, $disabled=FALSE)
     {
+        module_load_include('php', 'raptor_workflow', 'core/AllowedActions');
+        module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
+        module_load_include('php', 'raptor_formulas', 'core/Conversions');
+
+        module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
+
+        module_load_include('inc', 'raptor_glue', 'functions/protocol');
+        
         $loaded = module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
         if(!$loaded)
         {

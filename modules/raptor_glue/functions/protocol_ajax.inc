@@ -12,6 +12,8 @@
  * For optimization reasons, this file is ONLY included by classes that support these ajax operations.
  */ 
 
+//module_load_include('inc', 'raptor_glue', 'functions/protocol');
+
 /**
  * Important to clear the input values otherwise new default values will not apply.
  */
