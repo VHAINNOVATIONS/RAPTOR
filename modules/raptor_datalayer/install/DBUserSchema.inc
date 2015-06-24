@@ -590,7 +590,7 @@ class DBUserSchema
               'description' => 'The most recent error code',
             ),
           ),
-          'primary key' => array('uid','ipaddress','sessionid'),
+          'primary key' => array('uid'),
         );
         
         

@@ -99,7 +99,7 @@ class ViewAbout
                 . $logomarkup
                 . '</td>'
                 . '<td style="vertical-align:top">'
-                . '<b>RAPTOR Version Information</b>'
+                . '<p><b style="font-size: 120%">RAPTOR Configuration and Version Information</b></p>'
                 . '<table class="about-info">'
                 . '<tr><td><b>App Build</b></td><td><b>'.RAPTOR_BUILD_ID.'</b></td></tr>'
                 . '<tr><td>Machine ID</td><td>'.RAPTOR_CONFIG_ID.'</td></tr>'
