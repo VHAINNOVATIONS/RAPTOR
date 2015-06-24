@@ -133,6 +133,7 @@ class ViewReport2Page extends AReport
 					. '<td>' . $val['day'] . '</td>'
 					. '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
 					. '<td>' . $val['role_nm'] . '</td>'
+					. '<td>' . $val['most_recent_login_dt'] . '</td>'
 					. '<td>' . $val['Total_Approved']  . '</td>'
 					. '<td>' . $val['Count_Collab']  . '</td>'
 					. '<td>' . $val['Total_Acknowledge']  . '</td>'
