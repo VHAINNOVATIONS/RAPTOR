@@ -1619,7 +1619,7 @@ class ProtocolInfoUtility
         //Get all the protocols from the library
         $result = db_select('raptor_protocol_lib','p')
                 ->fields('p')
-                ->condition('p.active_yn',0,'=')
+                ->condition('p.active_yn',1,'=')
                 ->orderBy('modality_abbr', 'ASC')
                 ->orderBy('name', 'ASC')
                 ->execute();

@@ -184,6 +184,19 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
                         ->execute();
                     db_merge('raptor_user_recent_activity_tracking')
                         ->key(array('uid'=>$tempUID,
+                            ))
+                        ->fields(array(
+                            'uid'=>$tempUID,
+                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                            'sessionid' => session_id(),
+                            'most_recent_login_dt'=>$updated_dt,
+                            'most_recent_action_dt'=>$updated_dt,
+                            'most_recent_action_cd' => UATC_LOGIN,
+                        ))
+                        ->execute();
+                    /*
+                    db_merge('raptor_user_recent_activity_tracking')
+                        ->key(array('uid'=>$tempUID,
                             'ipaddress'=>$_SERVER['REMOTE_ADDR'],
                             'sessionid' => session_id(),
                             ))
@@ -196,6 +209,7 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
                             'most_recent_action_cd' => UATC_LOGIN,
                         ))
                         ->execute();
+                     */
                 } catch (\Exception $ex) {
                     error_log('Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
                     db_insert('raptor_user_activity_tracking')

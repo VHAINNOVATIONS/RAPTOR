@@ -131,6 +131,8 @@ class ViewReport2Page extends AReport
 					. '<td>' . $val['quarter'] . '</td>'
 					. '<td>' . $val['week'] . '</td>'
 					. '<td>' . $val['day'] . '</td>'
+					. '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
+					. '<td>' . $val['role_nm'] . '</td>'
 					. '<td>' . $val['Total_Approved']  . '</td>'
 					. '<td>' . $val['Count_Collab']  . '</td>'
 					. '<td>' . $val['Total_Acknowledge']  . '</td>'

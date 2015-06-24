@@ -136,6 +136,7 @@ class SREDictionary extends \simplerulesengine\ASREDictionary
             'category_nm'=>'Exam',
             'purpose_tx'=>'True if the selected protocol is for a diagnostic exam, else False.',
         );
+
         $aAllInputs['IS_INPATIENT'] = array(
             'source'=>'coded',
             'criteria_tx'=>'DERIVED',

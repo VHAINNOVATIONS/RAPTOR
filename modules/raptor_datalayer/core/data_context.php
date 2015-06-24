@@ -347,13 +347,13 @@ class Context
                if(!isset($candidate->m_sVistaUserID))         
                {
                    //Log something and continue.
-                   error_log("WARNING: Did NOT find a USER in existing session!".print_r($candidate,TRUE));
+                   error_log('WARNING: Did NOT find a USER in existing session!'.print_r($candidate,TRUE));
                }
             }
             
         } else {
             //No session already exists, so we will create a new one.
-            error_log("Creating new session for uid=".$tempUID);
+            error_log('Creating new session for uid='.$tempUID);
             $bLocalReset=TRUE;
             $candidate=NULL;
             $wmodeParam='P';    //Hardcode assumption for now.
@@ -394,12 +394,13 @@ class Context
                                 ->execute();
                         if($resultOther->rowCount() > 0)
                         {
-                            $resultMe = db_select('raptor_user_recent_activity_tracking','u')
+                            //There is always only one record in raptor_user_recent_activity_tracking
+                            $resultMe = db_select('raptor_user_activity_tracking','u')
                                     ->fields('u')
                                     ->condition('uid',$tempUID,'=')
                                     ->condition('ipaddress',$_SERVER['REMOTE_ADDR'],'=')
                                     ->condition('sessionid', $mysessionid ,'=')
-                                    ->orderBy('most_recent_action_dt','DESC')
+                                    ->orderBy('updated_dt','DESC')
                                     ->execute();
                             if($resultMe->rowCount() > 0)
                             {
@@ -420,12 +421,12 @@ class Context
                                     } else {
                                         //Possible the user has two browsers open with same account.
                                         $bAccountConflictDetected 
-                                            = $other['most_recent_action_dt'] >= $me['most_recent_action_dt'];
+                                            = $other['most_recent_action_dt'] >= $me['updated_dt'];
                                     }
                                 } else {
                                     //Simple check
                                     $bAccountConflictDetected 
-                                            = $other['most_recent_action_dt'] >= $me['most_recent_action_dt'];
+                                            = $other['most_recent_action_dt'] >= $me['updated_dt'];
                                     $conflict_logic_info['simple date check'] = $bAccountConflictDetected;
                                 }
                                 if($bAccountConflictDetected)
@@ -440,7 +441,7 @@ class Context
                                             . '>>> TIMES = other[' 
                                             . $other['most_recent_action_dt'] 
                                             . '] vs this['
-                                            . $me['most_recent_action_dt'] 
+                                            . $me['updated_dt'] 
                                             . '] logicinfo='
                                             .print_r($conflict_logic_info,TRUE));
                                 } else {
@@ -451,7 +452,7 @@ class Context
                                             . '>>> TIMES = other[' 
                                             . $other['most_recent_action_dt'] 
                                             . '] vs this['
-                                            . $me['most_recent_action_dt'] . ']');
+                                            . $me['updated_dt'] . ']');
                                 }
                             }                    
                         }
@@ -471,10 +472,23 @@ class Context
                             $updated_dt = date("Y-m-d H:i:s", time());
 
                             //Write the recent activity to the single record that tracks it too.
+                            /*
                             db_merge('raptor_user_recent_activity_tracking')
                             ->key(array('uid'=>$tempUID,
                                 'ipaddress'=>$_SERVER['REMOTE_ADDR'],
                                 'sessionid' => session_id(),
+                                ))
+                            ->fields(array(
+                                    'uid'=>$tempUID,
+                                    'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                                    'sessionid' => session_id(),
+                                    'most_recent_action_dt'=>$updated_dt,
+                                    'most_recent_action_cd' => UATC_GENERAL,
+                                ))
+                                ->execute();
+                             */
+                            db_merge('raptor_user_recent_activity_tracking')
+                            ->key(array('uid'=>$tempUID,
                                 ))
                             ->fields(array(
                                     'uid'=>$tempUID,
@@ -866,10 +880,24 @@ class Context
                     ))
                     ->execute();
                     //Write the recent activity to the single record that tracks it too.
+                /*
                     db_merge('raptor_user_recent_activity_tracking')
                     ->key(array('uid'=>$tempUID,
                         'ipaddress'=>$_SERVER['REMOTE_ADDR'],
                         'sessionid' => session_id(),
+                        ))
+                    ->fields(array(
+                            'uid'=>$tempUID,
+                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                            'sessionid' => session_id(),
+                            'most_recent_login_dt'=>$updated_dt,
+                            'most_recent_action_dt'=>$updated_dt,
+                            'most_recent_action_cd' => UATC_LOGIN,
+                        ))
+                        ->execute();
+                 */
+                    db_merge('raptor_user_recent_activity_tracking')
+                    ->key(array('uid'=>$tempUID,
                         ))
                     ->fields(array(
                             'uid'=>$tempUID,
@@ -987,11 +1015,24 @@ class Context
                     ))
                     ->execute();
                     //Write the recent activity to the single record that tracks it too.
+                /*
                 db_merge('raptor_user_recent_activity_tracking')
                     ->key(array('uid'=>$this->m_nUID,
                         'ipaddress'=>$_SERVER['REMOTE_ADDR'],
                         'sessionid' => session_id(),
                         ))
+                    ->fields(array(
+                            'uid'=>$this->m_nUID,
+                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                            'sessionid' => session_id(),
+                            'most_recent_logout_dt'=>$updated_dt,
+                            'most_recent_action_dt'=>$updated_dt,
+                            'most_recent_action_cd' => UATC_LOGOUT,
+                        ))
+                        ->execute();
+                 */
+                db_merge('raptor_user_recent_activity_tracking')
+                    ->key(array('uid'=>$this->m_nUID))
                     ->fields(array(
                             'uid'=>$this->m_nUID,
                             'ipaddress' => $_SERVER['REMOTE_ADDR'],
