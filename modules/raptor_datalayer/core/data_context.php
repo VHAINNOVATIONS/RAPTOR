@@ -24,6 +24,17 @@ defined('CONST_NM_RAPTOR_CONTEXT')
 defined("DISABLE_CONTEXT_DEBUG")
     or define("DISABLE_CONTEXT_DEBUG", TRUE);
 
+/*
+function raptor_error_handler( $num, $str, $file, $line, $context = null )
+{
+    error_log("Executing raptor_error_handler with $num, $str, $file, $line, $context");
+    exit();
+}
+
+set_error_handler('raptor_error_handler');
+set_exception_handler('raptor_error_handler');
+*/
+
 /**
  * The context has all the details relevant to the user of the session and their
  * current activities.
