@@ -13,9 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'core/data_user');
-
 require_once 'FormHelper.php';
 
 
@@ -26,6 +23,12 @@ require_once 'FormHelper.php';
  */
 class ListsPageHelper
 {
+    function __construct($oContext)
+    {
+        module_load_include('php', 'raptor_datalayer', 'config/Choices');
+        module_load_include('php', 'raptor_datalayer', 'core/data_user');
+    }
+    
     public function parseRawText($sRawDelimitedRowsText)
     {
         return explode("\n", $sRawDelimitedRowsText);

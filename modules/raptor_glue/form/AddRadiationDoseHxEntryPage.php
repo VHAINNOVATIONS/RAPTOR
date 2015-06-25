@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -13,10 +13,6 @@
 
 
 namespace raptor;
-
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
 
 require_once 'FormHelper.php';
 
@@ -33,6 +29,10 @@ class AddRadiationDoseHxEntryPage
 
     function __construct()
     {
+        module_load_include('php', 'raptor_datalayer', 'config/Choices');
+        module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oDD = new \raptor\DashboardData($this->m_oContext);
     }

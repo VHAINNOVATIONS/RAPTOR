@@ -13,10 +13,6 @@
 
 namespace raptor;
 
-module_load_include('inc', 'raptor_glue', 'functions/protocol');
-
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-
 require_once 'FormHelper.php';
 require_once 'ProtocolLibPageHelper.php';
 require_once 'ChildEditBasePage.php';
@@ -35,6 +31,9 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
     {
         try
         {
+            module_load_include('inc', 'raptor_glue', 'functions/protocol');
+            module_load_include('php', 'raptor_datalayer', 'config/Choices');
+            
             $this->m_oPageHelper = new \raptor\ProtocolLibPageHelper();
             global $base_url;
             $this->setGobacktoURL($base_url.'/raptor/manageprotocollib');

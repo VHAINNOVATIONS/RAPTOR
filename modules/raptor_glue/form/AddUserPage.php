@@ -13,7 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
 require_once 'FormHelper.php';
 require_once 'UserPageHelper.php';
 require_once 'ChildEditBasePage.php';
@@ -32,6 +31,8 @@ class AddUserPage extends \raptor\ChildEditBasePage
      //Call same function as in EditUserPage here!
     function __construct($role_nm=NULL)
     {
+        module_load_include('php', 'raptor_datalayer', 'config/Choices');
+        
         if($role_nm == NULL)
         {
             throw new \Exception('Must specify the role name!');

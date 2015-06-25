@@ -13,11 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-
-module_load_include('inc', 'raptor_glue', 'functions/protocol');
-module_load_include('inc', 'raptor_glue', 'functions/protocol_ajax');
-
 require_once 'FormHelper.php';
 require_once 'ProtocolInfoUtility.php';
 
@@ -36,6 +31,12 @@ class ProtocolLibPageHelper
     {
         try
         {
+            module_load_include('php', 'raptor_datalayer', 'config/Choices');
+
+            module_load_include('inc', 'raptor_glue', 'functions/protocol');
+            module_load_include('inc', 'raptor_glue', 'functions/protocol_ajax');
+
+            
             $this->m_oPI = new \raptor\ProtocolInfoUtility();
             if($oContext == NULL)
             {
@@ -80,7 +81,7 @@ class ProtocolLibPageHelper
             $myvalues['updated_dt'] = NULL;
 
             //Now clear the template stuff too.
-            ProtocolLibPageHelper::setAllTemplateValuesNull($myvalues);
+            self::setAllTemplateValuesNull($myvalues);
         } catch (\Exception $ex) {
             error_log("Failed ProtocolLibPageHelper->setAllValuesNull because ".$ex->getMessage()
                     . "\n<br>Stack trace...<br>".Context::debugGetCallerInfo(5));
@@ -372,7 +373,7 @@ class ProtocolLibPageHelper
         $myvalues = array();
         try
         {
-            ProtocolLibPageHelper::setAllValuesNull($myvalues); //Always initialize because there are some extra values there we want null at the start.
+            self::setAllValuesNull($myvalues); //Always initialize because there are some extra values there we want null at the start.
             $myvalues['protocol_shortname'] = $protocol_shortname;
             $myvalues['keywords1'] = array();
             $myvalues['keywords2'] = array();
@@ -435,7 +436,7 @@ class ProtocolLibPageHelper
                     {
                         error_log("WARNING: NO TEMPLATE RECORDS FOUND for PROTOCOL $protocol_shortname");
                         //Set all the template keys as NULL.
-                        ProtocolLibPageHelper::setAllTemplateValuesNull($myvalues);                
+                        self::setAllTemplateValuesNull($myvalues);                
                     } else {
                         $record = $result->fetchObject();
                         $myvalues['data_active_yn'] = $record->active_yn;

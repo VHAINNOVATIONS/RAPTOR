@@ -13,17 +13,6 @@
 
 namespace raptor;
 
-module_load_include('inc', 'raptor_glue', 'functions/protocol');
-
-module_load_include('php', 'raptor_datalayer', 'core/data_context');
-module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
-module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
-module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
-module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
-
-
 /**
  * This class returns content for the radiation dose tab
  *
@@ -44,6 +33,16 @@ class GetRadiationDoseHxTab
     
     function __construct($tid = NULL)
     {
+        module_load_include('inc', 'raptor_glue', 'functions/protocol');
+
+        module_load_include('php', 'raptor_datalayer', 'core/data_context');
+        module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
+        module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
+        module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
+        
         $loaded = module_load_include('php','raptor_datalayer','core/data_dashboard');
         if(!$loaded)
         {

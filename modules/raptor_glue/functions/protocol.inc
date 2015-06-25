@@ -40,6 +40,7 @@ function raptor_glue_deleteprotocollib_form()
 
 function raptor_glue_addprotocollib_form_builder($form, &$form_state)
 {
+    module_load_include('php', 'raptor_glue', 'form/AddProtocolLibPage');
     $oPI = new \raptor\AddProtocolLibPage();
     $form = array();
     $disabled = false;
@@ -48,12 +49,14 @@ function raptor_glue_addprotocollib_form_builder($form, &$form_state)
 }
 function raptor_glue_addprotocollib_form_builder_customvalidate($form, &$form_state) 
 {
+    module_load_include('php', 'raptor_glue', 'form/AddProtocolLibPage');
     $myvalues = $form_state['values'];
     $oPI = new \raptor\AddProtocolLibPage();
     return $oPI->looksValidFormState($form, $form_state);    //['values']);
 }
 function raptor_glue_addprotocollib_form_builder_submit($form, &$form_state) 
 {
+    module_load_include('php', 'raptor_glue', 'form/AddProtocolLibPage');
     $myvalues = $form_state['values'];
     $oPI = new \raptor\AddProtocolLibPage();
     $isokay = $oPI->updateDatabase($form, $myvalues);
@@ -74,6 +77,7 @@ function raptor_glue_getprotocollibtab_form()
 
 function raptor_glue_getprotocollibtab_form_builder($form, &$form_state)
 {
+    module_load_include('php', 'raptor_glue', 'form/GetProtocolLibTab');
     $oPI = new \raptor\GetProtocolLibTab();
     $form = array();
     $disabled = false;
@@ -88,7 +92,7 @@ function raptor_glue_protocolinfo_form_inputarea()
 
 function raptor_glue_protocolinfo_form_builder($form, &$form_state)
 {
-    //drupal_set_message('About to check for selected TID');
+    module_load_include('php', 'raptor_datalayer', 'core/data_context');
     $oContext = \raptor\Context::getInstance();
     if(isset($_REQUEST['drupalmsg']))
     {
@@ -148,6 +152,7 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
             drupal_set_message('<div class="personalbatchmsg">'.$pbmsg.'</div>');
         }
         $tid = $oContext->getSelectedTrackingID();
+        module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
         $oPI = new \raptor\ProtocolInfoPage($tid,$disabled);
         $form = array();
         if(!isset($form_state['values']))
@@ -210,6 +215,8 @@ function raptor_glue_protocolinfo_form_builder_validate($form, &$form_state)
         //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
         $clickedvalue = 'Collaborate';
     }
+    module_load_include('php', 'raptor_datalayer', 'core/data_context');
+    module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
     $oContext = \raptor\Context::getInstance();
     $tid = $oContext->getSelectedTrackingID();
     $oPI = new \raptor\ProtocolInfoPage($tid);
@@ -235,7 +242,8 @@ function raptor_glue_protocolinfo_form_builder_submit($form, &$form_state)
         //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
         $clickedvalue = 'Collaborate';
     }
-    //drupal_set_message('Submit clicked button = [' . $clickedvalue . ']');
+    module_load_include('php', 'raptor_datalayer', 'core/data_context');
+    module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
     $oContext = \raptor\Context::getInstance();
     $tid = $oContext->getSelectedTrackingID();
     $oPI = new \raptor\ProtocolInfoPage($tid);
@@ -282,6 +290,8 @@ function raptor_glue_viewscannedprotocol_form_builder($form, &$form_state)
         throw new \Exception("Invalid psn url parameter: that value MUST NOT be numeric!");
     }
 
+    module_load_include('php', 'raptor_glue', 'form/ViewScannedProtocolLibFile');
+    
     $showclose = isset($_GET['showclose']);
     $oPI = new \raptor\ViewScannedProtocolLibFile($psn,$showclose);
     $form = array();
@@ -300,8 +310,9 @@ function raptor_glue_viewprotocollib_form_builder($form, &$form_state)
         throw new \Exception("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
     }
 
+    module_load_include('php', 'raptor_glue', 'form/ViewProtocolLibPage');
+    
     $oPI = new \raptor\ViewProtocolLibPage($psn);
-    //$form = array();
     $disabled = false;
     $myvalues = $oPI->getFieldValues($psn);
     return $oPI->getForm($form, $form_state, $disabled, $myvalues);
@@ -318,8 +329,8 @@ function raptor_glue_deleteprotocollib_form_builder($form, &$form_state)
         throw new \Exception("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
     }
 
+    module_load_include('php', 'raptor_glue', 'form/DeleteProtocolLibPage');
     $oPI = new \raptor\DeleteProtocolLibPage($psn);
-    //$form = array();
     $disabled = false;
     $myvalues = $oPI->getFieldValues($psn);
     return $oPI->getForm($form, $form_state, $disabled, $myvalues);
@@ -335,6 +346,8 @@ function raptor_glue_deleteprotocollib_form_builder_submit($form, &$form_state)
     {
         throw new \Exception("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
     }
+    
+    module_load_include('php', 'raptor_glue', 'form/DeleteProtocolLibPage');
     $oPI = new \raptor\DeleteProtocolLibPage($psn);
     $myvalues = $form_state['values'];
     $oPI->updateDatabase($form, $myvalues);
@@ -359,6 +372,7 @@ function raptor_glue_editprotocollib_form_builder($form, $form_state)
         throw new \Exception("Invalid protocol_shortname url parameter: that value MUST be text!");
     }
 
+    module_load_include('php', 'raptor_glue', 'form/EditProtocolLibPage');
     $oPI = new \raptor\EditProtocolLibPage($psn);
     $form = array();    //IMPORTANT THAT WE CLEAR IT HERE NOW???
     $disabled = false;
@@ -367,6 +381,8 @@ function raptor_glue_editprotocollib_form_builder($form, $form_state)
 }
 function raptor_glue_editprotocollib_form_builder_customvalidate($form, &$form_state) 
 {
+    module_load_include('php', 'raptor_glue', 'form/EditProtocolLibPage');
+    
     $psn = $_GET['protocol_shortname'];
     $oPI = new \raptor\EditProtocolLibPage($psn);
     $myvalues = $form_state['values'];
@@ -384,6 +400,8 @@ function raptor_glue_editprotocollib_form_builder_submit($form, &$form_state)
         throw new \Exception("Invalid protocol_shortname url parameter: that value MUST be text!");
     }
 
+    module_load_include('php', 'raptor_glue', 'form/EditProtocolLibPage');
+    
     $myvalues = $form_state['values'];
     $oPI = new \raptor\EditProtocolLibPage($psn);
     $isokay = $oPI->updateDatabase($form, $myvalues);

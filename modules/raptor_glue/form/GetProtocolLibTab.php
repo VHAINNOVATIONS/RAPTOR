@@ -13,13 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
-module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
-module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
-module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
-module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
-
-module_load_include('inc', 'raptor_glue', 'functions/protocol');
 
 require_once 'ProtocolInfoUtility.php';
 
@@ -41,6 +34,15 @@ class GetProtocolLibTab
     
     function __construct()
     {
+        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
+        
+        module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');
+        module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
+
+        module_load_include('inc', 'raptor_glue', 'functions/protocol');
+        
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oUtility = new \raptor\ProtocolInfoUtility();
         $this->m_oMOP = new \raptor_formulas\MatchOrderToProtocol();
