@@ -13,7 +13,6 @@
 
 function raptor_seeallurls_form() 
 {
-    throw new \Exception("LOOK AT THIS TEST OF EXCEPTION THING!!!");
     return drupal_get_form("raptor_seeallurls_form_builder");
 }
 
