@@ -4,7 +4,7 @@ $userinfo = $raptor_context->getUserInfo();
 $fullname = trim($userinfo->getUserNameTitle() ." ". $userinfo->getFirstName() . " " . $userinfo->getLastName() . " " .$userinfo->getUserNameSuffix() . " (" . $userinfo->getRoleName() . ")");
 $userprivs = $userinfo->getSystemPrivileges();
 module_load_include('php', 'raptor_workflow', 'core/Menus');
-$menus = new \raptor\Menus(\raptor\Menus::UICONTEXT_WORKLIST);  //TODO use PROTOCOL when in protocol mode!
+$menus = new \raptor\Menus(\raptor\Menus::UICONTEXT_WORKLIST);  
 $adminmenu = $menus->getAdministerMenu();
 if(isset($is_protocol_page) && $is_protocol_page)
 {
