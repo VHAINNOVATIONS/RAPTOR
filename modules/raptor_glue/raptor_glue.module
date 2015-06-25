@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -13,9 +13,8 @@
  *
  */
 
-define('RAPTOR_GLUE_MODULE_PATH', dirname(__FILE__));  
-//defined('RAPTOR_GLUE_MODULE_PATH')
-//    or define('RAPTOR_GLUE_MODULE_PATH', dirname(__FILE__).'/../raptor_glue');  
+defined('RAPTOR_GLUE_MODULE_PATH')
+    or define('RAPTOR_GLUE_MODULE_PATH', dirname(__FILE__));  
 
 require_once 'core/config.php';
 require_once 'functions/misc.inc';
@@ -23,9 +22,48 @@ require_once 'functions/userlogin.inc';
 require_once 'functions/protocol.inc';
 require_once 'form/ProtocolInfoPage.php';
 
+/**
+ * Catch-all for error logging.
+ */
 function raptor_glue_watchdog($log_entry)
 {
-    error_log("RAPTOR WATCHDOG(".RAPTOR_BUILD_ID."): ".print_r($log_entry,TRUE));
+    $logprefix = 'RAPTOR WATCHDOG[config='.RAPTOR_CONFIG_ID.'][build='.RAPTOR_BUILD_ID.']:';
+    error_log($logprefix.print_r($log_entry,TRUE));
+    
+    try
+    {
+        global $user;
+        $tempUID = $user->uid;  
+        if($tempUID == NULL || $tempUID == 0)
+        {
+            try
+            {
+                error_log("$logprefix Global user variable was not set.");
+                $tempUID = intval($log_entry['user']->uid);
+            } catch (\Exception $ex) {
+                error_log("$logprefix Unable to determine user UID!");
+                $tempUID = -1;
+            }
+        }
+        
+        $severity = intval($log_entry['severity']);
+        
+        $updated_dt = date("Y-m-d H:i:s", time());
+        $error_cd = $severity;
+        db_merge('raptor_user_recent_activity_tracking')
+        ->key(array('uid'=>$tempUID,
+            ))
+        ->fields(array(
+                'uid'=>$tempUID,
+                'most_recent_error_dt'=>$updated_dt,
+                'most_recent_error_cd' => $error_cd,
+            ))
+            ->execute();
+        
+    } catch (\Exception $ex) {
+        error_log("$logprefix Failed to update raptor_user_recent_activity_tracking "
+                . "because ". $ex->getMessage());
+    }
 }
 
 function raptor_glue_help($path, $arg) 
