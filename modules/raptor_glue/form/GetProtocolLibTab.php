@@ -25,7 +25,7 @@ require_once 'ProtocolInfoUtility.php';
 class GetProtocolLibTab
 {
 
-    private $m_oContext = null;
+    private $m_oContext = NULL;
     private $m_oUtility = NULL;
     private $m_oMOP = NULL;
     private $m_oLI = NULL;

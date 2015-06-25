@@ -49,7 +49,8 @@ class ManageReportsPage
         $aReportClassNames  = array();
         $aReportClassNames[] = 'ViewReport1Page';
         $aReportClassNames[] = 'ViewReport2Page';
-        $aReportClassNames[] = 'ViewReportContraindicationInputs';
+        $aReportClassNames[] = 'ViewTechSupportConfigDetails';
+        $aReportClassNames[] = 'ViewReportRadiationDoseWatch';
         $aReportClassNames[] = 'ViewReportContraindicationRules';
         $aReportClassNames[] = 'ViewReportConversionFormulas';
         $aReportClassNames[] = 'ViewReportRoomReservations';

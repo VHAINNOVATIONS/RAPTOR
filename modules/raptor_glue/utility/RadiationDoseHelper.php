@@ -73,7 +73,7 @@ class RadiationDoseHelper
         return self::$dose_source_cd_term_map;
     }
 
-    public static function getDoseSourceDefaultUOMMap($source_cd)
+    public static function getDoseSourceDefaultUOMMap()
     {
         return self::$dose_source_cd_uom_map;
     }
@@ -85,9 +85,18 @@ class RadiationDoseHelper
     
     public static function getDoseTypeTermForTypeCode($dose_type_cd,$wrapinparen=TRUE)
     {
+        if($dose_type_cd == NULL || $dose_type_cd == '')
+        {
+            $dose_type_cd = 'U';
+        }
         if(array_key_exists($dose_type_cd, self::$dose_type_cd_map))
         {
-            return '('.self::$dose_type_cd_map[$dose_type_cd].']';
+            if($wrapinparen)
+            {
+                return '('.self::$dose_type_cd_map[$dose_type_cd].')';
+            } else {
+                return self::$dose_type_cd_map[$dose_type_cd];
+            }
         }
         return NULL;
     }
