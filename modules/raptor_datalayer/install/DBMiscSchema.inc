@@ -1024,6 +1024,18 @@ class DBMiscSchema
               'default' => 0,
               'description' => 'Number of samples averaged into baseline value of this record',
             ),
+            'lowest_dose_value' => array(
+              'type' => 'float',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+              'description' => 'Lowest dose instance',
+            ),
+            'highest_dose_value' => array(
+              'type' => 'float',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+              'description' => 'Highest dose instance',
+            ),
             'updated_dt' => array(
               'type' => 'datetime',
               'mysql_type' => 'datetime',  
