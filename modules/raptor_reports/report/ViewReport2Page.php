@@ -17,7 +17,7 @@ use \DateTime;
 require_once 'AReport.php';
 
 /**
- * This class returns the Admin Information input content
+ * This class returns the User Activity Analysis Report
  *
  * CLIN2 1.7
  * 
@@ -166,7 +166,6 @@ class ViewReport2Page extends AReport
                             . '<th title="The role of the user in the system" >User Role</th>'
                             . '<th title="The most recent login timestamp" >Most recent login</th>'
                             . '<th title="Total number of tickets moved to Approved state">Total Approved</th>'
-                            . '<th title="Total number of tickets moved to Collaboration state">Count Rqsted Collab</th>'
                             . '<th title="Total number of tickets moved to Collaboration state">Count Picked for Collab</th>'
                             . '<th title="Total number of tickets moved to Acknowledge state">Total Acknowlege</th>'
                             . '<th title="Total number of tickets moved to Complete state">Total Complete</th>'
