@@ -153,6 +153,7 @@ class LoadUtils
         $nRows=NULL;
         $aData=NULL;
         $aUIDMap = array();
+        $rowsloaded = array();
         foreach($aLines as $row)
         {
             if(substr($row,0,13) == '>>>tablename=')
@@ -169,6 +170,7 @@ class LoadUtils
 
                 if($sTablename == 'raptor_user_profile')
                 {
+                    $rowsloaded[$sTablename] = 0;
                     foreach($aData as $aRow)
                     {
                         //Get the UID and USERNAME
@@ -242,8 +244,10 @@ class LoadUtils
                         $inserted = db_insert('raptor_user_profile')
                                     ->fields($fields)
                                     ->execute();
+                        $rowsloaded[$sTablename] ++;
                     }
                 } else if($sTablename !== NULL){
+                    $rowsloaded[$sTablename] = 0;
                     $newuid = NULL;
                     $fields = array();
                     foreach($aData as $aRow)
@@ -262,13 +266,19 @@ class LoadUtils
                             $inserted = db_insert($sTablename)
                                         ->fields($fields)
                                         ->execute();
+                            $rowsloaded[$sTablename] ++;
                         }
                     }                
                 }
                 $sTablename = NULL; //Now clear it.
             }
         }
-        drupal_set_message('Loaded '.count($aTables).' user account tables<ol><li>'.implode('<li>',$aTables).'</ol>');
+        $showtableinfo = array();
+        foreach($rowsloaded as $sTablename=>$rowcount)
+        {
+            $showtableinfo[] = "$sTablename inserted $rowcount rows";
+        }
+        drupal_set_message('Loaded '.count($aTables).' user account tables<ol><li>'.implode('<li>',$showtableinfo).'</ol>');
     }
     
     
@@ -318,6 +328,7 @@ class LoadUtils
         $sTablename = NULL;
         $nRows=NULL;
         $aData=NULL;
+        $rowsloaded = array();
         foreach($aLines as $row)
         {
             if(substr($row,0,13) == '>>>tablename=')
@@ -333,6 +344,7 @@ class LoadUtils
                 $aData = unserialize(substr($row,8));
                 if($sTablename !== NULL)
                 {
+                    $rowsloaded[$sTablename] = 0;
                     $newuid = NULL;
                     $fields = array();
                     foreach($aData as $aRow)
@@ -344,12 +356,19 @@ class LoadUtils
                         $inserted = db_insert($sTablename)
                                     ->fields($fields)
                                     ->execute();
+                        $rowsloaded[$sTablename] ++;
                     }                
                 }
                 $sTablename = NULL; //Now clear it.
             }
         }
-        drupal_set_message('Loaded '.count($aTables).' protocollib tables<ol><li>'.implode('<li>',$aTables).'</ol>');
+        $showtableinfo = array();
+        foreach($rowsloaded as $sTablename=>$rowcount)
+        {
+            $showtableinfo[] = "$sTablename inserted $rowcount rows";
+        }
+        drupal_set_message('Loaded '.count($aTables).' protocollib tables<ol><li>'.implode('<li>',$showtableinfo).'</ol>');
+        //drupal_set_message('Loaded '.count($aTables).' protocollib tables<ol><li>'.implode('<li>',$aTables).'</ol>');
     }
     
     private static function insert_raptor_checklist_question($question_shortname, $modality,$relative_position,$question_tx,$comment_prompt_tx,$ask_notapplicable_yn)

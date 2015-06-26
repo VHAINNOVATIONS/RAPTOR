@@ -65,6 +65,7 @@ class CILoadUtils
         $sTablename = NULL;
         $nRows=NULL;
         $aData=NULL;
+        $rowsloaded = array();
         foreach($aLines as $row)
         {
             if(substr($row,0,13) == '>>>tablename=')
@@ -85,7 +86,6 @@ class CILoadUtils
                     $fields = array();
                     foreach($aData as $aRow)
                     {
-                        $rowsloaded[$sTablename] ++;
                         foreach($aRow as $fieldname => $value)
                         {
                             $fields[$fieldname] = $value;
@@ -93,6 +93,7 @@ class CILoadUtils
                         $inserted = db_insert($sTablename)
                                     ->fields($fields)
                                     ->execute();
+                        $rowsloaded[$sTablename] ++;
                     }                
                 }
                 $sTablename = NULL; //Now clear it.
