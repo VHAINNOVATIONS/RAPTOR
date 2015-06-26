@@ -22,10 +22,13 @@ require_once 'AReport.php';
  */
 class ViewReportUserActivity extends AReport
 {
+    private static $reqprivs = array('VREP2'=>1);
+    private static $menukey = 'raptor/showuseractivity';
+    private static $reportname = 'User Activity';
 
-    public function getName() 
+    function __construct()
     {
-        return 'User Activity';
+        parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
     }
 
     public function getDescription() 
@@ -33,28 +36,17 @@ class ViewReportUserActivity extends AReport
         return 'Shows user activity times in the system.';
     }
 
-    public function getRequiredPrivileges() 
-    {
-        $aRequire = array();    //Everybody can run this
-        return $aRequire;
-    }
-    
-    public function getMenuKey() 
-    {
-        return 'raptor/showuseractivity';
-    }
-    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
-        $form["data_entry_area1"] = array(
+        $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
-       $form["data_entry_area1"]['table_container'] = array(
+        $form['data_entry_area1']['table_container'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-dialog-table-container">',
             '#suffix' => '</div>', 
@@ -62,7 +54,6 @@ class ViewReportUserActivity extends AReport
         );
 
         $rows = "\n";
-        
         
         $query = db_select('raptor_user_profile', 'n');
         $query->join('users', 'u', 'n.uid = u.uid'); 
@@ -141,12 +132,6 @@ class ViewReportUserActivity extends AReport
         
         global $base_url;
         $goback = $base_url . '/raptor/viewReports';
-        /*
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="admin-cancel-button" type="button"'
-                . ' value="Cancel"'
-                . ' data-redirect="'.$goback.'">');
-         */
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }

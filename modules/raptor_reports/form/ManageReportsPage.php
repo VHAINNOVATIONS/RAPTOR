@@ -36,7 +36,6 @@ class ManageReportsPage
         $aReportClassNames[] = 'ViewReportRoomReservations';
         $aReportClassNames[] = 'ViewReportUserActivity';
         $aReportClassNames[] = 'ViewTechSupportConfigDetails';
-        
         return $aReportClassNames;
     }
     

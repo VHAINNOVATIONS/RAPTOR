@@ -23,39 +23,27 @@ require_once 'AReport.php';
 class ViewReportRadiationDoseWatch extends AReport
 {
     private $m_oFRD = NULL;
-    private $m_oUtility = NULL;
-    
-    function __construct($tid = NULL)
+    private static $reqprivs = array();
+    private static $menukey = 'raptor/showradiationdosewatch';
+    private static $reportname = 'Facility Radiation Dose Watch';
+
+    function __construct()
     {
+        parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
+        
         module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
         module_load_include('php', 'raptor_glue', 'utility/RadiationDoseHelper');
         module_load_include('php', 'raptor_glue', 'form/ProtocolInfoUtility');
         
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
-        $this->m_oUtility = new \raptor\ProtocolInfoUtility();
     }
 
-    public function getName() 
-    {
-        return 'Facility Radiation Dose Watch';
-    }
-
+    
     public function getDescription() 
     {
         return 'Shows available facility radiation dose tracking information';
     }
 
-    public function getRequiredPrivileges() 
-    {
-        $aRequire = array();    //Everybody can run this
-        return $aRequire;
-    }
-    
-    public function getMenuKey() 
-    {
-        return 'raptor/showradiationdosewatch';
-    }
-    
     private function getSimpleProtocolInfoMap()
     {
         $map = array();

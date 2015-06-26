@@ -23,9 +23,13 @@ module_load_include('php', 'raptor_formulas', 'core/Conversions');
  */
 class ViewReportConversionFormulas extends AReport
 {
-    public function getName() 
+    private static $reqprivs = array();
+    private static $menukey = 'raptor/showconversionformulas';
+    private static $reportname = 'Conversion Formulas';
+
+    function __construct()
     {
-        return 'Conversion Formulas';
+        parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
     }
 
     public function getDescription() 
@@ -33,17 +37,6 @@ class ViewReportConversionFormulas extends AReport
         return 'Shows supported conversion formulas';
     }
 
-    public function getRequiredPrivileges() 
-    {
-        $aRequire = array();    //Empty array because EVERYONE can view this report
-        return $aRequire;
-    }
-    
-    public function getMenuKey() 
-    {
-        return 'raptor/showconversionformulas';
-    }
-    
     /**
      * Get all the form contents for rendering
      * @return type renderable array

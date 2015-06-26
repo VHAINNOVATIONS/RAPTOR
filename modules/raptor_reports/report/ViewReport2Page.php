@@ -25,28 +25,20 @@ require_once 'AReport.php';
  */
 class ViewReport2Page extends AReport
 {
+    private static $reqprivs = array('VREP2'=>1);
+    private static $menukey = 'raptor/viewrepusract2';
+    private static $reportname = 'User Activity Analysis';
 
-    public function getName() 
+    function __construct()
     {
-        return 'User Activity Analysis';
+        parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
     }
-
+    
     public function getDescription() 
     {
         return 'Shows analysis of user activity in the system';
     }
 
-    public function getRequiredPrivileges() 
-    {
-        $aRequire['VREP2'] = 1;
-        return $aRequire;
-    }
-    
-    public function getMenuKey() 
-    {
-        return 'raptor/viewrepusract1';
-    }
-    
     /**
      * Get the values to populate the form.
      * @return type result of the queries as an array
@@ -82,14 +74,13 @@ class ViewReport2Page extends AReport
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
-		$dtF = new DateTime("@0");
-        //$form = $this->m_oPageHelper->getForm($form, $form_state, $disabled, $myvalues, $this->m_aHelpText);
+	$dtF = new DateTime("@0");
 
-        $form["data_entry_area1"] = array(
+        $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
-        $form["data_entry_area1"]['table_container'] = array(
+        $form['data_entry_area1']['table_container'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-dialog-table-container">',
             '#suffix' => '</div>', 
@@ -97,63 +88,60 @@ class ViewReport2Page extends AReport
         );
 
         $rows = '';
-		foreach($myvalues as $val)
-		{
-			if(((string)$val['_year']>0) && ((string)$val['quarter']>0) && ((string)$val['week']>0))
-			{
-				$max_A_S = round((int)$val['Max_Time_A_S']);
-				$dtT = new DateTime("@$max_A_S");
-				$max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$avg_A_S = round((int)$val['Avg_Time_A_S']);
-				$dtT = new DateTime("@$avg_A_S");
-				$avg_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$max_A_C = round((int)$val['Max_Time_A_C']);
-				$dtT = new DateTime("@$max_A_C");
-				$max_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$avg_A_C = round((int)$val['Avg_Time_A_C']);
-				$dtT = new DateTime("@$avg_A_C");
-				$avg_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$max_collab = round((int)$val['Max_Time_Collab']);
-				$dtT = new DateTime("@$max_collab");
-				$max_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$avg_collab = round((int)$val['Avg_Time_Collab']);
-				$dtT = new DateTime("@$avg_collab");
-				$avg_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$rows .= '<tr>'
-					. '<td>' . $val['modality_abbr'] . '</td>'
-					. '<td>' . $val['_year'] . '</td>'
-					. '<td>' . $val['quarter'] . '</td>'
-					. '<td>' . $val['week'] . '</td>'
-					. '<td>' . $val['day'] . '</td>'
-					. '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
-					. '<td>' . $val['role_nm'] . '</td>'
-					. '<td>' . $val['most_recent_login_dt'] . '</td>'
-					. '<td>' . $val['Total_Approved']  . '</td>'
-					. '<td>' . $val['Count_Collab']  . '</td>'
-					. '<td>' . $val['Total_Acknowledge']  . '</td>'
-					. '<td>' . $val['Total_Complete']  . '</td>'
-					. '<td>' . $val['Total_Suspend']  . '</td>'
-					. '<td>' . $max_A_S . '</td>'
-					. '<td>' . $avg_A_S . '</td>'
-					. '<td>' . $max_A_C . '</td>'
-					. '<td>' . $avg_A_C . '</td>'
-					. '<td>' . $max_collab . '</td>'
-					. '<td>' . $avg_collab . '</td>'
-					. '<td>' . $val['Total_Scheduled'] . '</td>'
-					
-					. '</tr>';
-			}
-		}
+        foreach($myvalues as $val)
+        {
+                if(((string)$val['_year']>0) && ((string)$val['quarter']>0) && ((string)$val['week']>0))
+                {
+                        $max_A_S = round((int)$val['Max_Time_A_S']);
+                        $dtT = new DateTime("@$max_A_S");
+                        $max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
 
-                
-//The modality column value comes from modality_abbr fields in the database                
-                
+                        $avg_A_S = round((int)$val['Avg_Time_A_S']);
+                        $dtT = new DateTime("@$avg_A_S");
+                        $avg_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+
+                        $max_A_C = round((int)$val['Max_Time_A_C']);
+                        $dtT = new DateTime("@$max_A_C");
+                        $max_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+
+                        $avg_A_C = round((int)$val['Avg_Time_A_C']);
+                        $dtT = new DateTime("@$avg_A_C");
+                        $avg_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+
+                        $max_collab = round((int)$val['Max_Time_Collab']);
+                        $dtT = new DateTime("@$max_collab");
+                        $max_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+
+                        $avg_collab = round((int)$val['Avg_Time_Collab']);
+                        $dtT = new DateTime("@$avg_collab");
+                        $avg_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+
+                        $rows .= '<tr>'
+                                . '<td>' . $val['modality_abbr'] . '</td>'
+                                . '<td>' . $val['_year'] . '</td>'
+                                . '<td>' . $val['quarter'] . '</td>'
+                                . '<td>' . $val['week'] . '</td>'
+                                . '<td>' . $val['day'] . '</td>'
+                                . '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
+                                . '<td>' . $val['role_nm'] . '</td>'
+                                . '<td>' . $val['most_recent_login_dt'] . '</td>'
+                                . '<td>' . $val['Total_Approved']  . '</td>'
+                                . '<td>' . $val['Count_Collab']  . '</td>'
+                                . '<td>' . $val['Total_Acknowledge']  . '</td>'
+                                . '<td>' . $val['Total_Complete']  . '</td>'
+                                . '<td>' . $val['Total_Suspend']  . '</td>'
+                                . '<td>' . $max_A_S . '</td>'
+                                . '<td>' . $avg_A_S . '</td>'
+                                . '<td>' . $max_A_C . '</td>'
+                                . '<td>' . $avg_A_C . '</td>'
+                                . '<td>' . $max_collab . '</td>'
+                                . '<td>' . $avg_collab . '</td>'
+                                . '<td>' . $val['Total_Scheduled'] . '</td>'
+
+                                . '</tr>';
+                }
+        }
+
         $form["data_entry_area1"]['table_container']['users'] = array('#type' => 'item',
                  '#markup' => '<table class="raptor-dialog-table">'
                             . '<thead><tr>'
@@ -196,12 +184,6 @@ class ViewReport2Page extends AReport
         
         global $base_url;
         $goback = $base_url . '/raptor/viewReports';
-        /*
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="admin-cancel-button" type="button"'
-                . ' value="Cancel"'
-                . ' data-redirect="'.$goback.'">');
-         */
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }

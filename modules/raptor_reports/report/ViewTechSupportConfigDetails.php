@@ -22,10 +22,13 @@ require_once 'AReport.php';
  */
 class ViewTechSupportConfigDetails extends AReport
 {
+    private static $reqprivs = array('SITEADMIN'=>1);
+    private static $menukey = 'raptor/showtechsupportconfigdetails';
+    private static $reportname = 'Technical Support Configuration Details';
 
-    public function getName() 
+    function __construct()
     {
-        return 'Technical Support Configuration Details';
+        parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
     }
 
     public function getDescription() 
@@ -33,17 +36,6 @@ class ViewTechSupportConfigDetails extends AReport
         return 'Shows detailed configuration settings of the installation';
     }
 
-    public function getRequiredPrivileges() 
-    {
-        $aRequire = array();    //Everybody can run this FOR NOW (change for production!!!!)
-        return $aRequire;
-    }
-    
-    public function getMenuKey() 
-    {
-        return 'raptor/showtechsupportconfigdetails';
-    }
-    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -59,7 +51,7 @@ class ViewTechSupportConfigDetails extends AReport
         phpinfo();       
         $phpinfo = ob_get_clean();
         
-        $form["data_entry_area1"]['table_container']['phpinfo'] = array('#type' => 'item',
+        $form['data_entry_area1']['table_container']['phpinfo'] = array('#type' => 'item',
                  '#markup' => $phpinfo);
         
         $form['data_entry_area1']['action_buttons'] = array(
@@ -75,12 +67,6 @@ class ViewTechSupportConfigDetails extends AReport
         
         global $base_url;
         $goback = $base_url . '/raptor/viewReports';
-        /*
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="admin-cancel-button" type="button"'
-                . ' value="Cancel"'
-                . ' data-redirect="'.$goback.'">');
-        */
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }

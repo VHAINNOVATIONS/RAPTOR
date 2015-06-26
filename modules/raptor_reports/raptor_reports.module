@@ -70,103 +70,17 @@ function raptor_reports_menu()
       'file' => 'ManageReportsPage.php',
       'file path' => '/sites/all/modules/raptor_reports/form/',
     );
-    
-    /*
-    $items['raptor/viewrepdepact1'] = array(
-      'title' => t('View Department Activity Report'),
-      'page callback' => 'raptor_reports_viewrepdepact1_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('View Department Activity Report Form'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewReport1Page.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );
-    $items['raptor/viewrepusract1'] = array(
-      'title' => t('View User Activity Analysis Report'),
-      'page callback' => 'raptor_reports_viewrepusract1_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('View User Activity Analysis Report Form'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewReport2Page.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );
-    $items['raptor/showroomreservations'] = array(
-      'title' => t('Show Room Reservations'),
-      'page callback' => 'raptor_reports_showroomreservations_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Show Room Reservations'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewReportRoomReservations.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );
-    $items['raptor/showconversionformulas'] = array(
-      'title' => t('Show Conversion Formulas'),
-      'page callback' => 'raptor_reports_showconversionformulas_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Show Conversion Formulas'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewReportConversionFormulas.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );
-    $items['raptor/show_ci_inputs'] = array(
-      'title' => t('Show Contraindication Rule Criteria Inputs'),
-      'page callback' => 'raptor_reports_show_ci_inputs_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Show available inputs for rules'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewReportContraindicationInputs.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );
-    $items['raptor/show_ci_rules'] = array(
-      'title' => t('Show Contraindication Rules'),
-      'page callback' => 'raptor_reports_show_ci_rules_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Show rules'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewReportContraindicationRules.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );
-    $items['raptor/showuseractivity'] = array(
-      'title' => t('Show User Activity'),
-      'page callback' => 'raptor_reports_showuseractivity_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Show user activity'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewReportUserActivity.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );    
-    $items['raptor/showradiationdosewatch'] = array(
-      'title' => t('Show Facility Radiation Dose Watch'),
-      'page callback' => 'raptor_reports_showradiationdosewatch_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Show radiation dose information for facility'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewReportRadiationDoseWatch.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );    
-    $items['raptor/showtechsupportconfigdetails'] = array(
-      'title' => t('Show Tech Support Config Details'),
-      'page callback' => 'raptor_reports_showtechsupportconfigdetails_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Detailed software configuration details to aid in technical support of the site'),
-      'type' => MENU_CALLBACK,
-      'file' => 'ViewTechSupportConfigDetails.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/report/',
-    );    
-     */
     return $items;
 }
 
+function raptor_reports_viewreports_form() 
+{
+    return drupal_get_form('raptor_reports_viewreports_form_builder');
+}
 
+/**
+ * Build page that allows user to launch reports
+ */
 function raptor_reports_viewreports_form_builder($form, &$form_state)
 {
     $oPI = new \raptor\ManageReportsPage();
@@ -181,6 +95,9 @@ function raptor_reports_runner_form()
     return drupal_get_form('raptor_reports_runner_form_builder');
 }
 
+/**
+ * Build any report
+ */
 function raptor_reports_runner_form_builder($form, &$form_state)
 {
     $currentpath = strtolower(trim(current_path()));
@@ -202,157 +119,3 @@ function raptor_reports_runner_form_builder($form, &$form_state)
     }
     throw new \Exception("Did NOT find a report to run at path=[$currentpath]");
 }
-
-
-function raptor_reports_viewreports_form() 
-{
-    return drupal_get_form('raptor_reports_viewreports_form_builder');
-}
-
-function raptor_reports_viewrepdepact1_form() 
-{
-    return drupal_get_form('raptor_reports_viewrepdepact1_form_builder');
-}
-
-function raptor_reports_viewrepusract1_form() 
-{
-    return drupal_get_form('raptor_reports_viewrepusract1_form_builder');
-}
-
-function raptor_reports_showuseractivity_form() 
-{
-    return drupal_get_form('raptor_reports_showuseractivity_form_builder');
-}
-
-function raptor_reports_showradiationdosewatch_form() 
-{
-    return drupal_get_form('raptor_reports_showradiationdosewatch_form_builder');
-}
-
-function raptor_reports_showtechsupportconfigdetails_form() 
-{
-    return drupal_get_form('raptor_reports_showtechsupportconfigdetails_form_builder');
-}
-
-function raptor_reports_show_ci_inputs_form() 
-{
-    return drupal_get_form('raptor_reports_show_ci_inputs_form_builder');
-}
-
-function raptor_reports_show_ci_rules_form() 
-{
-    return drupal_get_form('raptor_reports_show_ci_rules_form_builder');
-}
-
-function raptor_reports_showroomreservations_form() 
-{
-    return drupal_get_form('raptor_reports_showroomreservations_form_builder');
-}
-
-function raptor_reports_showconversionformulas_form() 
-{
-    return drupal_get_form('raptor_reports_showconversionformulas_form_builder');
-}
-
-function raptor_reports_viewrepdepact1_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewReport1Page();
-    $form = array();
-    $disabled = false;
-    $myvalues = $oPI->getFieldValues();    
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-function raptor_reports_viewrepdepact1_form_builder_validate($form, &$form_state) 
-{
-    //TODO if we add filter criteria
-    $oPI = new \raptor\ViewReport1Page();
-}
-function raptor_reports_viewrepdepact1_form_builder_submit($form, &$form_state) 
-{
-    //TODO refresh the result
-    $oPI = new \raptor\ViewReport1Page();
-}
-
-function raptor_reports_viewrepusract1_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewReport2Page();
-    $form = array();
-    $disabled = false;
-    $myvalues = $oPI->getFieldValues();    
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-function raptor_reports_viewrepusract1_form_builder_validate($form, &$form_state) 
-{
-    //TODO if we add filter criteria
-    $oPI = new \raptor\ViewReport2Page();
-}
-function raptor_reports_viewrepusract1_form_builder_submit($form, &$form_state) 
-{
-    //TODO refresh the result
-    $oPI = new \raptor\ViewReport2Page();
-}
-
-
-function raptor_reports_showuseractivity_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewReportUserActivity();
-    $form = array();
-    $disabled = false;
-    $myvalues = array();    //No values for this one.
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-
-function raptor_reports_showradiationdosewatch_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewReportRadiationDoseWatch();
-    $form = array();
-    $disabled = false;
-    $myvalues = array();    //No values for this one.
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-
-function raptor_reports_showtechsupportconfigdetails_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewTechSupportConfigDetails();
-    $form = array();
-    $disabled = false;
-    $myvalues = array();    //No values for this one.
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-
-function raptor_reports_showroomreservations_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewReportRoomReservations();
-    $form = array();
-    $disabled = false;
-    $myvalues = array();    //No values for this one.
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-
-function raptor_reports_showconversionformulas_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewReportConversionFormulas();
-    $form = array();
-    $disabled = false;
-    $myvalues = array();    //No values for this one.
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-
-function raptor_reports_show_ci_inputs_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewReportContraindicationInputs();
-    $form = array();
-    $disabled = FALSE;
-    $myvalues = array();    //No values for this one.
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-
-function raptor_reports_show_ci_rules_form_builder($form, &$form_state)
-{
-    $oPI = new \raptor\ViewReportContraindicationRules();
-    $form = array();
-    $disabled = FALSE;
-    $myvalues = array();    //No values for this one.
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
-}
-

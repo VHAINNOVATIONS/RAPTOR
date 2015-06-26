@@ -447,7 +447,7 @@ class Context
                                             . ' for UID=['.$tempUID.']'
                                             . ' this user at '.$me['ipaddress']
                                             . ' other user at '.$other['ipaddress'] 
-                                            . 'user sessionid ['.$mysessionid.']'
+                                            . ' user sessionid ['.$mysessionid.']'
                                             . ' other sessionid ['.$other['sessionid'].']' 
                                             . '>>> TIMES = other[' 
                                             . $other['most_recent_action_dt'] 
@@ -560,12 +560,20 @@ class Context
                             $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
                             $kickoutlabel = 'TIMEOUT';
                         } else {
-                            $usermsg = 'You are kicked out because another workstation has'
-                                    . ' logged in as the same'
-                                    . ' RAPTOR user account "'
-                                    . $candidate->m_sVistaUserID.'"';
-                            $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
-                            $kickoutlabel = 'ACCOUNT CONFLICT';
+                            if($candidate->m_sVistaUserID > '')
+                            {
+                                $usermsg = 'You are kicked out because another workstation has'
+                                        . ' logged in as the same'
+                                        . ' RAPTOR user account "'
+                                        . $candidate->m_sVistaUserID.'"';
+                                $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
+                                $kickoutlabel = 'ACCOUNT CONFLICT';
+                            } else {
+                                //This can happen to a NON VISTA admin user for timeout and things like that.
+                                $usermsg = 'Your admin account has timed out';
+                                $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
+                                $kickoutlabel = 'TIMEOUT CONFLICT';
+                            }
                         }
                         drupal_set_message($usermsg, 'error');
                         $candidate->m_aForceLogoutReason = array();

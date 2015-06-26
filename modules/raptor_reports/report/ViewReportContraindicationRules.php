@@ -23,10 +23,13 @@ require_once 'AReport.php';
  */
 class ViewReportContraindicationRules extends AReport
 {
+    private static $reqprivs = array();
+    private static $menukey = 'raptor/show_ci_rules';
+    private static $reportname = 'Contraindication Rules';
 
-    public function getName() 
+    function __construct()
     {
-        return 'Contraindication Rules';
+        parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
     }
 
     public function getDescription() 
@@ -34,17 +37,6 @@ class ViewReportContraindicationRules extends AReport
         return 'Shows contraindication rules';
     }
 
-    public function getRequiredPrivileges() 
-    {
-        $aRequire = array();    //Everybody can run this
-        return $aRequire;
-    }
-    
-    public function getMenuKey() 
-    {
-        return 'raptor/show_ci_rules';
-    }
-    
     /**
      * Get all the form contents for rendering
      * @return type renderable array

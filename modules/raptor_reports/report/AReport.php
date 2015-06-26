@@ -14,26 +14,46 @@ namespace raptor;
 
 abstract class AReport 
 {
+    private $m_required_privs = NULL;
+    private $m_menukey = NULL;
+    private $m_name = NULL;
+
+    function __construct($required_privs,$menukey,$reportname)
+    {
+        $this->m_required_privs = $required_privs;
+        $this->m_name = $reportname;
+        $this->m_menukey = $menukey;
+    }
+            
     /**
      * Return the report name
      */
-    abstract function getName();
+    public function getName()
+    {
+        return $this->m_name;
+    }
     
+    /**
+     * Return the array of privs required to run this report
+     */
+    public function getRequiredPrivileges() 
+    {
+        return $this->m_required_privs;
+    }
+    
+    /**
+     * Return the menu key for this report
+     */
+    public function getMenuKey() 
+    {
+        return $this->m_menukey;
+    }
+
     /**
      * Return the report description
      */
     abstract function getDescription();
     
-    /**
-     * Return the array of privs required to run this report
-     */
-    abstract function getRequiredPrivileges();
-
-    /**
-     * Return the menu key for this report
-     */
-    abstract function getMenuKey();
-
     /**
      * Some reports return initial values from this function.
      */
@@ -83,12 +103,6 @@ abstract class AReport
         } else {
             $markup = array('#type' => 'item'
                     , '#markup' => '<a class="admin-cancel-button" href="'.$goback.'">'.$label.'</a>');
-            /*
-            $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                    , '#markup' => '<input class="admin-cancel-button" type="button"'
-                    . ' value="Cancel"'
-                    . ' data-redirect="'.$goback.'">');
-             */
         }
         return $markup;
     }

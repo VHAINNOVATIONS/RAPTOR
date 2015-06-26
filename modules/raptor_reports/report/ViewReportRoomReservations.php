@@ -22,9 +22,13 @@ require_once 'AReport.php';
  */
 class ViewReportRoomReservations extends AReport
 {
-    public function getName() 
+    private static $reqprivs = array('SP1'=>1);
+    private static $menukey = 'raptor/showroomreservations';
+    private static $reportname = 'Room Reservations';
+
+    function __construct()
     {
-        return 'Room Reservations';
+        parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
     }
 
     public function getDescription() 
@@ -32,17 +36,6 @@ class ViewReportRoomReservations extends AReport
         return 'Shows room reservations';
     }
 
-    public function getRequiredPrivileges() 
-    {
-        $aRequire['SP1'] = 1;
-        return $aRequire;
-    }
-    
-    public function getMenuKey() 
-    {
-        return 'raptor/showroomreservations';
-    }
-    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -62,19 +55,10 @@ class ViewReportRoomReservations extends AReport
 
         $rows = "\n";
         
-        
         $query = db_select('raptor_schedule_track', 'n');
-        //$query->groupBy('n.location_tx');
         $query->fields('n')
            ->orderBy('scheduled_dt', 'DESC');
         $result = $query->execute();        
-        
-        /*
-        $sSQL = 'SELECT '
-                .'`siteid`, `IEN`, `scheduled_dt`, `duration_am`, `notes_tx`, `notes_critical_yn`, `location_tx`, `confirmed_by_patient_dt`, `canceled_reason_tx`, `canceled_dt`, `author_uid`, `created_dt` '
-                .' FROM raptor_schedule_track ORDER BY scheduled_dt GROUP BY IEN'
-        $result = db_query($sSQL);
-        */
         
         foreach($result as $item) 
         {
@@ -113,12 +97,6 @@ class ViewReportRoomReservations extends AReport
 
         global $base_url;
         $goback = $base_url . '/raptor/viewReports';
-        /*
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="admin-cancel-button" type="button"'
-                . ' value="Cancel"'
-                . ' data-redirect="'.$goback.'">');
-         */
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }

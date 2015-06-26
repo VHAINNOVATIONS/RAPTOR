@@ -25,26 +25,18 @@ require_once 'AReport.php';
  */
 class ViewReport1Page extends AReport
 {
+    private static $reqprivs = array('VREP1'=>1);
+    private static $menukey = 'raptor/viewrepusract1';
+    private static $reportname = 'Department Activity';
 
-    public function getName() 
+    function __construct()
     {
-        return 'Department Activity';
+        parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
     }
-
+    
     public function getDescription() 
     {
         return 'Shows activity in the system at a department level';
-    }
-
-    public function getRequiredPrivileges() 
-    {
-        $aRequire['VREP1'] = 1;
-        return $aRequire;
-    }
-    
-    public function getMenuKey() 
-    {
-        return 'raptor/viewrepdepact1';
     }
     
     /**
@@ -82,13 +74,12 @@ class ViewReport1Page extends AReport
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
 	$dtF = new DateTime("@0");
-        //$form = $this->m_oPageHelper->getForm($form, $form_state, $disabled, $myvalues, $this->m_aHelpText);
 
-        $form["data_entry_area1"] = array(
+        $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
-        $form["data_entry_area1"]['table_container'] = array(
+        $form['data_entry_area1']['table_container'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-dialog-table-container">',
             '#suffix' => '</div>', 
@@ -184,12 +175,6 @@ class ViewReport1Page extends AReport
 
         global $base_url;
         $goback = $base_url . '/raptor/viewReports';
-        /*
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="admin-cancel-button" type="button"'
-                . ' value="Cancel"'
-                . ' data-redirect="'.$goback.'">');
-         */
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         
         return $form;

@@ -748,6 +748,7 @@ class UserInfo
 
                 $myvalues['updated_dt'] = $record->updated_dt;
             }
+            $myprivs['SITEADMIN'] = ($myvalues['role_nm'] == 'Site Administrator' ? 1 : 0);
             $this->m_oPrivs = $myprivs;
             $this->m_oData = $myvalues;
         } catch (\Exception $ex) {
