@@ -80,10 +80,12 @@ class CILoadUtils
                 $aData = unserialize(substr($row,8));
                 if($sTablename !== NULL)
                 {
+                    $rowsloaded[$sTablename] = 0;
                     $newuid = NULL;
                     $fields = array();
                     foreach($aData as $aRow)
                     {
+                        $rowsloaded[$sTablename] ++;
                         foreach($aRow as $fieldname => $value)
                         {
                             $fields[$fieldname] = $value;
@@ -96,7 +98,12 @@ class CILoadUtils
                 $sTablename = NULL; //Now clear it.
             }
         }
-        drupal_set_message('Loaded '.count($aTables).' contraindication tables<ol><li>'.implode('<li>',$aTables).'</ol>');
+        $showtableinfo = array();
+        foreach($rowsloaded as $sTablename=>$rowcount)
+        {
+            $showtableinfo[] = "$sTablename inserted $rowcount rows";
+        }
+        drupal_set_message('Loaded '.count($aTables).' contraindication tables<ol><li>'.implode('<li>',$showtableinfo).'</ol>');
     }
 }
 

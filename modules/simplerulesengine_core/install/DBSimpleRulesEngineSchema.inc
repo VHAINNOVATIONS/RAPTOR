@@ -48,7 +48,7 @@ class DBSimpleRulesEngineSchema
               'type' => 'varchar',
               'length' => 20,
               'not null' => TRUE,
-              'description' => 'Simply for grouping rules in a logic way',
+              'description' => 'Simply for grouping rules in a logical way',
             ),
             'rule_nm' => array(
               'type' => 'varchar',

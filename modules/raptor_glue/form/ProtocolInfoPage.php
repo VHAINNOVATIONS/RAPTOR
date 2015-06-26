@@ -2972,11 +2972,24 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $possibleDups = FALSE;
         }
         $aCandidateData = array();  
-        $aCandidateData['IS_DIAGNOSTIC_EXAM'] = NULL;   //TODO -- get from $protocolValues
         $aCandidateData['IS_INPATIENT'] = ($examcategory == 'INPATIENT');
         $aCandidateData['IS_OUTPATIENT'] = ($examcategory == 'OUTPATIENT');
         $aCandidateData['IS_POSSIBLE_DUP_PROC']         = $possibleDups;
         $aCandidateData['IS_IMG_GUIDED_EXAM']           = $protocolValues['image_guided_yn'];
+        if(!isset($protocolValues['image_guided_yn']) || $protocolValues['image_guided_yn'] == '')
+        {
+            //Undeclared.
+            $is_diagnostic_exam = NULL;
+        } else {
+            //Make this the opposite of image guided.
+            if($protocolValues['image_guided_yn'] == 1)
+            {
+                $is_diagnostic_exam = 0;
+            } else {
+                $is_diagnostic_exam = 1;
+            }
+        }
+        $aCandidateData['IS_DIAGNOSTIC_EXAM']           = $is_diagnostic_exam;
         $aCandidateData['PROC_NM']                      = $myvalues['procName'];
         $aCandidateData['MODALITY']                     = $protocolValues['modality_abbr'];
         $aCandidateData['GIVE_HYDRATION_ORAL']          = $this->arrayKeysHaveValues($myvalues,array('hydration_oral_customtx','hydration_oral_id'));
