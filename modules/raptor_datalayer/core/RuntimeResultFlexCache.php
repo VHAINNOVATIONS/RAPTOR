@@ -15,7 +15,6 @@ namespace raptor;
 
 require_once 'data_context.php';
 
-
 /**
  * The RuntimeResultFlexCache is a singleton that caches results at runtime.
  * This database level cache has a configurable expiration time.

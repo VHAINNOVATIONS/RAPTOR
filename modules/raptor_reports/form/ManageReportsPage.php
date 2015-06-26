@@ -13,16 +13,47 @@
 
 namespace raptor;
 
-defined('RAPTOR_REPORTS_PATH')
-    or define('RAPTOR_REPORTS_PATH', drupal_get_path('module', 'raptor_reports'));  
-
 /**
- * This class shows the list of available reports
+ * This class shows the list of available reports for user launch
  *
  * @author Frank Font of SAN Business Consultants
  */
 class ManageReportsPage
 {
+
+    /**
+     * Declare instances of all the reports in this function!!!     
+     */
+    public static function getReportsList()
+    {
+        $aReportClassNames  = array();
+        $aReportClassNames[] = 'ViewReport1Page';
+        $aReportClassNames[] = 'ViewReport2Page';
+        $aReportClassNames[] = 'ViewTechSupportConfigDetails';
+        $aReportClassNames[] = 'ViewReportRadiationDoseWatch';
+        $aReportClassNames[] = 'ViewReportContraindicationRules';
+        $aReportClassNames[] = 'ViewReportConversionFormulas';
+        $aReportClassNames[] = 'ViewReportRoomReservations';
+        $aReportClassNames[] = 'ViewReportUserActivity';
+        $aReportClassNames[] = 'ViewTechSupportConfigDetails';
+        
+        return $aReportClassNames;
+    }
+    
+    /**
+     * We can walk through the instances to extract metadata about each report
+     */
+    public static function getReportInstances($aReportClassNames)
+    {
+        $aReports = array();
+        foreach($aReportClassNames as $name)
+        {
+            $class = "\\raptor\\$name";
+            require_once(RAPTOR_REPORTS_PATH . "/report/$name.php");
+            $aReports[$name] = new $class();
+        }
+        return $aReports;
+    }
     
     /**
      * Get all the form contents for rendering
@@ -45,30 +76,13 @@ class ManageReportsPage
         $userinfo = $oContext->getUserInfo();
         $userprivs = $userinfo->getSystemPrivileges();
 
-        //Declare instances of all the reports in this array!!!
-        $aReportClassNames  = array();
-        $aReportClassNames[] = 'ViewReport1Page';
-        $aReportClassNames[] = 'ViewReport2Page';
-        $aReportClassNames[] = 'ViewTechSupportConfigDetails';
-        $aReportClassNames[] = 'ViewReportRadiationDoseWatch';
-        $aReportClassNames[] = 'ViewReportContraindicationRules';
-        $aReportClassNames[] = 'ViewReportConversionFormulas';
-        $aReportClassNames[] = 'ViewReportRoomReservations';
-        $aReportClassNames[] = 'ViewReportUserActivity';
-        $aReportClassNames[] = 'ViewTechSupportConfigDetails';
-        
-        $aReports = array();
-        foreach($aReportClassNames as $name)
-        {
-            $class = "\\raptor\\$name";
-            require_once(RAPTOR_REPORTS_PATH . "/report/$name.php");
-            $aReports[] = new $class();
-        }
+        $aReportClassNames  = self::getReportsList();
+        $aReports = self::getReportInstances($aReportClassNames);
         
         //Construct a page with all the available reports for the user.
         $rows = "\n";
         global $base_url;
-        foreach($aReports as $oReport)
+        foreach($aReports as $classname=>$oReport)
         {
             //Can this user run this report?
             if($oReport->hasRequiredPrivileges($userprivs))

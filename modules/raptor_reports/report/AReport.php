@@ -35,6 +35,14 @@ abstract class AReport
     abstract function getMenuKey();
 
     /**
+     * Some reports return initial values from this function.
+     */
+    function getFieldValues()
+    {
+        return array();
+    }
+    
+    /**
      * Get all the form contents for rendering
      * @return type renderable array
      */

@@ -12,8 +12,8 @@
  * The reports module for the RAPTOR application. 
  */
 
-defined("RAPTOR_REPORTS_PATH")
-    or define('RAPTOR_REPORTS_PATH', drupal_get_path('module', 'raptor_reports'));  
+defined('RAPTOR_REPORTS_PATH')
+    or define('RAPTOR_REPORTS_PATH', dirname(__FILE__));  
 
 /** 
  * Implements hook_help. 
@@ -29,15 +29,36 @@ function raptor_reports_help($path, $arg)
 {
   switch ($path)
   {
-    case "admin/help#raptor_reports":
-        return '<p>'.  t("The reports functionality of the RAPTOR application.") .'</p>';
+    case 'admin/help#raptor_reports':
+        return '<p>'. t('The reports functionality of the RAPTOR application.') .'</p>';
         break;
   }
 }
 
 function raptor_reports_menu() 
 {
+    module_load_include('php', 'raptor_reports', 'form/ManageReportsPage');
+    
     $items = array();
+    $aReportClassNames  = \raptor\ManageReportsPage::getReportsList();
+    $aReports = \raptor\ManageReportsPage::getReportInstances($aReportClassNames);
+    foreach($aReports as $classname=>$oReport)
+    {
+        //Can this user run this report?
+        $name = $oReport->getName(); // . '['.$base_url.']';
+        $description = $oReport->getDescription();
+        $menukey = $oReport->getMenuKey();
+        $items[$menukey] = array(
+          'title' => t($name),
+          'page callback' => 'raptor_reports_runner_form',
+          'access arguments' => array('access content'),
+          'access callback' => TRUE,        
+          'description' => t($description),
+          'type' => MENU_CALLBACK,
+          'file' => "$classname.php",
+          'file path' => '/sites/all/modules/raptor_reports/report/',
+        );
+    }
     
     $items['raptor/viewReports'] = array(
       'title' => t('View Reports'),
@@ -47,8 +68,10 @@ function raptor_reports_menu()
       'description' => t('View Reports Form'),
       'type' => MENU_CALLBACK,
       'file' => 'ManageReportsPage.php',
-      'file path' => RAPTOR_REPORTS_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_reports/form/',
     );
+    
+    /*
     $items['raptor/viewrepdepact1'] = array(
       'title' => t('View Department Activity Report'),
       'page callback' => 'raptor_reports_viewrepdepact1_form',
@@ -139,6 +162,7 @@ function raptor_reports_menu()
       'file' => 'ViewTechSupportConfigDetails.php',
       'file path' => RAPTOR_REPORTS_PATH . '/report/',
     );    
+     */
     return $items;
 }
 
@@ -147,9 +171,36 @@ function raptor_reports_viewreports_form_builder($form, &$form_state)
 {
     $oPI = new \raptor\ManageReportsPage();
     $form = array();
-    $disabled = false;
+    $disabled = FALSE;
     $myvalues = array();    //No values for this one.
     return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+function raptor_reports_runner_form() 
+{
+    return drupal_get_form('raptor_reports_runner_form_builder');
+}
+
+function raptor_reports_runner_form_builder($form, &$form_state)
+{
+    $currentpath = strtolower(trim(current_path()));
+    module_load_include('php', 'raptor_reports', 'form/ManageReportsPage');
+    $aReportClassNames  = \raptor\ManageReportsPage::getReportsList();
+    $aReports = \raptor\ManageReportsPage::getReportInstances($aReportClassNames);
+    foreach($aReports as $classname=>$oReport)
+    {
+        $name = $oReport->getName();
+        $menukey = $oReport->getMenuKey();
+        if($currentpath == $menukey)
+        {
+            //Run this one!
+            $form = array();
+            $disabled = FALSE;
+            $myvalues = $oReport->getFieldValues();
+            return $oReport->getForm($form, $form_state, $disabled, $myvalues);
+        }
+    }
+    throw new \Exception("Did NOT find a report to run at path=[$currentpath]");
 }
 
 
