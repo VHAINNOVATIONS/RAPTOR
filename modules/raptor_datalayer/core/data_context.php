@@ -483,21 +483,6 @@ class Context
                             $updated_dt = date("Y-m-d H:i:s", time());
 
                             //Write the recent activity to the single record that tracks it too.
-                            /*
-                            db_merge('raptor_user_recent_activity_tracking')
-                            ->key(array('uid'=>$tempUID,
-                                'ipaddress'=>$_SERVER['REMOTE_ADDR'],
-                                'sessionid' => session_id(),
-                                ))
-                            ->fields(array(
-                                    'uid'=>$tempUID,
-                                    'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                                    'sessionid' => session_id(),
-                                    'most_recent_action_dt'=>$updated_dt,
-                                    'most_recent_action_cd' => UATC_GENERAL,
-                                ))
-                                ->execute();
-                             */
                             db_merge('raptor_user_recent_activity_tracking')
                             ->key(array('uid'=>$tempUID,
                                 ))
@@ -510,17 +495,8 @@ class Context
                                 ))
                                 ->execute();
                         }
-                        /*
-                        error_log('WORKFLOWDEBUG>>Updating user activity...'
-                                . "\n\tInstance ts     = ".$candidate->m_nInstanceTimestamp
-                                . "\n\tUserAction ts   = ".$candidate->m_nInstanceUserActionTimestamp
-                                . "\n\tSystemAction ts = ".$candidate->m_nInstanceSystemActionTimestamp
-                                . "\n\tuseridleseconds = ".$candidate->getUserIdleSeconds() . '\t(Allowed='.USER_TIMEOUT_SECONDS.')'
-                                );
-                         */
                         //Update the session info.
                         $candidate->m_nInstanceUserActionTimestamp = time();
-                        //error_log('DEBUGINFO storing m_nInstanceUserActionTimestamp as '.$candidate->m_nInstanceUserActionTimestamp);
                         $candidate->serializeNow(); //Store this now!!!
                     } catch (\Exception $ex) {
                         //Log this but keep going.
@@ -565,43 +541,46 @@ class Context
         //Now trigger logout if account conflict was detected.
         if($bAccountConflictDetected || $bContextDetectIdleTooLong)
         {
-            //Don't get stuck in an infinite loop.
-            if(substr($candidate->m_sVistaUserID,0,8) !== 'kickout_')
+            //Don't kick out an administrator in the admin URL.
+            if(!UserInfo::is_protected_adminuser()) 
             {
-                //Prevent duplicate user messages.
-                if(!isset($candidate->m_aForceLogoutReason))
+                //Don't get stuck in an infinite loop.
+                if(substr($candidate->m_sVistaUserID,0,8) !== 'kickout_')
                 {
-                    //Not already set, so set it now.
-                    if($bContextDetectIdleTooLong)
+                    //Prevent duplicate user messages.
+                    if(!isset($candidate->m_aForceLogoutReason))
                     {
-                        $useridleseconds = intval($candidate->getUserIdleSeconds());
-                        $usermsg = 'You are kicked out because context has detected excessive'
-                                . " idle time of $useridleseconds seconds";
-                        $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
-                        $kickoutlabel = 'TIMEOUT';
-                    } else {
-                        $usermsg = 'You are kicked out because another workstation has'
-                                . ' logged in as the same'
-                                . ' RAPTOR user account "'
-                                . $candidate->m_sVistaUserID.'"';
-                        $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
-                        $kickoutlabel = 'ACCOUNT CONFLICT';
+                        //Not already set, so set it now.
+                        if($bContextDetectIdleTooLong)
+                        {
+                            $useridleseconds = intval($candidate->getUserIdleSeconds());
+                            $usermsg = 'You are kicked out because context has detected excessive'
+                                    . " idle time of $useridleseconds seconds";
+                            $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
+                            $kickoutlabel = 'TIMEOUT';
+                        } else {
+                            $usermsg = 'You are kicked out because another workstation has'
+                                    . ' logged in as the same'
+                                    . ' RAPTOR user account "'
+                                    . $candidate->m_sVistaUserID.'"';
+                            $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
+                            $kickoutlabel = 'ACCOUNT CONFLICT';
+                        }
+                        drupal_set_message($usermsg, 'error');
+                        $candidate->m_aForceLogoutReason = array();
+                        $candidate->m_aForceLogoutReason['code'] = $errorcode;
+                        $candidate->m_aForceLogoutReason['text'] = $usermsg;
+                        $candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
+                        $candidate->m_sVAPassword = NULL;
                     }
-                    drupal_set_message($usermsg, 'error');
-                    $candidate->m_aForceLogoutReason = array();
-                    $candidate->m_aForceLogoutReason['code'] = $errorcode;
-                    $candidate->m_aForceLogoutReason['text'] = $usermsg;
-                    $candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
-                    $candidate->m_sVAPassword = NULL;
-                }
 
-                $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
-                error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
-                        . $candidate->m_sVistaUserID . '] >>> ' 
-                        . time() . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
-                
-                $candidate->forceSessionRefresh(0);  //Invalidate any current form data now!
-                //$this->forceKickoutNow($usermsg,$errorcode,$candidate);
+                    $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
+                    error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
+                            . $candidate->m_sVistaUserID . '] >>> ' 
+                            . time() . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
+
+                    $candidate->forceSessionRefresh(0);  //Invalidate any current form data now!
+                }
             }
         }
         

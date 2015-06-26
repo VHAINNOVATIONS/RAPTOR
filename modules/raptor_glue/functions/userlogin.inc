@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -15,9 +15,15 @@
 
 function raptor_glue_user_logout($account)
 {
-    $oContext = \raptor\Context::getInstance(TRUE);
-    $oContext->logoutSubsystems();
-    drupal_set_message(t('Logout completed.'));
+    try
+    {
+        $oContext = \raptor\Context::getInstance(TRUE);
+        $oContext->logoutSubsystems();
+        drupal_set_message(t('Logout completed.'));
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_glue_user_logout because ".$ex->getMessage());
+        throw $ex;
+    }
 }
 
 function raptor_glue_form_user_login_alter( &$form, $form_state )
@@ -70,10 +76,6 @@ function raptor_glue_login_validate( $form, &$form_state )
 
 /**
  * Checks the user by trying to log in.  Do NOT call this to check on 'other' users.
- * @param type $username
- * @param type $password
- * @param type $fatalerrmsg
- * @return boolean
  */
 function raptor_glue_check_user($username, $password, &$fatalerrmsg)
 {
@@ -86,143 +88,135 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
     
     //Check if in DRUPAL
     $drupaluser = user_load_by_name($username);
-    if( $drupaluser == null || $drupaluser === FALSE)
+    if( $drupaluser == NULL || $drupaluser === FALSE)
     {
         $message = ('Did NOT find account information for username=['.$username.'] in Drupal');
         error_log($message);
         $isvalid = FALSE;
     } else {
-        //If we are here, then we know this is a valid DRUPAL account, but is it a valid RAPTOR user?
-        try 
+        try
         {
-            $oUserInfo = new \raptor\UserInfo($drupaluser->uid);
-            if(!isset($oUserInfo) || $oUserInfo->getUserName() == '')
+            //If we are here, then we know this is a valid DRUPAL account, but is it a valid RAPTOR user?
+            try 
             {
-                error_log('Trouble checking for user ['.$username.'] with uid=['.$drupaluser->uid.']: did NOT get UserInfo instance!');
-                $isvalid = FALSE;    
-            }
-        } catch (\Exception $ex) {
-            error_log('Exception checking for user ['.$username.'] with uid=['.$drupaluser->uid.']: ' .  $ex->getMessage());
-            $isvalid = FALSE;
-        } 
-
-        //Check the rest of the attributes.
-        if($isvalid)
-        {
-            if(trim(strtolower($oUserInfo->getUserName())) 
-                    !== trim(strtolower($username))) //trim on 20140620
-            {
-                //Internal configuration error!
-                error_log('Tried logging in as user ['.$username
-                        .'] with uid=['.$drupaluser->uid.'], but RAPTOR username=['
-                        .$oUserInfo->getUserName().'] for that uid! '
-                        . '>> first char of username=' . ord($username)  );
-                $fatalerrmsg = "Detected username configuration "
-                        . "inconsistency for user account '$username'; "
-                        . "there is mismatch with the RAPTOR user profile!  "
-                        . "Contact the RAPTOR site administrator for correction. [" 
-                        . strtolower($oUserInfo->getUserName()) 
-                        . "]!==[" . strtolower($username) 
-                        .'] >> first char of username=' . ord($username);
-                $isvalid = FALSE;
-            } else
-            if($oUserInfo->getUserID() !== $drupaluser->uid)
-            {
-                //Internal configuration error!
-                error_log('Tried logging in as user ['.$username
-                        .'] with Drupal uid=['.$drupaluser->uid
-                        .'], but RAPTOR uid=['.$oUserInfo->getUserID()
-                        .'] for that username!');
-                $fatalerrmsg = "Detected ID configuration "
-                        . "inconsistency for user account '$username'; "
-                        . "there is mismatch with the RAPTOR user profile!  "
-                        . "Contact the RAPTOR site administrator for correction."
-                        .$oUserInfo->getUserID()." !== " .$drupaluser->uid;
-                $isvalid = FALSE;
-            } else
-            if(!$oUserInfo->isEnabled())
-            {
-                error_log('Tried logging in with disabled user ['
-                        .$username.'] with uid=['.$drupaluser->uid.']');
-                $isvalid = FALSE;
-            } else {
-
-                //We are done if this is a site administrator, else keep validating.
-                if(!$oUserInfo->isSiteAdministrator())
+                $oUserInfo = new \raptor\UserInfo($drupaluser->uid);
+                if(!isset($oUserInfo) || $oUserInfo->getUserName() == '')
                 {
-                    //Check against MDWS
-                    $oContext = \raptor\Context::getInstance(TRUE);
-                    $oContext->logoutSubsystems();  //Workaround to avoid getting 'already logged in' issue
-                    $result = $oContext->authenticateSubsystems($username, $password);
-                    if(is_array($result))
+                    error_log('Trouble checking for user ['.$username.'] with uid=['.$drupaluser->uid.']: did NOT get UserInfo instance!');
+                    $isvalid = FALSE;    
+                }
+            } catch (\Exception $ex) {
+                error_log('Exception checking for user ['.$username.'] with uid=['.$drupaluser->uid.']: ' .  $ex->getMessage());
+                $isvalid = FALSE;
+            } 
+
+            //Check the rest of the attributes.
+            if($isvalid)
+            {
+                if(trim(strtolower($oUserInfo->getUserName())) 
+                        !== trim(strtolower($username))) //trim on 20140620
+                {
+                    //Internal configuration error!
+                    error_log('Tried logging in as user ['.$username
+                            .'] with uid=['.$drupaluser->uid.'], but RAPTOR username=['
+                            .$oUserInfo->getUserName().'] for that uid! '
+                            . '>> first char of username=' . ord($username)  );
+                    $fatalerrmsg = "Detected username configuration "
+                            . "inconsistency for user account '$username'; "
+                            . "there is mismatch with the RAPTOR user profile!  "
+                            . "Contact the RAPTOR site administrator for correction. [" 
+                            . strtolower($oUserInfo->getUserName()) 
+                            . "]!==[" . strtolower($username) 
+                            .'] >> first char of username=' . ord($username);
+                    $isvalid = FALSE;
+                } else
+                if($oUserInfo->getUserID() !== $drupaluser->uid)
+                {
+                    //Internal configuration error!
+                    error_log('Tried logging in as user ['.$username
+                            .'] with Drupal uid=['.$drupaluser->uid
+                            .'], but RAPTOR uid=['.$oUserInfo->getUserID()
+                            .'] for that username!');
+                    $fatalerrmsg = "Detected ID configuration "
+                            . "inconsistency for user account '$username'; "
+                            . "there is mismatch with the RAPTOR user profile!  "
+                            . "Contact the RAPTOR site administrator for correction."
+                            .$oUserInfo->getUserID()." !== " .$drupaluser->uid;
+                    $isvalid = FALSE;
+                } else
+                if(!$oUserInfo->isEnabled())
+                {
+                    error_log('Tried logging in with disabled user ['
+                            .$username.'] with uid=['.$drupaluser->uid.']');
+                    $isvalid = FALSE;
+                } else {
+
+                    //We are done if this is a site administrator, else keep validating.
+                    if(!$oUserInfo->isSiteAdministrator())
                     {
-                        //We are here because the authentication failed.
-                        error_log('Failed subsystem authentication of user ['
-                                .$username.'] (pwdprovided=['
-                                .($password > ''?'yes':'no')
-                                .']) with uid=['
-                                .$drupaluser->uid.']');
-                        $isvalid = FALSE;
+                        //Check against MDWS
+                        $oContext = \raptor\Context::getInstance(TRUE);
+                        $oContext->logoutSubsystems();  //Workaround to avoid getting 'already logged in' issue
+                        $result = $oContext->authenticateSubsystems($username, $password);
+                        if(is_array($result))
+                        {
+                            //We are here because the authentication failed.
+                            error_log('Failed subsystem authentication of user ['
+                                    .$username.'] (pwdprovided=['
+                                    .($password > ''?'yes':'no')
+                                    .']) with uid=['
+                                    .$drupaluser->uid.']');
+                            $isvalid = FALSE;
+                        }
+                    }
+                }
+                //Still valid?
+                if($isvalid)
+                {
+                    $tempUID = $drupaluser->uid; //Use the drupal UID now.
+                    $updated_dt = date("Y-m-d H:i:s", time());
+                    try
+                    {
+                        db_insert('raptor_user_activity_tracking')
+                            ->fields(array(
+                                'uid'=>$tempUID,
+                                'action_cd' => UATC_LOGIN,
+                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                                'sessionid' => session_id(),
+                                'updated_dt'=>$updated_dt,
+                            ))
+                            ->execute();
+                        db_merge('raptor_user_recent_activity_tracking')
+                            ->key(array('uid'=>$tempUID,
+                                ))
+                            ->fields(array(
+                                'uid'=>$tempUID,
+                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                                'sessionid' => session_id(),
+                                'most_recent_login_dt'=>$updated_dt,
+                                'most_recent_action_dt'=>$updated_dt,
+                                'most_recent_action_cd' => UATC_LOGIN,
+                            ))
+                            ->execute();
+                    } catch (\Exception $ex) {
+                        error_log('Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
+                        db_insert('raptor_user_activity_tracking')
+                        ->fields(array(
+                                'uid'=>$tempUID,
+                                'action_cd' => ERRORCODE_AUTHENTICATION,
+                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                                'sessionid' => session_id(),
+                                'updated_dt'=>$updated_dt,
+                            ))
+                            ->execute();
                     }
                 }
             }
-            //Still valid?
-            if($isvalid)
-            {
-                $tempUID = $drupaluser->uid; //Use the drupal UID now.
-                $updated_dt = date("Y-m-d H:i:s", time());
-                try
-                {
-                    db_insert('raptor_user_activity_tracking')
-                        ->fields(array(
-                            'uid'=>$tempUID,
-                            'action_cd' => UATC_LOGIN,
-                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                            'sessionid' => session_id(),
-                            'updated_dt'=>$updated_dt,
-                        ))
-                        ->execute();
-                    db_merge('raptor_user_recent_activity_tracking')
-                        ->key(array('uid'=>$tempUID,
-                            ))
-                        ->fields(array(
-                            'uid'=>$tempUID,
-                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                            'sessionid' => session_id(),
-                            'most_recent_login_dt'=>$updated_dt,
-                            'most_recent_action_dt'=>$updated_dt,
-                            'most_recent_action_cd' => UATC_LOGIN,
-                        ))
-                        ->execute();
-                    /*
-                    db_merge('raptor_user_recent_activity_tracking')
-                        ->key(array('uid'=>$tempUID,
-                            'ipaddress'=>$_SERVER['REMOTE_ADDR'],
-                            'sessionid' => session_id(),
-                            ))
-                        ->fields(array(
-                            'uid'=>$tempUID,
-                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                            'sessionid' => session_id(),
-                            'most_recent_login_dt'=>$updated_dt,
-                            'most_recent_action_dt'=>$updated_dt,
-                            'most_recent_action_cd' => UATC_LOGIN,
-                        ))
-                        ->execute();
-                     */
-                } catch (\Exception $ex) {
-                    error_log('Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
-                    db_insert('raptor_user_activity_tracking')
-                    ->fields(array(
-                            'uid'=>$tempUID,
-                            'action_cd' => ERRORCODE_AUTHENTICATION,
-                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                            'sessionid' => session_id(),
-                            'updated_dt'=>$updated_dt,
-                        ))
-                        ->execute();
-                }
-            }
+        } catch (\Exception $ex) {
+            //This can happen if admin is recovering a busted Drupal installation, log and simply continue
+            error_log("Failed raptor_glue_check_user for user=$drupaluser because " 
+                    . $ex->getMessage() 
+                    . "\n...Reported this message and continued!");
         }
     }
     return $isvalid;
@@ -328,7 +322,7 @@ function raptor_glue_addstandarduser_form_builder($form, &$form_state)
     $role_nm = trim($_GET['role_nm']);
     if($role_nm == '')
     {
-        die("Missing role_nm parameter!");
+        throw new \Exception("Missing role_nm parameter!");
     }
     $oPI = new \raptor\AddUserPage($role_nm);
 
@@ -464,12 +458,12 @@ function raptor_glue_edituser_form_builder($form, &$form_state)
 {
     if(!isset($_GET['uid']))
     {
-        die("Missing required uid url parameter!");
+        throw new \Exception("Missing required uid url parameter!");
     }
     $nUID = $_GET['uid'];
     if(!is_numeric($nUID))
     {
-        die("Invalid uid url parameter: that value MUST be numeric!");
+        throw new \Exception("Invalid uid url parameter: that value MUST be numeric!");
     }
 
     $oPI = new \raptor\EditUserPage($nUID);
@@ -485,7 +479,7 @@ function raptor_glue_edituser_form_builder_validate($form, &$form_state)
     $nUID = $form_state['values']['uid'];
     if(!is_numeric($nUID))
     {
-        die("Invalid uid url parameter: that value MUST be numeric!");
+        throw new \Exception("Invalid uid url parameter: that value MUST be numeric!");
     }
     
     $oPI = new \raptor\EditUserPage($nUID);
@@ -508,14 +502,13 @@ function raptor_glue_edituser_form_builder_submit($form, &$form_state)
     }
 }
 
-
 function raptor_glue_editselfprofile_form_builder($form, &$form_state)
 {
     $oContext = \raptor\Context::getInstance();
     $nUID = $oContext->getUID();
     if(!is_numeric($nUID))
     {
-        die("Invalid uid '$nUID': that value MUST be numeric!");
+        throw new \Exception("Invalid uid '$nUID': that value MUST be numeric!");
     }
     $gobackto='worklist';
     $oPI = new \raptor\EditUserPage($nUID, $gobackto);
@@ -531,7 +524,7 @@ function raptor_glue_editselfprofile_form_builder_validate($form, &$form_state)
     $nUID = $oContext->getUID();
     if(!is_numeric($nUID))
     {
-        die("Invalid uid '$nUID': that value MUST be numeric!");
+        throw new \Exception("Invalid uid '$nUID': that value MUST be numeric!");
     }
     $gobackto='worklist';
     $oPI = new \raptor\EditUserPage($nUID, $gobackto);
@@ -555,17 +548,16 @@ function raptor_glue_editselfprofile_form_builder_submit($form, &$form_state)
     }
 }
 
-
 function raptor_glue_viewuser_form_builder($form, &$form_state)
 {
     if(!isset($_GET['uid']))
     {
-        die("Missing required uid url parameter!");
+        throw new \Exception("Missing required uid url parameter!");
     }
     $nUID = $_GET['uid'];
     if(!is_numeric($nUID))
     {
-        die("Invalid uid url parameter: that value MUST be numeric!");
+        throw new \Exception("Invalid uid url parameter: that value MUST be numeric!");
     }
 
     $oPI = new \raptor\ViewUserPage($nUID);
@@ -579,12 +571,12 @@ function raptor_glue_deleteuser_form_builder($form, &$form_state)
 {
     if(!isset($_GET['uid']))
     {
-        die("Missing required uid url parameter!");
+        throw new \Exception("Missing required uid url parameter!");
     }
     $nUID = $_GET['uid'];
     if(!is_numeric($nUID))
     {
-        die("Invalid uid url parameter: that value MUST be numeric!");
+        throw new \Exception("Invalid uid url parameter: that value MUST be numeric!");
     }
 
     $oPI = new \raptor\DeleteUserPage($nUID);
@@ -593,16 +585,17 @@ function raptor_glue_deleteuser_form_builder($form, &$form_state)
     $myvalues = $oPI->getFieldValues();
     return $oPI->getForm($form, $form_state, $disabled, $myvalues);
 }
+
 function raptor_glue_deleteuser_form_builder_submit($form, &$form_state) 
 {
     if(!isset($_GET['uid']))
     {
-        die("Missing required uid url parameter!");
+        throw new \Exception("Missing required uid url parameter!");
     }
     $nUID = $_GET['uid'];
     if(!is_numeric($nUID))
     {
-        die("Invalid uid url parameter: that value MUST be numeric!");
+        throw new \Exception("Invalid uid url parameter: that value MUST be numeric!");
     }
 
     $oPI = new \raptor\DeleteUserPage($nUID);
@@ -680,7 +673,7 @@ function raptor_glue_form_alter(&$form, &$form_state, $form_id)
 
 function raptor_str_endswith($haystack, $needle)
 {
-    return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+    return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
 }  
 
 
@@ -691,9 +684,16 @@ function raptor_glue_intercept_bad_users()
 {
   global $user;
   global $base_url;
-
-  //error_log('In raptor_glue_init as ['.arg(0).']...' . print_r($user,true));
-  $oContext = \raptor\Context::getInstance(FALSE,TRUE);
+  
+  $oContext = NULL;
+  try
+  {
+    $oContext = \raptor\Context::getInstance(FALSE,TRUE);
+  } catch (\Exception $ex) {
+      //This can happen if system admin is recovering a corrupted Drupal installation, log it and exit.
+      error_log("Did NOT have valid context instance in raptor_glue_intercept_bad_users for user=$user because ".$ex->getMessage());
+      return;
+  }
   if (!$user->uid) 
   {
     // We need to collect where they were going in the first place because they may get pissed if 

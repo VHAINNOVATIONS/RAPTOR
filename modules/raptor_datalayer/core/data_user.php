@@ -50,6 +50,20 @@ class UserInfo
         $this->m_bFailIfNotFound = $bFailIfNotFound;
     }
     
+    /**
+     * An administrator in the Drupal admin pages needs special protection from kickout etc.
+     */
+    public static function is_protected_adminuser()
+    {
+        global $user;
+        if($user == NULL || $user->uid < 1)
+        {
+            return FALSE;
+        }
+        $currentpath = strtolower(trim(current_path()));
+        return ($currentpath == 'admin' || (strlen($currentpath) > 5 && substr($currentpath,0,5) == 'admin/'));
+    }
+    
     public function getUserID()
     {
         $this->readData();
