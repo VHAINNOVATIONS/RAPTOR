@@ -91,170 +91,180 @@ function raptor_glue_init()
 function raptor_glue_page_alter(&$page) 
 {
     module_load_include('php', 'raptor_datalayer', 'core/data_context');
+    module_load_include('php', 'raptor_datalayer', 'core/data_user');
 
     global $user;
     global $base_url;
     $currentpath = current_path();
     $currentpage = drupal_lookup_path('alias',$currentpath);
-    if(strpos($currentpath,'/kickout_') !== FALSE)
+    
+    $is_protected_adminuser = \raptor\UserInfo::is_protected_adminuser();
+    if($is_protected_adminuser)
     {
-        //Get out of page alter if we are already in kickout mode!
-        error_log('HIT PAGEALTER IN KICKOUT MODE '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath 
-                . '] and [' . $currentpage 
-                . ']['.print_r($user,TRUE).']');
-        return;
-    } else
-    if(strpos($currentpath,'user/log') !== FALSE)
-    {
-        //Get out of page alter if we are already in kickout mode!
-        error_log('HIT PAGEALTER IN USER AUTHENTICATE GOTO MODE '.$base_url.' >>>[' 
-                . $currentpath . '] and [' . $currentpage . ']');
-        return;
-    }
-    if(substr($currentpath,0,4) == 'user' 
-            || substr($currentpage,0,14) == 'raptor_kickout' 
-            || substr($currentpath,0,14) == 'raptor_kickout')
-    {
-        error_log('HIT PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
-        return;
-    }
-    error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
-
-    //Go to our custom front page url.
-    $is_front_page = drupal_is_front_page();
-    if($is_front_page)
-    {
-        global $base_url;
-        if(user_is_logged_in())
+        //Don't alter any pages for this user.
+        error_log('HIT PAGEALTER IN PROTECTED MODE '.$base_url.' uid='.$user->uid.' path=' . $currentpath .'');
+    } else {
+        //Fair game for page alter.
+        if(strpos($currentpath,'/kickout_') !== FALSE)
         {
-            $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
-        } else {
-            $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
-        }
-        drupal_goto($redirect);
-        return;
-    }
-    $oContext = \raptor\Context::getInstance();
-    if($oContext == NULL)
-    {
-        //Log this joker out
-        error_log('Got NULL context, sending user to logout page at '.$base_url);
-        if(user_is_logged_in())
-        {
-            $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
-        } else {
-            $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
-        }
-        drupal_goto($redirect);
-        return;
-    } else
-    if($oContext->hasForceLogoutReason())
-    {
-        global $base_url;
-        $reason = $oContext->getForceLogoutReason();
-        $msg = $reason['text'];
-        drupal_set_message($msg,'error');
-        if($reason['code'] == ERRORCODE_KICKOUT_ACCOUNTCONFLICT)
-        {
-            $redirect = $base_url.'/raptor/kickout_accountconflict';
-        } else {
-            $redirect = $base_url.'/raptor/kickout_timeout';
-        }
-        error_log('HIT PAGEALTER IN FORCE KICKOUT MODE '
-                . $base_url.'>>>[' 
-                . $currentpath 
-                . '] and [' . $currentpage 
-                . ']'
-                . '['.print_r($user, TRUE)
-                .'] because '.print_r($reason,TRUE));
-        drupal_goto($redirect);   
-    }
-
-    global $raptor_worklist_rows;
-    global $raptor_protocoldashboard;
-    global $raptor_protocol_content;
-    global $raptor_context;
-        
-    //Wrap all the other operations in a try catch
-    try
-    {
-        $userinfo = $oContext->getUserInfo();
-        $userprivs = $userinfo->getSystemPrivileges();
-        $raptor_context = $oContext;
-
-        if($userinfo->getUserID() < 0)
-        {
-            //This is not a valid user session, this can happen on kickout and things like that.
-            error_log('Did not have a valid user id (' . $userinfo->getUserID() . ')');
-            if($userinfo->getUserID() == -99)
-            {
-                global $base_url;
-                $redirect = $base_url.'/raptor/kickout_accountconflict';
-                //$redirect = 'raptor/kickout_accountconflict'; 
-                $urlargs = array('reason'=>'invalid_session');
-                $http_response_code = 307;  //Temp redirect 
-                drupal_goto($redirect,$urlargs,$http_response_code);   
-            }
+            //Get out of page alter if we are already in kickout mode!
+            error_log('HIT PAGEALTER IN KICKOUT MODE '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath 
+                    . '] and [' . $currentpage 
+                    . ']['.print_r($user,TRUE).']');
             return;
+        } else
+        if(strpos($currentpath,'user/log') !== FALSE)
+        {
+            //Get out of page alter if we are already in kickout mode!
+            error_log('HIT PAGEALTER IN USER AUTHENTICATE GOTO MODE '.$base_url.' >>>[' 
+                    . $currentpath . '] and [' . $currentpage . ']');
+            return;
+        }
+        if(substr($currentpath,0,4) == 'user' 
+                || substr($currentpage,0,14) == 'raptor_kickout' 
+                || substr($currentpath,0,14) == 'raptor_kickout')
+        {
+            error_log('HIT PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
+            return;
+        }
+        error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
 
-        } else if($currentpage == 'protocol' || $currentpath == 'protocol') {
-
-            if(!isset($raptor_protocol_content['Reference']))
+        //Go to our custom front page url.
+        $is_front_page = drupal_is_front_page();
+        if($is_front_page)
+        {
+            global $base_url;
+            if(user_is_logged_in())
             {
-                $localerrmsg = 'Missing reference information now!  Likely cause is a timed-out session.';
-                drupal_set_message($localerrmsg,'error');
-                error_log($localerrmsg);
-                
-            }
-
-        } else if($currentpage == 'worklist' || $currentpath == 'worklist'){
-
-            //error_log('IN PAGEALTER worklist >>>[' . $currentpath . '] and [' . $currentpage . ']');
-
-            module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-
-            //Clear any batch values from the session if any exist.
-            $oContext->clearPersonalBatchStack();
-
-            if($userprivs['SWI1'] != 1 )
-            {   
-                //Cannot view worklist.
-                $raptor_worklist_rows = array();
+                $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
             } else {
-                if($userinfo->isSiteAdministrator())
+                $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
+            }
+            drupal_goto($redirect);
+            return;
+        }
+        $oContext = \raptor\Context::getInstance();
+        if($oContext == NULL)
+        {
+            //Log this joker out
+            error_log('Got NULL context, sending user to logout page at '.$base_url);
+            if(user_is_logged_in())
+            {
+                $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
+            } else {
+                $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
+            }
+            drupal_goto($redirect);
+            return;
+        } else
+        if($oContext->hasForceLogoutReason())
+        {
+            global $base_url;
+            $reason = $oContext->getForceLogoutReason();
+            $msg = $reason['text'];
+            drupal_set_message($msg,'error');
+            if($reason['code'] == ERRORCODE_KICKOUT_ACCOUNTCONFLICT)
+            {
+                $redirect = $base_url.'/raptor/kickout_accountconflict';
+            } else {
+                $redirect = $base_url.'/raptor/kickout_timeout';
+            }
+            error_log('HIT PAGEALTER IN FORCE KICKOUT MODE '
+                    . $base_url.'>>>[' 
+                    . $currentpath 
+                    . '] and [' . $currentpage 
+                    . ']'
+                    . '['.print_r($user, TRUE)
+                    .'] because '.print_r($reason,TRUE));
+            drupal_goto($redirect);   
+        }
+
+        global $raptor_worklist_rows;
+        global $raptor_protocoldashboard;
+        global $raptor_protocol_content;
+        global $raptor_context;
+
+        //Wrap all the other operations in a try catch
+        try
+        {
+            $userinfo = $oContext->getUserInfo();
+            $userprivs = $userinfo->getSystemPrivileges();
+            $raptor_context = $oContext;
+
+            if($userinfo->getUserID() < 0)
+            {
+                //This is not a valid user session, this can happen on kickout and things like that.
+                error_log('Did not have a valid user id (' . $userinfo->getUserID() . ')');
+                if($userinfo->getUserID() == -99)
                 {
+                    global $base_url;
+                    $redirect = $base_url.'/raptor/kickout_accountconflict';
+                    //$redirect = 'raptor/kickout_accountconflict'; 
+                    $urlargs = array('reason'=>'invalid_session');
+                    $http_response_code = 307;  //Temp redirect 
+                    drupal_goto($redirect,$urlargs,$http_response_code);   
+                }
+                return;
+
+            } else if($currentpage == 'protocol' || $currentpath == 'protocol') {
+
+                if(!isset($raptor_protocol_content['Reference']))
+                {
+                    $localerrmsg = 'Missing reference information now!  Likely cause is a timed-out session.';
+                    drupal_set_message($localerrmsg,'error');
+                    error_log($localerrmsg);
+
+                }
+
+            } else if($currentpage == 'worklist' || $currentpath == 'worklist'){
+
+                //error_log('IN PAGEALTER worklist >>>[' . $currentpath . '] and [' . $currentpage . ']');
+
+                module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+
+                //Clear any batch values from the session if any exist.
+                $oContext->clearPersonalBatchStack();
+
+                if($userprivs['SWI1'] != 1 )
+                {   
                     //Cannot view worklist.
                     $raptor_worklist_rows = array();
-                    drupal_set_message('Administrator accounts should not have privilege SWI1!, but this one does.  Check the database.','warning');
                 } else {
-                    //Set all the Worklist page values
-                    $oWL = new \raptor\WorklistData($oContext);
-                    $raptor_worklist_rows = $oWL->getWorklistRows();    //$oContext);
+                    if($userinfo->isSiteAdministrator())
+                    {
+                        //Cannot view worklist.
+                        $raptor_worklist_rows = array();
+                        drupal_set_message('Administrator accounts should not have privilege SWI1!, but this one does.  Check the database.','warning');
+                    } else {
+                        //Set all the Worklist page values
+                        $oWL = new \raptor\WorklistData($oContext);
+                        $raptor_worklist_rows = $oWL->getWorklistRows();    //$oContext);
+                    }
                 }
+
+            } else {
+
+                //error_log('IN PAGEALTER other >>>[' . $currentpath . '] and [' . $currentpage . ']');
+
+                //Some kind of admin page.
+                $raptor_worklist_rows = null;
+                $raptor_protocol_content = null;
+
             }
 
-        } else {
-
-            //error_log('IN PAGEALTER other >>>[' . $currentpath . '] and [' . $currentpage . ']');
-
-            //Some kind of admin page.
-            $raptor_worklist_rows = null;
-            $raptor_protocol_content = null;
-
+        } catch (\Exception $ex) {
+            //We should never be here, but if we do end up here let the login
+            global $base_url;
+            error_log('PAGEALTER Sending to logout because '.$ex->getMessage());
+            if(user_is_logged_in())
+            {
+                $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
+            } else {
+                $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
+            }
+            drupal_goto($redirect);
+            return;
         }
-        
-    } catch (\Exception $ex) {
-        //We should never be here, but if we do end up here let the login
-        global $base_url;
-        error_log('PAGEALTER Sending to logout because '.$ex->getMessage());
-        if(user_is_logged_in())
-        {
-            $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
-        } else {
-            $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
-        }
-        drupal_goto($redirect);
-        return;
     }
 }
 

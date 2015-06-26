@@ -541,8 +541,9 @@ class Context
         //Now trigger logout if account conflict was detected.
         if($bAccountConflictDetected || $bContextDetectIdleTooLong)
         {
-            //Don't kick out an administrator in the admin URL.
-            if(!UserInfo::is_protected_adminuser()) 
+            //Don't kick out an administrator in a protected URL
+            $is_protected_adminuser = \raptor\UserInfo::is_protected_adminuser();
+            if(!$is_protected_adminuser)
             {
                 //Don't get stuck in an infinite loop.
                 if(substr($candidate->m_sVistaUserID,0,8) !== 'kickout_')
