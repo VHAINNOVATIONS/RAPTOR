@@ -42,60 +42,81 @@ class ViewTechSupportConfigDetails extends AReport
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
-       $form["data_entry_area1"] = array(
+        $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
-        $rows = array();
-        $profile = drupal_get_profile();
-        $rows['Profile'] = "<td>Profile</td><td>$profile</td>";
-
-        $systeminfo_ar = array();
+       
         try
         {
-            $systeminfo_ar = system_get_info('module', $profile);  
-            if(count($systeminfo_ar) == 0)
+            $rows = array();
+            $profile = drupal_get_profile();
+            $rows['Profile'] = "<td>Profile</td><td>$profile</td>";
+
+            $systeminfo_ar = array();
+            $alt_ar = array();
+            try
             {
-                $systeminfo_ar['systeminfo'] = 'Nothing reported for profile!';
+                $systeminfo_ar = system_get_info('module', $profile);  
+                if(count($systeminfo_ar) == 0)
+                {
+                    $systeminfo_ar['info'] = "Nothing reported for '$profile' profile!";
+                    $alt_ar = system_get_info('module', 'standard');  
+                    if(count($alt_ar) == 0)
+                    {
+                        $alt_ar['info'] = "Nothing reported for 'standard' profile!";
+                    }
+                }
+            } catch (\Exception $ex) {
+                $systeminfo_ar['info'] = $ex->getMessage();
             }
-        } catch (\Exception $ex) {
-            $systeminfo_ar['systeminfo'] = $ex->getMessage();
-        }
-        foreach($systeminfo_ar as $key=>$value)
-        {
-            $newkey = "sys $key";
-            $newvalue = print_r($value,TRUE);
-            $rows[$key] = "<td>$newkey</td><td>$newvalue</td>";
-        }
-
-        $themes_ar = array();
-        try
-        {
-            $themes_ar = list_themes();      
-        } catch (\Exception $ex) {
-            $themes_ar['themesinfo'] = $ex->getMessage();
-        }
-        foreach($themes_ar as $key=>$value)
-        {
-            $newkey = "theme $key";
-            if($value->status == 1)
+            foreach($systeminfo_ar as $key=>$value)
             {
+                $newkey = "sys $key";
                 $newvalue = print_r($value,TRUE);
-            } else {
-                $newvalue = 'not enabled';
+                $rows[$newkey] = "<td>$newkey</td><td>$newvalue</td>";
             }
-            $rows[$key] = "<td>$newkey</td><td>$newvalue</td>";
+            foreach($alt_ar as $key=>$value)
+            {
+                $newkey = "alt sys $key";
+                $newvalue = print_r($value,TRUE);
+                $rows[$newkey] = "<td>$newkey</td><td>$newvalue</td>";
+            }
+
+            $themes_ar = array();
+            try
+            {
+                $themes_ar = list_themes();      
+            } catch (\Exception $ex) {
+                $themes_ar['themesinfo'] = $ex->getMessage();
+            }
+            foreach($themes_ar as $key=>$value)
+            {
+                $newkey = "theme $key";
+                if($value->status == 1)
+                {
+                    $newvalue = print_r($value,TRUE);
+                } else {
+                    $newvalue = 'not enabled';
+                }
+                $rows[$newkey] = "<td>$newkey</td><td>$newvalue</td>";
+            }
+
+            $drupalinfo = "<div style='text-align: center'>"
+                    . "<h1>Drupal Configuration Info</h1>"
+                    . "<table style='margin-left: auto; margin-right: auto; text-align: left;' cellpadding='3' width='600px'>"
+                    . "<tr><th>Type</th><th>Value</th></tr>"
+                    . "<tbody>"
+                    . "<tr>".implode('</tr><tr>',$rows)."</tr>"
+                    . "</tbody>"
+                    . "</table>"
+                    . "</div>";
+        } catch (\Exception $ex) {
+            $drupalinfo = "<div style='text-align: center'>"
+                    . "<h1>Drupal Configuration Info</h1>"
+                    . "<p>Failed getting information because ".$ex->getMessage()."</p>"
+                    . "</div>";
         }
-        
-        $drupalinfo = "<div style='text-align: center'>"
-                . "<h1>Drupal Configuration Info</h1>"
-                . "<table style='margin-left: auto; margin-right: auto; text-align: left;' cellpadding='3' width='600px'>"
-                . "<tr><th>Type</th><th>Value</th></tr>"
-                . "<tbody>"
-                . "<tr>".implode('</tr><tr>',$rows)."</tr>"
-                . "</tbody>"
-                . "</table>"
-                . "</div>";
 
         $form['data_entry_area1']['table_container']['drupalinfo'] = array('#type' => 'item',
                  '#markup' => $drupalinfo);
