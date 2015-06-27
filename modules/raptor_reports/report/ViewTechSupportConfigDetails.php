@@ -46,7 +46,20 @@ class ViewTechSupportConfigDetails extends AReport
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
+        $profile = drupal_get_profile();
+        $drupalinfo = "<div style='text-align: center'>"
+                . "<h1>Drupal Info</h1>"
+                . "<table style='margin-left: auto; margin-right: auto; text-align: left;' cellpadding='3' width='600px'>"
+                . "<tr><th>Type</th><th>Value</th></tr>"
+                . "<tbody>"
+                . "<tr><td>Profile</td><td>$profile</td></tr>"
+                . "</tbody>"
+                . "</table>"
+                . "</div>";
 
+        $form['data_entry_area1']['table_container']['drupalinfo'] = array('#type' => 'item',
+                 '#markup' => $drupalinfo);
+                
         ob_start();
         phpinfo();       
         $phpinfo = ob_get_clean();
