@@ -196,7 +196,11 @@
         // Have to do this one separately since we'll use $worklistTable to hide and show columns later
         $worklistTable = $('#worklistTable').DataTable({
                 "order": [[ 2, "desc" ]],
-                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]]
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                "columnDefs": [{
+                    "targets": [9],
+                    "orderData": [2,9]
+                }]
             });
 
         // Filter Worklist by Worklist Status Code
