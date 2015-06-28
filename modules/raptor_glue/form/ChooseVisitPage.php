@@ -169,9 +169,8 @@ class ChooseVisitPage
             
         } else {
             //This happens in test environments where we have bad test data
-            $form['data_entry_area1']['toppart']['trouble'] = array('#type' => 'item'
-                    , '#markup' => '<h1>No visits were found in VistA for this patient!'
-                . '  No action is possible without a visit.</h1>');
+            $form['data_entry_area1']['toppart']['trouble'] = array('#type' => 'item', 
+                '#markup' => '<h1>No visits were found in VistA for this patient!'. '  No action is possible without a visit.</h1>');
         }
         
         $form["data_entry_area1"]['action_buttons'] = array(
@@ -188,6 +187,9 @@ class ChooseVisitPage
                     , '#value' => t('Use Selected Visit')
                     , '#disabled' => $disabled
             );
+        }else{
+            $form['data_entry_area1']['toppart']['trouble'] = array('#type' => 'item', 
+                '#markup' => '<p style="font-size: 2em; font-weight: bold;">No visits were found in VistA for this patient! No action is possible without a visit.</p>');
         }
 
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
