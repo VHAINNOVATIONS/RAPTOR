@@ -14,9 +14,8 @@
 
 require_once ('core/ContraIndEngine.inc');
 
-
 defined('RAPTOR_CI_MODULE_PATH')
-    or define('RAPTOR_CI_MODULE_PATH', drupal_get_path('module', 'raptor_contraindications'));  
+    or define('RAPTOR_CI_MODULE_PATH', dirname(__FILE__));  
 
 function raptor_contraindications_help($path, $arg) 
 {
@@ -58,7 +57,7 @@ function raptor_contraindications_menu()
       'description' => t('Manage Contraindications Form'),
       'type' => MENU_CALLBACK,
       'file' => 'ManageContraIndicationsPage.php',
-      'file path' => RAPTOR_CI_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_contraindications/form/',
     );
     $items['raptor/viewcontraindication'] = array(
       'title' => t('View Contraindication'),
@@ -68,7 +67,7 @@ function raptor_contraindications_menu()
       'description' => t('View Contraindications Detail'),
       'type' => MENU_CALLBACK,
       'file' => 'ViewContraIndicationPage.php',
-      'file path' => RAPTOR_CI_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_contraindications/form/',
     );
     $items['raptor/addcontraindication'] = array(
       'title' => t('Add Contraindication'),
@@ -78,7 +77,7 @@ function raptor_contraindications_menu()
       'description' => t('Add Contraindications Detail'),
       'type' => MENU_CALLBACK,
       'file' => 'AddContraIndicationPage.php',
-      'file path' => RAPTOR_CI_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_contraindications/form/',
     );
     $items['raptor/editcontraindication'] = array(
       'title' => t('Edit Contraindication'),
@@ -88,7 +87,7 @@ function raptor_contraindications_menu()
       'description' => t('Edit Contraindications Detail'),
       'type' => MENU_CALLBACK,
       'file' => 'EditContraIndicationPage.php',
-      'file path' => RAPTOR_CI_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_contraindications/form/',
     );
     $items['raptor/deletecontraindication'] = array(
       'title' => t('Delete Contraindication'),
@@ -98,7 +97,7 @@ function raptor_contraindications_menu()
       'description' => t('Delete Contraindications Detail'),
       'type' => MENU_CALLBACK,
       'file' => 'DeleteContraIndicationPage.php',
-      'file path' => RAPTOR_CI_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_contraindications/form/',
     );
 
     return $items;

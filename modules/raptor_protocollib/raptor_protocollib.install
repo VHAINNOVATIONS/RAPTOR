@@ -13,6 +13,7 @@
  */
 
 require_once 'install/schema.inc';
+require_once ("install/PLLoadUtils.inc");
 
 function raptor_protocollib_uninstall()
 {
@@ -26,8 +27,9 @@ function raptor_protocollib_uninstall()
  */
 function raptor_protocollib_install()
 {
-    //Tell the world we are done.
     $t = get_t();
+    \raptor\PLLoadUtils::loadProtocolLibBasedata();
+    
     drupal_set_message($t('Installed raptor_protocollib'));
 }
 

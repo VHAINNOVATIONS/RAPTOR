@@ -49,9 +49,6 @@ function raptor_datalayer_install()
         //Create baseline ROLES
         raptor_datalayer_basedata_roles();
 
-        //Insert baseline protocols
-        \raptor\LoadUtils::loadProtocolLibBasedata();
-
         //Insert the baseline checklist questions
         \raptor\LoadUtils::loadChecklistBasedata();
 

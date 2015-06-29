@@ -13,6 +13,9 @@
  * 
  */
 
+defined('RAPTOR_PL_MODULE_PATH')
+    or define('RAPTOR_PL_MODULE_PATH', dirname(__FILE__));  
+
 /** 
  * Implements hook_help. 
  * 

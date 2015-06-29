@@ -14,9 +14,9 @@
 namespace raptor;
 
 /**
- * This class is for Ticket database schema content
+ * This class is for contraindications database schema content
  *
- * @author FrankWin7VM
+ * @author Frank Font of SAN Business Consultants
  */
 class CILoadUtils
 {
@@ -30,7 +30,7 @@ class CILoadUtils
     
     public static function loadContraindicationBasedata($clearall=FALSE)
     {
-        $aLines = CILoadUtils::getFileAsArray('load_contraindication.raw');
+        $aLines = self::getFileAsArray('load_contraindication.raw');
         $aTables=array();
         $sTablename=NULL;
         $nRows = NULL;

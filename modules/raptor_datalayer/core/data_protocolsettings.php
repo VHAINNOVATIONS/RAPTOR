@@ -14,7 +14,7 @@
 
 namespace raptor;
 
-require_once ("data_utility.php");
+require_once 'data_utility.php';
 
 /**
  * Returns information about the protocol settings.

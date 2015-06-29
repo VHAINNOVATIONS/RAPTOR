@@ -13,4 +13,6 @@ core = 7.x
 version = "7.x-0.5-dev"
 package = RAPTOR
 
+dependencies[] = raptor_datalayer
+
 ;;scripts[] = js/scripts.js

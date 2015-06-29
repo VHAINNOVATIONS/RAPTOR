@@ -2,7 +2,7 @@
 /**
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -10,27 +10,27 @@
  *  
  */
 
-
 namespace raptor;
 
 /**
- * This class is for Ticket database schema content
+ * This class is for protocol library database schema content
  *
- * @author FrankWin7VM
+ * @author Frank Font of SAN Business Consultants
  */
-class CILoadUtils
+class PLLoadUtils
 {
 
     public static function getFileAsArray($sFilename)
     {
-        $sPath = RAPTOR_CI_MODULE_PATH.'/install/'.$sFilename;
+        $sPath = RAPTOR_PL_MODULE_PATH.'/install/'.$sFilename;
         $aLines = file($sPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         return $aLines;
     }    
     
-    public static function loadContraindicationBasedata($clearall=FALSE)
+    public static function loadProtocolLibBasedata($clearall=FALSE)
     {
-        $aLines = CILoadUtils::getFileAsArray('load_contraindication.raw');
+        $aLines = self::getFileAsArray('load_demoprotocollib.raw');
+        $aProtocols=array();
         $aTables=array();
         $sTablename=NULL;
         $nRows = NULL;
@@ -49,6 +49,14 @@ class CILoadUtils
             if($nRows !== NULL && $nRows > 0 && substr($row,0,8) == '>>>data=')
             {
                 $aData = unserialize(substr($row,8));
+                if($sTablename == 'raptor_protocol_lib')
+                {
+                    foreach($aData as $aRow)
+                    {
+                        $protocol_shortname = trim($aRow->protocol_shortname);
+                        $aProtocols[] = $protocol_shortname;
+                    }
+                }
             }
         }
         if($clearall)
@@ -104,7 +112,7 @@ class CILoadUtils
         {
             $showtableinfo[] = "$sTablename inserted $rowcount rows";
         }
-        drupal_set_message('Loaded '.count($aTables).' contraindication tables<ol><li>'.implode('<li>',$showtableinfo).'</ol>');
+        drupal_set_message('Loaded '.count($aTables).' protocollib tables<ol><li>'.implode('<li>',$showtableinfo).'</ol>');
     }
 }
 

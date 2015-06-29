@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150610.1 970 for VA 146 AppServer1');
+    or define('RAPTOR_CONFIG_ID', '20150629.1 970 for VA 146 AppServer1');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -11,9 +11,9 @@ defined('RAPTOR_CONFIG_ID')
 defined('VISTA_SITE')
     or define('VISTA_SITE', '970');	
 defined('VISTA_NOTEIEN_RAPTOR_GENERAL')
-    or define('VISTA_NOTEIEN_RAPTOR_GENERAL', '142');
+    or define('VISTA_NOTEIEN_RAPTOR_GENERAL', '1137');
 defined('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST')
-    or define('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST', '149');
+    or define('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST', '1138');
 
 //Other site specific values
 defined("RAPTOR_ROOT_URL")
