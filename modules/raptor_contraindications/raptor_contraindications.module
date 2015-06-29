@@ -48,6 +48,17 @@ function raptor_contraindications_menu()
       'description' => t('Export all the rulebase info in a shareable XML format'),
       'type' => MENU_CALLBACK,
     );
+
+    $items['admin/config/raptor_contraindications'] = array(
+      'title' => t('Edit Contraindications Configuration'),
+      'page callback' => 'raptor_contraindications_edit_ci_config_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Contraindications Configuration Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'EditContraIndicationsConfigPage.php',
+      'file path' => '/sites/all/modules/raptor_contraindications/form/',
+    );
     
     $items['raptor/managecontraindications'] = array(
       'title' => t('Manage Contraindications'),
@@ -113,11 +124,16 @@ function raptor_contraindications_exportxml_form()
     return drupal_get_form("raptor_contraindications_exportxml_form_builder");
 }
 
+function raptor_contraindications_edit_ci_config_form() 
+{
+    return drupal_get_form('raptor_contraindications_edit_ci_config_form_builder');
+}
+
 
 //Manage contraindications
 function raptor_contraindications_mng_ci_form() 
 {
-    return drupal_get_form("raptor_contraindications_mng_ci_form_builder");
+    return drupal_get_form('raptor_contraindications_mng_ci_form_builder');
 }
 function raptor_contraindications_viewci_form() 
 {
@@ -134,6 +150,15 @@ function raptor_contraindications_editci_form()
 function raptor_contraindications_deleteci_form() 
 {
     return drupal_get_form("raptor_contraindications_deleteci_form_builder");
+}
+
+function raptor_contraindications_edit_ci_config_form_builder($form, &$form_state)
+{
+    $oPI = new \raptor\EditContraIndicationsConfigPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
 }
 
 
@@ -179,12 +204,12 @@ function raptor_contraindications_viewci_form_builder($form, &$form_state)
 {
     if(!isset($_GET['rn']))
     {
-        die("Missing required rn url parameter!");
+        throw new \Exception("Missing required rn url parameter!");
     }
     $rule_nm = $_GET['rn'];
     if(is_numeric($rule_nm))
     {
-        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid rn url parameter: that value MUST NOT be numeric!");
     }
 
     $oPI = new \raptor\ViewContraindicationPage($rule_nm);
@@ -197,12 +222,12 @@ function raptor_contraindications_deleteci_form_builder($form, &$form_state)
 {
     if(!isset($_GET['rn']))
     {
-        die("Missing required rn url parameter!");
+        throw new \Exception("Missing required rn url parameter!");
     }
     $rule_nm = $_GET['rn'];
     if(is_numeric($rule_nm))
     {
-        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid rn url parameter: that value MUST NOT be numeric!");
     }
     
     $oPI = new \raptor\DeleteContraindicationPage($rule_nm);
@@ -215,12 +240,12 @@ function raptor_contraindications_deleteci_form_builder_submit($form, &$form_sta
 {
     if(!isset($_GET['rn']))
     {
-        die("Missing required rn url parameter!");
+        throw new \Exception("Missing required rn url parameter!");
     }
     $rule_nm = $_GET['rn'];
     if(is_numeric($rule_nm))
     {
-        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid rn url parameter: that value MUST NOT be numeric!");
     }
     $oPI = new \raptor\DeleteContraindicationPage($rule_nm);
     $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
@@ -239,12 +264,12 @@ function raptor_contraindications_editci_form_builder($form, &$form_state)
 {
     if(!isset($_GET['rn']))
     {
-        die("Missing required rn url parameter!");
+        throw new \Exception("Missing required rn url parameter!");
     }
     $rule_nm = $_GET['rn'];
     if(is_numeric($rule_nm))
     {
-        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid rn url parameter: that value MUST NOT be numeric!");
     }
     $oPI = new \raptor\EditContraindicationPage($rule_nm);
     $form = array();
@@ -256,7 +281,7 @@ function raptor_contraindications_editci_form_builder_validate($form, &$form_sta
 {
     if(!isset($_GET['rn']))
     {
-        die("Missing required rn url parameter!");
+        throw new \Exception("Missing required rn url parameter!");
     }
     $rule_nm = $_GET['rn'];
     $oPI = new \raptor\EditContraindicationPage($rule_nm);
@@ -266,12 +291,12 @@ function raptor_contraindications_editci_form_builder_submit($form, &$form_state
 {
     if(!isset($_GET['rn']))
     {
-        die("Missing required rn url parameter!");
+        throw new \Exception("Missing required rn url parameter!");
     }
     $rule_nm = $_GET['rn'];
     if(is_numeric($rule_nm))
     {
-        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+        throw new \Exception("Invalid rn url parameter: that value MUST NOT be numeric!");
     }
     $oPI = new \raptor\EditContraindicationPage($rule_nm);
     $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
@@ -289,8 +314,6 @@ function raptor_contraindications_editci_form_builder_submit($form, &$form_state
 
 /**
  * Send a downloadable file to the browser
- * @param type $form_state
- * @return binary file
  */
 function raptor_admincontraindicationdatadump_form_builder($form, &$form_state)
 {
@@ -307,8 +330,16 @@ function raptor_admincontraindicationdatadump_form_builder($form, &$form_state)
     $now = date('Y-m-d H:i:s');
     echo '### RAPTOR DATA DUMPED ' . $now;
     echo "\n### TIMEZONE " . date_default_timezone_get();
-    echo "\n### CONTRAINDICATION DATA DUMP TOOL VERSION 20140917.1";
-    
+    echo "\n### CONTRAINDICATION DATA DUMP TOOL VERSION 20150629.1";
+    $extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
+    $extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
+    $extraattribs['vista_site'] = VISTA_SITE;
+    $extracontextinfo = 'These are the contraindication rules as found in the RAPTOR application for one site.';
+    foreach($extraattribs as $name=>$value)
+    {
+        echo "\n### $name=$value";
+    }
+    echo "\n### $extracontextinfo";
     $tablename = 'raptor_contraindication_rule';
     $result = db_select($tablename, 'n')
             ->fields('n')
@@ -335,8 +366,6 @@ function raptor_admincontraindicationdatadump_form_builder($form, &$form_state)
 
 /**
  * Send a downloadable file to the browser
- * @param type $form_state
- * @return binary file
  */
 function raptor_contraindications_exportxml_form_builder($form, &$form_state)
 {
@@ -358,7 +387,11 @@ function raptor_contraindications_exportxml_form_builder($form, &$form_state)
     $oSREContext = new \raptor_ci\SREContext();
     $oIO = new \simplerulesengine\IO($oSREContext);
     $sRulebaseName = 'RAPTOR';
-    $sXML = $oIO->getRulebaseAsXML($sRulebaseName);
+    $extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
+    $extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
+    $extraattribs['vista_site'] = VISTA_SITE;
+    $extracontextinfo = 'These are the contraindication rules as found in the RAPTOR application for one site.';
+    $sXML = $oIO->getRulebaseAsXML($sRulebaseName,$extraattribs,$extracontextinfo);
     
     //Dump it.
     header("Cache-Control: public");
@@ -373,3 +406,12 @@ function raptor_contraindications_exportxml_form_builder($form, &$form_state)
 }
 
 
+function raptor_contraindications_rulesreplace_customvalidate($form, &$form_state) 
+{
+    module_load_include('php', 'raptor_glue', 'form/EditProtocolLibPage');
+    
+    $psn = $_GET['protocol_shortname'];
+    $oPI = new \raptor\EditProtocolLibPage($psn);
+    $myvalues = $form_state['values'];
+    return $oPI->looksValidFormState($form, $form_state);    //['values']);
+}

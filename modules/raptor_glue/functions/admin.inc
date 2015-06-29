@@ -459,6 +459,11 @@ function raptor_seeallurls_form_builder($form, &$form_state)
     $aModules[] = 'raptor_scheduling';
     $aModules[] = 'raptor_workflow';
     $aModules[] = 'raptor_datalayer';
+    /*
+    $aModules[] = 'raptor_protocollib';
+    $aModules[] = 'raptor_formulas';
+    $aModules[] = 'raptor_graph';
+     */
     
     global $base_url;
     

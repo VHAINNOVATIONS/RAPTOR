@@ -54,7 +54,9 @@ class IO
      * Dump entire rulebase into an XML format.
      * @return XML string
      */
-    public function getRulebaseAsXML($sRulebaseName)
+    public function getRulebaseAsXML($sRulebaseName
+            ,$aExtraTopLevelAttribs=array()
+            ,$sExtraContextNoteText=NULL)
     {
         $xml_markup = '';
         
@@ -73,7 +75,7 @@ class IO
                     . "\n$baseline_indent".'  <Return>'.$inputs_array['return'].'</Return>'
                     . "\n$baseline_indent".'  <Purpose>'.htmlentities($inputs_array['purpose_tx']).'</Purpose>'
                     . "\n$baseline_indent".'  <Criteria>'.htmlentities($inputs_array['criteria_tx']).'</Criteria>'
-                    . "\n$baseline_indent".'</EngineInput>';
+                    . "\n$baseline_indent".'</DictionaryItem>';
         } 
         $baseline_indent = "  ";
         $xml_markup .= "\n$baseline_indent".'<Dictionary>'
@@ -164,14 +166,24 @@ class IO
                 . "\n$baseline_indent".'</EvaluationTimeInputValues>';
         
         //Wrap it all up.
+        $extraattribs = '';
+        foreach($aExtraTopLevelAttribs as $attribname=>$attribvalue)
+        {
+           $extraattribs .= " $attribname=\"$attribvalue\"";
+        }
         $dumpdate = date('c');
-        return '<?xml version="1.0"?>'
+        $xmlastext = '<?xml version="1.0"?>'
                 . "\n".'<SRERuleBase'
                 . ' name="'.$sRulebaseName.'"'
                 . ' export_dt="'.$dumpdate.'"'
+                . $extraattribs
                 . ' xmlns="http://sanbusinessconsultants.com/opensource/simplerulesengine/2014/1"'
-                . '>'
-                . $xml_markup
-                . "\n</SRERuleBase>";
+                . '>';
+        if($sExtraContextNoteText != NULL)
+        {
+            $xmlastext .= "\n<ContextNote>\n$sExtraContextNoteText\n</ContextNote>";
+        }
+        $xmlastext .= "\n$xml_markup\n</SRERuleBase>";
+        return $xmlastext;
     }
 }

@@ -9,8 +9,9 @@
 name = RAPTOR Contraindications Engine
 description = A module with the contraindications engine needed by the RAPTOR application
 core = 7.x
+configure = admin/config/raptor_contraindications
 
-version = "7.x-0.5-dev"
+version = "7.x-0.8"
 package = RAPTOR
 
 files[] = tests/raptor_contraindications.test
