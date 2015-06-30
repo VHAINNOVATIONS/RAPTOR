@@ -9,8 +9,9 @@
 name = RAPTOR Glue
 description = Integrates all the other RAPTOR modules into one application
 core = 7.x
+configure = admin/config/raptor_glue
 
-version = "7.x-0.7-dev"
+version = "7.x-0.95"
 package = RAPTOR
 
 dependencies[] = raptor_contraindications

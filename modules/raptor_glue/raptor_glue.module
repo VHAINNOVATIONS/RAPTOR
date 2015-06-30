@@ -928,6 +928,17 @@ function raptor_glue_menu()
       'type' => MENU_CALLBACK,
     );
 
+    $items['admin/config/raptor_glue'] = array(
+      'title' => t('Edit Glue Configuration'),
+      'page callback' => 'raptor_glue_edit_config_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Glue Configuration Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'EditGlueConfigPage.php',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
+    );
+    
     return $items;
 }
 
@@ -1344,3 +1355,19 @@ function raptor_glue_userinteractionping_form_builder($form, &$form_state)
     //Stop all processing.
     drupal_exit();  //Otherwise more stuff gets added to the file.
 }
+
+
+function raptor_glue_edit_config_form() 
+{
+    return drupal_get_form('raptor_glue_edit_config_form_builder');
+}
+
+function raptor_glue_edit_config_form_builder($form, &$form_state)
+{
+    $oPI = new \raptor\EditGlueConfigPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+

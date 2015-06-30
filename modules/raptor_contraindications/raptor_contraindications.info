@@ -1,6 +1,6 @@
  ;; ------------------------------------------------------------------------------------
  ;; Created by SAN Business Consultants for RAPTOR phase 2
- ;; Open Source VA Innovation Project 2011-2014
+ ;; Open Source VA Innovation Project 2011-2015
  ;; VA Innovator: Dr. Jonathan Medverd
  ;; SAN Implementation: Andrew Casertano, Frank Font, et al
  ;; Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -11,7 +11,7 @@ description = A module with the contraindications engine needed by the RAPTOR ap
 core = 7.x
 configure = admin/config/raptor_contraindications
 
-version = "7.x-0.8"
+version = "7.x-0.95"
 package = RAPTOR
 
 files[] = tests/raptor_contraindications.test

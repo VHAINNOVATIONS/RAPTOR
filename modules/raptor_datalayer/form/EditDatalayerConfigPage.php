@@ -13,14 +13,12 @@
 
 namespace raptor;
 
-module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
-
 /**
  * This class returns the configuration edit page
  *
  * @author Frank Font of SAN Business Consultants
  */
-class EditContraIndicationsConfigPage
+class EditDatalayerConfigPage
 {
 
     public function __construct()
@@ -28,7 +26,7 @@ class EditContraIndicationsConfigPage
         module_load_include('php','raptor_datalayer','core/data_context');
         $oContext = \raptor\Context::getInstance();
         $oUserInfo = $oContext->getUserInfo();
-        if(!$oUserInfo->isSiteAdministrator() || !$oUserInfo->hasPrivilege('ECIR1'))
+        if(!$oUserInfo->isSiteAdministrator())
         {
             throw new \Exception('The user account does not have privileges for this page.');
         }
@@ -49,7 +47,7 @@ class EditContraIndicationsConfigPage
             '#disabled' => $disabled,
         );
         
-        $aGeneralHelpText[] = 'The contraindication rules control when and if patient care users of RAPTOR are notified or warned of potential patient safety issues.';
+        $aGeneralHelpText[] = 'The datalayer module connects RAPTOR to the VistA system.';
         
         $infonum=0;
         foreach($aGeneralHelpText as $oneitem)
@@ -60,6 +58,8 @@ class EditContraIndicationsConfigPage
             );        
         }
 
+        /*
+        
         $form['data_entry_area1']['downloadexistingrules'] = array(
             '#type'     => 'fieldset',
             '#title'    => t('Download existing rules'),
@@ -91,6 +91,7 @@ class EditContraIndicationsConfigPage
         $form['data_entry_area1']['downloadexistingrules']['link']['raw'] = array(
             '#markup' => "<li><a href='$exportraw'>Download existing rules model as a RAW data file</a>",
         );        
+        */
         
         /*
         $form['data_entry_area1']['replacerules'] = array(

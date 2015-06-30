@@ -39,7 +39,7 @@ class EditContraindicationPage extends \simplerulesengine\EditRulePage
         $oUserInfo = $oContext->getUserInfo();
         if(!$oUserInfo->hasPrivilege('ECIR1'))
         {
-            throw new \Exception('The user account does not privileges for this page.');
+            throw new \Exception('The user account does not have privileges for this page.');
         }
     }
     
