@@ -26,7 +26,7 @@
  */
 
 defined('SIMPLERULESENGINE_DEMO_MODULE_PATH')
-    or define('SIMPLERULESENGINE_DEMO_MODULE_PATH', drupal_get_path('module', 'simplerulesengine_demo'));  
+    or define('SIMPLERULESENGINE_DEMO_MODULE_PATH', dirname(__FILE__));  
 
 
 /** 
@@ -77,7 +77,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Manage Rules Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoManageRulesPage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     $items['simplerulesengine_demo/addrule'] = array(
       'title' => t('Add Rule'),
@@ -87,7 +87,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Add Rule Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoAddRulePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     $items['simplerulesengine_demo/viewrule'] = array(
       'title' => t('View Rule'),
@@ -97,7 +97,7 @@ function simplerulesengine_demo_menu()
       'description' => t('View Rule Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoViewRulePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     $items['simplerulesengine_demo/editrule'] = array(
       'title' => t('Edit Rule'),
@@ -107,7 +107,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Edit Rule Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoEditRulePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     $items['simplerulesengine_demo/deleterule'] = array(
       'title' => t('Delete Rule'),
@@ -117,7 +117,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Delete Rule Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoDeleteRulePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
 
     //Manage Measures
@@ -129,7 +129,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Manage Measures Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoManageMeasuresPage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     $items['simplerulesengine_demo/addmeasure'] = array(
       'title' => t('Add Measure'),
@@ -139,7 +139,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Add Measure Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoAddMeasurePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     $items['simplerulesengine_demo/viewmeasure'] = array(
       'title' => t('View Measure'),
@@ -149,7 +149,7 @@ function simplerulesengine_demo_menu()
       'description' => t('View Measure Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoViewMeasurePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     $items['simplerulesengine_demo/editmeasure'] = array(
       'title' => t('Edit Measure'),
@@ -159,7 +159,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Edit Measure Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoEditMeasurePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     $items['simplerulesengine_demo/deletemeasure'] = array(
       'title' => t('Delete Measure'),
@@ -169,7 +169,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Delete Measure Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoDeleteMeasurePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     
     //Reports
@@ -181,7 +181,7 @@ function simplerulesengine_demo_menu()
       'description' => t('View Inputs Report'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoReportInputs.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/report/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
     
     $items['simplerulesengine_demo/reportrules'] = array(
@@ -192,7 +192,7 @@ function simplerulesengine_demo_menu()
       'description' => t('View Rules Report'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoReportRules.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/report/',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
     );
 
     $items['simplerulesengine_demo/exportxml'] = array(
@@ -209,15 +209,15 @@ function simplerulesengine_demo_menu()
 
 function simplerulesengine_demo_evaluate_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_evaluate_form_builder");
+    return drupal_get_form('simplerulesengine_demo_evaluate_form_builder');
 }
 function simplerulesengine_demo_managerules_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_managerules_form_builder");
+    return drupal_get_form('simplerulesengine_demo_managerules_form_builder');
 }
 function simplerulesengine_demo_managemeasures_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_managemeasures_form_builder");
+    return drupal_get_form('simplerulesengine_demo_managemeasures_form_builder');
 }
 
 function simplerulesengine_demo_evaluate_form_builder($form, &$form_state)
@@ -270,37 +270,37 @@ function simplerulesengine_demo_evaluate_form_builder_submit($form, &$form_state
 //Manage rules
 function simplerulesengine_demo_viewrule_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_viewrule_form_builder");
+    return drupal_get_form('simplerulesengine_demo_viewrule_form_builder');
 }
 function simplerulesengine_demo_addrule_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_addrule_form_builder");
+    return drupal_get_form('simplerulesengine_demo_addrule_form_builder');
 }
 function simplerulesengine_demo_editrule_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_editrule_form_builder");
+    return drupal_get_form('simplerulesengine_demo_editrule_form_builder');
 }
 function simplerulesengine_demo_deleterule_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_deleterule_form_builder");
+    return drupal_get_form('simplerulesengine_demo_deleterule_form_builder');
 }
 
 //Manage measures
 function simplerulesengine_demo_viewmeasure_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_viewmeasure_form_builder");
+    return drupal_get_form('simplerulesengine_demo_viewmeasure_form_builder');
 }
 function simplerulesengine_demo_addmeasure_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_addmeasure_form_builder");
+    return drupal_get_form('simplerulesengine_demo_addmeasure_form_builder');
 }
 function simplerulesengine_demo_editmeasure_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_editmeasure_form_builder");
+    return drupal_get_form('simplerulesengine_demo_editmeasure_form_builder');
 }
 function simplerulesengine_demo_deletemeasure_form() 
 {
-    return drupal_get_form("simplerulesengine_demo_deletemeasure_form_builder");
+    return drupal_get_form('simplerulesengine_demo_deletemeasure_form_builder');
 }
 
 //Reports
@@ -510,9 +510,10 @@ function simplerulesengine_demo_exportxml_form_builder($form, &$form_state)
     $sXML = $oIO->getRulebaseAsXML($sRulebaseName);
     
     //Dump it.
+    $now = date('Y-m-d H:i:s');
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
-    header("Content-Disposition: attachment; filename=simplerulesengine_rulebase.xml");
+    header("Content-Disposition: attachment; filename=simplerulesengine_rulebase_$now.xml");
     header("Content-Type: application/octet-stream; "); 
     header("Content-Transfer-Encoding: binary");
     

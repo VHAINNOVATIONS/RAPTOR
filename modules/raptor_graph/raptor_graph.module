@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -26,59 +26,6 @@ function raptor_graph_help($path, $arg)
 function raptor_graph_menu() 
 {
     $items = array();
-    
-    $items['raptor/graph/exportdata'] = array(
-      'title' => t('Graph Data Export'),
-      'page callback' => 'raptor_graph_admindatadump_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Extract to a file all graph data'),
-      'type' => MENU_CALLBACK,
-    );
-
-    $items['raptor/graph/test'] = array(
-      'title' => t('Graph Test'),
-      'page callback' => 'raptor_graph_runtests_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Test graph integration'),
-      'type' => MENU_CALLBACK,
-    );
-
+    //NOTHING
     return $items;
 }
-
-function raptor_graph_admindatadump_form() 
-{
-    return drupal_get_form("raptor_graph_admindatadump_form_builder");
-}
-
-function raptor_graph_runtests_form() 
-{
-    return drupal_get_form("raptor_graph_runtests_form_builder");
-}
-
-function raptor_graph_runtests_form_builder($form, &$form_state)
-{
-	throw new \Exception('Feature not yet implemented');
-}
-
-function raptor_graph_runtests_form_builder_submit($form, &$form_state)
-{
-	throw new \Exception('Feature not yet implemented');
-}
-
-
-/**
- * Send a downloadable file to the browser
- * @param type $form_state
- * @return binary file
- */
-function raptor_graph_admindatadump_form_builder($form, &$form_state)
-{
-	throw new \Exception('Feature not yet implemented');
-}
-
-
-
-

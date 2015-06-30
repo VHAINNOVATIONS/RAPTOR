@@ -10,7 +10,7 @@ name = RAPTOR Graph Integration
 description = A module with the graph integration needed by the RAPTOR application
 core = 7.x
 
-version = "7.x-0.4-dev"
+version = "7.x-0.95"
 package = RAPTOR
 
 scripts[] = js/d3.min.js

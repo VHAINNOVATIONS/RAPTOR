@@ -23,7 +23,7 @@ class LoadUtils
 
     public static function getFileAsArray($sFilename)
     {
-        $sPath = RAPTOR_DATALAYER_MODULE_PATH.'/install/'.$sFilename;
+        $sPath = drupal_get_path('module', 'raptor_datalayer').'/install/'.$sFilename;
         $aLines = file($sPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         return $aLines;
     }    

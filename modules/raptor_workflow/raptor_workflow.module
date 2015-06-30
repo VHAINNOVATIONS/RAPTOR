@@ -18,7 +18,7 @@ function raptor_workflow_help($path, $arg)
   switch ($path)
   {
     case "admin/help#raptor_workflow":
-        return '<p>'.  t("Integrates workflow package.") .'</p>';
+        return '<p>'.  t("Integrates workflow management and metadata into the RAPTOR package.") .'</p>';
         break;
   }
 }
@@ -26,59 +26,7 @@ function raptor_workflow_help($path, $arg)
 function raptor_workflow_menu() 
 {
     $items = array();
-    
-    $items['raptor/workflow/exportdata'] = array(
-      'title' => t('Workflow Data Export'),
-      'page callback' => 'raptor_adminworkflowdatadump_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Extract to a file all workflow data'),
-      'type' => MENU_CALLBACK,
-    );
-
-    $items['raptor/workflow/runtests'] = array(
-      'title' => t('Workflow Test'),
-      'page callback' => 'raptor_workflow_runtests_form',
-      'access arguments' => array('access content'),
-      'access callback' => TRUE,        
-      'description' => t('Test workflow integration'),
-      'type' => MENU_CALLBACK,
-    );
-
+    //NOTHING
     return $items;
 }
-
-function raptor_adminworkflowdatadump_form() 
-{
-    return drupal_get_form("raptor_adminworkflowdatadump_form_builder");
-}
-
-function raptor_workflow_runtests_form() 
-{
-    return drupal_get_form("raptor_workflow_runtests_form_builder");
-}
-
-function raptor_workflow_runtests_form_builder($form, $form_state)
-{
-	throw new \Exception('Feature not yet implemented');
-}
-
-function raptor_workflow_runtests_form_builder_submit($form, &$form_state)
-{
-	throw new \Exception('Feature not yet implemented');
-}
-
-
-/**
- * Send a downloadable file to the browser
- * @param type $form_state
- * @return binary file
- */
-function raptor_adminworkflowdatadump_form_builder($form, &$form_state)
-{
-	throw new \Exception('Feature not yet implemented');
-}
-
-
-
 
