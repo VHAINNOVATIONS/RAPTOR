@@ -365,6 +365,17 @@ function raptor_glue_menu()
       'file path' => '/sites/all/modules/raptor_glue/functions/',
       'type' => MENU_CALLBACK,
     );
+
+    $items['raptor/protocollib/exportxml'] = array(
+      'title' => t('ProtocolLib XML Data Export'),
+      'page callback' => 'raptor_adminprotocollib_xmldatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Extract to an XML file all protocol lib data'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
     
     $items['raptor/resetdatafordemo'] = array(
       'title' => t('Reset data for demo'),

@@ -16,14 +16,20 @@ function raptor_seeallurls_form()
     return drupal_get_form("raptor_seeallurls_form_builder");
 }
 
+function raptor_adminprotocollib_xmldatadump_form() 
+{
+    return drupal_get_form('raptor_adminprotocollib_xmldatadump_form_builder');
+}
+
 function raptor_adminprotocollibdatadump_form() 
 {
-    return drupal_get_form("raptor_adminprotocollibdatadump_form_builder");
+    return drupal_get_form('raptor_adminprotocollibdatadump_form_builder');
 }
+
 
 function raptor_admincoredatadump_form() 
 {
-    return drupal_get_form("raptor_admincoredatadump_form_builder");
+    return drupal_get_form('raptor_admincoredatadump_form_builder');
 }
 
 function raptor_glue_runtests_form_builder($form, $form_state)
@@ -65,6 +71,110 @@ function raptor_dataexports_form()
 function raptor_admincoredatadump_form_builder($form, &$form_state)
 {
 	throw new \Exception('Feature not yet implemented');
+}
+
+
+/**
+ * Send a downloadable file to the browser
+ */
+function raptor_adminprotocollib_xmldatadump_form_builder($form, &$form_state)
+{
+    //Log this.
+    global $user;
+    error_log('Exporting User Accounts to XML as user ' . print_r($user,TRUE));
+
+    $ar_extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
+    $ar_extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
+    $ar_extraattribs['vista_site'] = VISTA_SITE;
+    $extracontextinfo = 'These are the protocol library entries as found in the RAPTOR application for one site.';
+
+    $extraattribs = '';
+    foreach($ar_extraattribs as $attribname=>$attribvalue)
+    {
+       $extraattribs .= " $attribname=\"$attribvalue\"";
+    }
+    $dumpdate = date('c');
+    
+    $sXML = '<?xml version="1.0"?>';
+    try
+    {
+        $tablename = 'raptor_protocol_lib';
+        $result = db_select($tablename, 'n')
+                        ->fields('n')
+                        ->orderBy('modality_abbr')
+                        ->orderBy('protocol_shortname')
+                        ->execute();
+        $sXML .= "\n<RaptorProtocolLibrary export_dt='$dumpdate' $extraattribs>";
+        $sXML .= "\n\t<Context>$extracontextinfo</Context>";
+        $attribs1 = '';
+        while($record = $result->fetchAssoc())
+        {
+            $protocol_shortname = $record['protocol_shortname'];
+            $attribs1 = '';
+            $fullname='';
+            foreach($record as $key=>$value)
+            {
+                $cleanvalue = htmlspecialchars($value);
+                if($key == 'name')
+                {
+                    $fullname = $cleanvalue;
+                } else {
+                    $attribs1 .= " $key='$cleanvalue'";
+                }
+            }
+
+            $tablename2 = 'raptor_protocol_template';
+            $result2 = db_select($tablename2, 'n')
+                    ->fields('n')
+                    ->condition('protocol_shortname',$protocol_shortname,'=')
+                    ->execute();
+            if($result2->rowCount() == 0)
+            {
+                $sXML .= "\n\t<Protocol $attribs1 >\n\t\t<Text type='name'>$fullname</Text>\n\t</Protocol>";
+            } else {
+                $sXML .= "\n\t<Protocol $attribs1>\n\t\t<Text type='name'>$fullname</Text>";
+                    $record2 = $result2->fetchAssoc();
+                    $attribs2 = '';
+                    $nodes2 = '';
+                    foreach($record2 as $key=>$value)
+                    {
+                        if($value !== NULL)
+                        {
+                            $cleanvalue = htmlspecialchars($value);
+                            if(strpos($key,'_tx') !== FALSE)
+                            {
+                                $nodes2 .= "\n\t\t\t<Text type='$key'>$cleanvalue</Text>";
+                            } else {
+                                $attribs2 .= " $key='$cleanvalue'";
+                            }
+                        }
+                    }
+                    if($nodes2 > '')
+                    {
+                        $sXML .= "\n\t\t<Template $attribs2>$nodes2\n\t\t</Template>";
+                    } else {
+                        $sXML .= "\n\t\t<Template $attribs2>";
+                    }
+                $sXML .= "\n\t</Protocol>";
+            }
+        }
+        $sXML .= "\n</RaptorProtocolLibrary>";
+        
+    } catch (\Exception $ex) {
+        throw $ex;
+    }
+    
+    //Dump it.
+    $now = date('Y-m-d H:i:s');
+    header("Cache-Control: public");
+    header("Content-Description: File Transfer");
+    header("Content-Disposition: attachment; filename=raptor_protocollib_rsite".VISTA_SITE."_$now.xml");
+    header("Content-Type: application/octet-stream; "); 
+    header("Content-Transfer-Encoding: binary");
+    
+    echo $sXML;
+
+    drupal_exit();  //Otherwise more stuff gets added to the file.
 }
 
 /**
