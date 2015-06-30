@@ -17,7 +17,7 @@ namespace raptor_reports;
  *
  * @author SAN
  */
-class DBScheduleSchema
+class DBReportSchema
 {
     /**
      * Add all the schema content for the list tables
