@@ -58,11 +58,9 @@ class EditGlueConfigPage
             );        
         }
 
-        /*
-        
-        $form['data_entry_area1']['downloadexistingrules'] = array(
+        $form['data_entry_area1']['downloadexistingusers'] = array(
             '#type'     => 'fieldset',
-            '#title'    => t('Download existing rules'),
+            '#title'    => t('Download existing user accounts'),
             '#attributes' => array(
                 'class' => array(
                     'data-entry1-area'
@@ -70,33 +68,32 @@ class EditGlueConfigPage
              ),
             '#disabled' => $disabled,
         );
-        $form['data_entry_area1']['downloadexistingrules']['info'] = array(
-            '#markup' => "<p>Downloading the existing rules does NOT change any of the rules in RAPTOR.  "
-            . "Save the downloaded rules in a safe place.</p>"
+        $form['data_entry_area1']['downloadexistingusers']['info'] = array(
+            '#markup' => "<p>Downloading the existing user accounts does NOT change any of the accounts in RAPTOR.  "
+            . "Save the downloaded user accounts in a safe place.</p>"
             . "",
         );        
         
-        $form['data_entry_area1']['downloadexistingrules']['link'] = array(
+        $form['data_entry_area1']['downloadexistingusers']['link'] = array(
             '#prefix' => "<ul>",
             '#suffix' => "<ul>",
             );        
         
         global $base_url;
-        $exportxml = "$base_url/raptor/contraindications/exportxml";
-        $form['data_entry_area1']['downloadexistingrules']['link']['xml'] = array(
-            '#markup' => "<li><a href='$exportxml'>Download existing rules model as an XML data file</a>",
+        $exportxml = "$base_url/raptor/users/exportxml";
+        $form['data_entry_area1']['downloadexistingusers']['link']['xml'] = array(
+            '#markup' => "<li><a href='$exportxml'>Download existing user accounts as an XML data file</a>",
         );        
         
-        $exportraw = "$base_url/raptor/contraindications/exportdata";
-        $form['data_entry_area1']['downloadexistingrules']['link']['raw'] = array(
-            '#markup' => "<li><a href='$exportraw'>Download existing rules model as a RAW data file</a>",
+        $exportraw = "$base_url/raptor/users/exportdata";
+        $form['data_entry_area1']['downloadexistingusers']['link']['raw'] = array(
+            '#markup' => "<li><a href='$exportraw'>Download existing user accounts as a RAW data file</a>",
         );        
-        */
         
         /*
-        $form['data_entry_area1']['replacerules'] = array(
+        $form['data_entry_area1']['replaceusers'] = array(
             '#type'     => 'fieldset',
-            '#title'    => t('Replace existing rules'),
+            '#title'    => t('Replace existing users'),
             '#attributes' => array(
                 'class' => array(
                     'data-entry1-area'
@@ -105,24 +102,24 @@ class EditGlueConfigPage
             '#disabled' => $disabled,
         );
         
-        $form['data_entry_area1']['replacerules']['warning'] = array(
-            '#markup' => "<p>Be careful replacing or resetting the contraindication rules.  "
+        $form['data_entry_area1']['replaceusers']['warning'] = array(
+            '#markup' => "<p>Be careful replacing or resetting the contraindication users.  "
                         . "This should ONLY be done after all stakeholders "
                         . "have been consulted and proper procedures followed.</p>",
         );        
         
-        $form['data_entry_area1']['replacerules']['content'] = array(
-            '#name' => 'files[replacementrules]',
+        $form['data_entry_area1']['replaceusers']['content'] = array(
+            '#name' => 'files[replacementusers]',
             '#type' => 'file', 
-            '#title' => t('Choose a replacement rules model'),
+            '#title' => t('Choose a replacement users model'),
             '#size' => 60,
-            '#description' => t('Upload a replacement to the current contraindication rules'), 
+            '#description' => t('Upload a replacement to the current contraindication users'), 
             );        
         
-        $form['data_entry_area1']['replacerules']['savechanges'] = array('#type' => 'submit'
+        $form['data_entry_area1']['replaceusers']['savechanges'] = array('#type' => 'submit'
                 , '#attributes' => array('class' => array('admin-action-button'))
                 , '#value' => t('Save Contraindication Rule Changes')
-                , '#validate' => array('raptor_contraindications_rulesreplace_customvalidate')
+                , '#validate' => array('raptor_contraindications_usersreplace_customvalidate')
                 , '#disabled' => $disabled
             );
         */

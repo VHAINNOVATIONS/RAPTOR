@@ -38,8 +38,14 @@ function raptor_glue_runtests_form_builder_submit($form, &$form_state)
 
 function raptor_adminuserdatadump_form() 
 {
-    return drupal_get_form("raptor_adminuserdatadump_form_builder");
+    return drupal_get_form('raptor_adminuserdatadump_form_builder');
 }
+
+function raptor_adminuser_xmldatadump_form() 
+{
+    return drupal_get_form('raptor_adminuser_xmldatadump_form_builder');
+}
+
 
 function raptor_resetdatafordemo_form() 
 {
@@ -108,6 +114,7 @@ function raptor_adminprotocollibdatadump_form_builder($form, &$form_state)
             ->fields('n')
             ->orderBy('protocol_shortname')
             ->execute();
+    
     $sDataDump = serialize($result->fetchAllAssoc('protocol_shortname'));
     echo "\n>>>tablename=" . $tablename;
     echo "\n>>>rows=" . $result->rowCount();
@@ -139,7 +146,99 @@ function raptor_adminprotocollibdatadump_form_builder($form, &$form_state)
 
 /**
  * Send a downloadable file to the browser
- * @return binary file
+ */
+function raptor_adminuser_xmldatadump_form_builder($form, &$form_state)
+{
+    //Log this.
+    global $user;
+    error_log('Exporting User Accounts to XML as user ' . print_r($user,TRUE));
+
+    $ar_extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
+    $ar_extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
+    $ar_extraattribs['vista_site'] = VISTA_SITE;
+    $extracontextinfo = 'These are the user accounts as found in the RAPTOR application for one site.';
+
+    $extraattribs = '';
+    foreach($ar_extraattribs as $attribname=>$attribvalue)
+    {
+       $extraattribs .= " $attribname=\"$attribvalue\"";
+    }
+    $dumpdate = date('c');
+    
+    $sXML = '<?xml version="1.0"?>';
+    try
+    {
+        $tablename = 'raptor_user_profile';
+        $result = db_select($tablename, 'n')
+                        ->fields('n')
+                        ->orderBy('role_nm')
+                        ->orderBy('username')
+                        //->condition('role_nm','Site Administrator','<>')
+                        ->condition('uid',1,'<>')   //Do NOT export the CORE admin account.
+                        ->execute();
+        $sXML .= "\n<RaptorUsers export_dt='$dumpdate' $extraattribs>";
+        foreach($result as $item) 
+        {
+            $username = $item->username;
+            $role_nm  = $item->role_nm;
+            $uid  = $item->uid;
+            $sXML .= "\n\t<User name='$username' role='$role_nm' id='$uid'>";
+
+            $tablename2 = 'raptor_user_modality';
+            $result2 = db_select($tablename2, 'n')
+                            ->fields('n')
+                            ->orderBy('uid')
+                            ->orderBy('modality_abbr')
+                            ->condition('uid',$uid,'=')
+                            ->execute();
+            if($result2->rowCount() > 0)
+            {
+                $sXML .= "\n\t\t<Modalities>";
+                foreach($result2 as $item) 
+                {
+                    $sXML .= "\n\t\t\t<Modality name='{$item->modality_abbr}' specialist_yn='{$item->specialist_yn}' />";
+                }
+                $sXML .= "\n\t\t</Modalities>";
+            }
+            
+            $tablename3 = 'raptor_user_anatomy';
+            $result3 = db_select($tablename3, 'n')
+                            ->fields('n')
+                            ->orderBy('weightgroup')
+                            ->condition('uid',$uid,'=')
+                            ->execute();
+            if($result3->rowCount() > 0)
+            {
+                $sXML .= "\n\t\t<AnatomyKeywords>";
+                foreach($result3 as $item) 
+                {
+                    $sXML .= "\n\t\t\t<AnatomyItem keyword='{$item->keyword}' weightgroup='{$item->weightgroup}' specialist_yn='{$item->specialist_yn}' />";
+                }
+                $sXML .= "\n\t\t</AnatomyKeywords>";
+            }
+            
+            $sXML .= "\n\t</User>";
+        }
+        $sXML .= "\n</RaptorUsers>";
+        
+    } catch (\Exception $ex) {
+        throw $ex;
+    }
+    
+    //Dump it.
+    header("Cache-Control: public");
+    header("Content-Description: File Transfer");
+    header("Content-Disposition: attachment; filename=raptor_glue_useraccounts.xml");
+    header("Content-Type: application/octet-stream; "); 
+    header("Content-Transfer-Encoding: binary");
+    
+    echo $sXML;
+
+    drupal_exit();  //Otherwise more stuff gets added to the file.
+}
+
+/**
+ * Send a downloadable file to the browser
  */
 function raptor_adminuserdatadump_form_builder($form, &$form_state)
 {
@@ -165,7 +264,16 @@ function raptor_adminuserdatadump_form_builder($form, &$form_state)
     $now = date('Y-m-d H:i:s');
     echo '### RAPTOR DATA DUMPED ' . $now;
     echo "\n### TIMEZONE " . date_default_timezone_get();
-    echo "\n### USER DATA DUMP TOOL VERSION 20140623.1";
+    echo "\n### USER DATA DUMP TOOL VERSION 20150630.1";
+    $extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
+    $extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
+    $extraattribs['vista_site'] = VISTA_SITE;
+    $extracontextinfo = 'These are the user accounts as found in the RAPTOR application for one site.';
+    foreach($extraattribs as $name=>$value)
+    {
+        echo "\n### $name=$value";
+    }
+    echo "\n### $extracontextinfo";
     
     $tablename = 'raptor_user_profile';
     $result = db_select($tablename, 'n')

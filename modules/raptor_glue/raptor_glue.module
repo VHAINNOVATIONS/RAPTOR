@@ -343,6 +343,17 @@ function raptor_glue_menu()
       'file path' => '/sites/all/modules/raptor_glue/functions/',
       'type' => MENU_CALLBACK,
     );
+    
+    $items['raptor/users/exportxml'] = array(
+      'title' => t('User Account XML Data Dump'),
+      'page callback' => 'raptor_adminuser_xmldatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Exract to a file all the non-admin RAPTOR user accounts as XML'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
 
     $items['raptor/protocollib/exportdata'] = array(
       'title' => t('ProtocolLib Data Export'),
