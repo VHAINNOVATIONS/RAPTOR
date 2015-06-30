@@ -73,6 +73,25 @@ function raptor_admincoredatadump_form_builder($form, &$form_state)
 	throw new \Exception('Feature not yet implemented');
 }
 
+function raptor_glue_convertForXML($record,$indent='',$textlist=array(),$ignorefields=array(),$textclue='_tx')
+{
+    $attribs = '';
+    $textnodes = '';
+    foreach($record as $key=>$value)
+    {
+        if(!in_array($key,$ignorefields))
+        {
+            $cleanvalue = htmlspecialchars($value);
+            if(in_array($key, $textlist) || strrpos($key,$textclue) !== FALSE)
+            {
+                $textnodes .= "\n$indent<Text type='$key'>$cleanvalue</Text>";
+            } else {
+                $attribs .= " $key='$cleanvalue'";
+            }
+        }
+    }
+    return array('attribs'=>$attribs,'textnodes'=>$textnodes);
+}
 
 /**
  * Send a downloadable file to the browser
@@ -86,6 +105,7 @@ function raptor_adminprotocollib_xmldatadump_form_builder($form, &$form_state)
     $ar_extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
     $ar_extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
     $ar_extraattribs['vista_site'] = VISTA_SITE;
+    $ar_extraattribs['export_util_version'] = '20150630.2';
     $extracontextinfo = 'These are the protocol library entries as found in the RAPTOR application for one site.';
 
     $extraattribs = '';
@@ -106,57 +126,47 @@ function raptor_adminprotocollib_xmldatadump_form_builder($form, &$form_state)
                         ->execute();
         $sXML .= "\n<RaptorProtocolLibrary export_dt='$dumpdate' $extraattribs>";
         $sXML .= "\n\t<Context>$extracontextinfo</Context>";
-        $attribs1 = '';
         while($record = $result->fetchAssoc())
         {
             $protocol_shortname = $record['protocol_shortname'];
-            $attribs1 = '';
-            $fullname='';
-            foreach($record as $key=>$value)
-            {
-                $cleanvalue = htmlspecialchars($value);
-                if($key == 'name')
-                {
-                    $fullname = $cleanvalue;
-                } else {
-                    $attribs1 .= " $key='$cleanvalue'";
-                }
-            }
+            $bundle1 = raptor_glue_convertForXML($record,"\t\t",array('name'),array('protocol_shortname'));
+            $attribs1 = $bundle1['attribs'];
+            $textnodes1 = $bundle1['textnodes'];
+            $sXML .= "\n\t<Protocol $attribs1 >$textnodes1";
 
-            $tablename2 = 'raptor_protocol_template';
-            $result2 = db_select($tablename2, 'n')
-                    ->fields('n')
-                    ->condition('protocol_shortname',$protocol_shortname,'=')
-                    ->execute();
-            if($result2->rowCount() == 0)
+            $childtables = array(
+                 'raptor_protocol_template'=>array('nodename'=>'Template','orderby'=>array())
+                ,'raptor_protocol_keywords'=>array('nodename'=>'Keyword','orderby'=>array('weightgroup'))
+                ,'raptor_protocol_code_maps'=>array('nodename'=>'CodeMap','orderby'=>array())
+            );
+            foreach($childtables as $tablename2=>$details)
             {
-                $sXML .= "\n\t<Protocol $attribs1 >\n\t\t<Text type='name'>$fullname</Text>\n\t</Protocol>";
-            } else {
-                $sXML .= "\n\t<Protocol $attribs1>\n\t\t<Text type='name'>$fullname</Text>";
-                    $record2 = $result2->fetchAssoc();
-                    $attribs2 = '';
-                    $nodes2 = '';
-                    foreach($record2 as $key=>$value)
+                $nodename = $details['nodename'];
+                $query = db_select($tablename2, 'n')
+                        ->fields('n')
+                        ->condition('protocol_shortname',$protocol_shortname,'=');
+                foreach($details['orderby'] as $orderbyfieldname)
+                {
+                    $query->orderBy($orderbyfieldname);
+                }
+                $result2 = $query->execute();
+                if($result2->rowCount() > 0)
+                {
+                    while($record2 = $result2->fetchAssoc())
                     {
-                        if($value !== NULL)
+                        $bundle2 = raptor_glue_convertForXML($record2,"\t\t\t\t",array('name'),array('protocol_shortname'));
+                        $attribs2 = $bundle2['attribs'];
+                        $nodes2 = $bundle2['textnodes'];
+                        if($nodes2 > '')
                         {
-                            $cleanvalue = htmlspecialchars($value);
-                            if(strpos($key,'_tx') !== FALSE)
-                            {
-                                $nodes2 .= "\n\t\t\t<Text type='$key'>$cleanvalue</Text>";
-                            } else {
-                                $attribs2 .= " $key='$cleanvalue'";
-                            }
+                            $sXML .= "\n\t\t<$nodename $attribs2>$nodes2\n\t\t</$nodename>";
+                        } else {
+                            $sXML .= "\n\t\t<$nodename $attribs2 />";
                         }
                     }
-                    if($nodes2 > '')
-                    {
-                        $sXML .= "\n\t\t<Template $attribs2>$nodes2\n\t\t</Template>";
-                    } else {
-                        $sXML .= "\n\t\t<Template $attribs2>";
-                    }
-                $sXML .= "\n\t</Protocol>";
+                }
             }
+            $sXML .= "\n\t</Protocol>";
         }
         $sXML .= "\n</RaptorProtocolLibrary>";
         
@@ -275,6 +285,7 @@ function raptor_adminuser_xmldatadump_form_builder($form, &$form_state)
     $ar_extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
     $ar_extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
     $ar_extraattribs['vista_site'] = VISTA_SITE;
+    $ar_extraattribs['export_util_version'] = '20150630.1';
     $extracontextinfo = 'These are the user accounts as found in the RAPTOR application for one site.';
 
     $extraattribs = '';
@@ -296,6 +307,7 @@ function raptor_adminuser_xmldatadump_form_builder($form, &$form_state)
                         ->condition('uid',1,'<>')   //Do NOT export the CORE admin account.
                         ->execute();
         $sXML .= "\n<RaptorUsers export_dt='$dumpdate' $extraattribs>";
+        $sXML .= "\n\t<Context>$extracontextinfo</Context>";
         foreach($result as $item) 
         {
             $username = $item->username;
