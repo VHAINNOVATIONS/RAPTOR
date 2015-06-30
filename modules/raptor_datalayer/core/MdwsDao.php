@@ -67,7 +67,7 @@ class MdwsDao implements IMdwsDao {
 
 
     public function disconnect() {
-        error_log('Called MdwsDao disconnect!!!!!');
+        //error_log('Called MdwsDao disconnect!!!!!');
         $this->errorCount = 0;
         $this->isAuthenticated = FALSE;
         try {
