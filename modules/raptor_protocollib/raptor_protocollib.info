@@ -9,8 +9,9 @@
 name = RAPTOR Protocol Library Integration
 description = A module with the support for scanned protocol images
 core = 7.x
+configure = admin/config/raptor_protocollib
 
-version = "7.x-0.5-dev"
+version = "7.x-0.85"
 package = RAPTOR
 
 dependencies[] = raptor_datalayer

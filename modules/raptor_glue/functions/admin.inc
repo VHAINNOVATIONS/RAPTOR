@@ -87,16 +87,25 @@ function raptor_adminprotocollibdatadump_form_builder($form, &$form_state)
     error_log('Dumping the protocol library information from the ' . print_r($userinfo,TRUE));
 
     //Dump it.
+    $now = date('Y-m-d H:i:s');
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
     //header("Content-Length: 64000;");
-    header("Content-Disposition: attachment; filename=raptor_adminprotocollibdatadump.raw");
+    header("Content-Disposition: attachment; filename=raptor_protocollib_rsite".VISTA_SITE."_$now.raw");
     header("Content-Type: application/octet-stream; "); 
     header("Content-Transfer-Encoding: binary");
-    $now = date('Y-m-d H:i:s');
     echo '### RAPTOR DATA DUMPED ' . $now;
     echo "\n### TIMEZONE " . date_default_timezone_get();
-    echo "\n### PROTOCOL LIB DATA DUMP TOOL VERSION 20140713.1";
+    echo "\n### PROTOCOL LIB DATA DUMP TOOL VERSION 20150630.1";
+    $extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
+    $extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
+    $extraattribs['vista_site'] = VISTA_SITE;
+    $extracontextinfo = 'These are the protocol library entries as found in the RAPTOR application for one site.';
+    foreach($extraattribs as $name=>$value)
+    {
+        echo "\n### $name=$value";
+    }
+    echo "\n### $extracontextinfo";
     
     $tablename = 'raptor_protocol_lib';
     $result = db_select($tablename, 'n')
@@ -229,7 +238,7 @@ function raptor_adminuser_xmldatadump_form_builder($form, &$form_state)
     $now = date('Y-m-d H:i:s');
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
-    header("Content-Disposition: attachment; filename=raptor_glue_useraccounts_rsite".VISTA_SITE."_$now.xml");
+    header("Content-Disposition: attachment; filename=raptor_useraccounts_rsite".VISTA_SITE."_$now.xml");
     header("Content-Type: application/octet-stream; "); 
     header("Content-Transfer-Encoding: binary");
     
@@ -260,7 +269,7 @@ function raptor_adminuserdatadump_form_builder($form, &$form_state)
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
     //header("Content-Length: 64000;");
-    header("Content-Disposition: attachment; filename=raptor_glue_useraccounts_rsite".VISTA_SITE."_$now.raw");
+    header("Content-Disposition: attachment; filename=raptor_useraccounts_rsite".VISTA_SITE."_$now.raw");
     header("Content-Type: application/octet-stream; "); 
     header("Content-Transfer-Encoding: binary");
     echo '### RAPTOR DATA DUMPED ' . $now;
