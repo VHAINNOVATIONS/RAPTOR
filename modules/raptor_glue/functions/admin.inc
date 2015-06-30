@@ -135,13 +135,26 @@ function raptor_adminprotocollib_xmldatadump_form_builder($form, &$form_state)
             $sXML .= "\n\t<Protocol $attribs1 >$textnodes1";
 
             $childtables = array(
-                 'raptor_protocol_template'=>array('nodename'=>'Template','orderby'=>array())
-                ,'raptor_protocol_keywords'=>array('nodename'=>'Keyword','orderby'=>array('weightgroup'))
-                ,'raptor_protocol_code_maps'=>array('nodename'=>'CodeMap','orderby'=>array())
+                 'raptor_protocol_template'=>array('wrappernodename'=>NULL,'nodename'=>'Template','orderby'=>array())
+                ,'raptor_protocol_keywords'=>array('wrappernodename'=>'Keywords','nodename'=>'Keyword','orderby'=>array('weightgroup'))
+                ,'raptor_protocol_code_maps'=>array('wrappernodename'=>'CodeMaps','nodename'=>'CodeMap','orderby'=>array())
             );
             foreach($childtables as $tablename2=>$details)
             {
+                $wrappernodename = $details['wrappernodename'];
                 $nodename = $details['nodename'];
+                if($wrappernodename != NULL)
+                {
+                    $i1 = "\t\t";
+                    $i2 = "\t\t\t";
+                    $wn1 = "\n\t<$wrappernodename>";
+                    $wn2 = "\n\t</$wrappernodename>";
+                } else {
+                    $i1 = "\t\t\t";
+                    $i2 = "\t\t\t\t";
+                    $wn1 = "";
+                    $wn2 = "";
+                }
                 $query = db_select($tablename2, 'n')
                         ->fields('n')
                         ->condition('protocol_shortname',$protocol_shortname,'=');
@@ -154,14 +167,14 @@ function raptor_adminprotocollib_xmldatadump_form_builder($form, &$form_state)
                 {
                     while($record2 = $result2->fetchAssoc())
                     {
-                        $bundle2 = raptor_glue_convertForXML($record2,"\t\t\t\t",array('name'),array('protocol_shortname'));
+                        $bundle2 = raptor_glue_convertForXML($record2,$i2,array('name'),array('protocol_shortname'));
                         $attribs2 = $bundle2['attribs'];
                         $nodes2 = $bundle2['textnodes'];
                         if($nodes2 > '')
                         {
-                            $sXML .= "\n\t\t<$nodename $attribs2>$nodes2\n\t\t</$nodename>";
+                            $sXML .= "$wn1\n$i1<$nodename $attribs2>$nodes2\n$i1</$nodename>$wn2";
                         } else {
-                            $sXML .= "\n\t\t<$nodename $attribs2 />";
+                            $sXML .= "$wn1\n$i1<$nodename $attribs2 />$wn2";
                         }
                     }
                 }
@@ -285,7 +298,7 @@ function raptor_adminuser_xmldatadump_form_builder($form, &$form_state)
     $ar_extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
     $ar_extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
     $ar_extraattribs['vista_site'] = VISTA_SITE;
-    $ar_extraattribs['export_util_version'] = '20150630.1';
+    $ar_extraattribs['export_util_version'] = '20150630.2';
     $extracontextinfo = 'These are the user accounts as found in the RAPTOR application for one site.';
 
     $extraattribs = '';
@@ -308,46 +321,48 @@ function raptor_adminuser_xmldatadump_form_builder($form, &$form_state)
                         ->execute();
         $sXML .= "\n<RaptorUsers export_dt='$dumpdate' $extraattribs>";
         $sXML .= "\n\t<Context>$extracontextinfo</Context>";
-        foreach($result as $item) 
+        while($record = $result->fetchAssoc())
         {
-            $username = $item->username;
-            $role_nm  = $item->role_nm;
-            $uid  = $item->uid;
-            $sXML .= "\n\t<User name='$username' role='$role_nm' id='$uid'>";
+            $uid = $record['uid'];
+            $bundle1 = raptor_glue_convertForXML($record,"\t\t",array('worklist_cols'));
+            $attribs1 = $bundle1['attribs'];
+            $textnodes1 = $bundle1['textnodes'];
+            $sXML .= "\n\t<User $attribs1 >$textnodes1";
 
-            $tablename2 = 'raptor_user_modality';
-            $result2 = db_select($tablename2, 'n')
-                            ->fields('n')
-                            ->orderBy('uid')
-                            ->orderBy('modality_abbr')
-                            ->condition('uid',$uid,'=')
-                            ->execute();
-            if($result2->rowCount() > 0)
+            $childtables = array(
+                 'raptor_user_modality'=>array('wrappernodename'=>'Modalities','nodename'=>'Modality','orderby'=>array('modality_abbr'))
+                ,'raptor_user_anatomy'=>array('wrappernodename'=>'Keywords','nodename'=>'Keyword','orderby'=>array('weightgroup'))
+            );
+            foreach($childtables as $tablename2=>$details)
             {
-                $sXML .= "\n\t\t<Modalities>";
-                foreach($result2 as $item) 
+                $wrappernodename = $details['wrappernodename'];
+                $nodename = $details['nodename'];
+                $query = db_select($tablename2, 'n')
+                        ->fields('n')
+                        ->condition('uid',$uid,'=');
+                foreach($details['orderby'] as $orderbyfieldname)
                 {
-                    $sXML .= "\n\t\t\t<Modality name='{$item->modality_abbr}' specialist_yn='{$item->specialist_yn}' />";
+                    $query->orderBy($orderbyfieldname);
                 }
-                $sXML .= "\n\t\t</Modalities>";
-            }
-            
-            $tablename3 = 'raptor_user_anatomy';
-            $result3 = db_select($tablename3, 'n')
-                            ->fields('n')
-                            ->orderBy('weightgroup')
-                            ->condition('uid',$uid,'=')
-                            ->execute();
-            if($result3->rowCount() > 0)
-            {
-                $sXML .= "\n\t\t<AnatomyKeywords>";
-                foreach($result3 as $item) 
+                $result2 = $query->execute();
+                if($result2->rowCount() > 0)
                 {
-                    $sXML .= "\n\t\t\t<AnatomyItem keyword='{$item->keyword}' weightgroup='{$item->weightgroup}' specialist_yn='{$item->specialist_yn}' />";
+                    $sXML .= "\n\t\t<$wrappernodename>";
+                    while($record2 = $result2->fetchAssoc())
+                    {
+                        $bundle2 = raptor_glue_convertForXML($record2,"\t\t\t\t",array(),array('uid'));
+                        $attribs2 = $bundle2['attribs'];
+                        $nodes2 = $bundle2['textnodes'];
+                        if($nodes2 > '')
+                        {
+                            $sXML .= "\n\t\t\t<$nodename $attribs2>$nodes2\n\t\t</$nodename>";
+                        } else {
+                            $sXML .= "\n\t\t\t<$nodename $attribs2 />";
+                        }
+                    }
+                    $sXML .= "\n\t\t</$wrappernodename>";
                 }
-                $sXML .= "\n\t\t</AnatomyKeywords>";
             }
-            
             $sXML .= "\n\t</User>";
         }
         $sXML .= "\n</RaptorUsers>";
