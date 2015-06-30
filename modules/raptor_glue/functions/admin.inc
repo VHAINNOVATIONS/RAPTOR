@@ -226,9 +226,10 @@ function raptor_adminuser_xmldatadump_form_builder($form, &$form_state)
     }
     
     //Dump it.
+    $now = date('Y-m-d H:i:s');
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
-    header("Content-Disposition: attachment; filename=raptor_glue_useraccounts.xml");
+    header("Content-Disposition: attachment; filename=raptor_glue_useraccounts_rsite".VISTA_SITE."_$now.xml");
     header("Content-Type: application/octet-stream; "); 
     header("Content-Transfer-Encoding: binary");
     
@@ -255,16 +256,16 @@ function raptor_adminuserdatadump_form_builder($form, &$form_state)
     error_log('Dumping the user account information from the ' . print_r($userinfo,TRUE));
 
     //Dump it.
+    $now = date('Y-m-d H:i:s');
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
     //header("Content-Length: 64000;");
-    header("Content-Disposition: attachment; filename=raptor_adminuserdatadump.raw");
+    header("Content-Disposition: attachment; filename=raptor_glue_useraccounts_rsite".VISTA_SITE."_$now.raw");
     header("Content-Type: application/octet-stream; "); 
     header("Content-Transfer-Encoding: binary");
-    $now = date('Y-m-d H:i:s');
     echo '### RAPTOR DATA DUMPED ' . $now;
     echo "\n### TIMEZONE " . date_default_timezone_get();
-    echo "\n### USER DATA DUMP TOOL VERSION 20150630.1";
+    echo "\n### USER DATA DUMP TOOL VERSION 20150630.2";
     $extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
     $extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
     $extraattribs['vista_site'] = VISTA_SITE;
