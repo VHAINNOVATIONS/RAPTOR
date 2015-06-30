@@ -321,16 +321,16 @@ function raptor_admincontraindicationdatadump_form_builder($form, &$form_state)
     error_log('Dumping the contraindication library information');
 
     //Dump it.
+    $now = date('Y-m-d H:i:s');
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
     //header("Content-Length: 64000;");
-    header("Content-Disposition: attachment; filename=raptor_admincontraindicationdatadump.raw");
+    header("Content-Disposition: attachment; filename=raptor_contraindications_rulebase_rsite".VISTA_SITE."_$now.raw");
     header("Content-Type: application/octet-stream; "); 
     header("Content-Transfer-Encoding: binary");
-    $now = date('Y-m-d H:i:s');
     echo '### RAPTOR DATA DUMPED ' . $now;
     echo "\n### TIMEZONE " . date_default_timezone_get();
-    echo "\n### CONTRAINDICATION DATA DUMP TOOL VERSION 20150629.1";
+    echo "\n### CONTRAINDICATION DATA DUMP TOOL VERSION 20150630.1";
     $extraattribs['raptor_build_id'] = RAPTOR_BUILD_ID;
     $extraattribs['raptor_config_id'] = RAPTOR_CONFIG_ID;
     $extraattribs['vista_site'] = VISTA_SITE;
@@ -394,9 +394,10 @@ function raptor_contraindications_exportxml_form_builder($form, &$form_state)
     $sXML = $oIO->getRulebaseAsXML($sRulebaseName,$extraattribs,$extracontextinfo);
     
     //Dump it.
+    $now = date('Y-m-d H:i:s');
     header("Cache-Control: public");
     header("Content-Description: File Transfer");
-    header("Content-Disposition: attachment; filename=raptor_contraindications_rulebase.xml");
+    header("Content-Disposition: attachment; filename=raptor_contraindications_rulebase_rsite".VISTA_SITE."_$now.xml");
     header("Content-Type: application/octet-stream; "); 
     header("Content-Transfer-Encoding: binary");
     
