@@ -559,6 +559,8 @@ function raptor_resetdatafordemo_form_builder_submit($form, &$form_state)
 
     $clickedbutton = $form_state['clicked_button'];
     $clickedvalue = $clickedbutton['#value'];
+    error_log("PROCESSING '$clickedvalue' BUTTON IN RESET ROUTINE for user ".print_r($userinfo,TRUE));
+
     //drupal_set_message('Clicked button = [' . $clickedvalue . ']');
     if($clickedvalue == t('Exit'))
     {
@@ -613,6 +615,7 @@ function raptor_resetdatafordemo_form_builder_submit($form, &$form_state)
         {
             $didsomething = TRUE;
             //Remove all the existing tracking records.
+            error_log("REMOVING CORE TRACKING DATA!!!!");
             $num = db_delete('raptor_ticket_tracking')
                     ->execute();
             $num = db_delete('raptor_ticket_workflow_history')
