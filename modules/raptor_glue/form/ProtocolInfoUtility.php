@@ -146,18 +146,21 @@ class ProtocolInfoUtility
             }
         }
         $analysis['badcombination'] = FALSE;
-        if($analysis['none'] == 1)
+        if(isset($analysis['none']))
         {
-            if($analysis['hasvalues'])
+            if($analysis['none'] == 1)
             {
-                //Nothing should have been set
-                $analysis['badcombination'] = TRUE;
-            }
-        } else {
-            if(!$analysis['hasvalues'])
-            {
-                //Something needed to be set
-                $analysis['badcombination'] = TRUE;
+                if($analysis['hasvalues'])
+                {
+                    //Nothing should have been set
+                    $analysis['badcombination'] = TRUE;
+                }
+            } else {
+                if(!$analysis['hasvalues'])
+                {
+                    //Something needed to be set
+                    $analysis['badcombination'] = TRUE;
+                }
             }
         }
         return $analysis;
