@@ -536,10 +536,6 @@ class ProtocolInfoUtility
             , $shownow
             , $shownow);
         $form['protocolinput'][] = $consentarea;
-        /*
-        $form['protocolinput'][] = $this->raptor_form_get_consent($form_state
-                , $disableChildInput, $myvalues, null, null);
-        */
                 
         //Hydration
         $shownow = $this->hasHydrationValues($myvalues);
@@ -626,8 +622,6 @@ class ProtocolInfoUtility
                 = $this->getNotesSectionMarkup('protocolnotes', 'Protocol Notes'
                 , $disableChildInput, $myvalues);
 
-        
-        
         return $root;
     }
 

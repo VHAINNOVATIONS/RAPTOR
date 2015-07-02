@@ -110,17 +110,6 @@ class Transitions
         {
             return TRUE;
         }
-        /*
-            die("BBBB WHY IS THIS STILL SHOWING THE BUTTON!!!!!($sFrom, $sTo)"
-                    . "<br>[".RAPTOR_BUILD_ID."]"
-                    . "<br>[".WORKFLOW_DEFS_VERSION_INFO."]"
-                    . "<br>[".ALLOW_TICKET_STATE_SHORTCUT_TO_QA_FROM_AP."]"
-                    . "<br>[".ALLOW_TICKET_STATE_SHORTCUT_TO_QA_FROM_EC."]"
-                    . "<br>[".BLOCK_TICKET_STATE_AP."]"
-                    . "<br>[".BLOCK_TICKET_STATE_EC."]"
-                    );
-         * 
-         */
         //If we are here, simply use the baseline map as the guide.
         $aAllowed = $this->getAllowedBaselineTransitions($sFrom);
         return in_array($sTo, $aAllowed);
@@ -172,7 +161,8 @@ class Transitions
         } else
         if($sCWFS == 'CO')
         {
-            $sPhrase = 'Collaboration';
+            //DEPRECATED ticket state as of 20150702
+            $sPhrase = 'Collaboration(DEPR)';
         } else
         if($sCWFS == 'RV')
         {

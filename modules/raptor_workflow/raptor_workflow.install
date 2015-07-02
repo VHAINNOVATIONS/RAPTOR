@@ -44,7 +44,7 @@ function raptor_workflow_basedata()
      db_insert('raptor_workflow_state')->fields(array(
         'abbr' => 'CO',
         'name' => 'Collaborate',
-        'description' => 'A ticket may have been partially protocoled and someone has been identified for collaboration on it.',
+        'description' => '(DEPRECATED) A ticket may have been partially protocoled and someone has been identified for collaboration on it.',
       ))->execute();
      db_insert('raptor_workflow_state')->fields(array(
         'abbr' => 'RV',

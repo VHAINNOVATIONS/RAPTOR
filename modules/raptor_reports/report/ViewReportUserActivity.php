@@ -102,7 +102,7 @@ class ViewReportUserActivity extends AReport
             }
         }
 
-        $form["data_entry_area1"]['table_container']['users'] = array('#type' => 'item',
+        $form['data_entry_area1']['table_container']['users'] = array('#type' => 'item',
                  '#markup' => '<table id="my-raptor-dialog-table" class="raptor-dialog-table dataTable">'
                             . '<thead><tr>'
                             . '<th>Login name</th>'
@@ -118,14 +118,15 @@ class ViewReportUserActivity extends AReport
                             . $rows
                             .  '</tbody>'
                             . '</table>');
+
         
-       $form['data_entry_area1']['action_buttons'] = array(
+        $form['data_entry_area1']['action_buttons'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-action-buttons">',
             '#suffix' => '</div>', 
             '#tree' => TRUE,
         );
-
+       
         $form['data_entry_area1']['action_buttons']['refresh'] = array('#type' => 'submit'
                 , '#attributes' => array('class' => array('admin-action-button'), 'id' => 'refresh-report')
                 , '#value' => t('Refresh Report'));
