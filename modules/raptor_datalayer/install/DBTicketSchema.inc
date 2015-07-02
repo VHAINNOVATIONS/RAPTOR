@@ -342,6 +342,12 @@ class DBTicketSchema
               'not null' => TRUE,
               'description' => 'The ticket workflow state after change',
             ),
+            'collaborate_uid' => array(
+              'type' => 'int',
+              'unsigned' => TRUE,
+              'not null' => FALSE,
+              'description' => 'The user which is collaborating on this ticket',
+            ),
             'created_dt' => array(
               'type' => 'datetime',
               'mysql_type' => 'datetime',  

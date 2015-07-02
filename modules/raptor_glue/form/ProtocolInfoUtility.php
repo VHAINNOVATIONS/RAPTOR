@@ -1392,30 +1392,21 @@ class ProtocolInfoUtility
         {
             if($oAA->allowCollaborateTicket($sCWFS))
             {
-                if($sCWFS == 'CO')
+                //This ticket is already in collaboration mode?
+                $query = db_select('raptor_ticket_collaboration', 'n');
+                $query->join('raptor_user_profile','u','n.collaborator_uid = u.uid');
+                $query->fields('n',array('collaborator_uid','requested_dt','requester_notes_tx','active_yn'));
+                $query->fields('u',array('username', 'usernametitle', 'firstname', 'lastname', 'suffix'));
+                $query->condition('n.siteid',$nSiteID,'=');
+                $query->condition('n.IEN',$nIEN,'=');
+                $query->condition('n.active_yn',1,'=');
+                $result = $query->execute();
+                $record = $result->fetchAssoc();
+                if($record != NULL)
                 {
-                    //This ticket is already in collaboration mode
-                    $query = db_select('raptor_ticket_collaboration', 'n');
-                    $query->join('raptor_user_profile','u','n.collaborator_uid = u.uid');
-                    $query->fields('n',array('collaborator_uid','requested_dt','requester_notes_tx','active_yn'));
-                    $query->fields('u',array('username', 'usernametitle', 'firstname', 'lastname', 'suffix'));
-                    $query->condition('n.siteid',$nSiteID,'=');
-                    $query->condition('n.IEN',$nIEN,'=');
-                    $query->condition('n.active_yn',1,'=');
-                    $result = $query->execute();
-                    $record = $result->fetchAssoc();
-                    if($record != NULL)
-                    {
-                        $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] . ' ' . $record['lastname'] . ' ' . $record['suffix']);
-                        $assignmentBlurb = 'already assigned to '.$fullname;
-                    } else {
-                        //This should not happen but if it does leave a clue
-                        $errMsg = ('Did NOT find name of user assigned for collaboration on ticket '.$nSiteID.'-'.$nIEN);
-                        error_log($errMsg);
-                        drupal_set_message($errMsg,'error');
-                        $assignmentBlurb = 'already assigned';
-                    }
-
+                    $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] 
+                            . ' ' . $record['lastname'] . ' ' . $record['suffix']);
+                    $assignmentBlurb = 'already assigned to '.$fullname;
                     $form['page_action_buttons_area']['reserve_button'] = array('#type' => 'submit'
                         , '#value' => t('Reserve ('.$assignmentBlurb.')')
                         , '#attributes' => array('title' => $reserveTip)

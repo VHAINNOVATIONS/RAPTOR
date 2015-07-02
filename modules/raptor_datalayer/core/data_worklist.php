@@ -284,7 +284,8 @@ class WorklistData
             $t[WorklistData::WLIDX_WORKFLOWSTATUS]              = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : "AC"); // default to "AC"
 
             //Only show an assignment if ticket has not yet moved downstream in the workflow.
-            if($t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'CO' || $t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'RV')
+            if($t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'AC' 
+                    || $t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'CO' || $t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'RV')
             {
                 $t[WorklistData::WLIDX_ASSIGNEDUSER] = (isset($sqlTicketCollaborationRow) ? array(
                                                           'uid'=>$sqlTicketCollaborationRow->collaborator_uid

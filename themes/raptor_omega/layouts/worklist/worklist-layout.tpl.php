@@ -42,7 +42,7 @@ function get_raptor_workflow_status($code,$assignmentdetails=NULL)
         "EC" => "Interpretation",
         "QA" => "QA"
     );
-    if($code === 'CO' && is_array($assignmentdetails))
+    if(is_array($assignmentdetails)) //$code === 'CO' && 
     {
         $notes = $assignmentdetails['requester_notes_tx'];
         if(strpos($notes, 'Reserving for myself') !== FALSE)
@@ -54,6 +54,7 @@ function get_raptor_workflow_status($code,$assignmentdetails=NULL)
                 return 'Scheduler suggested';
             }
         }
+        return 'Collaborative';
     }
     return $workflowStatusCodes[$code];
 }

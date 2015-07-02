@@ -59,7 +59,9 @@ class MatchOrderToUser
 
         //Score depends on rights and workflow mode.
         $bFullScoring = FALSE;
-        if($aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'AC' || $aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'CO' || $aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'RV' )
+        if($aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'AC' 
+                || $aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'CO' 
+                || $aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'RV' )
         {
             if($oUser->getPrivilegeSetting('PWI1') == 1)    //Can protocol an order
             {

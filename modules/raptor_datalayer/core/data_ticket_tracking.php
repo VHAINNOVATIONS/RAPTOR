@@ -228,6 +228,7 @@ class TicketTrackingData
             throw new \Exception('Failed to reserve ['.$sTrackingID.'] ticket!',99123,$e);
         }
 
+        /* DO NOT USE CO AS OF 20150702
         //Did we collaborate or remove collaboration?
         $sNewWFS = ''; 
         if($sCWFS == 'CO' && $nCollaboratorUID == NULL)
@@ -244,6 +245,7 @@ class TicketTrackingData
             $this->setTicketWorkflowState($sTrackingID, $nRequesterUID
                 , $sNewWFS, $sCWFS, $updated_dt);
         }
+        */
         
         return $successMsg;
     }

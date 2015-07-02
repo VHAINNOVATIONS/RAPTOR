@@ -2113,9 +2113,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                                     ->execute();
                         } catch (\Exception $ex) {
                             $showmsg = 'Unable deactivate existing collaboration settings!';
-                            error_log($showmsg . '  Failed to reserve because failed update: ' . $ex . "\nDetails..." . print_r($myvalues,true));
                             drupal_set_message($showmsg,'error');
-                            return 0;
+                            throw new \Exception($showmsg . '  Failed to reserve because failed update: ' 
+                                    . $ex . "\nDetails..." . print_r($myvalues,true),99123,$ex);
                         }
                         try
                         {
@@ -2145,9 +2145,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     $bSuccess = FALSE;
                 }
 
+                /** DONT CHANGE THE STATE TO CO 20150702 
                 $sNewWFS = 'CO'; 
                 $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
-
+                */
+                
                 //Write success message
                 if($sMode == 'C')
                 {
