@@ -1002,16 +1002,18 @@ class TicketTrackingData
                 $query_tc->condition('requested_dt', $enddatetime, '<=');
             }
             $query_tc->orderBy('IEN');
-            $query_tc->orderBy('requested_dt','DESC');
+            $query_tc->orderBy('requested_dt');
             $total_collaborations = 0;
             $total_reservations = 0;
             $collaborations = 0;
             $reservations = 0;
             $prevkey = NULL;
             $key = NULL;
+            $recnum = -1;
             $result_tc = $query_tc->execute();
             while($record = $result_tc->fetchAssoc())
             {
+                $recnum++;
                 $key = $record['IEN'];
                 if($prevkey != $key)
                 {
@@ -1041,7 +1043,15 @@ class TicketTrackingData
                     $reservations++;
                     $total_collaborations++;
                 }
-                $tickets[$key]['collaboration'][] = $record;
+                $tickets[$key]['collaboration'][$recnum] = $record;
+                if($recnum>1)
+                {
+                    //We can extract a duration
+                    $prevrecnum = $recnum-1;
+                    $prevrec_ts = strtotime($tickets[$key]['collaboration'][$prevrecnum]['requested_dt']);
+                    $this_ts =  strtotime($record['requested_dt']);
+                    $tickets[$key]['collaboration'][$prevrecnum]['duration'] = $this_ts - $prevrec_ts;  //Duration between the changes
+                }
                 
                 $uid = $record['requester_uid'];
                 if(!isset($allusers[$uid]))
