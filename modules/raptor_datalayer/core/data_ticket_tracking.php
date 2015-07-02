@@ -965,4 +965,352 @@ class TicketTrackingData
             throw $ex;
         }
     }
+    
+    /**
+     * Return all the ticket detail between the provided dates.
+     */
+    public function getDetailedTrackingHistory($nSiteID, $startdatetime=NULL, $enddatetime=NULL)
+    {
+        $bundle = array();
+        $bundle['siteid'] = $nSiteID;
+        $bundle['startdatetime'] = $startdatetime;
+        $bundle['enddatetime'] = $enddatetime;
+        
+        $all_intostates = array();  //Count all tickets into each state
+        foreach($this->m_oWF->getAllPossibleTicketStates() as $key=>$phrase)
+        {
+            if($key != 'AC')
+            {
+                $all_intostates[$key] = 0;  //Initialize
+            }
+        }
+        $allusers = array();        //All users involved
+        $tickets = array();         //Details for each ticket
+        
+        try
+        {
+            //Collaboration details
+            $query_tc = db_select('raptor_ticket_collaboration', 'n')
+                ->fields('n')
+                ->condition('siteid', $nSiteID,'=');
+            if($startdatetime != NULL)
+            {
+                $query_tc->condition('requested_dt', $startdatetime, '>=');
+            }
+            if($enddatetime != NULL)
+            {
+                $query_tc->condition('requested_dt', $enddatetime, '<=');
+            }
+            $query_tc->orderBy('IEN');
+            $query_tc->orderBy('requested_dt','DESC');
+            $total_collaborations = 0;
+            $total_reservations = 0;
+            $collaborations = 0;
+            $reservations = 0;
+            $prevkey = NULL;
+            $key = NULL;
+            $result_tc = $query_tc->execute();
+            while($record = $result_tc->fetchAssoc())
+            {
+                $key = $record['IEN'];
+                if($prevkey != $key)
+                {
+                    if($prevkey != NULL)
+                    {
+                        if(!isset($tickets[$prevkey]['summary']['counts']))
+                        {
+                            $tickets[$prevkey]['summary']['counts'] = array();
+                        }
+                        $tickets[$prevkey]['summary']['counts']['collaborations'] = $collaborations;
+                        $tickets[$prevkey]['summary']['counts']['reservations'] = $reservations;
+                    }
+                    $collaborations = 0;
+                    $reservations = 0;
+                    $prevkey = $key;
+                }
+                if(!key_exists($key,$tickets))
+                {
+                    $tickets[$key] = array();
+                    $tickets[$key]['summary'] = array();
+                }
+                if($record['requester_uid'] == $record['collaborator_uid'])
+                {
+                    $collaborations++;
+                    $total_reservations++;
+                } else {
+                    $reservations++;
+                    $total_collaborations++;
+                }
+                $tickets[$key]['collaboration'][] = $record;
+                
+                $uid = $record['requester_uid'];
+                if(!isset($allusers[$uid]))
+                {
+                    $allusers[$uid] = array();
+                }
+                if(!isset($allusers[$uid]['tickets']))
+                {
+                    $allusers[$uid]['tickets'] = array();
+                }
+                if(!isset($allusers[$uid]['tickets'][$key]))
+                {
+                    $allusers[$uid]['tickets'][$key] = array();
+                    $allusers[$uid]['tickets'][$key]['durations'] = array();
+                    foreach($all_intostates as $wfs=>$ignore)
+                    {
+                        $allusers[$uid]['tickets'][$key]['intostates'][$wfs] = 0;
+                    }
+                }
+                if($record['requester_uid'] == $record['collaborator_uid'])
+                {
+                    if(isset($allusers[$uid]['tickets'][$key]['intostates']['reservation']))
+                    {
+                        $newcount = $allusers[$uid]['tickets'][$key]['intostates']['reservation'] + 1;
+                    } else {
+                        $newcount = 1;
+                    }
+                    $allusers[$uid]['tickets'][$key]['intostates']['reservation'] = $newcount;
+                } else {
+                    if(isset($allusers[$uid]['tickets'][$key]['intostates']['collaboration']))
+                    {
+                        $newcount = $allusers[$uid]['tickets'][$key]['intostates']['collaboration'] + 1;
+                    } else {
+                        $newcount = 1;
+                    }
+                    $allusers[$uid]['tickets'][$key]['intostates']['collaboration'] = $newcount;
+                }
+            }  
+            if($key != NULL)
+            {
+                if(!isset($tickets[$key]['summary']['counts']))
+                {
+                    $tickets[$key]['summary']['counts'] = array();
+                }
+                $tickets[$key]['summary']['counts']['collaborations'] = $collaborations;
+                $tickets[$key]['summary']['counts']['reservations'] = $reservations;
+            }
+
+            //Schedule details
+            $query_st = db_select('raptor_schedule_track', 'n')
+                ->fields('n')
+                ->condition('siteid', $nSiteID,'=');
+            if($startdatetime != NULL)
+            {
+                $query_st->condition('created_dt', $startdatetime, '>=');
+            }
+            if($enddatetime != NULL)
+            {
+                $query_st->condition('created_dt', $enddatetime, '<=');
+            }
+            $query_st->orderBy('IEN');
+            $query_st->orderBy('created_dt','DESC');
+            $total_scheduled = 0;
+            $scheduled = 0;
+            $prevkey=NULL;
+            $key=NULL;
+            $result_st = $query_st->execute();    
+            while($record = $result_st->fetchAssoc())
+            {
+                $key = $record['IEN'];
+                if($prevkey != $key)
+                {
+                    if($prevkey != NULL)
+                    {
+                        if(!isset($tickets[$prevkey]['summary']['counts']))
+                        {
+                            $tickets[$prevkey]['summary']['counts'] = array();
+                        }
+                        $tickets[$prevkey]['summary']['counts']['scheduled'] = $scheduled;
+                    }
+                    $scheduled = 0;
+                    $prevkey = $key;
+                }
+                if(!key_exists($key,$tickets))
+                {
+                    $tickets[$key] = array();
+                    $tickets[$key]['summary'] = array();
+                }
+                $scheduled++;
+                $total_scheduled++;
+                $tickets[$key]['schedule'][] = $record;
+                
+                $uid = $record['author_uid'];
+                if(!isset($allusers[$uid]))
+                {
+                    $allusers[$uid] = array();
+                }
+                if(!isset($allusers[$uid]['tickets']))
+                {
+                    $allusers[$uid]['tickets'] = array();
+                }
+                if(!isset($allusers[$uid]['tickets']))
+                {
+                    $allusers[$uid]['tickets'] = array();
+                }
+                if(!isset($allusers[$uid]['tickets'][$key]))
+                {
+                    $allusers[$uid]['tickets'][$key] = array();
+                    $allusers[$uid]['tickets'][$key]['durations'] = array();
+                    foreach($all_intostates as $wfs=>$ignore)
+                    {
+                        $allusers[$uid]['tickets'][$key]['intostates'][$wfs] = 0;
+                    }
+                }
+                if(isset($allusers[$uid]['tickets'][$key]['intostates']['scheduled']))
+                {
+                    $newcount = $allusers[$uid]['tickets'][$key]['intostates']['scheduled'] + 1;
+                } else {
+                    $newcount = 1;
+                }
+                $allusers[$uid]['tickets'][$key]['intostates']['scheduled'] = $newcount;
+                
+            }
+            if($key != NULL)
+            {
+                if(!isset($tickets[$key]['summary']['counts']))
+                {
+                    $tickets[$key]['summary']['counts'] = array();
+                }
+                $tickets[$key]['summary']['counts']['scheduled'] = $scheduled;
+            }
+            
+            
+            //Ticket state completion dates
+            $query_tt = db_select('raptor_ticket_tracking', 'n')
+                ->fields('n')
+                ->condition('siteid', $nSiteID,'=');
+            if($startdatetime != NULL)
+            {
+                $query_tt->condition('updated_dt', $startdatetime, '>=');
+            }
+            if($enddatetime != NULL)
+            {
+                $query_tt->condition('updated_dt', $enddatetime, '<=');
+            }
+            $query_tt->orderBy('IEN');
+            $query_tt->orderBy('updated_dt','DESC');
+            $result_tt = $query_tt->execute();
+            while($record = $result_tt->fetchAssoc())
+            {
+                $key = $record['IEN'];
+                if(!key_exists($key,$tickets))
+                {
+                    $tickets[$key] = array();;    
+                }
+                $tickets[$key]['summary'] = $record;
+            }
+            
+            //Workflow state transitions
+            $query_wfh = db_select('raptor_ticket_workflow_history', 'n')
+                ->fields('n')
+                ->condition('siteid', $nSiteID,'=');
+            if($startdatetime != NULL)
+            {
+                $query_wfh->condition('created_dt', $startdatetime, '>=');
+            }
+            if($enddatetime != NULL)
+            {
+                $query_wfh->condition('created_dt', $enddatetime, '<=');
+            }
+            $query_wfh->orderBy('IEN');
+            $query_wfh->orderBy('created_dt','DESC');
+            $result_wfh = $query_wfh->execute();    
+            while($record = $result_wfh->fetchAssoc())
+            {
+                $wfs = $record['new_workflow_state'];
+                $key = $record['IEN'];
+                if(!key_exists($key,$tickets))
+                {
+                    $tickets[$key] = array();;    
+                }
+                $tickets[$key]['transitions'][] = $record;
+                if($wfs != 'AC')
+                {
+                    $all_intostates[$wfs] = intval($all_intostates[$wfs]) + 1;
+                }
+                $uid = $record['initiating_uid'];
+                if(!isset($allusers[$uid]))
+                {
+                    $allusers[$uid] = array();
+                }
+                if(!isset($allusers[$uid]['tickets']))
+                {
+                    $allusers[$uid]['tickets'] = array();
+                }
+                if(!isset($allusers[$uid]['tickets'][$key]))
+                {
+                    $allusers[$uid]['tickets'][$key] = array();
+                    $allusers[$uid]['tickets'][$key]['durations'] = array();
+                    foreach($all_intostates as $localwfs=>$ignore)
+                    {
+                        $allusers[$uid]['tickets'][$key]['intostates'][$localwfs] = 0;
+                    }
+                }
+                if($wfs != 'AC')
+                {
+                    $newcount = $allusers[$uid]['tickets'][$key]['intostates'][$wfs] + 1;
+                    $allusers[$uid]['tickets'][$key]['intostates'][$wfs] = $newcount;
+                }
+            }            
+            
+            //Complete the summary entries for each ticket
+            foreach($tickets as $ien=>$detail)
+            {
+                if(!isset($detail['summary']['workflow_state']))
+                {
+                    $detail['summary']['workflow_state'] = 'AC';
+                }
+                if(!isset($detail['summary']['counts']))
+                {
+                    $detail['summary']['counts'] = array();
+                }
+                if(!isset($detail['summary']['counts']['collaborations']))
+                {
+                    $detail['summary']['counts']['collaborations'] = 0;
+                }
+                if(!isset($detail['summary']['counts']['reservations']))
+                {
+                    $detail['summary']['counts']['reservations'] = 0;
+                }
+                if(!isset($detail['summary']['counts']['scheduled']))
+                {
+                    $detail['summary']['counts']['scheduled'] = 0;
+                }
+                
+                //TODO
+                
+                //Replace the detail
+                $tickets[$ien] = $detail;
+            }
+            
+            //Compute all the user level metrics
+            foreach($allusers as $uid=>$details1)
+            {
+                foreach($details1['tickets'] as $ien=>$details2)
+                {
+                    //TODO
+                    $allusers[$uid]['tickets'][$ien]['durations']['approved_to_scheduled'] = 'TODO'; 
+                    $allusers[$uid]['tickets'][$ien]['durations']['approved_to_examcompleted'] = 'TODO';
+                    $allusers[$uid]['tickets'][$ien]['durations']['collaboration'] = 'TODO';
+                    $allusers[$uid]['tickets'][$ien]['durations']['reserved'] = 'TODO';
+                }
+            }
+            
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+        $bundle['count_events'] = array();
+        $bundle['count_events']['collaboration'] = $total_collaborations;
+        $bundle['count_events']['reservations'] = $total_reservations;
+        $bundle['count_events']['scheduled'] = $total_scheduled;
+        $bundle['count_events']['into_state'] = array();
+        foreach($all_intostates as $statekey=>$count)
+        {
+            $bundle['count_events']['into_state'][$statekey] = $count;
+        }
+        $bundle['active_users'] = $allusers;
+        $bundle['tickets'] = $tickets;
+        return $bundle;
+    }
+    
 }

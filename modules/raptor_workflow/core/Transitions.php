@@ -41,6 +41,20 @@ class Transitions
         }
     }
     
+    public function getAllPossibleTicketStates()
+    {
+        $map = array();
+        foreach($this->m_aBaselineTransitions as $key=>$values)
+        {
+            if($key != 'CO')
+            {
+                $phrase = self::getTicketPhraseFromWorflowState($key);
+                $map[$key] = $phrase;
+            }
+        }
+        return $map;
+    }
+    
     /**
      * Return TRUE if a ticket is available for protocoling.
      */

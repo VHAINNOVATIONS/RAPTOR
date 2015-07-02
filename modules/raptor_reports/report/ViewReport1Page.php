@@ -23,10 +23,10 @@ require_once 'AReport.php';
  *
  * @author Frank Font of SAN Business Consultants
  */
-class ViewReport1Page extends AReport
+class XXXViewReport1Page extends AReport
 {
     private static $reqprivs = array('VREP1'=>1);
-    private static $menukey = 'raptor/viewrepusract1';
+    private static $menukey = 'XXXraptor/viewrepusract1';
     private static $reportname = 'Department Activity';
 
     function __construct()

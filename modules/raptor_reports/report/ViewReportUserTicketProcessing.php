@@ -23,20 +23,39 @@ require_once 'AReport.php';
  * 
  * @author Frank Font of SAN Business Consultants
  */
-class XXXViewReport2Page extends AReport
+class ViewReportUserTicketProcessing extends AReport
 {
     private static $reqprivs = array('VREP2'=>1);
-    private static $menukey = 'XXXraptor/viewrepusract2';
-    private static $reportname = 'User Activity Analysis';
+    private static $menukey = 'raptor/viewrepusract2';
+    private static $reportname = 'User Ticket Processing Activity Analysis';
 
+    private $m_oWF = NULL;
+    private $m_oTT = NULL;
+    
     function __construct()
     {
         parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
+        
+        $loaded1 = module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        if(!$loaded1)
+        {
+            $msg = 'Failed to load the data_ticket_tracking';
+            throw new \Exception($msg);      //This is fatal, so stop everything now.
+        }
+        $this->m_oTT = new \raptor\TicketTrackingData();
+        
+        $loaded2 = module_load_include('php', 'raptor_workflow', 'core/Transitions');
+        if(!$loaded2)
+        {
+            $msg = 'Failed to load the Transitions Engine';
+            throw new \Exception($msg);      //This is fatal, so stop everything now.
+        }
+        $this->m_oWF = new \raptor\Transitions();
     }
     
     public function getDescription() 
     {
-        return 'Shows analysis of user activity in the system';
+        return 'Shows analysis of user ticket processing activity in the system';
     }
 
     /**
@@ -48,23 +67,23 @@ class XXXViewReport2Page extends AReport
         $myvalues = array();
         //$myvalues['formmode'] = 'V';
         
-		$result = db_query("Call raptor_user_dept_analysis('user')")
-				->execute();
-		
-		$result = db_select('temp4', 't')
-				->fields('t')
-				->orderBy('modality_abbr', 'DESC')
-				->orderBy('_year', 'DESC')
-				->orderBy('quarter', 'DESC')
-				->orderBy('week', 'DESC')
-				->orderBy('day', 'DESC')
-				->orderBy('username', 'DESC')
-				->execute();
-		
-		while($res = $result->fetchAssoc())
-		{
-			$myvalues[] = $res;
-		}
+        $result = db_query("Call raptor_user_dept_analysis('user')")
+                        ->execute();
+
+        $result = db_select('temp4', 't')
+                        ->fields('t')
+                        ->orderBy('modality_abbr', 'DESC')
+                        ->orderBy('_year', 'DESC')
+                        ->orderBy('quarter', 'DESC')
+                        ->orderBy('week', 'DESC')
+                        ->orderBy('day', 'DESC')
+                        ->orderBy('username', 'DESC')
+                        ->execute();
+
+        while($res = $result->fetchAssoc())
+        {
+                $myvalues[] = $res;
+        }
         return $myvalues;
     }
 	
@@ -142,7 +161,7 @@ class XXXViewReport2Page extends AReport
                 }
         }
 
-        $form["data_entry_area1"]['table_container']['users'] = array('#type' => 'item',
+        $form['data_entry_area1']['table_container']['users'] = array('#type' => 'item',
                  '#markup' => '<table class="raptor-dialog-table">'
                             . '<thead><tr>'
                             . '<th title="The modality abbreviation of this metric" >Modality</th>'
@@ -171,7 +190,17 @@ class XXXViewReport2Page extends AReport
                             .  '</tbody>'
                             . '</table>');
         
-       $form['data_entry_area1']['action_buttons'] = array(
+        
+        $debugstuff = $this->m_oTT->getDetailedTrackingHistory(VISTA_SITE);
+        
+        $form['data_entry_area1']['table_container']['users'] = array('#type' => 'item',
+                '#markup' => '<h1>debug stuff</h1><pre>' 
+                    . print_r($debugstuff,TRUE) 
+                    . '<pre>'
+            );
+        
+        
+        $form['data_entry_area1']['action_buttons'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-action-buttons">',
             '#suffix' => '</div>', 

@@ -33,7 +33,7 @@ class ViewReportUserActivity extends AReport
 
     public function getDescription() 
     {
-        return 'Shows user activity times in the system.';
+        return 'Shows user login and logout activity times in the system.';
     }
 
     /**

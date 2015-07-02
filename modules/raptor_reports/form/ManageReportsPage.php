@@ -27,8 +27,10 @@ class ManageReportsPage
     public static function getReportsList()
     {
         $aReportClassNames  = array();
-        $aReportClassNames[] = 'ViewReport1Page';
-        $aReportClassNames[] = 'ViewReport2Page';
+        //$aReportClassNames[] = 'ViewReport1Page';
+        //$aReportClassNames[] = 'ViewReport2Page';
+        $aReportClassNames[] = 'ViewReportDeptTicketProcessing';
+        $aReportClassNames[] = 'ViewReportUserTicketProcessing';
         $aReportClassNames[] = 'ViewTechSupportConfigDetails';
         $aReportClassNames[] = 'ViewReportRadiationDoseWatch';
         $aReportClassNames[] = 'ViewReportContraindicationRules';

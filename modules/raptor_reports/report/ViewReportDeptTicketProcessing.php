@@ -17,17 +17,17 @@ use \DateTime;
 require_once 'AReport.php';
 
 /**
- * This class returns the User Activity Analysis Report
- *
- * CLIN2 1.7
+ * This class returns the Admin Information input content
  * 
+ * CLIN2 1.6
+ *
  * @author Frank Font of SAN Business Consultants
  */
-class XXXViewReport2Page extends AReport
+class ViewReportDeptTicketProcessing extends AReport
 {
-    private static $reqprivs = array('VREP2'=>1);
-    private static $menukey = 'XXXraptor/viewrepusract2';
-    private static $reportname = 'User Activity Analysis';
+    private static $reqprivs = array('VREP1'=>1);
+    private static $menukey = 'raptor/viewrepusract1';
+    private static $reportname = 'Department Ticket Processing Activity';
 
     function __construct()
     {
@@ -36,9 +36,9 @@ class XXXViewReport2Page extends AReport
     
     public function getDescription() 
     {
-        return 'Shows analysis of user activity in the system';
+        return 'Shows ticket processing activity in the system at a department level';
     }
-
+    
     /**
      * Get the values to populate the form.
      * @return type result of the queries as an array
@@ -47,10 +47,10 @@ class XXXViewReport2Page extends AReport
     {
         $myvalues = array();
         //$myvalues['formmode'] = 'V';
-        
-		$result = db_query("Call raptor_user_dept_analysis('user')")
-				->execute();
 		
+		$result = db_query("Call raptor_user_dept_analysis('dept')")
+        		->execute();
+			
 		$result = db_select('temp4', 't')
 				->fields('t')
 				->orderBy('modality_abbr', 'DESC')
@@ -58,7 +58,6 @@ class XXXViewReport2Page extends AReport
 				->orderBy('quarter', 'DESC')
 				->orderBy('week', 'DESC')
 				->orderBy('day', 'DESC')
-				->orderBy('username', 'DESC')
 				->execute();
 		
 		while($res = $result->fetchAssoc())
@@ -67,7 +66,7 @@ class XXXViewReport2Page extends AReport
 		}
         return $myvalues;
     }
-	
+
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -86,62 +85,58 @@ class XXXViewReport2Page extends AReport
             '#suffix' => '</div>', 
             '#tree' => TRUE,
         );
+		$rows = '';
+		foreach($myvalues as $val)
+		{
+			if(((string)$val['_year']>0) && ((string)$val['quarter']>0) && ((string)$val['week']>0))
+			{
+				$max_A_S = round((int)$val['Max_Time_A_S']);
+				$dtT = new DateTime("@$max_A_S");
+				$max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+				
+				$avg_A_S = round((int)$val['Avg_Time_A_S']);
+				$dtT = new DateTime("@$avg_A_S");
+				$avg_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+				
+				$max_A_C = round((int)$val['Max_Time_A_C']);
+				$dtT = new DateTime("@$max_A_C");
+				$max_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+				
+				$avg_A_C = round((int)$val['Avg_Time_A_C']);
+				$dtT = new DateTime("@$avg_A_C");
+				$avg_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+				
+				$max_collab = round((int)$val['Max_Time_Collab']);
+				$dtT = new DateTime("@$max_collab");
+				$max_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+				
+				$avg_collab = round((int)$val['Avg_Time_Collab']);
+				$dtT = new DateTime("@$avg_collab");
+				$avg_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+				
+				$rows .= '<tr>'
+					. '<td>' . $val['modality_abbr'] . '</td>'
+					. '<td>' . $val['_year'] . '</td>'
+					. '<td>' . $val['quarter'] . '</td>'
+					. '<td>' . $val['week'] . '</td>'
+					. '<td>' . $val['day'] . '</td>'
+					. '<td>' . $val['Total_Approved']  . '</td>'
+					. '<td>' . $val['Count_Collab']  . '</td>'
+					. '<td>' . $val['Total_Acknowledge']  . '</td>'
+					. '<td>' . $val['Total_Complete']  . '</td>'
+					. '<td>' . $val['Total_Suspend']  . '</td>'
+					. '<td>' . $max_A_S . '</td>'
+					. '<td>' . $avg_A_S . '</td>'
+					. '<td>' . $max_A_C . '</td>'
+					. '<td>' . $avg_A_C . '</td>'
+					. '<td>' . $max_collab . '</td>'
+					. '<td>' . $avg_collab . '</td>'
+					. '</tr>';
+			}
+		}
 
-        $rows = '';
-        foreach($myvalues as $val)
-        {
-                if(((string)$val['_year']>0) && ((string)$val['quarter']>0) && ((string)$val['week']>0))
-                {
-                        $max_A_S = round((int)$val['Max_Time_A_S']);
-                        $dtT = new DateTime("@$max_A_S");
-                        $max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $avg_A_S = round((int)$val['Avg_Time_A_S']);
-                        $dtT = new DateTime("@$avg_A_S");
-                        $avg_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $max_A_C = round((int)$val['Max_Time_A_C']);
-                        $dtT = new DateTime("@$max_A_C");
-                        $max_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $avg_A_C = round((int)$val['Avg_Time_A_C']);
-                        $dtT = new DateTime("@$avg_A_C");
-                        $avg_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $max_collab = round((int)$val['Max_Time_Collab']);
-                        $dtT = new DateTime("@$max_collab");
-                        $max_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $avg_collab = round((int)$val['Avg_Time_Collab']);
-                        $dtT = new DateTime("@$avg_collab");
-                        $avg_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $rows .= '<tr>'
-                                . '<td>' . $val['modality_abbr'] . '</td>'
-                                . '<td>' . $val['_year'] . '</td>'
-                                . '<td>' . $val['quarter'] . '</td>'
-                                . '<td>' . $val['week'] . '</td>'
-                                . '<td>' . $val['day'] . '</td>'
-                                . '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
-                                . '<td>' . $val['role_nm'] . '</td>'
-                                . '<td>' . $val['most_recent_login_dt'] . '</td>'
-                                . '<td>' . $val['Total_Approved']  . '</td>'
-                                . '<td>' . $val['Count_Collab']  . '</td>'
-                                . '<td>' . $val['Total_Acknowledge']  . '</td>'
-                                . '<td>' . $val['Total_Complete']  . '</td>'
-                                . '<td>' . $val['Total_Suspend']  . '</td>'
-                                . '<td>' . $max_A_S . '</td>'
-                                . '<td>' . $avg_A_S . '</td>'
-                                . '<td>' . $max_A_C . '</td>'
-                                . '<td>' . $avg_A_C . '</td>'
-                                . '<td>' . $max_collab . '</td>'
-                                . '<td>' . $avg_collab . '</td>'
-                                . '<td>' . $val['Total_Scheduled'] . '</td>'
-
-                                . '</tr>';
-                }
-        }
-
+//The modality column value comes from modality_abbr fields in the database                
+        
         $form["data_entry_area1"]['table_container']['users'] = array('#type' => 'item',
                  '#markup' => '<table class="raptor-dialog-table">'
                             . '<thead><tr>'
@@ -150,21 +145,17 @@ class XXXViewReport2Page extends AReport
                             . '<th title="The quarter number of this metric" >Quarter</th>'
                             . '<th title="The week number of this metric, Jan 1 is week 1" >Week</th>'
                             . '<th title="The day number of this metric" >Day</th>'
-                            . '<th title="The name of the user" >User Name</th>'
-                            . '<th title="The role of the user in the system" >User Role</th>'
-                            . '<th title="The most recent login timestamp" >Most recent login</th>'
                             . '<th title="Total number of tickets moved to Approved state">Total Approved</th>'
-                            . '<th title="Total number of tickets moved to Collaboration state">Count Picked for Collab</th>'
+                            . '<th title="Total number of tickets moved to Collaboration state">Count Collab</th>'
                             . '<th title="Total number of tickets moved to Acknowledge state">Total Acknowlege</th>'
                             . '<th title="Total number of tickets moved to Complete state">Total Complete</th>'
                             . '<th title="Total number of tickets moved to Suspend state">Total Suspend</th>'
                             . '<th title="Max time a ticket was in Approved state before it was Scheduled">Max Time between Approved and Sched</th>'
                             . '<th title="Average time tickets were in Approved state before were Scheduled">Avg Time Approved to Sched</th>'
-                            . '<th title="Max time a ticket was in Approved state before it moved to Completed state">Max Time Approved to Exam Completed</th>'
-                            . '<th title="Average time tickets were in Accepted state moving to Completed state">Avg Time Accepted to Exam Completed</th>'
+                            . '<th title="Max time a ticket was in Approved state before it moved to Completed state">Max Time Approved to Completed</th>'
+                            . '<th title="Average time tickets were in Accepted state moving to Completed state">Avg Time Accepted to Completed</th>'
                             . '<th title="Max time a ticket was in Collaboration state">Max Time Collab</th>'
                             . '<th title="Avg time tickets were in Collaboration state">Avg Time Collab</th>'
-                            . '<th title="Total number of tickets scheduled">Total Scheduled</th>'
                             . '</tr></thead>'
                             . '<tbody>'
                             . $rows
@@ -177,16 +168,15 @@ class XXXViewReport2Page extends AReport
             '#suffix' => '</div>', 
             '#tree' => TRUE,
         );
-       
+        
         $form['data_entry_area1']['action_buttons']['refresh'] = array('#type' => 'submit'
                 , '#attributes' => array('class' => array('admin-action-button'), 'id' => 'refresh-report')
                 , '#value' => t('Refresh Report'));
-        
+
         global $base_url;
         $goback = $base_url . '/raptor/viewReports';
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
+        
         return $form;
     }
-    
-    
 }
