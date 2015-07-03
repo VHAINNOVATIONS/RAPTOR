@@ -2102,6 +2102,17 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                         //No need to write records for a reservation if same user.  Note: not same thing as collaborate case!
                         $successMsg = 'Already reserved ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .') by the same user.';
                     } else {
+                        //If we are here, make sure we end up with a raptor_ticket_tracking record too.
+                        db_merge('raptor_ticket_tracking')
+                            ->key(
+                                    array('siteid'=>$nSiteID
+                                            ,'IEN' => $nIEN,
+                                ))
+                            ->fields(array(
+                                    'updated_dt'=>$updated_dt,
+                                ))
+                            ->execute();
+                        
                         //Deactivate any existing collaboration records
                         try
                         {

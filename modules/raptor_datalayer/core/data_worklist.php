@@ -116,6 +116,10 @@ class WorklistData
         
         foreach ($sqlResult as $row) {
             $key = $row->IEN;
+            if(!isset($row->workflow_state) || $row->workflow_state == NULL)
+            {
+                $row->workflow_state = 'AC';    //Because NULL means AC.
+            }
             $result[$key] = $row;
         }
 

@@ -372,41 +372,58 @@ class ScheduleTicketPage
             $save_scheduled_dt = NULL;
         }
         
-        //Do we already have a record to replace?
-        $query = db_select('raptor_schedule_track', 'n');
-        $query->fields('n');
-        $query->condition('siteid',$nSiteID,'=');
-        $query->condition('IEN',$nIEN,'=');
-        $result = $query->execute();
         $original_cancel_dt = NULL;
         $original_confirmation_dt = NULL;
         $original_canceled_reason_tx = NULL;
-        if($result->rowCount() == 1)
+        try
         {
-            //Yes, move this record into replaced table.
-            $record = $result->fetchAssoc();
-            db_insert('raptor_schedule_track_replaced')
+            //If we are here, make sure we end up with a raptor_ticket_tracking record too.
+            db_merge('raptor_ticket_tracking')
+                ->key(
+                        array('siteid'=>$nSiteID
+                                ,'IEN' => $nIEN,
+                    ))
                 ->fields(array(
-                        'siteid' => $nSiteID,
-                        'IEN' => $nIEN,
-                        'scheduled_dt' => $record['scheduled_dt'],
-                        'duration_am' => $record['duration_am'],
-                        'location_tx' => $record['location_tx'],
-                        'notes_tx' => $record['notes_tx'],
-                        'notes_critical_yn' => $record['notes_critical_yn'],
-                        'confirmed_by_patient_dt' => $record['confirmed_by_patient_dt'],
-                        'canceled_reason_tx' => $record['canceled_reason_tx'],
-                        'canceled_dt' => $record['canceled_dt'],
-                        'author_uid' => $record['author_uid'],
-                        'original_created_dt' => $record['created_dt'],
-                        'replaced_dt' => $updated_dt,
-                ))
-                ->execute();
+                        'updated_dt'=>$updated_dt,
+                    ))
+                ->execute();    
+            
+            //Do we already have a record to replace?
+            $query = db_select('raptor_schedule_track', 'n');
+            $query->fields('n');
+            $query->condition('siteid',$nSiteID,'=');
+            $query->condition('IEN',$nIEN,'=');
+            $result = $query->execute();
+            if($result->rowCount() == 1)
+            {
+                //Yes, move this record into replaced table.
+                $record = $result->fetchAssoc();
+                db_insert('raptor_schedule_track_replaced')
+                    ->fields(array(
+                            'siteid' => $nSiteID,
+                            'IEN' => $nIEN,
+                            'scheduled_dt' => $record['scheduled_dt'],
+                            'duration_am' => $record['duration_am'],
+                            'location_tx' => $record['location_tx'],
+                            'notes_tx' => $record['notes_tx'],
+                            'notes_critical_yn' => $record['notes_critical_yn'],
+                            'confirmed_by_patient_dt' => $record['confirmed_by_patient_dt'],
+                            'canceled_reason_tx' => $record['canceled_reason_tx'],
+                            'canceled_dt' => $record['canceled_dt'],
+                            'author_uid' => $record['author_uid'],
+                            'original_created_dt' => $record['created_dt'],
+                            'replaced_dt' => $updated_dt,
+                    ))
+                    ->execute();
 
-            //Grab original values so we dont keep changing the dates on every save.
-            $original_confirmation_dt = $record['confirmed_by_patient_dt'];
-            $original_canceled_dt = $record['canceled_dt'];
-            $original_canceled_reason_tx = $record['canceled_reason_tx'];
+                //Grab original values so we dont keep changing the dates on every save.
+                $original_confirmation_dt = $record['confirmed_by_patient_dt'];
+                $original_canceled_dt = $record['canceled_dt'];
+                $original_canceled_reason_tx = $record['canceled_reason_tx'];
+            }
+        } catch (\Exception $ex) {
+            error_log("Failed to schedule ticket $nSiteID - $nIEN because ".$ex->getMessage());
+            throw $ex;
         }
         
         //Suggested an assignment?

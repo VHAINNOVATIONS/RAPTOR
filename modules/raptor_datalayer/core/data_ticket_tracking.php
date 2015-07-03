@@ -85,7 +85,6 @@ class TicketTrackingData
             if(!isset($aWorkflowStateRecord['workflow_state']) || $aWorkflowStateRecord['workflow_state'] == '')
             {
                 $sCWFS = 'AC';
-                //drupal_set_message('Did not find ticket tracking record for '.$nSiteID.'-'.$nIEN);
             } else {
                 $sCWFS = $aWorkflowStateRecord['workflow_state'];
             } 
@@ -137,7 +136,9 @@ class TicketTrackingData
      * @param type $sCWFS current workflow status
      */
     public function setCollaborationUser($sTrackingID, $nRequesterUID
-            , $sRequesterNote, $nCollaboratorUID, $sCWFS=NULL, $updated_dt=NULL)
+            , $sRequesterNote, $nCollaboratorUID
+            , $sCWFS=NULL
+            , $updated_dt=NULL)
     {
         $successMsg = NULL;
         if($sCWFS == NULL)
@@ -155,9 +156,27 @@ class TicketTrackingData
         //Make sure we are okay to reserve this ticket.
         if($sCWFS !== 'AC' && $sCWFS !== 'AP' && $sCWFS !== 'CO' && $sCWFS !== 'RV')
         {
-            $msg = 'Only tickets in the active or approved or collaborate status can be reserved!  Ticket ' . $sTrackingID . ' is in the [' .$sCWFS. '] state!';
+            $msg = 'Only tickets in the active or approved or collaborate status can be reserved!  Ticket ' 
+                    . $sTrackingID . ' is in the [' .$sCWFS. '] state!';
             error_log($msg);
             throw new \Exception($msg);
+        }
+        
+        try
+        {
+            //If we are here, make sure we end up with a raptor_ticket_tracking record too.
+            db_merge('raptor_ticket_tracking')
+                ->key(
+                        array('siteid'=>$nSiteID
+                                ,'IEN' => $nIEN,
+                    ))
+                ->fields(array(
+                        'updated_dt'=>$updated_dt,
+                    ))
+                ->execute();         
+            
+        } catch (\Exception $ex) {
+            throw $ex;
         }
 
         //Create the raptor_ticket_collaboration record now
@@ -333,7 +352,7 @@ class TicketTrackingData
      */
     public function setTicketAsReplaced($currentTID, $newTID, $nUID, $updated_dt=NULL)
     {
-        $sNewWFS = 'IA';    //TODO create a new state for replaced!
+        $sNewWFS = 'IA';
         if($updated_dt == NULL)
         {
             $updated_dt = date("Y-m-d H:i:s", time());
@@ -355,7 +374,7 @@ class TicketTrackingData
                 ->execute()
                 ->fetchAssoc();       
             
-            //Make sure we ahve real values.
+            //Make sure we have real values.
             if(!isset($aWorkflowStateRecord['workflow_state']) || $aWorkflowStateRecord['workflow_state'] == '')
             {
                 $sCWFS = 'AC';
@@ -967,6 +986,50 @@ class TicketTrackingData
     }
     
     /**
+     * Return all the ticket numbers and their current state.
+     */
+    public function getCoreTicketTrackingHistory($nSiteID, $startdatetime=NULL, $enddatetime=NULL)
+    {
+        $tickets = array();
+
+        try
+        {
+            //Ticket state completion dates
+            $query_tt = db_select('raptor_ticket_tracking', 'n')
+                ->fields('n')
+                ->condition('siteid', $nSiteID,'=');
+            if($startdatetime != NULL)
+            {
+                $query_tt->condition('updated_dt', $startdatetime, '>=');
+            }
+            if($enddatetime != NULL)
+            {
+                $query_tt->condition('updated_dt', $enddatetime, '<=');
+            }
+            $query_tt->orderBy('IEN');
+            $query_tt->orderBy('updated_dt','DESC');
+            $result_tt = $query_tt->execute();
+            while($record = $result_tt->fetchAssoc())
+            {
+                $key = $record['IEN'];
+                if(!key_exists($key,$tickets))
+                {
+                    $tickets[$key] = array();;    
+                }
+                $tickets[$key] = $record;
+                if($record['workflow_state'] == NULL)
+                {
+                    $tickets[$key]['workflow_state'] = 'AC';   
+                }
+            }
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+        
+        return $tickets;
+    }
+    
+    /**
      * Return all the ticket detail between the provided dates.
      */
     public function getDetailedTrackingHistory($nSiteID, $startdatetime=NULL, $enddatetime=NULL)
@@ -985,7 +1048,13 @@ class TicketTrackingData
             }
         }
         $allusers = array();        //All users involved
-        $tickets = array();         //Details for each ticket
+        $tickets = array();
+        $coreticketinfo = $this->getCoreTicketTrackingHistory($nSiteID, $startdatetime, $enddatetime);
+        foreach($coreticketinfo as $key=>$oneticket)
+        {
+            $tickets[$key] = array();
+            $tickets[$key]['summary'] = $oneticket;
+        }
         
         try
         {
@@ -1181,15 +1250,16 @@ class TicketTrackingData
                 $allusers[$uid]['tickets'][$key]['count_events']['scheduled'] = $newcount;
                 
             }
-            if($key != NULL)
+            if($prevkey != NULL)
             {
-                if(!isset($tickets[$key]['summary']['counts']))
+                if(!isset($tickets[$prevkey]['summary']['counts']))
                 {
-                    $tickets[$key]['summary']['counts'] = array();
+                    $tickets[$prevkey]['summary']['counts'] = array();
                 }
-                $tickets[$key]['summary']['counts']['scheduled'] = $scheduled;
+                $tickets[$prevkey]['summary']['counts']['scheduled'] = $scheduled;
             }
             
+            /*
             
             //Ticket state completion dates
             $query_tt = db_select('raptor_ticket_tracking', 'n')
@@ -1215,6 +1285,7 @@ class TicketTrackingData
                 }
                 $tickets[$key]['summary'] = $record;
             }
+            */
             
             //Workflow state transitions
             $query_wfh = db_select('raptor_ticket_workflow_history', 'n')
