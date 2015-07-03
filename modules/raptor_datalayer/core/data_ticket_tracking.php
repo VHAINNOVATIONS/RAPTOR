@@ -976,12 +976,12 @@ class TicketTrackingData
         $bundle['startdatetime'] = $startdatetime;
         $bundle['enddatetime'] = $enddatetime;
         
-        $all_intostates = array();  //Count all tickets into each state
+        $all_into_states = array();  //Count all tickets into each state
         foreach($this->m_oWF->getAllPossibleTicketStates() as $key=>$phrase)
         {
             if($key != 'AC')
             {
-                $all_intostates[$key] = 0;  //Initialize
+                $all_into_states[$key] = 0;  //Initialize
             }
         }
         $allusers = array();        //All users involved
@@ -1010,6 +1010,7 @@ class TicketTrackingData
             $prevkey = NULL;
             $key = NULL;
             $recnum = -1;
+            $totalrecs=0;
             $result_tc = $query_tc->execute();
             while($record = $result_tc->fetchAssoc())
             {
@@ -1028,6 +1029,7 @@ class TicketTrackingData
                     }
                     $collaborations = 0;
                     $reservations = 0;
+                    $recnum=0;
                     $prevkey = $key;
                 }
                 if(!key_exists($key,$tickets))
@@ -1044,10 +1046,10 @@ class TicketTrackingData
                     $total_collaborations++;
                 }
                 $tickets[$key]['collaboration'][$recnum] = $record;
-                if($recnum>1)
+                if($recnum>0)
                 {
                     //We can extract a duration
-                    $prevrecnum = $recnum-1;
+                    $prevrecnum = $recnum - 1;
                     $prevrec_ts = strtotime($tickets[$key]['collaboration'][$prevrecnum]['requested_dt']);
                     $this_ts =  strtotime($record['requested_dt']);
                     $tickets[$key]['collaboration'][$prevrecnum]['duration'] = $this_ts - $prevrec_ts;  //Duration between the changes
@@ -1066,28 +1068,28 @@ class TicketTrackingData
                 {
                     $allusers[$uid]['tickets'][$key] = array();
                     $allusers[$uid]['tickets'][$key]['durations'] = array();
-                    foreach($all_intostates as $wfs=>$ignore)
+                    foreach($all_into_states as $wfs=>$ignore)
                     {
-                        $allusers[$uid]['tickets'][$key]['intostates'][$wfs] = 0;
+                        $allusers[$uid]['tickets'][$key]['count_events']['into_states'][$wfs] = 0;
                     }
                 }
                 if($record['requester_uid'] == $record['collaborator_uid'])
                 {
-                    if(isset($allusers[$uid]['tickets'][$key]['intostates']['reservation']))
+                    if(isset($allusers[$uid]['tickets'][$key]['count_events']['reservation']))
                     {
-                        $newcount = $allusers[$uid]['tickets'][$key]['intostates']['reservation'] + 1;
+                        $newcount = $allusers[$uid]['tickets'][$key]['count_events']['reservation'] + 1;
                     } else {
                         $newcount = 1;
                     }
-                    $allusers[$uid]['tickets'][$key]['intostates']['reservation'] = $newcount;
+                    $allusers[$uid]['tickets'][$key]['count_events']['reservation'] = $newcount;
                 } else {
-                    if(isset($allusers[$uid]['tickets'][$key]['intostates']['collaboration']))
+                    if(isset($allusers[$uid]['tickets'][$key]['count_events']['collaboration']))
                     {
-                        $newcount = $allusers[$uid]['tickets'][$key]['intostates']['collaboration'] + 1;
+                        $newcount = $allusers[$uid]['tickets'][$key]['count_events']['collaboration'] + 1;
                     } else {
                         $newcount = 1;
                     }
-                    $allusers[$uid]['tickets'][$key]['intostates']['collaboration'] = $newcount;
+                    $allusers[$uid]['tickets'][$key]['count_events']['collaboration'] = $newcount;
                 }
             }  
             if($key != NULL)
@@ -1118,9 +1120,12 @@ class TicketTrackingData
             $scheduled = 0;
             $prevkey=NULL;
             $key=NULL;
+            $recnum = -1;
+            $totalrecs=0;
             $result_st = $query_st->execute();    
             while($record = $result_st->fetchAssoc())
             {
+                $recnum++;
                 $key = $record['IEN'];
                 if($prevkey != $key)
                 {
@@ -1134,6 +1139,7 @@ class TicketTrackingData
                     }
                     $scheduled = 0;
                     $prevkey = $key;
+                    $recnum=0;
                 }
                 if(!key_exists($key,$tickets))
                 {
@@ -1161,18 +1167,18 @@ class TicketTrackingData
                 {
                     $allusers[$uid]['tickets'][$key] = array();
                     $allusers[$uid]['tickets'][$key]['durations'] = array();
-                    foreach($all_intostates as $wfs=>$ignore)
+                    foreach($all_into_states as $wfs=>$ignore)
                     {
-                        $allusers[$uid]['tickets'][$key]['intostates'][$wfs] = 0;
+                        $allusers[$uid]['tickets'][$key]['count_events']['into_states'][$wfs] = 0;
                     }
                 }
-                if(isset($allusers[$uid]['tickets'][$key]['intostates']['scheduled']))
+                if(isset($allusers[$uid]['tickets'][$key]['count_events']['scheduled']))
                 {
-                    $newcount = $allusers[$uid]['tickets'][$key]['intostates']['scheduled'] + 1;
+                    $newcount = $allusers[$uid]['tickets'][$key]['count_events']['scheduled'] + 1;
                 } else {
                     $newcount = 1;
                 }
-                $allusers[$uid]['tickets'][$key]['intostates']['scheduled'] = $newcount;
+                $allusers[$uid]['tickets'][$key]['count_events']['scheduled'] = $newcount;
                 
             }
             if($key != NULL)
@@ -1236,7 +1242,7 @@ class TicketTrackingData
                 $tickets[$key]['transitions'][] = $record;
                 if($wfs != 'AC')
                 {
-                    $all_intostates[$wfs] = intval($all_intostates[$wfs]) + 1;
+                    $all_into_states[$wfs] = intval($all_into_states[$wfs]) + 1;
                 }
                 $uid = $record['initiating_uid'];
                 if(!isset($allusers[$uid]))
@@ -1251,15 +1257,15 @@ class TicketTrackingData
                 {
                     $allusers[$uid]['tickets'][$key] = array();
                     $allusers[$uid]['tickets'][$key]['durations'] = array();
-                    foreach($all_intostates as $localwfs=>$ignore)
+                    foreach($all_into_states as $localwfs=>$ignore)
                     {
-                        $allusers[$uid]['tickets'][$key]['intostates'][$localwfs] = 0;
+                        $allusers[$uid]['tickets'][$key]['count_events']['into_states'][$localwfs] = 0;
                     }
                 }
                 if($wfs != 'AC')
                 {
-                    $newcount = $allusers[$uid]['tickets'][$key]['intostates'][$wfs] + 1;
-                    $allusers[$uid]['tickets'][$key]['intostates'][$wfs] = $newcount;
+                    $newcount = $allusers[$uid]['tickets'][$key]['count_events']['into_states'][$wfs] + 1;
+                    $allusers[$uid]['tickets'][$key]['count_events']['into_states'][$wfs] = $newcount;
                 }
             }            
             
@@ -1314,7 +1320,7 @@ class TicketTrackingData
         $bundle['count_events']['reservations'] = $total_reservations;
         $bundle['count_events']['scheduled'] = $total_scheduled;
         $bundle['count_events']['into_state'] = array();
-        foreach($all_intostates as $statekey=>$count)
+        foreach($all_into_states as $statekey=>$count)
         {
             $bundle['count_events']['into_state'][$statekey] = $count;
         }
