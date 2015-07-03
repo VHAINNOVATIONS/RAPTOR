@@ -1027,26 +1027,37 @@ class TicketTrackingData
                     $approved_ts = strtotime($record['approved_dt']);
                     $exam_completed_ts = NULL;
                     $interpret_completed_ts = NULL;
+                    
+                    $approved_to_examcompleted = 0;
+                    $approved_to_interpretcomplete = 0;
+                    $examcompleted_to_QA = 0;
+                    $approved_to_examvistacommit = 0;
+                    
                     if($record['exam_completed_dt'] != NULL)
                     {
                         $exam_completed_ts = strtotime($record['exam_completed_dt']);
-                        $tickets[$key]['durations']['approved_to_examcompleted'] = $exam_completed_ts - $approved_ts;
+                        $approved_to_examcompleted = $exam_completed_ts - $approved_ts;
                     }
                     if($exam_completed_ts !== NULL && $record['interpret_completed_dt'] != NULL)
                     {
                         $interpret_completed_ts = strtotime($record['interpret_completed_dt']);
-                        $tickets[$key]['durations']['approved_to_interpretcomplete'] = $interpret_completed_ts - $exam_completed_ts;
+                        $approved_to_interpretcomplete = $interpret_completed_ts - $exam_completed_ts;
                     }
                     if($exam_completed_ts !== NULL && $record['qa_completed_dt'] != NULL)
                     {
                         $qa_completed_ts = strtotime($record['qa_completed_dt']);
-                        $tickets[$key]['durations']['examcompleted_to_QA'] = $qa_completed_ts - $exam_completed_ts;
+                        $examcompleted_to_QA = $qa_completed_ts - $exam_completed_ts;
                     }
                     if($approved_ts !== NULL && $record['exam_details_committed_dt'] != NULL)
                     {
                         $exam_details_committed_ts = strtotime($record['exam_details_committed_dt']);
-                        $tickets[$key]['durations']['approved_to_examvistacommit'] = $exam_details_committed_ts - $approved_ts;
+                        $approved_to_examvistacommit = $exam_details_committed_ts - $approved_ts;
                     }
+                    
+                    $tickets[$key]['durations']['approved_to_examcompleted'] = $approved_to_examcompleted;
+                    $tickets[$key]['durations']['approved_to_interpretcomplete'] = $approved_to_interpretcomplete;
+                    $tickets[$key]['durations']['examcompleted_to_QA'] = $examcompleted_to_QA;
+                    $tickets[$key]['durations']['approved_to_examvistacommit'] = $approved_to_examvistacommit;
                 }
             }
         } catch (\Exception $ex) {
@@ -1351,7 +1362,7 @@ class TicketTrackingData
                 $tickets[$key]['transitions'][] = $record;
                 if($wfs != 'AC')
                 {
-                    $all_into_states[$wfs] = intval($all_into_states[$wfs]) + 1;
+                    $all_into_states[$wfs] = $all_into_states[$wfs] + 1;
                 }
                 $uid = $record['initiating_uid'];
                 if(!isset($allusers[$uid]))
@@ -1366,11 +1377,22 @@ class TicketTrackingData
                 {
                     $allusers[$uid]['tickets'][$key] = array();
                     $allusers[$uid]['tickets'][$key]['durations'] = array();
+                    $allusers[$uid]['tickets'][$key]['count_events'] = array();
+                    $allusers[$uid]['tickets'][$key]['transitions'] = array();
+                }
+                if(!isset($allusers[$uid]['tickets'][$key]['count_events']['into_states']))
+                {
+                    $allusers[$uid]['tickets'][$key]['count_events']['into_states'] = array();
                     foreach($all_into_states as $localwfs=>$ignore)
                     {
                         $allusers[$uid]['tickets'][$key]['count_events']['into_states'][$localwfs] = 0;
                     }
                 }
+                if(!isset($allusers[$uid]['tickets'][$key]['transitions'][$wfs]))
+                {
+                    $allusers[$uid]['tickets'][$key]['transitions'][$wfs] = $wfs;
+                }
+
                 if($wfs != 'AC')
                 {
                     $newcount = $allusers[$uid]['tickets'][$key]['count_events']['into_states'][$wfs] + 1;
@@ -1381,6 +1403,9 @@ class TicketTrackingData
             //Complete the summary entries for each ticket
             foreach($tickets as $ien=>$detail)
             {
+                $ticket_approved_dt = $detail['summary']['approved_dt'];
+                $exam_completed_dt = $detail['summary']['exam_completed_dt'];
+                
                 if(!isset($detail['summary']['workflow_state']))
                 {
                     $detail['summary']['workflow_state'] = 'AC';
@@ -1402,7 +1427,45 @@ class TicketTrackingData
                     $detail['summary']['counts']['scheduled'] = 0;
                 }
                 
-                //TODO
+                //Compile the collaboration durations
+                $collaboration_duration = 0;
+                $reserved_duration = 0;
+                if(isset($detail['collaboration']))
+                {
+                    foreach($detail['collaboration'] as $collabdetail)
+                    {
+                        $duration = $collabdetail['duration'];
+                        if($collabdetail['rec_type'] == 'reservation')
+                        {
+                            $reserved_duration += $duration;
+                        } else {
+                            $collaboration_duration += $duration;
+                        }
+                    }
+                }
+                
+                //Compile the scheduled durations
+                $approved_to_scheduled = 0;
+                $scheduled_to_approved = 0;
+                if($ticket_approved_dt != NULL && isset($detail['schedule']))
+                {
+                    $scheduledetails = $detail['schedule'][0];  //First one IS the oldest one, thats what we want.
+                    $sched_created_dt = $scheduledetails['created_dt'];
+                    $sched_created_ts = strtotime($sched_created_dt);
+                    $ticket_approved_ts = strtotime($ticket_approved_dt);
+                    drupal_set_message("LOOK $ien $sched_created_dt vs $ticket_approved_dt :: $sched_created_ts vs $ticket_approved_ts <br>>>>>>>".print_r($detail,TRUE));
+                    if($sched_created_ts > $ticket_approved_ts)
+                    {
+                        $approved_to_scheduled = $sched_created_ts - $ticket_approved_ts;
+                    } else {
+                        $scheduled_to_approved = $ticket_approved_ts - $sched_created_ts;
+                    }
+                }
+                
+                $detail['summary']['durations']['collaboration'] = $collaboration_duration;
+                $detail['summary']['durations']['reserved'] = $reserved_duration;
+                $detail['summary']['durations']['approved_to_scheduled'] = $approved_to_scheduled;
+                $detail['summary']['durations']['scheduled_to_approved'] = $scheduled_to_approved;
                 
                 //Replace the detail
                 $tickets[$ien] = $detail;
@@ -1413,6 +1476,7 @@ class TicketTrackingData
             {
                 foreach($tickets as $ien=>$ticketdetails)
                 {
+                    $user_participates = FALSE; //Set to true if user touches ticket
                     $ticket_approved_dt = $ticketdetails['summary']['approved_dt'];
                     $exam_completed_dt = $ticketdetails['summary']['exam_completed_dt'];
                     $reserved = 0;
@@ -1439,6 +1503,7 @@ class TicketTrackingData
                                 if($uid == $collabdetails['requester_uid'])
                                 {
                                     //Is requester
+                                    $user_participates = TRUE;
                                     $reserved += $duration;
                                 } 
                             } else {
@@ -1446,11 +1511,13 @@ class TicketTrackingData
                                 if($uid == $collabdetails['requester_uid'])
                                 {
                                     //Is requester
+                                    $user_participates = TRUE;
                                     $collaboration_initiation += $duration;
                                 }  else
                                 if($uid == $collabdetails['collaborator_uid'])
                                 {
                                     //Is target
+                                    $user_participates = TRUE;
                                     $collaboration_target += $duration;
                                 } 
                             }
@@ -1460,6 +1527,7 @@ class TicketTrackingData
                                 if($uid == $collabdetails['requester_uid'])
                                 {
                                     //Is requester
+                                    $user_participates = TRUE;
                                     $reserved += $duration;
                                 } 
                             } else {
@@ -1467,11 +1535,13 @@ class TicketTrackingData
                                 if($uid == $collabdetails['requester_uid'])
                                 {
                                     //Is requester
+                                    $user_participates = TRUE;
                                     $collaboration_initiation += $duration;
                                 }  else
                                 if($uid == $collabdetails['collaborator_uid'])
                                 {
                                     //Is target
+                                    $user_participates = TRUE;
                                     $collaboration_target += $duration;
                                 } 
                             }
@@ -1499,6 +1569,7 @@ class TicketTrackingData
                                 $user_has_schedimpact = ($sched_author_uid == $uid || $ticket_approver_uid == $uid);
                                 if($user_has_schedimpact)
                                 {
+                                    $user_participates = TRUE;
                                     $sched_created_ts = strtotime($sched_created_dt);
                                     if($ticket_approved_dt != NULL)
                                     {
@@ -1506,7 +1577,7 @@ class TicketTrackingData
                                         $ticket_approved_ts = strtotime($ticket_approved_dt);
                                         if($sched_created_ts > $ticket_approved_ts)
                                         {
-                                            $approved_to_scheduled = $sched_created_ts > $ticket_approved_ts;
+                                            $approved_to_scheduled = $sched_created_ts - $ticket_approved_ts;
                                         } else {
                                             $scheduled_to_approved = $ticket_approved_ts - $sched_created_ts;
                                         }
@@ -1516,25 +1587,24 @@ class TicketTrackingData
                         }
                     }
                     
-
-                    $userlevelticketdurations = array();
-                    $userlevelticketdurations['scheduled_to_approved'] = $scheduled_to_approved;
-                    $userlevelticketdurations['approved_to_scheduled'] = $approved_to_scheduled;
-                    $userlevelticketdurations['approved_to_examcompleted'] = $approved_to_examcompleted;
-                    $userlevelticketdurations['collaboration_initiation'] = $collaboration_initiation;
-                    $userlevelticketdurations['collaboration_target'] = $collaboration_target;
-                    $userlevelticketdurations['reserved'] = $reserved;
-
-                    //Add the durations to the structure.
-                    if(!isset($allusers[$uid]['tickets'][$ien]))
+                    //Only create the entry IF the user participates in factors.
+                    if($user_participates)
                     {
-                        $allusers[$uid]['tickets'][$ien] = array();
+                        $userlevelticketdurations = array();
+                        $userlevelticketdurations['scheduled_to_approved'] = $scheduled_to_approved;
+                        $userlevelticketdurations['approved_to_scheduled'] = $approved_to_scheduled;
+                        $userlevelticketdurations['approved_to_examcompleted'] = $approved_to_examcompleted;
+                        $userlevelticketdurations['collaboration_initiation'] = $collaboration_initiation;
+                        $userlevelticketdurations['collaboration_target'] = $collaboration_target;
+                        $userlevelticketdurations['reserved'] = $reserved;
+
+                        //Add the durations to the structure.
+                        if(!isset($allusers[$uid]['tickets'][$ien]))
+                        {
+                            $allusers[$uid]['tickets'][$ien] = array();
+                        }
+                        $allusers[$uid]['tickets'][$ien]['durations'] = $userlevelticketdurations;
                     }
-                    $allusers[$uid]['tickets'][$ien]['durations'] = $userlevelticketdurations;
-                }
-                
-                foreach($details1['tickets'] as $ien=>$details2)
-                {
                 }
             }
             

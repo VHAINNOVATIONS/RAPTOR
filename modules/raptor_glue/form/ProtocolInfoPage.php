@@ -2210,8 +2210,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     
     /**
      * Write all the RAPTOR data of curent ticket into VISTA.
-     * - Safety Checklist information
-     * - General notes
      * @return boolean TRUE if success, else FALSE
      */
     function commitDataToVista($nSiteID,$nIEN,$nUID,$sCWFS,$myvalues,$encounterString=NULL)
@@ -2333,9 +2331,29 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                         'commit_dt' => $commit_dt,
                   ))->execute();
             } catch (\Exception $ex) {
-                $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' to raptor_ticket_commit_tracking because ' . $ex->getMessage());
+                $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' to raptor_ticket_commit_tracking because ' 
+                        . $ex->getMessage());
                 throw $ex;
             }
+            
+            try
+            {
+                db_merge('raptor_ticket_tracking')
+                    ->key(
+                            array('siteid'=>$nSiteID
+                                    ,'IEN' => $nIEN,
+                        ))
+                    ->fields(array(
+                            'exam_details_committed_dt'=>$updated_dt,
+                            'updated_dt'=>$commit_dt,
+                        ))
+                    ->execute();                
+            } catch (\Exception $ex) {
+                $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' to raptor_ticket_tracking because ' 
+                        . $ex->getMessage());
+                throw $ex;
+            }
+            
         }        
         
         if($bSuccess)
