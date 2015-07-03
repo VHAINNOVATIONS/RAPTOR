@@ -1021,6 +1021,33 @@ class TicketTrackingData
                 {
                     $tickets[$key]['workflow_state'] = 'AC';   
                 }
+                $tickets[$key]['durations'] = array();
+                if($record['approved_dt'] != NULL)
+                {
+                    $approved_ts = strtotime($record['approved_dt']);
+                    $exam_completed_ts = NULL;
+                    $interpret_completed_ts = NULL;
+                    if($record['exam_completed_dt'] != NULL)
+                    {
+                        $exam_completed_ts = strtotime($record['exam_completed_dt']);
+                        $tickets[$key]['durations']['approved_to_examcompleted'] = $exam_completed_ts - $approved_ts;
+                    }
+                    if($exam_completed_ts !== NULL && $record['interpret_completed_dt'] != NULL)
+                    {
+                        $interpret_completed_ts = strtotime($record['interpret_completed_dt']);
+                        $tickets[$key]['durations']['approved_to_interpretcomplete'] = $interpret_completed_ts - $exam_completed_ts;
+                    }
+                    if($exam_completed_ts !== NULL && $record['qa_completed_dt'] != NULL)
+                    {
+                        $qa_completed_ts = strtotime($record['qa_completed_dt']);
+                        $tickets[$key]['durations']['examcompleted_to_QA'] = $qa_completed_ts - $exam_completed_ts;
+                    }
+                    if($approved_ts !== NULL && $record['exam_details_committed_dt'] != NULL)
+                    {
+                        $exam_details_committed_ts = strtotime($record['exam_details_committed_dt']);
+                        $tickets[$key]['durations']['approved_to_examvistacommit'] = $exam_details_committed_ts - $approved_ts;
+                    }
+                }
             }
         } catch (\Exception $ex) {
             throw $ex;
@@ -1095,6 +1122,20 @@ class TicketTrackingData
                         }
                         $tickets[$prevkey]['summary']['counts']['collaborations'] = $collaborations;
                         $tickets[$prevkey]['summary']['counts']['reservations'] = $reservations;
+                        
+                        //Capture the duration of the last collaboration request if the ticket is NO longer in active state.
+                        if($tickets[$prevkey]['summary']['workflow_state'] != 'AC')
+                        {
+                            //We have a real completion for collaboration, get it.
+                            $competion_ts = strtotime($tickets[$prevkey]['summary']['approved_dt']);
+                        } else {
+                            //Still open so completion is always NOW!
+                            $competion_ts = time();
+                        }
+                        $rightrecnum = $recnum - 1;
+                        $rec_type = $tickets[$prevkey]['collaboration'][$rightrecnum]['rec_type'];
+                        $started_ts = strtotime($tickets[$prevkey]['collaboration'][$rightrecnum]['requested_dt']);
+                        $tickets[$prevkey]['collaboration'][$rightrecnum]["duration"] = $competion_ts - $started_ts;
                     }
                     $collaborations = 0;
                     $reservations = 0;
@@ -1117,7 +1158,7 @@ class TicketTrackingData
                 $tickets[$key]['collaboration'][$recnum] = $record;
                 if($recnum>0)
                 {
-                    //We can extract a duration
+                    //We can extract a duration for previous collaboration record
                     $prevrecnum = $recnum - 1;
                     $prevrec_ts = strtotime($tickets[$key]['collaboration'][$prevrecnum]['requested_dt']);
                     $this_ts =  strtotime($record['requested_dt']);
@@ -1144,6 +1185,8 @@ class TicketTrackingData
                 }
                 if($record['requester_uid'] == $record['collaborator_uid'])
                 {
+                    //Reservation record
+                    $tickets[$key]['collaboration'][$recnum]['rec_type'] = 'reservation';
                     if(isset($allusers[$uid]['tickets'][$key]['count_events']['reservation']))
                     {
                         $newcount = $allusers[$uid]['tickets'][$key]['count_events']['reservation'] + 1;
@@ -1151,7 +1194,10 @@ class TicketTrackingData
                         $newcount = 1;
                     }
                     $allusers[$uid]['tickets'][$key]['count_events']['reservation'] = $newcount;
+                    $allusers[$uid]['tickets'][$key]['is_reserver'] = 'yes';
                 } else {
+                    //Collaboration record
+                    $tickets[$key]['collaboration'][$recnum]['rec_type'] = 'collaboration';
                     if(isset($allusers[$uid]['tickets'][$key]['count_events']['collaboration']))
                     {
                         $newcount = $allusers[$uid]['tickets'][$key]['count_events']['collaboration'] + 1;
@@ -1159,6 +1205,13 @@ class TicketTrackingData
                         $newcount = 1;
                     }
                     $allusers[$uid]['tickets'][$key]['count_events']['collaboration'] = $newcount;
+                    $allusers[$uid]['tickets'][$key]['is_collaboration_initiator'] = 'yes';
+                    $collaborator_uid = $record['collaborator_uid'];
+                    if(!isset($allusers[$collaborator_uid]['tickets'][$key]))
+                    {
+                        $allusers[$collaborator_uid]['tickets'][$key] = array();
+                    }
+                    $allusers[$collaborator_uid]['tickets'][$key]['is_collaboration_target'] = 'yes';
                 }
             }  
             if($key != NULL)
@@ -1169,6 +1222,19 @@ class TicketTrackingData
                 }
                 $tickets[$key]['summary']['counts']['collaborations'] = $collaborations;
                 $tickets[$key]['summary']['counts']['reservations'] = $reservations;
+
+                //Capture the duration of the last collaboration request if the ticket is NO longer in active state.
+                if($tickets[$prevkey]['summary']['workflow_state'] != 'AC')
+                {
+                    //We have a real completion for collaboration, get it.
+                    $competion_ts = strtotime($tickets[$key]['summary']['approved_dt']);
+                } else {
+                    //Still open so completion is always NOW!
+                    $competion_ts = time();
+                }
+                $rec_type = $tickets[$key]['collaboration'][$recnum]['rec_type'];
+                $started_ts = strtotime($tickets[$key]['collaboration'][$recnum]['requested_dt']);
+                $tickets[$key]['collaboration'][$recnum]["duration"] = $competion_ts - $started_ts;
             }
 
             //Schedule details
@@ -1184,7 +1250,7 @@ class TicketTrackingData
                 $query_st->condition('created_dt', $enddatetime, '<=');
             }
             $query_st->orderBy('IEN');
-            $query_st->orderBy('created_dt','DESC');
+            $query_st->orderBy('created_dt');
             $total_scheduled = 0;
             $scheduled = 0;
             $prevkey=NULL;
@@ -1259,35 +1325,7 @@ class TicketTrackingData
                 $tickets[$prevkey]['summary']['counts']['scheduled'] = $scheduled;
             }
             
-            /*
-            
-            //Ticket state completion dates
-            $query_tt = db_select('raptor_ticket_tracking', 'n')
-                ->fields('n')
-                ->condition('siteid', $nSiteID,'=');
-            if($startdatetime != NULL)
-            {
-                $query_tt->condition('updated_dt', $startdatetime, '>=');
-            }
-            if($enddatetime != NULL)
-            {
-                $query_tt->condition('updated_dt', $enddatetime, '<=');
-            }
-            $query_tt->orderBy('IEN');
-            $query_tt->orderBy('updated_dt','DESC');
-            $result_tt = $query_tt->execute();
-            while($record = $result_tt->fetchAssoc())
-            {
-                $key = $record['IEN'];
-                if(!key_exists($key,$tickets))
-                {
-                    $tickets[$key] = array();;    
-                }
-                $tickets[$key]['summary'] = $record;
-            }
-            */
-            
-            //Workflow state transitions
+            //Workflow STATE TRANSITIONS
             $query_wfh = db_select('raptor_ticket_workflow_history', 'n')
                 ->fields('n')
                 ->condition('siteid', $nSiteID,'=');
@@ -1300,7 +1338,7 @@ class TicketTrackingData
                 $query_wfh->condition('created_dt', $enddatetime, '<=');
             }
             $query_wfh->orderBy('IEN');
-            $query_wfh->orderBy('created_dt','DESC');
+            $query_wfh->orderBy('created_dt');
             $result_wfh = $query_wfh->execute();    
             while($record = $result_wfh->fetchAssoc())
             {
@@ -1373,13 +1411,67 @@ class TicketTrackingData
             //Compute all the user level metrics
             foreach($allusers as $uid=>$details1)
             {
+                foreach($tickets as $ien=>$ticketdetails)
+                {
+                    $reserved = 0;
+                    $collaboration_initiation = 0;
+                    $collaboration_target = 0;
+                    if(isset($ticketdetails['collaboration']))
+                    {
+                        //Compute the collaboration/reservation durations
+                        foreach($ticketdetails['collaboration'] as $collabdetails)
+                        {
+                            $duration = $collabdetails['duration'];
+                            if($collabdetails['rec_type'] == 'reservation')
+                            {
+                                //Reservation
+                                if($uid == $collabdetails['requester_uid'])
+                                {
+                                    //Is requester
+                                    $reserved += $duration;
+                                } 
+                            } else {
+                                //Collaboration
+                                if($uid == $collabdetails['requester_uid'])
+                                {
+                                    //Is requester
+                                    $collaboration_initiation += $duration;
+                                }  else
+                                if($uid == $collabdetails['collaborator_uid'])
+                                {
+                                    //Is target
+                                    $collaboration_target += $duration;
+                                } 
+                            }
+                        }
+                    }
+                    
+                    $userlevelticketdurations = array();
+                    
+                    //Did this user schedule?
+                    $userlevelticketdurations['approved_to_scheduled'] = 'TODO';
+
+                    //Did this user complete the exam?
+                    $userlevelticketdurations['approved_to_examcompleted'] = 'TODO';
+
+                    //Did this user request collaborate?
+                    $userlevelticketdurations['collaboration_initiation'] = $collaboration_initiation;
+
+                    //Was this user requested to collaborate?
+                    $userlevelticketdurations['collaboration_target'] = $collaboration_target;
+
+                    //Did this user reserve?
+                    $userlevelticketdurations['reserved'] = $reserved;
+
+                    if(!isset($allusers[$uid]['tickets'][$ien]))
+                    {
+                        $allusers[$uid]['tickets'][$ien] = array();
+                    }
+                    $allusers[$uid]['tickets'][$ien]['durations'] = $userlevelticketdurations;
+                }
+                
                 foreach($details1['tickets'] as $ien=>$details2)
                 {
-                    //TODO
-                    $allusers[$uid]['tickets'][$ien]['durations']['approved_to_scheduled'] = 'TODO'; 
-                    $allusers[$uid]['tickets'][$ien]['durations']['approved_to_examcompleted'] = 'TODO';
-                    $allusers[$uid]['tickets'][$ien]['durations']['collaboration'] = 'TODO';
-                    $allusers[$uid]['tickets'][$ien]['durations']['reserved'] = 'TODO';
                 }
             }
             
@@ -1395,7 +1487,7 @@ class TicketTrackingData
         {
             $bundle['count_events']['into_state'][$statekey] = $count;
         }
-        $bundle['active_users'] = $allusers;
+        $bundle['relevant_users'] = $allusers;
         $bundle['tickets'] = $tickets;
         return $bundle;
     }
