@@ -2344,7 +2344,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                                     ,'IEN' => $nIEN,
                         ))
                     ->fields(array(
-                            'exam_details_committed_dt'=>$updated_dt,
+                            'exam_details_committed_dt'=>$commit_dt,
                             'updated_dt'=>$commit_dt,
                         ))
                     ->execute();                

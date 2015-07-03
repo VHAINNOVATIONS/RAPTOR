@@ -1453,7 +1453,6 @@ class TicketTrackingData
                     $sched_created_dt = $scheduledetails['created_dt'];
                     $sched_created_ts = strtotime($sched_created_dt);
                     $ticket_approved_ts = strtotime($ticket_approved_dt);
-                    drupal_set_message("LOOK $ien $sched_created_dt vs $ticket_approved_dt :: $sched_created_ts vs $ticket_approved_ts <br>>>>>>>".print_r($detail,TRUE));
                     if($sched_created_ts > $ticket_approved_ts)
                     {
                         $approved_to_scheduled = $sched_created_ts - $ticket_approved_ts;
@@ -1607,7 +1606,6 @@ class TicketTrackingData
                     }
                 }
             }
-            
         } catch (\Exception $ex) {
             throw $ex;
         }
