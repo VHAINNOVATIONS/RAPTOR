@@ -1413,9 +1413,20 @@ class TicketTrackingData
             {
                 foreach($tickets as $ien=>$ticketdetails)
                 {
+                    $ticket_approved_dt = $ticketdetails['summary']['approved_dt'];
+                    $exam_completed_dt = $ticketdetails['summary']['exam_completed_dt'];
                     $reserved = 0;
                     $collaboration_initiation = 0;
                     $collaboration_target = 0;
+                    $approved_to_scheduled = 0;
+                    $scheduled_to_approved = 0;
+                    $approved_to_examcompleted = 0;
+                    if($exam_completed_dt != NULL && $ticket_approved_dt != NULL)
+                    {
+                        $exam_completed_ts = strtotime($exam_completed_dt);
+                        $ticket_approved_ts = strtotime($ticket_approved_dt);
+                        $approved_to_examcompleted = $exam_completed_ts - $ticket_approved_ts;
+                    }
                     if(isset($ticketdetails['collaboration']))
                     {
                         //Compute the collaboration/reservation durations
@@ -1443,26 +1454,78 @@ class TicketTrackingData
                                     $collaboration_target += $duration;
                                 } 
                             }
+                            if($collabdetails['rec_type'] == 'reservation')
+                            {
+                                //Reservation
+                                if($uid == $collabdetails['requester_uid'])
+                                {
+                                    //Is requester
+                                    $reserved += $duration;
+                                } 
+                            } else {
+                                //Collaboration
+                                if($uid == $collabdetails['requester_uid'])
+                                {
+                                    //Is requester
+                                    $collaboration_initiation += $duration;
+                                }  else
+                                if($uid == $collabdetails['collaborator_uid'])
+                                {
+                                    //Is target
+                                    $collaboration_target += $duration;
+                                } 
+                            }
+                        }
+                    }
+                    if(isset($ticketdetails['schedule']))
+                    {
+                        //Compute the scheduled durations
+                        foreach($ticketdetails['schedule'] as $scheduledetails)
+                        {
+                            if($ticket_approved_dt != NULL)
+                            {
+                                $sched_author_uid = $scheduledetails['author_uid'];
+                                $sched_created_dt = $scheduledetails['created_dt'];
+                                $ticket_approver_uid = NULL;
+                                foreach($ticketdetails['transitions'] as $transitiondetail)
+                                {
+                                    if($transitiondetail['new_workflow_state'] == 'AP')
+                                    {
+                                        $ticket_approver_uid = $transitiondetail['initiating_uid'];
+                                        break;
+                                    }
+                                }
+
+                                $user_has_schedimpact = ($sched_author_uid == $uid || $ticket_approver_uid == $uid);
+                                if($user_has_schedimpact)
+                                {
+                                    $sched_created_ts = strtotime($sched_created_dt);
+                                    if($ticket_approved_dt != NULL)
+                                    {
+                                        //Time is from approval until scheduled
+                                        $ticket_approved_ts = strtotime($ticket_approved_dt);
+                                        if($sched_created_ts > $ticket_approved_ts)
+                                        {
+                                            $approved_to_scheduled = $sched_created_ts > $ticket_approved_ts;
+                                        } else {
+                                            $scheduled_to_approved = $ticket_approved_ts - $sched_created_ts;
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     
+
                     $userlevelticketdurations = array();
-                    
-                    //Did this user schedule?
-                    $userlevelticketdurations['approved_to_scheduled'] = 'TODO';
-
-                    //Did this user complete the exam?
-                    $userlevelticketdurations['approved_to_examcompleted'] = 'TODO';
-
-                    //Did this user request collaborate?
+                    $userlevelticketdurations['scheduled_to_approved'] = $scheduled_to_approved;
+                    $userlevelticketdurations['approved_to_scheduled'] = $approved_to_scheduled;
+                    $userlevelticketdurations['approved_to_examcompleted'] = $approved_to_examcompleted;
                     $userlevelticketdurations['collaboration_initiation'] = $collaboration_initiation;
-
-                    //Was this user requested to collaborate?
                     $userlevelticketdurations['collaboration_target'] = $collaboration_target;
-
-                    //Did this user reserve?
                     $userlevelticketdurations['reserved'] = $reserved;
 
+                    //Add the durations to the structure.
                     if(!isset($allusers[$uid]['tickets'][$ien]))
                     {
                         $allusers[$uid]['tickets'][$ien] = array();
