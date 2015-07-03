@@ -1403,6 +1403,7 @@ class TicketTrackingData
             {
                 $total_statetransitions++;
                 $wfs = $record['new_workflow_state'];
+                $recorddate = $record['created_dt'];
                 $key = $record['IEN'];
                 if(!key_exists($key,$tickets))
                 {
@@ -1439,7 +1440,7 @@ class TicketTrackingData
                 }
                 if(!isset($allusers[$uid]['tickets'][$key]['transitions'][$wfs]))
                 {
-                    $allusers[$uid]['tickets'][$key]['transitions'][$wfs] = $wfs;
+                    $allusers[$uid]['tickets'][$key]['transitions'][$wfs] = $recorddate;
                 }
 
                 if($wfs != 'AC')
