@@ -1067,33 +1067,12 @@ class TicketTrackingData
         return $tickets;
     }
     
-    /**
-     * Return all the ticket detail between the provided dates.
-     */
-    public function getDetailedTrackingHistory($nSiteID, $startdatetime=NULL, $enddatetime=NULL)
+    private function compilePartialCollaborationDetails(&$tickets, &$allusers, &$all_into_states
+            , $nSiteID, $startdatetime=NULL, $enddatetime=NULL)
     {
         $bundle = array();
-        $bundle['siteid'] = $nSiteID;
-        $bundle['startdatetime'] = $startdatetime;
-        $bundle['enddatetime'] = $enddatetime;
-        
-        $all_into_states = array();  //Count all tickets into each state
-        foreach($this->m_oWF->getAllPossibleTicketStates() as $key=>$phrase)
-        {
-            if($key != 'AC')
-            {
-                $all_into_states[$key] = 0;  //Initialize
-            }
-        }
-        $allusers = array();        //All users involved
-        $tickets = array();
-        $coreticketinfo = $this->getCoreTicketTrackingHistory($nSiteID, $startdatetime, $enddatetime);
-        foreach($coreticketinfo as $key=>$oneticket)
-        {
-            $tickets[$key] = array();
-            $tickets[$key]['summary'] = $oneticket;
-        }
-        
+        $total_collaborations = 0;
+        $total_reservations = 0;
         try
         {
             //Collaboration details
@@ -1110,14 +1089,11 @@ class TicketTrackingData
             }
             $query_tc->orderBy('IEN');
             $query_tc->orderBy('requested_dt');
-            $total_collaborations = 0;
-            $total_reservations = 0;
             $collaborations = 0;
             $reservations = 0;
             $prevkey = NULL;
             $key = NULL;
             $recnum = -1;
-            $totalrecs=0;
             $result_tc = $query_tc->execute();
             while($record = $result_tc->fetchAssoc())
             {
@@ -1133,7 +1109,7 @@ class TicketTrackingData
                         }
                         $tickets[$prevkey]['summary']['counts']['collaborations'] = $collaborations;
                         $tickets[$prevkey]['summary']['counts']['reservations'] = $reservations;
-                        
+
                         //Capture the duration of the last collaboration request if the ticket is NO longer in active state.
                         if($tickets[$prevkey]['summary']['workflow_state'] != 'AC')
                         {
@@ -1175,7 +1151,7 @@ class TicketTrackingData
                     $this_ts =  strtotime($record['requested_dt']);
                     $tickets[$key]['collaboration'][$prevrecnum]['duration'] = $this_ts - $prevrec_ts;  //Duration between the changes
                 }
-                
+
                 $uid = $record['requester_uid'];
                 if(!isset($allusers[$uid]))
                 {
@@ -1247,8 +1223,23 @@ class TicketTrackingData
                 $started_ts = strtotime($tickets[$key]['collaboration'][$recnum]['requested_dt']);
                 $tickets[$key]['collaboration'][$recnum]["duration"] = $competion_ts - $started_ts;
             }
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
 
-            //Schedule details
+        $bundle['total_collaborations'] = $total_collaborations;
+        $bundle['total_reservations'] = $total_reservations;
+        return $bundle;
+    }
+    
+    private function compilePartialScheduleDetails(&$tickets, &$allusers, &$all_into_states
+            , $nSiteID, $startdatetime=NULL, $enddatetime=NULL)
+    {
+        $bundle = array();
+        $total_scheduled = 0;
+        try
+        {
+            
             $query_st = db_select('raptor_schedule_track', 'n')
                 ->fields('n')
                 ->condition('siteid', $nSiteID,'=');
@@ -1262,12 +1253,10 @@ class TicketTrackingData
             }
             $query_st->orderBy('IEN');
             $query_st->orderBy('created_dt');
-            $total_scheduled = 0;
             $scheduled = 0;
             $prevkey=NULL;
             $key=NULL;
             $recnum = -1;
-            $totalrecs=0;
             $result_st = $query_st->execute();    
             while($record = $result_st->fetchAssoc())
             {
@@ -1295,7 +1284,7 @@ class TicketTrackingData
                 $scheduled++;
                 $total_scheduled++;
                 $tickets[$key]['schedule'][] = $record;
-                
+
                 $uid = $record['author_uid'];
                 if(!isset($allusers[$uid]))
                 {
@@ -1325,7 +1314,7 @@ class TicketTrackingData
                     $newcount = 1;
                 }
                 $allusers[$uid]['tickets'][$key]['count_events']['scheduled'] = $newcount;
-                
+
             }
             if($prevkey != NULL)
             {
@@ -1335,8 +1324,22 @@ class TicketTrackingData
                 }
                 $tickets[$prevkey]['summary']['counts']['scheduled'] = $scheduled;
             }
-            
-            //Commit to VISTA
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+
+        $bundle['total_scheduled'] = $total_scheduled;
+        return $bundle;
+    }
+
+    
+    private function compilePartialVistaDetails(&$tickets, &$allusers, &$all_into_states
+            , $nSiteID, $startdatetime=NULL, $enddatetime=NULL)
+    {
+        $bundle = array();
+        $total_vistacommits = 0;
+        try
+        {
             $query_vista = db_select('raptor_ticket_commit_tracking', 'n')
                 ->fields('n')
                 ->condition('siteid', $nSiteID,'=');
@@ -1353,6 +1356,7 @@ class TicketTrackingData
             $result_vista = $query_vista->execute();    
             while($record = $result_vista->fetchAssoc())
             {
+                $total_vistacommits++;
                 $wfs = $record['workflow_state'];
                 $key = $record['IEN'];
                 if(!key_exists($key,$tickets))
@@ -1364,10 +1368,23 @@ class TicketTrackingData
                 $vci['author_uid'] = $record['author_uid'];
                 $vci['commit_dt'] = $record['commit_dt'];
                 $tickets[$key]['vista_commit'][] = $vci;
-                
             }
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+
+        $bundle['total_vistacommits'] = $total_vistacommits;
+        return $bundle;
+    }
+
+    private function compilePartialStateTransitionDetails(&$tickets, &$allusers, &$all_into_states
+            , $nSiteID, $startdatetime=NULL, $enddatetime=NULL)
+    {
+        $bundle = array();
+        $total_statetransitions = 0;
+        try
+        {
             
-            //Workflow STATE TRANSITIONS
             $query_wfh = db_select('raptor_ticket_workflow_history', 'n')
                 ->fields('n')
                 ->condition('siteid', $nSiteID,'=');
@@ -1384,6 +1401,7 @@ class TicketTrackingData
             $result_wfh = $query_wfh->execute();    
             while($record = $result_wfh->fetchAssoc())
             {
+                $total_statetransitions++;
                 $wfs = $record['new_workflow_state'];
                 $key = $record['IEN'];
                 if(!key_exists($key,$tickets))
@@ -1430,6 +1448,65 @@ class TicketTrackingData
                     $allusers[$uid]['tickets'][$key]['count_events']['into_states'][$wfs] = $newcount;
                 }
             }            
+            
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+
+        $bundle['total_statetransitions'] = $total_statetransitions;
+        return $bundle;
+    }
+
+    
+    /**
+     * Return all the ticket detail between the provided dates.
+     */
+    public function getDetailedTrackingHistory($nSiteID, $startdatetime=NULL, $enddatetime=NULL)
+    {
+        $bundle = array();
+        $bundle['siteid'] = $nSiteID;
+        $bundle['startdatetime'] = $startdatetime;
+        $bundle['enddatetime'] = $enddatetime;
+        
+        $all_into_states = array();  //Count all tickets into each state
+        foreach($this->m_oWF->getAllPossibleTicketStates() as $key=>$phrase)
+        {
+            if($key != 'AC')
+            {
+                $all_into_states[$key] = 0;  //Initialize
+            }
+        }
+        $allusers = array();        //All users involved
+        $tickets = array();
+        $coreticketinfo = $this->getCoreTicketTrackingHistory($nSiteID, $startdatetime, $enddatetime);
+        foreach($coreticketinfo as $key=>$oneticket)
+        {
+            $tickets[$key] = array();
+            $tickets[$key]['summary'] = $oneticket;
+        }
+        
+        try
+        {
+            //Factor in collaboration information
+            $collabbundle = $this->compilePartialCollaborationDetails($tickets,$allusers,$all_into_states
+                    , $nSiteID, $startdatetime, $enddatetime);
+            $total_collaborations = $collabbundle['total_collaborations'];
+            $total_reservations = $collabbundle['total_reservations'];
+        
+            //Factor in schedule details
+            $schedulebundle = $this->compilePartialScheduleDetails($tickets,$allusers,$all_into_states
+                    , $nSiteID, $startdatetime, $enddatetime);
+            $total_scheduled = $schedulebundle['total_scheduled'];
+
+            //Factor in commits to VISTA
+            $vistabundle = $this->compilePartialVistaDetails($tickets,$allusers,$all_into_states
+                    , $nSiteID, $startdatetime, $enddatetime);
+            $total_vistacommits = $vistabundle['total_vistacommits'];
+           
+            //Factor in workflow STATE TRANSITIONS
+            $transitionsbundle = $this->compilePartialStateTransitionDetails($tickets,$allusers,$all_into_states
+                    , $nSiteID, $startdatetime, $enddatetime);
+            $total_statetransitions = $transitionsbundle['total_statetransitions'];
             
             //Complete the summary entries for each ticket
             foreach($tickets as $ien=>$detail)
@@ -1667,6 +1744,8 @@ class TicketTrackingData
         $bundle['count_events']['collaboration'] = $total_collaborations;
         $bundle['count_events']['reservations'] = $total_reservations;
         $bundle['count_events']['scheduled'] = $total_scheduled;
+        $bundle['count_events']['vistacommits'] = $total_vistacommits;
+        $bundle['count_events']['workflow_state_transitions'] = $total_statetransitions;
         $bundle['count_events']['into_state'] = array();
         foreach($all_into_states as $statekey=>$count)
         {
