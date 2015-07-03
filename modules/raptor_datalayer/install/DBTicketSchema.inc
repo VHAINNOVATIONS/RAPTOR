@@ -47,8 +47,8 @@ class DBTicketSchema
               'type' => 'varchar',
               'length' => 2,
               'not null' => TRUE,
-              'default' => '',
-              'description' => 'Current workflow state',
+              'default' => 'AC',
+              'description' => 'Current workflow state (assume AC if null)',
             ),
             'suspended_dt' => array(
               'type' => 'datetime',
@@ -60,7 +60,13 @@ class DBTicketSchema
               'type' => 'datetime',
               'mysql_type' => 'datetime',  
               'not null' => FALSE,
-              'description' => 'When this record was approved',
+              'description' => 'When the protocol was approved',
+            ),
+            'accepted_dt' => array(
+              'type' => 'datetime',
+              'mysql_type' => 'datetime',  
+              'not null' => FALSE,
+              'description' => 'When the protocol was accepted',
             ),
             'exam_completed_dt' => array(
               'type' => 'datetime',
@@ -72,7 +78,7 @@ class DBTicketSchema
               'type' => 'datetime',
               'mysql_type' => 'datetime',  
               'not null' => FALSE,
-              'description' => 'When the Interpretation was completed',
+              'description' => 'When the interpretation was completed',
             ),
             'qa_completed_dt' => array(
               'type' => 'datetime',

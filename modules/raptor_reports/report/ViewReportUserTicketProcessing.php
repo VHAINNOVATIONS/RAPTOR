@@ -66,7 +66,7 @@ class ViewReportUserTicketProcessing extends AReport
     {
         $myvalues = array();
         //$myvalues['formmode'] = 'V';
-        
+        /*
         $result = db_query("Call raptor_user_dept_analysis('user')")
                         ->execute();
 
@@ -84,9 +84,72 @@ class ViewReportUserTicketProcessing extends AReport
         {
                 $myvalues[] = $res;
         }
+        */
+        
+        $allthedetail = $this->m_oTT->getDetailedTrackingHistory(VISTA_SITE);
+        $userdetails = $allthedetail['relevant_users'];
+        foreach($userdetails as $uid=>$details)
+        {
+            $modality_abbr="MTODO";
+            $year = "YEARTODO";
+            $qtr = "QTRTODO";
+            $week = "WKTODO";
+            $day = "DayTODO";
+            $username="TODO$uid";
+            $userrole="RoleTODO";
+            $userlogin_ts="LoginTODO";
+            $movedIntoApproved="APmoveTODO";
+            $movedIntoCollab="CollabTODO";
+            $movedIntoAcknowlege="AckTODO";
+            $movedIntoCompleted="DoneTODO";
+            $movedIntoSuspend="CancelTODO";
+            $maxTimeAP2Sched="maxTimeAP2Sched";
+            $avgTimeAP2Sched="avgTimeAP2Sched";
+            $maxTimeAP2Done="maxTimeAP2Done";
+            $avgTimeAP2Done="avgTimeAP2Done";
+            $maxTimeAP2Colab="maxTimeAP2Colab";
+            $avgTimeAP2Colab="avgTimeAP2Colab";
+            $totalScheduled="todoTotShed";
+            
+            $row = array();
+            $row['uid'] = $uid;
+            $row['modality_abbr'] = $modality_abbr;
+            $row['_year'] = $year;
+            $row['quarter'] = $qtr;
+            $row['week'] = $week;
+            $row['day'] = $day;
+            $row['username'] = $username;
+            $row['role_nm'] = $userrole;
+            $row['most_recent_login_dt'] = $userlogin_ts;
+            $row['Total_Approved'] = $movedIntoApproved;
+            $row['Count_Collab'] = $movedIntoCollab;
+            $row['Total_Acknowledge'] = $movedIntoAcknowlege;
+            $row['Total_Complete'] = $movedIntoCompleted;
+            $row['Total_Suspend'] = $movedIntoSuspend;
+            $row['max_A_S'] = $maxTimeAP2Sched;
+            $row['avg_A_S'] = $avgTimeAP2Sched;
+            $row['max_A_C'] = $maxTimeAP2Done;
+            $row['avg_A_C'] = $avgTimeAP2Done;
+            $row['max_collab'] = $maxTimeAP2Colab;
+            $row['avg_collab'] = $avgTimeAP2Colab;
+            $row['Total_Scheduled'] = $totalScheduled;
+            
+            $myvalues[] = $row;
+        }
         return $myvalues;
     }
 	
+    private function getFormatDuration($seconds)
+    {
+        /*
+        $max_A_S = round((int)$val['Max_Time_A_S']);
+        $dtT = new DateTime("@$max_A_S");
+        $max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+         */
+        
+        return "$seconds sec";  //TODO
+    }
+    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -106,59 +169,38 @@ class ViewReportUserTicketProcessing extends AReport
             '#tree' => TRUE,
         );
 
+        $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
+                '#markup' => '<h1>!!!!222 debug stuff</h1><pre>' 
+                    . print_r($myvalues,TRUE) 
+                    . '<pre>'
+            );
+        
         $rows = '';
         foreach($myvalues as $val)
         {
-                if(((string)$val['_year']>0) && ((string)$val['quarter']>0) && ((string)$val['week']>0))
-                {
-                        $max_A_S = round((int)$val['Max_Time_A_S']);
-                        $dtT = new DateTime("@$max_A_S");
-                        $max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+            $rows .= '<tr>'
+                    . '<td>' . $val['modality_abbr'] . '</td>'
+                    . '<td>' . $val['_year'] . '</td>'
+                    . '<td>' . $val['quarter'] . '</td>'
+                    . '<td>' . $val['week'] . '</td>'
+                    . '<td>' . $val['day'] . '</td>'
+                    . '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
+                    . '<td>' . $val['role_nm'] . '</td>'
+                    . '<td>' . $val['most_recent_login_dt'] . '</td>'
+                    . '<td>' . $val['Total_Approved']  . '</td>'
+                    . '<td>' . $val['Count_Collab']  . '</td>'
+                    . '<td>' . $val['Total_Acknowledge']  . '</td>'
+                    . '<td>' . $val['Total_Complete']  . '</td>'
+                    . '<td>' . $val['Total_Suspend']  . '</td>'
+                    . '<td>' . $val['max_A_S'] . '</td>'
+                    . '<td>' . $val['avg_A_S'] . '</td>'
+                    . '<td>' . $val['max_A_C'] . '</td>'
+                    . '<td>' . $val['avg_A_C'] . '</td>'
+                    . '<td>' . $val['max_collab'] . '</td>'
+                    . '<td>' . $val['avg_collab'] . '</td>'
+                    . '<td>' . $val['Total_Scheduled'] . '</td>'
 
-                        $avg_A_S = round((int)$val['Avg_Time_A_S']);
-                        $dtT = new DateTime("@$avg_A_S");
-                        $avg_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $max_A_C = round((int)$val['Max_Time_A_C']);
-                        $dtT = new DateTime("@$max_A_C");
-                        $max_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $avg_A_C = round((int)$val['Avg_Time_A_C']);
-                        $dtT = new DateTime("@$avg_A_C");
-                        $avg_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $max_collab = round((int)$val['Max_Time_Collab']);
-                        $dtT = new DateTime("@$max_collab");
-                        $max_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $avg_collab = round((int)$val['Avg_Time_Collab']);
-                        $dtT = new DateTime("@$avg_collab");
-                        $avg_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-
-                        $rows .= '<tr>'
-                                . '<td>' . $val['modality_abbr'] . '</td>'
-                                . '<td>' . $val['_year'] . '</td>'
-                                . '<td>' . $val['quarter'] . '</td>'
-                                . '<td>' . $val['week'] . '</td>'
-                                . '<td>' . $val['day'] . '</td>'
-                                . '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
-                                . '<td>' . $val['role_nm'] . '</td>'
-                                . '<td>' . $val['most_recent_login_dt'] . '</td>'
-                                . '<td>' . $val['Total_Approved']  . '</td>'
-                                . '<td>' . $val['Count_Collab']  . '</td>'
-                                . '<td>' . $val['Total_Acknowledge']  . '</td>'
-                                . '<td>' . $val['Total_Complete']  . '</td>'
-                                . '<td>' . $val['Total_Suspend']  . '</td>'
-                                . '<td>' . $max_A_S . '</td>'
-                                . '<td>' . $avg_A_S . '</td>'
-                                . '<td>' . $max_A_C . '</td>'
-                                . '<td>' . $avg_A_C . '</td>'
-                                . '<td>' . $max_collab . '</td>'
-                                . '<td>' . $avg_collab . '</td>'
-                                . '<td>' . $val['Total_Scheduled'] . '</td>'
-
-                                . '</tr>';
-                }
+                    . '</tr>';
         }
 
         $form['data_entry_area1']['table_container']['users'] = array('#type' => 'item',
@@ -189,15 +231,6 @@ class ViewReportUserTicketProcessing extends AReport
                             . $rows
                             .  '</tbody>'
                             . '</table>');
-        
-        
-        $debugstuff = $this->m_oTT->getDetailedTrackingHistory(VISTA_SITE);
-        
-        $form['data_entry_area1']['table_container']['users'] = array('#type' => 'item',
-                '#markup' => '<h1>debug stuff</h1><pre>' 
-                    . print_r($debugstuff,TRUE) 
-                    . '<pre>'
-            );
         
         
         $form['data_entry_area1']['action_buttons'] = array(
