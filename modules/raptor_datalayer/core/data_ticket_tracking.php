@@ -1336,6 +1336,37 @@ class TicketTrackingData
                 $tickets[$prevkey]['summary']['counts']['scheduled'] = $scheduled;
             }
             
+            //Commit to VISTA
+            $query_vista = db_select('raptor_ticket_commit_tracking', 'n')
+                ->fields('n')
+                ->condition('siteid', $nSiteID,'=');
+            if($startdatetime != NULL)
+            {
+                $query_vista->condition('commit_dt', $startdatetime, '>=');
+            }
+            if($enddatetime != NULL)
+            {
+                $query_vista->condition('commit_dt', $enddatetime, '<=');
+            }
+            $query_vista->orderBy('IEN');
+            $query_vista->orderBy('commit_dt');
+            $result_vista = $query_vista->execute();    
+            while($record = $result_vista->fetchAssoc())
+            {
+                $wfs = $record['workflow_state'];
+                $key = $record['IEN'];
+                if(!key_exists($key,$tickets))
+                {
+                    $tickets[$key] = array();;    
+                }
+                $vci = array();
+                $vci['workflow_state'] = $record['workflow_state'];
+                $vci['author_uid'] = $record['author_uid'];
+                $vci['commit_dt'] = $record['commit_dt'];
+                $tickets[$key]['vista_commit'][] = $vci;
+                
+            }
+            
             //Workflow STATE TRANSITIONS
             $query_wfh = db_select('raptor_ticket_workflow_history', 'n')
                 ->fields('n')
@@ -1489,6 +1520,29 @@ class TicketTrackingData
                         $exam_completed_ts = strtotime($exam_completed_dt);
                         $ticket_approved_ts = strtotime($ticket_approved_dt);
                         $approved_to_examcompleted = $exam_completed_ts - $ticket_approved_ts;
+                    }
+                    $commitedinfo = array();
+                    if(isset($ticketdetails['vista_commit']))
+                    {
+                        foreach($ticketdetails['vista_commit'] as $vista_commit)
+                        {
+                            if($vista_commit['author_uid'] == $uid)
+                            {
+                                //This user committed the info to VISTA
+                                $vci = array();
+                                $vci['workflow_state'] = $vista_commit['workflow_state'];
+                                $vci['commit_dt'] = $vista_commit['commit_dt'];
+                                $commitedinfo[] = $vci;
+                            }
+                        }
+                    }
+                    if(count($commitedinfo) > 0)
+                    {
+                        if(!isset($allusers[$uid]['tickets'][$ien]))
+                        {
+                            $allusers[$uid]['tickets'][$ien] = array();
+                        }
+                        $allusers[$uid]['tickets'][$ien]['vista_commit'] = $commitedinfo;
                     }
                     if(isset($ticketdetails['collaboration']))
                     {
