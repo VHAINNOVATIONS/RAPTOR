@@ -62,11 +62,11 @@ class DBTicketSchema
               'not null' => FALSE,
               'description' => 'When the protocol was approved',
             ),
-            'accepted_dt' => array(
+            'acknowledged_dt' => array(
               'type' => 'datetime',
               'mysql_type' => 'datetime',  
               'not null' => FALSE,
-              'description' => 'When the protocol was accepted',
+              'description' => 'When the approved protocol was acknowledged',
             ),
             'exam_completed_dt' => array(
               'type' => 'datetime',

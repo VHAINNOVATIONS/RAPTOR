@@ -300,6 +300,10 @@ class TicketTrackingData
             {
                 $aFields['approved_dt'] = $updated_dt;
             }
+            if($sNewWFS == 'PA')
+            {
+                $aFields['acknowledged_dt'] = $updated_dt;
+            }
             if($sNewWFS == 'EC')
             {
                 $aFields['exam_completed_dt'] = $updated_dt;
@@ -342,7 +346,9 @@ class TicketTrackingData
         }
         catch(\Exception $e)
         {
-            throw new \Exception("Failed to update raptor_ticket_workflow_history for $sTrackingID, $nUID, $sNewWFS, $sCWFS", 99123, $ex);
+            throw new \Exception("Failed to update "
+                    . "raptor_ticket_workflow_history for $sTrackingID, $nUID, $sNewWFS, $sCWFS" 
+                    , 99123, $ex);
         }
     }
 
@@ -985,6 +991,32 @@ class TicketTrackingData
         }
     }
     
+    private function getTicketModalityMap()
+    {
+        $map = array();
+        try
+        {
+            $sql = 'select t1.ien, t2.protocol_shortname, t2.modality_abbr ' 
+               . ' from raptor_ticket_protocol_settings t1 '
+               . ' left join raptor_protocol_lib t2 '
+               . ' on t1.primary_protocol_shortname = t2.protocol_shortname '
+               . ' order by t1.ien';
+            $result = db_query($sql);
+            if($result->rowCount() > 0)
+            {
+                while($record = $result->fetchAssoc())
+                {
+                    $ien = $record['ien'];
+                    $map["TID$ien"] = $record;
+                }
+            }
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+        return $map;
+    }
+    
+    
     /**
      * Return all the ticket numbers and their current state.
      */
@@ -994,6 +1026,8 @@ class TicketTrackingData
 
         try
         {
+            $modalitymap = $this->getTicketModalityMap();
+            
             //Ticket state completion dates
             $query_tt = db_select('raptor_ticket_tracking', 'n')
                 ->fields('n')
@@ -1012,11 +1046,16 @@ class TicketTrackingData
             while($record = $result_tt->fetchAssoc())
             {
                 $key = $record['IEN'];
-                if(!key_exists($key,$tickets))
-                {
-                    $tickets[$key] = array();;    
-                }
                 $tickets[$key] = $record;
+                $mapkey = "TID$key";
+                if(key_exists($mapkey, $modalitymap))
+                {
+                    $modalitydetails=$modalitymap[$mapkey];
+                    $psn = $modalitydetails['protocol_shortname'];
+                    $modality_abbr = $modalitydetails['modality_abbr'];
+                    $tickets[$key]['modality_abbr'] = $modality_abbr;   
+                    $tickets[$key]['protocol_shortname'] = $psn;   
+                }
                 if($record['workflow_state'] == NULL)
                 {
                     $tickets[$key]['workflow_state'] = 'AC';   
@@ -1029,6 +1068,7 @@ class TicketTrackingData
                     $interpret_completed_ts = NULL;
                     
                     $approved_to_examcompleted = 0;
+                    $acknowledged_to_examcompleted = 0;
                     $approved_to_interpretcomplete = 0;
                     $examcompleted_to_QA = 0;
                     $approved_to_examvistacommit = 0;
@@ -1037,6 +1077,11 @@ class TicketTrackingData
                     {
                         $exam_completed_ts = strtotime($record['exam_completed_dt']);
                         $approved_to_examcompleted = $exam_completed_ts - $approved_ts;
+                    }
+                    if($exam_completed_ts !== NULL && $record['acknowledged_dt'] != NULL)
+                    {
+                        $acknowledged_ts = strtotime($record['acknowledged_dt']);
+                        $acknowledged_to_examcompleted = $exam_completed_ts - $acknowledged_ts;
                     }
                     if($exam_completed_ts !== NULL && $record['interpret_completed_dt'] != NULL)
                     {
@@ -1055,6 +1100,7 @@ class TicketTrackingData
                     }
                     
                     $tickets[$key]['durations']['approved_to_examcompleted'] = $approved_to_examcompleted;
+                    $tickets[$key]['durations']['acknowledged_to_examcompleted'] = $acknowledged_to_examcompleted;
                     $tickets[$key]['durations']['approved_to_interpretcomplete'] = $approved_to_interpretcomplete;
                     $tickets[$key]['durations']['examcompleted_to_QA'] = $examcompleted_to_QA;
                     $tickets[$key]['durations']['approved_to_examvistacommit'] = $approved_to_examvistacommit;

@@ -64,7 +64,7 @@ class ViewReportUserTicketProcessing extends AReport
      */
     function getFieldValues()
     {
-        $myvalues = array();
+        $rowdata = array();
         //$myvalues['formmode'] = 'V';
         /*
         $result = db_query("Call raptor_user_dept_analysis('user')")
@@ -87,6 +87,7 @@ class ViewReportUserTicketProcessing extends AReport
         */
         
         $allthedetail = $this->m_oTT->getDetailedTrackingHistory(VISTA_SITE);
+        
         $userdetails = $allthedetail['relevant_users'];
         foreach($userdetails as $uid=>$details)
         {
@@ -134,9 +135,11 @@ class ViewReportUserTicketProcessing extends AReport
             $row['avg_collab'] = $avgTimeAP2Colab;
             $row['Total_Scheduled'] = $totalScheduled;
             
-            $myvalues[] = $row;
+            $rowdata[] = $row;
         }
-        return $myvalues;
+        $bundle['raw'] = $allthedetail;
+        $bundle['rowdata'] = $rowdata;
+        return $bundle;
     }
 	
     private function getFormatDuration($seconds)
@@ -169,14 +172,16 @@ class ViewReportUserTicketProcessing extends AReport
             '#tree' => TRUE,
         );
 
+        $rawdata = $myvalues['raw'];
         $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
                 '#markup' => '<h1>!!!!222 debug stuff</h1><pre>' 
-                    . print_r($myvalues,TRUE) 
+                    . print_r($rawdata,TRUE) 
                     . '<pre>'
             );
         
         $rows = '';
-        foreach($myvalues as $val)
+        $rowdata = $myvalues['rowdata'];
+        foreach($rowdata as $val)
         {
             $rows .= '<tr>'
                     . '<td>' . $val['modality_abbr'] . '</td>'
