@@ -30,19 +30,19 @@ class ViewReportUserTicketProcessing extends AReport
     private static $reportname = 'User Ticket Processing Activity Analysis';
 
     private $m_oWF = NULL;
-    private $m_oTT = NULL;
+    private $m_oTA = NULL;
     
     function __construct()
     {
         parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
         
-        $loaded1 = module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        $loaded1 = module_load_include('php', 'raptor_glue', 'analytics/TicketActivity');
         if(!$loaded1)
         {
-            $msg = 'Failed to load the data_ticket_tracking';
+            $msg = 'Failed to load TicketActivity';
             throw new \Exception($msg);      //This is fatal, so stop everything now.
         }
-        $this->m_oTT = new \raptor\TicketTrackingData();
+        $this->m_oTA = new \raptor\TicketActivity();
         
         $loaded2 = module_load_include('php', 'raptor_workflow', 'core/Transitions');
         if(!$loaded2)
@@ -86,7 +86,9 @@ class ViewReportUserTicketProcessing extends AReport
         }
         */
         
-        $allthedetail = $this->m_oTT->getDetailedTrackingHistory(VISTA_SITE);
+        
+        $allthedetail = $this->m_oTA->getDetailedTrackingHistory(VISTA_SITE);
+        
         
         $userdetails = $allthedetail['relevant_users'];
         foreach($userdetails as $uid=>$details)
