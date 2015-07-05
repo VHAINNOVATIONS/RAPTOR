@@ -94,12 +94,18 @@ class TicketActivity
                     $exam_completed_ts = NULL;
                     $interpret_completed_ts = NULL;
                     
+                    $approved_to_acknowledged = 0;
                     $approved_to_examcompleted = 0;
                     $acknowledged_to_examcompleted = 0;
                     $approved_to_interpretcomplete = 0;
                     $examcompleted_to_QA = 0;
                     $approved_to_examvistacommit = 0;
                     
+                    if($record['acknowledged_dt'] != NULL)
+                    {
+                        $acknowledged_ts = strtotime($record['acknowledged_dt']);
+                        $approved_to_acknowledged = $acknowledged_ts - $approved_ts;
+                    }
                     if($record['exam_completed_dt'] != NULL)
                     {
                         $exam_completed_ts = strtotime($record['exam_completed_dt']);
@@ -127,6 +133,7 @@ class TicketActivity
                     }
                     
                     $tickets[$key]['durations']['approved_to_examcompleted'] = $approved_to_examcompleted;
+                    $tickets[$key]['durations']['approved_to_acknowledged'] = $approved_to_acknowledged;
                     $tickets[$key]['durations']['acknowledged_to_examcompleted'] = $acknowledged_to_examcompleted;
                     $tickets[$key]['durations']['approved_to_interpretcomplete'] = $approved_to_interpretcomplete;
                     $tickets[$key]['durations']['examcompleted_to_QA'] = $examcompleted_to_QA;

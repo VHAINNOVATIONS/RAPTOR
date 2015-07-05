@@ -303,6 +303,38 @@ class UserInfo
     }
 
     /**
+     * Return a simple map where key is user Id
+     */
+    public static function getUserInfoMap()
+    {
+        $mymap = array();
+        try
+        {
+            /*
+            $result = db_select('raptor_user_profile', 'u')
+                        ->fields('u')
+                        ->orderBy('uid')
+                        ->execute();
+            */
+            $query = db_select('raptor_user_profile', 'n');
+            $query->join('raptor_user_recent_activity_tracking', 'u', 'n.uid = u.uid');
+            $query->fields('n');
+            $query->fields('u', array('most_recent_login_dt','most_recent_logout_dt','most_recent_action_cd'))
+                ->orderBy('uid');
+            $result = $query->execute();
+            while($record = $result->fetchAssoc())
+            {
+                $uid = $record['uid'];
+                $mymap[$uid] = $record;
+            }
+            
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+        return $mymap;
+    }
+    
+    /**
      * Set the names of columns to hide.
      * @param $aHideColumns array of column names
      */
