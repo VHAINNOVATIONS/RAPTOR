@@ -38,16 +38,19 @@ class UserActivity
         $this->m_oWF = new \raptor\Transitions();
     }    
     
-    
+    /**
+     * Row key is MODALITY, USER, and DAY in that order.
+     */
     public function getActivityByModalityAndDay($nSiteID, $startdatetime=NULL, $enddatetime=NULL)
     {
         $activity = array();
-
+        $summary = array();
         try
         {
             $aDTH = $this->m_oTA->getDetailedTrackingHistory($nSiteID, $startdatetime, $enddatetime);
             $allusers = $aDTH['relevant_users'];
             $tickets = $aDTH['tickets'];            
+            $summary = $aDTH['count_events'];
             foreach($allusers as $uid=>$uad)
             {
                 //TODO
@@ -57,6 +60,9 @@ class UserActivity
             throw $ex;
         }
         
-        return $activity;
+        $bundle = array();
+        $bundle['summary'] = $summary;
+        $bundle['activity'] = $activity;
+        return $bundle;
     }
 }

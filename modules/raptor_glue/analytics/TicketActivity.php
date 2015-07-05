@@ -173,6 +173,7 @@ class TicketActivity
             {
                 $recnum++;
                 $key = $record['IEN'];
+                $requested_dt = $record['requested_dt'];
                 if($prevkey != $key)
                 {
                     if($prevkey != NULL)
@@ -256,6 +257,11 @@ class TicketActivity
                     }
                     $allusers[$uid]['tickets'][$key]['count_events']['reservation'] = $newcount;
                     $allusers[$uid]['tickets'][$key]['is_reserver'] = 'yes';
+                    if(!isset($allusers[$uid]['tickets'][$key]['reservation_events']))
+                    {
+                        $allusers[$uid]['tickets'][$key]['reservation_events'] = array();
+                    }
+                    $allusers[$uid]['tickets'][$key]['reservation_events'][] = $requested_dt;
                 } else {
                     //Collaboration record
                     $tickets[$key]['collaboration'][$recnum]['rec_type'] = 'collaboration';
@@ -267,12 +273,24 @@ class TicketActivity
                     }
                     $allusers[$uid]['tickets'][$key]['count_events']['collaboration'] = $newcount;
                     $allusers[$uid]['tickets'][$key]['is_collaboration_initiator'] = 'yes';
+                    if(!isset($allusers[$uid]['tickets'][$key]['collaboration_init_events']))
+                    {
+                        $allusers[$uid]['tickets'][$key]['collaboration_init_events'] = array();
+                    }
+                    $allusers[$uid]['tickets'][$key]['collaboration_init_events'][] = $requested_dt;
+
+                    //And the target too....
                     $collaborator_uid = $record['collaborator_uid'];
                     if(!isset($allusers[$collaborator_uid]['tickets'][$key]))
                     {
                         $allusers[$collaborator_uid]['tickets'][$key] = array();
                     }
                     $allusers[$collaborator_uid]['tickets'][$key]['is_collaboration_target'] = 'yes';
+                    if(!isset($allusers[$collaborator_uid]['tickets'][$key]['collaboration_target_events']))
+                    {
+                        $allusers[$collaborator_uid]['tickets'][$key]['collaboration_target_events'] = array();
+                    }
+                    $allusers[$collaborator_uid]['tickets'][$key]['collaboration_target_events'][] = $requested_dt;
                 }
             }  
             if($key != NULL)
@@ -337,6 +355,7 @@ class TicketActivity
             {
                 $recnum++;
                 $key = $record['IEN'];
+                $created_dt = $record['created_dt'];
                 if($prevkey != $key)
                 {
                     if($prevkey != NULL)
@@ -389,7 +408,11 @@ class TicketActivity
                     $newcount = 1;
                 }
                 $allusers[$uid]['tickets'][$key]['count_events']['scheduled'] = $newcount;
-
+                if(!isset($allusers[$uid]['tickets'][$key]['schedule_events']))
+                {
+                    $allusers[$uid]['tickets'][$key]['schedule_events'] = array();
+                }
+                $allusers[$uid]['tickets'][$key]['schedule_events'][] = $created_dt;
             }
             if($prevkey != NULL)
             {
@@ -661,7 +684,15 @@ class TicketActivity
             {
                 foreach($tickets as $ien=>$ticketdetails)
                 {
-                    $user_participates = FALSE; //Set to true if user touches ticket
+                    if(isset($allusers[$uid]['tickets'][$ien]))
+                    {
+                        //Prior logic already connected the user.
+                        $user_participates = TRUE;
+                    } else {
+                        //Set to true if user touches ticket in some way we find here
+                        $user_participates = FALSE; 
+                    }
+                    
                     $ticket_approved_dt = $ticketdetails['summary']['approved_dt'];
                     $exam_completed_dt = $ticketdetails['summary']['exam_completed_dt'];
                     $reserved = 0;
@@ -670,6 +701,14 @@ class TicketActivity
                     $approved_to_scheduled = 0;
                     $scheduled_to_approved = 0;
                     $approved_to_examcompleted = 0;
+                    if(isset($ticketdetails['summary']['modality_abbr']))
+                    {
+                        $modality_abbr = $ticketdetails['summary']['modality_abbr'];
+                        $psn = $ticketdetails['summary']['protocol_shortname'];   
+                    } else {
+                        $modality_abbr = NULL;
+                        $psn = NULL;   
+                    }
                     if($exam_completed_dt != NULL && $ticket_approved_dt != NULL)
                     {
                         $exam_completed_ts = strtotime($exam_completed_dt);
@@ -812,6 +851,13 @@ class TicketActivity
                             $allusers[$uid]['tickets'][$ien] = array();
                         }
                         $allusers[$uid]['tickets'][$ien]['durations'] = $userlevelticketdurations;
+                        
+                        //Add metadata about the ticket
+                        if($modality_abbr != NULL)
+                        {
+                            $allusers[$uid]['tickets'][$ien]['modality_abbr'] = $modality_abbr;
+                            $allusers[$uid]['tickets'][$ien]['protocol_shortname'] = $psn;
+                        }
                     }
                 }
             }
