@@ -38,6 +38,21 @@ class UserActivity
         $this->m_oWF = new \raptor\Transitions();
     }    
     
+    
+    private function getDateParts($wholedate)
+    {
+        $dateparts = array();
+        $curmonth = date('n',$wholedate);
+        $dateparts['wholedate'] = $wholedate;
+        $dateparts['year'] = date('Y',$wholedate);
+        $dateparts['month'] = $curmonth;
+        $dateparts['doy'] = 123;
+        $dateparts['qtr'] = ceil($curmonth/3);
+        $dateparts['week'] = 123;
+        $dateparts['dow'] = 123;
+        return $dateparts;
+    }
+    
     /**
      * Row key is MODALITY, USER, and DAY in that order.
      */
@@ -53,8 +68,37 @@ class UserActivity
             $summary = $aDTH['count_events'];
             foreach($allusers as $uid=>$uad)
             {
-                //TODO
-                $activity[$uid] = $uad;
+                $userdetails = array();
+                $usertickets = $uad['tickets'];
+                foreach($usertickets as $ien=>$tad)
+                {
+                    if(!isset($tad['modality_abbr']))
+                    {
+                        //We don't have a selected modality yet.
+                        $modality_abbr = '--';
+                    } else {
+                        $modality_abbr = $tad['modality_abbr'];
+                    }
+                    if(isset($tad['transitions']))
+                    {
+                        foreach($tad['transitions'] as $wfs=>$relevantdate)
+                        {
+                            drupal_set_message("LOOK TRANSITIONS $wfs -> ".print_r($relevantdate,TRUE));
+                            
+                            $year = $this->getDateParts($relevantdate);
+                            $dayinyear = 123;
+                            $key = "$modality_abbr:$year:$dayinyear";
+                            if(!isset($userdetails[$key]))
+                            {
+                                $userdetails[$key] = $tad;
+                            } else {
+                                //TODO --- add the values together
+                                $userdetails[$key] = $tad;
+                            }
+                        }
+                    }
+                }
+                $activity[$uid] = $userdetails;
             }
         } catch (\Exception $ex) {
             throw $ex;
@@ -63,6 +107,8 @@ class UserActivity
         $bundle = array();
         $bundle['summary'] = $summary;
         $bundle['activity'] = $activity;
+        $bundle['debug_rawusers'] = $allusers;
+        $bundle['debug_rawtickets'] = $tickets;
         return $bundle;
     }
 }
