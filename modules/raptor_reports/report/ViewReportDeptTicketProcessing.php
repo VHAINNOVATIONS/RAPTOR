@@ -17,26 +17,95 @@ use \DateTime;
 require_once 'AReport.php';
 
 /**
- * This class returns the Admin Information input content
- * 
- * CLIN2 1.6
+ * This class returns the Department Activity Analysis Report
  *
+ * CLIN2 1.7
+ * 
  * @author Frank Font of SAN Business Consultants
  */
 class ViewReportDeptTicketProcessing extends AReport
 {
     private static $reqprivs = array('VREP1'=>1);
     private static $menukey = 'raptor/viewrepusract1';
-    private static $reportname = 'Department Ticket Processing Activity';
+    private static $reportname = 'Department Ticket Processing Activity Analysis';
 
+    private $m_oWF = NULL;
+    private $m_oDA = NULL;
+    
     function __construct()
     {
         parent::__construct(self::$reqprivs, self::$menukey, self::$reportname);
+        
+        $loaded1 = module_load_include('php', 'raptor_glue', 'analytics/DeptActivity');
+        if(!$loaded1)
+        {
+            $msg = 'Failed to load DeptActivity';
+            throw new \Exception($msg);      //This is fatal, so stop everything now.
+        }
+        $this->m_oDA = new \raptor\DeptActivity();
+        
+        $loaded2 = module_load_include('php', 'raptor_workflow', 'core/Transitions');
+        if(!$loaded2)
+        {
+            $msg = 'Failed to load the Transitions Engine';
+            throw new \Exception($msg);      //This is fatal, so stop everything now.
+        }
+        $this->m_oWF = new \raptor\Transitions();
     }
     
     public function getDescription() 
     {
-        return 'Shows ticket processing activity in the system at a department level';
+        return 'Shows analysis of user ticket processing activity in the system';
+    }
+
+    private function getArrayValueIfExistsElseAlt($array,$index,$altvalue=NULL)
+    {
+        $check = $array;
+        foreach($index as $key)
+        {
+            if(!key_exists($key, $check))
+            {
+                return $altvalue;
+            }
+            $check = $check[$key];
+        }
+        return $check;
+    }
+
+    private function getArrayDurValueIfExistsElseAlt($array,$index,$altvalue=NULL)
+    {
+        $seconds = $this->getArrayValueIfExistsElseAlt($array, $index, $altvalue);
+        if($seconds == $altvalue)
+        {
+            return $altvalue;
+        }
+        try
+        {
+            $wholeseconds = ceil($seconds);
+            $dtF = new \DateTime("@0");
+            $dtT = new \DateTime("@$wholeseconds");
+            $dateinstance = $dtF->diff($dtT);
+            $portioned = $dateinstance->format('%a;%h;%i;%s');
+            $parts = explode(';',$portioned);
+            if($wholeseconds >= 86400)  //Days
+            {
+                $formatted = $dateinstance->format('%a days %h hours %i minutes and %s seconds');
+            } else 
+            if($wholeseconds >= 3600)   //Hours
+            {
+                $formatted = $dateinstance->format('%h hours %i minutes and %s seconds');
+            } else 
+            if($wholeseconds >= 60)    //Minutes
+            {
+                $formatted = $dateinstance->format('%i minutes and %s seconds');
+            } else {
+                $formatted = $dateinstance->format('%s seconds');
+            }
+            //$formatted = $dateinstance->format('%a days %h hours, %i minutes and %s seconds');
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**
@@ -45,28 +114,99 @@ class ViewReportDeptTicketProcessing extends AReport
      */
     function getFieldValues()
     {
-        $myvalues = array();
+        $rowdata = array();
         //$myvalues['formmode'] = 'V';
-		
-		$result = db_query("Call raptor_user_dept_analysis('dept')")
-        		->execute();
-			
-		$result = db_select('temp4', 't')
-				->fields('t')
-				->orderBy('modality_abbr', 'DESC')
-				->orderBy('_year', 'DESC')
-				->orderBy('quarter', 'DESC')
-				->orderBy('week', 'DESC')
-				->orderBy('day', 'DESC')
-				->execute();
-		
-		while($res = $result->fetchAssoc())
-		{
-			$myvalues[] = $res;
-		}
-        return $myvalues;
-    }
+        /*
+        $result = db_query("Call raptor_user_dept_analysis('user')")
+                        ->execute();
 
+        $result = db_select('temp4', 't')
+                        ->fields('t')
+                        ->orderBy('modality_abbr', 'DESC')
+                        ->orderBy('_year', 'DESC')
+                        ->orderBy('quarter', 'DESC')
+                        ->orderBy('week', 'DESC')
+                        ->orderBy('day', 'DESC')
+                        ->orderBy('username', 'DESC')
+                        ->execute();
+
+        while($res = $result->fetchAssoc())
+        {
+                $myvalues[] = $res;
+        }
+        */
+        
+        
+        $allthedetail = $this->m_oDA->getActivityByModalityAndDay(VISTA_SITE);
+        
+        
+        $deptdetails = $allthedetail['dept_activity'];
+        foreach($deptdetails['rowdetail'] as $key=>$rowdetail)
+        {
+            $modality_abbr=$rowdetail['modality_abbr'];
+            $year = $rowdetail['dateparts']['year'];
+            $qtr = $rowdetail['dateparts']['qtr'];
+            $week = $rowdetail['dateparts']['week'];
+            $day = $rowdetail['dateparts']['dow'];
+            $movedIntoApproved=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','AP'),0);
+            $movedIntoCollab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_initiation'),0);
+            $collabTarget=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_target'),0);
+            $movedIntoAcknowlege=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','PA'),0);
+            $movedIntoCompleted=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','EC'),0);
+            $movedIntoSuspend=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','IA'),0);
+            $maxTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_scheduled'),'');
+            $avgTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_scheduled'),'');
+            $maxTimeAP2Done=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_examcompleted'),'');
+            $avgTimeAP2Done=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_examcompleted'),'');
+            $maxTimeAP2Colab=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_collaboration_initiation'),'');
+            $avgTimeAP2Colab=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_collaboration_initiation'),'');
+            $totalScheduled=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','scheduled'),0);
+
+            $row = array();
+            $modality_help = ($modality_abbr == '' || $modality_abbr == '--' ) ? 'No protocol has been selected' : '';
+            $row['modality_abbr'] = $modality_abbr;
+            $row['modality_help'] = $modality_help;
+            $row['_year'] = $year;
+            $row['quarter'] = $qtr;
+            $row['week'] = $week;
+            $row['day'] = $day;
+            $row['day_name'] = $rowdetail['dateparts']['dow_tx'];
+            $row['onlydate'] =  $rowdetail['dateparts']['onlydate'];
+            $row['Total_Approved'] = $movedIntoApproved;
+            $row['Count_Collab_Init'] = $movedIntoCollab;
+            $row['Count_Collab_Target'] = $collabTarget;
+            $row['Total_Acknowledge'] = $movedIntoAcknowlege;
+            $row['Total_Complete'] = $movedIntoCompleted;
+            $row['Total_Suspend'] = $movedIntoSuspend;
+            $row['max_A_S'] = $maxTimeAP2Sched;
+            $row['avg_A_S'] = $avgTimeAP2Sched;
+            $row['max_A_C'] = $maxTimeAP2Done;
+            $row['avg_A_C'] = $avgTimeAP2Done;
+            $row['max_collab'] = $maxTimeAP2Colab;
+            $row['avg_collab'] = $avgTimeAP2Colab;
+            $row['Total_Scheduled'] = $totalScheduled;
+
+            $uniquesortkey = "$key";
+            //drupal_set_message("LOOK sortkey==$uniquesortkey");
+            $rowdata[$uniquesortkey] = $row;
+        }
+        ksort($rowdata);
+        $bundle['raw'] = $allthedetail;
+        $bundle['rowdata'] = $rowdata;
+        return $bundle;
+    }
+	
+    private function getFormatDuration($seconds)
+    {
+        /*
+        $max_A_S = round((int)$val['Max_Time_A_S']);
+        $dtT = new DateTime("@$max_A_S");
+        $max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
+         */
+        
+        return "$seconds sec";  //TODO
+    }
+    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -85,59 +225,43 @@ class ViewReportDeptTicketProcessing extends AReport
             '#suffix' => '</div>', 
             '#tree' => TRUE,
         );
-		$rows = '';
-		foreach($myvalues as $val)
-		{
-			if(((string)$val['_year']>0) && ((string)$val['quarter']>0) && ((string)$val['week']>0))
-			{
-				$max_A_S = round((int)$val['Max_Time_A_S']);
-				$dtT = new DateTime("@$max_A_S");
-				$max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$avg_A_S = round((int)$val['Avg_Time_A_S']);
-				$dtT = new DateTime("@$avg_A_S");
-				$avg_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$max_A_C = round((int)$val['Max_Time_A_C']);
-				$dtT = new DateTime("@$max_A_C");
-				$max_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$avg_A_C = round((int)$val['Avg_Time_A_C']);
-				$dtT = new DateTime("@$avg_A_C");
-				$avg_A_C = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$max_collab = round((int)$val['Max_Time_Collab']);
-				$dtT = new DateTime("@$max_collab");
-				$max_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$avg_collab = round((int)$val['Avg_Time_Collab']);
-				$dtT = new DateTime("@$avg_collab");
-				$avg_collab = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-				
-				$rows .= '<tr>'
-					. '<td>' . $val['modality_abbr'] . '</td>'
-					. '<td>' . $val['_year'] . '</td>'
-					. '<td>' . $val['quarter'] . '</td>'
-					. '<td>' . $val['week'] . '</td>'
-					. '<td>' . $val['day'] . '</td>'
-					. '<td>' . $val['Total_Approved']  . '</td>'
-					. '<td>' . $val['Count_Collab']  . '</td>'
-					. '<td>' . $val['Total_Acknowledge']  . '</td>'
-					. '<td>' . $val['Total_Complete']  . '</td>'
-					. '<td>' . $val['Total_Suspend']  . '</td>'
-					. '<td>' . $max_A_S . '</td>'
-					. '<td>' . $avg_A_S . '</td>'
-					. '<td>' . $max_A_C . '</td>'
-					. '<td>' . $avg_A_C . '</td>'
-					. '<td>' . $max_collab . '</td>'
-					. '<td>' . $avg_collab . '</td>'
-					. '</tr>';
-			}
-		}
 
-//The modality column value comes from modality_abbr fields in the database                
         
-        $form["data_entry_area1"]['table_container']['users'] = array('#type' => 'item',
+        $rawdata = $myvalues['raw'];
+        $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
+                '#markup' => '<h1>!!!! debug stuff</h1><pre>' 
+                    . print_r($rawdata,TRUE) 
+                    . '<pre>'
+            );
+        
+        $rows = '';
+        $rowdata = $myvalues['rowdata'];
+        foreach($rowdata as $val)
+        {
+            $rows .= '<tr>'
+                    . '<td title="'.$val['modality_help'].'">' . $val['modality_abbr'] . '</td>'
+                    . '<td>' . $val['_year'] . '</td>'
+                    . '<td>' . $val['quarter'] . '</td>'
+                    . '<td>' . $val['week'] . '</td>'
+                    . '<td title="'.$val['onlydate'].' ('.$val['day_name'].')">' . $val['day'] . '</td>'
+                    . '<td>' . $val['Total_Approved']  . '</td>'
+                    . '<td>' . $val['Count_Collab_Init']  . '</td>'
+                    . '<td>' . $val['Count_Collab_Target']  . '</td>'
+                    . '<td>' . $val['Total_Acknowledge']  . '</td>'
+                    . '<td>' . $val['Total_Complete']  . '</td>'
+                    . '<td>' . $val['Total_Suspend']  . '</td>'
+                    . '<td>' . $val['max_A_S'] . '</td>'
+                    . '<td>' . $val['avg_A_S'] . '</td>'
+                    . '<td>' . $val['max_A_C'] . '</td>'
+                    . '<td>' . $val['avg_A_C'] . '</td>'
+                    . '<td>' . $val['max_collab'] . '</td>'
+                    . '<td>' . $val['avg_collab'] . '</td>'
+                    . '<td>' . $val['Total_Scheduled'] . '</td>'
+
+                    . '</tr>';
+        }
+
+        $form['data_entry_area1']['table_container']['activity'] = array('#type' => 'item',
                  '#markup' => '<table class="raptor-dialog-table">'
                             . '<thead><tr>'
                             . '<th title="The modality abbreviation of this metric" >Modality</th>'
@@ -146,37 +270,41 @@ class ViewReportDeptTicketProcessing extends AReport
                             . '<th title="The week number of this metric, Jan 1 is week 1" >Week</th>'
                             . '<th title="The day number of this metric" >Day</th>'
                             . '<th title="Total number of tickets moved to Approved state">Total Approved</th>'
-                            . '<th title="Total number of tickets moved to Collaboration state">Count Collab</th>'
+                            . '<th title="Total number of tickets where user initiated Collaboration">Count Collab Init</th>'
+                            . '<th title="Total number of tickets where user was selected as the Collaboration target">Count Collab Target</th>'
                             . '<th title="Total number of tickets moved to Acknowledge state">Total Acknowlege</th>'
                             . '<th title="Total number of tickets moved to Complete state">Total Complete</th>'
                             . '<th title="Total number of tickets moved to Suspend state">Total Suspend</th>'
                             . '<th title="Max time a ticket was in Approved state before it was Scheduled">Max Time between Approved and Sched</th>'
                             . '<th title="Average time tickets were in Approved state before were Scheduled">Avg Time Approved to Sched</th>'
-                            . '<th title="Max time a ticket was in Approved state before it moved to Completed state">Max Time Approved to Completed</th>'
-                            . '<th title="Average time tickets were in Accepted state moving to Completed state">Avg Time Accepted to Completed</th>'
+                            . '<th title="Max time a ticket was in Approved state before it moved to Completed state">Max Time Approved to Exam Completed</th>'
+                            . '<th title="Average time tickets were in Accepted state moving to Completed state">Avg Time Accepted to Exam Completed</th>'
                             . '<th title="Max time a ticket was in Collaboration state">Max Time Collab</th>'
                             . '<th title="Avg time tickets were in Collaboration state">Avg Time Collab</th>'
+                            . '<th title="Total number of tickets scheduled">Total Scheduled</th>'
                             . '</tr></thead>'
                             . '<tbody>'
                             . $rows
                             .  '</tbody>'
                             . '</table>');
         
-       $form['data_entry_area1']['action_buttons'] = array(
+        
+        $form['data_entry_area1']['action_buttons'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-action-buttons">',
             '#suffix' => '</div>', 
             '#tree' => TRUE,
         );
-        
+       
         $form['data_entry_area1']['action_buttons']['refresh'] = array('#type' => 'submit'
                 , '#attributes' => array('class' => array('admin-action-button'), 'id' => 'refresh-report')
                 , '#value' => t('Refresh Report'));
-
+        
         global $base_url;
         $goback = $base_url . '/raptor/viewReports';
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
-        
         return $form;
     }
+    
+    
 }
