@@ -194,39 +194,59 @@ class DeptActivity
                 }
 
                 //Schedule stuff
-                if(isset($tad['schedule_events']))
+                if(isset($tad['schedule']))
                 {
-                    foreach($tad['schedule_events'] as $itemnum=>$relevantdate)
+                    foreach($tad['schedule'] as $itemnum=>$oneschedule)
                     {
-                        $durationkeys = array('scheduled_to_approved','approved_to_scheduled');
-                        $dateparts = $this->getDateParts($relevantdate);
+                        $relevantdate = $oneschedule['created_dt'];
+                        $duration = NULL;
+                        $alldurationkeys = array('scheduled_to_approved','approved_to_scheduled');
+                        foreach($alldurationkeys as $itemname)
+                        {
+                            if(isset($tad['summary']['durations'][$itemname]))
+                            {
+                                $duration = $tad['summary']['durations'][$itemname];
+                            } else {
+                                $itemname = 'approved_to_scheduled';
+                                if(isset($tad['summary']['durations'][$itemname]))
+                                {
+                                    $duration = $tad['summary']['durations'][$itemname];
+                                }
+                            }
+                            if($duration != NULL)
+                            {
+                                $newdurations = array($itemname => $duration);
+                                $durationkeys = array($itemname);
 
-                        $year = $dateparts['year'];
-                        $month = $dateparts['month'];
-                        $dayinyear = $dateparts['doy'];
-                        $dayinweek = $dateparts['dow'];
-                        $key = "$modality_abbr:$year:$dayinyear";
-                        if(!isset($activity['rowdetail'][$key]))
-                        {
-                            $activity['rowdetail'][$key] = array();
-                            $activity['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
-                            $activity['rowdetail'][$key]['dateparts'] = $dateparts;
-                            $activity['rowdetail'][$key]['durations'] = array();
+                                //Get all the key parts and add the durations
+                                $dateparts = $this->getDateParts($relevantdate);
+                                $year = $dateparts['year'];
+                                $month = $dateparts['month'];
+                                $dayinyear = $dateparts['doy'];
+                                $dayinweek = $dateparts['dow'];
+                                $key = "$modality_abbr:$year:$dayinyear";
+                                if(!isset($activity['rowdetail'][$key]))
+                                {
+                                    $activity['rowdetail'][$key] = array();
+                                    $activity['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
+                                    $activity['rowdetail'][$key]['dateparts'] = $dateparts;
+                                    $activity['rowdetail'][$key]['durations'] = array();
+                                }
+                                if(!isset($activity['rowdetail'][$key]['count_events']))
+                                {
+                                    $activity['rowdetail'][$key]['count_events'] = array();
+                                }
+                                if(!isset($activity['rowdetail'][$key]['count_events']['scheduled']))
+                                {
+                                    $newcount = 1; 
+                                } else {
+                                    $newcount = $activity['rowdetail'][$key]['count_events']['scheduled'] + 1;
+                                }
+                                $activity['rowdetail'][$key]['count_events']['scheduled'] = $newcount;
+                                $existing = $activity['rowdetail'][$key]['durations'];
+                                $activity['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
+                            }
                         }
-                        if(!isset($activity['rowdetail'][$key]['count_events']))
-                        {
-                            $activity['rowdetail'][$key]['count_events'] = array();
-                        }
-                        if(!isset($activity['rowdetail'][$key]['count_events']['scheduled']))
-                        {
-                            $newcount = 1; 
-                        } else {
-                            $newcount = $activity['rowdetail'][$key]['count_events']['scheduled'] + 1;
-                        }
-                        $activity['rowdetail'][$key]['count_events']['scheduled'] = $newcount;
-                        $existing = $activity['rowdetail'][$key]['durations'];
-                        $newdurations = $tad['durations'];
-                        $activity['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
                     }
                 }
 
@@ -279,40 +299,6 @@ class DeptActivity
                         $activity['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
                     }
                 }
-
-                //Reservations
-                if(isset($tad['reservation_events']))
-                {
-                    foreach($tad['reservation_events'] as $itemnum=>$relevantdate)
-                    {
-                        $durationkeys = array('reserved');
-                        $dateparts = $this->getDateParts($relevantdate);
-
-                        $year = $dateparts['year'];
-                        $month = $dateparts['month'];
-                        $dayinyear = $dateparts['doy'];
-                        $dayinweek = $dateparts['dow'];
-                        $key = "$modality_abbr:$year:$dayinyear";
-                        if(!isset($activity['rowdetail'][$key]))
-                        {
-                            $activity['rowdetail'][$key] = array();
-                            $activity['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
-                            $activity['rowdetail'][$key]['dateparts'] = $dateparts;
-                            $activity['rowdetail'][$key]['durations'] = array();
-                        }
-                        if(!isset($activity['rowdetail'][$key]['count_events']['reservation']))
-                        {
-                            $newcount = 1; 
-                        } else {
-                            $newcount = $activity['rowdetail'][$key]['count_events']['reservation'] + 1;
-                        }
-                        $activity['rowdetail'][$key]['count_events']['reservation'] = $newcount;
-                        $existing = $activity['rowdetail'][$key]['durations'];
-                        $newdurations = $tad['durations'];
-                        $activity['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
-                    }
-                }
-
             }
         } catch (\Exception $ex) {
             throw $ex;
@@ -322,7 +308,7 @@ class DeptActivity
         $bundle['summary'] = $summary;
         $bundle['dept_activity'] = $activity;
         //$bundle['debug_rawusers'] = $allusers;
-        //$bundle['debug_rawtickets'] = $tickets;
+        $bundle['debug_rawtickets'] = $tickets;
         return $bundle;
     }
 }

@@ -775,30 +775,6 @@ class TicketActivity
                                     $collaboration_target += $duration;
                                 } 
                             }
-                            if($collabdetails['rec_type'] == 'reservation')
-                            {
-                                //Reservation
-                                if($uid == $collabdetails['requester_uid'])
-                                {
-                                    //Is requester
-                                    $user_participates = TRUE;
-                                    $reserved += $duration;
-                                } 
-                            } else {
-                                //Collaboration
-                                if($uid == $collabdetails['requester_uid'])
-                                {
-                                    //Is requester
-                                    $user_participates = TRUE;
-                                    $collaboration_initiation += $duration;
-                                }  else
-                                if($uid == $collabdetails['collaborator_uid'])
-                                {
-                                    //Is target
-                                    $user_participates = TRUE;
-                                    $collaboration_target += $duration;
-                                } 
-                            }
                         }
                     }
                     if(isset($ticketdetails['schedule']))

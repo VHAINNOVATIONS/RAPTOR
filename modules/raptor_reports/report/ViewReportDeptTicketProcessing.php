@@ -150,7 +150,6 @@ class ViewReportDeptTicketProcessing extends AReport
             $day = $rowdetail['dateparts']['dow'];
             $movedIntoApproved=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','AP'),0);
             $movedIntoCollab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_initiation'),0);
-            $collabTarget=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_target'),0);
             $movedIntoAcknowlege=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','PA'),0);
             $movedIntoCompleted=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','EC'),0);
             $movedIntoSuspend=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','IA'),0);
@@ -174,7 +173,6 @@ class ViewReportDeptTicketProcessing extends AReport
             $row['onlydate'] =  $rowdetail['dateparts']['onlydate'];
             $row['Total_Approved'] = $movedIntoApproved;
             $row['Count_Collab_Init'] = $movedIntoCollab;
-            $row['Count_Collab_Target'] = $collabTarget;
             $row['Total_Acknowledge'] = $movedIntoAcknowlege;
             $row['Total_Complete'] = $movedIntoCompleted;
             $row['Total_Suspend'] = $movedIntoSuspend;
@@ -191,7 +189,7 @@ class ViewReportDeptTicketProcessing extends AReport
             $rowdata[$uniquesortkey] = $row;
         }
         ksort($rowdata);
-        $bundle['raw'] = $allthedetail;
+        $bundle['debug'] = $allthedetail;
         $bundle['rowdata'] = $rowdata;
         return $bundle;
     }
@@ -227,12 +225,15 @@ class ViewReportDeptTicketProcessing extends AReport
         );
 
         
-        $rawdata = $myvalues['raw'];
-        $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
-                '#markup' => '<h1>!!!! debug stuff</h1><pre>' 
-                    . print_r($rawdata,TRUE) 
-                    . '<pre>'
-            );
+        if(isset($myvalues['debug']))
+        {
+            $rawdata = $myvalues['debug'];
+            $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
+                    '#markup' => '<h1>debug details</h1><pre>' 
+                        . print_r($rawdata,TRUE) 
+                        . '<pre>'
+                );
+        }
         
         $rows = '';
         $rowdata = $myvalues['rowdata'];
@@ -246,7 +247,6 @@ class ViewReportDeptTicketProcessing extends AReport
                     . '<td title="'.$val['onlydate'].' ('.$val['day_name'].')">' . $val['day'] . '</td>'
                     . '<td>' . $val['Total_Approved']  . '</td>'
                     . '<td>' . $val['Count_Collab_Init']  . '</td>'
-                    . '<td>' . $val['Count_Collab_Target']  . '</td>'
                     . '<td>' . $val['Total_Acknowledge']  . '</td>'
                     . '<td>' . $val['Total_Complete']  . '</td>'
                     . '<td>' . $val['Total_Suspend']  . '</td>'
@@ -270,8 +270,7 @@ class ViewReportDeptTicketProcessing extends AReport
                             . '<th title="The week number of this metric, Jan 1 is week 1" >Week</th>'
                             . '<th title="The day number of this metric" >Day</th>'
                             . '<th title="Total number of tickets moved to Approved state">Total Approved</th>'
-                            . '<th title="Total number of tickets where user initiated Collaboration">Count Collab Init</th>'
-                            . '<th title="Total number of tickets where user was selected as the Collaboration target">Count Collab Target</th>'
+                            . '<th title="Total number of tickets where Collaboration was initiated">Count Collab Init</th>'
                             . '<th title="Total number of tickets moved to Acknowledge state">Total Acknowlege</th>'
                             . '<th title="Total number of tickets moved to Complete state">Total Complete</th>'
                             . '<th title="Total number of tickets moved to Suspend state">Total Suspend</th>'

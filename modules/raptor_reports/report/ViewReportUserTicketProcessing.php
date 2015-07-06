@@ -201,7 +201,7 @@ class ViewReportUserTicketProcessing extends AReport
             }
         }
         ksort($rowdata);
-        //$bundle['raw'] = $allthedetail;
+        $bundle['debug'] = $allthedetail;
         $bundle['rowdata'] = $rowdata;
         return $bundle;
     }
@@ -236,15 +236,15 @@ class ViewReportUserTicketProcessing extends AReport
             '#tree' => TRUE,
         );
 
-        /*
-        $rawdata = $myvalues['raw'];
-        $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
-                '#markup' => '<h1>!!!!222 debug stuff</h1><pre>' 
-                    . print_r($rawdata,TRUE) 
-                    . '<pre>'
-            );
-         * 
-         */
+        if(isset($myvalues['debug']))
+        {
+            $rawdata = $myvalues['debug'];
+            $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
+                    '#markup' => '<h1>debug details</h1><pre>' 
+                        . print_r($rawdata,TRUE) 
+                        . '<pre>'
+                );
+        }
         
         $rows = '';
         $rowdata = $myvalues['rowdata'];
