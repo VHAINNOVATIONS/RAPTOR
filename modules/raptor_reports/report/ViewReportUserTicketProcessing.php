@@ -168,8 +168,10 @@ class ViewReportUserTicketProcessing extends AReport
                 $totalScheduled=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','scheduled'),0);
 
                 $row = array();
+                $modality_help = ($modality_abbr == '' || $modality_abbr == '--' ) ? 'No protocol has been selected' : '';
                 $row['uid'] = $uid;
                 $row['modality_abbr'] = $modality_abbr;
+                $row['modality_help'] = $modality_help;
                 $row['_year'] = $year;
                 $row['quarter'] = $qtr;
                 $row['week'] = $week;
@@ -249,7 +251,7 @@ class ViewReportUserTicketProcessing extends AReport
         foreach($rowdata as $val)
         {
             $rows .= '<tr>'
-                    . '<td>' . $val['modality_abbr'] . '</td>'
+                    . '<td title="'.$val['modality_help'].'">' . $val['modality_abbr'] . '</td>'
                     . '<td>' . $val['_year'] . '</td>'
                     . '<td>' . $val['quarter'] . '</td>'
                     . '<td>' . $val['week'] . '</td>'
