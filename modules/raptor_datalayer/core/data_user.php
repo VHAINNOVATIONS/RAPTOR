@@ -317,7 +317,7 @@ class UserInfo
                         ->execute();
             */
             $query = db_select('raptor_user_profile', 'n');
-            $query->join('raptor_user_recent_activity_tracking', 'u', 'n.uid = u.uid');
+            $query->leftJoin('raptor_user_recent_activity_tracking', 'u', 'n.uid = u.uid');
             $query->fields('n');
             $query->fields('u', array('most_recent_login_dt','most_recent_logout_dt','most_recent_action_cd'))
                 ->orderBy('uid');

@@ -78,21 +78,42 @@ class UserActivity
         {
             if(!key_exists($name, $addindurations))
             {
-                $addamount = 0;
+                $addamount = NULL;
             } else {
                 $addamount = $addindurations[$name];
             }
-            if(!key_exists($name, $existingdurations))
+            //Only factor it in IF there was really an event to factor in!
+            if($addamount != NULL)
             {
-                //Just assign it.
-                $existingdurations[$name] = $addamount;
-            } else {
-                //Add to existing value
-                $newvalue = $existingdurations[$name] + $addamount;
-                $existingdurations[$name] = $newvalue;
+                if(!key_exists($name, $existingdurations))
+                {
+                    //Just assign it.
+                    $existingdurations[$name] = $addamount;
+                    $existingdurations["max_$name"] = $addamount;
+                    $existingdurations["min_$name"] = $addamount;
+                    $existingdurations["avg_$name"] = $addamount;
+                    $existingdurations["samplesize_avg_$name"] = 1;
+                    //$existingdurations["DEBUG {$name}_1"] = $addamount;
+                } else {
+                    //Add to existing value
+                    if($addamount > $existingdurations["max_$name"])
+                    {
+                        $existingdurations["max_$name"] = $addamount;
+                    }
+                    if($addamount < $existingdurations["min_$name"])
+                    {
+                        $existingdurations["min_$name"] = $addamount;
+                    }
+                    $samplesize = $existingdurations["tmpcount_avg_{$name}"] + 1;
+                    $newvalue = $existingdurations[$name] + $addamount;
+                    $existingdurations[$name] = $newvalue;
+                    //$existingdurations["DEBUG {$name}_{$samplesize}"] = $addamount;
+                    $existingdurations["samplesize_avg_$name"] = $samplesize;
+                    $newavg = $newvalue / $samplesize;
+                    $existingdurations["avg_$name"] = $newavg;
+                }
             }
         }
-        drupal_set_message("LOOK updateddurations for ".print_r($infokeys,TRUE).">>>".print_r($existingdurations,TRUE));
         return $existingdurations;
     }
     
@@ -112,10 +133,17 @@ class UserActivity
             foreach($allusers as $uid=>$uad)
             {
                 $userdetails = array();
+                if(!isset($this->m_aUserInfo[$uid]))
+                {
+                    drupal_set_message("LOOK TROUBLE uid=$uid >>><ol><li>"  
+                            .  print_r($this->m_aUserInfo,TRUE)  
+                            .  "<li>".print_r($uad,TRUE));
+                }
                 $oneuserinfo = $this->m_aUserInfo[$uid];
                 $userdetails['username'] = $oneuserinfo['username'];
                 $userdetails['role_nm'] = $oneuserinfo['role_nm'];
                 $userdetails['most_recent_login_dt'] = $oneuserinfo['most_recent_login_dt'];
+                
                 $usertickets = $uad['tickets'];
                 foreach($usertickets as $ien=>$tad)
                 {
@@ -127,6 +155,7 @@ class UserActivity
                         $modality_abbr = $tad['modality_abbr'];
                     }
                     
+                    //Get stats for ticket state transitions
                     if(isset($tad['transitions']))
                     {
                         foreach($tad['transitions'] as $wfs=>$relevantdate)
@@ -153,28 +182,28 @@ class UserActivity
                                 $dayinyear = $dateparts['doy'];
                                 $dayinweek = $dateparts['dow'];
                                 $key = "$modality_abbr:$year:$dayinyear";
-                                if(!isset($userdetails[$key]))
+                                if(!isset($userdetails['rowdetail'][$key]))
                                 {
-                                    $userdetails[$key] = array();
-                                    $userdetails[$key]['modality_abbr'] = $modality_abbr;
-                                    $userdetails[$key]['dateparts'] = $dateparts;
-                                    $userdetails[$key]['durations'] = array();
+                                    $userdetails['rowdetail'][$key] = array();
+                                    $userdetails['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
+                                    $userdetails['rowdetail'][$key]['dateparts'] = $dateparts;
+                                    $userdetails['rowdetail'][$key]['durations'] = array();
                                 }
-                                if(!isset($userdetails[$key]['count_events']))
+                                if(!isset($userdetails['rowdetail'][$key]['count_events']))
                                 {
-                                    $userdetails[$key]['count_events'] = array();
-                                    $userdetails[$key]['count_events']['into_states'] = array();
+                                    $userdetails['rowdetail'][$key]['count_events'] = array();
+                                    $userdetails['rowdetail'][$key]['count_events']['into_states'] = array();
                                 }
-                                if(!isset($userdetails[$key]['count_events']['into_states'][$wfs]))
+                                if(!isset($userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs]))
                                 {
                                     $newcount = 1; 
                                 } else {
-                                    $newcount = $userdetails[$key]['count_events']['into_states'][$wfs] + 1;
+                                    $newcount = $userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs] + 1;
                                 }
-                                $userdetails[$key]['count_events']['into_states'][$wfs] = $newcount;
-                                $existing = $userdetails[$key]['durations'];
+                                $userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs] = $newcount;
+                                $existing = $userdetails['rowdetail'][$key]['durations'];
                                 $newdurations = $tad['durations'];
-                                $userdetails[$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
+                                $userdetails['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
                             }
                         }
                     }
@@ -192,27 +221,27 @@ class UserActivity
                             $dayinyear = $dateparts['doy'];
                             $dayinweek = $dateparts['dow'];
                             $key = "$modality_abbr:$year:$dayinyear";
-                            if(!isset($userdetails[$key]))
+                            if(!isset($userdetails['rowdetail'][$key]))
                             {
-                                $userdetails[$key] = array();
-                                $userdetails[$key]['modality_abbr'] = $modality_abbr;
-                                $userdetails[$key]['dateparts'] = $dateparts;
-                                $userdetails[$key]['durations'] = array();
+                                $userdetails['rowdetail'][$key] = array();
+                                $userdetails['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
+                                $userdetails['rowdetail'][$key]['dateparts'] = $dateparts;
+                                $userdetails['rowdetail'][$key]['durations'] = array();
                             }
-                            if(!isset($userdetails[$key]['count_events']))
+                            if(!isset($userdetails['rowdetail'][$key]['count_events']))
                             {
-                                $userdetails[$key]['count_events'] = array();
+                                $userdetails['rowdetail'][$key]['count_events'] = array();
                             }
-                            if(!isset($userdetails[$key]['count_events']['scheduled']))
+                            if(!isset($userdetails['rowdetail'][$key]['count_events']['scheduled']))
                             {
                                 $newcount = 1; 
                             } else {
-                                $newcount = $userdetails[$key]['count_events']['scheduled'] + 1;
+                                $newcount = $userdetails['rowdetail'][$key]['count_events']['scheduled'] + 1;
                             }
-                            $userdetails[$key]['count_events']['scheduled'] = $newcount;
-                            $existing = $userdetails[$key]['durations'];
+                            $userdetails['rowdetail'][$key]['count_events']['scheduled'] = $newcount;
+                            $existing = $userdetails['rowdetail'][$key]['durations'];
                             $newdurations = $tad['durations'];
-                            $userdetails[$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
+                            $userdetails['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
                         }
                     }
                     
@@ -229,27 +258,27 @@ class UserActivity
                             $dayinyear = $dateparts['doy'];
                             $dayinweek = $dateparts['dow'];
                             $key = "$modality_abbr:$year:$dayinyear";
-                            if(!isset($userdetails[$key]))
+                            if(!isset($userdetails['rowdetail'][$key]))
                             {
-                                $userdetails[$key] = array();
-                                $userdetails[$key]['modality_abbr'] = $modality_abbr;
-                                $userdetails[$key]['dateparts'] = $dateparts;
-                                $userdetails[$key]['durations'] = array();
+                                $userdetails['rowdetail'][$key] = array();
+                                $userdetails['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
+                                $userdetails['rowdetail'][$key]['dateparts'] = $dateparts;
+                                $userdetails['rowdetail'][$key]['durations'] = array();
                             }
-                            if(!isset($userdetails[$key]['count_events']))
+                            if(!isset($userdetails['rowdetail'][$key]['count_events']))
                             {
-                                $userdetails[$key]['count_events'] = array();
+                                $userdetails['rowdetail'][$key]['count_events'] = array();
                             }
-                            if(!isset($userdetails[$key]['count_events']['collaboration_target']))
+                            if(!isset($userdetails['rowdetail'][$key]['count_events']['collaboration_target']))
                             {
                                 $newcount = 1; 
                             } else {
-                                $newcount = $userdetails[$key]['count_events']['collaboration_target'] + 1;
+                                $newcount = $userdetails['rowdetail'][$key]['count_events']['collaboration_target'] + 1;
                             }
-                            $userdetails[$key]['count_events']['collaboration_target'] = $newcount;
-                            $existing = $userdetails[$key]['durations'];
+                            $userdetails['rowdetail'][$key]['count_events']['collaboration_target'] = $newcount;
+                            $existing = $userdetails['rowdetail'][$key]['durations'];
                             $newdurations = $tad['durations'];
-                            $userdetails[$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
+                            $userdetails['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
                         }
                     }
 
@@ -266,23 +295,23 @@ class UserActivity
                             $dayinyear = $dateparts['doy'];
                             $dayinweek = $dateparts['dow'];
                             $key = "$modality_abbr:$year:$dayinyear";
-                            if(!isset($userdetails[$key]))
+                            if(!isset($userdetails['rowdetail'][$key]))
                             {
-                                $userdetails[$key] = array();
-                                $userdetails[$key]['modality_abbr'] = $modality_abbr;
-                                $userdetails[$key]['dateparts'] = $dateparts;
-                                $userdetails[$key]['durations'] = array();
+                                $userdetails['rowdetail'][$key] = array();
+                                $userdetails['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
+                                $userdetails['rowdetail'][$key]['dateparts'] = $dateparts;
+                                $userdetails['rowdetail'][$key]['durations'] = array();
                             }
-                            if(!isset($userdetails[$key]['count_events']['collaboration_initiation']))
+                            if(!isset($userdetails['rowdetail'][$key]['count_events']['collaboration_initiation']))
                             {
                                 $newcount = 1; 
                             } else {
-                                $newcount = $userdetails[$key]['count_events']['collaboration_initiation'] + 1;
+                                $newcount = $userdetails['rowdetail'][$key]['count_events']['collaboration_initiation'] + 1;
                             }
-                            $userdetails[$key]['count_events']['collaboration_initiation'] = $newcount;
-                            $existing = $userdetails[$key]['durations'];
+                            $userdetails['rowdetail'][$key]['count_events']['collaboration_initiation'] = $newcount;
+                            $existing = $userdetails['rowdetail'][$key]['durations'];
                             $newdurations = $tad['durations'];
-                            $userdetails[$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
+                            $userdetails['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
                         }
                     }
 
@@ -299,23 +328,23 @@ class UserActivity
                             $dayinyear = $dateparts['doy'];
                             $dayinweek = $dateparts['dow'];
                             $key = "$modality_abbr:$year:$dayinyear";
-                            if(!isset($userdetails[$key]))
+                            if(!isset($userdetails['rowdetail'][$key]))
                             {
-                                $userdetails[$key] = array();
-                                $userdetails[$key]['modality_abbr'] = $modality_abbr;
-                                $userdetails[$key]['dateparts'] = $dateparts;
-                                $userdetails[$key]['durations'] = array();
+                                $userdetails['rowdetail'][$key] = array();
+                                $userdetails['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
+                                $userdetails['rowdetail'][$key]['dateparts'] = $dateparts;
+                                $userdetails['rowdetail'][$key]['durations'] = array();
                             }
-                            if(!isset($userdetails[$key]['count_events']['reservation']))
+                            if(!isset($userdetails['rowdetail'][$key]['count_events']['reservation']))
                             {
                                 $newcount = 1; 
                             } else {
-                                $newcount = $userdetails[$key]['count_events']['reservation'] + 1;
+                                $newcount = $userdetails['rowdetail'][$key]['count_events']['reservation'] + 1;
                             }
-                            $userdetails[$key]['count_events']['reservation'] = $newcount;
-                            $existing = $userdetails[$key]['durations'];
+                            $userdetails['rowdetail'][$key]['count_events']['reservation'] = $newcount;
+                            $existing = $userdetails['rowdetail'][$key]['durations'];
                             $newdurations = $tad['durations'];
-                            $userdetails[$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
+                            $userdetails['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
                         }
                     }
                     
@@ -328,9 +357,10 @@ class UserActivity
         
         $bundle = array();
         $bundle['summary'] = $summary;
-        $bundle['activity'] = $activity;
-        $bundle['debug_rawusers'] = $allusers;
-        $bundle['debug_rawtickets'] = $tickets;
+        $bundle['user_activity'] = $activity;
+        drupal_set_message("LOOK result now!");
+        //$bundle['debug_rawusers'] = $allusers;
+        //$bundle['debug_rawtickets'] = $tickets;
         return $bundle;
     }
 }

@@ -58,6 +58,27 @@ class ViewReportUserTicketProcessing extends AReport
         return 'Shows analysis of user ticket processing activity in the system';
     }
 
+    private function getArrayValueIfExistsElseAlt($array,$index,$altvalue=NULL)
+    {
+        $check = $array;
+        foreach($index as $key)
+        {
+            if(!key_exists($key, $check))
+            {
+                return $altvalue;
+            }
+            $check = $check[$key];
+        }
+        return $check;
+    }
+
+    private function getArrayDurValueIfExistsElseAlt($array,$index,$altvalue=NULL)
+    {
+        $raw = $this->getArrayValueIfExistsElseAlt($array, $index, $altvalue);
+        $formatted = "TODO $raw";
+        return $formatted;
+    }
+    
     /**
      * Get the values to populate the form.
      * @return type result of the queries as an array
@@ -90,54 +111,62 @@ class ViewReportUserTicketProcessing extends AReport
         $allthedetail = $this->m_oUA->getActivityByModalityAndDay(VISTA_SITE);
         
         
-        $userdetails = $allthedetail['relevant_users'];
-        foreach($userdetails as $uid=>$details)
+        $userdetails = $allthedetail['user_activity'];
+        foreach($userdetails as $uid=>$userdetails)
         {
-            $modality_abbr="MTODO";
-            $year = "YEARTODO";
-            $qtr = "QTRTODO";
-            $week = "WKTODO";
-            $day = "DayTODO";
-            $username="TODO$uid";
-            $userrole="RoleTODO";
-            $userlogin_ts="LoginTODO";
-            $movedIntoApproved="APmoveTODO";
-            $movedIntoCollab="CollabTODO";
-            $movedIntoAcknowlege="AckTODO";
-            $movedIntoCompleted="DoneTODO";
-            $movedIntoSuspend="CancelTODO";
-            $maxTimeAP2Sched="maxTimeAP2Sched";
-            $avgTimeAP2Sched="avgTimeAP2Sched";
-            $maxTimeAP2Done="maxTimeAP2Done";
-            $avgTimeAP2Done="avgTimeAP2Done";
-            $maxTimeAP2Colab="maxTimeAP2Colab";
-            $avgTimeAP2Colab="avgTimeAP2Colab";
-            $totalScheduled="todoTotShed";
-            
-            $row = array();
-            $row['uid'] = $uid;
-            $row['modality_abbr'] = $modality_abbr;
-            $row['_year'] = $year;
-            $row['quarter'] = $qtr;
-            $row['week'] = $week;
-            $row['day'] = $day;
-            $row['username'] = $username;
-            $row['role_nm'] = $userrole;
-            $row['most_recent_login_dt'] = $userlogin_ts;
-            $row['Total_Approved'] = $movedIntoApproved;
-            $row['Count_Collab'] = $movedIntoCollab;
-            $row['Total_Acknowledge'] = $movedIntoAcknowlege;
-            $row['Total_Complete'] = $movedIntoCompleted;
-            $row['Total_Suspend'] = $movedIntoSuspend;
-            $row['max_A_S'] = $maxTimeAP2Sched;
-            $row['avg_A_S'] = $avgTimeAP2Sched;
-            $row['max_A_C'] = $maxTimeAP2Done;
-            $row['avg_A_C'] = $avgTimeAP2Done;
-            $row['max_collab'] = $maxTimeAP2Colab;
-            $row['avg_collab'] = $avgTimeAP2Colab;
-            $row['Total_Scheduled'] = $totalScheduled;
-            
-            $rowdata[] = $row;
+            foreach($userdetails['rowdetail'] as $key=>$rowdetail)
+            {
+                if(!isset($rowdetail['modality_abbr']))
+                {
+                    drupal_set_message("LOOK $uid has BAD ROWDETAIL>>>".print_r($rowdetail,TRUE));
+                }
+                $modality_abbr=$rowdetail['modality_abbr'];
+                $year = $rowdetail['dateparts']['year'];
+                $qtr = $rowdetail['dateparts']['qtr'];
+                $week = $rowdetail['dateparts']['week'];
+                $day = $rowdetail['dateparts']['dow'];
+                $username=$userdetails['username'];
+                $userrole=$userdetails['role_nm'];
+                $userlogin_ts=$userdetails['most_recent_login_dt'];
+                $movedIntoApproved=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','AP'),0);
+                $movedIntoCollab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_initiation'),0);
+                $movedIntoAcknowlege=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','PA'),0);
+                $movedIntoCompleted=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','EC'),0);
+                $movedIntoSuspend=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','IA'),0);
+                $maxTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','approved_to_scheduled'),0);
+                $avgTimeAP2Sched='';    //$rowdetail[''];
+                $maxTimeAP2Done='';    //$rowdetail[''];
+                $avgTimeAP2Done='';    //$rowdetail[''];
+                $maxTimeAP2Colab='';    //$rowdetail[''];
+                $avgTimeAP2Colab='';    //$rowdetail[''];
+                $totalScheduled=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','scheduled'),0);
+
+                $row = array();
+                $row['uid'] = $uid;
+                $row['modality_abbr'] = $modality_abbr;
+                $row['_year'] = $year;
+                $row['quarter'] = $qtr;
+                $row['week'] = $week;
+                $row['day'] = $day;
+                $row['onlydate'] =  $rowdetail['dateparts']['onlydate'];
+                $row['username'] = $username;
+                $row['role_nm'] = $userrole;
+                $row['most_recent_login_dt'] = $userlogin_ts;
+                $row['Total_Approved'] = $movedIntoApproved;
+                $row['Count_Collab'] = $movedIntoCollab;
+                $row['Total_Acknowledge'] = $movedIntoAcknowlege;
+                $row['Total_Complete'] = $movedIntoCompleted;
+                $row['Total_Suspend'] = $movedIntoSuspend;
+                $row['max_A_S'] = $maxTimeAP2Sched;
+                $row['avg_A_S'] = $avgTimeAP2Sched;
+                $row['max_A_C'] = $maxTimeAP2Done;
+                $row['avg_A_C'] = $avgTimeAP2Done;
+                $row['max_collab'] = $maxTimeAP2Colab;
+                $row['avg_collab'] = $avgTimeAP2Colab;
+                $row['Total_Scheduled'] = $totalScheduled;
+
+                $rowdata[] = $row;
+            }
         }
         $bundle['raw'] = $allthedetail;
         $bundle['rowdata'] = $rowdata;
@@ -190,7 +219,7 @@ class ViewReportUserTicketProcessing extends AReport
                     . '<td>' . $val['_year'] . '</td>'
                     . '<td>' . $val['quarter'] . '</td>'
                     . '<td>' . $val['week'] . '</td>'
-                    . '<td>' . $val['day'] . '</td>'
+                    . '<td title="'.$val['onlydate'].'">' . $val['day'] . '</td>'
                     . '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
                     . '<td>' . $val['role_nm'] . '</td>'
                     . '<td>' . $val['most_recent_login_dt'] . '</td>'
