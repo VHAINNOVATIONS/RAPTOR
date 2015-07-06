@@ -355,7 +355,7 @@ class UserActivity
         $bundle = array();
         $bundle['summary'] = $summary;
         $bundle['user_activity'] = $activity;
-        $bundle['debug'] = array('allusers'=>$allusers, 'alltickets'=>$tickets);
+        //$bundle['debug'] = array('allusers'=>$allusers, 'alltickets'=>$tickets);
         return $bundle;
     }
 }

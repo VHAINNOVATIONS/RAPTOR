@@ -112,33 +112,21 @@ class ViewReportUserTicketProcessing extends AReport
      * Get the values to populate the form.
      * @return type result of the queries as an array
      */
-    function getFieldValues()
+    function getFieldValues($report_start_date=NULL,$report_end_date=NULL)
     {
         $rowdata = array();
-        //$myvalues['formmode'] = 'V';
-        /*
-        $result = db_query("Call raptor_user_dept_analysis('user')")
-                        ->execute();
-
-        $result = db_select('temp4', 't')
-                        ->fields('t')
-                        ->orderBy('modality_abbr', 'DESC')
-                        ->orderBy('_year', 'DESC')
-                        ->orderBy('quarter', 'DESC')
-                        ->orderBy('week', 'DESC')
-                        ->orderBy('day', 'DESC')
-                        ->orderBy('username', 'DESC')
-                        ->execute();
-
-        while($res = $result->fetchAssoc())
+        $startdateoptions = $this->getStartDateOptions();
+        if($report_start_date>'' && $report_start_date[0] == '-')
         {
-                $myvalues[] = $res;
+            //Special flag
+            $command = $report_start_date;
+            $now_ts = time();
+            $lastXdays_ts = strtotime($command,$now_ts);
+            $lastXdays_dt = date("Y-m-d", $lastXdays_ts);
+            $report_start_date = $lastXdays_dt;  
         }
-        */
         
-        
-        $allthedetail = $this->m_oUA->getActivityByModalityAndDay(VISTA_SITE);
-        
+        $allthedetail = $this->m_oUA->getActivityByModalityAndDay(VISTA_SITE,$report_start_date,$report_end_date);
         
         $userdetails = $allthedetail['user_activity'];
         foreach($userdetails as $uid=>$userdetails)
@@ -200,21 +188,31 @@ class ViewReportUserTicketProcessing extends AReport
                 $rowdata[$uniquesortkey] = $row;
             }
         }
-        ksort($rowdata);
-        $bundle['debug'] = $allthedetail;
+        krsort($rowdata);
+        $bundle['start_date_options'] = $startdateoptions;
+        $bundle['report_start_date'] = $report_start_date;
         $bundle['rowdata'] = $rowdata;
         return $bundle;
     }
 	
-    private function getFormatDuration($seconds)
+    private function getStartDateOptions()
     {
-        /*
-        $max_A_S = round((int)$val['Max_Time_A_S']);
-        $dtT = new DateTime("@$max_A_S");
-        $max_A_S = $dtF->diff($dtT)->format('%a days, %h hours and %i minutes');
-         */
+        //Provide context options to the user
+        $now_ts = time();
+        $last7days_ts = strtotime('-7 days',$now_ts);
+        $last7days_dt = date("Y-m-d", $last7days_ts);
+        $last30days_ts = strtotime('-30 days',$now_ts);
+        $last30days_dt = date("Y-m-d", $last30days_ts);
+        $thisyear_dt = date("Y-1-1", $now_ts);
+        $lastyear_ts = strtotime('-1 years',$now_ts);
+        $lastyear_dt = date("Y-1-1", $lastyear_ts);
         
-        return "$seconds sec";  //TODO
+        return array(
+            $last7days_dt => t("Last 7 days (since $last7days_dt)"),
+            $last30days_dt => t("Last 30 days (since $last30days_dt)"),
+            $thisyear_dt => t('Since start of year'),
+            0 => t('All available data'),
+            );
     }
     
     /**
@@ -223,12 +221,23 @@ class ViewReportUserTicketProcessing extends AReport
      */
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
-	$dtF = new DateTime("@0");
+        $now_dt = date("Y-m-d H:i:s", time());
 
         $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
+        
+        if($myvalues['report_start_date'] > '' && $myvalues['report_start_date'] > 0)
+        {
+            $scopetext = 'All available data since '.$myvalues['report_start_date'];
+        } else {
+            $scopetext = 'All available data in the system.';
+        }
+        $form['data_entry_area1']['context']['blurb'] = array('#type' => 'item',
+                '#markup' => '<p>Raptor Site '.VISTA_SITE.' as of '.$now_dt." ($scopetext)</p>", 
+            );
+        
         $form['data_entry_area1']['table_container'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-dialog-table-container">',
@@ -240,7 +249,7 @@ class ViewReportUserTicketProcessing extends AReport
         {
             $rawdata = $myvalues['debug'];
             $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
-                    '#markup' => '<h1>debug details</h1><pre>' 
+                    '#markup' => '<h1>!!!!debug details</h1><pre>' 
                         . print_r($rawdata,TRUE) 
                         . '<pre>'
                 );
@@ -306,6 +315,14 @@ class ViewReportUserTicketProcessing extends AReport
                             .  '</tbody>'
                             . '</table>');
         
+        //Provide context options to the user
+        $form['data_entry_area1']['selections']['report_start_date'] 
+                = array('#type' => 'select',
+                    '#title' => t('Scope'),
+                    '#options' => $myvalues['start_date_options'],
+                    '#disabled' => $disabled,
+                    '#default_value' => $myvalues['report_start_date'],
+            );
         
         $form['data_entry_area1']['action_buttons'] = array(
             '#type' => 'item', 
@@ -314,7 +331,8 @@ class ViewReportUserTicketProcessing extends AReport
             '#tree' => TRUE,
         );
        
-        $form['data_entry_area1']['action_buttons']['refresh'] = array('#type' => 'submit'
+        $form['data_entry_area1']['action_buttons']['refresh'] 
+                = array('#type' => 'submit'
                 , '#attributes' => array('class' => array('admin-action-button'), 'id' => 'refresh-report')
                 , '#value' => t('Refresh Report'));
         

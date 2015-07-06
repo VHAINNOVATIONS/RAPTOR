@@ -120,7 +120,8 @@ class FormHelper
     /*
     * Create a level 2 select list in the Drupal Form API
     */ 
-    public static function createSelectList($sName, $aChoices, $bDisabled=false, $aStatesEntry=NULL, $myvalues=NULL, $defaultlistvalue_override=NULL)
+    public static function createSelectList($sName, $aChoices, $bDisabled=false
+            , $aStatesEntry=NULL, $myvalues=NULL, $defaultlistvalue_override=NULL)
     {    
         $element = array(
             '#type' => 'select',
@@ -141,7 +142,6 @@ class FormHelper
             $element['#states']=$aStatesEntry;
         }      
         $oControl = ProtocolPageUtils::getFAPI_select_options($element,$aChoices); 
-        //die("$sName -> '".$aMyvalues[$sName]."'<hr>Control info...<hr>".print_r($aMyvalues,true)."<hr>". print_r($aChoices,true) ."<hr>".print_r($oControl,true));
         return $oControl;
     }
     

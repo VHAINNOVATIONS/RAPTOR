@@ -86,7 +86,12 @@ function raptor_reports_viewreports_form_builder($form, &$form_state)
     $oPI = new \raptor\ManageReportsPage();
     $form = array();
     $disabled = FALSE;
-    $myvalues = array();    //No values for this one.
+    if(isset($form_state['values']))
+    {
+        $myvalues = $form_state['values'];    
+    } else {
+        $myvalues = array();
+    }
     return $oPI->getForm($form, $form_state, $disabled, $myvalues);
 }
 
@@ -111,11 +116,46 @@ function raptor_reports_runner_form_builder($form, &$form_state)
         if($currentpath == $menukey)
         {
             //Run this one!
+            $reportstartdate='-7 days';
+            $reportenddate  =NULL;
+            if(isset($form_state['values']))
+            {
+                $myvalues = $form_state['values'];    
+                if(isset($myvalues['report_start_date'])) 
+                {
+                    $reportstartdate=$myvalues['report_start_date'];
+                }
+                if(isset($myvalues['report_end_date'])) 
+                {
+                    $reportenddate=$myvalues['report_end_date'];
+                }
+            }
             $form = array();
             $disabled = FALSE;
-            $myvalues = $oReport->getFieldValues();
+            $myvalues = $oReport->getFieldValues($reportstartdate,$reportenddate);
             return $oReport->getForm($form, $form_state, $disabled, $myvalues);
         }
     }
     throw new \Exception("Did NOT find a report to run at path=[$currentpath]");
+}
+
+/**
+ * Build any submitted report
+ */
+function raptor_reports_runner_form_builder_submit($form, &$form_state) 
+{
+    $currentpath = strtolower(trim(current_path()));
+    module_load_include('php', 'raptor_reports', 'form/ManageReportsPage');
+    $aReportClassNames  = \raptor\ManageReportsPage::getReportsList();
+    $aReports = \raptor\ManageReportsPage::getReportInstances($aReportClassNames);
+    foreach($aReports as $classname=>$oReport)
+    {
+        $name = $oReport->getName();
+        $menukey = $oReport->getMenuKey();
+        if($currentpath == $menukey)
+        {
+            //Run this one!
+            $form_state['rebuild'] = TRUE;
+        }
+    }
 }
