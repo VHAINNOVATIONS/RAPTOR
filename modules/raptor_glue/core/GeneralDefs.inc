@@ -8,17 +8,17 @@ defined('GENERAL_DEFS_VERSION_INFO')
  */
 
 //Require acknowledgement of default values?
-defined("REQUIRE_ACKNOWLEDGE_DEFAULTS")
-    or define("REQUIRE_ACKNOWLEDGE_DEFAULTS", FALSE);
+defined('REQUIRE_ACKNOWLEDGE_DEFAULTS')
+    or define('REQUIRE_ACKNOWLEDGE_DEFAULTS', FALSE);
 
-defined("DISABLE_TICKET_AGE1_SCORING")
-    or define("DISABLE_TICKET_AGE1_SCORING", TRUE);
+defined('DISABLE_TICKET_AGE1_SCORING')
+    or define('DISABLE_TICKET_AGE1_SCORING', TRUE);
 
-defined("DISABLE_TICKET_AGE2_SCORING")
-    or define("DISABLE_TICKET_AGE2_SCORING", TRUE);
+defined('DISABLE_TICKET_AGE2_SCORING')
+    or define('DISABLE_TICKET_AGE2_SCORING', TRUE);
 
-defined("DEFAULT_GET_VISIT_DAYS")
-    or define("DEFAULT_GET_VISIT_DAYS", 9999); //For PROD set this to 30 days!!!!!!
+defined('DEFAULT_GET_VISIT_DAYS')
+    or define('DEFAULT_GET_VISIT_DAYS', 9999); //For PROD set this to 30 days!!!!!!
 
 defined('PROTOCOL_SHORTLIST_MIN_SIZE')
     or define('PROTOCOL_SHORTLIST_MIN_SIZE', 3);
@@ -39,3 +39,7 @@ defined('CUSTOM_TERMS4MATCH_FL')
     or define('CUSTOM_TERMS4MATCH_FL', NULL);
 defined('CUSTOM_TERMS4MATCH_US')
     or define('CUSTOM_TERMS4MATCH_US', NULL);
+
+//How much of the username to mask from other standard RAPTOR users (99 to hide)
+defined('DEFAULT_USERNAME_TAILMASK')
+    or define('DEFAULT_USERNAME_TAILMASK', 5);

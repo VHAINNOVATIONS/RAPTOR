@@ -2,7 +2,7 @@
 /**
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -13,12 +13,10 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-require_once ('FormHelper.php');
+require_once 'FormHelper.php';
 
 /**
- * Helper for report pages.
+ * Choose a collaboration target
  *
  * @author Frank Font of SAN Business Consultants
  */
@@ -29,6 +27,9 @@ class RequestCollaboratePage
 
     function __construct()
     {
+        module_load_include('php', 'raptor_datalayer', 'config/Choices');
+        module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+        module_load_include('php', 'raptor_datalayer', 'core/data_user');
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oTT = new \raptor\TicketTrackingData();
     }
@@ -181,7 +182,9 @@ class RequestCollaboratePage
                         . '<td><input type="radio" name="group_collaborator_uid" value="'.$item->uid.'" '
                         . $sSelected
                         . ' onclick="copyValueFromSourceToTarget(this,collaborator_uid)" ></td>'
-                        . '<td title="'.$item->username.'">'.$fullname.'</td>'
+                        . '<td title="'. \raptor\UserInfo::getMaskedText($item->username).'">' 
+                            . $fullname
+                        .'</td>'
                         . '<td>'.$item->role_nm.'</td>'
                         . '<td>'.$modalities.'</td>'
                         . '<td>'.$anatomyItems.'</td>'
@@ -258,17 +261,10 @@ class RequestCollaboratePage
             '#tree' => TRUE,
         );
         
-       $collaborateTip = 'Save the current protocol ticket marked as requesting collaboration';
+        $collaborateTip = 'Save the current protocol ticket marked as requesting collaboration';
         $form['data_entry_area1']['action_buttons']['collaborate_button'] = 
                 array('#markup' 
                     => '<input id="request-raptor-protocol-collaboration" type="button" value="Request Collaboration with Selected RAPTOR User" title="'.$collaborateTip.'">');
-        /*
-        $form['data_entry_area1']['action_buttons']['request-collaboration'] = array('#type' => 'submit'
-                , '#attributes' => array('class' => array('admin-action-button', 'request-collaboration'))
-                , '#value' => t('Request Collaboration with Selected RAPTOR User')
-                , '#disabled' => $disabled
-        );
-         */
         $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
                 , '#markup' => '<input class="raptor-dialog-cancel" type="button" value="Cancel">');
         

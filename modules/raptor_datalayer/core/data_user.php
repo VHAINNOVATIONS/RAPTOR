@@ -790,14 +790,21 @@ class UserInfo
         }
     }
     
-    public static function getMaskedText($texttomask, $tailmasklen=4)
+    public static function getMaskedText($texttomask, $tailmasklen=DEFAULT_USERNAME_TAILMASK)
     {
-        $tail = str_repeat('*', $tailmasklen);
         $shortlen = strlen($texttomask) - $tailmasklen;
         if($shortlen <= 0)
         {
+            if($tailmasklen > 20)
+            {
+                //Just return a smaller sequence
+                return str_repeat('*', 20);
+            } else {
+                return str_repeat('*', $tailmasklen);                
+            }
             return $tail;
         }
+        $tail = str_repeat('*', $tailmasklen);
         return substr($texttomask,0,$shortlen).$tail;
     }
     
