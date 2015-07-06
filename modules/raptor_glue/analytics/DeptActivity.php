@@ -307,8 +307,7 @@ class DeptActivity
         $bundle = array();
         $bundle['summary'] = $summary;
         $bundle['dept_activity'] = $activity;
-        //$bundle['debug_rawusers'] = $allusers;
-        $bundle['debug_rawtickets'] = $tickets;
+        $bundle['debug'] = array('alltickets'=>$tickets);
         return $bundle;
     }
 }
