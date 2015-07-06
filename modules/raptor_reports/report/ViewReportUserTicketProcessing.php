@@ -74,9 +74,38 @@ class ViewReportUserTicketProcessing extends AReport
 
     private function getArrayDurValueIfExistsElseAlt($array,$index,$altvalue=NULL)
     {
-        $raw = $this->getArrayValueIfExistsElseAlt($array, $index, $altvalue);
-        $formatted = "TODO $raw";
-        return $formatted;
+        $seconds = $this->getArrayValueIfExistsElseAlt($array, $index, $altvalue);
+        if($seconds == $altvalue)
+        {
+            return $altvalue;
+        }
+        try
+        {
+            $wholeseconds = ceil($seconds);
+            $dtF = new \DateTime("@0");
+            $dtT = new \DateTime("@$wholeseconds");
+            $dateinstance = $dtF->diff($dtT);
+            $portioned = $dateinstance->format('%a;%h;%i;%s');
+            $parts = explode(';',$portioned);
+            if($wholeseconds >= 86400)  //Days
+            {
+                $formatted = $dateinstance->format('%a days %h hours %i minutes and %s seconds');
+            } else 
+            if($wholeseconds >= 3600)   //Hours
+            {
+                $formatted = $dateinstance->format('%h hours %i minutes and %s seconds');
+            } else 
+            if($wholeseconds >= 60)    //Minutes
+            {
+                $formatted = $dateinstance->format('%i minutes and %s seconds');
+            } else {
+                $formatted = $dateinstance->format('%s seconds');
+            }
+            //$formatted = $dateinstance->format('%a days %h hours, %i minutes and %s seconds');
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**
@@ -116,10 +145,6 @@ class ViewReportUserTicketProcessing extends AReport
         {
             foreach($userdetails['rowdetail'] as $key=>$rowdetail)
             {
-                if(!isset($rowdetail['modality_abbr']))
-                {
-                    drupal_set_message("LOOK $uid has BAD ROWDETAIL>>>".print_r($rowdetail,TRUE));
-                }
                 $modality_abbr=$rowdetail['modality_abbr'];
                 $year = $rowdetail['dateparts']['year'];
                 $qtr = $rowdetail['dateparts']['qtr'];
@@ -130,15 +155,16 @@ class ViewReportUserTicketProcessing extends AReport
                 $userlogin_ts=$userdetails['most_recent_login_dt'];
                 $movedIntoApproved=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','AP'),0);
                 $movedIntoCollab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_initiation'),0);
+                $collabTarget=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_target'),0);
                 $movedIntoAcknowlege=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','PA'),0);
                 $movedIntoCompleted=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','EC'),0);
                 $movedIntoSuspend=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','IA'),0);
-                $maxTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','approved_to_scheduled'),0);
-                $avgTimeAP2Sched='';    //$rowdetail[''];
-                $maxTimeAP2Done='';    //$rowdetail[''];
-                $avgTimeAP2Done='';    //$rowdetail[''];
-                $maxTimeAP2Colab='';    //$rowdetail[''];
-                $avgTimeAP2Colab='';    //$rowdetail[''];
+                $maxTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_scheduled'),'');
+                $avgTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_scheduled'),'');
+                $maxTimeAP2Done=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_examcompleted'),'');
+                $avgTimeAP2Done=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_examcompleted'),'');
+                $maxTimeAP2Colab=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_collaboration_initiation'),'');
+                $avgTimeAP2Colab=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_collaboration_initiation'),'');
                 $totalScheduled=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','scheduled'),0);
 
                 $row = array();
@@ -148,12 +174,14 @@ class ViewReportUserTicketProcessing extends AReport
                 $row['quarter'] = $qtr;
                 $row['week'] = $week;
                 $row['day'] = $day;
+                $row['day_name'] = $rowdetail['dateparts']['dow_tx'];
                 $row['onlydate'] =  $rowdetail['dateparts']['onlydate'];
                 $row['username'] = $username;
                 $row['role_nm'] = $userrole;
                 $row['most_recent_login_dt'] = $userlogin_ts;
                 $row['Total_Approved'] = $movedIntoApproved;
-                $row['Count_Collab'] = $movedIntoCollab;
+                $row['Count_Collab_Init'] = $movedIntoCollab;
+                $row['Count_Collab_Target'] = $collabTarget;
                 $row['Total_Acknowledge'] = $movedIntoAcknowlege;
                 $row['Total_Complete'] = $movedIntoCompleted;
                 $row['Total_Suspend'] = $movedIntoSuspend;
@@ -165,10 +193,13 @@ class ViewReportUserTicketProcessing extends AReport
                 $row['avg_collab'] = $avgTimeAP2Colab;
                 $row['Total_Scheduled'] = $totalScheduled;
 
-                $rowdata[] = $row;
+                $uniquesortkey = "$key:$uid";
+                //drupal_set_message("LOOK sortkey==$uniquesortkey");
+                $rowdata[$uniquesortkey] = $row;
             }
         }
-        $bundle['raw'] = $allthedetail;
+        ksort($rowdata);
+        //$bundle['raw'] = $allthedetail;
         $bundle['rowdata'] = $rowdata;
         return $bundle;
     }
@@ -203,12 +234,15 @@ class ViewReportUserTicketProcessing extends AReport
             '#tree' => TRUE,
         );
 
+        /*
         $rawdata = $myvalues['raw'];
         $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
                 '#markup' => '<h1>!!!!222 debug stuff</h1><pre>' 
                     . print_r($rawdata,TRUE) 
                     . '<pre>'
             );
+         * 
+         */
         
         $rows = '';
         $rowdata = $myvalues['rowdata'];
@@ -219,12 +253,13 @@ class ViewReportUserTicketProcessing extends AReport
                     . '<td>' . $val['_year'] . '</td>'
                     . '<td>' . $val['quarter'] . '</td>'
                     . '<td>' . $val['week'] . '</td>'
-                    . '<td title="'.$val['onlydate'].'">' . $val['day'] . '</td>'
+                    . '<td title="'.$val['onlydate'].' ('.$val['day_name'].')">' . $val['day'] . '</td>'
                     . '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
                     . '<td>' . $val['role_nm'] . '</td>'
                     . '<td>' . $val['most_recent_login_dt'] . '</td>'
                     . '<td>' . $val['Total_Approved']  . '</td>'
-                    . '<td>' . $val['Count_Collab']  . '</td>'
+                    . '<td>' . $val['Count_Collab_Init']  . '</td>'
+                    . '<td>' . $val['Count_Collab_Target']  . '</td>'
                     . '<td>' . $val['Total_Acknowledge']  . '</td>'
                     . '<td>' . $val['Total_Complete']  . '</td>'
                     . '<td>' . $val['Total_Suspend']  . '</td>'
@@ -251,7 +286,8 @@ class ViewReportUserTicketProcessing extends AReport
                             . '<th title="The role of the user in the system" >User Role</th>'
                             . '<th title="The most recent login timestamp" >Most recent login</th>'
                             . '<th title="Total number of tickets moved to Approved state">Total Approved</th>'
-                            . '<th title="Total number of tickets moved to Collaboration state">Count Picked for Collab</th>'
+                            . '<th title="Total number of tickets where initiated Collaboration state">Count Collab Init</th>'
+                            . '<th title="Total number of tickets where was selected as the Collaboration target">Count Collab Targ</th>'
                             . '<th title="Total number of tickets moved to Acknowledge state">Total Acknowlege</th>'
                             . '<th title="Total number of tickets moved to Complete state">Total Complete</th>'
                             . '<th title="Total number of tickets moved to Suspend state">Total Suspend</th>'

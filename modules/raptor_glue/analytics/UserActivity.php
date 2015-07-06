@@ -55,7 +55,9 @@ class UserActivity
             $curmonth = $rawparts['mon'];
             $curqtr = ceil($curmonth/3);
             $curdayofyear = $rawparts['yday'];
-            $curweekofyear = ceil($curdayofyear / 7);
+            $curweekofyear = date('W',$wholedate_ts);
+            $curdayofweek_num = date('N',$wholedate_ts);
+            $curdayofweek_tx = date('l',$wholedate_ts);
             
             $dateparts['datetime'] = $wholedate_tx;
             $dateparts['onlydate'] = date('Y-m-d',$wholedate_ts);
@@ -64,7 +66,8 @@ class UserActivity
             $dateparts['month'] = $curmonth;
             $dateparts['qtr'] = $curqtr;
             $dateparts['week'] = $curweekofyear;
-            $dateparts['dow'] = $rawparts['wday'];
+            $dateparts['dow'] = $curdayofweek_num;
+            $dateparts['dow_tx'] = $curdayofweek_tx;
             $dateparts['doy'] = $curdayofyear;
         } catch (\Exception $ex) {
             throw new \Exception("Failed to parse wholedate [$wholedate_tx]!",99654,$ex);
@@ -104,7 +107,7 @@ class UserActivity
                     {
                         $existingdurations["min_$name"] = $addamount;
                     }
-                    $samplesize = $existingdurations["tmpcount_avg_{$name}"] + 1;
+                    $samplesize = $existingdurations["samplesize_avg_$name"] + 1;
                     $newvalue = $existingdurations[$name] + $addamount;
                     $existingdurations[$name] = $newvalue;
                     //$existingdurations["DEBUG {$name}_{$samplesize}"] = $addamount;
@@ -133,12 +136,6 @@ class UserActivity
             foreach($allusers as $uid=>$uad)
             {
                 $userdetails = array();
-                if(!isset($this->m_aUserInfo[$uid]))
-                {
-                    drupal_set_message("LOOK TROUBLE uid=$uid >>><ol><li>"  
-                            .  print_r($this->m_aUserInfo,TRUE)  
-                            .  "<li>".print_r($uad,TRUE));
-                }
                 $oneuserinfo = $this->m_aUserInfo[$uid];
                 $userdetails['username'] = $oneuserinfo['username'];
                 $userdetails['role_nm'] = $oneuserinfo['role_nm'];
@@ -358,7 +355,6 @@ class UserActivity
         $bundle = array();
         $bundle['summary'] = $summary;
         $bundle['user_activity'] = $activity;
-        drupal_set_message("LOOK result now!");
         //$bundle['debug_rawusers'] = $allusers;
         //$bundle['debug_rawtickets'] = $tickets;
         return $bundle;
