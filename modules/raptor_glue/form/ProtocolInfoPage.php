@@ -1954,54 +1954,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     }
                 }
             } else
-            if(substr($clickedvalue,0,12) == 'Cancel Order')
-            {
-                //####################
-                // CANCEL ORDER BLOCK
-                //####################
-
-                //Cancel the order now
-                try
-                {
-                    
-                    $is_okay = TRUE;
-                    $orderIENs = $this->getSelectedOrderIENs($myvalues);
-                    $reasonCode = $myvalues['cancelreason'];
-                    $cancelcomment = $myvalues['cancelcomment'];
-
-                    die('TODO CANCEL THESE IENS >>>>'.print_r($orderIENs,TRUE) 
-                            . '<br>For reason="'.$reasonCode.'"'
-                            . '<br>comment="'.$cancelcomment.'"'
-                            . '<br>Hit the back button to test again');
-
-                    
-                    /*
-                    $oInsert = db_insert('raptor_ticket_suspend_notes')
-                            ->fields(array(
-                                'siteid' => $nSiteID,
-                                'IEN' => $nIEN,
-                                'notes_tx' => $myvalues['notes_tx'],
-                                'author_uid' => $nUID,
-                                'created_dt' => $updated_dt,
-                            ))
-                            ->execute();
-                     * 
-                     */
-                }
-                catch(\Exception $e)
-                {
-                    error_log('Failed to create raptor_ticket_suspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,true));
-                    form_set_error('suspend_notes_tx','Failed to save notes for this ticket!');
-                    $bSuccess = FALSE;
-                }
-
-                $sNewWFS = 'IA';
-                $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
-
-                //Write success message
-                $successMsg = ('Canceled Order ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-            } else
-            if(substr($clickedvalue,0,7) == 'Suspend' || substr($clickedvalue,0,6) == 'Remove')
+            if(substr($clickedvalue,0,7) == 'Suspend' 
+                    || substr($clickedvalue,0,6) == 'Remove'
+                    || substr($clickedvalue,0,12) == 'Cancel Order')
             {
                 //################
                 // SUSPEND BLOCK

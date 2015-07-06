@@ -13,8 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 require_once 'FormHelper.php';
 
 /**
@@ -29,6 +27,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
 
     function __construct()
     {
+        module_load_include('php', 'raptor_datalayer', 'config/Choices');
+        module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oTT = new \raptor\TicketTrackingData();
     }
@@ -87,8 +87,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
     }
     
     /**
-     * Write the values into the database.
-     * Return 0 if there was an error, else 1.
+     * Cancel the tickets.
      */
     function updateDatabase($form, $myvalues)
     {
@@ -100,8 +99,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         $sCWFS = $this->m_oTT->getTicketWorkflowState($nSiteID . '-' . $nIEN);
         $updated_dt = date("Y-m-d H:i:s", time());
 
-        
-        $is_okay = TRUE;
         $orderIEN = $nIEN;
         $reasonCode = $myvalues['reason'];
         //$cancelcomment = $myvalues['notes_tx'];
@@ -123,6 +120,12 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
                     $cancelesig);
             $cancelled_iens = $results['cancelled_iens'];
             $failed_iens = $results['failed_iens'];
+            if(is_array($failed_iens) && count($failed_iens) > 0)
+            {
+                error_log("WARNING in ".VISTA_SITE." because have failed to cancel these IENs: " 
+                        . print_r($failed_iens,TRUE)
+                        . "\n\tCanceled these: " .print_r($cancelled_iens,TRUE) );
+            }
         } catch (\Exception $ex) {
             drupal_set_message('Failed cancel order ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .')','error');
             error_log("Failed to cancel because ".$ex->getMessage()
@@ -144,8 +147,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             drupal_set_message($cancelMsg, 'warn');
         }
         error_log($cancelMsg);
-        
-        return TRUE;
     }
     
     

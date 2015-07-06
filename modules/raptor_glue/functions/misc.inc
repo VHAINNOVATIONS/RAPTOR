@@ -385,13 +385,15 @@ function raptor_glue_cancelorder_form_builder_validate($form, &$form_state)
 function raptor_glue_cancelorder_form_builder_submit($form, &$form_state) 
 {
     $oPI = new \raptor\CancelOrderPage();
-    $bOkay = $oPI->updateDatabase($form, $form_state['values']);
-    if($bOkay)
+    try
     {
+        $oPI->updateDatabase($form, $form_state['values']);
         //Success!
         $form_state['redirect'] = array(
             'worklist',
           );
+    } catch (Exception $ex) {
+        throw $ex;
     }
 }
 
