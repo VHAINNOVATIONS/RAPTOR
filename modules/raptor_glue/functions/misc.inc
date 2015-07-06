@@ -387,8 +387,9 @@ function raptor_glue_cancelorder_form_builder_submit($form, &$form_state)
     $oPI = new \raptor\CancelOrderPage();
     try
     {
-        $oPI->updateDatabase($form, $form_state['values']);
+        $successMessage = $oPI->updateDatabase($form, $form_state['values']);
         //Success!
+        drupal_set_message($successMessage);
         $form_state['redirect'] = array(
             'worklist',
           );

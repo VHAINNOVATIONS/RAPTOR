@@ -88,6 +88,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
     
     /**
      * Cancel the tickets.
+     * Returns a success message string.
      */
     function updateDatabase($form, $myvalues)
     {
@@ -147,6 +148,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             drupal_set_message($cancelMsg, 'warn');
         }
         error_log($cancelMsg);
+        return $cancelMsg;
     }
     
     
