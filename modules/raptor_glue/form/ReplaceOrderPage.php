@@ -13,14 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
-module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
-module_load_include('php', 'raptor_datalayer', 'core/MdwsUtils');
-module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
-module_load_include('php', 'raptor_datalayer', 'core/MdwsNewOrderUtils');
-module_load_include('php', 'raptor_datalayer', 'core/StringUtils');
 //module_load_include('inc', 'raptor_glue', 'functions/replace_order_ajax');
 require_once 'FormHelper.php';
 require_once 'ProtocolPageUtils.inc';
@@ -38,6 +30,14 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
 
     function __construct()
     {
+        module_load_include('php', 'raptor_datalayer', 'config/Choices');
+        module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
+        module_load_include('php', 'raptor_datalayer', 'core/MdwsUtils');
+        module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
+        module_load_include('php', 'raptor_datalayer', 'core/MdwsNewOrderUtils');
+        module_load_include('php', 'raptor_datalayer', 'core/StringUtils');
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oPS = new \raptor\ProtocolSupportingData($this->m_oContext);
@@ -45,7 +45,6 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
 
     /**
      * Get the values to initiallypopulate the form.
-     * @return type result of the queries as an array
      */
     function getInitialFieldValues()
     {
@@ -99,7 +98,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $myvalues['pregnant'] = NULL;
         $myvalues['reasonforstudy'] = NULL;
         $myvalues['clinhist'] = NULL;
-        $myvalues['datedesired_dateonly'] = NULL;
+        $myvalues['datedesired_dateonly'] = date('m/d/Y',strtotime($aOneRow['DesiredDate']));   //Format it
         $myvalues['preopdate_dateonly'] = NULL;
         $myvalues['datedesired_timeonly'] = NULL;
         $myvalues['preopdate_timeonly'] = NULL;
@@ -108,8 +107,6 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         
         return $myvalues;
     }
-    
-    
     
     /**
      * Some checks to validate the data before we try to save it.
