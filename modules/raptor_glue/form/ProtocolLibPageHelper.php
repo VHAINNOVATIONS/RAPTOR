@@ -1304,7 +1304,7 @@ class ProtocolLibPageHelper
             }
             if(isset($analysis['orphantext']))
             {
-                form_set_error($catradio, 'There is non-blank Default Value in '.$name.' with a blank '.$buttontypename);
+                form_set_error($catradio, 'There is a non-blank "Default Text Value" in '.$name.' but the "NONE" option is checked');
                 $bGood = FALSE;
             }
         }
