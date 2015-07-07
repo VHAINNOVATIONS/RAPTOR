@@ -1252,6 +1252,11 @@ function raptor_glue_userinteractionping_form_builder($form, &$form_state)
     $inputsinfo = array('rl'=>$refreshlocks,'rs'=>$rssla);
     
     global $user;
+    if(!isset($user) || $user->uid == 0)
+    {
+        //This is NOT a RAPTOR user; don't clutter the log file.
+        drupal_exit();
+    }
 
     //Do not polute the output
     ob_start(); //We will kill all messages.

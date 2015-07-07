@@ -355,11 +355,13 @@ class Context
                 $wmodeParam='P';    //Hardcode assumption for now.
             } else {
                 $bLocalReset=FALSE;
-               if(!isset($candidate->m_sVistaUserID))         
-               {
-                   //Log something and continue.
-                   error_log('WARNING: Did NOT find a USER in existing session!'.print_r($candidate,TRUE));
-               }
+                if(!isset($candidate->m_nUID)) // !isset($candidate->m_sVistaUserID))         
+                {
+                   //Log something and continue
+                   error_log("WARNING: Did NOT find a RAPTOR USER in existing session!"
+                           . "\n\tUSER OBJ=".print_r($user,TRUE)  
+                           . "\n\tCANDIDATE=".print_r($candidate,TRUE));
+                }
             }
             
         } else {
@@ -599,7 +601,14 @@ class Context
             {
                 error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has candidate instance from '. $_SERVER['REMOTE_ADDR']);
             } else {
-                error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has NO existing Mdws connection for ' . $candidate->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR'] .' in ' . $candidate->m_nInstanceTimestamp);
+                if(!isset($candidate->m_nUID) || $candidate->m_nUID < 1)
+                {
+                    error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has NO existing Mdws connection for ' 
+                            . $candidate->m_sVistaUserID . ' from ' 
+                            . $_SERVER['REMOTE_ADDR'] 
+                            . ' in ' 
+                            . $candidate->m_nInstanceTimestamp);
+                }
             }
         }
         
