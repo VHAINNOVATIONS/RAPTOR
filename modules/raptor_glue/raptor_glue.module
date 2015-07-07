@@ -133,7 +133,6 @@ function raptor_glue_page_alter(&$page)
         $is_front_page = drupal_is_front_page();
         if($is_front_page)
         {
-            global $base_url;
             if(user_is_logged_in())
             {
                 $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
@@ -201,7 +200,7 @@ function raptor_glue_page_alter(&$page)
                     $redirect = $base_url.'/raptor/kickout_accountconflict';
                     //$redirect = 'raptor/kickout_accountconflict'; 
                     $urlargs = array('reason'=>'invalid_session');
-                    $http_response_code = 307;  //Temp redirect 
+                    $http_response_code = 307;  //Temporary redirect 
                     drupal_goto($redirect,$urlargs,$http_response_code);   
                 }
                 return;

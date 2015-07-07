@@ -10,11 +10,9 @@
  * 
  */ 
 
-
 namespace raptor;
 
 require_once 'FormHelper.php';
-
 
 /**
  * Helper for pages that read/write delimited raw text into tables.
@@ -23,7 +21,7 @@ require_once 'FormHelper.php';
  */
 class ListsPageHelper
 {
-    function __construct($oContext)
+    function __construct()
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
         module_load_include('php', 'raptor_datalayer', 'core/data_user');
@@ -155,49 +153,53 @@ class ListsPageHelper
 
     public function getFieldValues($tablename, $aFieldNames, $aOrderBy)
     {
-        
-        $sSQLFields = '';
-        $col = 0;
-        foreach($aFieldNames as $sFieldName)
+        try
         {
-            $col++;
-            if($col > 1)
+            $sSQLFields = '';
+            $col = 0;
+            foreach($aFieldNames as $sFieldName)
             {
-                $sSQLFields .= ",";
-            }
-            $sSQLFields .= "`$sFieldName`";
-        }
-        
-        $sSQL = 'SELECT ' . $sSQLFields . ' '
-                . ' FROM `' . $tablename . '` '
-                . ' ORDER BY '. implode(',',$aOrderBy) .'';
-        $result = db_query($sSQL);
-        $delimitedrows = array();
-        if($result->rowCount()==0)
-        {
-            error_log('Did NOT find any '.$tablename.' options!');
-        } else {
-            foreach($result as $record) 
-            {
-                $delimitedrow='';
-                $col=0;
-                foreach($record as $fieldvalue)
+                $col++;
+                if($col > 1)
                 {
-                    $col++;
-                    if($col > 1)
-                    {
-                        $delimitedrow .= '|';
-                    }
-                    $delimitedrow .= $fieldvalue;
-                };
-                $delimitedrows[] = $delimitedrow;
+                    $sSQLFields .= ",";
+                }
+                $sSQLFields .= "`$sFieldName`";
             }
+
+            $sSQL = 'SELECT ' . $sSQLFields . ' '
+                    . ' FROM `' . $tablename . '` '
+                    . ' ORDER BY '. implode(',',$aOrderBy) .'';
+            $result = db_query($sSQL);
+            $delimitedrows = array();
+            if($result->rowCount()==0)
+            {
+                error_log('Did NOT find any '.$tablename.' options!');
+            } else {
+                foreach($result as $record) 
+                {
+                    $delimitedrow='';
+                    $col=0;
+                    foreach($record as $fieldvalue)
+                    {
+                        $col++;
+                        if($col > 1)
+                        {
+                            $delimitedrow .= '|';
+                        }
+                        $delimitedrow .= $fieldvalue;
+                    };
+                    $delimitedrows[] = $delimitedrow;
+                }
+            }
+            $sFormattedListText = $this->formatListText($delimitedrows);
+            $myvalues = array();
+            $myvalues['raw_list_rows'] = $sFormattedListText;
+
+            return $myvalues;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $sFormattedListText = $this->formatListText($delimitedrows);
-        $myvalues = array();
-        $myvalues['raw_list_rows'] = $sFormattedListText;
-        
-        return $myvalues;
     }
     
     /**
