@@ -217,8 +217,8 @@ class EditUserPage extends \raptor\ChildEditBasePage
         //Replace the intro blurb
         $form['data_entry_area1']['introblurb'] = NULL;        
         
-        if (!$oUserInfo->isSiteAdministrator()) {
-            //die('LOOK>>>>sa='.$oUserInfo->isSiteAdministrator().'<br>'.print_r($oUserInfo,TRUE));
+        if (!$oUserInfo->isSiteAdministrator()) 
+        {
             $form['data_entry_area1']['leftpart']['password'] = NULL;
         }
 
@@ -260,13 +260,6 @@ class EditUserPage extends \raptor\ChildEditBasePage
 
         global $base_url;
         $goback = $this->getGobacktoFullURL();
-        /*
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="admin-cancel-button" id="user-cancel"'
-                . ' type="button" value="Cancel"'
-                . ' data-redirect="'.$gobacktoURL.'">');
-
-         */
         $form['data_entry_area1']['action_buttons']['cancel'] = FormHelper::getExitButtonMarkup($goback);
         return $form;
     }

@@ -298,14 +298,6 @@ class ViewReportDeptTicketProcessing extends AReport
                             . '</table>');
         
         //Provide context options to the user
-        $now_ts = strtotime($now_dt);
-        $last7days_ts = strtotime('-7 days',$now_ts);
-        $last7days_dt = date("Y-m-d", $last7days_ts);
-        $last30days_ts = strtotime('-30 days',$now_ts);
-        $last30days_dt = date("Y-m-d", $last30days_ts);
-        $thisyear_dt = date("Y-1-1", $now_ts);
-        $lastyear_ts = strtotime('-1 years',$now_ts);
-        $lastyear_dt = date("Y-1-1", $lastyear_ts);
         $form['data_entry_area1']['selections']['report_start_date'] 
                 = array('#type' => 'select',
                     '#title' => t('Scope'),

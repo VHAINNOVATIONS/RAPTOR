@@ -20,6 +20,7 @@ require_once 'FormHelper.php';
  * Implementes the radation dose add page.
  *
  * @author Frank Font of SAN Business Consultants
+ * @DEPRECATED
  */
 class AddRadiationDoseHxEntryPage
 {
