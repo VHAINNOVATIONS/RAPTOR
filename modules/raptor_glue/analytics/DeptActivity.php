@@ -123,6 +123,7 @@ class DeptActivity
     {
         $summary = array();
         $activity = array();
+        $activity['rowdetail'] = array();
         try
         {
             $aDTH = $this->m_oTA->getDetailedTrackingHistory($nSiteID, $startdatetime, $enddatetime);

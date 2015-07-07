@@ -249,7 +249,7 @@ class ViewReportUserTicketProcessing extends AReport
         {
             $rawdata = $myvalues['debug'];
             $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
-                    '#markup' => '<h1>!!!!debug details</h1><pre>' 
+                    '#markup' => '<h1>debug details</h1><pre>' 
                         . print_r($rawdata,TRUE) 
                         . '<pre>'
                 );
@@ -285,8 +285,8 @@ class ViewReportUserTicketProcessing extends AReport
                     . '</tr>';
         }
 
-        $form['data_entry_area1']['table_container']['users'] = array('#type' => 'item',
-                 '#markup' => '<table class="raptor-dialog-table">'
+        $form['data_entry_area1']['table_container']['activity'] = array('#type' => 'item',
+                 '#markup' => '<table id="my-raptor-dialog-table" class="raptor-dialog-table dataTable">'
                             . '<thead><tr>'
                             . '<th title="The modality abbreviation of this metric" >Modality</th>'
                             . '<th title="The year of this metric" >Year</th>'

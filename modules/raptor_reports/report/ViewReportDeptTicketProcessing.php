@@ -272,7 +272,7 @@ class ViewReportDeptTicketProcessing extends AReport
         }
 
         $form['data_entry_area1']['table_container']['activity'] = array('#type' => 'item',
-                 '#markup' => '<table class="raptor-dialog-table">'
+                 '#markup' => '<table id="my-raptor-dialog-table" class="raptor-dialog-table dataTable">'
                             . '<thead><tr>'
                             . '<th title="The modality abbreviation of this metric" >Modality</th>'
                             . '<th title="The year of this metric" >Year</th>'
