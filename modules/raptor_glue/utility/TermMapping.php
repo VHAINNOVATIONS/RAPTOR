@@ -22,13 +22,15 @@ class TermMapping
 {
     public static function getQAScoreLanguageMapping()
     {
+        module_load_include('inc', 'raptor_glue', 'core/QualityAssuranceDefs');
         return array(  
-                0  =>  t('Not Evaluated')
-               ,1  =>  t('Needs significant improvement')
-               ,2  =>  t('Needs improvement')
-               ,3  =>  t('Satisfactory')
-               ,4  =>  t('Very good')
-               ,5  =>  t('Outstanding'));        
+                0  =>  t(QA_SCORE_TERM_0)
+               ,1  =>  t(QA_SCORE_TERM_1)
+               ,2  =>  t(QA_SCORE_TERM_2)
+               ,3  =>  t(QA_SCORE_TERM_3)
+               ,4  =>  t(QA_SCORE_TERM_4)
+               ,5  =>  t(QA_SCORE_TERM_5)
+            );
     }
     
     public static function getQAScoreLanguage($score)

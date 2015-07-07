@@ -265,7 +265,8 @@ class ProtocolInfoUtility
         $score_query = db_select($eval_tablename, 'n');
         $score_query->join('raptor_user_profile', 'u', 'n.author_uid = u.uid');
         $score_query->fields('n', array('evaluation_dt', 'comment', 'criteria_score', 'criteria_shortname'));
-        $score_query->fields('u', array('username','role_nm','usernametitle','firstname','lastname','suffix','prefemail','prefphone'))
+        $score_query->fields('u', array('username','role_nm'
+            ,'usernametitle','firstname','lastname','suffix','prefemail','prefphone'))
             ->condition('siteid', $nSiteID,'=')
             ->condition('IEN', $nIEN,'=')
             ->orderBy('evaluation_dt', 'ASC')
@@ -3167,85 +3168,89 @@ class ProtocolInfoUtility
      */
     function getQADataEntryFields(&$form_state, $disabled, $myvalues)
     {
-        // information.
-        $root['qa_summary_fieldset'] = array(
-            '#type'     => 'fieldset',
-            '#title'    => t('QA Notes'),
-            '#attributes' => array(
-                'class' => array(
-                    'qa-data-entry1-area'
-                )
-             ),
-            '#disabled' => $disabled,
-        );
-
-        $qa_scores = \raptor\TermMapping::getQAScoreLanguageMapping();
-        $result = db_select('raptor_qa_criteria', 'n')
-                ->fields('n')
-                ->condition('context_cd', 'T','=')
-                ->orderBy('position')
-                ->execute();
-        $qmarkup = array();
-        while($record = $result->fetchAssoc())
+        try
         {
-            $version = trim($record['version']);
-            $shortname = trim($record['shortname']);
-            $question = trim($record['question']);
-            $explanation = trim($record['explanation']);
-            $myitem = array(
-             '#type' => 'radios',
-             '#title' => t($question),
-             '#options' => $qa_scores,
-             '#description' => t($explanation),
-             '#attributes' => array(
-                'class' => array('container-inline'),
-                ),
-            );   
-
-            if(isset($myvalues[$shortname]['score']))
-            {
-                $myitem['#default_value'] = $myvalues[$shortname]['score'];
-            }
-            $mycomment = array(
-                '#type' => 'textarea',
-                '#rows'     => 1,
-                '#maxlength' => 1024,
-            );
-            if(isset($myvalues[$shortname]['comment']))
-            {
-                $mycomment['#default_value'] = $myvalues[$shortname]['comment'];
-            }
-
-            $qmarkup[$shortname]['version'] =  array('#type' => 'hidden', '#value' => $version);
-            $qmarkup[$shortname]['score'] = $myitem;
-            $qmarkup[$shortname]['comment'] = $mycomment;
-        }
-        if(count($qmarkup)>0)
-        {
-            $root['qa_summary_fieldset']['evaluations'] = array(
+            $root['qa_summary_fieldset'] = array(
                 '#type'     => 'fieldset',
-                '#title'    => t('Assessment Questions'),
+                '#title'    => t('QA Notes'),
+                '#attributes' => array(
+                    'class' => array(
+                        'qa-data-entry1-area'
+                    )
+                 ),
                 '#disabled' => $disabled,
-                '#tree' => TRUE,
             );
-            foreach($qmarkup as $key=>$value)
+
+            $qa_scores = \raptor\TermMapping::getQAScoreLanguageMapping();
+            $result = db_select('raptor_qa_criteria', 'n')
+                    ->fields('n')
+                    ->condition('context_cd', 'T','=')
+                    ->orderBy('position')
+                    ->execute();
+            $qmarkup = array();
+            while($record = $result->fetchAssoc())
             {
-                $root['qa_summary_fieldset']['evaluations'][$key] = $value;
+                $version = trim($record['version']);
+                $shortname = trim($record['shortname']);
+                $question = trim($record['question']);
+                $explanation = trim($record['explanation']);
+                $myitem = array(
+                 '#type' => 'radios',
+                 '#title' => t($question),
+                 '#options' => $qa_scores,
+                 '#description' => t($explanation),
+                 '#attributes' => array(
+                    'class' => array('container-inline'),
+                    ),
+                );   
+
+                if(isset($myvalues[$shortname]['score']))
+                {
+                    $myitem['#default_value'] = $myvalues[$shortname]['score'];
+                }
+                $mycomment = array(
+                    '#type' => 'textarea',
+                    '#rows'     => 1,
+                    '#maxlength' => 1024,
+                );
+                if(isset($myvalues[$shortname]['comment']))
+                {
+                    $mycomment['#default_value'] = $myvalues[$shortname]['comment'];
+                }
+
+                $qmarkup[$shortname]['version'] =  array('#type' => 'hidden', '#value' => $version);
+                $qmarkup[$shortname]['score'] = $myitem;
+                $qmarkup[$shortname]['comment'] = $mycomment;
             }
+            if(count($qmarkup)>0)
+            {
+                $root['qa_summary_fieldset']['evaluations'] = array(
+                    '#type'     => 'fieldset',
+                    '#title'    => t('Assessment Questions'),
+                    '#disabled' => $disabled,
+                    '#tree' => TRUE,
+                );
+                foreach($qmarkup as $key=>$value)
+                {
+                    $root['qa_summary_fieldset']['evaluations'][$key] = $value;
+                }
+            }
+
+            //Show the general comment input.
+            $sName = 'qa_notes_tx';
+            $default_value = isset($myvalues[$sName]) ? $myvalues[$sName] : '';
+            $root['qa_summary_fieldset']['overall'][$sName] = array(
+                '#type'     => 'textarea',
+                '#rows'     => 10,
+                '#title'    => t('Overall QA Comments'),
+                '#maxlength' => 1024,
+                '#default_value' => $default_value,
+                '#disabled' => $disabled,
+            );
+            return $root;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        //Show the general comment input.
-        $sName = 'qa_notes_tx';
-        $default_value = isset($myvalues[$sName]) ? $myvalues[$sName] : '';
-        $root['qa_summary_fieldset']['overall'][$sName] = array(
-            '#type'     => 'textarea',
-            '#rows'     => 10,
-            '#title'    => t('Overall QA Comments'),
-            '#maxlength' => 1024,
-            '#default_value' => $default_value,
-            '#disabled' => $disabled,
-        );
-        return $root;
     }    
     
     /**
