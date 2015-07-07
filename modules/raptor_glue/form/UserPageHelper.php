@@ -877,7 +877,7 @@ class UserPageHelper
                   '#prefix' => '<div id="xxxedit-password">',
                   '#suffix' => '</div>',
                   '#size' => 40, 
-                  '#maxlength' => 128, 
+                  //'#maxlength' => 128, 
                   '#required' => TRUE,
                   '#description' => t('The password for this account.  Pick a strong password and do not share it.'),
                   '#disabled' => $disabled,

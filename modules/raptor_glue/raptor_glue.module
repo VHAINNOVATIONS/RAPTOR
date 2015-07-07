@@ -27,42 +27,48 @@ require_once 'form/ProtocolInfoPage.php';
  */
 function raptor_glue_watchdog($log_entry)
 {
-    $logprefix = 'RAPTOR WATCHDOG[config='.RAPTOR_CONFIG_ID.'][build='.RAPTOR_BUILD_ID.']:';
-    error_log($logprefix.print_r($log_entry,TRUE));
-    
-    try
+    if(isset($log_entry['message']) && $log_entry['message'] == 'raptor/undefined')
     {
-        global $user;
-        $tempUID = $user->uid;  
-        if($tempUID == NULL || $tempUID == 0)
+        //Do NOT bother logging this one.
+    } else {
+        //Log this one.
+        $logprefix = 'RAPTOR WATCHDOG[config='.RAPTOR_CONFIG_ID.'][build='.RAPTOR_BUILD_ID.']:';
+        error_log($logprefix.print_r($log_entry,TRUE));
+
+        try
         {
-            try
+            global $user;
+            $tempUID = $user->uid;  
+            if($tempUID == NULL || $tempUID == 0)
             {
-                error_log("$logprefix Global user variable was not set.");
-                $tempUID = intval($log_entry['user']->uid);
-            } catch (\Exception $ex) {
-                error_log("$logprefix Unable to determine user UID!");
-                $tempUID = -1;
+                try
+                {
+                    error_log("$logprefix Global user variable was not set.");
+                    $tempUID = intval($log_entry['user']->uid);
+                } catch (\Exception $ex) {
+                    error_log("$logprefix Unable to determine user UID!");
+                    $tempUID = -1;
+                }
             }
+
+            $severity = intval($log_entry['severity']);
+
+            $updated_dt = date("Y-m-d H:i:s", time());
+            $error_cd = $severity;
+            db_merge('raptor_user_recent_activity_tracking')
+            ->key(array('uid'=>$tempUID,
+                ))
+            ->fields(array(
+                    'uid'=>$tempUID,
+                    'most_recent_error_dt'=>$updated_dt,
+                    'most_recent_error_cd' => $error_cd,
+                ))
+                ->execute();
+
+        } catch (\Exception $ex) {
+            error_log("$logprefix Failed to update raptor_user_recent_activity_tracking "
+                    . "because ". $ex->getMessage());
         }
-        
-        $severity = intval($log_entry['severity']);
-        
-        $updated_dt = date("Y-m-d H:i:s", time());
-        $error_cd = $severity;
-        db_merge('raptor_user_recent_activity_tracking')
-        ->key(array('uid'=>$tempUID,
-            ))
-        ->fields(array(
-                'uid'=>$tempUID,
-                'most_recent_error_dt'=>$updated_dt,
-                'most_recent_error_cd' => $error_cd,
-            ))
-            ->execute();
-        
-    } catch (\Exception $ex) {
-        error_log("$logprefix Failed to update raptor_user_recent_activity_tracking "
-                . "because ". $ex->getMessage());
     }
 }
 
