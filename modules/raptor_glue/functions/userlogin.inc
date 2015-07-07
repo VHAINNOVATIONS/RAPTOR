@@ -39,38 +39,44 @@ function raptor_glue_form_user_login_alter( &$form, $form_state )
 
 function raptor_glue_login_validate( $form, &$form_state )
 {
-    $username = trim($form_state['values']['name']);
-    $password = trim($form_state['values']['pass']);
-    $havepassword = (trim($password) != '' ? 'Yes' : 'No!');
-    error_log("login validating username=[$username] password was provided=[$havepassword]");
-    $fatalerrmsg = null;
-    $isvalid = raptor_glue_check_user( $username, $password, $fatalerrmsg );
-    if ($isvalid === TRUE )
+    try
     {
-        error_log("login validated username=[$username] Is valid user");
-        $candidateuser = user_load_by_name($username);
-        if( $candidateuser == null || $candidateuser === FALSE )
+        $username = trim($form_state['values']['name']);
+        $password = trim($form_state['values']['pass']);
+        $havepassword = (trim($password) != '' ? 'Yes' : 'No!');
+        error_log("login validating username=[$username] password was provided=[$havepassword]");
+        $fatalerrmsg = null;
+        $isvalid = raptor_glue_check_user( $username, $password, $fatalerrmsg );
+        if ($isvalid === TRUE )
         {
-            $message = 'Did NOT find account information for username=['.$username.']';
-            drupal_set_message($message,'warning');
-            error_log($message);
-        } else {
-            $form_state['uid'] = $candidateuser->uid;
-            //Clear any left-over ticket locks this user may have created in a prior session
-            module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
-            $oTT = new \raptor\TicketTrackingData();
-            $nSiteID = VISTA_SITE;
-            $oTT->deleteAllStaleTicketLocks($nSiteID);
-            $oTT->deleteAllUserTicketLocks($candidateuser->uid,'Cleared as part of login for '.$candidateuser->uid);
-            user_login_submit($form, $form_state);
+            error_log("login validated username=[$username] Is valid user");
+            $candidateuser = user_load_by_name($username);
+            if( $candidateuser == null || $candidateuser === FALSE )
+            {
+                $message = 'Did NOT find account information for username=['.$username.']';
+                drupal_set_message($message,'warning');
+                error_log($message);
+            } else {
+                $form_state['uid'] = $candidateuser->uid;
+                //Clear any left-over ticket locks this user may have created in a prior session
+                module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+                $oTT = new \raptor\TicketTrackingData();
+                $nSiteID = VISTA_SITE;
+                $oTT->deleteAllStaleTicketLocks($nSiteID);
+                $oTT->deleteAllUserTicketLocks($candidateuser->uid,'User locks cleared as part of login for '.$candidateuser->uid);
+                user_login_submit($form, $form_state);
+            }
         }
-    }
 
-    if($fatalerrmsg != null)
-    {
-        //Too important not to stop everything here.
-        throw new \Exception('FATAL ERROR MESSAGE>>>'.$fatalerrmsg);
+        if($fatalerrmsg != null)
+        {
+            //Too important not to stop everything here.
+            throw new \Exception('FATAL ERROR MESSAGE>>>'.$fatalerrmsg);
+        }
+    } catch (\Exception $ex) {
+        throw new \Exception("Failed raptor_glue_login_validate",99555,$ex);
     }
+    
     // else drop through to the end and return nothing - Drupal will handle the rejection for us   
 }
 
@@ -239,48 +245,41 @@ function raptor_glue_user_login(&$edit, $account)
 //User management
 function raptor_glue_mngusers_form() 
 {
-    return drupal_get_form("raptor_glue_mngusers_form_builder");
+    return drupal_get_form('raptor_glue_mngusers_form_builder');
 }
 
 function raptor_glue_viewuser_form() 
 {
-    return drupal_get_form("raptor_glue_viewuser_form_builder");
+    return drupal_get_form('raptor_glue_viewuser_form_builder');
 }
 
 function raptor_glue_addstandarduser_form() 
 {
-    return drupal_get_form("raptor_glue_addstandarduser_form_builder");
+    return drupal_get_form('raptor_glue_addstandarduser_form_builder');
 }
 function raptor_glue_addadminuser_form() 
 {
-    return drupal_get_form("raptor_glue_addadminuser_form_builder");
+    return drupal_get_form('raptor_glue_addadminuser_form_builder');
 }
 
 function raptor_glue_edituser_form() 
 {
-    return drupal_get_form("raptor_glue_edituser_form_builder");
+    return drupal_get_form('raptor_glue_edituser_form_builder');
 }
 
 function raptor_glue_editselfprofile_form() 
 {
-    return drupal_get_form("raptor_glue_editselfprofile_form_builder");
+    return drupal_get_form('raptor_glue_editselfprofile_form_builder');
 }
 
 function raptor_glue_deleteuser_form() 
 {
-    return drupal_get_form("raptor_glue_deleteuser_form_builder");
+    return drupal_get_form('raptor_glue_deleteuser_form_builder');
 }
-
-/*DEPRECATED
-function raptor_glue_login_form() 
-{
-    return drupal_get_form("raptor_glue_login_form_builder");
-}
-*/
 
 function raptor_glue_chgpwd_form() 
 {
-    return drupal_get_form("raptor_glue_chgpwd_form_builder");
+    return drupal_get_form('raptor_glue_chgpwd_form_builder');
 }
 
 function raptor_glue_mngusers_form_builder($form, &$form_state)

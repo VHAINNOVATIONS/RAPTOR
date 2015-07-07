@@ -2799,10 +2799,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $result = $query->execute();
         while($record = $result->fetchAssoc())
         {
-            error_log('Prev commit to Vista was '.$record['commit_dt']);
+            error_log('Prev commit to VistA was '.$record['commit_dt']);
             return $record['commit_dt'];
         }
-        error_log('No prev commit to Vista!');
+        //error_log('No prev commit to VistA!');
         return NULL;
     }
     
@@ -3311,8 +3311,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         if(!isset($form_state['setup_formcontext']) || $form_state['setup_formcontext']==TRUE)
         {
             $this->setupFormContext();
-        } else {
-            error_log('Skipping form context setup!');
         }
         
         $userinfo = $this->m_oContext->getUserInfo();

@@ -202,8 +202,13 @@ function raptor_glue_protcolinfo_after_build($form, $form_state)
 
 function raptor_glue_protocolinfo_form_builder_validate($form, &$form_state) 
 {
-    $clickedbutton = $form_state['clicked_button'];
-    $clickedvalue = $clickedbutton['#value'];
+    $clickedbutton = '';
+    $clickedvalue = '';
+    if(isset($form_state['clicked_button']))
+    {
+        $clickedbutton = $form_state['clicked_button'];
+        $clickedvalue = $clickedbutton['#value'];
+    }
     if($clickedvalue == '')
     {
         //Some kind of ajax event, get out now with success.

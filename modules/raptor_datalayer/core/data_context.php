@@ -306,6 +306,10 @@ class Context
      */
     public static function getInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
     {
+        $currentpath = strtolower(current_path());
+        //$currentpage = drupal_lookup_path('alias',$currentpath);
+        $forceReset = ($currentpath == 'user/login' || $currentpath == 'user/logout');
+    
         if (session_status() == PHP_SESSION_NONE) 
         {
             error_log('CONTEXTgetInstance::Starting session');
@@ -366,7 +370,12 @@ class Context
             
         } else {
             //No session already exists, so we will create a new one.
-            error_log('Creating new session for uid='.$tempUID);
+            if($bSessionResetFlagDetected)
+            {
+                error_log('Creating new session for uid='.$tempUID.' (session reset)');
+            } else {
+                error_log('Creating new session for uid='.$tempUID.' (missing session)');
+            }
             $bLocalReset=TRUE;
             $candidate=NULL;
             $wmodeParam='P';    //Hardcode assumption for now.
@@ -588,7 +597,8 @@ class Context
                     $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
                     error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
                             . $candidate->m_sVistaUserID . '] >>> ' 
-                            . time() . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
+                            . time() 
+                            . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
 
                     $candidate->forceSessionRefresh(0);  //Invalidate any current form data now!
                 }
