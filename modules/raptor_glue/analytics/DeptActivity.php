@@ -159,34 +159,36 @@ class DeptActivity
                         {
                             $durationkeys['acknowledged_to_examcompleted'] = 'acknowledged_to_examcompleted';
                         }
+                        //Track state changes
+                        $dateparts = $this->getDateParts($relevantdate);
+
+                        $year = $dateparts['year'];
+                        $month = $dateparts['month'];
+                        $dayinyear = $dateparts['doy'];
+                        $dayinweek = $dateparts['dow'];
+                        $key = "$modality_abbr:$year:$dayinyear";
+                        if(!isset($activity['rowdetail'][$key]))
+                        {
+                            $activity['rowdetail'][$key] = array();
+                            $activity['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
+                            $activity['rowdetail'][$key]['dateparts'] = $dateparts;
+                            $activity['rowdetail'][$key]['durations'] = array();
+                        }
+                        if(!isset($activity['rowdetail'][$key]['count_events']))
+                        {
+                            $activity['rowdetail'][$key]['count_events'] = array();
+                            $activity['rowdetail'][$key]['count_events']['into_states'] = array();
+                        }
+                        if(!isset($activity['rowdetail'][$key]['count_events']['into_states'][$wfs]))
+                        {
+                            $newcount = 1; 
+                        } else {
+                            $newcount = $activity['rowdetail'][$key]['count_events']['into_states'][$wfs] + 1;
+                        }
+                        $activity['rowdetail'][$key]['count_events']['into_states'][$wfs] = $newcount;
                         if(count($durationkeys) > 0)
                         {
-                            $dateparts = $this->getDateParts($relevantdate);
-
-                            $year = $dateparts['year'];
-                            $month = $dateparts['month'];
-                            $dayinyear = $dateparts['doy'];
-                            $dayinweek = $dateparts['dow'];
-                            $key = "$modality_abbr:$year:$dayinyear";
-                            if(!isset($activity['rowdetail'][$key]))
-                            {
-                                $activity['rowdetail'][$key] = array();
-                                $activity['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
-                                $activity['rowdetail'][$key]['dateparts'] = $dateparts;
-                                $activity['rowdetail'][$key]['durations'] = array();
-                            }
-                            if(!isset($activity['rowdetail'][$key]['count_events']))
-                            {
-                                $activity['rowdetail'][$key]['count_events'] = array();
-                                $activity['rowdetail'][$key]['count_events']['into_states'] = array();
-                            }
-                            if(!isset($activity['rowdetail'][$key]['count_events']['into_states'][$wfs]))
-                            {
-                                $newcount = 1; 
-                            } else {
-                                $newcount = $activity['rowdetail'][$key]['count_events']['into_states'][$wfs] + 1;
-                            }
-                            $activity['rowdetail'][$key]['count_events']['into_states'][$wfs] = $newcount;
+                            //Track durations
                             $existing = $activity['rowdetail'][$key]['durations'];
                             $newdurations = $tad['summary']['durations'];
                             $activity['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);

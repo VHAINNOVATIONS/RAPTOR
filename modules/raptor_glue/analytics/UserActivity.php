@@ -171,34 +171,35 @@ class UserActivity
                             {
                                 $durationkeys['acknowledged_to_examcompleted'] = 'acknowledged_to_examcompleted';
                             }
+                            //Track the transition
+                            $dateparts = $this->getDateParts($relevantdate);
+                            $year = $dateparts['year'];
+                            $month = $dateparts['month'];
+                            $dayinyear = $dateparts['doy'];
+                            $dayinweek = $dateparts['dow'];
+                            $key = "$modality_abbr:$year:$dayinyear";
+                            if(!isset($userdetails['rowdetail'][$key]))
+                            {
+                                $userdetails['rowdetail'][$key] = array();
+                                $userdetails['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
+                                $userdetails['rowdetail'][$key]['dateparts'] = $dateparts;
+                                $userdetails['rowdetail'][$key]['durations'] = array();
+                            }
+                            if(!isset($userdetails['rowdetail'][$key]['count_events']))
+                            {
+                                $userdetails['rowdetail'][$key]['count_events'] = array();
+                                $userdetails['rowdetail'][$key]['count_events']['into_states'] = array();
+                            }
+                            if(!isset($userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs]))
+                            {
+                                $newcount = 1; 
+                            } else {
+                                $newcount = $userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs] + 1;
+                            }
+                            $userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs] = $newcount;
                             if(count($durationkeys) > 0)
                             {
-                                $dateparts = $this->getDateParts($relevantdate);
-
-                                $year = $dateparts['year'];
-                                $month = $dateparts['month'];
-                                $dayinyear = $dateparts['doy'];
-                                $dayinweek = $dateparts['dow'];
-                                $key = "$modality_abbr:$year:$dayinyear";
-                                if(!isset($userdetails['rowdetail'][$key]))
-                                {
-                                    $userdetails['rowdetail'][$key] = array();
-                                    $userdetails['rowdetail'][$key]['modality_abbr'] = $modality_abbr;
-                                    $userdetails['rowdetail'][$key]['dateparts'] = $dateparts;
-                                    $userdetails['rowdetail'][$key]['durations'] = array();
-                                }
-                                if(!isset($userdetails['rowdetail'][$key]['count_events']))
-                                {
-                                    $userdetails['rowdetail'][$key]['count_events'] = array();
-                                    $userdetails['rowdetail'][$key]['count_events']['into_states'] = array();
-                                }
-                                if(!isset($userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs]))
-                                {
-                                    $newcount = 1; 
-                                } else {
-                                    $newcount = $userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs] + 1;
-                                }
-                                $userdetails['rowdetail'][$key]['count_events']['into_states'][$wfs] = $newcount;
+                                //Track the duration
                                 $existing = $userdetails['rowdetail'][$key]['durations'];
                                 $newdurations = $tad['durations'];
                                 $userdetails['rowdetail'][$key]['durations'] = $this->updateDurations($durationkeys,$existing,$newdurations);
