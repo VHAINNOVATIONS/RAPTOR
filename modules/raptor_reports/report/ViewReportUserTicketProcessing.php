@@ -205,7 +205,7 @@ class ViewReportUserTicketProcessing extends AReport
             }
         }
         krsort($rowdata);
-        $bundle['debug'] = $allthedetail;
+        //$bundle['debug'] = $allthedetail;
         $bundle['start_date_options'] = $startdateoptions;
         $bundle['report_start_date'] = $report_start_date;
         $bundle['rowdata'] = $rowdata;
