@@ -17,10 +17,8 @@ use \DateTime;
 require_once 'AReport.php';
 
 /**
- * This class returns the Department Activity Analysis Report
+ * This class returns the QA scores report
  *
- * CLIN2 1.7
- * 
  * @author Frank Font of SAN Business Consultants
  */
 class ViewReportQAScores extends AReport
