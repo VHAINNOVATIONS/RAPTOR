@@ -29,8 +29,11 @@ class ManageReportsPage
         $aReportClassNames  = array();
         //$aReportClassNames[] = 'ViewReport1Page';
         //$aReportClassNames[] = 'ViewReport2Page';
+        
         $aReportClassNames[] = 'ViewReportDeptTicketProcessing';
         $aReportClassNames[] = 'ViewReportUserTicketProcessing';
+        $aReportClassNames[] = 'ViewReportQAScores';
+        
         $aReportClassNames[] = 'ViewTechSupportConfigDetails';
         $aReportClassNames[] = 'ViewReportRadiationDoseWatch';
         $aReportClassNames[] = 'ViewReportContraindicationRules';
@@ -38,6 +41,7 @@ class ManageReportsPage
         $aReportClassNames[] = 'ViewReportRoomReservations';
         $aReportClassNames[] = 'ViewReportUserActivity';
         $aReportClassNames[] = 'ViewTechSupportConfigDetails';
+        
         return $aReportClassNames;
     }
     
@@ -106,7 +110,7 @@ class ManageReportsPage
                             . $rows
                             . '</tbody>'
                             . '</table>');
-       $form['data_entry_area1']['action_buttons'] = array(
+        $form['data_entry_area1']['action_buttons'] = array(
             '#type' => 'item', 
             '#prefix' => '<div class="raptor-action-buttons">',
             '#suffix' => '</div>', 

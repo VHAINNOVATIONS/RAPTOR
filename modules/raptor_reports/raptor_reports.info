@@ -10,6 +10,6 @@ name = RAPTOR Reports
 description = The reports module of the RAPTOR application
 core = 7.x
 
-version = "7.x-0.81"
+version = "7.x-0.95"
 package = RAPTOR
 

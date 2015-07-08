@@ -162,7 +162,7 @@ class ViewReportDeptTicketProcessing extends AReport
             $modality_help = ($modality_abbr == '' || $modality_abbr == '--' ) ? 'No protocol has been selected' : '';
             $row['modality_abbr'] = $modality_abbr;
             $row['modality_help'] = $modality_help;
-            $row['_year'] = $year;
+            $row['year'] = $year;
             $row['quarter'] = $qtr;
             $row['week'] = $week;
             $row['day'] = $day;
@@ -296,7 +296,7 @@ class ViewReportDeptTicketProcessing extends AReport
         {
             $rows .= '<tr>'
                     . '<td title="'.$val['modality_help'].'">' . $val['modality_abbr'] . '</td>'
-                    . '<td>' . $val['_year'] . '</td>'
+                    . '<td>' . $val['year'] . '</td>'
                     . '<td>' . $val['quarter'] . '</td>'
                     . '<td>' . $val['week'] . '</td>'
                     . '<td title="'.$val['onlydate'].' ('.$val['day_name'].')">' . $val['day'] . '</td>'

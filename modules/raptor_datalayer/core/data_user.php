@@ -197,9 +197,18 @@ class UserInfo
     public function getFullName()
     {
         $this->readData();
-        return trim($this->m_oData['usernametitle'] . ' ' . $this->m_oData['firstname'] . ' ' . $this->m_oData['lastname'] . ' ' . $this->m_oData['suffix']);
+        //return trim($this->m_oData['usernametitle'] . ' ' . $this->m_oData['firstname'] . ' ' . $this->m_oData['lastname'] . ' ' . $this->m_oData['suffix']);
+        return UserInfo::getComposedFullName($this->m_oData);
     }
 
+    public static function getComposedFullName($record)
+    {
+        return trim($record['usernametitle'] . ' ' 
+                . $record['firstname'] . ' ' 
+                . $record['lastname'] . ' ' 
+                . $record['suffix']);
+    }
+    
     public function getFirstName()
     {
         $this->readData();
@@ -310,12 +319,6 @@ class UserInfo
         $mymap = array();
         try
         {
-            /*
-            $result = db_select('raptor_user_profile', 'u')
-                        ->fields('u')
-                        ->orderBy('uid')
-                        ->execute();
-            */
             $query = db_select('raptor_user_profile', 'n');
             $query->leftJoin('raptor_user_recent_activity_tracking', 'u', 'n.uid = u.uid');
             $query->fields('n');
