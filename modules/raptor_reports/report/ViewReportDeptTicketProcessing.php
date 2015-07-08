@@ -142,14 +142,22 @@ class ViewReportDeptTicketProcessing extends AReport
             $movedIntoAcknowlege=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','PA'),0);
             $movedIntoCompleted=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','EC'),0);
             $movedIntoSuspend=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','IA'),0);
+            $totalScheduled=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','scheduled'),0);
+
             $maxTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_scheduled'),'');
             $avgTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_scheduled'),'');
             $maxTimeAP2Done=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_examcompleted'),'');
             $avgTimeAP2Done=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_examcompleted'),'');
             $maxTimeAP2Colab=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_collaboration_initiation'),'');
             $avgTimeAP2Colab=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_collaboration_initiation'),'');
-            $totalScheduled=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','scheduled'),0);
 
+            $rawmaxTimeAP2Sched=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_scheduled'),'');
+            $rawavgTimeAP2Sched=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_scheduled'),'');
+            $rawmaxTimeAP2Done=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_examcompleted'),'');
+            $rawavgTimeAP2Done=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_examcompleted'),'');
+            $rawmaxTimeAP2Colab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','max_collaboration_initiation'),'');
+            $rawavgTimeAP2Colab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','avg_collaboration_initiation'),'');
+            
             $row = array();
             $modality_help = ($modality_abbr == '' || $modality_abbr == '--' ) ? 'No protocol has been selected' : '';
             $row['modality_abbr'] = $modality_abbr;
@@ -165,14 +173,22 @@ class ViewReportDeptTicketProcessing extends AReport
             $row['Total_Acknowledge'] = $movedIntoAcknowlege;
             $row['Total_Complete'] = $movedIntoCompleted;
             $row['Total_Suspend'] = $movedIntoSuspend;
+            $row['Total_Scheduled'] = $totalScheduled;
+            
             $row['max_A_S'] = $maxTimeAP2Sched;
             $row['avg_A_S'] = $avgTimeAP2Sched;
             $row['max_A_C'] = $maxTimeAP2Done;
             $row['avg_A_C'] = $avgTimeAP2Done;
             $row['max_collab'] = $maxTimeAP2Colab;
             $row['avg_collab'] = $avgTimeAP2Colab;
-            $row['Total_Scheduled'] = $totalScheduled;
 
+            $row['raw_max_A_S'] = $rawmaxTimeAP2Sched;
+            $row['raw_avg_A_S'] = $rawavgTimeAP2Sched;
+            $row['raw_max_A_C'] = $rawmaxTimeAP2Done;
+            $row['raw_avg_A_C'] = $rawavgTimeAP2Done;
+            $row['raw_max_collab'] = $rawmaxTimeAP2Colab;
+            $row['raw_avg_collab'] = $rawavgTimeAP2Colab;
+            
             $uniquesortkey = "$key";
             //drupal_set_message("LOOK sortkey==$uniquesortkey");
             $rowdata[$uniquesortkey] = $row;
@@ -203,6 +219,25 @@ class ViewReportDeptTicketProcessing extends AReport
             0 => t('All available data'),
             );
     }
+
+    function getDownloadTypes()
+    {
+        $supported = array();
+        $supported['CSV'] = array();
+        $supported['CSV']['helptext'] = 'CSV files can be opened and analyzed in Excel';
+        $supported['CSV']['downloadurl'] = $this->getDownloadURL('CSV');
+        $supported['CSV']['linktext'] = 'Download detail to a CSV file';
+        $supported['CSV']['delimiter'] = ",";
+
+        $supported['TXT'] = array();
+        $supported['TXT']['helptext'] = 'Tab delimited text files can be opened and analyzed in Excel';
+        $supported['TXT']['downloadurl'] = $this->getDownloadURL('TXT');
+        $supported['TXT']['linktext'] = 'Download detail to a tab delimited text file';
+        $supported['TXT']['delimiter'] = "\t";
+        
+        return $supported;
+    }
+    
     
     /**
      * Get all the form contents for rendering
@@ -226,6 +261,15 @@ class ViewReportDeptTicketProcessing extends AReport
         $form['data_entry_area1']['context']['blurb'] = array('#type' => 'item',
                 '#markup' => '<p>Raptor Site '.VISTA_SITE.' as of '.$now_dt." ($scopetext)</p>", 
             );
+
+        $downloadlinks = $this->getDownloadLinksMarkup();
+        if(count($downloadlinks) > 0)
+        {
+            $markup = implode(' | ',$downloadlinks);
+            $form['data_entry_area1']['context']['exportlink'][] = array(
+                '#markup' => "<p>$markup</p>"
+                );
+        }
         
         $form['data_entry_area1']['table_container'] = array(
             '#type' => 'item', 

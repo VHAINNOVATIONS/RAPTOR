@@ -105,6 +105,12 @@ function raptor_reports_runner_form()
  */
 function raptor_reports_runner_form_builder($form, &$form_state)
 {
+    $downloadtype = NULL;
+    if(isset($_GET['download']))
+    {
+        $downloadtype = strtoupper($_GET['download']);
+    }
+    
     $currentpath = strtolower(trim(current_path()));
     module_load_include('php', 'raptor_reports', 'form/ManageReportsPage');
     $aReportClassNames  = \raptor\ManageReportsPage::getReportsList();
@@ -133,7 +139,16 @@ function raptor_reports_runner_form_builder($form, &$form_state)
             $form = array();
             $disabled = FALSE;
             $myvalues = $oReport->getFieldValues($reportstartdate,$reportenddate);
-            return $oReport->getForm($form, $form_state, $disabled, $myvalues);
+            if($downloadtype != NULL)
+            {
+                if(!$oReport->isDownloadSupported($downloadtype, $form_state, $myvalues))
+                {
+                    throw new \Exception("Download of type '$downloadtype' is NOT supported for $currentpath!");
+                }
+                return $oReport->downloadReport($downloadtype, $form_state, $myvalues);
+            } else {
+                return $oReport->getForm($form, $form_state, $disabled, $myvalues);
+            }
         }
     }
     throw new \Exception("Did NOT find a report to run at path=[$currentpath]");

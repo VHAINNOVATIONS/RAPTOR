@@ -153,6 +153,14 @@ class ViewReportUserTicketProcessing extends AReport
                 $avgTimeAP2Done=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_examcompleted'),'');
                 $maxTimeAP2Colab=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_collaboration_initiation'),'');
                 $avgTimeAP2Colab=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_collaboration_initiation'),'');
+                
+                $rawmaxTimeAP2Sched=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_scheduled'),'');
+                $rawavgTimeAP2Sched=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_scheduled'),'');
+                $rawmaxTimeAP2Done=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_examcompleted'),'');
+                $rawavgTimeAP2Done=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_examcompleted'),'');
+                $rawmaxTimeAP2Colab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','max_collaboration_initiation'),'');
+                $rawavgTimeAP2Colab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('durations','avg_collaboration_initiation'),'');
+                
                 $totalScheduled=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','scheduled'),0);
 
                 $row = array();
@@ -160,7 +168,7 @@ class ViewReportUserTicketProcessing extends AReport
                 $row['uid'] = $uid;
                 $row['modality_abbr'] = $modality_abbr;
                 $row['modality_help'] = $modality_help;
-                $row['_year'] = $year;
+                $row['year'] = $year;
                 $row['quarter'] = $qtr;
                 $row['week'] = $week;
                 $row['day'] = $day;
@@ -175,13 +183,21 @@ class ViewReportUserTicketProcessing extends AReport
                 $row['Total_Acknowledge'] = $movedIntoAcknowlege;
                 $row['Total_Complete'] = $movedIntoCompleted;
                 $row['Total_Suspend'] = $movedIntoSuspend;
+                $row['Total_Scheduled'] = $totalScheduled;
+                
                 $row['max_A_S'] = $maxTimeAP2Sched;
                 $row['avg_A_S'] = $avgTimeAP2Sched;
                 $row['max_A_C'] = $maxTimeAP2Done;
                 $row['avg_A_C'] = $avgTimeAP2Done;
                 $row['max_collab'] = $maxTimeAP2Colab;
                 $row['avg_collab'] = $avgTimeAP2Colab;
-                $row['Total_Scheduled'] = $totalScheduled;
+                
+                $row['raw_max_A_S'] = $rawmaxTimeAP2Sched;
+                $row['raw_avg_A_S'] = $rawavgTimeAP2Sched;
+                $row['raw_max_A_C'] = $rawmaxTimeAP2Done;
+                $row['raw_avg_A_C'] = $rawavgTimeAP2Done;
+                $row['raw_max_collab'] = $rawmaxTimeAP2Colab;
+                $row['raw_avg_collab'] = $rawavgTimeAP2Colab;
 
                 $uniquesortkey = "$key:$uid";
                 //drupal_set_message("LOOK sortkey==$uniquesortkey");
@@ -215,6 +231,24 @@ class ViewReportUserTicketProcessing extends AReport
             );
     }
     
+    function getDownloadTypes()
+    {
+        $supported = array();
+        $supported['CSV'] = array();
+        $supported['CSV']['helptext'] = 'CSV files can be opened and analyzed in Excel';
+        $supported['CSV']['downloadurl'] = $this->getDownloadURL('CSV');
+        $supported['CSV']['linktext'] = 'Download detail to a CSV file';
+        $supported['CSV']['delimiter'] = ",";
+
+        $supported['TXT'] = array();
+        $supported['TXT']['helptext'] = 'Tab delimited text files can be opened and analyzed in Excel';
+        $supported['TXT']['downloadurl'] = $this->getDownloadURL('TXT');
+        $supported['TXT']['linktext'] = 'Download detail to a tab delimited text file';
+        $supported['TXT']['delimiter'] = "\t";
+        
+        return $supported;
+    }
+    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -237,6 +271,15 @@ class ViewReportUserTicketProcessing extends AReport
         $form['data_entry_area1']['context']['blurb'] = array('#type' => 'item',
                 '#markup' => '<p>Raptor Site '.VISTA_SITE.' as of '.$now_dt." ($scopetext)</p>", 
             );
+
+        $downloadlinks = $this->getDownloadLinksMarkup();
+        if(count($downloadlinks) > 0)
+        {
+            $markup = implode(' | ',$downloadlinks);
+            $form['data_entry_area1']['context']['exportlink'][] = array(
+                '#markup' => "<p>$markup</p>"
+                );
+        }
         
         $form['data_entry_area1']['table_container'] = array(
             '#type' => 'item', 
@@ -254,33 +297,33 @@ class ViewReportUserTicketProcessing extends AReport
                         . '<pre>'
                 );
         }
-        
+
         $rows = '';
         $rowdata = $myvalues['rowdata'];
-        foreach($rowdata as $val)
+        foreach($rowdata as $coldata)
         {
             $rows .= '<tr>'
-                    . '<td title="'.$val['modality_help'].'">' . $val['modality_abbr'] . '</td>'
-                    . '<td>' . $val['_year'] . '</td>'
-                    . '<td>' . $val['quarter'] . '</td>'
-                    . '<td>' . $val['week'] . '</td>'
-                    . '<td title="'.$val['onlydate'].' ('.$val['day_name'].')">' . $val['day'] . '</td>'
-                    . '<td title="'.$val['uid'].'">' . $val['username'] . '</td>'
-                    . '<td>' . $val['role_nm'] . '</td>'
-                    . '<td>' . $val['most_recent_login_dt'] . '</td>'
-                    . '<td>' . $val['Total_Approved']  . '</td>'
-                    . '<td>' . $val['Count_Collab_Init']  . '</td>'
-                    . '<td>' . $val['Count_Collab_Target']  . '</td>'
-                    . '<td>' . $val['Total_Acknowledge']  . '</td>'
-                    . '<td>' . $val['Total_Complete']  . '</td>'
-                    . '<td>' . $val['Total_Suspend']  . '</td>'
-                    . '<td>' . $val['max_A_S'] . '</td>'
-                    . '<td>' . $val['avg_A_S'] . '</td>'
-                    . '<td>' . $val['max_A_C'] . '</td>'
-                    . '<td>' . $val['avg_A_C'] . '</td>'
-                    . '<td>' . $val['max_collab'] . '</td>'
-                    . '<td>' . $val['avg_collab'] . '</td>'
-                    . '<td>' . $val['Total_Scheduled'] . '</td>'
+                    . '<td title="'.$coldata['modality_help'].'">' . $coldata['modality_abbr'] . '</td>'
+                    . '<td>' . $coldata['year'] . '</td>'
+                    . '<td>' . $coldata['quarter'] . '</td>'
+                    . '<td>' . $coldata['week'] . '</td>'
+                    . '<td title="'.$coldata['onlydate'].' ('.$coldata['day_name'].')">' . $coldata['day'] . '</td>'
+                    . '<td title="'.$coldata['uid'].'">' . $coldata['username'] . '</td>'
+                    . '<td>' . $coldata['role_nm'] . '</td>'
+                    . '<td>' . $coldata['most_recent_login_dt'] . '</td>'
+                    . '<td>' . $coldata['Total_Approved']  . '</td>'
+                    . '<td>' . $coldata['Count_Collab_Init']  . '</td>'
+                    . '<td>' . $coldata['Count_Collab_Target']  . '</td>'
+                    . '<td>' . $coldata['Total_Acknowledge']  . '</td>'
+                    . '<td>' . $coldata['Total_Complete']  . '</td>'
+                    . '<td>' . $coldata['Total_Suspend']  . '</td>'
+                    . '<td>' . $coldata['max_A_S'] . '</td>'
+                    . '<td>' . $coldata['avg_A_S'] . '</td>'
+                    . '<td>' . $coldata['max_A_C'] . '</td>'
+                    . '<td>' . $coldata['avg_A_C'] . '</td>'
+                    . '<td>' . $coldata['max_collab'] . '</td>'
+                    . '<td>' . $coldata['avg_collab'] . '</td>'
+                    . '<td>' . $coldata['Total_Scheduled'] . '</td>'
 
                     . '</tr>';
         }

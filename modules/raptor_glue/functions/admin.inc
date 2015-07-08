@@ -394,14 +394,13 @@ function raptor_adminuserdatadump_form_builder($form, &$form_state)
     $userinfo = $oContext->getUserInfo();
     if(!$userinfo->isSiteAdministrator())
     {
-        drupal_set_message('Only a Site Administrator can access this URL.','error');
-        return array();
+        throw new \Exception('Only a Site Administrator can access this URL');
     }
     
     //Log this.
     error_log('Dumping the user account information from the ' . print_r($userinfo,TRUE));
 
-    //Dump it.
+    //Export it.
     $now = date('Y-m-d H:i:s');
     header("Cache-Control: public");
     header("Content-Description: File Transfer");

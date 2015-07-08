@@ -50,6 +50,16 @@ abstract class AReport
     }
 
     /**
+     * Return a unique shortname to embed in filenames etc
+     */
+    public function getUniqueShortname() 
+    {
+        $keyparts = explode('/',$this->m_menukey);
+        $lastidx = count($keyparts) - 1;
+        return $keyparts[$lastidx];
+    }
+    
+    /**
      * Return the report description
      */
     abstract function getDescription();
@@ -60,6 +70,109 @@ abstract class AReport
     function getFieldValues()
     {
         return array();
+    }
+
+    /**
+     * Return associative array of supported downloads
+     */
+    function getDownloadTypes()
+    {
+        return array();
+    }
+    
+    /**
+     * Return TRUE if it is supported
+     */
+    function isDownloadSupported($downloadtype, $form_state, $myvalues)
+    {
+        $map = $this->getDownloadTypes();
+        if(key_exists($downloadtype, $map))
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    
+    /**
+     * Return the URL to download the report
+     */
+    public function getDownloadURL($downloadtype) 
+    {
+        global $base_url;
+        $url = "$base_url/{$this->m_menukey}?download=$downloadtype";
+        return $url;
+    }
+    
+    /**
+     * Return download contents directly into the HTTP stream
+     */
+    function downloadReport($downloadtype, $form_state, $myvalues)
+    {
+        $now = date('Y-m-d H:i:s');
+        $report_start_date = isset($myvalues['report_start_date']) ? $myvalues['report_start_date'] : NULL;
+        $filesuffix = strtolower($downloadtype);
+        $shortname = $this->getUniqueShortname();
+        if($report_start_date > '')
+        {
+            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE."_from_{$report_start_date}_until_{$now}.$filesuffix";
+        } else {
+            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE."_all_until_{$now}.$filesuffix";
+        }
+        
+        $downloadmap = $this->getDownloadTypes();        
+        $downloaddetails = $downloadmap[$downloadtype];
+        $delimiter = $downloaddetails['delimiter'];
+        
+        if(!$this->isDownloadSupported($downloadtype, $form_state, $myvalues))
+        {
+            throw new \Exception("Download $shortname of type '$downloadtype' is NOT supported");
+        }
+        
+        //Export it.
+        header("Cache-Control: public");
+        header("Content-Description: File Transfer");
+        //header("Content-Length: 64000;");
+        header("Content-Disposition: attachment; filename=$exportfilename");
+        header("Content-Type: application/octet-stream; "); 
+        header("Content-Transfer-Encoding: binary");
+
+        $rownum=0;
+        $rowdata = $myvalues['rowdata'];
+        foreach($rowdata as $row)
+        {
+            $rownum++;
+            if($rownum == 1)
+            {
+                $header = array();
+                foreach($row as $colname=>$coldata)
+                {
+                    $header[] = $colname;
+                }
+                $csvrow = implode($delimiter,$header);
+                echo "rownum$delimiter$csvrow";
+            }
+            $csvrow = implode($delimiter,$row);
+            echo "\n$rownum$delimiter$csvrow";
+        }
+        
+        drupal_exit();  //Otherwise more stuff gets added to the file.
+    }
+    
+    /**
+     * Return an array with download links for all supported download types
+     */
+    function getDownloadLinksMarkup()
+    {
+        $downloadlinks = array();
+        foreach($this->getDownloadTypes() as $downloadtype=>$details)
+        {
+            $helptext = $details['helptext'];
+            $linktext = $details['linktext'];
+            $exporturl = $details['downloadurl']; 
+            $downloadlinks[] = "<span  title='$helptext'><a href='$exporturl'>$linktext</a></span>";
+               
+        }
+        return $downloadlinks;
     }
     
     /**
