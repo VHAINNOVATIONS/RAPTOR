@@ -680,6 +680,19 @@ class DBListSchema
               'default' => 0,
               'description' => 'If 0 then QA2 value can be changed, else locked.',
             ),
+
+	    'QA3' => array(
+              'type' => 'int',
+              'not null' => FALSE,
+              'default' => 0,
+              'description' => 'If 1 then user can edit all QA criteria',
+            ),
+            'lockQA3' => array(
+              'type' => 'int',
+              'not null' => FALSE,
+              'default' => 0,
+              'description' => 'If 0 then QA3 value can be changed, else locked.',
+            ),
               
             'updated_dt' => array(
               'type' => 'datetime',

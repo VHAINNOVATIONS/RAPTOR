@@ -1580,7 +1580,6 @@ class DBTicketSchema
               'description' => 'When this criteria was replaced',
             ),
           ),
-          'primary key' => array('context_cd','shortname'),
         );
         
         $schema['raptor_ticket_qa_evaluation'] = array(

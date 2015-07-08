@@ -270,6 +270,13 @@ class DBUserSchema
               'default' => 0,
               'description' => 'If 1 then user can see all QA results',
             ),
+
+            'QA3' => array(
+              'type' => 'int',
+              'not null' => FALSE,
+              'default' => 0,
+              'description' => 'If 1 then user can edit QA criteria',
+            ),
               
             'updated_dt' => array(
               'type' => 'datetime',

@@ -133,14 +133,13 @@ class EditQAQuestionsPage
                 $qmarkup[$shortname] = $this->getBlockMarkup($record,$disabled);
             }
             //Always add an empty block for a new question to be created
-            $blankrecord = array('original_shortname'=>''
-                            , 'position'=>$maxposition+1
+            $blankrecord = array('position'=>$maxposition+1
                             , 'version'=>''
                             , 'shortname'=>''
                             , 'question'=>''
                             , 'explanation'=>''
                     );
-            $qmarkup['_NEW_'] = $this->getBlockMarkup($blankrecord,$disabled);
+            $qmarkup['_BLANK_'] = $this->getBlockMarkup($blankrecord,$disabled);
             if(count($qmarkup)>0)
             {
                 foreach($qmarkup as $key=>$block)
@@ -194,10 +193,17 @@ class EditQAQuestionsPage
                     form_set_error("$original_shortname","Found duplication of shortname '$shortname'");
                     $bGood = FALSE;
                 } else {
+                    if(!is_numeric($position))
+                    {
+                        form_set_error("$original_shortname","The position value of $shortname must be an integer!");
+                        $bGood = FALSE;
+                    }
+                    $position = intval($position);  //Convert it NOW before we check the map!!!
                     $shortnamemap[$shortname] = $position;
                     if(isset($positionmap[$position]))
                     {
-                        form_set_error("$original_shortname","Found duplication position '$position' for shortname '$shortname'");
+                        $alreadytaken = $positionmap[$position];
+                        form_set_error("$original_shortname","Found duplicate position '$position' for shortnames '$alreadytaken' and '$shortname'");
                         $bGood = FALSE;
                     } else {
                         $positionmap[$position] = $shortname;
@@ -206,29 +212,32 @@ class EditQAQuestionsPage
             }
             
             $allinputs = trim("$shortname$position$question$explanation");
-            if($original_shortname !== '_NEW_')
-            {
-                //Check for delete condition
-                if($allinputs == '')
-                {
-                    drupal_set_message("We will delete question with shortname '$original_shortname'","warn");
-                }
-            }
             if($allinputs != '')
             {
-                //They must ALL be filled if any were filled.
-                if($shortname == '')
+                if($original_shortname > '')
                 {
-                    form_set_error("$original_shortname","Missing some field values (blank them all to delete the question)");
-                    $bGood = FALSE;
-                } else
-                if($position == ''
-                        || $question == ''
-                        || $explanation == '')
-                {
-                    form_set_error("$original_shortname","Missing some field values for shortname '$shortname'");
-                    $bGood = FALSE;
-                }
+                    //They must ALL be filled if any were filled.
+                    if($shortname == '')
+                    {
+                        form_set_error("$original_shortname","Missing some field values where shortname '$original_shortname' $allinputs used to be (blank them all to delete the question)");
+                        $bGood = FALSE;
+                    } else
+                    if($position == ''
+                            || $question == ''
+                            || $explanation == '')
+                    {
+                        form_set_error("$original_shortname","Missing some field values for shortname '$shortname'");
+                        $bGood = FALSE;
+                    }
+                 } else {
+                     /*
+                     if($allinputs != $position)
+                     {
+                        form_set_error("NEWFIELD","The new question at postion $position cannot be added if any fields are empty!");
+                        $bGood = FALSE;
+                     }
+                      */
+                 }
             }
         }
         if(!$bGood)
@@ -238,28 +247,165 @@ class EditQAQuestionsPage
         return $bGood;
     }
 
+    /**
+     * Handle the database updates appropriately for one question
+     */
+    private function updateOneQuestion($questionblock)
+    {
+        try
+        {
+            $updated_dt = date("Y-m-d H:i:s", time());
+            $successmsg = NULL;
+            $original_shortname = trim($questionblock['original_shortname']);
+            $shortname = strtoupper(trim($questionblock['shortname']));
+            $version = trim($questionblock['version']);
+            $position = trim($questionblock['position']);
+            $question = trim($questionblock['question']);
+            $explanation = trim($questionblock['explanation']);
+            $allinputs = trim("$shortname$position$question$explanation");
+            if($original_shortname > '')
+            {
+                //There was already a record
+                $result = db_select('raptor_qa_criteria', 'n')
+                        ->fields('n')
+                        ->condition('context_cd', 'T','=')
+                        ->condition('shortname', $original_shortname,'=')
+                        ->orderBy('position')
+                        ->execute();
+                if($result->rowCount() != 1)
+                {
+                    throw new \Exception("Expected to find raptor_qa_criteria for '$original_shortname' but did not!");
+                }
+                $record = $result->fetchAssoc();
+                $delta_shortname = ($shortname != $original_shortname);
+                $delta_postion = ($position != $record['position']);
+                $delta_question = ($question != $record['question']);
+                $delta_explanation = ($explanation != $record['explanation']);
+                $anythingchanged = ($delta_shortname || $delta_postion || $delta_question || $delta_explanation);
+                if($allinputs == '')
+                {
+                    //Preserve existing record and create a new one
+                    $oInsert = db_insert('raptor_qa_criteria_replaced')
+                            ->fields(array(
+                                'context_cd' => 'T',
+                                'version' => $record['version'],
+                                'position' => $record['position'],
+                                'shortname' => $record['shortname'],
+                                'question' => $record['question'],
+                                'explanation' => $record['explanation'],
+                                'updated_dt' => $record['updated_dt'],
+                                'replacement_dt' => $updated_dt,
+                            ))
+                            ->execute();
+                    
+                    //Delete the existing question block
+                    $result = db_delete('raptor_qa_criteria')
+                                ->condition('shortname', $original_shortname, '<')
+                                ->execute();                
+                    $successmsg = "Deleted question $original_shortname";
+                } else
+                if($shortname > '' && $anythingchanged)
+                {
+                    $onlypositionchanged = (!$delta_shortname && !$delta_question && !$delta_explanation);
+                    if($onlypositionchanged)
+                    {
+                        //Simple change the position of the existing record
+                        db_merge('raptor_qa_criteria')
+                            ->key(
+                                    array('shortname'=>$original_shortname
+                                ))
+                            ->fields(array(
+                                    'position'=>$position,
+                                    'updated_dt'=>$updated_dt,
+                                ))
+                            ->execute();             
+                        $successmsg = "Moved question $shortname to position $position";
+                    } else {
+                        //Preserve existing record and create a new one
+                        $oInsert = db_insert('raptor_qa_criteria_replaced')
+                                ->fields(array(
+                                    'context_cd' => 'T',
+                                    'version' => $record['version'],
+                                    'position' => $record['position'],
+                                    'shortname' => $record['shortname'],
+                                    'question' => $record['question'],
+                                    'explanation' => $record['explanation'],
+                                    'updated_dt' => $record['updated_dt'],
+                                    'replacement_dt' => $updated_dt,
+                                ))
+                                ->execute();
+                        $newversion = $record['version'] + 1;
+                        db_merge('raptor_qa_criteria')
+                            ->key(
+                                    array('shortname'=>$original_shortname
+                                ))
+                            ->fields(array(
+                                    'version' => $newversion,
+                                    'position' => $position,
+                                    'shortname' => $shortname,
+                                    'question' => $question,
+                                    'explanation' => $explanation,
+                                    'updated_dt'=>$updated_dt,
+                                ))
+                            ->execute();             
+                        if($delta_shortname)
+                        {
+                            $successmsg = "Replaced question $original_shortname with $shortname";
+                        } else {
+                            $successmsg = "Changed contents of question $shortname";
+                        }
+                    }
+                }
+            } else {
+                //Simply add the new question
+                db_insert('raptor_qa_criteria')
+                        ->fields(array(
+                        'context_cd' => 'T',
+                        'version' => 1,
+                        'position' => $position,
+                        'shortname' => $shortname,
+                        'question' => $question,
+                        'explanation' => $explanation,
+                        'updated_dt' => $updated_dt,
+                  ))->execute();               
+                $successmsg = "Created question $shortname";
+            }
+            return $successmsg;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     public function updateDatabase($form, $myvalues)
     {
-        if(!is_array($myvalues) || !isset($myvalues['questions']))
+        try
         {
-            $msg = 'Failed becase NOT find any values for update database!';
-            error_log("$msg>>>".print_r($myvalues,TRUE));
-            throw new \Exception($msg);
+            $messages = array();
+            $questionblocks = $myvalues['questions'];
+            foreach($questionblocks as $record)
+            {
+                $successmsg = $this->updateOneQuestion($record);
+                if($successmsg > '')
+                {
+                    $messages[] = $successmsg;
+                }
+            }
+            $changecount = count($messages);
+            if($changecount > 0)
+            {
+                $changesmarkup = "<ul>".implode('<li>',$messages)."</ul>";
+                if($changecount > 1)
+                {
+                    drupal_set_message("Successfully saved $changecount QA question blocks$changesmarkup");
+                } else {
+                    drupal_set_message("Successfully saved 1 QA question block$changesmarkup");
+                }
+            } else {
+                drupal_set_message("Nothing in QA questions blocks was changed",'warn');
+            }
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $questionblocks = $myvalues['questions'];
-        foreach($questionblocks as $record)
-        {
-            $original_shortname = trim($record['original_shortname']);
-            $shortname = trim($record['shortname']);
-            $version = trim($record['version']);
-            $position = trim($record['position']);
-            $question = trim($record['question']);
-            $explanation = trim($record['explanation']);
-            
-            drupal_set_message("LOOK $original_shortname@$position -> $shortname : $question<br>...$explanation");
-        }
-        drupal_set_message("LOOK UPDATE DATABASE".print_r($myvalues,TRUE));
-        throw new \Exception("LOOK FAIL UPDATE FOR NOW!!!");
     }
     
     /**

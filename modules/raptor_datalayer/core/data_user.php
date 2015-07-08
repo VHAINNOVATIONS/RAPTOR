@@ -635,37 +635,75 @@ class UserInfo
         try
         {
             $sWhere = "`name` = '$rolename'";
-            $sSQL = 'SELECT `roleid`, `enabled_yn`, `name`' 
-                    . ', `CEUA1`, `lockCEUA1`'
-                    . ', `LACE1`, `lockLACE1`'
-                    . ', `SWI1`, `lockSWI1`'
-                    . ', `PWI1`, `lockPWI1`'
-                    . ', `APWI1`, `lockAPWI1`'
-                    . ', `SUWI1`, `lockSUWI1`'
-                    . ', `CE1`, `lockCE1`'
-                    . ', `QA1`, `lockQA1` '
-                    . ', `QA2`, `lockQA2` '
-                    . ', `VREP1`, `lockVREP1` '
-                    . ', `VREP2`, `lockVREP2` '
-                    . ', `SP1`, `lockSP1`'
-                    . ', `EBO1`, `lockEBO1`'
-                    . ', `UNP1`, `lockUNP1`'
-                    . ', `REP1`, `lockREP1`'
-                    . ', `DRA1`, `lockDRA1`'
-                    . ', `ELCO1`, `lockELCO1`'
-                    . ', `ELHO1`, `lockELHO1`'
-                    . ', `ELSO1`, `lockELSO1`'
-                    . ', `ELSVO1`, `lockELSVO1`'
-                    . ', `ELRO1`, `lockELRO1`'
-                    . ', `ECIR1`, `lockECIR1`'
-                    . ', `EECC1`, `lockEECC1`'
-                    . ', `EERL1`, `lockEERL1`'
-                    . ', `EARM1`, `lockEARM1`'
-                    . ', `CUT1`, `lockCUT1`'
-                    . ' FROM `raptor_role`'
-                    . ' WHERE '.$sWhere.''
-                    . ' ORDER BY `roleid`';
-            $role_result = db_query($sSQL);
+            try 
+            {
+                $sSQL = 'SELECT `roleid`, `enabled_yn`, `name`' 
+                        . ', `CEUA1`, `lockCEUA1`'
+                        . ', `LACE1`, `lockLACE1`'
+                        . ', `SWI1`, `lockSWI1`'
+                        . ', `PWI1`, `lockPWI1`'
+                        . ', `APWI1`, `lockAPWI1`'
+                        . ', `SUWI1`, `lockSUWI1`'
+                        . ', `CE1`, `lockCE1`'
+                        . ', `QA1`, `lockQA1` '
+                        . ', `QA2`, `lockQA2` '
+                        . ', `QA3`, `lockQA3` '
+                        . ', `VREP1`, `lockVREP1` '
+                        . ', `VREP2`, `lockVREP2` '
+                        . ', `SP1`, `lockSP1`'
+                        . ', `EBO1`, `lockEBO1`'
+                        . ', `UNP1`, `lockUNP1`'
+                        . ', `REP1`, `lockREP1`'
+                        . ', `DRA1`, `lockDRA1`'
+                        . ', `ELCO1`, `lockELCO1`'
+                        . ', `ELHO1`, `lockELHO1`'
+                        . ', `ELSO1`, `lockELSO1`'
+                        . ', `ELSVO1`, `lockELSVO1`'
+                        . ', `ELRO1`, `lockELRO1`'
+                        . ', `ECIR1`, `lockECIR1`'
+                        . ', `EECC1`, `lockEECC1`'
+                        . ', `EERL1`, `lockEERL1`'
+                        . ', `EARM1`, `lockEARM1`'
+                        . ', `CUT1`, `lockCUT1`'
+                        . ' FROM `raptor_role`'
+                        . ' WHERE '.$sWhere.''
+                        . ' ORDER BY `roleid`';
+                $role_result = db_query($sSQL);
+            } catch (\Exception $ex) {
+                error_log("Failed to get raptor_role info of $rolename perhaps table is missing QA3?  Will try without QA3...");
+                //Try without QA3
+                $sSQL = 'SELECT `roleid`, `enabled_yn`, `name`' 
+                        . ', `CEUA1`, `lockCEUA1`'
+                        . ', `LACE1`, `lockLACE1`'
+                        . ', `SWI1`, `lockSWI1`'
+                        . ', `PWI1`, `lockPWI1`'
+                        . ', `APWI1`, `lockAPWI1`'
+                        . ', `SUWI1`, `lockSUWI1`'
+                        . ', `CE1`, `lockCE1`'
+                        . ', `QA1`, `lockQA1` '
+                        . ', `QA2`, `lockQA2` '
+                        . ', `VREP1`, `lockVREP1` '
+                        . ', `VREP2`, `lockVREP2` '
+                        . ', `SP1`, `lockSP1`'
+                        . ', `EBO1`, `lockEBO1`'
+                        . ', `UNP1`, `lockUNP1`'
+                        . ', `REP1`, `lockREP1`'
+                        . ', `DRA1`, `lockDRA1`'
+                        . ', `ELCO1`, `lockELCO1`'
+                        . ', `ELHO1`, `lockELHO1`'
+                        . ', `ELSO1`, `lockELSO1`'
+                        . ', `ELSVO1`, `lockELSVO1`'
+                        . ', `ELRO1`, `lockELRO1`'
+                        . ', `ECIR1`, `lockECIR1`'
+                        . ', `EECC1`, `lockEECC1`'
+                        . ', `EERL1`, `lockEERL1`'
+                        . ', `EARM1`, `lockEARM1`'
+                        . ', `CUT1`, `lockCUT1`'
+                        . ' FROM `raptor_role`'
+                        . ' WHERE '.$sWhere.''
+                        . ' ORDER BY `roleid`';
+                $role_result = db_query($sSQL);
+            }
             if($role_result->rowCount()==0)
             {
                 throw new \Exception('Did NOT find any role options for '.$sWhere);
@@ -698,20 +736,39 @@ class UserInfo
                 return;
             }
 
-            //Read the values from the database.
-            $sSQL = 'SELECT '
-                    . ' `username`, `role_nm`, `worklist_cols`, `usernametitle`'
-                    . ', `firstname`, `lastname`, `suffix`, `prefemail`'
-                    . ', `prefphone`, `accountactive_yn`'
-                    . ', `CEUA1`, `LACE1`'
-                    . ', `SWI1`, `PWI1`, `APWI1`, `SUWI1`'
-                    . ', `CE1`, `QA1`, `QA2`, `SP1`, `VREP1`, `VREP2`'
-                    . ', `EBO1`, `UNP1`, `REP1`, `DRA1`, `ELCO1`, `ELHO1`'
-                    . ', `ELSO1`, `ELSVO1`, `ELRO1`, `ECIR1`, `EECC1`'
-                    . ', `EERL1`, `EARM1`, `CUT1`, `updated_dt` '
-                    . ' FROM raptor_user_profile WHERE uid = :uid';
-            $filter = array(":uid" => $this->m_nUID);
-            $result = db_query($sSQL, $filter);
+            try
+            {
+                //Read the values from the database.
+                $sSQL = 'SELECT '
+                        . ' `username`, `role_nm`, `worklist_cols`, `usernametitle`'
+                        . ', `firstname`, `lastname`, `suffix`, `prefemail`'
+                        . ', `prefphone`, `accountactive_yn`'
+                        . ', `CEUA1`, `LACE1`'
+                        . ', `SWI1`, `PWI1`, `APWI1`, `SUWI1`'
+                        . ', `CE1`, `QA1`, `QA2`, `QA3`, `SP1`, `VREP1`, `VREP2`'
+                        . ', `EBO1`, `UNP1`, `REP1`, `DRA1`, `ELCO1`, `ELHO1`'
+                        . ', `ELSO1`, `ELSVO1`, `ELRO1`, `ECIR1`, `EECC1`'
+                        . ', `EERL1`, `EARM1`, `CUT1`, `updated_dt` '
+                        . ' FROM raptor_user_profile WHERE uid = :uid';
+                $filter = array(":uid" => $this->m_nUID);
+                $result = db_query($sSQL, $filter);
+            } catch (\Exception $ex) {
+                error_log("Failed raptor_user_profile perhaps missing QA3?  Trying without QA3...");
+                $sSQL = 'SELECT '
+                        . ' `username`, `role_nm`, `worklist_cols`, `usernametitle`'
+                        . ', `firstname`, `lastname`, `suffix`, `prefemail`'
+                        . ', `prefphone`, `accountactive_yn`'
+                        . ', `CEUA1`, `LACE1`'
+                        . ', `SWI1`, `PWI1`, `APWI1`, `SUWI1`'
+                        . ', `CE1`, `QA1`, `QA2`, `SP1`, `VREP1`, `VREP2`'
+                        . ', `EBO1`, `UNP1`, `REP1`, `DRA1`, `ELCO1`, `ELHO1`'
+                        . ', `ELSO1`, `ELSVO1`, `ELRO1`, `ECIR1`, `EECC1`'
+                        . ', `EERL1`, `EARM1`, `CUT1`, `updated_dt` '
+                        . ' FROM raptor_user_profile WHERE uid = :uid';
+                $filter = array(":uid" => $this->m_nUID);
+                $result = db_query($sSQL, $filter);
+            }
+            
             $myvalues = array();
             $myprivs = array();
             if($result->rowCount()==0)
@@ -759,6 +816,7 @@ class UserInfo
                 $myprivs['CE1'] = $record->CE1;
                 $myprivs['QA1'] = $record->QA1;
                 $myprivs['QA2'] = $record->QA2;
+                $myprivs['QA3'] = isset($record->QA3) ? $record->QA3 : 0;
                 $myprivs['SP1'] = $record->SP1;
                 $myprivs['VREP1'] = $record->VREP1;
                 $myprivs['VREP2'] = $record->VREP2;

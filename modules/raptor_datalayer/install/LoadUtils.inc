@@ -128,6 +128,7 @@ class LoadUtils
             'CE1' => 0,
             'QA1' => 0,
             'QA2' => 0,
+            'QA3' => 1,
             'SP1' => 1,
             'VREP1' => 1,
             'VREP2' => 1,
