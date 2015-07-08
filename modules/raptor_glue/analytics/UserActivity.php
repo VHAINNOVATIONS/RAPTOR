@@ -140,6 +140,7 @@ class UserActivity
                 $userdetails['username'] = $oneuserinfo['username'];
                 $userdetails['role_nm'] = $oneuserinfo['role_nm'];
                 $userdetails['most_recent_login_dt'] = $oneuserinfo['most_recent_login_dt'];
+                $userdetails['rowdetail'] = array();
                 
                 $usertickets = $uad['tickets'];
                 foreach($usertickets as $ien=>$tad)
