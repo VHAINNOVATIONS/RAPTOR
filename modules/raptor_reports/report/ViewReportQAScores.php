@@ -294,12 +294,33 @@ class ViewReportQAScores extends AReport
                 '#markup' => '<p>Raptor Site '.VISTA_SITE.' as of '.$now_dt." ($scopetext)</p>", 
             );
 
+        $form['data_entry_area1']['context']['qacrit'] = array('#type' => 'item',
+                '#prefix' => "\n<fieldset>\n",
+                '#suffix' => "\n</fieldset>\n",
+            );
+        
+        $qacmap = $myvalues['qacmap'];
+        foreach($qacmap as $key=>$details)
+        {
+            $detailmarkup_ar = array();
+            $detailmarkup_ar[] = "<td>Question</td><td>{$details['question']}</td>";
+            $detailmarkup_ar[] = "<td>Explanation</td><td>{$details['explanation']}</td>";
+            $detailmarkup_ar[] = "<td>Last Updated</td><td>{$details['updated_dt']}</td>";
+            $rowmarkup = implode('</tr><tr>',$detailmarkup_ar);
+            $allmarkup = "<b>$key version {$details['version']} "
+                . "last updated {$details['updated_dt']}</b><br>"
+                . "<table><tr>" . $rowmarkup . '</tr></table>';
+            $form['data_entry_area1']['context']['qacrit'][$key][] = array('#type' => 'item',
+                    '#markup' => $allmarkup, 
+                );
+        }
+
         $downloadlinks = $this->getDownloadLinksMarkup();
         if(count($downloadlinks) > 0)
         {
             $markup = implode(' | ',$downloadlinks);
             $form['data_entry_area1']['context']['exportlink'][] = array(
-                '#markup' => "<p>$markup</p>"
+                '#markup' => "<p>$markup</p>",
                 );
         }
         
