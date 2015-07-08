@@ -139,6 +139,7 @@ class EditUserPage extends \raptor\ChildEditBasePage
                         'CE1' => $this->m_oContext->valForNullOrMissing($myvalues, 'CE1'),
                         'QA1' => $this->m_oContext->valForNullOrMissing($myvalues, 'QA1'),
                         'QA2' => $this->m_oContext->valForNullOrMissing($myvalues, 'QA2'),
+                        'QA3' => $this->m_oContext->valForNullOrMissing($myvalues, 'QA3'),
                         'SP1' => $this->m_oContext->valForNullOrMissing($myvalues, 'SP1'),
                         'VREP1' => $this->m_oContext->valForNullOrMissing($myvalues, 'VREP1'),
                         'VREP2' => $this->m_oContext->valForNullOrMissing($myvalues, 'VREP2'),

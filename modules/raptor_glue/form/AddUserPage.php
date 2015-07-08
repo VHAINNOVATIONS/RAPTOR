@@ -264,6 +264,7 @@ class AddUserPage extends \raptor\ChildEditBasePage
                         'CE1' => $myvalues['CE1'],
                         'QA1' => $myvalues['QA1'],
                         'QA2' => $myvalues['QA2'],
+                        'QA3' => $myvalues['QA3'],
                         'SP1' => $myvalues['SP1'],
                         'VREP1' => $myvalues['VREP1'],
                         'VREP2' => $myvalues['VREP2'],

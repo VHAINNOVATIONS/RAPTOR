@@ -56,6 +56,7 @@ class UserPageHelper
         $myvalues['CE1'] = 0;
         $myvalues['QA1'] = 0;
         $myvalues['QA2'] = 0;
+        $myvalues['QA3'] = 0;
         $myvalues['SP1'] = 0;
         $myvalues['VREP1'] = 0;
         $myvalues['VREP2'] = 0;
@@ -115,7 +116,12 @@ class UserPageHelper
         if($nUID !== NULL)
         {
             //Get the real values now if we have them.
-            $filter = array(":uid" => $nUID);
+            $result = db_select('raptor_user_profile', 'n')
+                    ->fields('n')
+                    ->condition('uid', $nUID,'=')
+                    ->execute();
+            $filter = array(":uid" => $nUID);   //Used by older code below!!!!
+            /*
             $result = db_query('SELECT username, role_nm, usernametitle'
                     . ', firstname, lastname, suffix'
                     . ', prefemail, prefphone, accountactive_yn'
@@ -127,6 +133,8 @@ class UserPageHelper
                     . ', `ECIR1`, `EECC1`, `EERL1`, `EARM1`, `CUT1` '
                     . ' FROM raptor_user_profile'
                     . ' WHERE uid = :uid', $filter);
+             * 
+             */
             //We might be here AFTER the row was deleted.
             if($result->rowCount() != 0)
             {
@@ -153,6 +161,7 @@ class UserPageHelper
                 $myvalues['CE1'] = $record->CE1;
                 $myvalues['QA1'] = $record->QA1;
                 $myvalues['QA2'] = $record->QA2;
+                $myvalues['QA3'] = $record->QA3;
                 $myvalues['SP1'] = $record->SP1;
                 $myvalues['VREP1'] = $record->VREP1;
                 $myvalues['VREP2'] = $record->VREP2;
@@ -510,6 +519,7 @@ class UserPageHelper
     
     /**
      * @return array of all option values for the form
+     * @DEPRECATED????
      */
     public function getAllOptions($category = 'STANDARD')
     {
@@ -521,6 +531,7 @@ class UserPageHelper
             //$sWhere = "`name` = 'Site Administrator'";
             $sWhere = "`name` = '$category'";
         }
+        
         $sSQL = 'SELECT `roleid`, `enabled_yn`, `name`' 
                 . ', `CEUA1`, `lockCEUA1`'
                 . ', `LACE1`, `lockLACE1`'
@@ -531,6 +542,7 @@ class UserPageHelper
                 . ', `CE1`, `lockCE1`'
                 . ', `QA1`, `lockQA1` '
                 . ', `QA2`, `lockQA2` '
+                . ', `QA3`, `lockQA3` '
                 . ', `VREP1`, `lockVREP1` '
                 . ', `VREP2`, `lockVREP2` '
                 . ', `SP1`, `lockSP1`, `EBO1`'
@@ -575,6 +587,8 @@ class UserPageHelper
                     'lockQA1' => $item->lockQA1 ,
                     'QA2' => $item->QA2 ,
                     'lockQA2' => $item->lockQA2 ,
+                    'QA3' => $item->QA3 ,
+                    'lockQA3' => $item->lockQA3 ,
                     'SP1' => $item->SP1 ,
                     'lockSP1' => $item->lockSP1 ,
                     'VREP1' => $item->VREP1 ,
@@ -616,7 +630,8 @@ class UserPageHelper
         //die('REMOVE ME all role rights>>>>' . print_r($role_rights,TRUE));
         
         //Get all the modality options from a query
-        $modality_result = db_query('SELECT modality_abbr, `modality_desc` FROM `raptor_list_modality` ORDER BY modality_abbr');
+        $modality_result = db_query('SELECT modality_abbr, `modality_desc` '
+                . 'FROM `raptor_list_modality` ORDER BY modality_abbr');
         if($modality_result->rowCount()==0)
         {
             die('Did NOT find any modality options!');
@@ -719,12 +734,19 @@ class UserPageHelper
     
     private function addCheckboxFormAPIElement(&$formnode, $privkey, $label, $myvalues, $disabled)
     {
+        if(isset($myvalues[$privkey]))
+        {
+            $defvalue = $myvalues[$privkey]; 
+        } else {
+            $defvalue = NULL;
+        }
+            
         $locked = $disabled || $myvalues['lock'.$privkey]==1;
         $title = ($locked ? t($label) : '<strong>'.t($label).'</strong>');
         $formnode[$privkey] = array(
            '#type' => 'checkbox', 
            '#title' => $title,
-           '#default_value' => $myvalues[$privkey], 
+           '#default_value' => $defvalue, 
            '#disabled' => $locked,
         );    
     }
@@ -1077,9 +1099,6 @@ class UserPageHelper
                 '#disabled' => $disabled,
             );
             $swprivs = array();
-            //$swprivs[] = array('VREP1','Can view department activity reports'); 
-            //$swprivs[] = array('VREP2','Can view user activity reports'); 
-            //$swprivs[] = array('QA2','Can view all QA results'); 
             $swprivs[] = array('EBO1','Can edit boilerplate text'); 
             $swprivs[] = array('UNP1','Can upload protocols'); 
             $swprivs[] = array('REP1','Can retire protocols'); 
@@ -1094,6 +1113,7 @@ class UserPageHelper
             $swprivs[] = array('EERL1','Can edit examination room list'); 
             $swprivs[] = array('EARM1','Can edit the list of at risk medication keywords'); 
             $swprivs[] = array('CUT1','Can edit umbrella terms'); 
+            $swprivs[] = array('QA3','Can edit QA evaluation criteria'); 
             foreach($swprivs as $swpriv)
             {
                 $this->addCheckboxFormAPIElement(

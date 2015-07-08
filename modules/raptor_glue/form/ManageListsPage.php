@@ -165,6 +165,14 @@ class ManageListsPage
                     ,$onepage->getDescription());
         }
         
+        module_load_include('php', 'raptor_glue', 'form/EditQAQuestionsPage');
+        $onepage = new EditQAQuestionsPage();
+        if($onepage->canModify())
+        {
+            $rows .= $this->getRowMarkup($onepage->getURL()
+                    ,$onepage->getName()
+                    ,$onepage->getDescription());
+        }
         
         $form["data_entry_area1"]['table_container']['lists'] = array('#type' => 'item',
                  '#markup' => '<table class="raptor-dialog-table">'

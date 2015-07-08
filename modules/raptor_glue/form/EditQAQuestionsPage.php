@@ -20,21 +20,49 @@ namespace raptor;
  */
 class EditQAQuestionsPage
 {
-    
+
+    private $m_url = NULL;
+        
+    private $m_name = NULL;
+    private $m_description = NULL;
     private $m_gobackurl = NULL;
+    private $m_oContext = NULL;
 
     public function __construct()
     {
         module_load_include('php','raptor_datalayer','core/data_context');
         module_load_include('php','raptor_glue','utility/TermMapping');
-        $oContext = \raptor\Context::getInstance();
-        $oUserInfo = $oContext->getUserInfo();
-        if(FALSE && !$oUserInfo->isSiteAdministrator())
-        {
-            throw new \Exception('The user account does not have privileges for this page.');
-        }
+        $this->m_oContext = \raptor\Context::getInstance();
         global $base_url;
         $this->m_gobackurl = $base_url . '/raptor/managelists';
+        $this->m_url = $base_url.'/raptor/editqaquestions';
+        $this->m_name = 'Edit QA Question Criteria';
+        $this->m_description = 'The QA question criteria is presented to RAPTOR QA evaluators after an exam has been completed';
+    }
+    
+    public function canModify()
+    {
+        $oUserInfo = $this->m_oContext->getUserInfo();
+        if($oUserInfo->isSiteAdministrator() || $oUserInfo->hasPrivilege('QA3') )
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+    
+    public function getName()
+    {
+        return $this->m_name;
+    }
+    
+    public function getDescription()
+    {
+        return $this->m_description;
+    }
+    
+    public function getURL()
+    {
+        return $this->m_url;
     }
     
     public function getGobacktoURL()
@@ -57,6 +85,10 @@ class EditQAQuestionsPage
         $question = trim($record['question']);
         $explanation = trim($record['explanation']);
 
+        $thispos = intval($position);
+        $nextpos = $thispos + 1;
+        
+        
         $position_input = array(
             '#type' => 'textfield', 
             '#title' => t('Position'), 
@@ -64,7 +96,7 @@ class EditQAQuestionsPage
             '#size' => 2, 
             '#maxlength' => 2, 
             '#disabled' => $disabled,
-            '#description' => t("The relative position of this question.  Question 1 is shown before question 2 etc."),
+            '#description' => t("The relative position of this question.  Question at position $thispos is shown before question as position $nextpos etc."),
         );        
 
         $shortname_input = array(
@@ -230,6 +262,24 @@ class EditQAQuestionsPage
                         $bGood = FALSE;
                     }
                  } else {
+                    //This is the add area
+                    if($allinputs != $position)
+                    {
+                        //Assume more than position was provided
+                        if($shortname == '')
+                        {
+                            form_set_error("$original_shortname","Missing shortname field values in add area");
+                            $bGood = FALSE;
+                        } else
+                        if($position == ''
+                                || $question == ''
+                                || $explanation == '')
+                        {
+                            form_set_error("$original_shortname","Missing some field values for shortname '$shortname'");
+                            $bGood = FALSE;
+                        }
+                    }
+                             
                      /*
                      if($allinputs != $position)
                      {
@@ -300,7 +350,7 @@ class EditQAQuestionsPage
                     
                     //Delete the existing question block
                     $result = db_delete('raptor_qa_criteria')
-                                ->condition('shortname', $original_shortname, '<')
+                                ->condition('shortname', $original_shortname, '=')
                                 ->execute();                
                     $successmsg = "Deleted question $original_shortname";
                 } else
@@ -357,18 +407,21 @@ class EditQAQuestionsPage
                     }
                 }
             } else {
-                //Simply add the new question
-                db_insert('raptor_qa_criteria')
-                        ->fields(array(
-                        'context_cd' => 'T',
-                        'version' => 1,
-                        'position' => $position,
-                        'shortname' => $shortname,
-                        'question' => $question,
-                        'explanation' => $explanation,
-                        'updated_dt' => $updated_dt,
-                  ))->execute();               
-                $successmsg = "Created question $shortname";
+                if( $shortname > '')
+                {
+                    //Simply add the new question
+                    db_insert('raptor_qa_criteria')
+                            ->fields(array(
+                            'context_cd' => 'T',
+                            'version' => 1,
+                            'position' => $position,
+                            'shortname' => $shortname,
+                            'question' => $question,
+                            'explanation' => $explanation,
+                            'updated_dt' => $updated_dt,
+                      ))->execute();               
+                    $successmsg = "Created question $shortname";
+                }
             }
             return $successmsg;
         } catch (\Exception $ex) {
@@ -385,7 +438,7 @@ class EditQAQuestionsPage
             foreach($questionblocks as $record)
             {
                 $successmsg = $this->updateOneQuestion($record);
-                if($successmsg > '')
+                if($successmsg != NULL)
                 {
                     $messages[] = $successmsg;
                 }
@@ -416,6 +469,11 @@ class EditQAQuestionsPage
             , $disabled
             , $myvalues)
     {
+        
+        if(!$this->canModify())
+        {
+            $disabled = FALSE;
+        }
         
         $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='raptor-list-dataentry'>\n",
