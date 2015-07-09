@@ -316,13 +316,16 @@ function raptor_glue_chgpwd_form_builder($form, &$form_state)
 function raptor_glue_chgpwd_form_builder_validate($form, &$form_state) 
 {
     $oPI = new \raptor\ChangePasswordPage();
-    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+    $myvalues = $form_state['values'];
+    return $oPI->looksValid($form, $myvalues);
 }
 
 function raptor_glue_chgpwd_form_builder_submit($form, &$form_state) 
 {
     //Success!
-    //drupal_set_message('Created new user ' . $form_state['values']['username'], 'status');
+    $oPI = new \raptor\ChangePasswordPage();
+    $myvalues = $form_state['values'];
+    $oPI->updateDatabase($form, $myvalues);
     $form_state['redirect'] = array(
         'worklist',
       );
