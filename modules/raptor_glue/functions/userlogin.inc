@@ -66,6 +66,8 @@ function raptor_glue_login_validate( $form, &$form_state )
                 $oTT->deleteAllUserTicketLocks($candidateuser->uid,'User locks cleared as part of login for '.$candidateuser->uid);
                 user_login_submit($form, $form_state);
             }
+        } else {
+            error_log("login rejected username=[$username] as valid user!");
         }
 
         if($fatalerrmsg != null)
@@ -108,11 +110,13 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
                 $oUserInfo = new \raptor\UserInfo($drupaluser->uid);
                 if(!isset($oUserInfo) || $oUserInfo->getUserName() == '')
                 {
-                    error_log('Trouble checking for user ['.$username.'] with uid=['.$drupaluser->uid.']: did NOT get UserInfo instance!');
+                    error_log('Trouble checking for user '
+                            . '['.$username.'] with uid=['.$drupaluser->uid.']: did NOT get UserInfo instance!');
                     $isvalid = FALSE;    
                 }
             } catch (\Exception $ex) {
-                error_log('Exception checking for user ['.$username.'] with uid=['.$drupaluser->uid.']: ' .  $ex->getMessage());
+                error_log('Exception checking for user '
+                        . '['.$username.'] with uid=['.$drupaluser->uid.']: ' .  $ex->getMessage());
                 $isvalid = FALSE;
             } 
 
@@ -173,6 +177,15 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
                                     .']) with uid=['
                                     .$drupaluser->uid.']');
                             $isvalid = FALSE;
+                        }
+                    } else {
+                        //Check the password using drupal authentication
+                        if(FALSE === user_authenticate($username, $password))
+                        {
+                            $isvalid = FALSE;
+                            error_log("Bad password for [$username] user login!");
+                        } else {
+                            error_log("Good password for [$username] user login!");
                         }
                     }
                 }
