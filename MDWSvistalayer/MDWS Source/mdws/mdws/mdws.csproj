@@ -1,0 +1,871 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B103EB8C-786E-40A4-B49F-91C585ACE032}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>gov.va.medora.mdws</RootNamespace>
+    <AssemblyName>mdws</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+    <UseIISExpress>false</UseIISExpress>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\mdws.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'VEHU-local|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;VEHU</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'TestRun|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceModel.Web" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="TOReflection">
+      <HintPath>resources\lib\toreflection\TOReflection.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BhieService.asmx" />
+    <Content Include="ClaimSvc.asmx" />
+    <Content Include="FindPatientService.asmx" />
+    <Content Include="Global.asax" />
+    <None Include="ClassDiagram1.cd" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Content Include="SchedulingSvc.asmx" />
+    <Content Include="Web\VistaSitesMap.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Service.cs" />
+    <Compile Include="src\dto\DdrRpcResult.cs" />
+    <Compile Include="src\dto\LabPanelTO.cs" />
+    <Compile Include="src\dto\OrderCheckTO.cs" />
+    <Compile Include="src\dto\RadiologyCancellationReasonTO.cs" />
+    <Compile Include="src\dto\RadiologyOrderDialogTO.cs" />
+    <Compile Include="src\dto\RpcTO.cs" />
+    <Compile Include="src\dto\StringDictionaryTO.cs" />
+    <Compile Include="src\dto\TimeSlotArray.cs" />
+    <Compile Include="src\dto\TimeSlotTO.cs" />
+    <Compile Include="src\dto\vista\mgt\ArrayOfVistaRecordTO.cs" />
+    <Compile Include="src\dto\vista\mgt\VistaFieldTO.cs" />
+    <Compile Include="src\dto\vista\mgt\VistaFileTO.cs" />
+    <Compile Include="src\dto\vista\mgt\VistaRecordTO.cs" />
+    <Compile Include="src\dto\vista\mgt\XRefArray.cs" />
+    <Compile Include="src\dto\vista\mgt\XRefTO.cs" />
+    <Compile Include="src\lib\ProblemLib.cs" />
+    <Compile Include="src\lib\RadiologyLib.cs" />
+    <Compile Include="src\QueryTemplate.cs" />
+    <Compile Include="src\bse\SSTCryptographer.cs" />
+    <Compile Include="src\bse\StringUtils.cs" />
+    <Compile Include="src\bse\Visitor.cs" />
+    <Compile Include="src\bse\VistaPrincipal.cs" />
+    <Compile Include="src\bse\VistaUserSecurityProvider.cs" />
+    <Compile Include="src\conf\MdwsConfigConstants.cs" />
+    <Compile Include="src\dao\sql\ConnectionTester.cs" />
+    <Compile Include="src\dao\sql\MdwsToolsDao.cs" />
+    <Compile Include="src\dao\sql\UserValidationDao.cs" />
+    <Compile Include="src\dto\AppointmentTypeArray.cs" />
+    <Compile Include="src\dto\AppointmentTypeTO.cs" />
+    <Compile Include="src\dto\BoolTO.cs" />
+    <Compile Include="src\dto\ClaimTO.cs" />
+    <Compile Include="src\dto\PatientCareTeamMemberTO.cs" />
+    <Compile Include="src\dto\PatientCareTeamTO.cs" />
+    <Compile Include="src\dto\ClinicalProcedureTO.cs" />
+    <Compile Include="src\dto\CptCodeTO.cs" />
+    <Compile Include="src\dto\ImagingExamTO.cs" />
+    <Compile Include="src\dto\ImmunizationTO.cs" />
+    <Compile Include="src\dto\ldap\DomainArray.cs" />
+    <Compile Include="src\dto\ldap\DomainTO.cs" />
+    <Compile Include="src\dto\TaggedClinicalProcedureArray.cs" />
+    <Compile Include="src\dto\TaggedClinicalProcedureArrays.cs" />
+    <Compile Include="src\dto\TaggedFaultArray.cs" />
+    <Compile Include="src\dto\TaggedHealthSummaryArrays.cs" />
+    <Compile Include="src\dto\TaggedHealthSummaryArray.cs" />
+    <Compile Include="src\dto\HealthSummaryTO.cs" />
+    <Compile Include="src\dto\DemographicSetTO.cs" />
+    <Compile Include="src\dto\DemographicsRecord.cs" />
+    <Compile Include="src\dto\EmailAddressTO.cs" />
+    <Compile Include="src\dto\LabReportTO.cs" />
+    <Compile Include="src\dto\LabTestArray.cs" />
+    <Compile Include="src\dto\MentalHealthInstrumentAdministrationTO.cs" />
+    <Compile Include="src\dto\MentalHealthInstrumentResultSetTO.cs" />
+    <Compile Include="src\dto\OrderDialogItemArray.cs" />
+    <Compile Include="src\dto\OrderDialogItemTO.cs" />
+    <Compile Include="src\dto\PatientListEntryTO.cs" />
+    <Compile Include="src\dto\PatientMedicalRecordTO.cs" />
+    <Compile Include="src\dto\PersonArray.cs" />
+    <Compile Include="src\dto\ProstheticClaimTO.cs" />
+    <Compile Include="src\dto\RatedDisabilityTO.cs" />
+    <Compile Include="src\dto\ReminderReportPatientListTO.cs" />
+    <Compile Include="src\dto\sm\AddresseeTO.cs" />
+    <Compile Include="src\dto\sm\AnnotationTO.cs" />
+    <Compile Include="src\dto\sm\AttachmentTO.cs" />
+    <Compile Include="src\dto\sm\BaseSmTO.cs" />
+    <Compile Include="src\dto\sm\FolderTO.cs" />
+    <Compile Include="src\dto\sm\MailboxTO.cs" />
+    <Compile Include="src\dto\sm\SmClinicianTO.cs" />
+    <Compile Include="src\dto\sm\MessageTO.cs" />
+    <Compile Include="src\dto\sm\SmPatientTO.cs" />
+    <Compile Include="src\dto\sm\SecureMessageThreadsTO.cs" />
+    <Compile Include="src\dto\sm\ThreadTO.cs" />
+    <Compile Include="src\dto\sm\TriageGroupsTO.cs" />
+    <Compile Include="src\dto\sm\TriageGroupTO.cs" />
+    <Compile Include="src\dto\sm\SmUserTO.cs" />
+    <Compile Include="src\dto\Synopsis.cs" />
+    <Compile Include="src\dto\TaggedClaimArray.cs" />
+    <Compile Include="src\dto\TaggedClaimArrays.cs" />
+    <Compile Include="src\dto\TaggedDemographicsRecordArray.cs" />
+    <Compile Include="src\dto\TaggedDemographicsRecordArrays.cs" />
+    <Compile Include="src\dto\TaggedImagingExamArray.cs" />
+    <Compile Include="src\dto\TaggedImagingExamArrays.cs" />
+    <Compile Include="src\dto\TaggedImmunizationArray.cs" />
+    <Compile Include="src\dto\TaggedImmunizationArrays.cs" />
+    <Compile Include="src\dto\TaggedLabReportArray.cs" />
+    <Compile Include="src\dto\TaggedLabReportArrays.cs" />
+    <Compile Include="src\dto\TaggedLabTestArray.cs" />
+    <Compile Include="src\dto\TaggedLabTestArrays.cs" />
+    <Compile Include="src\dto\TaggedMentalHealthInstrumentAdministrationArray.cs" />
+    <Compile Include="src\dto\TaggedMentalHealthInstrumentAdministrationArrays.cs" />
+    <Compile Include="src\dto\TaggedMentalHealthResultSetArray.cs" />
+    <Compile Include="src\dto\TaggedOrderArray.cs" />
+    <Compile Include="src\dto\TaggedOrderArrays.cs" />
+    <Compile Include="src\dto\TaggedPersonArray.cs" />
+    <Compile Include="src\dto\TaggedPersonArrays.cs" />
+    <Compile Include="src\dto\TaggedProstheticClaimArray.cs" />
+    <Compile Include="src\dto\TaggedProstheticClaimArrays.cs" />
+    <Compile Include="src\dto\TaggedRatedDisabilityArray.cs" />
+    <Compile Include="src\lib\AccountLib.cs" />
+    <Compile Include="src\lib\ClaimsLib.cs" />
+    <Compile Include="src\lib\ClinicalRemindersLib.cs" />
+    <Compile Include="src\lib\LocationLib.cs" />
+    <Compile Include="src\lib\rest\AccountLib.cs" />
+    <Compile Include="src\lib\rest\ConnectionLib.cs" />
+    <Compile Include="src\lib\rest\SitesLib.cs" />
+    <Compile Include="src\lib\SchedulingLib.cs" />
+    <Compile Include="src\lib\SecureMessageLib.cs" />
+    <Compile Include="src\lib\UserLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\conf\MdwsConfiguration.cs" />
+    <Compile Include="src\RestQuery.cs" />
+    <Compile Include="src\SessionMgr.cs" />
+    <Compile Include="src\SoapQuery.cs" />
+    <Compile Include="src\StatelessQuery.cs" />
+    <Compile Include="src\svc\ApolloService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\BhieService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\ClaimSvc.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\CrudSvc.cs" />
+    <Compile Include="src\svc\FindPatientService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\PhrSvc.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\RestEmrSvc.cs" />
+    <Compile Include="src\svc\RestQuerySvc.cs" />
+    <Compile Include="src\svc\SchedulingSvc.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\ToolsService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\UserMgtService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\RestSchedulingSvc.cs" />
+    <Compile Include="src\utils\TOXmlSerializer.cs" />
+    <Compile Include="Web\auth\Administration.aspx.cs">
+      <DependentUpon>Administration.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Web\auth\Administration.aspx.designer.cs">
+      <DependentUpon>Administration.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Web\Validate.aspx.cs">
+      <DependentUpon>Validate.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Web\Dashboard.aspx.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Web\Dashboard.aspx.designer.cs">
+      <DependentUpon>Dashboard.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\ApplicationSession.cs" />
+    <Compile Include="src\dao\sql\UsageDao.cs" />
+    <Compile Include="src\dto\AbstractArrayTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\AbstractTaggedArrayTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\AbstractTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\AddressTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\AdtTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\AllergyTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\AppointmentTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\AuthorTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\ChemHemRpt.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\CityArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\CityTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\ClosestFacilityTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\ConsultTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\CytologyRpt.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\DataSourceArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\DataSourceTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\DiagnosisArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\DiagnosisTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\DischargeDiagnosesTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\DrgTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\FaultTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\GeographicLocationArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\GeographicLocationTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\HospitalLocationTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\IcdRpt.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\InpatientStayTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\LabObservationTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\LabObservationTypeTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\LabResultTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\LabSpecimenTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\LabTestTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\MedicationTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\MicrobiologyRpt.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\NoteResultTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\NoteTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\ObservationTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\ObservationTypeTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\OifOefTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\OrderTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\OrderTypeTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PatientArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PatientAssociateArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PatientAssociateTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PatientLocationTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PatientRecordFlagArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PatientRecordFlagTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PatientTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PersonsTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PersonTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\PhoneNumTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\ProblemTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnaireArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnairePageArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnairePageTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnaireSectionArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnaireSectionTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnaireSetTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnaireSubsectionArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnaireSubsectionTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionnaireTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\QuestionTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\RadiologyReportTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\RegionArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\RegionTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\SiteArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\SiteTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\StateArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\StateSites.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\StateTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\SurgeryReportTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\SurgicalPathologyRpt.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\SymptomTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedAdtArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedAdtArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedAllergyArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedAllergyArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedAppointmentArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedAppointmentArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedChemHemRptArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedChemHemRptArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedConsultArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedConsultArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedCytologyRptArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedCytologyRptArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedDrgArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedDrgArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedHospitalLocationArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedHospitalLocationArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedIcdRptArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedIcdRptArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedInpatientStayArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedInpatientStayArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedMedicationArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedMedicationArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedMicrobiologyRptArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedMicrobiologyRptArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedNoteArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedNoteArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedObservationArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedObservationArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedOefOifArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedOefOifArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedPatientArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedPatientArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedPatientAssociateArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedPatientAssociateArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedProblemArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedProblemArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedRadiologyReportArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedRadiologyReportArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedSurgeryReportArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedSurgeryReportArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedSurgicalPathologyRptArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedSurgicalPathologyRptArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedText.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedTextArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedUserArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedUserArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedVisitArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedVisitArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedVitalSignArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedVitalSignArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedVitalSignSetArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TaggedVitalSignSetArrays.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TeamTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TextArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\TextTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\UserArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\UserOptionArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\UserOptionTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\UserPatientTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\UserSecurityKeyArray.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\UserSecurityKeyTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\UserTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\VisitTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\VitalSignSetTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\VitalSignTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\dto\ZipcodeTO.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\ApolloLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\AthenaLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\ClinicalLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\ConnectionLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\EncounterLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\LabsLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\MedsLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\MhvLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\NoteLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\NumiLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\OrdersLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\PatientLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\QuestionnaireLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\SitesLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\TbiLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\ToolsLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\lib\VitalsLib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\MdwsConstants.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\MdwsUtils.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\MySession.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\ResponseReader.cs" />
+    <Compile Include="src\svc\BaseService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\CallService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\EmerseService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\EmrSvc.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\MdwsSvc.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\MhvService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\NumiService.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\QuerySvc.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\svc\UserMgtSvc.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PhrSvc.asmx" />
+    <Content Include="QuerySvc.asmx" />
+    <Content Include="resources\xml\objects.xml" />
+    <Content Include="resources\xml\VhaSitesByState.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="ToolsService.asmx" />
+    <Content Include="UserMgtService.asmx" />
+    <Content Include="web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ApolloService.asmx" />
+    <Content Include="AthenaService.asmx" />
+    <Content Include="BaseService.asmx" />
+    <Content Include="CallService.asmx" />
+    <Content Include="Web\auth\Administration.aspx" />
+    <Content Include="Web\Validate.aspx" />
+    <Content Include="Web\css\jquery.treeview.css" />
+    <Content Include="Web\css\screen.css" />
+    <Content Include="Web\Dashboard.aspx" />
+    <Content Include="EmerseService.asmx" />
+    <Content Include="EmrSvc.asmx" />
+    <Content Include="MdwsSvc.asmx" />
+    <Content Include="Web\images\file.gif" />
+    <Content Include="Web\images\folder-closed.gif" />
+    <Content Include="Web\images\folder.gif" />
+    <Content Include="Web\images\mdws.gif" />
+    <Content Include="Web\images\mdws_dashboard.png" />
+    <Content Include="Web\images\minus.gif" />
+    <Content Include="Web\images\plus.gif" />
+    <Content Include="Web\images\treeview-black-line.gif" />
+    <Content Include="Web\images\treeview-black.gif" />
+    <Content Include="Web\images\treeview-default-line.gif" />
+    <Content Include="Web\images\treeview-default.gif" />
+    <Content Include="Web\images\treeview-famfamfam-line.gif" />
+    <Content Include="Web\images\treeview-famfamfam.gif" />
+    <Content Include="Web\images\treeview-gray-line.gif" />
+    <Content Include="Web\images\treeview-gray.gif" />
+    <Content Include="Web\images\treeview-red-line.gif" />
+    <Content Include="Web\images\treeview-red.gif" />
+    <Content Include="Web\js\jquery.cookie.js" />
+    <Content Include="Web\js\jquery.js" />
+    <Content Include="Web\js\jquery.treeview.js" />
+    <Content Include="MhvService.asmx" />
+    <Content Include="NumiService.asmx" />
+    <Content Include="resources\lib\toreflection\TOReflection-1.5.2.0.dll" />
+    <Content Include="resources\lib\toreflection\TOReflection-1.5.2.0.dll.config" />
+    <Content Include="resources\lib\toreflection\TOReflection-1.5.2.0.pdb" />
+    <Content Include="resources\xml\VhaSites.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="TbiService.asmx" />
+    <Content Include="UserMgtSvc.asmx" />
+    <None Include="resources\conf\mdws.conf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\mdo\mdo\mdo.csproj">
+      <Project>{47016C54-EA0E-4DDD-8073-AA9C01BE68F2}</Project>
+      <Name>mdo</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>False</AutoAssignPort>
+          <DevelopmentServerPort>8734</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>
+          </IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

@@ -1,0 +1,2511 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<states xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<state name="Alabama" abbr="AL">
+		<cities>
+			<city name="Bessemer">
+				<site name="Bessemer Clinic" sitecode="521" type="Clinic"/>
+			</city>
+			<city name="Birmingham">
+				<site name="Birmingham VAMC" sitecode="521" type="VAMC"/>
+			</city>
+			<city name="Dothan">
+				<site name="Dothan Clinic" sitecode="619" type="Clinic"/>
+				<site name="Dothan Medical Health Center" sitecode="619" type="Clinic"/>
+			</city>
+			<city name="Gadsden">
+				<site name="Gadsden Clinic" sitecode="521" type="Clinic"/>
+			</city>
+			<city name="Huntsville">
+				<site name="Huntsville Clinic" sitecode="521" type="Clinic"/>
+			</city>
+			<city name="Jasper">
+				<site name="Jasper Clinic" sitecode="521" type="Clinic"/>
+			</city>
+			<city name="Madison">
+				<site name="Madison/Decatur Clinic" sitecode="521" type="Clinic"/>
+			</city>
+			<city name="Mobile">
+				<site name="Mobile OPC" sitecode="520" type="Clinic"/>
+			</city>
+			<city name="Montgomery">
+				<site name="Central Alabama HCS - West Campus" sitecode="619" type="VAMC"/>
+			</city>
+			<city name="Oxford">
+				<site name="Oxford Clinic" sitecode="521" type="Clinic"/>
+			</city>
+			<city name="Sheffield">
+				<site name="Florence Shoals Area Clinic" sitecode="521" type="Clinic"/>
+			</city>
+			<city name="Tuscaloosa">
+				<site name="Tuscaloosa VAMC" sitecode="679" type="VAMC"/>
+			</city>
+			<city name="Tuskegee">
+				<site name="Central Alabama HCS - East Campus" sitecode="619" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Alaska" abbr="AK">
+		<cities>
+			<city name="Anchorage">
+				<site name="Anchorage VAMC" sitecode="463" type="VAMC"/>
+			</city>
+			<city name="Ft. Wainwright">
+				<site name="Fairbanks Clinic" sitecode="463" type="Clinic"/>
+			</city>
+			<city name="Kenai">
+				<site name="Kenai Clinic" sitecode="463" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Arizona" abbr="AZ">
+		<cities>
+			<city name="Anthem">
+				<site name="Anthem Clinic" sitecode="649" type="Clinic"/>
+			</city>
+			<city name="Bellemont">
+				<site name="Bellemont Clinic" sitecode="649" type="Clinic"/>
+			</city>
+			<city name="Buckeye">
+				<site name="Buckeye Clinic" sitecode="644" type="Clinic"/>
+			</city>
+			<city name="Casa Grande">
+				<site name="Casa Grande Clinic" sitecode="678" type="Clinic"/>
+			</city>
+			<city name="Cottonwood">
+				<site name="Cottonwood Clinic" sitecode="649" type="Clinic"/>
+			</city>
+			<city name="Globe">
+				<site name="Globe Clinic" sitecode="644" type="Clinic"/>
+			</city>
+			<city name="Green Valley">
+				<site name="Green Valley Clinic" sitecode="678" type="Clinic"/>
+			</city>
+			<city name="Kingman">
+				<site name="Kingman Clinic" sitecode="649" type="Clinic"/>
+			</city>
+			<city name="Lake Havasu City">
+				<site name="Lake Havasu City Clinic" sitecode="649" type="Clinic"/>
+			</city>
+			<city name="Mesa">
+				<site name="Mesa Clinic" sitecode="644" type="Clinic"/>
+			</city>
+			<city name="Payson">
+				<site name="Payson Clinic" sitecode="644" type="Clinic"/>
+			</city>
+			<city name="Phoenix">
+				<site name="Phoenix VAMC" sitecode="644" type="VAMC"/>
+			</city>
+			<city name="Safford">
+				<site name="Safford Clinic" sitecode="678" type="Clinic"/>
+			</city>
+			<city name="Show Low">
+				<site name="Show Low Clinic" sitecode="644" type="Clinic"/>
+			</city>
+			<city name="Sierra Vista">
+				<site name="Sierra Vista Clinic" sitecode="644" type="Clinic"/>
+			</city>
+			<city name="Sun City">
+				<site name="Sun City Clinic" sitecode="644" type="Clinic"/>
+			</city>
+			<city name="Tucson">
+				<site name="Southern Arizona HCS" sitecode="678" type="VAMC"/>
+			</city>
+			<city name="Yuma">
+				<site name="Yuma Clinic" sitecode="678" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Arkansas" abbr="AR">
+		<cities>
+			<city name="El Dorado">
+				<site name="El Dorado CBOC" sitecode="598" type="Clinic"/>
+			</city>
+			<city name="Fayetteville">
+				<site name="Fayettevill VAMC" sitecode="564" type="VAMC"/>
+			</city>
+			<city name="Ft. Smith">
+				<site name="Ft. Smith CBOC" sitecode="564" type="Clinic"/>
+			</city>
+			<city name="Harrison">
+				<site name="Main Street Clinic" sitecode="564" type="Clinic"/>
+			</city>
+			<city name="Hot Springs">
+				<site name="Hot Springs CBOC" sitecode="598" type="Clinic"/>
+			</city>
+			<city name="Jonesboro">
+				<site name="Jonesboro CBOC" sitecode="614" type="Clinic"/>
+			</city>
+			<city name="Little Rock">
+				<site name="Central Arkansas HCS - Little Rock" sitecode="598" type="VAMC"/>
+			</city>
+			<city name="Mena">
+				<site name="Mena CBOC" sitecode="598" type="Clinic"/>
+			</city>
+			<city name="Mountain Home">
+				<site name="Burnett-Croom CBOC" sitecode="598" type="Clinic"/>
+				<site name="Mountain Home CBOC" sitecode="598" type="Clinic"/>
+			</city>
+			<city name="North Little Rock">
+				<site name="Central Arkansas HCS - North Little Rock" sitecode="598" type="VAMC"/>
+			</city>
+			<city name="Paragould">
+				<site name="Paragould Clinic" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Texarkana">
+				<site name="Texarkana CBOC" sitecode="667" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="California" abbr="CA">
+		<cities>
+			<city name="Anaheim">
+				<site name="Anaheim" sitecode="600" type="Clinic"/>
+			</city>
+			<city name="Atwater">
+				<site name="VA Castle OPC" sitecode="570" type="Clinic"/>
+			</city>
+			<city name="Auburn">
+				<site name="Sierra Foothills OPC" sitecode="654" type="Clinic"/>
+			</city>
+			<city name="Bakersfield">
+				<site name="Bakersfield CBOC" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Brawley">
+				<site name="Imperial Valley" sitecode="664" type="Clinic"/>
+			</city>
+			<city name="Capitola">
+				<site name="Capitola Clinic" sitecode="640" type="Clinic"/>
+			</city>
+			<city name="Chico">
+				<site name="Chico OPC" sitecode="612" type="Clinic"/>
+			</city>
+			<city name="Chula Vista">
+				<site name="Chula Vista (South Bay)" sitecode="664" type="Clinic"/>
+			</city>
+			<city name="City of Commerce">
+				<site name="East Los Angeles" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Corona">
+				<site name="Corona" sitecode="605" type="Clinic"/>
+			</city>
+			<city name="Escondido">
+				<site name="Escondido" sitecode="664" type="Clinic"/>
+			</city>
+			<city name="Eureka">
+				<site name="Eureka Veterans Clinic" sitecode="662" type="Clinic"/>
+			</city>
+			<city name="Fairfield">
+				<site name="Fairfield OPC" sitecode="612" type="Clinic"/>
+			</city>
+			<city name="French Camp">
+				<site name="Stockton Clinic" sitecode="640" type="Clinic"/>
+			</city>
+			<city name="Fresno">
+				<site name="Central California HCS" sitecode="570" type="VAMC"/>
+			</city>
+			<city name="Gardena">
+				<site name="Gardena" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Lancaster">
+				<site name="Antelope Valley" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Livermore">
+				<site name="Palo Alto HCS - Livermore" sitecode="640" type="VAMC"/>
+			</city>
+			<city name="Loma Linda">
+				<site name="Loma Linda VAMC" sitecode="605" type="VAMC"/>
+				<site name="Villages at Cabrillo" sitecode="605" type="Clinic"/>
+			</city>
+			<city name="Long Beach">
+				<site name="Long Beach VAMC" sitecode="600" type="VAMC"/>
+			</city>
+			<city name="Los Angeles">
+				<site name="Greater Los Angeles HCS" sitecode="691" type="VAMC"/>
+				<site name="Los Angeles Ambulatory Care Center" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Lynwood">
+				<site name="Lynwood CBOC" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Martinez">
+				<site name="Martinez OPC" sitecode="612" type="Clinic"/>
+			</city>
+			<city name="Menlo Park">
+				<site name="Palo Alto HCS - Menlo Park" sitecode="640" type="VAMC"/>
+			</city>
+			<city name="Modesto">
+				<site name="Modesto Clinic" sitecode="640" type="Clinic"/>
+			</city>
+			<city name="North Hills">
+				<site name="Sepulveda OPC" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Oakland">
+				<site name="Oakland Mental Health Clinic" sitecode="612" type="Clinic"/>
+				<site name="Oakland OPC" sitecode="612" type="Clinic"/>
+			</city>
+			<city name="Oxnard">
+				<site name="Oxnard" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Palm Desert">
+				<site name="Palm Desert" sitecode="605" type="Clinic"/>
+			</city>
+			<city name="Palo Alto">
+				<site name="Palo Alto HCS - Palo Alto" sitecode="640" type="VAMC"/>
+			</city>
+			<city name="Redding">
+				<site name="Redding OPC" sitecode="612" type="Clinic"/>
+			</city>
+			<city name="Sacramento">
+				<site name="McClellan OPC" sitecode="612" type="Clinic"/>
+				<site name="Northern California HCS" sitecode="612" type="VAMC"/>
+				<site name="Sacramento Mental Health Clinic" sitecode="612" type="Clinic"/>
+			</city>
+			<city name="San Bruno">
+				<site name="San Bruno CBOC" sitecode="662" type="Clinic"/>
+			</city>
+			<city name="San Diego">
+				<site name="Mission Valley" sitecode="664" type="Clinic"/>
+				<site name="San Diego HCS" sitecode="664" type="VAMC"/>
+			</city>
+			<city name="San Francisco">
+				<site name="Downtown Clinic" sitecode="662" type="Clinic"/>
+				<site name="San Francisco VAMC" sitecode="662" type="VAMC"/>
+			</city>
+			<city name="San Gabriel">
+				<site name="Pasadena" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="San Jose">
+				<site name="San Jose Clinic" sitecode="640" type="Clinic"/>
+			</city>
+			<city name="San Luis Obispo">
+				<site name="Pacific Medical Plaza" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Santa Ana">
+				<site name="Bristol Medical Center" sitecode="600" type="Clinic"/>
+			</city>
+			<city name="Santa Barbara">
+				<site name="Santa Barbara CBOC" sitecode="691" type="Clinic"/>
+			</city>
+			<city name="Santa Fe Springs">
+				<site name="Whittier/Santa Fe Springs Clinic" sitecode="600" type="Clinic"/>
+			</city>
+			<city name="Santa Rosa">
+				<site name="Santa Rosa Clinic" sitecode="662" type="Clinic"/>
+			</city>
+			<city name="Seaside">
+				<site name="Monterey Clinic" sitecode="640" type="Clinic"/>
+			</city>
+			<city name="Sonora">
+				<site name="Sonora Clinic" sitecode="640" type="Clinic"/>
+			</city>
+			<city name="Sun City">
+				<site name="Sun City" sitecode="605" type="Clinic"/>
+			</city>
+			<city name="Tulare">
+				<site name="South Valley OPC" sitecode="570" type="Clinic"/>
+			</city>
+			<city name="Ukiah">
+				<site name="Ukiah CBOC" sitecode="662" type="Clinic"/>
+			</city>
+			<city name="Upland">
+				<site name="Upland" sitecode="605" type="Clinic"/>
+			</city>
+			<city name="Vallejo">
+				<site name="Mare Island OPC" sitecode="612" type="Clinic"/>
+			</city>
+			<city name="Victorville">
+				<site name="Victorville" sitecode="605" type="Clinic"/>
+			</city>
+			<city name="Vista">
+				<site name="Vista" sitecode="664" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Colorado" abbr="CO">
+		<cities>
+			<city name="Alamosa">
+				<site name="San Luis Valley Clinic" sitecode="554" type="Clinic"/>
+			</city>
+			<city name="Aurora">
+				<site name="Aurora OPC" sitecode="554" type="Clinic"/>
+			</city>
+			<city name="Colorado Springs">
+				<site name="Colorado Springs Clinic" sitecode="554" type="Clinic"/>
+			</city>
+			<city name="Denver">
+				<site name="Eastern Colorado HCS" sitecode="554" type="VAMC"/>
+				<site name="Sierra Blanca Medical Center" sitecode="554" type="Clinic"/>
+			</city>
+			<city name="Durango">
+				<site name="Durango" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Ft. Collins">
+				<site name="Ft. Collins OPC" sitecode="442" type="Clinic"/>
+			</city>
+			<city name="Grand Junction">
+				<site name="Grand Junction VAMC" sitecode="575" type="VAMC"/>
+			</city>
+			<city name="Greeley">
+				<site name="Greeley OPC" sitecode="442" type="Clinic"/>
+			</city>
+			<city name="La Junta">
+				<site name="La Junta OPC" sitecode="554" type="Clinic"/>
+			</city>
+			<city name="Lakewood">
+				<site name="Lakewood OPC" sitecode="554" type="Clinic"/>
+			</city>
+			<city name="Lamar">
+				<site name="Lamar OPC" sitecode="554" type="Clinic"/>
+			</city>
+			<city name="Montrose">
+				<site name="Montrose OPC" sitecode="575" type="Clinic"/>
+			</city>
+			<city name="Pueblo">
+				<site name="Pueblo OPC" sitecode="554" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Connecticut" abbr="CT">
+		<cities>
+			<city name="Danbury">
+				<site name="Danbury OPC" sitecode="689" type="Clinic"/>
+			</city>
+			<city name="Newington">
+				<site name="Connecticut HCS - Newington Campus" sitecode="689" type="VAMC"/>
+			</city>
+			<city name="New London">
+				<site name="John J. McGuirk OPC" sitecode="689" type="Clinic"/>
+			</city>
+			<city name="Stamford">
+				<site name="Stamford OPC" sitecode="689" type="Clinic"/>
+			</city>
+			<city name="Waterbury">
+				<site name="Waterbury OPC" sitecode="689" type="Clinic"/>
+			</city>
+			<city name="West Haven">
+				<site name="Connecticut HCS - West Haven Campus" sitecode="689" type="VAMC"/>
+			</city>
+			<city name="Windham">
+				<site name="Windham OPC" sitecode="689" type="Clinic"/>
+			</city>
+			<city name="Winsted">
+				<site name="Winsted OPC" sitecode="689" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Delaware" abbr="DE">
+		<cities>
+			<city name="Millsboro">
+				<site name="Millsboro Primary Care Clinic" sitecode="460" type="Clinic"/>
+			</city>
+			<city name="Seaford">
+				<site name="Seaford Clinic" sitecode="460" type="Clinic"/>
+			</city>
+			<city name="Wilmington">
+				<site name="Wilmington VAMC" sitecode="460" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="District of Columbia" abbr="DC">
+		<cities>
+			<city name="Washington">
+				<site name="Washington VAMC" sitecode="688" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Florida" abbr="FL">
+		<cities>
+			<city name="Bay Pines">
+				<site name="Bay Pines VAMC" sitecode="516" type="VAMC"/>
+			</city>
+			<city name="Boca Raton">
+				<site name="Boca Raton CBOC" sitecode="548" type="Clinic"/>
+			</city>
+			<city name="Brooksville">
+				<site name="Brooksville CBOC" sitecode="673" type="Clinic"/>
+			</city>
+			<city name="Coral Springs">
+				<site name="Coral Springs CBOC" sitecode="546" type="Clinic"/>
+			</city>
+			<city name="Daytona Beach">
+				<site name="William V. Chappell, Jr. OPC" sitecode="573" type="Clinic"/>
+			</city>
+			<city name="Deerfield">
+				<site name="Deerfield Beach CBOC" sitecode="546" type="Clinic"/>
+			</city>
+			<city name="Delray Beach">
+				<site name="Delray CBOC" sitecode="548" type="Clinic"/>
+			</city>
+			<city name="Dunedin">
+				<site name="Dunedin Primary Care Clinic" sitecode="516" type="Clinic"/>
+			</city>
+			<city name="Ellenton">
+				<site name="Ellenton Primary Care Clinic" sitecode="516" type="Clinic"/>
+			</city>
+			<city name="Ft. Myers">
+				<site name="Ft. Myers OPC" sitecode="516" type="Clinic"/>
+			</city>
+			<city name="Ft. Pierce">
+				<site name="Ft. Pierce CBOC" sitecode="548" type="Clinic"/>
+			</city>
+			<city name="Gainesville">
+				<site name="North Florida/South Georgia HCS - Gainesville" sitecode="573" type="VAMC"/>
+			</city>
+			<city name="Hollywood">
+				<site name="Hollywood CBOC" sitecode="546" type="Clinic"/>
+				<site name="Pembroke Pines CBOC" sitecode="546" type="Clinic"/>
+			</city>
+			<city name="Homestead">
+				<site name="Homestead CBOC" sitecode="546" type="Clinic"/>
+			</city>
+			<city name="Jacksonville">
+				<site name="Jacksonville OPC" sitecode="573" type="Clinic"/>
+			</city>
+			<city name="Key Largo">
+				<site name="Key Largo CBOC" sitecode="546" type="Clinic"/>
+			</city>
+			<city name="Key West">
+				<site name="Key West CBOC" sitecode="546" type="Clinic"/>
+			</city>
+			<city name="Lake City">
+				<site name="North Florida/South Georgia HCS - Lake City" sitecode="573" type="VAMC"/>
+			</city>
+			<city name="Lakeland">
+				<site name="Lakeland CBOC" sitecode="673" type="Clinic"/>
+			</city>
+			<city name="Lecanto">
+				<site name="Lecanto CBOC" sitecode="573" type="Clinic"/>
+			</city>
+			<city name="Leesburg">
+				<site name="Leesburg CBOC" sitecode="573" type="Clinic"/>
+			</city>
+			<city name="Kissimmee">
+				<site name="Kissimmee CBOC" sitecode="673" type="Clinic"/>
+			</city>
+			<city name="Miami">
+				<site name="Miami HCS" sitecode="546" type="VAMC"/>
+				<site name="Miami Outpatient Substance Abuse Clinic" sitecode="546" type="Clinic"/>
+			</city>
+			<city name="Naples">
+				<site name="Naples Primary Care Clinic" sitecode="516" type="Clinic"/>
+			</city>
+			<city name="New Port Richey">
+				<site name="New Port Richey OPC" sitecode="673" type="Clinic"/>
+			</city>
+			<city name="Oakland Park">
+				<site name="Oakland Park OPC (Ft. Lauderdale)" sitecode="546" type="Clinic"/>
+			</city>
+			<city name="Ocala">
+				<site name="Ocala CBOC" sitecode="573" type="Clinic"/>
+			</city>
+			<city name="Okeechobee">
+				<site name="Okeechobee CBOC" sitecode="548" type="Clinic"/>
+			</city>
+			<city name="Orlando">
+				<site name="Orlando VAMC" sitecode="673" type="VAMC"/>
+			</city>
+			<city name="Panama City">
+				<site name="Panama City OPC" sitecode="520" type="Clinic"/>
+			</city>
+			<city name="Pensacola">
+				<site name="Pensacola OPC" sitecode="520" type="Clinic"/>
+			</city>
+			<city name="Port Charlotte">
+				<site name="Port Charlotte Primary Care Clinic" sitecode="516" type="Clinic"/>
+			</city>
+			<city name="Sanford">
+				<site name="Sanford CBOC" sitecode="673" type="Clinic"/>
+			</city>
+			<city name="Sarasota">
+				<site name="Sarasota Primary Care Clinic" sitecode="516" type="Clinic"/>
+			</city>
+			<city name="Sebring">
+				<site name="Sebring Primary Care Clinic" sitecode="516" type="Clinic"/>
+			</city>
+			<city name="St. Augustine">
+				<site name="St. Augustine CBOC" sitecode="573" type="Clinic"/>
+			</city>
+			<city name="St. Petersburg">
+				<site name="St. Petersburg Primary Care Clinic" sitecode="516" type="Clinic"/>
+			</city>
+			<city name="Stuart">
+				<site name="Stuart CBOC" sitecode="548" type="Clinic"/>
+			</city>
+			<city name="Tallahassee">
+				<site name="Tallahassee OPC" sitecode="573" type="Clinic"/>
+			</city>
+			<city name="Tampa">
+				<site name="Tampa VAMC" sitecode="673" type="VAMC"/>
+			</city>
+			<city name="The Villages">
+				<site name="The Villages CBOC" sitecode="573" type="Clinic"/>
+			</city>
+			<city name="Vero Beach">
+				<site name="Vero Beach CBOC" sitecode="548" type="Clinic"/>
+			</city>
+			<city name="Viera">
+				<site name="Viera OPC" sitecode="673" type="Clinic"/>
+			</city>
+			<city name="Zephyrhills">
+				<site name="Zephyrhills CBOC" sitecode="673" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Georgia" abbr="GA">
+		<cities>
+			<city name="Albany">
+				<site name="Albany Clinic" sitecode="557" type="Clinic"/>
+			</city>
+			<city name="Athens">
+				<site name="Athens Clinic" sitecode="509" type="Clinic"/>
+			</city>
+			<city name="Augusta">
+				<site name="Augusta VAMC" sitecode="509" type="VAMC"/>
+			</city>
+			<city name="Columbus">
+				<site name="Columbus Clinic" sitecode="619" type="Clinic"/>
+			</city>
+			<city name="Decatur">
+				<site name="Atlanta VAMC" sitecode="508" type="VAMC"/>
+				<site name="Decatur Clinic" sitecode="508" type="Clinic"/>
+			</city>
+			<city name="Dublin">
+				<site name="Dublin VAMC" sitecode="557" type="VAMC"/>
+			</city>
+			<city name="East Point">
+				<site name="East Point" sitecode="508" type="Clinic"/>
+			</city>
+			<city name="Lawrenceville">
+				<site name="Lawrenceville Clinic" sitecode="508" type="Clinic"/>
+			</city>
+			<city name="Macon">
+				<site name="Macon Clinic" sitecode="557" type="Clinic"/>
+			</city>
+			<city name="Oakwood">
+				<site name="NE Georgia/Oakwood Clinic" sitecode="508" type="Clinic"/>
+			</city>
+			<city name="Savannah">
+				<site name="Savannah Clinic" sitecode="534" type="Clinic"/>
+			</city>
+			<city name="Smyrna">
+				<site name="Smyrna Clinic" sitecode="508" type="Clinic"/>
+			</city>
+			<city name="Valdosta">
+				<site name="Valdosta Clinic" sitecode="573" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Hawaii" abbr="HI">
+		<cities>
+			<city name="Hilo">
+				<site name="Hilo CBOC" sitecode="459" type="Clinic"/>
+			</city>
+			<city name="Honolulu">
+				<site name="Pacific Islands HCS" sitecode="459" type="VAMC"/>
+				<site name="PTSD Residential Habitation Program" sitecode="459" type="Clinic"/>
+			</city>
+			<city name="Kahului">
+				<site name="Maui CBOC" sitecode="459" type="Clinic"/>
+			</city>
+			<city name="Kailua-Kona">
+				<site name="Kona CBOC" sitecode="459" type="Clinic"/>
+			</city>
+			<city name="Lihue">
+				<site name="Kauai CBOC" sitecode="459" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Idaho" abbr="ID">
+		<cities>
+			<city name="Boise">
+				<site name="Boise VAMC" sitecode="531" type="VAMC"/>
+			</city>
+			<city name="Caldwell">
+				<site name="Caldwell Clinic" sitecode="531" type="Clinic"/>
+			</city>
+			<city name="Lewiston">
+				<site name="Lewiston Clinic" sitecode="531" type="Clinic"/>
+			</city>
+			<city name="Pocatello">
+				<site name="Pocatello OPC" sitecode="660" type="Clinic"/>
+			</city>
+			<city name="Twin Falls">
+				<site name="Twin Falls OPC" sitecode="531" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Illinois" abbr="IL">
+		<cities>
+			<city name="Aurora">
+				<site name="Aurora Clinic" sitecode="578" type="Clinic"/>
+			</city>
+			<city name="Belleville">
+				<site name="Belleville Clinic" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Chicago">
+				<site name="Beverly Clinic" sitecode="537" type="Clinic"/>
+				<site name="Chicago Westside" sitecode="537" type="VAMC"/>
+				<site name="Hines" sitecode="578" type="VAMC"/>
+				<site name="Lakeside Clinic" sitecode="537" type="Clinic"/>
+				<site name="North Chicago" sitecode="556" type="VAMC"/>
+			</city>
+			<city name="Chicago Heights">
+				<site name="Chicago Heights Clinic" sitecode="537" type="Clinic"/>
+			</city>
+			<city name="Danville">
+				<site name="Illiana HCS - Danville" sitecode="550" type="VAMC"/>
+			</city>
+			<city name="Decatur">
+				<site name="Decatur OPC" sitecode="550" type="Clinic"/>
+			</city>
+			<city name="Effingham">
+				<site name="Effingham" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Elgin">
+				<site name="Elgin Clinc" sitecode="578" type="Clinic"/>
+			</city>
+			<city name="Evanston">
+				<site name="Evanston Clinic" sitecode="556" type="Clinic"/>
+			</city>
+			<city name="Freeport">
+				<site name="Freeport Clinic" sitecode="607" type="Clinic"/>
+			</city>
+			<city name="Galesburg">
+				<site name="Galesburg Clinic" sitecode="584" type="Clinic"/>
+			</city>
+			<city name="Joliet">
+				<site name="Joliet Clinic" sitecode="578" type="Clinic"/>
+			</city>
+			<city name="LaSalle">
+				<site name="LaSalle Clinic" sitecode="578" type="Clinic"/>
+			</city>
+			<city name="Manteno">
+				<site name="Manteno Clinic" sitecode="578" type="Clinic"/>
+			</city>
+			<city name="Marion">
+				<site name="Marion VAMC" sitecode="657" type="VAMC"/>
+			</city>
+			<city name="McHenry">
+				<site name="McHenry Clinic" sitecode="556" type="Clinic"/>
+			</city>
+			<city name="Mt. Vernon">
+				<site name="Mt. Vernon Clinic" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Oak Lawn">
+				<site name="Oak Lawn Clinic" sitecode="578" type="Clinic"/>
+			</city>
+			<city name="Oak Park">
+				<site name="Oak Park Clinic" sitecode="578" type="Clinic"/>
+			</city>
+			<city name="Peoria">
+				<site name="Bob Michel OPC" sitecode="550" type="Clinic"/>
+			</city>
+			<city name="Quincy">
+				<site name="Quincy Clinic" sitecode="584" type="Clinic"/>
+			</city>
+			<city name="Rockford">
+				<site name="Rockford Clinic" sitecode="607" type="Clinic"/>
+			</city>
+			<city name="Springfield">
+				<site name="Springfield OPC" sitecode="550" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Indiana" abbr="IN">
+		<cities>
+			<city name="Bloomington">
+				<site name="Bloomington OPC" sitecode="583" type="Clinic"/>
+			</city>
+			<city name="Crown Point">
+				<site name="Adam Benjamin, Jr. OPC" sitecode="537" type="Clinic"/>
+			</city>
+			<city name="Evansville">
+				<site name="Evansville" sitecode="610" type="Clinic"/>
+			</city>
+			<city name="Ft. Wayne">
+				<site name="Northern Indiana HCS - Ft. Wayne Campus" sitecode="610" type="VAMC"/>
+			</city>
+			<city name="Greendale">
+				<site name="Dearborn County CBOC" sitecode="539" type="Clinic"/>
+			</city>
+			<city name="Indianapolis">
+				<site name="Indianapolis VAMC" sitecode="583" type="VAMC"/>
+			</city>
+			<city name="Marion">
+				<site name="Northern Indiana HCS - Marion Campus" sitecode="610" type="VAMC"/>
+			</city>
+			<city name="Muncie">
+				<site name="Muncie/Anderson OPC" sitecode="610" type="Clinic"/>
+			</city>
+			<city name="New Albany">
+				<site name="New Albany Healthcare Center" sitecode="603" type="Clinic"/>
+			</city>
+			<city name="Richmond">
+				<site name="Richmond CBOC" sitecode="552" type="Clinic"/>
+			</city>
+			<city name="South Bend">
+				<site name="South Bend OPC" sitecode="610" type="Clinic"/>
+			</city>
+			<city name="Terre Haute">
+				<site name="Terre Haute OPC" sitecode="583" type="Clinic"/>
+			</city>
+			<city name="West Lafayette">
+				<site name="Lafayette OPC" sitecode="550" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Iowa" abbr="IA">
+		<cities>
+			<city name="Bettendorf">
+				<site name="Bettendorf Clinic" sitecode="584" type="Clinic"/>
+			</city>
+			<city name="Des Moines">
+				<site name="Central Iowa HCS - Des Moines" sitecode="555" type="VAMC"/>
+			</city>
+			<city name="Dubuque">
+				<site name="Dubuque Clinic" sitecode="584" type="Clinic"/>
+			</city>
+			<city name="Ft. Dodge">
+				<site name="Ft. Dodge Clinic" sitecode="584" type="Clinic"/>
+			</city>
+			<city name="Iowa City">
+				<site name="Iowa City VAMC" sitecode="584" type="VAMC"/>
+			</city>
+			<city name="Knoxville">
+				<site name="Central Iowa HCS - Knoxville" sitecode="555" type="VAMC"/>
+			</city>
+			<city name="Mason City">
+				<site name="Mason City Clinic" sitecode="584" type="Clinic"/>
+			</city>
+			<city name="Sioux City">
+				<site name="Sioux City Clinic" sitecode="438" type="Clinic"/>
+			</city>
+			<city name="Waterloo">
+				<site name="Waterloo Clinic" sitecode="584" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Kansas" abbr="KS">
+		<cities>
+			<city name="Abilene">
+				<site name="Memorial Hospital" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Chanute">
+				<site name="Neosho Memorial Medical Center" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Emporia">
+				<site name="Newman Hospital" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Ft. Dodge">
+				<site name="Dodge City Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Ft. Scott">
+				<site name="Newman Young Clinic" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Garnett">
+				<site name="Anderson County Hospital" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Hays">
+				<site name="Hays Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Holton">
+				<site name="Holton Community Hospital" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Junction City">
+				<site name="Junction City" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Kansas City">
+				<site name="Wyandotte CBOC" sitecode="686" type="Clinic"/>
+			</city>
+			<city name="Lawrence">
+				<site name="Lawrence" sitecode="686" type="Clinic"/>
+			</city>
+			<city name="Leavenworth">
+				<site name="Eastern Kansas HCS - Leavenworth" sitecode="686" type="VAMC"/>
+			</city>
+			<city name="Liberal">
+				<site name="Liberal Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Paola">
+				<site name="Louisburg-Paola Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Parsons">
+				<site name="Parsons Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Russell">
+				<site name="Russell Regional Hospital" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Salina">
+				<site name="Salina Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Seneca">
+				<site name="Nemaha Valley Community Hospital" sitecode="677" type="Clinic"/>
+			</city>
+			<city name="Topeka">
+				<site name="Eastern Kansas HCS - Topeka" sitecode="677" type="VAMC"/>
+			</city>
+			<city name="Wichita">
+				<site name="Wichita VAMC" sitecode="589" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Kentucky" abbr="KY">
+		<cities>
+			<city name="Bellevue">
+				<site name="Bellevue CBOC" sitecode="539" type="Clinic"/>
+			</city>
+			<city name="Bowling Green">
+				<site name="Bowling Green CBOC" sitecode="626" type="Clinic"/>
+			</city>
+			<city name="Florence">
+				<site name="Florence Clinic" sitecode="539" type="Clinic"/>
+			</city>
+			<city name="Ft. Knox">
+				<site name="Ft. Knox Healthcare Center" sitecode="603" type="Clinic"/>
+			</city>
+			<city name="Hanson">
+				<site name="Hanson CBOC" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Lexington">
+				<site name="Lexington VAMC" sitecode="596" type="VAMC"/>
+			</city>
+			<city name="Louisville">
+				<site name="Dupont Healthcare Center" sitecode="603" type="Clinic"/>
+				<site name="Louisville VAMC" sitecode="603" type="VAMC"/>
+				<site name="Newburg Healthcare Center" sitecode="603" type="Clinic"/>
+				<site name="Sandiford Field" sitecode="603" type="Clinic"/>
+				<site name="Shively Healthcare Center" sitecode="603" type="Clinic"/>
+			</city>
+			<city name="Paducah">
+				<site name="Paducah CBOC" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Prestonburg">
+				<site name="Prestonburg CBOC" sitecode="581" type="Clinic"/>
+			</city>
+			<city name="Somerset">
+				<site name="Somerset CBOC" sitecode="596" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Louisiana" abbr="LA">
+		<cities>
+			<city name="Baton Rouge">
+				<site name="Baton Rouge OPC" sitecode="629" type="Clinic"/>
+			</city>
+			<city name="Hammond">
+				<site name="Hammond OPC" sitecode="629" type="Clinic"/>
+			</city>
+			<city name="Houma">
+				<site name="Houma CBOC" sitecode="502" type="Clinic"/>
+			</city>
+			<city name="Jennings">
+				<site name="Jennings Clinic" sitecode="502" type="Clinic"/>
+			</city>
+			<city name="Lafayette">
+				<site name="Lafayette Clinic" sitecode="502" type="Clinic"/>
+			</city>
+			<city name="LaPlace">
+				<site name="St. John OPC" sitecode="629" type="Clinic"/>
+			</city>
+			<city name="Monroe">
+				<site name="Monroe Clinic" sitecode="667" type="Clinic"/>
+			</city>
+			<city name="New Orleans">
+				<site name="New Orleans VAMC" sitecode="629" type="VAMC"/>
+			</city>
+			<city name="Pineville">
+				<site name="Alexandria VAMC" sitecode="502" type="VAMC"/>
+			</city>
+			<city name="Shreveport">
+				<site name="Shreveport VAMC" sitecode="667" type="VAMC"/>
+			</city>
+			<city name="Slidell">
+				<site name="Slidell OPC" sitecode="629" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Maine" abbr="ME">
+		<cities>
+			<city name="Augusta">
+				<site name="Togus VAMC" sitecode="402" type="VAMC"/>
+			</city>
+			<city name="Bangor">
+				<site name="Bangor OPC" sitecode="402" type="Clinic"/>
+			</city>
+			<city name="Calais">
+				<site name="Calais OPC" sitecode="402" type="Clinic"/>
+			</city>
+			<city name="Caribou">
+				<site name="Aroostook County OPC" sitecode="402" type="Clinic"/>
+			</city>
+			<city name="Lincoln">
+				<site name="Lincoln CBOC" sitecode="402" type="Clinic"/>
+			</city>
+			<city name="Rumford">
+				<site name="Rumford OPC" sitecode="402" type="Clinic"/>
+			</city>
+			<city name="Saco">
+				<site name="Saco OPC" sitecode="402" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Maryland" abbr="MD">
+		<cities>
+			<city name="Baltimore">
+				<site name="Loch Raven OPC" sitecode="512" type="Clinic"/>
+				<site name="Maryland HCS - Baltimore" sitecode="512" type="VAMC"/>
+			</city>
+			<city name="Cambridge">
+				<site name="Cambridge OPC" sitecode="512" type="Clinic"/>
+			</city>
+			<city name="Charlotte Hall">
+				<site name="Southern Maryland OPC" sitecode="688" type="Clinic"/>
+			</city>
+			<city name="Cumberland">
+				<site name="Cumberland OPC" sitecode="613" type="Clinic"/>
+			</city>
+			<city name="Ft. Howard">
+				<site name="Ft. Howard OPC" sitecode="512" type="Clinic"/>
+			</city>
+			<city name="Glen Burnie">
+				<site name="Glen Burnie OPC" sitecode="512" type="Clinic"/>
+			</city>
+			<city name="Greenbelt">
+				<site name="Greenbelt Community Clinic" sitecode="688" type="Clinic"/>
+			</city>
+			<city name="Hagerstown">
+				<site name="Hagerstown OPC" sitecode="613" type="Clinic"/>
+			</city>
+			<city name="Perry Point">
+				<site name="Maryland HCS - Perry Point" sitecode="512" type="VAMC"/>
+			</city>
+			<city name="Pocomoke">
+				<site name="Pocomoke City OPC" sitecode="512" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Massachusetts" abbr="MA">
+		<cities>
+			<city name="Bedford">
+				<site name="Bedford VAMC" sitecode="518" type="VAMC"/>
+			</city>
+			<city name="Boston">
+				<site name="Boston OPC" sitecode="523" type="Clinic"/>
+			</city>
+			<city name="Brockton">
+				<site name="Boston HCS - Brockton" sitecode="523" type="VAMC"/>
+			</city>
+			<city name="Dorchester">
+				<site name="Dorchester OPC" sitecode="523" type="Clinic"/>
+			</city>
+			<city name="Fitchburg">
+				<site name="Fitchburg OPC" sitecode="518" type="Clinic"/>
+			</city>
+			<city name="Framingham">
+				<site name="Framingham OPC" sitecode="523" type="Clinic"/>
+			</city>
+			<city name="Gloucester">
+				<site name="Gloucester OPC" sitecode="518" type="Clinic"/>
+			</city>
+			<city name="Greenfield">
+				<site name="Greenfield OPC" sitecode="631" type="Clinic"/>
+			</city>
+			<city name="Haverhill">
+				<site name="Haverhill OPC" sitecode="518" type="Clinic"/>
+			</city>
+			<city name="Hyannis">
+				<site name="Hyannis OPC" sitecode="650" type="Clinic"/>
+			</city>
+			<city name="Jamaica Plain">
+				<site name="Boston HCS - Jamaica Plain" sitecode="523" type="VAMC"/>
+			</city>
+			<city name="Leeds">
+				<site name="Northhampton VAMC" sitecode="631" type="Clinic"/>
+			</city>
+			<city name="Lowell">
+				<site name="Lowell OPC" sitecode="523" type="Clinic"/>
+			</city>
+			<city name="Lynn">
+				<site name="North Shore OPC" sitecode="518" type="Clinic"/>
+			</city>
+			<city name="Martha's Vineyard">
+				<site name="Martha's Vineyard OPC" sitecode="650" type="Clinic"/>
+			</city>
+			<city name="Nantucket">
+				<site name="Nantucket OPC" sitecode="650" type="Clinic"/>
+			</city>
+			<city name="New Bedford">
+				<site name="New Bedford OPC" sitecode="650" type="Clinic"/>
+			</city>
+			<city name="Pittsfield">
+				<site name="Pittsfield OPC" sitecode="631" type="Clinic"/>
+			</city>
+			<city name="Quincy">
+				<site name="Quincy OPC" sitecode="523" type="Clinic"/>
+			</city>
+			<city name="Springfield">
+				<site name="Springfield OPC" sitecode="631" type="Clinic"/>
+			</city>
+			<city name="West Roxbury">
+				<site name="Boston HCS - West Roxbury" sitecode="523" type="VAMC"/>
+			</city>
+			<city name="Worcester">
+				<site name="Worcester OPC" sitecode="523" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Michigan" abbr="MI">
+		<cities>
+			<city name="Ann Arbor">
+				<site name="Ann Arbor HCS" sitecode="506" type="VAMC"/>
+			</city>
+			<city name="Battle Creek">
+				<site name="Battle Creek VAMC" sitecode="515" type="VAMC"/>
+			</city>
+			<city name="Benton Harbor">
+				<site name="Benton Harbor OPC" sitecode="515" type="Clinic"/>
+			</city>
+			<city name="Detroit">
+				<site name="Detroit VAMC" sitecode="553" type="VAMC"/>
+			</city>
+			<city name="Flint">
+				<site name="Flint OPC" sitecode="506" type="Clinic"/>
+			</city>
+			<city name="Gaylord">
+				<site name="Gaylord OPC" sitecode="655" type="Clinic"/>
+			</city>
+			<city name="Grand Rapids">
+				<site name="Grand Rapids OPC" sitecode="515" type="Clinic"/>
+			</city>
+			<city name="Hancock">
+				<site name="Hancock Clinic" sitecode="585" type="Clinic"/>
+			</city>
+			<city name="Iron Mountain">
+				<site name="Iron Mountain VAMC" sitecode="585" type="VAMC"/>
+			</city>
+			<city name="Ironwood">
+				<site name="Ironwood Clinic" sitecode="585" type="Clinic"/>
+			</city>
+			<city name="Jackson">
+				<site name="Jackson OPC" sitecode="506" type="Clinic"/>
+			</city>
+			<city name="Kincheloe">
+				<site name="Sault Ste. Marie Clinic" sitecode="585" type="Clinic"/>
+			</city>
+			<city name="Lansing">
+				<site name="Lansing OPC" sitecode="515" type="Clinic"/>
+			</city>
+			<city name="Marquette">
+				<site name="Marquette Clinic" sitecode="585" type="Clinic"/>
+			</city>
+			<city name="Menominee">
+				<site name="Menominee Clinic" sitecode="585" type="Clinic"/>
+			</city>
+			<city name="Muskegon">
+				<site name="Muskegon OPC" sitecode="515" type="Clinic"/>
+			</city>
+			<city name="Oscoda">
+				<site name="Oscoda OPC" sitecode="655" type="Clinic"/>
+			</city>
+			<city name="Pontiac">
+				<site name="Pontiac OPC" sitecode="553" type="Clinic"/>
+			</city>
+			<city name="Saginaw">
+				<site name="Saginaw VAMC" sitecode="655" type="VAMC"/>
+			</city>
+			<city name="Traverse City">
+				<site name="Traverse City OPC" sitecode="655" type="Clinic"/>
+			</city>
+			<city name="Yale">
+				<site name="Yale OPC" sitecode="553" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Minnesota" abbr="MN">
+		<cities>
+			<city name="Brainerd">
+				<site name="Brainerd Clinic" sitecode="656" type="Clinic"/>
+			</city>
+			<city name="Fergus Falls">
+				<site name="Fergus Falls CBOC" sitecode="437" type="Clinic"/>
+			</city>
+			<city name="Hibbing">
+				<site name="Hibbing Clinic" sitecode="618" type="Clinic"/>
+			</city>
+			<city name="Maplewood">
+				<site name="Maplewood Clinic" sitecode="618" type="Clinic"/>
+			</city>
+			<city name="Minneapolis">
+				<site name="Hayward CBOC" sitecode="618" type="Clinic"/>
+				<site name="Minneapolis VAMC" sitecode="618" type="VAMC"/>
+			</city>
+			<city name="Montevideo">
+				<site name="Montevideo Clinic" sitecode="656" type="Clinic"/>
+			</city>
+			<city name="Rochester">
+				<site name="Rochester Clinic" sitecode="618" type="Clinic"/>
+			</city>
+			<city name="St. Cloud">
+				<site name="St. Cloud VAMC" sitecode="656" type="VAMC"/>
+			</city>
+			<city name="St. James">
+				<site name="South Central CBOC" sitecode="618" type="Clinic"/>
+			</city>
+			<city name="Superior">
+				<site name="Twin Ports Clinic" sitecode="618" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Mississippi" abbr="MS">
+		<cities>
+			<city name="Biloxi">
+				<site name="Biloxi VAMC" sitecode="520" type="VAMC"/>
+			</city>
+			<city name="Byhalia">
+				<site name="Byhalia Clinic" sitecode="614" type="Clinic"/>
+			</city>
+			<city name="Columbus">
+				<site name="Columbus Clinic" sitecode="586" type="Clinic"/>
+			</city>
+			<city name="Greenville">
+				<site name="Greenville Clinic" sitecode="586" type="Clinic"/>
+			</city>
+			<city name="Hattiesburg">
+				<site name="Hattiesburg Clinic" sitecode="586" type="Clinic"/>
+			</city>
+			<city name="Houlka">
+				<site name="Houlka CBOC" sitecode="614" type="Clinic"/>
+			</city>
+			<city name="Jackson">
+				<site name="Jackson VAMC" sitecode="586" type="VAMC"/>
+			</city>
+			<city name="Kosciusko">
+				<site name="Kosciusko Clinic" sitecode="586" type="Clinic"/>
+			</city>
+			<city name="Meadville">
+				<site name="Meadville Clinic" sitecode="586" type="Clinic"/>
+			</city>
+			<city name="Meridian">
+				<site name="Meridian Clinic" sitecode="586" type="Clinic"/>
+			</city>
+			<city name="Natchez">
+				<site name="Natchez Clinic" sitecode="586" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Missouri" abbr="MO">
+		<cities>
+			<city name="Belton">
+				<site name="Belton Clinic" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Camdenton">
+				<site name="Lake of the Ozarks Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Cameron">
+				<site name="Cameron Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Cape Girardeau">
+				<site name="Cape Girardeau Clinic" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Columbia">
+				<site name="Columbia VAMC" sitecode="543" type="VAMC"/>
+			</city>
+			<city name="Farmington">
+				<site name="Farmington Clinic" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="Ft. Leonard Wood">
+				<site name="Ft. Leonard Wood Clinic" sitecode="543" type="Clinic"/>
+			</city>
+			<city name="Kansas City">
+				<site name="Kansas City VAMC" sitecode="589" type="VAMC"/>
+			</city>
+			<city name="Kirksville">
+				<site name="North East Missouri Health Council" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Mexico">
+				<site name="Mexico Clinic/Missouri Veterans Home" sitecode="543" type="Clinic"/>
+			</city>
+			<city name="Mt. Vernon">
+				<site name="Gene Taylor CBOC" sitecode="564" type="Clinic"/> 
+			</city>
+			<city name="Nevada">
+				<site name="Nevada Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="Poplar Bluff">
+				<site name="Poplar Bluff VAMC" sitecode="657" type="VAMC"/>
+			</city>
+			<city name="Salem">
+				<site name="Salem Clinic" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="St. Charles">
+				<site name="St. Charles Clinic" sitecode="657" type="Clinic"/>
+			</city>
+			<city name="St. James">
+				<site name="St. James Clinic/Missouri Veterans Home" sitecode="543" type="Clinic"/>
+			</city>
+			<city name="St. Joseph">
+				<site name="St. Joseph Clinic" sitecode="686" type="Clinic"/>
+			</city>
+			<city name="St. Louis">
+				<site name="Missouri Veterans Clinic" sitecode="657" type="Clinic"/>
+				<site name="St. Louis - Cochran" sitecode="657" type="VAMC"/>
+				<site name="St. Louis - Jefferson Barracks" sitecode="657" type="VAMC"/>
+			</city>
+			<city name="Warrensburg">
+				<site name="Warrensburg Clinic" sitecode="589" type="Clinic"/>
+			</city>
+			<city name="West Plains">
+				<site name="West Plains Clinic" sitecode="657" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Montana" abbr="MT">
+		<cities>
+			<city name="Anaconda">
+				<site name="Anaconda OPC" sitecode="436" type="Clinic"/>
+			</city>
+			<city name="Billings">
+				<site name="Billings OPC" sitecode="436" type="Clinic"/>
+			</city>
+			<city name="Bozeman">
+				<site name="Bozeman OPC" sitecode="436" type="Clinic"/>
+			</city>
+			<city name="Ft. Harrison">
+				<site name="Ft. Harrison VAMC" sitecode="436" type="VAMC"/>
+			</city>
+			<city name="Glasgow">
+				<site name="Glasgow OPC" sitecode="436" type="Clinic"/>
+			</city>
+			<city name="Great Falls">
+				<site name="Great Falls OPC" sitecode="436" type="Clinic"/>
+			</city>
+			<city name="Kalispell">
+				<site name="Kalispell OPC" sitecode="436" type="Clinic"/>
+			</city>
+			<city name="Miles City">
+				<site name="Miles City OPC" sitecode="436" type="Clinic"/>
+			</city>
+			<city name="Missoula">
+				<site name="Missoula OPC" sitecode="436" type="Clinic"/>
+			</city>
+			<city name="Sidney">
+				<site name="Sidney OPC" sitecode="436" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Nebraska" abbr="NE">
+		<cities>
+			<city name="Alliance">
+				<site name="Alliance Clinic" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Grand Island">
+				<site name="Nebraska Western Iowa HCS - Grand Island Division" sitecode="636" type="VAMC"/>
+			</city>
+			<city name="Lincoln">
+				<site name="Nebraska Western Iowa HCS - Lincoln Division" sitecode="636" type="VAMC"/>
+			</city>
+			<city name="Norfolk">
+				<site name="Norfolk CBOC" sitecode="636" type="Clinic"/>
+			</city>
+			<city name="North Platte">
+				<site name="North Platte Clinic" sitecode="636" type="Clinic"/>
+			</city>
+			<city name="Omaha">
+				<site name="Nebraska Western Iowa HCS - Omaha Division" sitecode="636" type="VAMC"/>
+			</city>
+			<city name="Rushville">
+				<site name="Rushville Clinic" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Scottsbluff">
+				<site name="Scottsbluff CBOC" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Sidney">
+				<site name="Sidney OPC" sitecode="442" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Nevada" abbr="NV">
+		<cities>
+			<city name="Ely">
+				<site name="Ely OPC/William B. Ririe Hospital" sitecode="660" type="Clinic"/>
+			</city>
+			<city name="Fallon">
+				<site name="Lahontan Valley OPC" sitecode="654" type="Clinic"/>
+			</city>
+			<city name="Henderson">
+				<site name="Henderson CBOC" sitecode="593" type="Clinic"/>
+			</city>
+			<city name="Las Vegas">
+				<site name="Las Vegas VAMC" sitecode="593" type="VAMC"/>
+				<site name="Outreach Center for Homeless Veterans" sitecode="593" type="Clinic"/>
+			</city>
+			<city name="Minden">
+				<site name="Carson Valley OPC" sitecode="654" type="Clinic"/>
+			</city>
+			<city name="Pahrump">
+				<site name="Pahrump CBOC" sitecode="593" type="Clinic"/>
+			</city>
+			<city name="Reno">
+				<site name="Reno VAMC" sitecode="654" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="New Hampshire" abbr="NH">
+		<cities>
+			<city name="Conway">
+				<site name="Conway CBOC" sitecode="608" type="Clinic"/>
+			</city>
+			<city name="Littleton">
+				<site name="Littleton OPC" sitecode="405" type="Clinic"/>
+			</city>
+			<city name="Manchester">
+				<site name="Manchester VAMC" sitecode="608" type="VAMC"/>
+			</city>
+			<city name="Portsmouth">
+				<site name="Portsmouth OPC" sitecode="608" type="Clinic"/>
+			</city>
+			<city name="Somersworth">
+				<site name="Somersworth OPC" sitecode="608" type="Clinic"/>
+			</city>
+			<city name="Tilton">
+				<site name="Tilton OPC" sitecode="608" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="New Jersey" abbr="NJ">
+		<cities>
+			<city name="Brick">
+				<site name="James J. Howard Community Clinic" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="Cape May">
+				<site name="Cape May OPC" sitecode="460" type="Clinic"/>
+			</city>
+			<city name="East Orange">
+				<site name="New Jersey HCS - East Orange" sitecode="561" type="VAMC"/>
+			</city>
+			<city name="Ft. Dix">
+				<site name="Marshall Hall CBOC" sitecode="642" type="Clinic"/>
+			</city>
+			<city name="Ft. Monmouth">
+				<site name="Ft. Monmouth Community Clinic" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="Hackensack">
+				<site name="Hackensack CBOC" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="Jersey City">
+				<site name="Jersey City CBOC" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="Lyons">
+				<site name="New Jersey HCS - Lyons" sitecode="561" type="VAMC"/>
+			</city>
+			<city name="Morristown">
+				<site name="Morristown CBOC" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="Newark">
+				<site name="Newark CBOC" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="New Brunswick">
+				<site name="New Brunswick CBOC" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="Paterson">
+				<site name="Paterson CBOC" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="Sewell">
+				<site name="Gloucester County CBOC" sitecode="642" type="Clinic"/>
+			</city>
+			<city name="Trenton">
+				<site name="Trenton CBOC" sitecode="561" type="Clinic"/>
+			</city>
+			<city name="Ventnor">
+				<site name="Ventnor Clinic" sitecode="460" type="Clinic"/>
+			</city>
+			<city name="Vineland">
+				<site name="Vineland Clinic" sitecode="460" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="New Mexico" abbr="NM">
+		<cities>
+			<city name="Alamagordo">
+				<site name="Alamagordo Clinic" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Albuquerque">
+				<site name="New Mexico HCS" sitecode="501" type="VAMC"/>
+			</city>
+			<city name="Artesia">
+				<site name="Artesia Clinic" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Clovis">
+				<site name="Clovis CBOC" sitecode="504" type="Clinic"/>
+			</city>
+			<city name="Espanola">
+				<site name="Espanola CBOC" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Farmington">
+				<site name="Farmington CBOC" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Gallup">
+				<site name="Gallup CBOC" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Hobbs">
+				<site name="Hobbs CBOC" sitecode="519" type="Clinic"/>
+			</city>
+			<city name="Las Cruces">
+				<site name="Las Cruces CBOC" sitecode="756" type="Clinic"/>
+			</city>
+			<city name="Las Vegas">
+				<site name="Las Vegas CBOC" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Raton">
+				<site name="Raton CBOC" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Santa Fe">
+				<site name="Santa Fe CBOC" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Silver City">
+				<site name="Silver City Clinic" sitecode="501" type="Clinic"/>
+			</city>
+			<city name="Truth or Consequences">
+				<site name="Truth or Consequences CBOC" sitecode="501" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="New York" abbr="NY">
+		<cities>
+			<city name="Albany">
+				<site name="Albany VAMC" sitecode="528" type="VAMC"/>
+			</city>
+			<city name="Auburn">
+				<site name="Auburn OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Bainbridge">
+				<site name="Bainbridge OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Batavia">
+				<site name="Western NY HCS - Batavia" sitecode="528" type="VAMC"/>
+			</city>
+			<city name="Bath">
+				<site name="Bath VAMC" sitecode="528" type="VAMC"/>
+			</city>
+			<city name="Binghamton">
+				<site name="Binghamton OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Bronx">
+				<site name="Bronx Community Clinic" sitecode="526" type="Clinic"/>
+				<site name="Bronx VAMC" sitcode="526" type="VAMC"/>
+			</city>
+			<city name="Brooklyn">
+				<site name="Chapel Street" sitecode="630" type="Clinic"/>
+				<site name="NY Harbor HCS - Brooklyn" sitecode="630" type="VAMC"/>
+			</city>
+			<city name="Buffalo">
+				<site name="Western NY HCS - Buffalo" sitecode="528" type="VAMC"/>
+			</city>
+			<city name="Canandaigua">
+				<site name="Canandaigua VAMC" sitecode="528" type="VAMC"/>
+			</city>
+			<city name="Carmel">
+				<site name="Carmel County Clinic/Putnam County" sitecode="620" type="Clinic"/>
+			</city>
+			<city name="Carthage">
+				<site name="Carthage OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Castle Point">
+				<site name="Hudson Valley HCS - Castle Point" sitecode="620" type="VAMC"/>
+			</city>
+			<city name="Catskill">
+				<site name="Catskill OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Clifton Park">
+				<site name="Clifton Park OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Cortland">
+				<site name="Cortland OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Dunkirk">
+				<site name="Dunkirk OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Elizabethtown">
+				<site name="Elizabethtown OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Elmira">
+				<site name="Elmira OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Fonda">
+				<site name="Fonda OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Glens Falls">
+				<site name="Glens Falls OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Goshen">
+				<site name="Goshen Community Clinic" sitecode="620" type="Clinic"/>
+			</city>
+			<city name="Ithaca">
+				<site name="Ithaca CBOC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Jamestown">
+				<site name="Jamestown OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Kingston">
+				<site name="Kingston OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Lackawanna">
+				<site name="Lackawanna OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Lockport">
+				<site name="Lockport OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Manhattan">
+				<site name="Harlem Community Clinic" sitecode="630" type="Clinic"/>
+				<site name="NY Harbor HCS - Manhattan" sitecode="630" type="VAMC"/>
+			</city>
+			<city name="Malone">
+				<site name="Malone OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Massena">
+				<site name="Massena OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Monticello">
+				<site name="Monticello Community Clinic" sitecode="620" type="Clinic"/>
+			</city>
+			<city name="Montrose">
+				<site name="Hudson Valley HCS - Montrose" sitecode="620" type="VAMC"/>
+			</city>
+			<city name="New City">
+				<site name="New City Community Clinic" sitecode="620" type="Clinic"/>
+			</city>
+			<city name="Niagara Falls">
+				<site name="Niagara Falls OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Northport">
+				<site name="Northport VAMC" sitecode="632" type="VAMC"/>
+			</city>
+			<city name="Olean">
+				<site name="Olean OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Oswego">
+				<site name="Oswego OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Patchogue">
+				<site name="Patchogue Community Clinic" sitecode="632" type="Clinic"/>
+			</city>
+			<city name="Pine Plains">
+				<site name="Eastern Duchess Community Clinic" sitecode="620" type="Clinic"/>
+			</city>
+			<city name="Plainview">
+				<site name="Plainview Community Clinic" sitecode="632" type="Clinic"/>
+			</city>
+			<city name="Plattsburg">
+				<site name="Plattsburg OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Port Jervis">
+				<site name="Port Jervis Community Clinic" sitecode="620" type="Clinic"/>
+			</city>
+			<city name="Poughkeepsie">
+				<site name="Poughkeepsie Community Clinic" sitecode="620" type="Clinic"/>
+			</city>
+			<city name="Queens">
+				<site name="NY Harbor HCS - St. Albans" sitecode="630" type="VAMC"/>
+			</city>
+			<city name="Rochester">
+				<site name="Rochester OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Rome">
+				<site name="Rome OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Schenectady">
+				<site name="Schenectady OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Staten Island">
+				<site name="Staten Island Community Clinic" sitecode="630" type="Clinic"/>
+			</city>
+			<city name="Sunnyside">
+				<site name="Queens Community Clinic" sitecode="526" type="Clinic"/>
+			</city>
+			<city name="Syracuse">
+				<site name="Syracuse VAMC" sitecode="528" type="VAMC"/>
+			</city>
+			<city name="Troy">
+				<site name="Troy OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Warsaw">
+				<site name="Warsaw Clinic" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Wellsville">
+				<site name="Wellsville OPC" sitecode="528" type="Clinic"/>
+			</city>
+			<city name="Westhampton">
+				<site name="Westhampton Community Air Base" sitecode="632" type="Clinic"/>
+			</city>
+			<city name="White Plains">
+				<site name="White Plains Community Clinic" sitecode="526" type="Clinic"/>
+			</city>
+			<city name="Yonkers">
+				<site name="Yonkers Community Clinic" sitecode="526" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="North Carolina" abbr="NC">
+		<cities>
+			<city name="Asheville">
+				<site name="Asheville VAMC" sitecode="637" type="VAMC"/>
+			</city>
+			<city name="Charlotte">
+				<site name="Charlotte CBOC" sitecode="659" type="Clinic"/>
+			</city>
+			<city name="Durham">
+				<site name="Durham VAMC" sitecode="558" type="VAMC"/>
+				<site name="Hillandale Road CBOC" sitecode="558" type="Clinic"/>
+			</city>
+			<city name="Fayetteville">
+				<site name="Fayetteville VAMC" sitecode="565" type="VAMC"/>
+			</city>
+			<city name="Greenville">
+				<site name="Greenville CBOC" sitecode="558" type="Clinic"/>
+			</city>
+			<city name="Jacksonville">
+				<site name="Jacksonville CBOC" sitecode="565" type="Clinic"/>
+			</city>
+			<city name="Morehead City">
+				<site name="Morehead City CBOC" sitecode="558" type="Clinic"/>
+			</city>
+			<city name="Raleigh">
+				<site name="Raleigh CBOC" sitecode="558" type="Clinic"/>
+			</city>
+			<city name="Salisbury">
+				<site name="Salisbury CBOC" sitecode="659" type="VAMC"/>
+			</city>
+			<city name="Wilmington">
+				<site name="Wilmington CBOC" sitecode="565" type="Clinic"/>
+			</city>
+			<city name="Winston-Salem">
+				<site name="Winston-Salem CBOC" sitecode="659" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="North Dakota" abbr="ND">
+		<cities>
+			<city name="Bismarck">
+				<site name="Bismarck CBOC" sitecode="437" type="Clinic"/>
+			</city>
+			<city name="Dickinson">
+				<site name="Dickinson CBOC" sitecode="437" type="Clinic"/>
+			</city>
+			<city name="Fargo">
+				<site name="Fargo VAMC" sitecode="437" type="VAMC"/>
+			</city>
+			<city name="Grafton">
+				<site name="Grafton CBOC" sitecode="437" type="Clinic"/>
+			</city>
+			<city name="Jamestown">
+				<site name="Jamestown CBOC" sitecode="437" type="Clinic"/>
+			</city>
+			<city name="Minot">
+				<site name="Minot CBOC" sitecode="437" type="Clinic"/>
+			</city>
+			<city name="Williston">
+				<site name="Williston CBOC" sitecode="437" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Ohio" abbr="OH">
+		<cities>
+			<city name="Akron">
+				<site name="Akron CBOC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Ashtabula">
+				<site name="Ashtabula County CBOC" sitecode="" type="Clinic"/>
+			</city>
+			<city name="Athens">
+				<site name="Athens CBOC" sitecode="538" type="Clinic"/>
+			</city>
+			<city name="Brecksville">
+				<site name="Brecksville Clinic" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Cambridge">
+				<site name="Cambridge CBOC" sitecode="538" type="Clinic"/>
+			</city>
+			<city name="Canton">
+				<site name="Canton OPC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Chillicothe">
+				<site name="Chillicothe VAMC" sitecode="538" type="VAMC"/>
+			</city>
+			<city name="Cincinnati">
+				<site name="Cincinnati VAMC" sitecode="539" type="VAMC"/>
+				<site name="Clermont County CBOC" sitecode="539" type="Clinic"/>
+			</city>
+			<city name="Cleveland">
+				<site name="Cleveland VAMC" sitecode="541" type="VAMC"/>
+				<site name="McCafferty CBOC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Columbus">
+				<site name="Columbus VAMC" sitecode="757" type="VAMC"/>
+			</city>
+			<city name="Dayton">
+				<site name="Dayton VAMC" sitecode="552" type="VAMC"/>
+			</city>
+			<city name="East Liverpool">
+				<site name="East Liverpool/Calcutta CBOC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Georgetown">
+				<site name="Georgetown CBOC" sitecode="539" type="Clinic"/>
+			</city>
+			<city name="Grove City">
+				<site name="Grove City CBOC" sitecode="757" type="Clinic"/>
+			</city>
+			<city name="Hamilton">
+				<site name="Butler County" sitecode="539" type="Clinic"/>
+			</city>
+			<city name="Lancaster">
+				<site name="Lancaster CBOC" sitecode="538" type="Clinic"/>
+			</city>
+			<city name="Lima">
+				<site name="Lima CBOC" sitecode="552" type="Clinic"/>
+			</city>
+			<city name="Lorain">
+				<site name="Lorain CBOC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Mansfield">
+				<site name="Mansfield CBOC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Marietta">
+				<site name="Marietta CBOC" sitecode="538" type="Clinic"/>
+			</city>
+			<city name="Marion">
+				<site name="Marion CBOC" sitecode="757" type="Clinic"/>
+			</city>
+			<city name="Middletown">
+				<site name="Middletown CBOC" sitecode="552" type="Clinic"/>
+			</city>
+			<city name="Newark">
+				<site name="Newark CBOC" sitecode="757" type="Clinic"/>
+			</city>
+			<city name="New Philadelphia">
+				<site name="New Philadelphia Clinic" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Painesville">
+				<site name="Painesville CBOC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Portsmouth">
+				<site name="Portsmouth CBOC" sitecode="538" type="Clinic"/>
+			</city>
+			<city name="Ravenna">
+				<site name="Ravenna Clinic" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Sandusky">
+				<site name="Sandusky CBOC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Springfield">
+				<site name="Springfield CBOC" sitecode="552" type="Clinic"/>
+			</city>
+			<city name="St. Clairsville">
+				<site name="Belmont County CBOC" sitecode="646" type="Clinic"/>
+			</city>
+			<city name="Toledo">
+				<site name="Toledo OPC" sitecode="506" type="Clinic"/>
+			</city>
+			<city name="Warren">
+				<site name="Warren CBOC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Youngstown">
+				<site name="Youngstown OPC" sitecode="541" type="Clinic"/>
+			</city>
+			<city name="Zanesville">
+				<site name="Zanesville CBOC" sitecode="757" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Oklahoma" abbr="OK">
+		<cities>
+			<city name="Ardmore">
+				<site name="Ardmore CBOC" sitecode="635" type="Clinic"/>
+			</city>
+			<city name="Ft. Sill">
+				<site name="Lawton/Ft. Sill Clinic" sitecode="635" type="Clinic"/>
+			</city>
+			<city name="Konawa">
+				<site name="Central Oklahoma OPC" sitecode="635" type="Clinic"/>
+			</city>
+			<city name="Muskogee">
+				<site name="Muskogee VAMC" sitecode="623" type="VAMC"/>
+			</city>
+			<city name="Oklahoma City">
+				<site name="Oklahoma City VAMC" sitecode="635" type="VAMC"/>
+			</city>
+			<city name="Ponca City">
+				<site name="Ponca City Internal Medicine" sitecode="635" type="Clinic"/>
+			</city>
+			<city name="Tulsa">
+				<site name="Tulsa OPC" sitecode="623" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Oregon" abbr="OR">
+		<cities>
+			<city name="Bandon">
+				<site name="Bandon CBOC" sitecode="653" type="Clinic"/>
+			</city>
+			<city name="Bend">
+				<site name="Bend CBOC" sitecode="648" type="Clinic"/>
+			</city>
+			<city name="Brookings">
+				<site name="Brookings CBOC" sitecode="653" type="Clinic"/>
+			</city>
+			<city name="Eugene">
+				<site name="Eugene CBOC" sitecode="653" type="Clinic"/>
+			</city>
+			<city name="Klamath Falls">
+				<site name="Klamath Falls CBOC" sitecode="653" type="Clinic"/>
+			</city>
+			<city name="Ontario">
+				<site name="Ontario CBOC" sitecode="531" type="Clinic"/>
+			</city>
+			<city name="Portland">
+				<site name="East Portland CBOC" sitecode="648" type="Clinic"/>
+				<site name="Portland VAMC" sitecode="648" type="VAMC"/>
+			</city>
+			<city name="Roseburg">
+				<site name="Roseburg VAMC" sitecode="653" type="VAMC"/>
+			</city>
+			<city name="Salem">
+				<site name="Salem CBOC" sitecode="648" type="Clinic"/>
+			</city>
+			<city name="Warrenton">
+				<site name="Camp Rilea CBOC" sitecode="648" type="Clinic"/>
+			</city>
+			<city name="White City">
+				<site name="Southern Oregon Rehabilitation Center" sitecode="653" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Pennsylvania" abbr="PA">
+		<cities>
+			<city name="Alaquippa">
+				<site name="Alaquippa CBOC" sitecode="646" type="Clinic"/>
+			</city>
+			<city name="Allentown">
+				<site name="Allentown CBOC" sitecode="693" type="Clinic"/>
+			</city>
+			<city name="Altoona">
+				<site name="Altoona VAMC" sitecode="503" type="VAMC"/>
+			</city>
+			<city name="Bangor">
+				<site name="Northampton County CBOC" sitecode="693" type="Clinic"/>
+			</city>
+			<city name="Berwick">
+				<site name="Columbia County CBOC" sitecode="693" type="Clinic"/>
+			</city>
+			<city name="Butler">
+				<site name="Butler VAMC" sitecode="529" type="VAMC"/>
+			</city>
+			<city name="Camp Hill">
+				<site name="Camp Hill CBOC" sitecode="595" type="Clinic"/>
+			</city>
+			<city name="Coatesville">
+				<site name="Coatesville VAMC" sitecode="542" type="VAMC"/>
+			</city>
+			<city name="DuBois">
+				<site name="DuBois CBOC" sitecode="503" type="Clinic"/>
+			</city>
+			<city name="Ellwood City">
+				<site name="Lawrence County CBOC" sitecode="529" type="Clinic"/>
+			</city>
+			<city name="Erie">
+				<site name="Erie VAMC" sitecode="562" type="VAMC"/>
+			</city>
+			<city name="Foxburg">
+				<site name="Clarion County CBOC" sitecode="529" type="Clinic"/>
+			</city>
+			<city name="Frackville">
+				<site name="Good Samaritan" sitecode="595" type="Clinic"/>
+			</city>
+			<city name="Greensburg">
+				<site name="Greensburg CBOC" sitecode="646" type="Clinic"/>
+			</city>
+			<city name="Hermitage">
+				<site name="Mercer County CBOC" sitecode="529" type="Clinic"/>
+			</city>
+			<city name="Horsham">
+				<site name="Willow Grove CBOC" sitecode="642" type="Clinic"/>
+			</city>
+			<city name="Johnstown">
+				<site name="Johnstown CBOC" sitecode="503" type="Clinic"/>
+			</city>
+			<city name="Kittanning">
+				<site name="Armstrong County CBOC" sitecode="529" type="Clinic"/>
+			</city>
+			<city name="Lancaster">
+				<site name="Lancaster CBOC" sitecode="595" type="Clinic"/>
+			</city>
+			<city name="Lebanon">
+				<site name="Lebanon VAMC" sitecode="595" type="VAMC"/>
+			</city>
+			<city name="Meadville">
+				<site name="Crawford County CBOC" sitecode="562" type="Clinic"/>
+			</city>
+			<city name="New Castle">
+				<site name="Lawrence County CBOC" sitecode="529" type="Clinic"/>
+			</city>
+			<city name="Oil City">
+				<site name="Venango County CBOC" sitecode="529" type="Clinic"/>
+			</city>
+			<city name="Philadelphia">
+				<site name="Philadelphia OPC" sitecode="542" type="Clinic"/>
+				<site name="Philadelphia VAMC" sitecode="642" type="VAMC"/>
+			</city>
+			<city name="Pittsburgh">
+				<site name="Pittsburg HCS - Heinz" sitecode="646" type="VAMC"/>
+				<site name="Pittsburg HCS - Highland Drive" sitecode="646" type="VAMC"/>
+				<site name="Pittsburg HCS - University Drive" sitecode="646" type="VAMC"/>
+			</city>
+			<city name="Pottsville">
+				<site name="Schuylkill County Good Samaritan" sitecode="693" type="Clinic"/>
+			</city>
+			<city name="Smethport">
+				<site name="McKean County CBOC" sitecode="562" type="Clinic"/>
+			</city>
+			<city name="Spring City">
+				<site name="Spring City OPC" sitecode="542" type="Clinic"/>
+			</city>
+			<city name="Springfield">
+				<site name="Media OPC" sitecode="542" type="Clinic"/>
+			</city>
+			<city name="State College">
+				<site name="Centre County OPC" sitecode="503" type="Clinic"/>
+			</city>
+			<city name="Tobyhanna">
+				<site name="Tobyhanna Army Depot" sitecode="693" type="Clinic"/>
+			</city>
+			<city name="Uniontown">
+				<site name="Uniontown CBOC" sitecode="646" type="Clinic"/>
+			</city>
+			<city name="Warren">
+				<site name="Warren CBOC" sitecode="562" type="Clinic"/>
+			</city>
+			<city name="Washington">
+				<site name="Washington CBOC" sitecode="646" type="Clinic"/>
+			</city>
+			<city name="Wilkes-Barre">
+				<site name="Northeastern PA Mobile Health Clinic" sitecode="693" type="Clinic"/>
+				<site name="Wilkes-Barre VAMC" sitecode="693" type="VAMC"/>
+			</city>
+			<city name="Williamsport">
+				<site name="Williamsport OPC/Divine Providence Hospital" sitecode="693" type="Clinic"/>
+			</city>
+			<city name="York">
+				<site name="York OPC" sitecode="595" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Philippine Islands" abbr="PI">
+		<cities>
+			<city name="Manila">
+				<site name="Manila OPC" sitecode="358" type="Clinic"/>
+				<site name="Manila VAMC" sitecode="358" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Puerto Rico" abbr="PR">
+		<cities>
+			<city name="Arecibo">
+				<site name="Arecibo CBOC" sitecode="672" type="Clinic"/>
+			</city>
+			<city name="Guayama">
+				<site name="Guayama CBOC" sitecode="672" type="Clinic"/>
+			</city>
+			<city name="Mayaguez">
+				<site name="Mayaguez OPC" sitecode="672" type="Clinic"/>
+			</city>
+			<city name="Ponce">
+				<site name="Ponce OPC" sitecode="672" type="Clinic"/>
+			</city>
+			<city name="San Juan">
+				<site name="San Juan VAMC" sitecode="672" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Rhode Island" abbr="RI">
+		<cities>
+			<city name="Middletown">
+				<site name="Middletown OPC" sitecode="650" type="Clinic"/>
+			</city>
+			<city name="Providence">
+				<site name="Providence VAMC" sitecode="650" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="South Carolina" abbr="SC">
+		<cities>
+			<city name="Anderson">
+				<site name="Anderson County Clinic" sitecode="544" type="Clinic"/>
+			</city>
+			<city name="Beaufort">
+				<site name="Beaufort Clinic" sitecode="534" type="Clinic"/>
+			</city>
+			<city name="Charleston">
+				<site name="Charleston VAMC" sitecode="534" type="VAMC"/>
+			</city>
+			<city name="Columbia">
+				<site name="Columbia VAMC" sitecode="544" type="VAMC"/>
+			</city>
+			<city name="Florence">
+				<site name="Florence CBOC" sitecode="544" type="Clinic"/>
+			</city>
+			<city name="Greenville">
+				<site name="Greenville Clinic" sitecode="544" type="Clinic"/>
+			</city>
+			<city name="Myrtle Beach">
+				<site name="Myrtle Beach" sitecode="534" type="Clinic"/>
+			</city>
+			<city name="North Charleston">
+				<site name="Goose Creek CBOC" sitecode="534" type="Clinic"/>
+			</city>
+			<city name="Orangeburg">
+				<site name="Orangeburg County Clinic" sitecode="544" type="Clinic"/>
+			</city>
+			<city name="Rock Hill">
+				<site name="Rock Hill Clinic" sitecode="544" type="Clinic"/>
+			</city>
+			<city name="Sumter">
+				<site name="Sumter County Clinic" sitecode="544" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="South Dakota" abbr="SD">
+		<cities>
+			<city name="Aberdeen">
+				<site name="Aberdeen Clinic" sitecode="438" type="Clinic"/>
+			</city>
+			<city name="Eagle Butte">
+				<site name="Eagle Butte Clinic" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Ft. Meade">
+				<site name="Black Hills HCS - Ft. Meade" sitecode="568" type="VAMC"/>
+			</city>
+			<city name="Hot Springs">
+				<site name="Black Hills HCS - Hot Springs" sitecode="568" type="VAMC"/>
+			</city>
+			<city name="McLaughlin">
+				<site name="McLaughlin Clinic" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Mission">
+				<site name="Mission CBOC" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Pierre">
+				<site name="Pierre Clinic" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Pine Ridge">
+				<site name="Pine Ridge Clinic" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Rapid City">
+				<site name="Rapid City Clinic" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Sioux Falls">
+				<site name="Sioux Falls VAMC" sitecode="438" type="VAMC"/>
+			</city>
+			<city name="Winner">
+				<site name="Winner Clinic" sitecode="568" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Tennessee" abbr="TN">
+		<cities>
+			<city name="Chattanooga">
+				<site name="Chattanooga Clinic" sitecode="626" type="Clinic"/>
+			</city>
+			<city name="Clarksville">
+				<site name="Gateway Medical Center" sitecode="626" type="Clinic"/>
+			</city>
+			<city name="Cookeville">
+				<site name="Cookeville Clinic" sitecode="626" type="Clinic"/>
+			</city>
+			<city name="Knoxville">
+				<site name="Knoxville Clinic" sitecode="626" type="Clinic"/>
+			</city>
+			<city name="Memphis">
+				<site name="Memphis VAMC" sitecode="614" type="VAMC"/>
+			</city>
+			<city name="Mountain Home">
+				<site name="Mountain Home VAMC" sitecode="621" type="VAMC"/>
+			</city>
+			<city name="Murfreesboro">
+				<site name="Tennessee Valley HCS - Murfreesboro" sitecode="626" type="VAMC"/>
+			</city>
+			<city name="Nashville">
+				<site name="Tennessee Valley HCS - Nashville" sitecode="626" type="Clinic"/>
+			</city>
+			<city name="Savannah">
+				<site name="Life Span Health" sitecode="614" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Texas" abbr="TX">
+		<cities>
+			<city name="Abilene">
+				<site name="Abilene Clinic" sitecode="519" type="Clinic"/>
+			</city>
+			<city name="Aledo">
+				<site name="Aledo Clinic" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="Amarillo">
+				<site name="Amarillo VAMC" sitecode="504" type="VAMC"/>
+			</city>
+			<city name="Austin">
+				<site name="Austin OPC" sitecode="674" type="Clinic"/>
+				<site name="Central Texas HCS - Austin" sitecode="674" type="VAMC"/>
+			</city>
+			<city name="Beaumont">
+				<site name="Beaumont Clinic" sitecode="580" type="Clinic"/>
+			</city>
+			<city name="Beeville">
+				<site name="Beeville Family Practice" sitecode="671" type="Clinic"/>
+			</city>
+			<city name="Big Spring">
+				<site name="Big Spring VAMC" sitecode="519" type="VAMC"/>
+			</city>
+			<city name="Bonham">
+				<site name="Bonham/Red River Clinic" sitecode="549" type="Clinic"/>
+				<site name="North Texas HCS - Bonham" sitecode="549" type="VAMC"/>
+			</city>
+			<city name="Bridgeport">
+				<site name="Bridgeport Family Clinic" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="Brownwood">
+				<site name="Brownwood CBOC" sitecode="674" type="Clinic"/>
+			</city>
+			<city name="Cedar Park">
+				<site name="Cedar Park CBOC" sitecode="674" type="Clinic"/>
+			</city>
+			<city name="Childress">
+				<site name="Childress Clinic" sitecode="504" type="Clinic"/>
+			</city>
+			<city name="College Station">
+				<site name="Bryan CBOC" sitecode="674" type="Clinic"/>
+			</city>
+			<city name="Conroe">
+				<site name="Conroe CBOC" sitecode="580" type="Clinic"/>
+			</city>
+			<city name="Corpus Christi">
+				<site name="Corpus Christi OPC" sitecode="671" type="Clinic"/>
+			</city>
+			<city name="Dallas">
+				<site name="North Texas HCS - Dallas" sitecode="549" type="VAMC"/>
+			</city>
+			<city name="Denton">
+				<site name="Denton OPC" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="El Paso">
+				<site name="El Paso VAMC" sitecode="756" type="VAMC"/>
+			</city>
+			<city name="Ft. Stockton">
+				<site name="Dr. Subodh Malik Clinic" sitecode="519" type="Clinic"/>
+			</city>
+			<city name="Ft. Worth">
+				<site name="Ft. Worth OPC" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="Galveston">
+				<site name="Galveston CBOC" sitecode="580" type="Clinic"/>
+			</city>
+			<city name="Granbury">
+				<site name="Acton Clinic" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="Greenville">
+				<site name="Greenville Community Health Center" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="Harlingen">
+				<site name="Harlingen OPC" sitecode="671" type="Clinic"/>
+			</city>
+			<city name="Houston">
+				<site name="Houston VAMC" sitecode="580" type="VAMC"/>
+			</city>
+			<city name="Kerrville">
+				<site name="South Texas HCS - Kerrville" sitecode="671" type="VAMC"/>
+			</city>
+			<city name="Laredo">
+				<site name="Laredo OPC" sitecode="671" type="Clinic"/>
+			</city>
+			<city name="Longview">
+				<site name="Longview CBOC" sitecode="667" type="Clinic"/>
+			</city>
+			<city name="Lubbock">
+				<site name="Lubbock Clinic" sitecode="504" type="Clinic"/>
+			</city>
+			<city name="Lufkin">
+				<site name="Charles Wilson OPC" sitecode="580" type="Clinic"/>
+			</city>
+			<city name="Marlin">
+				<site name="Central Texas HCS - Marlin" sitecode="674" type="VAMC"/>
+			</city>
+			<city name="McAllen">
+				<site name="McAllen Clinic" sitecode="671" type="Clinic"/>
+			</city>
+			<city name="New Braunfels">
+				<site name="New Braunfels CBOC" sitecode="671" type="Clinic"/>
+			</city>
+			<city name="Odessa">
+				<site name="Odessa Clinic" sitecode="519" type="Clinic"/>
+			</city>
+			<city name="Palestine">
+				<site name="Palestine CBOC" sitecode="674" type="Clinic"/>
+			</city>
+			<city name="Paris">
+				<site name="Paris Family Clinic" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="San Angelo">
+				<site name="San Angelo Clinic" sitecode="519" type="Clinic"/>
+			</city>
+			<city name="San Antonio">
+				<site name="Frank M. Tejeda OPC" sitecode="671" type="Clinic"/>
+				<site name="General McMullen Clinic" sitecode="671" type="Clinic"/>
+				<site name="Greenway Clinic" sitecode="671" type="Clinic"/>
+				<site name="Northern Hills Clinic" sitecode="671" type="Clinic"/>
+				<site name="Pecan Valley Clinic" sitecode="671" type="Clinic"/>
+				<site name="South Texas HCS - San Antonio" sitecode="671" type="VAMC"/>
+			</city>
+			<city name="Sherman">
+				<site name="Sherman Clinic" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="Stamford">
+				<site name="Stamford Clinic" sitecode="519" type="Clinic"/>
+			</city>
+			<city name="Stratford">
+				<site name="Stratford Clinic" sitecode="504" type="Clinic"/>
+			</city>
+			<city name="Temple">
+				<site name="Central Texas HCS - Temple" sitecode="674" type="Clinic"/>
+			</city>
+			<city name="Texas City">
+				<site name="Texas City CBOC" sitecode="580" type="Clinic"/>
+			</city>
+			<city name="Tyler">
+				<site name="Tyler CBOC" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="Victoria">
+				<site name="Victoria Clinic" sitecode="671" type="Clinic"/>
+			</city>
+			<city name="Waco">
+				<site name="Central Texas HCS - Waco" sitecode="674" type="VAMC"/>
+			</city>
+			<city name="Waxahachie">
+				<site name="Waxahachie Clinic" sitecode="549" type="Clinic"/>
+			</city>
+			<city name="Wichita Falls">
+				<site name="North Texas Clinic" sitecode="635" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Utah" abbr="UT">
+		<cities>
+			<city name="Fountain Green">
+				<site name="Fountain Green OPC" sitecode="660" type="Clinic"/>
+			</city>
+			<city name="Nephi">
+				<site name="Central Valley Medical Center/South Central Clinic" sitecode="660" type="Clinic"/>
+			</city>
+			<city name="Ogden">
+				<site name="Ogden OPC" sitecode="660" type="Clinic"/>
+			</city>
+			<city name="Orem">
+				<site name="Orem OPC" sitecode="660" type="Clinic"/>
+			</city>
+			<city name="Roosevelt">
+				<site name="Roosevelt OPC" sitecode="660" type="Clinic"/>
+			</city>
+			<city name="Salt Lake City">
+				<site name="Salt Lake City VAMC" sitecode="660" type="VAMC"/>
+			</city>
+			<city name="St. George">
+				<site name="St. George OPC" sitecode="660" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Vermont" abbr="VT">
+		<cities>
+			<city name="Bennington">
+				<site name="Bennington OPC" sitecode="405" type="Clinic"/>
+			</city>
+			<city name="Colchester">
+				<site name="Ft. Ethan Allen OPC" sitecode="405" type="Clinic"/>
+			</city>
+			<city name="Rutland">
+				<site name="Rutland OPC" sitecode="405" type="Clinic"/>
+			</city>
+			<city name="White River Junction">
+				<site name="White River Junction VAMC" sitecode="405" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Virginia" abbr="VA">
+		<cities>
+			<city name="Alexandria">
+				<site name="Alexandria Community Clinic" sitecode="688" type="Clinic"/>
+			</city>
+			<city name="Danville">
+				<site name="Danville CBOC" sitecode="658" type="Clinic"/>
+			</city>
+			<city name="Fredericksburg">
+				<site name="Fredericksburg CBOC" sitecode="652" type="Clinic"/>
+			</city>
+			<city name="Hampton">
+				<site name="Hampton VAMC" sitecode="590" type="VAMC"/>
+			</city>
+			<city name="Harrisonburg">
+				<site name="Harrisonburg OPC" sitecode="613" type="Clinic"/>
+			</city>
+			<city name="Martinsville">
+				<site name="Martinsville" sitecode="658" type="Clinic"/>
+			</city>
+			<city name="Richmond">
+				<site name="Richmond VAMC" sitecode="652" type="VAMC"/>
+			</city>
+			<city name="Salem">
+				<site name="Salem VAMC" sitecode="658" type="VAMC"/>
+			</city>
+			<city name="Saltville">
+				<site name="Saltville OPC" sitecode="621" type="Clinic"/>
+			</city>
+			<city name="Stephens City">
+				<site name="Stephens City OPC" sitecode="613" type="Clinic"/>
+			</city>
+			<city name="Tazewell">
+				<site name="Tazewell OPC" sitecode="658" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Washington" abbr="WA">
+		<cities>
+			<city name="Seattle">
+				<site name="Puget Sound HCS - Seattle" sitecode="663" type="VAMC"/>
+			</city>
+			<city name="Spokane">
+				<site name="Spokane VAMC" sitecode="668" type="VAMC"/>
+			</city>
+			<city name="Tacoma">
+				<site name="Puget Sound HCS - American Lake" sitecode="663" type="VAMC"/>
+			</city>
+			<city name="Walla Walla">
+				<site name="Walla Walla VAMC" sitecode="687" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+	<state name="West Virginia" abbr="WV">
+		<cities>
+			<city name="Beckley">
+				<site name="Beckley VAMC" sitecode="517" type="VAMC"/>
+			</city>
+			<city name="Charleston">
+				<site name="Charleston Clinic" sitecode="581" type="Clinic"/>
+			</city>
+			<city name="Clarksburg">
+				<site name="Clarksburg VAMC" sitecode="540" type="VAMC"/>
+			</city>
+			<city name="Franklin">
+				<site name="Franklin OPC" sitecode="613" type="Clinic"/>
+			</city>
+			<city name="Gassaway">
+				<site name="Braxton County OPC" sitecode="540" type="Clinic"/>
+			</city>
+			<city name="Huntington">
+				<site name="Huntington VAMC" sitecode="581" type="VAMC"/>
+			</city>
+			<city name="Logan">
+				<site name="Logan County" sitecode="581" type="Clinic"/>
+			</city>
+			<city name="Martinsburg">
+				<site name="Martinsburg VAMC" sitecode="613" type="VAMC"/>
+			</city>
+			<city name="Parkersburg">
+				<site name="Wood County CBOC" sitecode="540" type="Clinic"/>
+			</city>
+			<city name="Petersburg">
+				<site name="Petersburg OPC" sitecode="613" type="Clinic"/>
+			</city>
+			<city name="Williamson">
+				<site name="Williamson Clinic" sitecode="581" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Wisconsin" abbr="WI">
+		<cities>
+			<city name="Appleton">
+				<site name="Appleton Clinic" sitecode="695" type="Clinic"/>
+			</city>
+			<city name="Baraboo">
+				<site name="Baraboo Clinic" sitecode="607" type="Clinic"/>
+			</city>
+			<city name="Beaver Dam">
+				<site name="Beaver Dam Clinic" sitecode="607" type="Clinic"/>
+			</city>
+			<city name="Chippewa Falls">
+				<site name="Chippewa Valley CBOC" sitecode="618" type="Clinic"/>
+			</city>
+			<city name="Cleveland">
+				<site name="East Central Clinic" sitecode="695" type="Clinic"/>
+			</city>
+			<city name="Green Bay">
+				<site name="Green Bay Clinic" sitecode="695" type="Clinic"/>
+			</city>
+			<city name="Janesville">
+				<site name="Janesville Clinic" sitecode="607" type="Clinic"/>
+			</city>
+			<city name="Kenosha">
+				<site name="Kenosha Clinic" sitecode="556" type="Clinic"/>
+			</city>
+			<city name="La Crosse">
+				<site name="River Valley Clinic" sitecode="676" type="Clinic"/>
+			</city>
+			<city name="Loyal">
+				<site name="Loyal Clinic" sitecode="676" type="Clinic"/>
+			</city>
+			<city name="Madison">
+				<site name="Madison VAMC" sitecode="607" type="VAMC"/>
+			</city>
+			<city name="Milwaukee">
+				<site name="Milwaukee VAMC" sitecode="695" type="VAMC"/>
+			</city>
+			<city name="Rhinelander">
+				<site name="Rhinelander Clinic" sitecode="585" type="Clinic"/>
+			</city>
+			<city name="Tomah">
+				<site name="Tomah VAMC" sitecode="676" type="VAMC"/>
+			</city>
+			<city name="Union Grove">
+				<site name="Union Grove Clinic" sitecode="695" type="Clinic"/>
+			</city>
+			<city name="Wausau">
+				<site name="Wausau Clinic" sitecode="676" type="Clinic"/>
+			</city>
+			<city name="Wisconsin Rapids">
+				<site name="Wisconsin Rapids Clinic" sitecode="676" type="Clinic"/>
+			</city>
+		</cities>
+	</state>
+	<state name="Wyoming" abbr="WY">
+		<cities>
+			<city name="Casper">
+				<site name="Casper OPC" sitecode="666" type="Clinic"/>
+			</city>
+			<city name="Cheyenne">
+				<site name="Cheyenne VAMC" sitecode="442" type="VAMC"/>
+			</city>
+			<city name="Gillette">
+				<site name="Gillette OPC" sitecode="666" type="Clinic"/>
+			</city>
+			<city name="Powell">
+				<site name="Powell OPC" sitecode="666" type="Clinic"/>
+			</city>
+			<city name="Newcastle">
+				<site name="Newcastle Clinic" sitecode="568" type="Clinic"/>
+			</city>
+			<city name="Riverton">
+				<site name="Riverton OPC" sitecode="666" type="Clinic"/>
+			</city>
+			<city name="Rock Springs">
+				<site name="Rock Springs OPC" sitecode="666" type="Clinic"/>
+			</city>
+			<city name="Sheridan">
+				<site name="Sheridan VAMC" sitecode="666" type="VAMC"/>
+			</city>
+		</cities>
+	</state>
+</states>

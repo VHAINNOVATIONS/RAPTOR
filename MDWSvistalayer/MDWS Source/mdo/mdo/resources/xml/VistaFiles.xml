@@ -1,0 +1,308 @@
+<VistaFiles xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="VistaFiles.xsd">
+   <File name="SPECIALTY" number="42.4" global="^DIC(42.4," mdo="gov.va.medora.mdo.Specialty">
+      <fields>
+<!-- In naming the mdo field, use the actual, private field name. -->
+         <field pos="0">
+            <vista name="IEN" number="@" node="DA" piece="" />
+
+            <mdo name="id" type="string" />
+         </field>
+
+         <field pos="1">
+            <vista name="NAME" number=".01" node="0" piece="1" />
+
+            <mdo name="name" type="string" />
+         </field>
+
+         <field pos="2">
+            <vista name="PRINT NAME" number="1" node="0" piece="2" />
+
+            <mdo name="displayName" type="string" />
+         </field>
+
+         <field pos="3">
+            <vista name="SERVICE" number="3" node="0" piece="3" />
+
+            <mdo name="service" type="string" />
+
+            <mapping type="decode">
+               <map code="M" value="MEDICINE" />
+
+               <map code="S" value="SURGERY" />
+
+               <map code="P" value="PSYCHIATRY" />
+
+               <map code="NH" value="NHCU" />
+
+               <map code="NE" value="NEUROLOGY" />
+
+               <map code="I" value="INTERMEDIATE MED" />
+
+               <map code="R" value="REHAB MEDICINE" />
+
+               <map code="SCI" value="SPINAL CORD INJURY" />
+
+               <map code="D" value="DOMICILIARY" />
+
+               <map code="B" value="BLIND REHAB" />
+
+               <map code="RE" value="RESPITE CARE" />
+            </mapping>
+         </field>
+
+         <field pos="4">
+            <vista name="PTF CODE" number="7" node="0" piece="7" />
+
+            <mdo name="ptfCode" type="string" />
+         </field>
+      </fields>
+
+      <screen>xcxc</screen>
+   </File>
+
+   <File name="HOSPITAL LOCATION" number="44" global="^SC(" mdo="gov.va.medora.mdo.HospitalLocation">
+      <fields>
+         <field pos="0">
+            <vista name="IEN" number="@" node="DA" piece="" />
+
+            <mdo name="id" type="string" />
+         </field>
+
+         <field pos="1">
+            <vista name="NAME" number=".01" node="0" piece="1" />
+
+            <mdo name="name" type="string" />
+         </field>
+
+         <field pos="2">
+            <vista name="ABBREVIATION" number="1" node="0" piece="2" />
+
+            <mdo name="abbr" type="string" />
+         </field>
+
+         <field pos="3">
+            <vista name="TYPE" number="2" node="0" piece="3" />
+
+            <mdo name="type" type="string" />
+
+            <mapping type="decode">
+               <map code="C" value="CLINIC" />
+
+               <map code="M" value="MODULE" />
+
+               <map code="W" value="WARD" />
+
+               <map code="Z" value="OTHER LOCATION" />
+
+               <map code="N" value="NON-CLINIC STOP" />
+
+               <map code="F" value="FILE AREA" />
+
+               <map code="I" value="IMAGING" />
+
+               <map code="OR" value="OPERATING ROOM" />
+            </mapping>
+         </field>
+
+         <field pos="4">
+            <vista name="TYPE EXTENSION" number="2.1" node="0" piece="22" />
+
+            <mdo name="typeExtension" type="kvp" />
+
+            <mapping type="pointer" file="40.9" />
+         </field>
+
+         <field pos="5">
+            <vista name="INSTITUTION" number="3" node="0" piece="4" />
+
+            <mdo name="institution" type="kvp" />
+
+            <mapping type="pointer" file="4"/>
+         </field>
+
+         <field pos="6">
+            <vista name="DIVISION" number="3.5" node="0" piece="15"/>
+
+            <mdo name="division" type="kvp"/>
+
+            <mapping type="pointer" file="40.8"/>
+         </field>
+
+         <field pos="7">
+            <vista name="MODULE" number="4" node="0" piece="5"/>
+
+            <mdo name="module" type="kvp"/>
+
+            <mapping type="pointer" file="44"/>
+         </field>
+
+         <field pos="8">
+            <vista name="DISPOSITION ACTION" number="6" node="0" piece="10"/>
+
+            <mdo name="dispositionAction" type="string"/>
+
+            <mapping type="decode">
+               <map code="0" value="NONE"/>
+
+               <map code="1" value="APPOINTMENT REC REQ"/>
+
+               <map code="2" value="SCHEDULING"/>
+            </mapping>
+         </field>
+
+         <field pos="9">
+            <vista name="VISIT LOCATION" number="7" node="0" piece="6"/>
+
+            <mdo name="visitLocation" type="string"/>
+         </field>
+
+         <field pos="10">
+            <vista name="STOP CODE NUMBER" number="8" node="0" piece="7"/>
+
+            <mdo name="stopCode" type="kvp"/>
+
+            <mapping type="pointer" file="40.7"/>
+         </field>
+
+         <field pos="11">
+            <vista name="SERVICE" number="9" node="0" piece="8"/>
+
+            <mdo name="service" type="kvp"/>
+
+            <mapping type="decode">
+               <map code="M" value="MEDICINE"/>
+
+               <map code="S" value="SURGERY"/>
+
+               <map code="P" value="PSYCHIATRY"/>
+
+               <map code="R" value="REHAB MEDICINE"/>
+
+               <map code="N" value="NEUROLOGY"/>
+
+               <map code="0" value="NONE"/>
+            </mapping>
+         </field>
+
+         <field pos="12">
+            <vista name="TREATING SPECIALTY" number="9.5" node="0" piece="20"/>
+
+            <mdo name="specialty" type="kvp"/>
+
+            <mapping type="pointer" file="45.7"/>
+         </field>
+
+         <field pos="13">
+            <vista name="PHYSICAL LOCATION" number="10" node="0" piece="11"/>
+
+            <mdo name="physicalLocation" type="string"/>
+         </field>
+
+         <field pos="14">
+            <vista name="WARD LOCATION FILE POINTER" number="42" node="42" piece="1"/>
+
+            <mdo name="wardLocation" type="kvp"/>
+
+            <mapping type="pointer" file="42"/>
+         </field>
+
+         <field pos="15">
+            <vista name="TELEPHONE" number="99" node="99" piece="1"/>
+
+            <mdo name="phone" type="string"/>
+         </field>
+
+         <field pos="16">
+            <vista name="PRINCIPAL CLINIC" number="1916" node="SL" piece="5"/>
+
+            <mdo name="principalClinic" type="kvp"/>
+
+            <mapping type="pointer" file="44"/>
+         </field>
+      </fields>
+   </File>
+
+   <File name="FACILITY TREATING SPECIALTY" number="45.7" global="^DIC(45.7," mdo="gov.va.medora.mdo.TreatingSpecialty">
+      <fields>
+         <field pos="0">
+            <vista name="IEN" number="@" node="DA" piece=""/>
+
+            <mdo name="id" type="string"/>
+         </field>
+
+         <field pos="1">
+            <vista name="NAME" number=".01" node="0" piece="1"/>
+
+            <mdo name="name" type="string"/>
+         </field>
+
+         <field pos="2">
+            <vista name="SPECIALTY" number="1" node="0" piece="2"/>
+
+            <mdo name="specialty" type="kvp"/>
+
+            <mapping type="pointer" file="42.4"/>
+         </field>
+
+         <field pos="3">
+            <vista name="SERVICE/SECTION" number="2" node="0" piece="4"/>
+
+            <mdo name="service" type="kvp"/>
+
+            <mapping type="pointer" file="49"/>
+         </field>
+      </fields>
+   </File>
+   
+   <File name="COLLECTION SAMPLE" number="62" global="^LAB(62," mdo="gov.va.medora.mdo.CollectionSample">
+      <fields>
+         <field pos="0">
+            <vista name="IEN" number="@" node="DA" piece=""/>
+
+            <mdo name="id" type="string"/>
+         </field>
+
+         <field pos="1">
+            <vista name="NAME" number=".01" node="0" piece="1"/>
+
+            <mdo name="name" type="string"/>
+         </field>
+
+         <field pos="2">
+            <vista name="DEFAULT SPECIMEN" number="2" node="0" piece="2"/>
+
+            <mdo name="defaultSpecimen" type="kvp"/>
+
+            <mapping type="pointer" file="61"/>
+         </field>
+
+      </fields>
+   </File>
+   <File name="IV SOLUTIONS" number="52.7" global="^PS(52.7," mdo="gov.va.medora.mdo.IvSolution">
+      <fields>
+         <field pos="0">
+            <vista name="IEN" number="@" node="DA" piece=""/>
+
+            <mdo name="id" type="string"/>
+         </field>
+
+         <field pos="1">
+            <vista name="PRINT NAME" number=".01" node="0" piece="1"/>
+
+            <mdo name="name" type="string"/>
+         </field>
+
+         <field pos="2">
+            <vista name="PHARMACY ORDERABLE ITEM" number="9" node="0" piece="11"/>
+
+            <mdo name="pharmacyOrderableItem" type="kvp"/>
+
+            <mapping type="pointer" file="50.7"/>
+         </field>
+
+      </fields>
+   </File>
+</VistaFiles>
+
+
+

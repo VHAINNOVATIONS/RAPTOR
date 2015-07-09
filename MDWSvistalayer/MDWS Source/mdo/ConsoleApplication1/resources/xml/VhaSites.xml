@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v5 rel. 4 U (http://www.xmlspy.com) by Joe Gillon (Veterans Health Administration) -->
+<VhaVisnTable xmlns="http://med.va.gov/vistaweb/sitesTable" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://med.va.gov/vistaweb/sitesTable VhaSites.xsd">
+	<VhaVisn name="VA New England Health Care System" ID="1">
+    <!--<VhaSite name="VHAVHU" ID="999" moniker="VHAVHU">
+      <DataSource modality="HIS" protocol="VISTA" source="10.72.241.93" status="active" port="9300"/>
+    </VhaSite>
+    <VhaSite name="CHEYTEST" ID="998" moniker="CHEYTEST">
+      <DataSource modality="HIS" protocol="VISTA" source="vhaisplc9.vha.med.va.gov" status="active" port="9202"/>
+    </VhaSite>
+    <VhaSite name="MINTEST" ID="998" moniker="MINTEST">
+      <DataSource modality="HIS" protocol="VISTA" source="TEST.MINNEAPOLIS.MED.VA.GOV" status="active" port="19032"/>
+    </VhaSite>
+    <VhaSite name="OMATEST" ID="999" moniker="OMATEST">
+      <DataSource modality="HIS" protocol="VISTA" source="TEST.OMAHA.MED.VA.GOV" status="active" port="19035"/>
+    </VhaSite>
+    
+    <VhaSite name="DAYT29" ID="989" moniker="DAYT29">
+      <DataSource modality="HIS" protocol="VISTA" source="10.4.230.251" status="active" port="9611"/>
+    </VhaSite>
+    <VhaSite name="SLC10" ID="979" moniker="SLC10">
+      <DataSource modality="HIS" protocol="VISTA" source="10.4.230.251" status="active" port="9693"/>
+    </VhaSite>-->
+    <!--<VhaSite name="SLC4" ID="991" moniker="SLC4">
+      <DataSource modality="HIS" protocol="VISTA" source="10.4.230.253" status="active" port="9586"/>
+    </VhaSite>-->
+    <!--
+    <VhaSite name="DAYT3" ID="994" moniker="DAYT3">
+      <DataSource modality="HIS" protocol="VISTA" source="10.4.230.251" status="active" port="9474"/>
+    </VhaSite>
+    --><!--<VhaSite name="Chris Uyehara" ID="905" moniker="VHU">
+      <DataSource modality="HIS" protocol="VISTA" source="10.72.241.93" status="active" port="9300"/>
+    </VhaSite>--><!--
+    <VhaSite name="MN TEST" ID="902" moniker="MIN">
+      <DataSource modality="HIS" protocol="VISTA" source="TEST.MINNEAPOLIS.MED.VA.GOV" status="active" port="19032"/>
+    </VhaSite>-->
+    <VhaSite name="Local Vista" ID="901" moniker="CPM">
+      <DataSource modality="HIS" protocol="VISTA" source="127.0.0.1" status="active" port="9200"/>
+    </VhaSite>
+    <VhaSite name="Togus, ME" ID="402" moniker="TOG">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.TOGUS.MED.VA.GOV" status="active" port="19215"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.TOGUS.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+    <VhaSite name="White River Junction, VT" ID="405" moniker="WRJ">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WHITE-RIVER.MED.VA.GOV" status="active" port="19204"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WHITE-RIVER.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Bedford, MA" ID="518" moniker="BED">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BEDFORD.MED.VA.GOV" status="active" port="19207"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BEDFORD.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Boston HCS" displayname="Boston HCS (Boston, Brockton, Jamaica Plain, West Roxbury)" ID="523" moniker="BHS">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BOSTON.MED.VA.GOV" status="active" port="19222"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BOSTON.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Manchester, NH" ID="608" moniker="MAN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MANCHESTER.MED.VA.GOV" status="active" port="19206"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MANCHESTER.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Northampton, MA" ID="631" moniker="NHM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.NORTHAMPTON.MED.VA.GOV" status="active" port="19202"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.NORTHAMPTON.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Providence, RI" ID="650" moniker="PRO">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.PROVIDENCE.MED.VA.GOV" status="active" port="19218"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.PROVIDENCE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Connecticut HCS" displayname="Connecticut HCS (Newington, West Haven)" ID="689" moniker="CON">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WEST-HAVEN.MED.VA.GOV" status="active" port="19212"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WEST-HAVEN.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Healthcare Network Upstate New York" ID="2">
+		<VhaSite name="Upstate NY HCS" ID="528" moniker="UNY">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.V02.MED.VA.GOV" status="active" port="19224"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.V02.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="Veterans Integrated Service Network" ID="3">
+		<VhaSite name="Bronx, NY" ID="526" moniker="BRX">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BRONX.MED.VA.GOV" status="active" port="19201"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BRONX.MED.VA.GOV" status="active" port="5000"/>
+      <DataSource modality="RADIOLOGY" protocol="ISITE" source="10.30.23.20" status="active" vendor="Stentor" provider="526"/>
+		</VhaSite>
+		<VhaSite name="New Jersey HCS" displayname="New Jersey HCS (East Orange, Lyons)" ID="561" moniker="NJS">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.EAST-ORANGE.MED.VA.GOV" status="active" port="19203"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.EAST-ORANGE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Hudson Valley HCS" displayname="Hudson Valley HCS (Castle Point, Montrose)" ID="620" moniker="HUV">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.HUDSON-VALLEY.MED.VA.GOV" status="active" port="19205"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.HUDSON-VALLEY.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="NY HCS" displayname="NY HCS (New York City, Brooklyn)" ID="630" moniker="NYH">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.NEW-YORK.MED.VA.GOV" status="active" port="19208"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.NEW-YORK.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Northport, NY" ID="632" moniker="NOP">
+      <DataSource modality="HIS" protocol="VISTA" source="ECP.NORTHPORT.MED.VA.GOV" status="active" port="19209"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.NORTHPORT.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Stars &amp; Stripes Healthcare Network" ID="4">
+		<VhaSite name="Wilmington, DE" ID="460" moniker="WIM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WILMINGTON.MED.VA.GOV" status="active" port="19210"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WILMINGTON.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Altoona, PA" ID="503" moniker="ALT">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ALTOONA.MED.VA.GOV" status="active" port="19217"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ALTOONA.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Butler, PA" ID="529" moniker="BUT">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BUTLER.MED.VA.GOV" status="active" port="19221"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BUTLER.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Clarksburg, WV" ID="540" moniker="CLA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.CLARKSBURG.MED.VA.GOV" status="active" port="19220"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CLARKSBURG.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Coatesville, PA" ID="542" moniker="COA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.COATESVILLE.MED.VA.GOV" status="active" port="19213"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.COATESVILLE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Erie, PA" ID="562" moniker="ERI">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ERIE.MED.VA.GOV" status="active" port="19219"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ERIE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Lebanon, PA" ID="595" moniker="LEB">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.LEBANON.MED.VA.GOV" status="active" port="19214"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.LEBANON.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Philadelphia, PA" ID="642" moniker="PHI">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.PHILADELPHIA.MED.VA.GOV" status="active" port="19211"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.PHILADELPHIA.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Pittsburgh HCS" displayname="Pittsburgh HCS (Heinz, Highland, University)" ID="646" moniker="PTB">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.PITTSBURGH.MED.VA.GOV" status="active" port="19223" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.PITTSBURGH.MED.VA.GOV" status="active" port="5000" />
+      <DataSource protocol="ISITE" modality="RADIOLOGY" source="10.37.92.52" status="active" vendor="Stentor" provider="646"/>
+		</VhaSite>
+		<VhaSite name="Wilkes Barre, PA" ID="693" moniker="WBP">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WILKES-BARRE.MED.VA.GOV" status="active" port="19216"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WILKES-BARRE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Capitol Health Care Network" ID="5">
+		<VhaSite name="Maryland HCS" displayname="Maryland HCS (Baltimore, Perry Point)" ID="512" moniker="BAL">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BALTIMORE.MED.VA.GOV" status="active" port="19225"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BALTIMORE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Martinsburg, WV" ID="613" moniker="MWV">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MARTINSBURG.MED.VA.GOV" status="active" port="19226"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MARTINSBURG.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Washington, DC" ID="688" moniker="WAS">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WASHINGTON.MED.VA.GOV" status="active" port="19227" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WASHINGTON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Mid-Atlantic Health Care Network" ID="6">
+		<VhaSite name="Beckley, WV" ID="517" moniker="BEC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BECKLEY.MED.VA.GOV" status="active" port="19233" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BECKLEY.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Durham, NC" ID="558" moniker="DUR">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.DURHAM.MED.VA.GOV" status="active" port="19239" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.DURHAM.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Fayetteville, NC" ID="565" moniker="FNC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.FAYETTVL-NC.MED.VA.GOV" status="active" port="19234" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.FAYETTVL-NC.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Hampton, VA" ID="590" moniker="HAM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.HAMPTON.MED.VA.GOV" status="active" port="19235" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.HAMPTON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Asheville, NC" ID="637" moniker="ASH">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ASHEVILLE.MED.VA.GOV" status="active" port="19236" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ASHEVILLE.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Richmond, VA" ID="652" moniker="RIC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.RICHMOND.MED.VA.GOV" status="active" port="19240" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.RICHMOND.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Salem, VA" ID="658" moniker="SAM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SALEM.MED.VA.GOV" status="active" port="19237" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SALEM.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Salisbury, NC" ID="659" moniker="SBY">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SALISBURY.MED.VA.GOV" status="active" port="19238" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SALISBURY.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="The Atlanta Network" ID="7">
+		<VhaSite name="Atlanta, GA" ID="508" moniker="ATG">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ATLANTA.MED.VA.GOV" status="active" port="19232" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ATLANTA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Augusta, GA" ID="509" moniker="AUG">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.AUGUSTA.MED.VA.GOV" status="active" port="19229" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.AUGUSTA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Birmingham, AL" ID="521" moniker="BIR">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BIRMINGHAM.MED.VA.GOV" status="active" port="19230"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BIRMINGHAM.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Charleston, SC" ID="534" moniker="CHA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.CHARLESTON.MED.VA.GOV" status="active" port="19228" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CHARLESTON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Columbia, SC" ID="544" moniker="CMS">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.COLUMBIA-SC.MED.VA.GOV" status="active" port="19231" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.COLUMBIA-SC.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Dublin, GA" ID="557" moniker="DUB">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.DUBLIN.MED.VA.GOV" status="active" port="19226" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.DUBLIN.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Central Alabama HCS" displayname="Central Alabama HCS (Montgomery, Tuskegee)" ID="619" moniker="ALA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.CENTRAL-ALABAMA.MED.VA.GOV" status="active" port="19227" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CENTRAL-ALABAMA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Tuscaloosa, AL" ID="679" moniker="TUA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.TUSCALOOSA.MED.VA.GOV" status="active" port="19225" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.TUSCALOOSA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Sunshine Healthcare Network" ID="8">
+		<VhaSite name="Bay Pines, FL" ID="516" moniker="BAY">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BAY-PINES.MED.VA.GOV" status="active" port="19222" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BAY-PINES.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Miami, FL" ID="546" moniker="MIA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MIAMI.MED.VA.GOV" status="active" port="19219" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MIAMI.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="West Palm Beach, FL" ID="548" moniker="WPB">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WEST-PALM.MED.VA.GOV" status="active" port="19220" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WEST-PALM.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="N. Florida/S. Georgia HCS" displayname="N. Florida/S. Georgia HCS (Gainesville)" ID="573" moniker="NFL">
+      <DataSource modality="HIS" protocol="VISTA" source="vista.gainesville.med.va.gov" status="active" port="19223" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.gainesville.med.va.gov" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="San Juan, PR" ID="672" moniker="SAJ">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SAN-JUAN.MED.VA.GOV" status="active" port="19221" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SAN-JUAN.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Orlando, FL" ID="675" moniker="ORL">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ORLANDO.MED.VA.GOV" status="active" port="19241" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ORLANDO.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Tampa, FL" ID="673" moniker="TAM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.TAMPA.MED.VA.GOV" status="active" port="19224" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.TAMPA.MED.VA.GOV" status="active" port="5000" />
+      <DataSource modality="RADIOLOGY" protocol="ISITE" source="10.69.61.101" status="active" vendor="Stentor" provider="673"/>
+		</VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Mid South Healthcare Network" ID="9">
+		<VhaSite name="Huntington, WV" ID="581" moniker="HUN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.HUNTINGTON.MED.VA.GOV" status="active" port="19213" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.HUNTINGTON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Lexington, KY" ID="596" moniker="LEX">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.LEXINGTON.MED.VA.GOV" status="active" port="19216" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.LEXINGTON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Louisville, KY" ID="603" moniker="LOU">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.LOUISVILLE.MED.VA.GOV" status="active" port="19214" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.LOUISVILLE.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Mountain Home, TN" ID="621" moniker="MOU">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MTN-HOME.MED.VA.GOV" status="active" port="19215" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MTN-HOME.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Tennessee Valley HCS" displayname="Tennessee Valley HCS (Murfreesboro, Nashville)" ID="626" moniker="TVH">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.TENNESSEEVALLEY.MED.VA.GOV" status="active" port="19218" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.TENNESSEEVALLEY.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Memphis, TN" ID="614" moniker="MEM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MEMPHIS.MED.VA.GOV" status="active" port="19217" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MEMPHIS.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Healthcare System of Ohio" ID="10">
+		<VhaSite name="Chillicothe, OH" ID="538" moniker="CLL">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.CHILLICOTHE.MED.VA.GOV" status="active" port="19209"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CHILLICOTHE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Cincinnati, OH" ID="539" moniker="CIN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.CINCINNATI.MED.VA.GOV" status="active" port="19211"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CINCINNATI.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Dayton, OH" ID="552" moniker="DAY">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.DAYTON.MED.VA.GOV" status="active" port="19210"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.DAYTON.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Cleveland, OH" ID="541" moniker="CLE">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.CLEVELAND.MED.VA.GOV" status="active" port="19212"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CLEVELAND.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Columbus, OH" ID="757" moniker="COS">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.COLUMBUS.MED.VA.GOV" status="active" port="19208"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.COLUMBUS.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="Veterans In Partnership" ID="11">
+		<VhaSite name="Saginaw, MI" ID="655" moniker="SAG">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SAGINAW.MED.VA.GOV" status="active" port="19201" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SAGINAW.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Battle Creek, MI" ID="515" moniker="BAC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BATTLE-CREEK.MED.VA.GOV" status="active" port="19202" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BATTLE-CREEK.MED.VA.GOV" status="active" port="5000" />
+      <DataSource modality="RADIOLOGY" protocol="ISITE" source="10.93.81.20" status="active" vendor="Stentor" provider="506"/>
+		</VhaSite>
+		<VhaSite name="Detroit, MI" ID="553" moniker="DET">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.DETROIT.MED.VA.GOV" status="active" port="19205" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.DETROIT.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Indianapolis, IN" ID="583" moniker="IND">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.INDIANAPOLIS.MED.VA.GOV" status="active" port="19207" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.INDIANAPOLIS.MED.VA.GOV" status="active" port="5000" />
+      <DataSource modality="RADIOLOGY" protocol="ISITE" source="10.89.23.40" status="active" vendor="Stentor" provider="583"/>
+		</VhaSite>
+		<VhaSite name="Ann Arbor, MI" ID="506" moniker="ANN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ANN-ARBOR.MED.VA.GOV" status="active" port="19206" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ANN-ARBOR.MED.VA.GOV" status="active" port="5000" />
+      <DataSource modality="RADIOLOGY" protocol="ISITE" source="10.93.81.20" status="active" vendor="Stentor" provider="506"/>
+		</VhaSite>
+		<VhaSite name="Danville, IL" ID="550" moniker="DAN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.DANVILLE.MED.VA.GOV" status="active" port="19204" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.DANVILLE.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Northern Indiana HCS" ID="610" moniker="NIN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.NORTHERN-INDIANA.MED.VA.GOV" status="active" port="19203" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.NORTHERN-INDIANA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="The Great Lakes Health Care System" ID="12">
+		<VhaSite name="Milwaukee, WI" ID="695" moniker="MIW">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MILWAUKEE.MED.VA.GOV" status="active" port="19207"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MILWAUKEE.MED.VA.GOV" status="active" port="5000"/>
+      <DataSource modality="RADIOLOGY" protocol="ISITE" source="10.98.4.72" status="active" vendor="Stentor" provider="695"/>
+		</VhaSite>
+		<VhaSite name="Hines, IL" ID="578" moniker="HIN">
+      <DataSource modality="HIS" protocol="VISTA" source="ECP.HINES.MED.VA.GOV" status="active" port="19203"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.HINES.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Iron Mountain, MI" ID="585" moniker="IRO">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.IRON-MTN.MED.VA.GOV" status="active" port="19204"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.IRON-MTN.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="North Chicago, IL" ID="556" moniker="NCH">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.N-CHICAGO.MED.VA.GOV" status="active" port="19202"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.N-CHICAGO.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Tomah, WI" ID="676" moniker="TOM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.TOMAH.MED.VA.GOV" status="active" port="19206"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.TOMAH.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Jesse Brown VAMC" ID="537" moniker="CHW">
+      <DataSource modality="HIS" protocol="VISTA" source="ECP.CHICAGO.MED.VA.GOV" status="active" port="19201"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CHICAGO.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Madison, WI" ID="607" moniker="MAD">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MADISON.MED.VA.GOV" status="active" port="19205"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MADISON.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Heartland Network" ID="15">
+		<VhaSite name="Columbia, MO" ID="543" moniker="CMO">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.COLUMBIA-MO.MED.VA.GOV" status="active" port="19210" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.COLUMBIA-MO.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Kansas City, MO" ID="589" moniker="KAN">
+      <DataSource modality="HIS" protocol="VISTA" source="ECP.KANSAS-CITY.MED.VA.GOV" status="active" port="19210" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.KANSAS-CITY.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="St. Louis, MO" ID="657" moniker="STL">
+      <DataSource modality="HIS" protocol="VISTA" source="ECP.ST-LOUIS.MED.VA.GOV" status="active" port="19213" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ST-LOUIS.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Topeka, KS" ID="677" moniker="TOP">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.TOPEKA.MED.VA.GOV" status="active" port="19210" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.TOPEKA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Leavenworth, KS" ID="686" moniker="LEA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.LEAVENWORTH.MED.VA.GOV" status="active" port="19210" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.LEAVENWORTH.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="South Central VA Health Care Network" ID="16">
+		<VhaSite name="Alexandria, LA" ID="502" moniker="ALX">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ALEXANDRIA.MED.VA.GOV" status="active" port="19216" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ALEXANDRIA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Little Rock, AR" ID="598" moniker="LIT">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.LITTLE-ROCK.MED.VA.GOV" status="active" port="19221" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.LITTLE-ROCK.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Fayetteville, AR" ID="564" moniker="FAV">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.FAYETTVL-AR.MED.VA.GOV" status="active" port="19218" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.FAYETTVL-AR.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Jackson, MS" ID="586" moniker="JAC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.JACKSON.MED.VA.GOV" status="active" port="19220" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.JACKSON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Houston, TX" ID="580" moniker="HOU">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.HOUSTON.MED.VA.GOV" status="active" port="19219" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.HOUSTON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Muskogee, OK" ID="623" moniker="MUS">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MUSKOGEE.MED.VA.GOV" status="active" port="19222" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MUSKOGEE.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Oklahoma City, OK" ID="635" moniker="OKL">
+      <DataSource modality="HIS" protocol="VISTA" source="BROKER.OKLAHOMA.MED.VA.GOV" status="active" port="19224" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.OKLAHOMA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Shreveport, LA" ID="667" moniker="SHR">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SHREVEPORT.MED.VA.GOV" status="active" port="19225" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SHREVEPORT.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Biloxi, MS" ID="520" moniker="BIL">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BILOXI.MED.VA.GOV" status="active" port="19217" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BILOXI.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="New Orleans, LA" ID="629" moniker="NOL">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.NEW-ORLEANS.MED.VA.GOV" status="active" port="19223" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.NEW-ORLEANS.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Heart of Texas Health Care Network" ID="17">
+		<VhaSite name="Texas Valley Coastal Bend HCS" ID="740" moniker="VCB">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.VALLEYCOASTALBEND.MED.VA.GOV" status="active" port="19237" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.VALLEYCOASTALBEND.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Central Texas HCS" displayname="Central Texas HCS (Austin, Marlin, Temple, Waco)" ID="674" moniker="CTX">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.CENTRAL-TEXAS.MED.VA.GOV" status="active" port="19226" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CENTRAL-TEXAS.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="South Texas HCS" displayname="South Texas HCS (Kerrville, San Antonio)" ID="671" moniker="STX">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SAN-ANTONIO.MED.VA.GOV" status="active" port="19228"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SAN-ANTONIO.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="North Texas HCS" displayname="North Texas HCS (Bonham, Dallas)" ID="549" moniker="NTX">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.DALLAS.MED.VA.GOV" status="active" port="19227" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.DALLAS.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Southwest Health Care Network" ID="18">
+		<VhaSite name="Amarillo, TX" ID="504" moniker="AMA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.AMARILLO.MED.VA.GOV" status="active" port="19223"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.AMARILLO.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="El Paso, TX" ID="756" moniker="ELP">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.EL-PASO.MED.VA.GOV" status="active" port="19232" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.EL-PASO.MED.VA.GOV" status="active" port="5000" />
+      <DataSource modality="IEA" protocol="VIX" port="8080" source="ELP-IMGVIX.EL-PASO.MED.VA.GOV" status="active" />
+		</VhaSite>
+		<VhaSite name="Albuquerque, NM" ID="501" moniker="ABQ">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ALBUQUERQUE.MED.VA.GOV" status="active" port="19222"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ALBUQUERQUE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Prescott, AZ" ID="649" moniker="PRE">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.PRESCOTT.MED.VA.GOV" status="active" port="19228"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.PRESCOTT.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Tucson, AZ" ID="678" moniker="TUC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.TUCSON.MED.VA.GOV" status="active" port="19231" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.TUCSON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Big Spring, TX" ID="519" moniker="BIG">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BIG-SPRING.MED.VA.GOV" status="active" port="19224" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BIG-SPRING.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Phoenix, AZ" ID="644" moniker="PHO">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.PHOENIX.MED.VA.GOV" status="active" port="19227"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.PHOENIX.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="Rocky Mountain Network" ID="19">
+		<VhaSite name="Billings, MT CBOC" ID="378" moniker="BLO">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.FT-HARRISON.MED.VA.GOV" status="active" port="19220" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.FT-HARRISON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Denver, CO (HAC)" ID="741" moniker="DEN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.HAC.MED.VA.GOV" status="active" />
+    </VhaSite>
+		<VhaSite name="Eastern Colorado HCS" displayname="Eastern Colorado HCS (Denver)" ID="554" moniker="ECH">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.DENVER.MED.VA.GOV" status="active" port="19225" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.DENVER.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Montana HCS" ID="436" moniker="FHM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.FT-HARRISON.MED.VA.GOV" status="active" port="19220" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.FT-HARRISON.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Cheyenne, WY" ID="442" moniker="CHY">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.CHEYENNE.MED.VA.GOV" status="active" port="19221" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.CHEYENNE.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Grand Junction, CO" ID="575" moniker="GRJ">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.GRAND-JUNCT.MED.VA.GOV" status="active" port="19226" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.GRAND-JUNCT.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Sheridan, WY" ID="666" moniker="SHE">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SHERIDAN.MED.VA.GOV" status="active" port="19230" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SHERIDAN.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Salt Lake City, UT" ID="660" moniker="SLC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SALT-LAKE.MED.VA.GOV" status="active" port="19229" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SALT-LAKE.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="Northwest Network" ID="20">
+		<VhaSite name="Anchorage, AK" ID="463" moniker="ANC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ANCHORAGE.MED.VA.GOV" status="active" port="19214"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ANCHORAGE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Boise, ID" ID="531" moniker="BOI">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BOISE.MED.VA.GOV" status="active" port="19215"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BOISE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Walla Walla, WA" ID="687" moniker="WWW">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WALLA-WALLA.MED.VA.GOV" status="active" port="19218"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WALLA-WALLA.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Portland, OR" ID="648" moniker="POR">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.PORTLAND.MED.VA.GOV" status="active" port="19211"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.PORTLAND.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Spokane, WA" ID="668" moniker="SPO">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SPOKANE.MED.VA.GOV" status="active" port="19216"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SPOKANE.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Puget Sound HCS" ID="663" moniker="PUG">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.PUGET-SOUND.MED.VA.GOV" status="active" port="19212"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.PUGET-SOUND.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Roseburg, OR" ID="653" moniker="ROS">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ROSEBURG.MED.VA.GOV" status="active" port="19213"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ROSEBURG.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="White City OR" ID="692" moniker="WCO">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WHITE-CITY.MED.VA.GOV" status="active" port="19217"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WHITE-CITY.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="Sierra Pacific Network" ID="21">
+		<VhaSite name="Northern California HCS" ID="612" moniker="MAC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MARTINEZ.MED.VA.GOV" status="active" port="19206"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MARTINEZ.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="San Francisco, CA" ID="662" moniker="SFC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SANFRANCISCO.MED.VA.GOV" status="active" port="19209"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SANFRANCISCO.MED.VA.GOV" status="active" port="5000"/>
+      <DataSource protocol="ISITE" modality="RADIOLOGY" source="10.174.3.107" status="active" vendor="Stentor"  provider="662"/>
+		</VhaSite>
+		<VhaSite name="Fresno, CA" ID="570" moniker="FRE">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.FRESNO.MED.VA.GOV" status="active" port="19202"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.FRESNO.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Honolulu, HI" ID="459" moniker="HON">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.HONOLULU.MED.VA.GOV" status="active" port="19201"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.HONOLULU.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Palo Alto HCS" ID="640" moniker="PAL">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.PALO-ALTO.MED.VA.GOV" status="active" port="19207"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.PALO-ALTO.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Reno, NV" ID="654" moniker="REN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.RENO.MED.VA.GOV" status="active" port="19208"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.RENO.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Manila, PI" ID="358" moniker="MLA">
+      <DataSource protocol="VISTA" modality="HIS" source="VISTA.MANILA.MED.VA.GOV" status="active" />
+      <DataSource protocol="HL7" modality="HIS" source="HL7.MANILA.MED.VA.GOV" status="active" />
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="Desert Pacific Healthcare Network" ID="22">
+		<VhaSite name="West Los Angeles, CA" ID="691" moniker="WLA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.WEST-LA.MED.VA.GOV" status="active" port="19219"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.WEST-LA.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Loma Linda, CA" ID="605" moniker="LOM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.LOMA-LINDA.MED.VA.GOV" status="active" port="19205"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.LOMA-LINDA.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Long Beach, CA" ID="600" moniker="LON">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.LONG-BEACH.MED.VA.GOV" status="active" port="19204"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.LONG-BEACH.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="San Diego, CA" ID="664" moniker="SDC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SAN-DIEGO.MED.VA.GOV" status="active" port="19210"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SAN-DIEGO.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+		<VhaSite name="Las Vegas, NV" ID="593" moniker="LAS">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.LAS-VEGAS.MED.VA.GOV" status="active" port="19203"/>
+      <DataSource modality="HIS" protocol="HL7" source="HL7.LAS-VEGAS.MED.VA.GOV" status="active" port="5000"/>
+    </VhaSite>
+	</VhaVisn>
+	<VhaVisn name="VA Midwest Health Care Network" ID="23">
+		<VhaSite name="Fargo, ND" ID="437" moniker="FAR">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.FARGO.MED.VA.GOV" status="active" port="19229" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.FARGO.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Des Moines, IA" ID="555" moniker="DES">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.DES-MOINES.MED.VA.GOV" status="active" port="19235" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.DES-MOINES.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Iowa City, IA" ID="584" moniker="IOW">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.IOWA-CITY.MED.VA.GOV" status="active" port="19235" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.IOWA-CITY.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Minneapolis, MN" ID="618" moniker="MIN">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.MINNEAPOLIS.MED.VA.GOV" status="active" port="19232" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.MINNEAPOLIS.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Central Plains HCS" ID="636" moniker="OMA">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.OMAHA.MED.VA.GOV" status="active" port="19235" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.OMAHA.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Sioux Falls, SD" ID="438" moniker="SUX">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.SIOUX-FALLS.MED.VA.GOV" status="active" port="19230" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.SIOUX-FALLS.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="St. Cloud, MN" ID="656" moniker="STC">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.ST-CLOUD.MED.VA.GOV" status="active" port="19233" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.ST-CLOUD.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+		<VhaSite name="Black Hills HCS" ID="568" moniker="FTM">
+      <DataSource modality="HIS" protocol="VISTA" source="VISTA.BLACK-HILLS.MED.VA.GOV" status="active" port="19234" />
+      <DataSource modality="HIS" protocol="HL7" source="HL7.BLACK-HILLS.MED.VA.GOV" status="active" port="5000" />
+    </VhaSite>
+	</VhaVisn>
+  <VhaVisn name="CDW" ID="24">
+    <VhaSite name="CDW" ID="204" moniker="CDW">
+      <DataSource modality="HIS" protocol="CDW" connectionString="Data Source=VHACDWa01.vha.med.va.gov;Initial Catalog=CDWWork;Trusted_Connection=true" status="active" />
+    </VhaSite>
+  </VhaVisn>
+  <VhaVisn name="SHDW" ID="25">
+    <VhaSite name="R01 SHADOW" ID="206" moniker="SHDWR01">
+      <DataSource modality="HIS" protocol="SOAP" source="http://r01scrdwh01.r01.med.va.gov:57772/csp/mdws/MDWS.RPCS.CLS" status="active" />
+    </VhaSite>
+  </VhaVisn>
+</VhaVisnTable>
+
