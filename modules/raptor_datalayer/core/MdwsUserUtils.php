@@ -66,7 +66,7 @@ class MdwsUserUtils {
         $has_superkey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, 'XUPROGMODE');
         if(!$has_superkey)
         {
-            $minkeys = array('OR CPRS GUI CHART','DVBA CAPRI GUI');
+            $minkeys = array(); //TODO with Joel array('OR CPRS GUI CHART','DVBA CAPRI GUI');
             foreach($minkeys as $keyName)
             {
                 $haskey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, $keyName);
