@@ -56,6 +56,37 @@ class MdwsUserUtils {
         $usersKeys = MdwsUserUtils::getUserSecurityKeys($mdwsDao, $userDuz);
         return in_array($keyName, array_values($usersKeys));
     }
+    
+    /**
+     * Return NULL if no problems.
+     */
+    public static function getVistaAccountKeyProblems($mdwsDao, $userDuz)
+    {
+        $missingkeys = array();
+        $minkeys = array('OR CPRS GUI CHART','DVBA CAPRI GUI');
+        foreach($minkeys as $keyName)
+        {
+            $haskey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, $keyName);
+            if(!$haskey)
+            {
+                $missingkeys[] = $keyName;
+            }
+        }
+        
+        $errormsg = NULL;
+        if(count($missingkeys) > 0)
+        {
+            $keystext = implode(', ',$missingkeys);
+            $missingkeycount = count($missingkeys);
+            if($missingkeycount == 1)
+            {
+                $errormsg = "User account is missing 1 required VistA key: $keystext!";
+            } else {
+                $errormsg = "User account is missing $missingkeycount required VistA keys: $keystext!";
+            }
+        }
+        return $errormsg;
+    }
 
     /**
      * Return max of 44 providers starting with target string

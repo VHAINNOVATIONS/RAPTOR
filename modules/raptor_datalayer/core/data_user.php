@@ -868,5 +868,4 @@ class UserInfo
         $tail = str_repeat('*', $tailmasklen);
         return substr($texttomask,0,$shortlen).$tail;
     }
-    
 }

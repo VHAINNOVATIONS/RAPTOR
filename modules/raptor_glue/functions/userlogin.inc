@@ -160,8 +160,6 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
                             .$username.'] with uid=['.$drupaluser->uid.']');
                     $isvalid = FALSE;
                 } else {
-
-                    //We are done if this is a site administrator, else keep validating.
                     if(!$oUserInfo->isSiteAdministrator())
                     {
                         //Check against MDWS
@@ -178,6 +176,7 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
                                     .$drupaluser->uid.']');
                             $isvalid = FALSE;
                         }
+                        
                     } else {
                         //Check the password using drupal authentication
                         if(FALSE === user_authenticate($username, $password))

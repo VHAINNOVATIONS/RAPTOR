@@ -21,19 +21,8 @@ require_once 'RuntimeResultFlexCache.php';
 defined('CONST_NM_RAPTOR_CONTEXT')
     or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150605A');
 
-defined("DISABLE_CONTEXT_DEBUG")
-    or define("DISABLE_CONTEXT_DEBUG", TRUE);
-
-/*
-function raptor_error_handler( $num, $str, $file, $line, $context = null )
-{
-    error_log("Executing raptor_error_handler with $num, $str, $file, $line, $context");
-    exit();
-}
-
-set_error_handler('raptor_error_handler');
-set_exception_handler('raptor_error_handler');
-*/
+defined('DISABLE_CONTEXT_DEBUG')
+    or define('DISABLE_CONTEXT_DEBUG', TRUE);
 
 /**
  * The context has all the details relevant to the user of the session and their
@@ -945,7 +934,9 @@ class Context
     
     private function authenticateMdwsSubsystem($sVistaUserID, $sVAPassword) 
     {
-        error_log('WORKFLOWDEBUG>>>Called authenticateMdwsSubsystem for ' . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR'] .' in ' . $this->m_nInstanceTimestamp);
+        error_log('WORKFLOWDEBUG>>>Called authenticateMdwsSubsystem for ' 
+                . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR']  
+                . ' in ' . $this->m_nInstanceTimestamp);
         try 
         {
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
@@ -955,9 +946,8 @@ class Context
             //drupal_set_message('>>>> login details>>>'.print_r($loginResult, TRUE));
             
             $this->clearForceLogoutReason();    //Important that we clear it now otherwise can be stuck in kickout mode.
-            return ""; // per data functions doc - return empty string on success
+            return ''; // per data functions doc - return empty string on success
         }  catch (\Exception $ex) {
-            // TBD - do we want better error numbers for connect and login issues? static MdwsUtils method returns constant 1
             error_log('Failed to log into MDWS because '.$ex->getMessage());
             return array(
                 "ERRNUM"=>MdwsUtils::getErrorNumberForException($ex), 
