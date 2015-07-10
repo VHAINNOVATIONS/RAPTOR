@@ -23,3 +23,4 @@ scripts[] = js/jquery.dataTables.js
 scripts[] = js/userform.js
 scripts[] = js/global.js
 scripts[] = js/jquery.sticky.js
+scripts[] = js/raptor-omega.behaviors.js
