@@ -144,7 +144,7 @@ class ViewReportUserActivity extends AReport
                             . '<th>Last Login</th>'
                             . '<th>Last Logout</th>'
                             . '<th>Last Activity</th>'
-                            . '<th>Time Last Activity</th>'
+                            . '<th>Time Since Last Activity</th>'
                             . '</tr>'
                             . '</thead>'
                             . '<tbody>'
