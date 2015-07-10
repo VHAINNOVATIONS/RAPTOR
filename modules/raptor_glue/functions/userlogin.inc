@@ -42,6 +42,17 @@ function raptor_glue_login_validate( $form, &$form_state )
     try
     {
         $username = trim($form_state['values']['name']);
+        if(USERNAME_PREFIX_SALT > '')
+        {
+            $prefixlen = strlen(USERNAME_PREFIX_SALT);
+            if(substr($username,0,$prefixlen) !== USERNAME_PREFIX_SALT)
+            {
+                error_log("User login FAILED to provided the expected USERNAME_PREFIX_SALT value!");
+                return FALSE;
+            }
+            //Remove the salt and continue.
+            $username = substr($username,$prefixlen);
+        }
         $password = trim($form_state['values']['pass']);
         $havepassword = (trim($password) != '' ? 'Yes' : 'No!');
         error_log("login validating username=[$username] password was provided=[$havepassword]");
