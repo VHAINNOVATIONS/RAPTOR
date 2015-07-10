@@ -350,7 +350,7 @@ class ViewReportQAScores extends AReport
         $headercols = $myvalues['headercols'];
         $rowdata = $myvalues['rowdata'];
         $headermarkup = "<tr><th>".implode('</th><th>',$headercols).'</th></tr>';
-        $rowmarkup = array();
+        $rowmarkup_ar = array();
         foreach($rowdata as $onerow)
         {
             $rowmarkup_ar[] = "<tr><td>".implode('</td><td>',$onerow).'</td></tr>';
