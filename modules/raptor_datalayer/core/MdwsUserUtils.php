@@ -63,13 +63,17 @@ class MdwsUserUtils {
     public static function getVistaAccountKeyProblems($mdwsDao, $userDuz)
     {
         $missingkeys = array();
-        $minkeys = array('OR CPRS GUI CHART','DVBA CAPRI GUI');
-        foreach($minkeys as $keyName)
+        $has_superkey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, 'XUPROGMODE');
+        if(!$has_superkey)
         {
-            $haskey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, $keyName);
-            if(!$haskey)
+            $minkeys = array('OR CPRS GUI CHART','DVBA CAPRI GUI');
+            foreach($minkeys as $keyName)
             {
-                $missingkeys[] = $keyName;
+                $haskey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, $keyName);
+                if(!$haskey)
+                {
+                    $missingkeys[] = $keyName;
+                }
             }
         }
         
