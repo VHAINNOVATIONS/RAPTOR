@@ -35,6 +35,36 @@ class ViewReportUserActivity extends AReport
     {
         return 'Shows user login and logout activity times in the system.';
     }
+    
+    private function getFormattedDuration($seconds)
+    {
+        try
+        {
+            $wholeseconds = ceil($seconds);
+            $dtF = new \DateTime("@0");
+            $dtT = new \DateTime("@$wholeseconds");
+            $dateinstance = $dtF->diff($dtT);
+            $portioned = $dateinstance->format('%a;%h;%i;%s');
+            if($wholeseconds >= 86400)  //Days
+            {
+                $formatted = $dateinstance->format('%a days %h hours %i minutes and %s seconds');
+            } else 
+            if($wholeseconds >= 3600)   //Hours
+            {
+                $formatted = $dateinstance->format('%h hours %i minutes and %s seconds');
+            } else 
+            if($wholeseconds >= 60)    //Minutes
+            {
+                $formatted = $dateinstance->format('%i minutes and %s seconds');
+            } else {
+                $formatted = $dateinstance->format('%s seconds');
+            }
+            //$formatted = $dateinstance->format('%a days %h hours, %i minutes and %s seconds');
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
 
     /**
      * Get all the form contents for rendering
@@ -65,8 +95,10 @@ class ViewReportUserActivity extends AReport
         $MININ4WEEKS=4*10080;
         foreach($result as $item) 
         {
-            $minutessincelastaction = ($item->access > 0 ? round(($now - $item->access ) / 60) : NULL);
-            if($minutessincelastaction !== NULL && $minutessincelastaction <= $MININ4WEEKS)   //Only include users that have logged in recently
+            $nowseconds = time();
+            $secondssincelastaction = ($item->access > 0 ? round(($nowseconds - $item->access )) : NULL);
+            $minutessincelastaction = ($secondssincelastaction !== NULL ? round($secondssincelastaction / 60) : NULL);
+            if($minutessincelastaction !== NULL) // && $minutessincelastaction <= $MININ4WEEKS)   //Only include users that have logged in recently
             {
                 $hourssincelastaction = round($minutessincelastaction / 60);
                 $fullname = trim($item->usernametitle . ' ' . $item->lastname . ', ' . $item->firstname);
@@ -90,6 +122,7 @@ class ViewReportUserActivity extends AReport
                     $lastlogout = '*Never*';  
                 }
     
+                $formatted_duration = $this->getFormattedDuration($secondssincelastaction);
                 $rows   .= "\n".'<tr>'
                         . '<td>'.$username.'</td>'
                         . '<td>'.$fullname.'</td>'
@@ -97,7 +130,7 @@ class ViewReportUserActivity extends AReport
                         . '<td>'.$lastlogin.'</td>'
                         . '<td>'.$lastlogout.'</td>'
                         . '<td>'.$lastactivity.'</td>'
-                        . '<td '.($hourssincelastaction > 0 ? 'title="about '.$hourssincelastaction.' hours"' : 'title="less than 1 hour"' ).'>'.$minutessincelastaction.'</td>'
+                        . '<td '.($hourssincelastaction > 0 ? 'title="about '.$hourssincelastaction.' hours"' : 'title="less than 1 hour"' ).'>'.$formatted_duration.'</td>'
                         .'</tr>';
             }
         }
@@ -111,7 +144,7 @@ class ViewReportUserActivity extends AReport
                             . '<th>Last Login</th>'
                             . '<th>Last Logout</th>'
                             . '<th>Last Activity</th>'
-                            . '<th>Minutes since Last Activity</th>'
+                            . '<th>Time Last Activity</th>'
                             . '</tr>'
                             . '</thead>'
                             . '<tbody>'
