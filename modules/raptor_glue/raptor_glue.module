@@ -27,7 +27,14 @@ require_once 'form/ProtocolInfoPage.php';
  */
 function raptor_glue_watchdog($log_entry)
 {
-    if(isset($log_entry['message']) && $log_entry['message'] == 'raptor/undefined')
+    $severity = isset($log_entry['severity']) ? $log_entry['severity'] : 99;
+    if($severity > WATCHDOG_NOTICE
+            || (isset($log_entry['message']) 
+                && ( 
+                    $log_entry['message'] == 'raptor/undefined' 
+                 || $log_entry['message'] == 'Session opened for %name.'
+                 || $log_entry['message'] == 'Session closed for %name.'))
+            )
     {
         //Do NOT bother logging this one.
     } else {
