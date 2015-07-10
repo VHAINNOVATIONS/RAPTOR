@@ -38,7 +38,8 @@ class UserPageHelper
         $myvalues = array();
         $myvalues['uid'] = $nUID;
         $myvalues['username'] = '';
-        $myvalues['setpassword'] = null;
+        $myvalues['currentpass'] = NULL;
+        $myvalues['newpassword'] = NULL;
         $myvalues['role_nm'] = null;
         $myvalues['usernametitle'] = null;
         $myvalues['firstname'] = null;
@@ -142,7 +143,8 @@ class UserPageHelper
                 $record = $result->fetchObject();
 
                 $myvalues['username'] = $record->username;
-                $myvalues['setpassword'] = NULL;
+                $myvalues['currentpass'] = NULL;
+                $myvalues['newpassword'] = NULL;
                 $myvalues['role_nm'] = $record->role_nm;
                 $myvalues['usernametitle'] = $record->usernametitle;
                 $myvalues['firstname'] = $record->firstname;
@@ -894,21 +896,28 @@ class UserPageHelper
             //Only prompt for password if form is not disabled.
             if(!$disabled)
             {
-                $form['data_entry_area1']['leftpart']['setpassword'] = array(
+                $form['data_entry_area1']['leftpart']['password']['currentpass'] = array(
+                  '#type' => 'password', 
+                  '#size' => 25,
+                  '#required' => FALSE,
+                  '#title' => t('Current password'),
+                  '#description' => t('The existing password for this account.  '
+                          . 'Only set this IF you want to change the password.'),
+                );
+                $form['data_entry_area1']['leftpart']['password']['newpassword'] = array(
                   '#type' => 'password_confirm', 
-                  '#prefix' => '<div id="xxxedit-password">',
-                  '#suffix' => '</div>',
-                  '#size' => 40, 
-                  //'#maxlength' => 128, 
-                  '#required' => TRUE,
-                  '#description' => t('The password for this account.  Pick a strong password and do not share it.'),
+                  '#size' => 25, 
+                  '#required' => FALSE,
+                  '#description' => t('The new password for this account.  '
+                          . 'Pick a strong password and do not share it.'),
                   '#disabled' => $disabled,
                   '#attributes' => array('autocomplete' => 'off'),
                 );        
             }
         } else {
             $form['data_entry_area1']['leftpart']['username']['#description'] 
-                    =  t('The login name of the user.  This must match their VISTA login name.'.$myvalues['role_nm']);
+                    =  t('The login name of the user.  '
+                            . 'This must match their VISTA login name.'.$myvalues['role_nm']);
         }
         
         $form['data_entry_area1']['leftpart']['usernametitle'] = array(

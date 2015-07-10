@@ -13,8 +13,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'core/data_user');
 require_once 'FormHelper.php';
 require_once 'UserPageHelper.php';
 require_once 'ChildEditBasePage.php';
@@ -35,6 +33,9 @@ class EditUserPage extends \raptor\ChildEditBasePage
      //Call same function as in EditUserPage here!
     function __construct($nUID, $gobacktooverride=NULL)
     {
+        module_load_include('php', 'raptor_datalayer', 'config/Choices');
+        module_load_include('php', 'raptor_datalayer', 'core/data_user');
+
         if(!isset($nUID) || !is_numeric($nUID))
         {
             throw new \Exception("Missing or invalid uid value = " . $nUID);
@@ -54,11 +55,8 @@ class EditUserPage extends \raptor\ChildEditBasePage
         }
     }
 
-    
     /**
      * Some checks to validate the data before we try to save it.
-     * @param type $form
-     * @param type $myvalues
      * @return TRUE or FALSE
      */
     function looksValid($form, $myvalues)
@@ -74,6 +72,24 @@ class EditUserPage extends \raptor\ChildEditBasePage
         {
             form_set_error('prefemail','Email address is not valid');
             $bGood = FALSE;        
+        }
+        
+        if(isset($myvalues['newpassword']) && trim($myvalues['newpassword']) > '')
+        {
+            //We require a current password value
+            $username = $myvalues['username'];
+            $password = $myvalues['currentpass'];
+            if(FALSE === user_authenticate($username, $password))
+            {
+                form_set_error('currentpass','Wrong current password');
+                $bGood = FALSE;
+            }
+            $newpassword = $myvalues['newpassword'];
+            if(strlen($newpassword) < MIN_ADMIN_PASSWORD_LEN)
+            {
+                form_set_error('newpassword','New password must be at least '.MIN_ADMIN_PASSWORD_LEN.' characters in length');
+                $bGood = FALSE;
+            }
         }
         
         if($bGood)
@@ -116,7 +132,6 @@ class EditUserPage extends \raptor\ChildEditBasePage
             $myvalues['accountactive_yn'] = 1;  //If not set, then assume because user is NOT allowed to disable the account.
         }
         
-        //die('CEUA1='.$myvalues['CEUA1'] . 'DUMP ALL...<br>' . print_r($myvalues, true));
         try
         {
             $nUpdated = db_update('raptor_user_profile')
@@ -220,6 +235,7 @@ class EditUserPage extends \raptor\ChildEditBasePage
         
         if (!$oUserInfo->isSiteAdministrator()) 
         {
+            //Clear the password block.
             $form['data_entry_area1']['leftpart']['password'] = NULL;
         }
 

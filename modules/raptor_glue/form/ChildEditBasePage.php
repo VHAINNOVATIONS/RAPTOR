@@ -123,12 +123,6 @@ abstract class ChildEditBasePage implements \raptor\PageNavigation
         } else {
             $markup = array('#type' => 'item'
                     , '#markup' => '<a class="admin-cancel-button" href="'.$goback.'">'.$label.'</a>');
-            /*
-            $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                    , '#markup' => '<input class="admin-cancel-button" type="button"'
-                    . ' value="Cancel"'
-                    . ' data-redirect="'.$goback.'">');
-             */
         }
         return $markup;
     }

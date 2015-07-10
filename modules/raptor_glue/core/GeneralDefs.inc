@@ -1,7 +1,7 @@
 <?php
 
 defined('GENERAL_DEFS_VERSION_INFO')
-    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150707.1');
+    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150710.1');
 
 /*
  * These are General Purpose settings
@@ -43,3 +43,7 @@ defined('CUSTOM_TERMS4MATCH_US')
 //How much of the username to mask from other standard RAPTOR users (99 to hide)
 defined('DEFAULT_USERNAME_TAILMASK')
     or define('DEFAULT_USERNAME_TAILMASK', 5);
+
+//Declare minimum passwords length for NON-VISTA user accounts
+defined('MIN_ADMIN_PASSWORD_LEN')
+    or define('MIN_ADMIN_PASSWORD_LEN', 5);
