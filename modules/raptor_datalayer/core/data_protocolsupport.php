@@ -299,7 +299,8 @@ class ProtocolSupportingData
                 //We are done
                 break;
             }
-            $locations = array_merge($locations, $morelocations);
+            //$locations = array_merge($locations, $morelocations);
+            $locations = $locations + $morelocations;
             $prevend = $lastitem;
         }
         if($queries >= $maxqueries)

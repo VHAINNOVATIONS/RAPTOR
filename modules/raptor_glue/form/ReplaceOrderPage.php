@@ -921,7 +921,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 '#default_value' => $neworderlocation,
                 '#disabled' => $disabled_step2,
                 );        
-                
+            //error_log("LOOK ALL THE LOCATIONS OPTIONS>>>>".print_r($locations,TRUE));                
             $raw_orderitems = MdwsNewOrderUtils::getOrderableItems($mdwsDao, $imagingTypeId);
             $orderitems_options = array();
             foreach($raw_orderitems as $k=>$v)
