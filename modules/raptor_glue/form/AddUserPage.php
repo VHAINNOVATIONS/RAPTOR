@@ -204,7 +204,6 @@ class AddUserPage extends \raptor\ChildEditBasePage
             $myvalues['uid'] = $newUID;
         }
 
-        
         $filter = array(':uid' => $newUID);
         $sSQL = 'select username from raptor_user_profile where uid=:uid';
         $result = db_query($sSQL, $filter);
@@ -212,7 +211,10 @@ class AddUserPage extends \raptor\ChildEditBasePage
         {
             //Some kind of corruption due to manual interventions in the Drupal or RAPTOR database.
             $record = $result->fetchObject();
-            $errmsg = ('Already have a RAPTOR user "'. $record->username .'" with uid=' . $newUID . ' so cannot match the account created for DRUPAL user "'.$myvalues['username'].'"!');
+            $errmsg = ('Already have a RAPTOR user "'. $record->username 
+                    .'" with uid=' . $newUID 
+                    . ' so cannot match the account created for DRUPAL user "' 
+                    . $myvalues['username'].'"!');
             throw new \Exception($errmsg);
         }
         
@@ -225,7 +227,7 @@ class AddUserPage extends \raptor\ChildEditBasePage
             throw new \Exception($errmsg);
         }
 
-        //TODO -- enforce that the username matches VISTA name unless Site Administrator role!
+        //FUTURE ENHANCEMENT TODO -- enforce that the username matches VISTA name unless Site Administrator role!
         //Put that code here!!!
 
         //Try to create the record now
