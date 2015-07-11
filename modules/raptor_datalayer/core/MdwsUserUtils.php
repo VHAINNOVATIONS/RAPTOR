@@ -57,6 +57,23 @@ class MdwsUserUtils {
         return in_array($keyName, array_values($usersKeys));
     }
     
+    public static function userHasSecondaryMenuOption($mdwsDao, $userDuz, $optionName)
+    {
+        try
+        {
+            $params = array('uid'=>$userDuz, 'permissionName' => $optionName );
+            $soapResult = $mdwsDao->makeQuery('userHasPermission', $params);
+            $haskey = FALSE;
+            if(isset($soapResult->userHasPermissionResult->trueOrFalse))
+            {
+                $haskey = strtolower($soapResult->userHasPermissionResult->trueOrFalse);
+            }
+            return $haskey;
+        } catch (\Exception $ex) {
+            throw new \Exception("Possible trouble with soap result ".print_r($soapResult,TRUE),99876,$ex);
+        }
+    }
+    
     /**
      * Return NULL if no problems.
      */
@@ -66,28 +83,23 @@ class MdwsUserUtils {
         $has_superkey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, 'XUPROGMODE');
         if(!$has_superkey)
         {
-            $minkeys = array(); //TODO with Joel array('OR CPRS GUI CHART','DVBA CAPRI GUI');
-            foreach($minkeys as $keyName)
+            $minSecondaryOptions = array('DVBA CAPRI GUI'); //'OR CPRS GUI CHART'
+            foreach($minSecondaryOptions as $keyName)
             {
-                $haskey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, $keyName);
+                $haskey = \raptor\MdwsUserUtils::userHasSecondaryMenuOption($mdwsDao, $userDuz, $keyName);
                 if(!$haskey)
                 {
                     $missingkeys[] = $keyName;
                 }
             }
         }
-        
         $errormsg = NULL;
         if(count($missingkeys) > 0)
         {
             $keystext = implode(', ',$missingkeys);
             $missingkeycount = count($missingkeys);
-            if($missingkeycount == 1)
-            {
-                $errormsg = "User account is missing 1 required VistA key: $keystext!";
-            } else {
-                $errormsg = "User account is missing $missingkeycount required VistA keys: $keystext!";
-            }
+            $errormsg = "The VistA user account does not have access to: $keystext!";
+            error_log("The VistA account for is missing $missingkeycount menu options ".print_r($userDuz,TRUE));
         }
         return $errormsg;
     }
