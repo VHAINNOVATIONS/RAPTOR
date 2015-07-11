@@ -58,9 +58,9 @@ class ChangePasswordPage
             $bGood = FALSE;
         }
         $newpassword = $myvalues['pass'];
-        if(strlen($newpassword) < 4)
+        if(strlen($newpassword) < MIN_ADMIN_PASSWORD_LEN)
         {
-            form_set_error('pass','New password is TOO short!');
+            form_set_error('pass','New password is must be at least '.MIN_ADMIN_PASSWORD_LEN.' characters long!');
             $bGood = FALSE;
         }
         
