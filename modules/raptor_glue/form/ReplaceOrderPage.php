@@ -98,12 +98,23 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $myvalues['pregnant'] = NULL;
         $myvalues['reasonforstudy'] = NULL;
         $myvalues['clinhist'] = NULL;
-        $myvalues['datedesired_dateonly'] = date('m/d/Y',strtotime($aOneRow['DesiredDate']));   //Format it
+        
+        $ddtxt = $aOneRow['DesiredDate'];
+        $ddtxtparts = explode('@',$ddtxt);
+        $ddtime = strtotime($ddtxtparts[0]);
+        if($ddtime > time())
+        {
+            $formatteddd = date('m/d/Y',$ddtime);
+        } else {
+            $formatteddd = '';  //Already passed!
+        }
+        
+        $myvalues['datedesired_dateonly'] = $formatteddd;   //Format it
         $myvalues['preopdate_dateonly'] = NULL;
         $myvalues['datedesired_timeonly'] = NULL;
         $myvalues['preopdate_timeonly'] = NULL;
 
-        error_log("Got initial field values for replace order>>>".print_r($myvalues,TRUE));
+        //error_log("Got initial field values for replace order DD=[".$aOneRow['DesiredDate']."]>>>".print_r($myvalues,TRUE));
         
         return $myvalues;
     }
@@ -921,7 +932,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 '#default_value' => $neworderlocation,
                 '#disabled' => $disabled_step2,
                 );        
-                
+            //error_log("LOOK ALL THE LOCATIONS OPTIONS>>>>".print_r($locations,TRUE));                
             $raw_orderitems = MdwsNewOrderUtils::getOrderableItems($mdwsDao, $imagingTypeId);
             $orderitems_options = array();
             foreach($raw_orderitems as $k=>$v)

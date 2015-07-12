@@ -107,12 +107,16 @@ class AddUserPage extends \raptor\ChildEditBasePage
         $is_site_admin = UserInfo::isRoleSiteAdministrator($this->m_role_nm);
         if($is_site_admin)
         {
-            if(isset($myvalues['setpassword']))
+            //We require a password value
+            if(!isset($myvalues['newpassword']) || trim($myvalues['newpassword']) == '')
             {
-                //We require a password value
-                if(trim($myvalues['setpassword']) == '')
+                form_set_error('newpassword','Missing password value.');
+                $bGood = FALSE;        
+            } else {
+                $thelen = strlen($myvalues['newpassword']);
+                if($thelen < MIN_ADMIN_PASSWORD_LEN)
                 {
-                    form_set_error('setpassword','Missing password value.');
+                    form_set_error('newpassword',"Password length of $thelen is too short! (Minimum length is ".MIN_ADMIN_PASSWORD_LEN.")");
                     $bGood = FALSE;        
                 }
             }
@@ -177,7 +181,7 @@ class AddUserPage extends \raptor\ChildEditBasePage
                 $newUserInfo = array(
                     'is_new' => TRUE,
                     'name' => trim($myvalues['username']),
-                    'pass' => ($is_site_admin ? $myvalues['setpassword'] : 'VISTAAUTH'), // note: do not md5 the password
+                    'pass' => ($is_site_admin ? $myvalues['newpassword'] : 'VISTAAUTH'), // note: do not md5 the password
                     'mail' => $myvalues['prefemail'],
                     'status' => 1,
                     'init' => 'email address'
@@ -200,7 +204,6 @@ class AddUserPage extends \raptor\ChildEditBasePage
             $myvalues['uid'] = $newUID;
         }
 
-        
         $filter = array(':uid' => $newUID);
         $sSQL = 'select username from raptor_user_profile where uid=:uid';
         $result = db_query($sSQL, $filter);
@@ -208,7 +211,10 @@ class AddUserPage extends \raptor\ChildEditBasePage
         {
             //Some kind of corruption due to manual interventions in the Drupal or RAPTOR database.
             $record = $result->fetchObject();
-            $errmsg = ('Already have a RAPTOR user "'. $record->username .'" with uid=' . $newUID . ' so cannot match the account created for DRUPAL user "'.$myvalues['username'].'"!');
+            $errmsg = ('Already have a RAPTOR user "'. $record->username 
+                    .'" with uid=' . $newUID 
+                    . ' so cannot match the account created for DRUPAL user "' 
+                    . $myvalues['username'].'"!');
             throw new \Exception($errmsg);
         }
         
@@ -221,7 +227,7 @@ class AddUserPage extends \raptor\ChildEditBasePage
             throw new \Exception($errmsg);
         }
 
-        //TODO -- enforce that the username matches VISTA name unless Site Administrator role!
+        //FUTURE ENHANCEMENT TODO -- enforce that the username matches VISTA name unless Site Administrator role!
         //Put that code here!!!
 
         //Try to create the record now
@@ -350,10 +356,14 @@ class AddUserPage extends \raptor\ChildEditBasePage
                 . 'If a standard user account cannot log into VISTA then they will not be able to log into RAPTOR.'
                 . '</p>',
             );        
+            //Clear the entire password block.
+            $form['data_entry_area1']['leftpart']['password'] = NULL;
         } else {
             $form['data_entry_area1']['introblurb']['text'] = array(
                 '#markup' => '<p>Admin users do not interact with VISTA patient data.</p>'
             );        
+            //Clear the current password input.
+            $form['data_entry_area1']['leftpart']['password']['currentpass'] = NULL;
         }
         
         //Replace the buttons

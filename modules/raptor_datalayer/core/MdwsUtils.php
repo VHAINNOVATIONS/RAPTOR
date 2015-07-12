@@ -613,7 +613,6 @@ class MdwsUtils {
         foreach ($locationTOs as $locTO) {
             $locations[$locTO->id] = $locTO->name;
         }
-
         return $locations;
     }
 

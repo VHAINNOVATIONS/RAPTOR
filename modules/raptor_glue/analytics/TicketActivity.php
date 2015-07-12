@@ -787,12 +787,15 @@ class TicketActivity
                                 $sched_author_uid = $scheduledetails['author_uid'];
                                 $sched_created_dt = $scheduledetails['created_dt'];
                                 $ticket_approver_uid = NULL;
-                                foreach($ticketdetails['transitions'] as $transitiondetail)
+                                if(isset($ticketdetails['transitions']))
                                 {
-                                    if($transitiondetail['new_workflow_state'] == 'AP')
+                                    foreach($ticketdetails['transitions'] as $transitiondetail)
                                     {
-                                        $ticket_approver_uid = $transitiondetail['initiating_uid'];
-                                        break;
+                                        if($transitiondetail['new_workflow_state'] == 'AP')
+                                        {
+                                            $ticket_approver_uid = $transitiondetail['initiating_uid'];
+                                            break;
+                                        }
                                     }
                                 }
 

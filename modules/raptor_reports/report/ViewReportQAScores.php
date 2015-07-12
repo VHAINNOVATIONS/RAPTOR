@@ -201,10 +201,17 @@ class ViewReportQAScores extends AReport
             $psn = $record['primary_protocol_shortname'];
             $evaluator_uid = $record['author_uid'];
             $ien = $record['IEN'];
-            $workflowdetails = $wfhmap[$ien];
-            $approver_nm = $this->getNamesText($workflowdetails,'AP',$upmap);
-            $acknowledger_nm = $this->getNamesText($workflowdetails,'PA',$upmap);
-            $examiner_nm = $this->getNamesText($workflowdetails,'EC',$upmap);
+            if(isset($wfhmap[$ien]))
+            {
+                $workflowdetails = $wfhmap[$ien];
+                $approver_nm = $this->getNamesText($workflowdetails,'AP',$upmap);
+                $acknowledger_nm = $this->getNamesText($workflowdetails,'PA',$upmap);
+                $examiner_nm = $this->getNamesText($workflowdetails,'EC',$upmap);
+            } else {
+                $approver_nm = '';
+                $acknowledger_nm = '';
+                $examiner_nm = '';
+            }
             $record['modality_abbr'] = $plmap[$psn]['modality_abbr'];
             $record['approver_nm'] = $approver_nm;
             $record['acknowledger_nm'] = $acknowledger_nm;
@@ -343,7 +350,7 @@ class ViewReportQAScores extends AReport
         $headercols = $myvalues['headercols'];
         $rowdata = $myvalues['rowdata'];
         $headermarkup = "<tr><th>".implode('</th><th>',$headercols).'</th></tr>';
-        $rowmarkup = array();
+        $rowmarkup_ar = array();
         foreach($rowdata as $onerow)
         {
             $rowmarkup_ar[] = "<tr><td>".implode('</td><td>',$onerow).'</td></tr>';
