@@ -1,3 +1,5 @@
+/* global lastChange */
+
 (function ($) {
 
     /**
@@ -293,7 +295,6 @@
 
     $(document).ready(function () {
         /*** Idle timeout ***/
-
         var countdownIntervalId = 0,
                 $timeoutWarningContainer = $('#timeout-warning'),
                 $timeLeftContainer = $('#timeout-warning-time-left'),
@@ -336,7 +337,6 @@
         };
 
         var lastChange = {};
-
         if (!isLoginPage()) {
             $.get(Drupal.pageData.baseURL + '/raptor/userinteractionping?resetsecondssincelastaction', function () { /* Intentionally left blank */
             });
@@ -347,11 +347,10 @@
                 });
 
             }
-            //alert("reset seconds");
             // Ensure user isn't timed out if they are actively editing information on the page
             lastChange.lastAjaxCall = new Date(); // Idle time gets reset when page is first loaded
             lastChange.alivePingIntervalSeconds = 60; // This determines how often key presses and form changes reset the user's idle time
-
+            
             // Obtain lastChange.alivePingIntervalSeconds from server
             $.getJSON(Drupal.pageData.baseURL + '/raptor/userinteractionping', function (response) {
                 var seconds = parseFloat(response.thisuser.alive_ping_interval_seconds);
@@ -492,7 +491,6 @@
                 $.getJSON(Drupal.pageData.baseURL + '/raptor/userinteractionping', function (response) {
                     //console.log('Outer raptor/userinteractionping %s', 0, response.thisuser.alive_ping_interval_seconds);
                     //console.log('idle seconds %s',0,response.thisuser.idle_seconds)
-
                     if (!timeoutWarningIsDisplayed) {
                         // User may have logged out and is no longer authenticated
                         if (!isUserStillAuthenticated(response.thisuser.authenticated)) {
@@ -502,7 +500,6 @@
 
                         // User has been idle far too long
                         if (response.thisuser.idle_seconds > response.thisuser.allowed_idle_seconds) {
-                            // console.log('timeout warning start');
                             // Display the timeout warning banner
                             showTimeoutWarning(response.thisuser.allowed_grace_seconds);
 

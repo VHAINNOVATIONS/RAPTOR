@@ -32,3 +32,4 @@ scripts[] = js/jquery.dataTables.js
 scripts[] = js/global.js
 scripts[] = js/jquery.sticky.js
 
+
