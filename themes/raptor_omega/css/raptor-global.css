@@ -91,6 +91,13 @@ label[for=edit-examnotes-tx--2]{
     top: 1em !important;
     right: 1em !important;
 }
+
+.boilerplate-col1{
+    position: relative !important;
+    //top: 1em !important;
+    //right: 1em !important;
+    width: 58% !important;
+}
 /*
 .boilerplate-data-entry-area{
     height: 350px !important;

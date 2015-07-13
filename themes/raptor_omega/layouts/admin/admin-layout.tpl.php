@@ -38,6 +38,7 @@ global $raptor_context;
 
   $folder = realpath(dirname(__FILE__));
   include("$folder/../render-admin-header.php");
+  include("$folder/../render-timeout-warning.php");
   ?>
   <div class="l-main">
     <div class="l-content" role="main">
