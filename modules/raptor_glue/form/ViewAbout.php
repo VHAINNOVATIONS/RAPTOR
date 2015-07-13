@@ -22,8 +22,9 @@ namespace raptor;
 class ViewAbout
 {
     
-    function __construct($oContext)
+    function __construct()
     {
+        module_load_include('php', 'raptor_datalayer', 'core/VistaDao');
         module_load_include('inc', 'raptor_glue', 'core/QualityAssuranceDefs');
     }
 
@@ -94,7 +95,9 @@ class ViewAbout
     {
         global $base_url;
 
-        $mdwsversion = '2.5';   //TODO get from a query
+        $vista_dao = new \raptor\VistaDao();
+        
+        $vista_integrationinfo = $vista_dao->getIntegrationInfo();
         $logomarkup = "<img style='float:right;' alt='RAPTOR Logo' "
                     . " src='$base_url/sites/all/modules/raptor_glue/images/raptor_large_logo.png'>";
         $html = '<div id="about-dialog" style="margin-left:auto;margin-right:auto;">'
@@ -109,8 +112,8 @@ class ViewAbout
                 . '<table class="about-info">'
                 . '<tr><td><b>App Build</b></td><td><b>'.RAPTOR_BUILD_ID.'</b></td></tr>'
                 . '<tr><td>Machine ID</td><td>'.RAPTOR_CONFIG_ID.'</td></tr>'
-                . '<tr><td>MDWS version</td><td>'.$mdwsversion.'</td></tr>'
-                . '<tr><td>VISTA Site</td><td>'.VISTA_SITE.'</td></tr>'
+                . '<tr><td>VistA Site</td><td>'.VISTA_SITE.'</td></tr>'
+                . '<tr><td>VistA Integration</td><td>'.$vista_integrationinfo.'</td></tr>'
                 . '</table>'
                 . '<br>'
                 . '<b>Site Customization Version Information</b>'

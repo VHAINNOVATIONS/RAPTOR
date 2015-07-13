@@ -18,7 +18,8 @@ module_load_include('php', 'raptor_glue', 'core/config');
 require_once 'IMdwsDao.php';
 require_once 'MdwsDao.php';
 
-class MdwsDaoFactory {
+class MdwsDaoFactory 
+{
     // for now have just the MDWS DAO - should be sufficient!
     public static function getMdwsDao($facadeName) {
         return new MdwsDao();

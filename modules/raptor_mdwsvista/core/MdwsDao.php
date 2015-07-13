@@ -39,6 +39,11 @@ class MdwsDao implements IMdwsDao {
         $this->initClient();
     }
     
+    public function getIntegrationInfo()
+    {
+        return "MDWS v2.5"; //TODO get real runtime version number
+    }
+    
     /**
      * Make it simpler to output details about this instance.
      * @return text

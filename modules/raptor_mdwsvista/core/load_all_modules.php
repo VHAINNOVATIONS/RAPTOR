@@ -12,6 +12,9 @@
  * 
  */ 
 
+defined('VISTA_INT_IMPL_DAO_CLASSNAME')
+    or define('VISTA_INT_IMPL_DAO_CLASSNAME', 'MdwsDao');
+
 require_once 'MdwsDao.php';
 require_once 'MdwsDaoFactory.php';
 require_once 'MdwsNewOrderUtils.php';

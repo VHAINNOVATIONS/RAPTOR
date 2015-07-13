@@ -22,10 +22,10 @@ defined('USERNAME_PREFIX_SALT')
 //require_once 'RSite963_147.inc';
 //require_once '32bitVM_local_newMDWS.inc';
 //require_once '64bitVM_184.inc';
-require_once '64bitVM_54-193.inc';
+//require_once '64bitVM_54-193.inc';
 //require_once '64bitVM_54-252-102.inc';
 //require_once '64bitVM_54-92-244.inc';
-//require_once '64bitVM_local.inc';
+require_once '64bitVM_local.inc';
 
 /*
  * We require all of the following.
