@@ -258,7 +258,7 @@ class WorklistData
                 $desired_date_parts=explode('@',$desired_date_raw);
                 $desired_date_justdate=$desired_date_parts[0];
                 $desired_date_justtime=$desired_date_parts[1];
-                $desired_date_timestamp = strtotime($dateordered_justdate);  
+                $desired_date_timestamp = strtotime($desired_date_justdate);  
                 $desired_date_iso8601 = date('Y-m-d ',$desired_date_timestamp) . $desired_date_justtime;
             } else {
                 $desired_date_justdate=$desired_date_raw;
