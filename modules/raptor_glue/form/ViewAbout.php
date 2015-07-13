@@ -13,6 +13,7 @@
 
 namespace raptor;
 
+
 /**
  * This class returns content for the about page
  *
@@ -20,6 +21,11 @@ namespace raptor;
  */
 class ViewAbout
 {
+    
+    function __construct($oContext)
+    {
+        module_load_include('inc', 'raptor_glue', 'core/QualityAssuranceDefs');
+    }
 
     private function getGeneralCustomizationItems($wrapperfirst='<ul>',$itemprefix='<li>',$wrapperlast='</ul>')
     {
@@ -120,6 +126,7 @@ class ViewAbout
                 . '<tr><td>Time </td><td>'.TIME_DEFS_VERSION_INFO.'</td></tr>'
                 . '<tr><td>VistA </td><td>'.VISTA_DEFS_VERSION_INFO.'</td></tr>'
                 . '<tr><td>Units of Measure </td><td>'.UOM_VERSION_INFO.'</td></tr>'
+                . '<tr><td>QA Evaluations </td><td>'.QA_DEFS_VERSION_INFO.'</td></tr>'
                 . '</table>'
                 . '</td>'
                 . '</tr>'

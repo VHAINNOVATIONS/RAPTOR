@@ -15,7 +15,6 @@
 namespace raptor;
 
 require_once 'vista_integration.php';
-//require_once 'MdwsUtils.php';
 require_once 'RuntimeResultCache.php';
 
 /**

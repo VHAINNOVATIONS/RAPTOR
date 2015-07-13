@@ -1,7 +1,7 @@
 <?php
 
 defined('GENERAL_DEFS_VERSION_INFO')
-    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150710.1');
+    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150713.1');
 
 /*
  * These are General Purpose settings
@@ -47,3 +47,7 @@ defined('DEFAULT_USERNAME_TAILMASK')
 //Declare minimum passwords length for NON-VISTA user accounts
 defined('MIN_ADMIN_PASSWORD_LEN')
     or define('MIN_ADMIN_PASSWORD_LEN', 5);
+
+//Default size of snippet text
+defined('RAPTOR_DEFAULT_SNIPPET_LEN')
+    or define('RAPTOR_DEFAULT_SNIPPET_LEN', 40);

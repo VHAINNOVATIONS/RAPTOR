@@ -27,8 +27,6 @@ defined('CACHE_AGE_LABS')
 defined('CACHE_AGE_SITEVALUES')
     or define('CACHE_AGE_SITEVALUES', 600);
 
-defined('RAPTOR_DEFAULT_SNIPPET_LEN')
-    or define('RAPTOR_DEFAULT_SNIPPET_LEN', 40);
 
 
 /**
@@ -354,7 +352,6 @@ class ProtocolSupportingData
         }
         
         $serviceResponse = $this->getRawVitalSigns();
-        //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getVitalSigns", NULL);
        
         //Initialize the component arrays.
         $displayVitals = array();
