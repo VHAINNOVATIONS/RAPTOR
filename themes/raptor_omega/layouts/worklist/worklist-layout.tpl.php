@@ -281,17 +281,22 @@ $hiddenColsJSON = json_encode(new ArrayValue($m_aHiddenCols), JSON_PRETTY_PRINT)
                                 $rsurl = getRankScoreIcon($score);
                                 // Change row background color if it is assigned to the current user
                                 $rowStyle = is_array($data_row[12]) && $data_row[12]['uid'] == $m_oContext->getUID() ? "font-weight: bold" : "";
+                                $show_desired_date = $data_row[3];
+                                $sort_desired_date = $data_row[26];
+                                $show_ordered_date = $data_row[4];
+                                $sort_ordered_date = $data_row[27];
                             ?>
                             <tr data-rawrtid="<?php echo('['.$data_row[0].']') ?>" style="<?php echo($rowStyle); ?>">
                                 <td><input type="checkbox" name="tracking-id" value="<?php echo($data_row[0]) ?>"></td>
                                 <td class="rtid_column" title='ranking score = <?php echo($score) ?>'><?php echo($data_row[0]) ?></td>
-                                <td class="rankscore_column" title='ranking score = <?php echo("$score$rscomment")  ?>' data='' >
+                                <td class="rankscore_column" title='ranking score = <?php echo("$score$rscomment")  ?>'
+                                    data='<?php echo("$score")  ?>' >
                                     <img src="<?php echo($rsurl) ?>">
                                     <p style='opacity:0;height: 0;'><?php echo($score) ?></p>
                                 </td>
                                 <td class="pat_column"><?php echo($data_row[2]) ?></td>
-                                <td class="desired_column"><?php echo($data_row[3]) ?></td>
-                                <td class="ordered_column"><?php echo($data_row[4]) ?></td>
+                                <td class="desired_column" data-order="<?php echo($sort_desired_date) ?>"><?php echo($show_desired_date) ?></td>
+                                <td class="ordered_column" data-order="<?php echo($sort_ordered_date) ?>"><?php echo($show_ordered_date) ?></td>
                                 <td class="modality_column"><?php echo($data_row[5]) ?></td>
                                 <td class="sub_column"><?php echo($data_row[17]) ?></td>
                                 <td class="study_column"><?php echo($data_row[6]) ?></td>

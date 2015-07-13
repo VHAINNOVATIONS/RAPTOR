@@ -55,6 +55,8 @@ class WorklistData
     const WLIDX_NATUREOFORDERACTIVITY = 23;
     const WLIDX_ORDERFILEIEN = 24;
     const WLIDX_RADIOLOGYORDERSTATUS = 25;
+    const WLIDX_ISO8601_DATETIMEDESIRED = 26;
+    const WLIDX_ISO8601_DATEORDERED = 27;
     
     //Worklist Vista Field Order
     const WLVFO_PatientID             = 1;
@@ -249,18 +251,44 @@ class WorklistData
             $t[WorklistData::WLIDX_TRACKINGID]  = $exploded[0];
             $t[WorklistData::WLIDX_PATIENTID]   = $patientID; 
             $t[WorklistData::WLIDX_PATIENTNAME] = $this->formatPatientName($exploded[WorklistData::WLVFO_PatientName]);
-            $t[WorklistData::WLIDX_DATETIMEDESIRED] = $exploded[WorklistData::WLVFO_DesiredDate];
+            $desired_date_raw = $exploded[WorklistData::WLVFO_DesiredDate];
+            $t[WorklistData::WLIDX_DATETIMEDESIRED] = $desired_date_raw;
+            if(strpos($desired_date_raw, '@') !== FALSE)
+            {
+                $desired_date_parts=explode('@',$desired_date_raw);
+                $desired_date_justdate=$desired_date_parts[0];
+                $desired_date_justtime=$desired_date_parts[1];
+                $desired_date_timestamp = strtotime($dateordered_justdate);  
+                $desired_date_iso8601 = date('Y-m-d ',$desired_date_timestamp) . $desired_date_justtime;
+            } else {
+                $desired_date_justdate=$desired_date_raw;
+                $desired_date_timestamp = strtotime($desired_date_justdate);  
+                $desired_date_iso8601 = date('Y-m-d',$desired_date_timestamp);
+            }
+            $t[WorklistData::WLIDX_ISO8601_DATETIMEDESIRED] = $desired_date_iso8601;
             
             if($exploded[WorklistData::WLVFO_OrderedDate] !== '' && ($last = strrpos($exploded[WorklistData::WLVFO_OrderedDate], ':')) !== FALSE)
             {
                 //Remove the seconds from the time.
-                $dateordered = substr($exploded[WorklistData::WLVFO_OrderedDate], 0, $last);
+                $dateordered_raw = substr($exploded[WorklistData::WLVFO_OrderedDate], 0, $last);
             } else {
                 //Assume there is no time portion.
-                $dateordered = $exploded[WorklistData::WLVFO_OrderedDate];
+                $dateordered_raw = $exploded[WorklistData::WLVFO_OrderedDate];
             }
-            $t[WorklistData::WLIDX_DATEORDERED]     = $dateordered;
-            
+            $t[WorklistData::WLIDX_DATEORDERED]     = $dateordered_raw;
+            if(strpos($dateordered_raw, '@') !== FALSE)
+            {
+                $dateordered_parts=explode('@',$dateordered_raw);
+                $dateordered_justdate=$dateordered_parts[0];
+                $dateordered_justtime=$dateordered_parts[1];
+                $dateordered_timestamp = strtotime($dateordered_justdate);  
+                $dateordered_iso8601 = date('Y-m-d ',$dateordered_timestamp) . ' ' . $dateordered_justtime;
+            } else {
+                $dateordered_justdate=$dateordered_raw;
+                $dateordered_timestamp = strtotime($dateordered_justdate);  
+                $dateordered_iso8601 = date('Y-m-d',$dateordered_timestamp);
+            }
+            $t[WorklistData::WLIDX_ISO8601_DATEORDERED] = $dateordered_iso8601;
             
             $t[WorklistData::WLIDX_STUDY]       = $exploded[WorklistData::WLVFO_Procedure];
             $t[WorklistData::WLIDX_URGENCY]     = $exploded[WorklistData::WLVFO_Urgency]; 
