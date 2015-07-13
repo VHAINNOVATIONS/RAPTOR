@@ -12,18 +12,19 @@
  * 
  */ 
 
-/*
- * TODO
-module_load_include('php', 'raptor_mdws', 'core/MdwsDao');
-module_load_include('php', 'raptor_mdws', 'core/MdwsDaoFactory');
-module_load_include('php', 'raptor_mdws', 'core/MdwsNewOrderUtils');
-module_load_include('php', 'raptor_mdws', 'core/MdwsUserUtils');
-module_load_include('php', 'raptor_mdws', 'core/MdwsUtils');
-*/
+module_load_include('php', 'raptor_mdwsvista', 'core/MdwsDao');
+module_load_include('php', 'raptor_mdwsvista', 'core/MdwsDaoFactory');
+module_load_include('php', 'raptor_mdwsvista', 'core/MdwsNewOrderUtils');
+module_load_include('php', 'raptor_mdwsvista', 'core/MdwsUserUtils');
+module_load_include('php', 'raptor_mdwsvista', 'core/MdwsUtils');
 
+
+/*
 require_once 'MdwsDao.php';
 require_once 'MdwsDaoFactory.php';
 require_once 'MdwsNewOrderUtils.php';
 require_once 'MdwsUserUtils.php';
 require_once 'MdwsUtils.php';
+*/
+
 

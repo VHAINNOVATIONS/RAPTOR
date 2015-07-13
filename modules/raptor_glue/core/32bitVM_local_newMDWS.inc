@@ -3,7 +3,7 @@
 //DEPRECATED CONFIGURATION UPGRADE IF YOU ARE USING THIS ONE!!!!
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150610.1 Config for TEST 32bit localhost');
+    or define('RAPTOR_CONFIG_ID', '20150713.1 Config for TEST 32bit localhost');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -27,10 +27,6 @@ defined("EMRSERVICE_URL")
 defined("QUERYSERVICE_URL")
     or define("QUERYSERVICE_URL", "http://localhost:8888/mdws2.5/querysvc.asmx");
 
-defined("EMRSERVICE_LOCAL_FILE")
-    or define("EMRSERVICE_LOCAL_FILE", "C:\\BitNami\\drupal-7.31-1\\apps\\drupal\\htdocs\\sites\\all\\modules\\raptor_datalayer\\core\\emrsvc.wsdl");
-defined("QUERYSERVICE_LOCAL_FILE")
-    or define("QUERYSERVICE_LOCAL_FILE", "C:\\BitNami\\drupal-7.31-1\\apps\\drupal\\htdocs\\sites\\all\\modules\\raptor_datalayer\\core\\querysvc.wsdl");
 defined("VIX_STUDIES_URL")
     or define("VIX_STUDIES_URL", "http://localhost:8090/RaptorWebApp/secure/restservices/raptor/studies/");
 defined("VIX_THUMBNAIL_URL")

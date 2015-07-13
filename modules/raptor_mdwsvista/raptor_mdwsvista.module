@@ -16,7 +16,6 @@
 defined('RAPTOR_MDWSVISTA_MODULE_PATH')
     or define('RAPTOR_MDWSVISTA_MODULE_PATH', dirname(__FILE__));  
 
-
 function raptor_mdwsvista_help($path, $arg) 
 {
   switch ($path)
