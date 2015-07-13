@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -13,14 +13,13 @@
  *
  */
 
-require_once ('core/data_user.php');
-require_once ('core/data_utility.php');
-require_once ('core/data_context.php');
-require_once ('core/data_ticket_tracking.php');
+require_once 'core/data_user.php';
+require_once 'core/data_utility.php';
+require_once 'core/data_context.php';
+require_once 'core/data_ticket_tracking.php';
 
 defined('RAPTOR_DATALAYER_MODULE_PATH')
     or define('RAPTOR_DATALAYER_MODULE_PATH', dirname(__FILE__));  
-
 
 function raptor_datalayer_help($path, $arg) 
 {

@@ -1,0 +1,36 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2015
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ * 
+ * A data layer module that gets content for the RAPTOR application. 
+ *
+ */
+
+defined('RAPTOR_MDWS_MODULE_PATH')
+    or define('RAPTOR_MDWS_MODULE_PATH', dirname(__FILE__));  
+
+
+function raptor_mdws_help($path, $arg) 
+{
+  switch ($path)
+  {
+    case "admin/help#raptor_mdws":
+      return '<p>'.  t("A module that integrates RAPTOR with VistA data sources by utilizing MDWS"). '</p>';
+      break;
+  }
+}
+
+function raptor_mdws_menu() 
+{
+    $items = array();
+    return $items;
+}
+
+

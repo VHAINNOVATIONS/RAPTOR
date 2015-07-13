@@ -15,7 +15,7 @@ namespace raptor;
 
 require_once 'data_utility.php';
 require_once 'data_user.php';
-require_once 'MdwsDaoFactory.php';
+require_once 'vista_integration.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
