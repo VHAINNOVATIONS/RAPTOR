@@ -13,21 +13,21 @@
  *
  */
 
-defined('RAPTOR_EWD_MODULE_PATH')
-    or define('RAPTOR_EWD_MODULE_PATH', dirname(__FILE__));  
+defined('RAPTOR_EWDVISTA_MODULE_PATH')
+    or define('RAPTOR_EWDVISTA_MODULE_PATH', dirname(__FILE__));  
 
 
-function raptor_ewd_help($path, $arg) 
+function raptor_ewdvista_help($path, $arg) 
 {
   switch ($path)
   {
-    case "admin/help#raptor_ewd":
+    case "admin/help#raptor_ewdvista":
       return '<p>'.  t("Integration with VistA for the RAPTOR application"). '</p>';
       break;
   }
 }
 
-function raptor_ewd_menu() 
+function raptor_ewdvista_menu() 
 {
     $items = array();
     return $items;

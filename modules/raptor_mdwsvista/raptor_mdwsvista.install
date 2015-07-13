@@ -12,24 +12,24 @@
  * Install the module
  */
 
-function raptor_mdws_uninstall()
+function raptor_mdwsvista_uninstall()
 {
     $t = get_t();
-    drupal_set_message($t('Uninstalled raptor_mdws'));
+    drupal_set_message($t('Uninstalled raptor_mdwsvista'));
 }
 
 /**
  * Create indexes and insert baseline rows into tables
  * @return status
  */
-function raptor_mdws_install()
+function raptor_mdwsvista_install()
 {
     $t = get_t();
     try
     {
-        drupal_set_message($t('Installed raptor_mdws'));
+        drupal_set_message($t('Installed raptor_mdwsvista'));
     } catch (\Exception $ex) {
-        drupal_set_message($t('Failed install of raptor_mdws because ').$ex->getMessage(),'error');
+        drupal_set_message($t('Failed install of raptor_mdwsvista because ').$ex->getMessage(),'error');
     }
 }
 

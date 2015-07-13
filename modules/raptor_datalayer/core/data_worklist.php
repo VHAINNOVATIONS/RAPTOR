@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * MDWS Integration and VISTA collaboration: Joel Mewton
@@ -14,12 +14,8 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_glue', 'core/config');
-module_load_include('php', 'raptor_formulas', 'core/MatchOrderToUser');
-module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
-
-require_once 'MdwsUtils.php';
-//require_once ("TicketMetrics.php");
+require_once 'vista_integration.php';
+//require_once 'MdwsUtils.php';
 require_once 'RuntimeResultCache.php';
 
 /**
@@ -80,6 +76,10 @@ class WorklistData
     
     function __construct($oContext)
     {
+        module_load_include('php', 'raptor_glue', 'core/config');
+        module_load_include('php', 'raptor_formulas', 'core/MatchOrderToUser');
+        module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
+
         $this->m_oContext = $oContext;
         $this->m_oRuntimeResultCache = \raptor\RuntimeResultCache::getInstance($this->m_oContext,'WorklistData');
     }
