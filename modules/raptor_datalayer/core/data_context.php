@@ -13,9 +13,11 @@
 
 namespace raptor;
 
+module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
+
 require_once 'data_utility.php';
 require_once 'data_user.php';
-require_once 'vista_integration.php';
+require_once 'VistaDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')

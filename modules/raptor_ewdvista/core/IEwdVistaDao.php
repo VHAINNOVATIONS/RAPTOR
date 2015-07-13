@@ -10,10 +10,12 @@
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  * 
+ * The core VistA integration functions that are required by RAPTOR
+ * 
  */ 
 
+namespace raptor;
 
-defined('VISTA_INT_IMPL_DAO_CLASSNAME')
-    or define('VISTA_INT_IMPL_DAO_CLASSNAME', 'EwdVistaDao');
-
-require_once 'EwdVistaDao.php';
+interface IEwdVistaDao extends IVistaDao
+{
+}

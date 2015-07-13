@@ -13,47 +13,41 @@
 
 namespace raptor;
 
-require_once 'IVistaDao.php';
+require_once 'IEwdVistaDao.php';
 
 /**
- * This is the primary interface abstraction to VistA
+ * This is the primary interface implementation to VistA
  *
  * @author Frank Font of SAN Business Consultants
  */
-class VistaDao implements IVistaDao
+class EwdVistaDao implements IEwdVistaDao
 {
-    private $m_implclass = NULL;
-    
     function __construct()
     {
-        module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
-        $name = VISTA_INT_IMPL_DAO_CLASSNAME;
-        $class = "\\raptor\\$name";
-        $this->m_implclass = new $class();
     }
 
-    public function getIntegrationInfo() 
+    public function getIntegrationInfo()
     {
-        return $this->m_implclass->getIntegrationInfo();
+        return "EWD TBD"; //TODO get real runtime version number
     }
 
     public function connectAndLogin($siteCode, $username, $password) 
     {
-        return $this->m_implclass->connectAndLogin($siteCode, $username, $password);
+        throw new \Exception("Not implemented");
     }
 
     public function disconnect() 
     {
-       return $this->m_implclass->disconnect();
+        throw new \Exception("Not implemented");
     }
 
     public function isAuthenticated() 
     {
-       return $this->m_implclass->isAuthenticated();
+        throw new \Exception("Not implemented");
     }
 
     public function makeQuery($functionToInvoke, $args) 
     {
-        return $this->m_implclass->makeQuery($functionToInvoke, $args);
+        throw new \Exception("Not implemented");
     }
 }
