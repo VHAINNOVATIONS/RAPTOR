@@ -33,24 +33,42 @@ class MdwsDao implements IMdwsDao
     private $selectedPatient;
     
     private $m_oContext = NULL;
-
-    public function __construct($oContext = NULL) 
+    private $m_oRuntimeResultFlexCache = NULL;
+    
+    public function __construct() 
     {
-        $this->instanceTimestamp = microtime();
-        error_log('Created MdwsDao instance ' . $this->instanceTimestamp);
-        
         //Load relevant modules
+        module_load_include('php', 'raptor_glue', 'core/Config');
         module_load_include('php', 'raptor_datalayer', 'core/data_context');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
-        module_load_include('php', 'raptor_glue', 'core/Config');
-        
-        //Initialize critical settings
+        $this->instanceTimestamp = microtime();
+        error_log('Created MdwsDao instance ' . $this->instanceTimestamp);
+    }
+    
+    public function hasContext()
+    {
+        return $this->m_oContext != NULL;
+    }
+    
+    public function setContext($oContext)
+    {
         if($oContext == NULL)
         {
-            $this->m_oContext = \raptor\Context::getInstance();
+            throw new \Exception("Cannot have dao without context!");
         }
+        $this->m_oContext = $oContext;
+        
+        //Initialize critical settings
         $uid = $this->m_oContext->getUID();
-        $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance("MdwsDao[$uid]");
+        if($uid > '')
+        {
+            //Only initialize cache if we have a user
+            $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance("MdwsDao[$uid]");
+            error_log("LOOK initialized runtimeflexcache>>>".$this->m_oRuntimeResultFlexCache);
+        } else {
+            error_log("LOOK setContext with NO runtimeflexcache [$uid]>>>".$this->m_oContext);
+            $this->m_oRuntimeResultFlexCache = NULL;
+        }
         $this->errorCount = 0; // initializing for clarity
         $this->initClient();
     }
@@ -198,7 +216,6 @@ class MdwsDao implements IMdwsDao
     /**
      * TODO - need to test!
      * NOT USED?  REMOVE
-     */
     public function makeStatelessQuery($siteCode, $username, $password, $patientId, $functionToInvoke, $args, $multiSiteFlag, $appPwd) {
         $this->connectAndLogin($siteCode, $username, $password);
         if (isset($patientId)) {
@@ -211,11 +228,13 @@ class MdwsDao implements IMdwsDao
         $this->disconnect();
         return $result;
     }
+     */
 
     public function connectAndLogin($siteCode, $username, $password) {
         //drupal_set_message('About to login to MDWS as ' . $username);
         error_log('Starting connectAndLogin at '.microtime());
-        try {
+        try 
+        {
             $connectResult = $this->mdwsClient->connect(array("sitelist"=>$siteCode))->connectResult;
             if (isset($connectResult->fault)) {                
                 if ($this->errorCount > MDWS_CONNECT_MAX_ATTEMPTS) {
@@ -339,12 +358,6 @@ class MdwsDao implements IMdwsDao
         return \raptor\MdwsUserUtils::getVistaAccountKeyProblems($this, $userDuz);
     }
 
-    public function getWorklistDetailsMap() 
-    {
-        //TODO!!!!!
-        throw new \Exception("Not implemented yet!");
-    }
-    
     /**
      * Gets dashboard details for the currently selected ticket of the session
      * 
@@ -366,8 +379,35 @@ class MdwsDao implements IMdwsDao
             return $aCachedResult;
         }
         
-        $wl = new WorklistData($this->m_oContext);
-        $aResult = $wl->getDashboardMap();
+        $oWL = new \raptor\WorklistData($this->m_oContext);
+        $aResult = $oWL->getDashboardMap();
+        
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+        return $aResult;
+    }
+    
+    public function getWorklistDetailsMap() 
+    {
+        error_log("LOOK getWorklistDetailsMap>>>".$this->m_oContext);
+        if($this->m_oRuntimeResultFlexCache == NULL)
+        {
+            error_log("LOOK getWorklistDetailsMap NO CACHE INITIALIZED>>>".$this->m_oContext);
+            $oWL = new \raptor\WorklistData($this->m_oContext);
+            return $oWL->getWorklistRows();
+        }
+
+        //Check the cache first
+        error_log("LOOK getWorklistDetailsMap YES CACHE INITIALIZED>>>".$this->m_oContext);
+        $sThisResultName = "getWorklistDetailsMap";
+        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
+        if($aCachedResult !== NULL)
+        {
+            //Found it in the cache!
+            return $aCachedResult;
+        }
+
+        $oWL = new \raptor\WorklistData($this->m_oContext);
+        $aResult = $oWL->getWorklistRows();
         
         $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
         return $aResult;

@@ -6,7 +6,7 @@
  * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
- * MDWS Integration and VISTA collaboration: Joel Mewton
+ * EWDJS Integration collaboration: Rob Tweed
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  * 
@@ -16,6 +16,6 @@
 
 namespace raptor;
 
-interface IEwdVistaDao extends IVistaDao
-{
-}
+module_load_include('php', 'raptor_datalayer', 'core/IVistaDao');
+
+interface IEwdVistaDao extends IVistaDao{}

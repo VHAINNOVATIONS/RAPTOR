@@ -16,24 +16,4 @@ namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'core/IVistaDao');
 
-interface IMdwsDao extends IVistaDao{
-
-    public function connectAndLogin($siteCode, $username, $password);
-    
-    public function disconnect();
-    
-    public function makeQuery($functionToInvoke, $args);
-
-    public function isAuthenticated();
-    
-    /**
-     * @deprecated since version 20150713.1
-     */
-    public function connectRemoteSites($applicationPassword);
-    
-    /**
-     * @deprecated since version 20150713.1
-     */
-    public function makeStatelessQuery($siteCode, $username, $password, $patientId, $functionToInvoke, $args, $multiSiteFlag, $appPwd);
-    
-}
+interface IMdwsDao extends IVistaDao{}

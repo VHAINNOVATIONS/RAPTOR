@@ -1220,9 +1220,13 @@ class Context
      */
     public function getMdwsClient($bRefreshConnection=FALSE)
     {
-        if (!isset($this->m_mdwsClient))
+        if (!isset($this->m_mdwsClient) 
+                || $this->m_mdwsClient == NULL 
+                || !$this->m_mdwsClient->hasContext())
         {
+            error_log("Setting the MdwsDao NOW");
             $this->m_mdwsClient = MdwsDaoFactory::getMdwsDao(MDWS_EMR_FACADE);
+            $this->m_mdwsClient->setContext($this);
         }
         return $this->m_mdwsClient;
     }

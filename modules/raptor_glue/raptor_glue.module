@@ -249,12 +249,16 @@ function raptor_glue_page_alter(&$page)
                         drupal_set_message('Administrator accounts should not have privilege SWI1!, but this one does.  Check the database.','warning');
                     } else {
                         //Set all the Worklist page values
-                        $oWL = new \raptor\WorklistData($oContext);
-                        $raptor_worklist_rows = $oWL->getWorklistRows();
+                        //$oWL = new \raptor\WorklistData($oContext);
+                        //$raptor_worklist_rows = $oWL->getWorklistRows();
+                        $oMdwsDao = $oContext->getMdwsClient(); //TODO switch to VistaDao
+                        $raptor_worklist_rows = $oMdwsDao->getWorklistDetailsMap();
                         if(count($raptor_worklist_rows) < 1)
                         {
                             //Empty result is not normal; check the user account.
-                            drupal_set_message('No order data was returned from VistA using your account','warning');
+                            $logmsg = 'No order data was returned from VistA using your account';
+                            drupal_set_message($logmsg,'warning');
+                            error_log($logmsg);
                             module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
                             $mdwsDao = $oContext->getMdwsClient();
                             $userDuz = $mdwsDao->getDUZ();

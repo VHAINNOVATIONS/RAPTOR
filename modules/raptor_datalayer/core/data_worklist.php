@@ -77,6 +77,11 @@ class WorklistData
     
     function __construct($oContext)
     {
+        if($oContext == NULL)
+        {
+            throw new \Exception("Cannot get instance of Worklist without context!");
+        }
+        
         module_load_include('php', 'raptor_glue', 'core/config');
         module_load_include('php', 'raptor_formulas', 'core/MatchOrderToUser');
         module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
