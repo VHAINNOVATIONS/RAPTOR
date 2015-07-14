@@ -142,6 +142,7 @@ class ViewReportUserTicketProcessing extends AReport
                 $userrole=$userdetails['role_nm'];
                 $userlogin_ts=$userdetails['most_recent_login_dt'];
                 $movedIntoApproved=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','AP'),0);
+                $reservation=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','reservation'),0);
                 $movedIntoCollab=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_initiation'),0);
                 $collabTarget=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','collaboration_target'),0);
                 $movedIntoAcknowlege=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','PA'),0);
@@ -178,6 +179,7 @@ class ViewReportUserTicketProcessing extends AReport
                 $row['role_nm'] = $userrole;
                 $row['most_recent_login_dt'] = $userlogin_ts;
                 $row['Total_Approved'] = $movedIntoApproved;
+                $row['Count_Reservations'] = $reservation;
                 $row['Count_Collab_Init'] = $movedIntoCollab;
                 $row['Count_Collab_Target'] = $collabTarget;
                 $row['Total_Acknowledge'] = $movedIntoAcknowlege;
@@ -313,6 +315,7 @@ class ViewReportUserTicketProcessing extends AReport
                     . '<td>' . $coldata['role_nm'] . '</td>'
                     . '<td>' . $coldata['most_recent_login_dt'] . '</td>'
                     . '<td>' . $coldata['Total_Approved']  . '</td>'
+                    . '<td>' . $coldata['Count_Reservations']  . '</td>'
                     . '<td>' . $coldata['Count_Collab_Init']  . '</td>'
                     . '<td>' . $coldata['Count_Collab_Target']  . '</td>'
                     . '<td>' . $coldata['Total_Acknowledge']  . '</td>'
@@ -341,6 +344,7 @@ class ViewReportUserTicketProcessing extends AReport
                             . '<th title="The role of the user in the system" >User Role</th>'
                             . '<th title="The most recent login timestamp" >Most recent login</th>'
                             . '<th title="Total number of tickets moved to Approved state">Total Approved</th>'
+                            . '<th title="Total number of tickets reserved by the user">Count Reserved</th>'
                             . '<th title="Total number of tickets where user initiated Collaboration">Count Collab Init</th>'
                             . '<th title="Total number of tickets where user was selected as the Collaboration target">Count Collab Target</th>'
                             . '<th title="Total number of tickets moved to Acknowledge state">Total Acknowlege</th>'
@@ -385,6 +389,4 @@ class ViewReportUserTicketProcessing extends AReport
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }
-    
-    
 }
