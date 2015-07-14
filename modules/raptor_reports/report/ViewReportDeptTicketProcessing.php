@@ -241,7 +241,6 @@ class ViewReportDeptTicketProcessing extends AReport
         return $supported;
     }
     
-    
     /**
      * Get all the form contents for rendering
      * @return type renderable array
@@ -371,6 +370,4 @@ class ViewReportDeptTicketProcessing extends AReport
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }
-    
-    
 }
