@@ -56,3 +56,9 @@ defined('RAPTOR_DEFAULT_SNIPPET_LEN')
 defined('PRE_CACHE_SIZE')
     or define('PRE_CACHE_SIZE', 3);
 
+defined('CACHE_AGE_LABS')
+    or define('CACHE_AGE_LABS', 60);
+
+defined('CACHE_AGE_SITEVALUES')
+    or define('CACHE_AGE_SITEVALUES', 600);
+

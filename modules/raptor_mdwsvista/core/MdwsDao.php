@@ -31,11 +31,26 @@ class MdwsDao implements IMdwsDao
     private $userVerifyCode;
     private $duz;
     private $selectedPatient;
+    
+    private $m_oContext = NULL;
 
-    public function __construct() {
-        module_load_include('php', 'raptor_glue', 'core/Config');
+    public function __construct($oContext = NULL) 
+    {
         $this->instanceTimestamp = microtime();
         error_log('Created MdwsDao instance ' . $this->instanceTimestamp);
+        
+        //Load relevant modules
+        module_load_include('php', 'raptor_datalayer', 'core/data_context');
+        module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
+        module_load_include('php', 'raptor_glue', 'core/Config');
+        
+        //Initialize critical settings
+        if($oContext == NULL)
+        {
+            $this->m_oContext = \raptor\Context::getInstance();
+        }
+        $uid = $this->m_oContext->getUID();
+        $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance("MdwsDao[$uid]");
         $this->errorCount = 0; // initializing for clarity
         $this->initClient();
     }
@@ -332,10 +347,29 @@ class MdwsDao implements IMdwsDao
     
     /**
      * Gets dashboard details for the currently selected ticket of the session
+     * 
+     * !!! IMPORTANT TODO --- MAKE THE OVERRIDE NOT STATEFUL so we can precache!!!!!!
      */
-    public function getDashboardDetailsMap($override_tracking_id=NULL)
+    function getDashboardDetailsMap($override_tracking_id=NULL)
     {
-        //TODO!!!!!
-        throw new \Exception("Not implemented yet!");
+        if($override_tracking_id == NULL)
+        {
+            $tid = $this->m_oContext->getSelectedTrackingID();
+        } else {
+            $tid = $override_tracking_id;
+        }
+        $sThisResultName = "getDashboardDetailsMap[$tid]";
+        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
+        if($aCachedResult !== NULL)
+        {
+            //Found it in the cache!
+            return $aCachedResult;
+        }
+        
+        $wl = new WorklistData($this->m_oContext);
+        $aResult = $wl->getDashboardMap();
+        
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+        return $aResult;
     }
 }

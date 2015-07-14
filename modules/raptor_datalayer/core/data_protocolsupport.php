@@ -21,14 +21,6 @@ require_once 'data_context.php';
 require_once 'RuntimeResultCache.php';
 require_once 'RuntimeResultFlexCache.php';
 
-defined('CACHE_AGE_LABS')
-    or define('CACHE_AGE_LABS', 60);
-
-defined('CACHE_AGE_SITEVALUES')
-    or define('CACHE_AGE_SITEVALUES', 600);
-
-
-
 /**
  * This class contains the functions that return supplemental information for the 
  * protocoling effort.

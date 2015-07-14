@@ -18,7 +18,7 @@ require_once 'data_context.php';
 require_once 'RuntimeResultFlexCache.php';
 
 /**
- * This is the primary interface abstraction to VistA
+ * This is the primary interface abstraction to EHR
  *
  * @author Frank Font of SAN Business Consultants
  */
@@ -44,6 +44,11 @@ class VistaDao implements IVistaDao
     {
         return $this->m_implclass->getIntegrationInfo();
     }
+    
+    public function initClient()
+    {
+        return $this->m_implclass->initClient();
+    }
 
     public function connectAndLogin($siteCode, $username, $password) 
     {
@@ -62,8 +67,6 @@ class VistaDao implements IVistaDao
 
     /**
      * Gets dashboard details for the currently selected ticket of the session
-     * 
-     * !!! IMPORTANT TODO --- MAKE THE OVERRIDE NOT STATEFUL so we can precache!!!!!!
      */
     function getDashboardDetailsMap($override_tracking_id=NULL)
     {
@@ -73,23 +76,25 @@ class VistaDao implements IVistaDao
         } else {
             $tid = $override_tracking_id;
         }
+        
+        //Look in the cache first
         $sThisResultName = "getDashboardDetailsMap[$tid]";
         $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
         if($aCachedResult !== NULL)
         {
-            //Found it in the cache!
+            //Found it in the cache
             return $aCachedResult;
         }
-        
-        $wl = new WorklistData($this->m_oContext);
-        $aResult = $wl->getDashboardMap();
-        
+
+        //Get the content and add it to the cache
+        $aResult = $this->m_implclass->getDashboardDetailsMap();
         $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
         return $aResult;
     }
     
     /**
      * Not intended as a primary public interface
+     * @deprecated USE SPECIAL PURPOSE FUNCTION CALLS INSTEAD OF THIS ONE!!!!
      */
     function makeQuery($functionToInvoke, $args) 
     {
@@ -98,19 +103,16 @@ class VistaDao implements IVistaDao
 
     public function getWorklistDetailsMap()
     {
-        //TODO!!!
-        throw new \Exception("Not implemented yet!");
+        return $this->m_implclass->getWorklistDetailsMap();
     }
     
     public function getVistaAccountKeyProblems() 
     {
-        //TODO!!!
-        throw new \Exception("Not implemented yet!");
+        return $this->m_implclass->getVistaAccountKeyProblems();
     }
 
     public function getPatientIDFromTrackingID($sTrackingID) 
     {
-        //TODO!!!
-        throw new \Exception("Not implemented yet!");
+        return $this->m_implclass->getPatientIDFromTrackingID($sTrackingID);
     }
 }

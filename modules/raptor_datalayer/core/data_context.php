@@ -1200,14 +1200,28 @@ class Context
             }
         }
     }
+
+    /**
+     * Interface to the EHR
+     */
+    public function getVistaDao()
+    {
+        if (!isset($this->m_oVistaDao)) 
+        {
+            $this->m_oVistaDao = new \raptor\VistaDao();
+        }
+        return $this->m_oVistaDao;
+    }
     
-    /*
+    /**
      * @description Return the session's MDWS client DAO
      * @return IMdwsDao
+     * @deprecated WILL BE REMOVED ONCE getVistaDao is fully in use!!!!!
      */
-    public function getMdwsClient($bRefreshConnection=FALSE) // TODO - remove arg from function
+    public function getMdwsClient($bRefreshConnection=FALSE)
     {
-        if (!isset($this->m_mdwsClient)) {
+        if (!isset($this->m_mdwsClient))
+        {
             $this->m_mdwsClient = MdwsDaoFactory::getMdwsDao(MDWS_EMR_FACADE);
         }
         return $this->m_mdwsClient;

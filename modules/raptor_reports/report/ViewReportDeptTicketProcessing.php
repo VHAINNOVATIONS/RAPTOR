@@ -143,6 +143,7 @@ class ViewReportDeptTicketProcessing extends AReport
             $movedIntoCompleted=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','EC'),0);
             $movedIntoSuspend=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','into_states','IA'),0);
             $totalScheduled=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','scheduled'),0);
+            $totalReserved=$this->getArrayValueIfExistsElseAlt($rowdetail,array('count_events','reserved'),0);
 
             $maxTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','max_approved_to_scheduled'),'');
             $avgTimeAP2Sched=$this->getArrayDurValueIfExistsElseAlt($rowdetail,array('durations','avg_approved_to_scheduled'),'');
@@ -169,6 +170,7 @@ class ViewReportDeptTicketProcessing extends AReport
             $row['day_name'] = $rowdetail['dateparts']['dow_tx'];
             $row['onlydate'] =  $rowdetail['dateparts']['onlydate'];
             $row['Total_Approved'] = $movedIntoApproved;
+            $row['Count_Reserved'] = $totalReserved;
             $row['Count_Collab_Init'] = $movedIntoCollab;
             $row['Total_Acknowledge'] = $movedIntoAcknowlege;
             $row['Total_Complete'] = $movedIntoCompleted;
@@ -301,6 +303,7 @@ class ViewReportDeptTicketProcessing extends AReport
                     . '<td>' . $val['week'] . '</td>'
                     . '<td title="'.$val['onlydate'].' ('.$val['day_name'].')">' . $val['day'] . '</td>'
                     . '<td>' . $val['Total_Approved']  . '</td>'
+                    . '<td>' . $val['Count_Reserved']  . '</td>'
                     . '<td>' . $val['Count_Collab_Init']  . '</td>'
                     . '<td>' . $val['Total_Acknowledge']  . '</td>'
                     . '<td>' . $val['Total_Complete']  . '</td>'
@@ -325,6 +328,7 @@ class ViewReportDeptTicketProcessing extends AReport
                             . '<th title="The week number of this metric, Jan 1 is week 1" >Week</th>'
                             . '<th title="The day number of this metric" >Day</th>'
                             . '<th title="Total number of tickets moved to Approved state">Total Approved</th>'
+                            . '<th title="Total number of tickets reserved by users">Count Reserved</th>'
                             . '<th title="Total number of tickets where Collaboration was initiated">Count Collab Init</th>'
                             . '<th title="Total number of tickets moved to Acknowledge state">Total Acknowlege</th>'
                             . '<th title="Total number of tickets moved to Complete state">Total Complete</th>'
