@@ -51,6 +51,8 @@ class Context
     private $m_sVAPassword = NULL;
 
     private $m_aForceLogoutReason = NULL;   //If not NULL, then we should force a logout.
+
+    private $m_oVistaDao = NULL;      //20150714 
     
     private $m_oVixDao = NULL;      //20140718 
 
@@ -1207,57 +1209,6 @@ class Context
     {
         if (!isset($this->m_mdwsClient)) {
             $this->m_mdwsClient = MdwsDaoFactory::getMdwsDao(MDWS_EMR_FACADE);
-        }
-        return $this->m_mdwsClient;
-        
-        //error_log('WORKFLOWDEBUG>>>Called getMdwsClient for ' . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR'] .' in ' . $this->m_nInstanceTimestamp);
-        if($bRefreshConnection && isset($this->m_mdwsClient))
-        {
-            error_log('WORKFLOWDEBUG>>>Refreshing the existing Mdws connection for ' . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR'] .' in ' . $this->m_nInstanceTimestamp);
-            $this->m_mdwsClient->disconnect();
-            unset($this->m_mdwsClient);
-        }
-        if (isset($this->m_mdwsClient)) 
-        {
-            error_log('WORKFLOWDEBUG>>>Using existing Mdws connection for ' . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR'] .' in ' . $this->m_nInstanceTimestamp);
-        } else {
-            error_log('WORKFLOWDEBUG>>>Creating NEW Mdws connection for ' . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR'] 
-                    .' in ' . $this->m_nInstanceTimestamp . " CALLER==> " . Context::debugGetCallerInfo(4));
-            try 
-            {
-                $this->m_mdwsClient = MdwsDaoFactory::getMdwsDao(MDWS_EMR_FACADE);
-                if(isset($this->m_sVistaUserID))
-                {
-                    //Since we have credentials, go ahead and authenticate now
-                    $this->m_mdwsClient->connectAndLogin(VISTA_SITE, $this->m_sVistaUserID, $this->m_sVAPassword);
-                    $this->serializeNow();   //20140701     
-                } else {
-                    //drupal_set_message('Did NOT hav a user id!', 'warning');
-                }
-            } catch (\Exception $ex) {
-                $sMsg = "Error connecting to EMR service as [{$this->m_sVistaUserID}] -> " . $ex;
-                if(FALSE !== strpos($ex, 'Timeout waiting for response from VistA'))
-                {
-                    global $user;
-                    $tempUID = $user->uid;    
-                    try
-                    {
-                        //TODO send an email too
-                        $updated_dt = date("Y-m-d H:i:s", time());
-                        db_insert('raptor_user_activity_tracking')
-                        ->fields(array(
-                                'uid'=>$tempUID,
-                                'action_cd' => ERRORCODE_VISTATIMEOUT,
-                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                                'updated_dt'=>$updated_dt,
-                            ))
-                            ->execute();
-                    } catch (\Exception $ex) {
-                        error_context_log('Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
-                    }
-                }
-                error_context_log($sMsg);
-            }
         }
         return $this->m_mdwsClient;
     }

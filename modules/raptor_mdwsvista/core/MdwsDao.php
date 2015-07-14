@@ -17,7 +17,8 @@ namespace raptor;
 require_once 'IMdwsDao.php';
 require_once 'MdwsUtils.php';
 
-class MdwsDao implements IMdwsDao {
+class MdwsDao implements IMdwsDao 
+{
     private $instanceTimestamp;
     private $authenticationTimestamp;
     private $errorCount;
@@ -44,21 +45,6 @@ class MdwsDao implements IMdwsDao {
         return "MDWS v2.5"; //TODO get real runtime version number
     }
     
-    public function getWorklistDetailsMap() 
-    {
-        //TODO!!!!!
-        throw new \Exception("Not implemented yet!");
-    }
-    
-    /**
-     * Gets dashboard details for the currently selected ticket of the session
-     */
-    public function getDashboardDetailsMap($override_tracking_id=NULL)
-    {
-        //TODO!!!!!
-        throw new \Exception("Not implemented yet!");
-    }
-
     /**
      * Make it simpler to output details about this instance.
      * @return text
@@ -238,7 +224,8 @@ class MdwsDao implements IMdwsDao {
             if(isset($loginResult->loginResult))    //20140707 FJF prevent missing property msg
             {
                 $TOResult = $loginResult->loginResult;
-                if(isset($TOResult->fault)) {
+                if(isset($TOResult->fault)) 
+                {
                     throw new \Exception($TOResult->fault->message);
                 }
             }
@@ -329,5 +316,26 @@ class MdwsDao implements IMdwsDao {
         }
         //error_log($debugmsg);
         return $pid;
+    }
+
+    public function getVistaAccountKeyProblems() 
+    {
+        $userDuz = $this->getDUZ();
+        return \raptor\MdwsUserUtils::getVistaAccountKeyProblems($this, $userDuz);
+    }
+
+    public function getWorklistDetailsMap() 
+    {
+        //TODO!!!!!
+        throw new \Exception("Not implemented yet!");
+    }
+    
+    /**
+     * Gets dashboard details for the currently selected ticket of the session
+     */
+    public function getDashboardDetailsMap($override_tracking_id=NULL)
+    {
+        //TODO!!!!!
+        throw new \Exception("Not implemented yet!");
     }
 }

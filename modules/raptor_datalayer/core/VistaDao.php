@@ -39,7 +39,7 @@ class VistaDao implements IVistaDao
         $uid = $this->m_oContext->getUID();
         $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance("VistaDao[$uid]");
     }
-
+    
     public function getIntegrationInfo() 
     {
         return $this->m_implclass->getIntegrationInfo();
@@ -60,11 +60,6 @@ class VistaDao implements IVistaDao
        return $this->m_implclass->isAuthenticated();
     }
 
-    public function getWorklistDetailsMap()
-    {
-        //TODO!!!
-    }
-    
     /**
      * Gets dashboard details for the currently selected ticket of the session
      * 
@@ -99,5 +94,23 @@ class VistaDao implements IVistaDao
     function makeQuery($functionToInvoke, $args) 
     {
         return $this->m_implclass->makeQuery($functionToInvoke, $args);
+    }
+
+    public function getWorklistDetailsMap()
+    {
+        //TODO!!!
+        throw new \Exception("Not implemented yet!");
+    }
+    
+    public function getVistaAccountKeyProblems() 
+    {
+        //TODO!!!
+        throw new \Exception("Not implemented yet!");
+    }
+
+    public function getPatientIDFromTrackingID($sTrackingID) 
+    {
+        //TODO!!!
+        throw new \Exception("Not implemented yet!");
     }
 }
