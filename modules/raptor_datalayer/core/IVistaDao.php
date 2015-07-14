@@ -25,6 +25,13 @@ interface IVistaDao
     public function disconnect();
     
     public function isAuthenticated();
+
+    public function getWorklistDetailsMap();
     
-    public function makeQuery($functionToInvoke, $args);
+    public function getDashboardDetailsMap($override_tracking_id);
+    
+    /**
+     * Do not spread these calls troughout the code
+     */
+    function makeQuery($functionToInvoke, $args);
 }

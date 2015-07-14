@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * MDWS Integration and VISTA collaboration: Joel Mewton
@@ -44,6 +44,21 @@ class MdwsDao implements IMdwsDao {
         return "MDWS v2.5"; //TODO get real runtime version number
     }
     
+    public function getWorklistDetailsMap() 
+    {
+        //TODO!!!!!
+        throw new \Exception("Not implemented yet!");
+    }
+    
+    /**
+     * Gets dashboard details for the currently selected ticket of the session
+     */
+    public function getDashboardDetailsMap($override_tracking_id=NULL)
+    {
+        //TODO!!!!!
+        throw new \Exception("Not implemented yet!");
+    }
+
     /**
      * Make it simpler to output details about this instance.
      * @return text
@@ -315,6 +330,4 @@ class MdwsDao implements IMdwsDao {
         //error_log($debugmsg);
         return $pid;
     }
-
-    
 }
