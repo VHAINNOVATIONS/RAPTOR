@@ -6,7 +6,7 @@ var params = {
   path: "c:\\InterSystems\\Cache\\Mgr",
   username: "_SYSTEM",
   password: "SYS",
-  namespace: "USER"
+  namespace: "EDU"
 };
 var db = new interface.Cache();
 console.log('db: ' + JSON.stringify(db));
@@ -47,5 +47,19 @@ test._setDocument(json);
 
 var x = test._getDocument();
 console.log(JSON.stringify(x, null, 2));
+
+//var dir = ewd.mumps.getGlobalDirectory();
+//console.log('directory: ' + JSON.stringify(dir, null, 2));
+
+var x = ewd.mumps.function('test^ZZCPCR00');
+console.log('x = ' + x);
+
+var vista = require('VistALib');
+var params = {
+	file: 100,
+	iens: [12977],
+	flags: 'IENR'
+};
+var status = vista.ddrGetsEntry(params, ewd);
 
 db.close();

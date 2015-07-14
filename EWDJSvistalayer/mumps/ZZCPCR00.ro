@@ -1,3 +1,6 @@
+Cache for Windows^INT^Export of mumps code for raptor integration with EWD^~Format=Cache.S~
+%RO on 14 Jul 2015  10:05 AM
+ZZCPCR00^INT^1^63747,32170^0^1
 ZZCPCR00	;;node functions in vista
 	;
 gets(z)	;generic call to GETS^DIQ
@@ -121,6 +124,23 @@ ddrLister()
  k ^CacheTempEWD($j)
  QUIT temp
  ;
+ddrGetsEntry(file,iens,field,flags)
+ ;
+ n array
+ n DIERR,DILOCKTM,DISYS,DT,DTIME,DUZ,IO,U
+ ;
+ s file=$g(file) 
+ s iens=$g(iens)
+ i $e(iens,$l(iens))'="," s iens=iens_","
+ s field=$g(field)
+ i field="" s field="*"
+ s flags=$g(flags)
+ i flags="" s flags="IEN"
+ d GETS^DIQ(file,iens,field,flags,"array")
+ k ^CacheTempEWD($j)
+ m ^CacheTempEWD($j)=array(file)
+ QUIT 1
+ ;
 orig	;
 	s fn="" f  s fn=$o(results(fn)) q:fn=""  d
 	. i fn'=fileNo s sfName=$p($g(^DD(fn,0)),"^",1) s:$L(sfName," SUB-FIELD")>1 sfName=$p(sfName," SUB-FIELD",1) S sfName=$$validName(sfName)
@@ -133,7 +153,6 @@ orig	;
 	s ^cpc("g")=2
 	s ^cpc("g",fileNo)=2
 	q ""
-
 treeIt
 	n count,fileno,parent,parentName,previous,reversetxt,subfiletxt,treeIndex,treeout,tree
 	k treeout
@@ -254,3 +273,10 @@ newAllergy(inputs,outputs) ;function to create a new patient allergy entry
 	s ^cpc("a")=5
 	m outputs=IEN
 	q ""
+	;
+test() ;
+	QUIT $zu(5)
+	;
+
+
+
