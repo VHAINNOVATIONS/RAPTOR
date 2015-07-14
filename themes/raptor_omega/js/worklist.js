@@ -197,12 +197,21 @@
         $worklistTable = $('#worklistTable').DataTable({
                 "order": [[ 2, "desc" ]],
                 "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                "columnDefs": [{
+                "columnDefs": [
+                {
                     "targets": [9],
                     "orderData": [2,9]
+                },
+                {
+                    "type":'date-yyyy-mm-dd hh:mm', 
+                    "targets": 5
+                },
+                {
+                    "type":'date-yyyy-mm-dd',
+                    "targets": 4
                 }]
             });
-
+        
         // Filter Worklist by Worklist Status Code
         var updateWorklistFilterMode = function () {
             $('#worklistTable')
