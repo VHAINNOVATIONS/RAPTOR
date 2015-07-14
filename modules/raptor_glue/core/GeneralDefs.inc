@@ -51,3 +51,8 @@ defined('MIN_ADMIN_PASSWORD_LEN')
 //Default size of snippet text
 defined('RAPTOR_DEFAULT_SNIPPET_LEN')
     or define('RAPTOR_DEFAULT_SNIPPET_LEN', 40);
+
+//Number of orders to pre-cache
+defined('PRE_CACHE_SIZE')
+    or define('PRE_CACHE_SIZE', 3);
+

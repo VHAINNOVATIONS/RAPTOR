@@ -32,11 +32,11 @@ class DashboardData
     {
         $this->m_oContext = $oContext;
         $this->m_oRuntimeResultCache = \raptor\RuntimeResultCache::getInstance($this->m_oContext,'DashboardData');
+        //$this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('DashboardData');
     }
     
     /**
      * Get the boilerplate details for the requested row
-     * @param type $sTrackingID
      */
     function getDashboardDetails()
     {

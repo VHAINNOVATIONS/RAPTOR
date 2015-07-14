@@ -15,65 +15,70 @@
 
 function raptor_about_form() 
 {
-    return drupal_get_form("raptor_about_form_builder");
+    return drupal_get_form('raptor_about_form_builder');
+}
+
+function raptor_glue_loadcache_form() 
+{
+    return drupal_get_form('raptor_glue_loadcache_form_builder');
 }
 
 function raptor_glue_choosevisit_form() 
 {
-    return drupal_get_form("raptor_glue_choosevisit_form_builder");
+    return drupal_get_form('raptor_glue_choosevisit_form_builder');
 }
 
 function raptor_glue_requestcollaborate_form() 
 {
-    return drupal_get_form("raptor_glue_requestcollaborate_form_builder");
+    return drupal_get_form('raptor_glue_requestcollaborate_form_builder');
 }
 
 function raptor_glue_suspendticket_form() 
 {
-    return drupal_get_form("raptor_glue_suspendticket_form_builder");
+    return drupal_get_form('raptor_glue_suspendticket_form_builder');
 }
 
 function raptor_glue_resetworkflow_form() 
 {
-    return drupal_get_form("raptor_glue_resetworkflow_form_builder");
+    return drupal_get_form('raptor_glue_resetworkflow_form_builder');
 }
 
 function raptor_glue_cancelorder_form() 
 {
-    return drupal_get_form("raptor_glue_cancelorder_form_builder");
+    return drupal_get_form('raptor_glue_cancelorder_form_builder');
 }
 
 function raptor_glue_completion_form() 
 {
-    return drupal_get_form("raptor_glue_completion_form_builder");
+    return drupal_get_form('raptor_glue_completion_form_builder');
 }
 
 function raptor_glue_replaceorder_form() 
 {
-    return drupal_get_form("raptor_glue_replaceorder_form_builder");
+    return drupal_get_form('raptor_glue_replaceorder_form_builder');
 }
 
 function raptor_glue_addradiationdosehxentry_form() 
 {
-    return drupal_get_form("raptor_glue_addradiationdosehxentry_form_builder");
+    return drupal_get_form('raptor_glue_addradiationdosehxentry_form_builder');
 }
 
 function raptor_glue_editradiationdosehxentry_form() 
 {
-    return drupal_get_form("raptor_glue_editradiationdosehxentry_form_builder");
+    return drupal_get_form('raptor_glue_editradiationdosehxentry_form_builder');
 }
 
 function raptor_glue_mng_lists_form() 
 {
-    return drupal_get_form("raptor_glue_mng_lists_form_builder");
+    return drupal_get_form('raptor_glue_mng_lists_form_builder');
 }
 function raptor_glue_editsedationoptions_form() 
 {
-    return drupal_get_form("raptor_glue_editsedationoptions_form_builder");
+    return drupal_get_form('raptor_glue_editsedationoptions_form_builder');
 }
 function raptor_glue_edithydrationoptions_form() 
 {
-    return drupal_get_form("raptor_glue_edithydrationoptions_form_builder");
+    return drupal_get_form('raptor_glue_edithydrationoptions_form_builder');
 }
 function raptor_glue_editcontrastoptions_form() 
 {
@@ -958,4 +963,41 @@ function raptor_about_form_builder($form, &$form_state)
     module_load_include('php', 'raptor_glue', 'form/ViewAbout');
     $oPI = new \raptor\ViewAbout();
     return $oPI->getForm($form, $form_state);
+}
+
+function raptor_glue_loadcache_form_builder($form, &$form_state)
+{
+    try
+    {
+        if(isset($_GET['tids']))
+        {
+            module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
+            $tids = trim($_GET['tids']);
+            $tids_ar=explode(',',$tids);
+            $cachedcount=0;
+            foreach($tids_ar as $onetid)
+            {
+                if($cachedcount >= PRE_CACHE_SIZE)
+                {
+                    //We have cached enough, time to stop
+                    break;
+                }
+                $oContext = \raptor\Context::getInstance();
+                $userid = $oContext->getUserInfo()->getUserID();
+                $groupname = 'DashboardData';
+                $oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance($groupname);
+                $sThisResultName = "LOOK TODO userid=[$userid] tid=[$onetid]";
+                $aResult = array("TODO"=>"call getDashboardMap for $onetid");
+                $oRuntimeResultFlexCache->addToCache($sThisResultName,$aResult);
+                $cachedcount++;
+                error_log("LOOK $cachedcount called loadcache($groupname) for $sThisResultName");
+            }
+            return array('feedback' => 
+                array('#type'=>'item'
+                    ,'#markup'=>"Cached $cachedcount from tids=$tids")
+                );
+        }
+    } catch (\Exception $ex) {
+        throw $ex;
+    }
 }

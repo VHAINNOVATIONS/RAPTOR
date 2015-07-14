@@ -325,6 +325,17 @@ function raptor_glue_menu()
       'file path' => '/sites/all/modules/raptor_glue/functions/',
       'type' => MENU_CALLBACK,
     );
+
+    $items['raptor/loadcache'] = array(
+      'title' => t('Load Cache'),
+      'page callback' => 'raptor_glue_loadcache_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Load cache'),
+      'file' => 'misc.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
     
     $items['raptor/seeallurls'] = array(
       'title' => t('See all RAPTOR URLs'),
