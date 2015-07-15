@@ -3247,7 +3247,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
 
         //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
-        module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
         module_load_include('php', 'raptor_datalayer', 'core/data_listoptions');
         module_load_include('php', 'raptor_graph', 'core/GraphData');
 

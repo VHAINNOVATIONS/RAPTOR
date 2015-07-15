@@ -27,8 +27,8 @@ class GraphData
     function __construct($oContext)
     {
         module_load_include('php', 'raptor_datalayer', 'core/data_context');
-        module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
-        module_load_include('php', 'raptor_datalayer', 'core/MdwsDao');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
+        module_load_include('php', 'raptor_datalayer', 'core/VistaDao');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         
         $this->m_oContext = $oContext;
