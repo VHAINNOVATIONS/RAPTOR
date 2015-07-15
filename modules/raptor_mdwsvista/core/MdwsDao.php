@@ -369,7 +369,7 @@ class MdwsDao implements IMdwsDao
             if($oContext != NULL)
             {
                 $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
-                $sThisResultName = 'getWorklistDetailsMap';
+                $sThisResultName = 'getWorklistDetailsMapData';
                 if($oRuntimeResultFlexCacheHandler != NULL)
                 {
                     $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
@@ -383,6 +383,45 @@ class MdwsDao implements IMdwsDao
                 //Create it now and add it to the cache
                 $oWL = new \raptor\WorklistData($oContext);
                 $aResult = $oWL->getWorklistRows();
+                if($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    try
+                    {
+                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+                    } catch (\Exception $ex) {
+                        error_log("Failed to cache $sThisResultName result because ".$ex->getMessage());
+                    }
+                }
+            }
+            return $aResult;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed to getWorklistDetailsMap",99876,$ex);
+        }
+    }
+    
+    public function getAllHospitalLocationsMap()
+    {
+        try 
+        {
+            $aResult = array();
+            $oContext = \raptor\Context::getInstance();
+            if($oContext != NULL)
+            {
+                $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+                $sThisResultName = 'getAllHospitalLocationsMapData';
+                if($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
+                    if($aCachedResult !== NULL)
+                    {
+                        //Found it in the cache!
+                        return $aCachedResult;
+                    }
+                }
+
+                //Create it now and add it to the cache
+                $this->m_oPS = new \raptor\ProtocolSupportingData($oContext);
+                $aResult = $this->m_oPS->getAllHospitalLocations($this);
                 if($oRuntimeResultFlexCacheHandler != NULL)
                 {
                     try

@@ -26,7 +26,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
 {
     private $m_oContext = NULL;
     private $m_oTT = NULL;
-    private $m_oPS = NULL;
+    //private $m_oPS = NULL;
 
     function __construct()
     {
@@ -38,9 +38,10 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
         module_load_include('php', 'raptor_datalayer', 'core/MdwsNewOrderUtils');
         module_load_include('php', 'raptor_datalayer', 'core/StringUtils');
+        module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oTT = new \raptor\TicketTrackingData();
-        $this->m_oPS = new \raptor\ProtocolSupportingData($this->m_oContext);
+        //$this->m_oPS = new \raptor\ProtocolSupportingData($this->m_oContext);
     }
 
     /**
@@ -914,7 +915,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             
             //Important NOT to mark fields as #required else BACK will fail!!!
             $imagingTypeId = intval($myvalues['neworderimagetype']);
-            $locations = $this->m_oPS->getAllHospitalLocations($mdwsDao);
+            //$locations = $this->m_oPS->getAllHospitalLocations($mdwsDao);
+            $locations = $this->m_oContext->getMdwsClient()->getAllHospitalLocationsMap();
             $neworderlocation = FormHelper::getKeyOfValue($locations, $rpd['PatientLocation']);
             if($neworderlocation === FALSE)
             {
