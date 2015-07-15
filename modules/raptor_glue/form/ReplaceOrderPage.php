@@ -59,7 +59,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $aOneRow = $mdwsDao->getDashboardDetailsMap();
         $nUID = $this->m_oContext->getUID();
-        $imagetypes = $mdwsDao->getImagingTypes($mdwsDao);
+        $imagetypes = $mdwsDao->getImagingTypesMap($mdwsDao);
         
         $myvalues = array();
         $myvalues['formhost'] = 'fulltab';  //If form is embedded into another form, make this different value

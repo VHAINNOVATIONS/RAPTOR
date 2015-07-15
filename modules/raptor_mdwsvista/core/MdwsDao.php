@@ -563,7 +563,7 @@ class MdwsDao implements IMdwsDao
         return $this->getProtocolSupportingData('getRawVitalSigns');
     }
     
-    public function getImagingTypes()
+    public function getImagingTypesMap()
     {
         return \raptor\MdwsNewOrderUtils::getImagingTypes($this);
     }

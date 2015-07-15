@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_BUILD_ID')
-    or define('RAPTOR_BUILD_ID', 'Test Candidate 20150715.2');
+    or define('RAPTOR_BUILD_ID', 'Test Candidate 20150715.3');
 
 //If this is not empty, then username must be prefixed with this text
 defined('USERNAME_PREFIX_SALT')
@@ -37,5 +37,4 @@ require_once 'ErrorCodeDefs.inc';
 require_once 'GeneralDefs.inc';
 require_once 'WorkflowDefs.inc';
 require_once 'UOMDefs.inc';
-//require_once 'MdwsDefs.inc';
 
