@@ -3253,13 +3253,12 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
         //Set all the Protocol page values
         $raptor_protocoldashboard = $this->m_aPatientDD;
-        $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+        //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+        $mdwsDao = $this->m_oContext->getMdwsClient();
         $oGD = new \raptor\GraphData($this->m_oContext);
         $oLO = new \raptor\ListOptions();
         $atriskmeds= $oLO->getAtRiskMedsKeywords();
-        $aMedsBundle = $oPSD->getMedicationsDetail($atriskmeds);
-        
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aMedsBundle = $mdwsDao->getMedicationsDetailMap($atriskmeds);
 
         $raptor_protocol_content = array();
         $raptor_protocol_content['AtRiskMeds'] = $atriskmeds;

@@ -20,6 +20,7 @@ require_once 'MdwsUtils.php';
 class MdwsDao implements IMdwsDao 
 {
     private $m_groupname = 'MdwsDaoGroup';
+    private $m_oPS = NULL;
     
     private $instanceTimestamp;
     private $authenticationTimestamp;
@@ -41,7 +42,7 @@ class MdwsDao implements IMdwsDao
         module_load_include('php', 'raptor_datalayer', 'core/data_context');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         $this->instanceTimestamp = microtime();
-        error_log('LOOK Created MdwsDao instance ' . $this->instanceTimestamp);
+        //error_log('LOOK Created MdwsDao instance ' . $this->instanceTimestamp);
         $this->errorCount = 0; // initializing for clarity
         $this->initClient();
     }
@@ -401,7 +402,7 @@ class MdwsDao implements IMdwsDao
     
     private function getProtocolSupportingData($function_name,$args=NULL)
     {
-        error_log("LOOK TEMP getProtocolSupportingData($function_name,$args)");
+        //error_log("LOOK TEMP getProtocolSupportingData($function_name,$args)");
         $sThisResultName = $function_name;
         try 
         {
@@ -421,12 +422,15 @@ class MdwsDao implements IMdwsDao
                 }
 
                 //Create it now and add it to the cache
-                $oPS = new \raptor\ProtocolSupportingData($oContext);
+                if($this->m_oPS == NULL)
+                {
+                    $this->m_oPS = new \raptor\ProtocolSupportingData($oContext);
+                }
                 if($args != NULL)
                 {
-                    $aResult = $oPS->$function_name($this);
+                    $aResult = $this->m_oPS->$function_name($this);
                 } else {
-                    $aResult = $oPS->$function_name();
+                    $aResult = $this->m_oPS->$function_name();
                 }
                 if($oRuntimeResultFlexCacheHandler != NULL)
                 {
@@ -500,10 +504,10 @@ class MdwsDao implements IMdwsDao
         return $this->getProtocolSupportingData('getRadiologyReportsDetail');
     }
     
-    public function getMedicationsDetail($atriskmeds)
+    public function getMedicationsDetailMap($atriskmeds)
     {
         $args = array($atriskmeds);
-        return $this->getProtocolSupportingData('getRadiologyReportsDetail',$args);
+        return $this->getProtocolSupportingData('getMedicationsDetail',$args);
     }
     
 }
