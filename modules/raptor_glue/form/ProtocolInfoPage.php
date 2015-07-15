@@ -3258,6 +3258,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $oLO = new \raptor\ListOptions();
         $atriskmeds= $oLO->getAtRiskMedsKeywords();
         $aMedsBundle = $oPSD->getMedicationsDetail($atriskmeds);
+        
+        $mdwsDao = $this->m_oContext->getMdwsClient();
 
         $raptor_protocol_content = array();
         $raptor_protocol_content['AtRiskMeds'] = $atriskmeds;
@@ -3265,7 +3267,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $raptor_protocol_content['Reference']['VitalsSummary'] = $oPSD->getVitalsSummary();
         $raptor_protocol_content['Reference']['MedicationsBundle'] = $aMedsBundle;
         $raptor_protocol_content['Reference']['VitalsDetail'] = $oPSD->getVitalsDetail();
-        $raptor_protocol_content['Reference']['AllergiesDetail'] = $oPSD->getAllergiesDetail();
+        //$raptor_protocol_content['Reference']['AllergiesDetail'] = $oPSD->getAllergiesDetail();
+        $raptor_protocol_content['Reference']['AllergiesDetail'] = $mdwsDao->getAllergiesDetailMap();
         $raptor_protocol_content['Reference']['ProcedureLabsDetail'] = $oPSD->getProcedureLabsDetail();
         $raptor_protocol_content['Reference']['DiagnosticLabsDetail'] = $oPSD->getDiagnosticLabsDetail();
         $raptor_protocol_content['Reference']['PathologyReportsDetail'] = $oPSD->getPathologyReportsDetail();
