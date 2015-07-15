@@ -5,7 +5,7 @@
  * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
- * D3 Graph Integration and data format collaboration: Daiwei Lu
+ * Graph Integration and data format collaboration: Daiwei Lu
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  * 
@@ -23,7 +23,6 @@ class GraphData
 {
     private $m_oContext = NULL;
     private $m_oRuntimeResultFlexCache = NULL;
-    //private $m_oPSD = NULL;
     
     function __construct($oContext)
     {
@@ -33,17 +32,13 @@ class GraphData
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         
         $this->m_oContext = $oContext;
-        //$this->m_oPSD = new \raptor\ProtocolSupportingData($oContext);
         $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('GraphData');
     }    
     
     function getThumbnailGraphValues()
     {
-        //$soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
-        //$soapResult = $this->m_oPSD->getRawVitalSigns();
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $soapResult = $mdwsDao->getRawVitalSignsMap();
-        $radiology_reports_detail = $mdwsDao->getRadiologyReportsDetailMap();        
         $max_dates = 5;
         $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
         if(!is_array($result))
@@ -55,8 +50,6 @@ class GraphData
     
     function getVitalsGraphValues()
     {
-        //$soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
-        //$soapResult = $this->m_oPSD->getRawVitalSigns();
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $soapResult = $mdwsDao->getRawVitalSignsMap();
         $max_dates = 20;
