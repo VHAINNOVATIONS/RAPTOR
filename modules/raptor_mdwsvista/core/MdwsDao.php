@@ -399,9 +399,9 @@ class MdwsDao implements IMdwsDao
         }
     }
     
-    private function getProtocolSupportingData($function_name,$passthis=FALSE)
+    private function getProtocolSupportingData($function_name,$args=NULL)
     {
-        error_log("LOOK TEMP getProtocolSupportingData($function_name,$passthis)");
+        error_log("LOOK TEMP getProtocolSupportingData($function_name,$args)");
         $sThisResultName = $function_name;
         try 
         {
@@ -422,7 +422,7 @@ class MdwsDao implements IMdwsDao
 
                 //Create it now and add it to the cache
                 $oPS = new \raptor\ProtocolSupportingData($oContext);
-                if($passthis)
+                if($args != NULL)
                 {
                     $aResult = $oPS->$function_name($this);
                 } else {
@@ -446,58 +446,64 @@ class MdwsDao implements IMdwsDao
     
     public function getAllHospitalLocationsMap()
     {
-        return $this->getProtocolSupportingData('getAllHospitalLocations',TRUE);
+        $args = array($this);
+        return $this->getProtocolSupportingData('getAllHospitalLocations',$args);
     }
     
     public function getAllergiesDetailMap()
     {
-        return $this->getProtocolSupportingData('getAllergiesDetail',FALSE);
+        return $this->getProtocolSupportingData('getAllergiesDetail');
     }
     
     public function getOrderOverviewMap()
     {
-        return $this->getProtocolSupportingData('getOrderOverview',FALSE);
+        return $this->getProtocolSupportingData('getOrderOverview');
     }
     
     public function getVitalsSummaryMap()
     {
-        return $this->getProtocolSupportingData('getVitalsSummary',FALSE);
+        return $this->getProtocolSupportingData('getVitalsSummary');
     }
     
     public function getVitalsDetailMap()
     {
-        return $this->getProtocolSupportingData('getVitalsDetail',FALSE);
+        return $this->getProtocolSupportingData('getVitalsDetail');
     }
     
     public function getProcedureLabsDetailMap()
     {
-        return $this->getProtocolSupportingData('getProcedureLabsDetail',FALSE);
+        return $this->getProtocolSupportingData('getProcedureLabsDetail');
     }
     
     public function getDiagnosticLabsDetailMap()
     {
-        return $this->getProtocolSupportingData('getDiagnosticLabsDetail',FALSE);
+        return $this->getProtocolSupportingData('getDiagnosticLabsDetail');
     }
     
     public function getPathologyReportsDetailMap()
     {
-        return $this->getProtocolSupportingData('getPathologyReportsDetail',FALSE);
+        return $this->getProtocolSupportingData('getPathologyReportsDetail');
     }
     
     public function getSurgeryReportsDetailMap()
     {
-        return $this->getProtocolSupportingData('getSurgeryReportsDetail',FALSE);
+        return $this->getProtocolSupportingData('getSurgeryReportsDetail');
     }
 
     public function getProblemsListDetailMap()
     {
-        return $this->getProtocolSupportingData('getProblemsListDetail',FALSE);
+        return $this->getProtocolSupportingData('getProblemsListDetail');
     }
     
     public function getRadiologyReportsDetailMap()
     {
-        return $this->getProtocolSupportingData('getRadiologyReportsDetail',FALSE);
+        return $this->getProtocolSupportingData('getRadiologyReportsDetail');
     }
     
+    public function getMedicationsDetail($atriskmeds)
+    {
+        $args = array($atriskmeds);
+        return $this->getProtocolSupportingData('getRadiologyReportsDetail',$args);
+    }
     
 }

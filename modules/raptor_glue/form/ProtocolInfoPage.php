@@ -3263,13 +3263,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
         $raptor_protocol_content = array();
         $raptor_protocol_content['AtRiskMeds'] = $atriskmeds;
-        //$raptor_protocol_content['Reference']['OrderOverview'] = $oPSD->getOrderOverview();
-        $raptor_protocol_content['Reference']['OrderOverview'] = $mdwsDao->getOrderOverviewMap();
-        //$raptor_protocol_content['Reference']['VitalsSummary'] = $oPSD->getVitalsSummary();
-        $raptor_protocol_content['Reference']['VitalsSummary'] = $mdwsDao->getVitalsSummaryMap();
         $raptor_protocol_content['Reference']['MedicationsBundle'] = $aMedsBundle;
+        $raptor_protocol_content['Reference']['OrderOverview'] = $mdwsDao->getOrderOverviewMap();
+        $raptor_protocol_content['Reference']['VitalsSummary'] = $mdwsDao->getVitalsSummaryMap();
         $raptor_protocol_content['Reference']['VitalsDetail'] = $mdwsDao->getVitalsDetailMap();
-        //$raptor_protocol_content['Reference']['AllergiesDetail'] = $oPSD->getAllergiesDetail();
         $raptor_protocol_content['Reference']['AllergiesDetail'] = $mdwsDao->getAllergiesDetailMap();
         $raptor_protocol_content['Reference']['ProcedureLabsDetail'] = $mdwsDao->getProcedureLabsDetailMap();
         $raptor_protocol_content['Reference']['DiagnosticLabsDetail'] = $mdwsDao->getDiagnosticLabsDetailMap();

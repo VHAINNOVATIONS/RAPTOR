@@ -281,6 +281,8 @@ class RuntimeResultFlexCache
                 }
             } else {
                 $myblob = NULL;
+                $this->clearRaptorCacheData($item_name);
+                return;
             }
             $created_dt = date("Y-m-d H:i:s", time());
             db_merge('raptor_cache_data')
@@ -299,7 +301,7 @@ class RuntimeResultFlexCache
                 ))
                 ->execute();
         } catch (\Exception $ex) {
-            throw new \Exception("Failed updateRaptorCacheData($item_name)",99765,$ex);
+            throw new \Exception("Failed updateRaptorCacheData($item_name) because ".$ex->getMessage(),99765,$ex);
         }
     }
 
@@ -414,7 +416,7 @@ class RuntimeResultFlexCache
                 ,$sThisResultName
                 ,$aResult);        
         } catch (\Exception $ex) {
-            throw new \Exception("Failed addToCache($sThisResultName)",99876,$ex);
+            throw new \Exception("Failed addToCache($sThisResultName) because ".$ex->getMessage(),99876,$ex);
         }
     }
     
