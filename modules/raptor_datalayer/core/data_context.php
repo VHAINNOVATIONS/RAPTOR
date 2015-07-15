@@ -1207,16 +1207,6 @@ class Context
     public function getMdwsClient($bRefreshConnection=FALSE)
     {
         error_log("LOOK Getting the MdwsDao NOW from context ".$this);
-        /*
-        if (!isset($this->m_mdwsClient) 
-                || $this->m_mdwsClient == NULL 
-                || (!$this->m_mdwsClient->hasContext() && $this->getUID() > 0))
-        {
-            error_log("LOOK Setting the MdwsDao NOW from context ".$this);
-            $this->m_mdwsClient = MdwsDaoFactory::getMdwsDao(MDWS_EMR_FACADE);
-            $this->m_mdwsClient->setContext($this);
-        }
-         */
         if($this->m_mdwsClient == NULL)
         {
             $this->m_mdwsClient = new \raptor\MdwsDao();

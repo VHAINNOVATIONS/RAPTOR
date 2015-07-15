@@ -37,5 +37,5 @@ require_once 'ErrorCodeDefs.inc';
 require_once 'GeneralDefs.inc';
 require_once 'WorkflowDefs.inc';
 require_once 'UOMDefs.inc';
-require_once 'MdwsDefs.inc';
+//require_once 'MdwsDefs.inc';
 
