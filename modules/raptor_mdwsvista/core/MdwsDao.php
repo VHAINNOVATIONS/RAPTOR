@@ -16,6 +16,7 @@ namespace raptor;
 
 require_once 'IMdwsDao.php';
 require_once 'MdwsUtils.php';
+require_once 'WorklistData.php';
 require_once 'ProtocolSupportingData.php';
 
 class MdwsDao implements IMdwsDao 
@@ -347,7 +348,7 @@ class MdwsDao implements IMdwsDao
             }
 
             //Create it now and add it to the cache
-            $oWL = new \raptor\WorklistData($oContext);
+            $oWL = new \raptor_mdwsvista\WorklistData($oContext);
             $aResult = $oWL->getDashboardMap();
             if($oRuntimeResultFlexCacheHandler != NULL)
             {
