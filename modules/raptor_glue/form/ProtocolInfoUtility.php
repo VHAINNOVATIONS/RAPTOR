@@ -45,7 +45,7 @@ class ProtocolInfoUtility
             module_load_include('php', 'raptor_datalayer', 'config/Choices');
             module_load_include('php', 'raptor_datalayer', 'config/ListUtils');
             module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-            module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+            //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
             module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
             module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
 
@@ -3522,8 +3522,9 @@ class ProtocolInfoUtility
         $patientDFN = NULL;
         try
         {
-            $oDD = new \raptor\DashboardData($this->m_oContext);
-            $raptor_protocoldashboard = $oDD->getDashboardDetails();
+            //$oDD = new \raptor\DashboardData($this->m_oContext);
+            //$raptor_protocoldashboard = $oDD->getDashboardDetails();
+            $raptor_protocoldashboard = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {
             throw new \Exception('Failed to get the dashboard to save exam fields',91111,$ex);

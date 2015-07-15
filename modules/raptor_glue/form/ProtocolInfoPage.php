@@ -66,8 +66,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
-        $oDD = new \raptor\DashboardData($this->m_oContext);
-        $this->m_aPatientDD = $oDD->getDashboardDetails();
+        //$oDD = new \raptor\DashboardData($this->m_oContext);
+        //$this->m_aPatientDD = $oDD->getDashboardDetails();
+        $this->m_aPatientDD = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
     }
 
     /**
@@ -3239,7 +3240,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             die($errormsg);
         }
 
-        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
         module_load_include('php', 'raptor_datalayer', 'core/data_listoptions');
         module_load_include('php', 'raptor_graph', 'core/GraphData');

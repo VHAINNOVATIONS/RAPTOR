@@ -34,7 +34,7 @@ class GetProtocolLibTab
     
     function __construct()
     {
-        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
         module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
         
@@ -48,8 +48,9 @@ class GetProtocolLibTab
         $this->m_oMOP = new \raptor_formulas\MatchOrderToProtocol();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
-        $oDD = new \raptor\DashboardData($this->m_oContext);
-        $this->m_aPatientDD = $oDD->getDashboardDetails();
+        //$oDD = new \raptor\DashboardData($this->m_oContext);
+        //$this->m_aPatientDD = $oDD->getDashboardDetails();
+        $this->m_aPatientDD = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
     }
 
     /**

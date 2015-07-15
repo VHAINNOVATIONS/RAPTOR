@@ -186,23 +186,6 @@ class MdwsDao implements IMdwsDao
         }
     }
 
-    /**
-     * TODO - need to test!
-     * NOT USED?  REMOVE
-    public function makeStatelessQuery($siteCode, $username, $password, $patientId, $functionToInvoke, $args, $multiSiteFlag, $appPwd) {
-        $this->connectAndLogin($siteCode, $username, $password);
-        if (isset($patientId)) {
-            $this->makeQuery("select", array("DFN"=>$patientId));
-        }
-        if ($multiSiteFlag) {
-            $this->makeQuery("setupMultiSiteQuery", array("appPwd"=>$appPwd));
-        }
-        $result = $this->makeQuery($functionToInvoke, $args);
-        $this->disconnect();
-        return $result;
-    }
-     */
-
     public function connectAndLogin($siteCode, $username, $password) {
         //drupal_set_message('About to login to MDWS as ' . $username);
         error_log('Starting connectAndLogin at '.microtime());
@@ -338,6 +321,7 @@ class MdwsDao implements IMdwsDao
      */
     function getDashboardDetailsMap($override_tracking_id=NULL)
     {
+        error_log("LOOK START getDashboardDetailsMap");
         $aResult = array();
         $oContext = \raptor\Context::getInstance();
         if($oContext != NULL)
@@ -348,11 +332,11 @@ class MdwsDao implements IMdwsDao
             } else {
                 $tid = $override_tracking_id;
             }
-            $oRuntimeResultFlexCacheHanlder = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
-            if($oRuntimeResultFlexCacheHanlder != NULL)
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if($oRuntimeResultFlexCacheHandler != NULL)
             {
-                $sThisResultName = "getDashboardDetailsMap[$tid]";
-                $aCachedResult = $oRuntimeResultFlexCacheHanlder->checkCache($sThisResultName);
+                $sThisResultName = "{$tid}_getDashboardDetailsMap";
+                $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
                 if($aCachedResult !== NULL)
                 {
                     //Found it in the cache!
@@ -363,9 +347,14 @@ class MdwsDao implements IMdwsDao
             //Create it now and add it to the cache
             $oWL = new \raptor\WorklistData($oContext);
             $aResult = $oWL->getDashboardMap();
-            if($oRuntimeResultFlexCacheHanlder != NULL)
+            if($oRuntimeResultFlexCacheHandler != NULL)
             {
-                $oRuntimeResultFlexCacheHanlder->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+                try
+                {
+                    $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+                } catch (\Exception $ex) {
+                    error_log("Failed to cache $sThisResultName result because ".$ex->getMessage());
+                }
             }
         }
         return $aResult;

@@ -32,7 +32,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
         module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
         module_load_include('php', 'raptor_datalayer', 'core/MdwsUtils');
         module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
@@ -608,8 +608,9 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $myIEN = $myvalues['tid'];
         
-        $oDD = new \raptor\DashboardData($this->m_oContext);
-        $rpd = $oDD->getDashboardDetails();
+        //$oDD = new \raptor\DashboardData($this->m_oContext);
+        //$rpd = $oDD->getDashboardDetails();
+        $rpd = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
         $gender = trim($rpd['PatientGender']);
         $age = intval(trim($rpd['PatientAge']));
         $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';

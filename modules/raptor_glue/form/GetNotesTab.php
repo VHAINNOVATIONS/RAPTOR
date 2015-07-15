@@ -29,7 +29,7 @@ class GetNotesTab
         module_load_include('php', 'raptor_datalayer', 'core/data_context');
         module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
         module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
         module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
         

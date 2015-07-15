@@ -29,7 +29,7 @@ class GetRadiologyReportsTab
         module_load_include('php', 'raptor_datalayer', 'core/data_context');
         module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
         module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
         module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
         
@@ -126,10 +126,11 @@ class GetRadiologyReportsTab
             '#tree' => TRUE,
         );
 
-        $oDD = new \raptor\DashboardData($this->m_oContext);
         $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         $radiology_reports_detail = $oPSD->getRadiologyReportsDetail();
-        $raptor_protocoldashboard = $oDD->getDashboardDetails();
+        //$oDD = new \raptor\DashboardData($this->m_oContext);
+        //$raptor_protocoldashboard = $oDD->getDashboardDetails();
+        $raptor_protocoldashboard = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
         $sTrackingIDfromDD = $raptor_protocoldashboard['Tracking ID'];
         $patientDFN=$raptor_protocoldashboard['PatientID'];
         $patientICN=$raptor_protocoldashboard['mpiPid'];

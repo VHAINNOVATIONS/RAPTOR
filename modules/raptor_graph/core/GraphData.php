@@ -65,8 +65,9 @@ class GraphData
     function getLabsGraphValues()
     {
        
-        $oDD = new \raptor\DashboardData($this->m_oContext);
-        $aDD = $oDD->getDashboardDetails();
+        //$oDD = new \raptor\DashboardData($this->m_oContext);
+        //$aDD = $oDD->getDashboardDetails();
+        $aDD = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
         $selectedPatient = array(
                   'ethnicity'=>$aDD['PatientEthnicity']
                 , 'gender'=>$aDD['PatientGender']

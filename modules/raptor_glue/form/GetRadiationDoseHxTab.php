@@ -21,7 +21,7 @@ namespace raptor;
 class GetRadiationDoseHxTab
 {
     private $m_oContext;
-    private $m_oDD;
+    //private $m_oDD;
     private $m_oFRD;
 
     const PROT_PRIMARY_ID = '[Protocol Primary Selection ID] ::=';
@@ -38,20 +38,22 @@ class GetRadiationDoseHxTab
         module_load_include('php', 'raptor_datalayer', 'core/data_context');
         module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
         module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-        module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
         module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
         module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
         
+        /*
         $loaded = module_load_include('php','raptor_datalayer','core/data_dashboard');
         if(!$loaded)
         {
             $msg = 'Failed to load the data_dashboard';
             throw new \Exception($msg);      //This is fatal, so stop everything now.
         }
+         */
         
         $this->m_oContext = \raptor\Context::getInstance();
-        $this->m_oDD = new \raptor\DashboardData($this->m_oContext);
+        //$this->m_oDD = new \raptor\DashboardData($this->m_oContext);
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
     }
     
@@ -343,7 +345,8 @@ class GetRadiationDoseHxTab
 
         global $base_url;
 
-        $protocoldashboard = $this->m_oDD->getDashboardDetails();
+        //$protocoldashboard = $this->m_oDD->getDashboardDetails();
+        $protocoldashboard = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
         $patientid=$protocoldashboard['PatientID'];
         $infopackage = $this->getRadDoseDetails($patientid);
         $modalitysummary = $infopackage['modalitysummary'];
