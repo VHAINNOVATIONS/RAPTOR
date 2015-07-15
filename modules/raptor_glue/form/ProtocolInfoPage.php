@@ -652,17 +652,19 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     {
         if($this->m_oCIE == NULL)
         {
-            $tid = $this->m_oContext->getSelectedTrackingID();
-            $oWL = new \raptor\WorklistData($this->m_oContext);
-            $aOneRow = $oWL->getDashboardMap();    //$tid);
-
+            //$tid = $this->m_oContext->getSelectedTrackingID();
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOneRow = $oWL->getDashboardMap();    //$tid);
             //$oDD = new \raptor\DashboardData($this->m_oContext);
             //$aDD = $oDD->getDashboardDetails();  
             $aDD = $this->m_aPatientDD;
-            $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-            $aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
-            $aEGFR = $oPSD->getEGFRDetail();
-
+            //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+            //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
+            //$aEGFR = $oPSD->getEGFRDetail();
+            $mdwsDao = $this->m_oContext->getMdwsClient();
+            $aLatestVitals = $mdwsDao->getVitalsDetailOnlyLatestMap();            
+            $aEGFR = $mdwsDao->getEGFRDetailMap();            
+            
             $aPatientInfoForCIE = array();    
             $aPatientInfoForCIE['GENDER'] = $aDD['PatientGender'];
             $aPatientInfoForCIE['AGE'] = $aDD['PatientAge'];
@@ -709,12 +711,15 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             //$oDD = new \raptor\DashboardData($this->m_oContext);
             //$aDD = $oDD->getDashboardDetails();     //TODO REDUNDANT WITH $aOneRow????????????????      
             $aDD = $this->m_aPatientDD;
-            $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+            $mdwsDao = $this->m_oContext->getMdwsClient();
+            //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
 
             if($this->m_oCIE == NULL)
             {
-                $aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
-                $aEGFR = $oPSD->getEGFRDetail();
+                //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
+                //$aEGFR = $oPSD->getEGFRDetail();
+                $aLatestVitals = $mdwsDao->getVitalsDetailOnlyLatestMap();            
+                $aEGFR = $mdwsDao->getEGFRDetailMap();
 
                 $aPatientInfoForCIE = array();    //TODO move this code elsewhere
                 $aPatientInfoForCIE['GENDER'] = $aDD['PatientGender'];

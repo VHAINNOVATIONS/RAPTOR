@@ -16,6 +16,7 @@ namespace raptor;
 
 require_once 'IMdwsDao.php';
 require_once 'MdwsUtils.php';
+require_once 'ProtocolSupportingData.php';
 
 class MdwsDao implements IMdwsDao 
 {
@@ -424,7 +425,7 @@ class MdwsDao implements IMdwsDao
                 //Create it now and add it to the cache
                 if($this->m_oPS == NULL)
                 {
-                    $this->m_oPS = new \raptor\ProtocolSupportingData($oContext);
+                    $this->m_oPS = new \raptor_mdwsvista\ProtocolSupportingData($oContext);
                 }
                 if($args != NULL)
                 {
@@ -510,4 +511,18 @@ class MdwsDao implements IMdwsDao
         return $this->getProtocolSupportingData('getMedicationsDetail',$args);
     }
     
+    public function getNotesDetailMap()
+    {
+        return $this->getProtocolSupportingData('getNotesDetail');
+    }
+
+    public function getVitalsDetailOnlyLatestMap()
+    {
+        return $this->getProtocolSupportingData('getVitalsDetailOnlyLatest');
+    }
+    
+    public function getEGFRDetailMap()
+    {
+        return $this->getProtocolSupportingData('getEGFRDetail');
+    }
 }

@@ -80,8 +80,10 @@ class GetNotesTab
             '#tree' => TRUE,
         );
         
-        $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-        $radiology_reports_detail = $oPSD->getNotesDetail();
+        //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+        //$radiology_reports_detail = $oPSD->getNotesDetail();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $radiology_reports_detail = $mdwsDao->getNotesDetailMap();
         
         $rows = '';
         foreach($radiology_reports_detail as $data_row) 
@@ -89,7 +91,7 @@ class GetNotesTab
             $rows .= "\n".'<tr>'
                   . '<td>'.$data_row["Type"].'</td>'
                   . '<td>'.$data_row["Date"].'</td>'
-                  . '<td><a href="#" class="raptor-details">'.$data_row["Snippet"].'</a>'.GetNotesTab::raptor_print_details($data_row["Details"]).'</td>'
+                  . '<td><a href="#" class="raptor-details">'.$data_row['Snippet'].'</a>'.GetNotesTab::raptor_print_details($data_row["Details"]).'</td>'
                   . '</tr>';
         }
         

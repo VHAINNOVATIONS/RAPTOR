@@ -224,7 +224,7 @@ class GetRadiationDoseHxTab
     /**
      * Scroll through all the RAPTOR VistA notes for this patient
      */
-    private function getRadDoseDetails($patientid)
+    private function getRadDoseDetails()
     {
         $infopackage = array();
         $modalitysummary = array();
@@ -232,13 +232,15 @@ class GetRadiationDoseHxTab
         $cutdate = mktime(0, 0, 0, date('n')-12, 1, date('y')); //12 months ago
         $cutdatetimestamp = mktime(0, 0, 0, date('n')-12, 1, date('y')); //12 months ago
 
-        $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+        //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         $totalnotes = 0;
         $lowts = NULL;
         $hights = NULL;
         $sLowTS = NULL;
         $sHighTS = NULL;
-        $notesdetail = $oPSD->getNotesDetail();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $notesdetail = $mdwsDao->getNotesDetailMap();
+        //$notesdetail = $oPSD->getNotesDetail();
         foreach($notesdetail as $data_row) 
         {
             if($data_row['Type'] == 'RAPTOR NOTE')
@@ -348,7 +350,7 @@ class GetRadiationDoseHxTab
         //$protocoldashboard = $this->m_oDD->getDashboardDetails();
         $protocoldashboard = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
         $patientid=$protocoldashboard['PatientID'];
-        $infopackage = $this->getRadDoseDetails($patientid);
+        $infopackage = $this->getRadDoseDetails();
         $modalitysummary = $infopackage['modalitysummary'];
         $modalitydetail = $infopackage['modalitydetail'];
         $oldest_note_dt = $infopackage['oldest_note_dt'];

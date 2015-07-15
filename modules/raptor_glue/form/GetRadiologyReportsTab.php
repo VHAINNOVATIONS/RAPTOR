@@ -126,8 +126,11 @@ class GetRadiologyReportsTab
             '#tree' => TRUE,
         );
 
-        $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-        $radiology_reports_detail = $oPSD->getRadiologyReportsDetail();
+        //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+        //$radiology_reports_detail = $oPSD->getRadiologyReportsDetail();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $radiology_reports_detail = $mdwsDao->getRadiologyReportsDetailMap();
+
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$raptor_protocoldashboard = $oDD->getDashboardDetails();
         $raptor_protocoldashboard = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
