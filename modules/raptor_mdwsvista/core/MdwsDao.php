@@ -399,47 +399,6 @@ class MdwsDao implements IMdwsDao
         }
     }
     
-    public function getAllHospitalLocationsMap()
-    {
-        return $this->getProtocolSupportingData('getAllHospitalLocations',TRUE);
-        
-        $sThisResultName = 'getAllHospitalLocationsMapData';
-        try 
-        {
-            $aResult = array();
-            $oContext = \raptor\Context::getInstance();
-            if($oContext != NULL)
-            {
-                $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
-                if($oRuntimeResultFlexCacheHandler != NULL)
-                {
-                    $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
-                    if($aCachedResult !== NULL)
-                    {
-                        //Found it in the cache!
-                        return $aCachedResult;
-                    }
-                }
-
-                //Create it now and add it to the cache
-                $oPS = new \raptor\ProtocolSupportingData($oContext);
-                $aResult = $oPS->getAllHospitalLocations($this);
-                if($oRuntimeResultFlexCacheHandler != NULL)
-                {
-                    try
-                    {
-                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
-                    } catch (\Exception $ex) {
-                        error_log("Failed to cache $sThisResultName result because ".$ex->getMessage());
-                    }
-                }
-            }
-            return $aResult;
-        } catch (\Exception $ex) {
-            throw new \Exception("Failed to $sThisResultName",99876,$ex);
-        }
-    }
-    
     private function getProtocolSupportingData($function_name,$passthis=FALSE)
     {
         error_log("LOOK TEMP getProtocolSupportingData($function_name,$passthis)");
@@ -485,44 +444,60 @@ class MdwsDao implements IMdwsDao
         }
     }
     
+    public function getAllHospitalLocationsMap()
+    {
+        return $this->getProtocolSupportingData('getAllHospitalLocations',TRUE);
+    }
+    
     public function getAllergiesDetailMap()
     {
-        return $this->getProtocolSupportingData('getAllergiesDetail',TRUE);
-        
-        $sThisResultName = 'getAllergiesDetailMap';
-        try 
-        {
-            $aResult = array();
-            $oContext = \raptor\Context::getInstance();
-            if($oContext != NULL)
-            {
-                $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
-                if($oRuntimeResultFlexCacheHandler != NULL)
-                {
-                    $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
-                    if($aCachedResult !== NULL)
-                    {
-                        //Found it in the cache!
-                        return $aCachedResult;
-                    }
-                }
-
-                //Create it now and add it to the cache
-                $oPS = new \raptor\ProtocolSupportingData($oContext);
-                $aResult = $oPS->getAllergiesDetail();
-                if($oRuntimeResultFlexCacheHandler != NULL)
-                {
-                    try
-                    {
-                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
-                    } catch (\Exception $ex) {
-                        error_log("Failed to cache $sThisResultName result because ".$ex->getMessage());
-                    }
-                }
-            }
-            return $aResult;
-        } catch (\Exception $ex) {
-            throw new \Exception("Failed to $sThisResultName",99876,$ex);
-        }
+        return $this->getProtocolSupportingData('getAllergiesDetail',FALSE);
     }
+    
+    public function getOrderOverviewMap()
+    {
+        return $this->getProtocolSupportingData('getOrderOverview',FALSE);
+    }
+    
+    public function getVitalsSummaryMap()
+    {
+        return $this->getProtocolSupportingData('getVitalsSummary',FALSE);
+    }
+    
+    public function getVitalsDetailMap()
+    {
+        return $this->getProtocolSupportingData('getVitalsDetail',FALSE);
+    }
+    
+    public function getProcedureLabsDetailMap()
+    {
+        return $this->getProtocolSupportingData('getProcedureLabsDetail',FALSE);
+    }
+    
+    public function getDiagnosticLabsDetailMap()
+    {
+        return $this->getProtocolSupportingData('getDiagnosticLabsDetail',FALSE);
+    }
+    
+    public function getPathologyReportsDetailMap()
+    {
+        return $this->getProtocolSupportingData('getPathologyReportsDetail',FALSE);
+    }
+    
+    public function getSurgeryReportsDetailMap()
+    {
+        return $this->getProtocolSupportingData('getSurgeryReportsDetail',FALSE);
+    }
+
+    public function getProblemsListDetailMap()
+    {
+        return $this->getProtocolSupportingData('getProblemsListDetail',FALSE);
+    }
+    
+    public function getRadiologyReportsDetailMap()
+    {
+        return $this->getProtocolSupportingData('getRadiologyReportsDetail',FALSE);
+    }
+    
+    
 }
