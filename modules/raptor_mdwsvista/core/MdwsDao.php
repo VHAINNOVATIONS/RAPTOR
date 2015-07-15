@@ -505,7 +505,7 @@ class MdwsDao implements IMdwsDao
         return $this->getProtocolSupportingData('getRadiologyReportsDetail');
     }
     
-    public function getMedicationsDetailMap($atriskmeds)
+    public function getMedicationsDetailMap($atriskmeds=NULL)
     {
         $args = array($atriskmeds);
         return $this->getProtocolSupportingData('getMedicationsDetail',$args);
@@ -524,5 +524,40 @@ class MdwsDao implements IMdwsDao
     public function getEGFRDetailMap()
     {
         return $this->getProtocolSupportingData('getEGFRDetail');
+    }
+    
+    public function getPatientDashboardMap()
+    {
+        return $this->getProtocolSupportingData('getPatientDashboard');
+    }
+    
+    public function getPendingOrdersMap()
+    {
+        return $this->getProtocolSupportingData('getPendingOrdersMap'); //Yes, has Map suffix
+    }
+    
+    public function getRareContrastKeywordsMap()
+    {
+        return $this->getProtocolSupportingData('getRareContrastKeywords');
+    }
+    
+    public function getRareRadioisotopeKeywordsMap()
+    {
+        return $this->getProtocolSupportingData('getRareRadioisotopeKeywords');
+    }
+
+    public function getBloodThinnerKeywordsMap()
+    {
+        return $this->getProtocolSupportingData('getBloodThinnerKeywords');
+    }
+
+    public function getAllergyContrastKeywordsMap()
+    {
+        return $this->getProtocolSupportingData('getAllergyContrastKeywords');
+    }
+
+    public function getRawVitalSignsMap()
+    {
+        return $this->getProtocolSupportingData('getRawVitalSigns');
     }
 }

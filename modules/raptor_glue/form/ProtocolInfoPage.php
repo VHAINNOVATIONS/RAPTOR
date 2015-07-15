@@ -2925,7 +2925,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     function getContraindicationFormMarkup($nSiteID, $nIEN, $myvalues
             , $protocolValues
-            , $oPSD
             , $aMapCI_AlreadyAcknowledged)
     {
         $aResultMap = array();
@@ -2936,12 +2935,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         $oCIE = $this->m_oCIE;
         
-        $patientDashboard = $oPSD->getPatientDashboard();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        
+        $patientDashboard = $mdwsDao->getPatientDashboardMap();
         $examcategory = strtoupper($patientDashboard['ExamCategory']);
         
         //Flag as possible duplicate order if there is more than one active order for the same modality as this one.
         $modality = $protocolValues['modality_abbr'];   //Might be unknown or blank.
-        $pendingMap = $oPSD->getPendingOrdersMap();
+        $pendingMap = $mdwsDao->getPendingOrdersMap();
         if(count($pendingMap) > 1)
         {
             if($modality == '' || $modality == 'Unknown')
@@ -2997,7 +2998,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
         //Get allergies to pass in.
         $aAllergies = array();
-        $aDetails = $oPSD->getAllergiesDetail();
+        $aDetails = $mdwsDao->getAllergiesDetailMap();
         foreach($aDetails as $aItem)
         {
             $aAllergies[] = $aItem['Item'];
@@ -3005,14 +3006,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         $aCandidateData['CURRENT_ALLERGIES'] = $aAllergies;
 
-        $aCandidateData['KWL_RARE_CONTRAST'] = $oPSD->getRareContrastKeywords();
-        $aCandidateData['KWL_RARE_RADIOISOTOPE'] = $oPSD->getRareRadioisotopeKeywords();
-        $aCandidateData['KWL_BLOOD_THINNER'] = $oPSD->getBloodThinnerKeywords();
-        $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = $oPSD->getAllergyContrastKeywords();
+        $aCandidateData['KWL_RARE_CONTRAST'] = $mdwsDao->getRareContrastKeywordsMap();
+        $aCandidateData['KWL_RARE_RADIOISOTOPE'] = $mdwsDao->getRareRadioisotopeKeywordsMap();
+        $aCandidateData['KWL_BLOOD_THINNER'] = $mdwsDao->getBloodThinnerKeywordsMap();
+        $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = $mdwsDao->getAllergyContrastKeywordsMap();
         
         //Get meds to pass in.
         $aMeds = array();
-        $aMedBundle = $oPSD->getMedicationsDetail();
+        $aMedBundle = $mdwsDao->getMedicationsDetailMap();
         $aMedDetail = $aMedBundle['details'];
         foreach($aMedDetail as $aMedItem)
         {
@@ -3362,7 +3363,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $this->m_oTT->markTicketEditLocked($sTrackingID, $nUID);
         }
         
-        $oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
+        //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
   
         $protocolValues = $this->getPropertiesFromProtocolName($myvalues['protocol1_nm']);
         
@@ -3374,7 +3375,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 , $nIEN
                 , $myvalues
                 , $protocolValues
-                , $oPSD
                 , $aMapCI_AlreadyAcknowledged);
         $sStaticWarningMsgsHTML = $aCIResultMap['StaticWarningMsgsHTML'];
         $aCI_AcknowledgeMarkup = $aCIResultMap['CI_AcknowledgeMarkup'];
