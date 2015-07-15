@@ -14,7 +14,7 @@
 namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+//module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 require_once 'FormHelper.php';
 
 /**
@@ -44,8 +44,10 @@ class ResetWorkflowPage extends \raptor\ASimpleFormPage
         {
             throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
         }
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOneRow = $oWL->getDashboardMap();    //$tid);
+        //$oWL = new \raptor\WorklistData($this->m_oContext);
+        //$aOneRow = $oWL->getDashboardMap();    //$tid);
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aOneRow = $mdwsDao->getDashboardDetailsMap();
         $nSiteID = $this->m_oContext->getSiteID();
         
         $nIEN = $tid;

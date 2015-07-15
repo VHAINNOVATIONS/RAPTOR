@@ -702,8 +702,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         try
         {
-            $oWL = new \raptor\WorklistData($this->m_oContext);
-            $aOneRow = $oWL->getDashboardMap($tid);
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOneRow = $oWL->getDashboardMap($tid);
+            $mdwsDao = $this->m_oContext->getMdwsClient();
+            $aOneRow = $mdwsDao->getDashboardDetailsMap($tid);
             $nSiteID = $this->m_oContext->getSiteID();
             $nIEN = $tid;
             $nUID = $this->m_oContext->getUID();
@@ -711,7 +713,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             //$oDD = new \raptor\DashboardData($this->m_oContext);
             //$aDD = $oDD->getDashboardDetails();     //TODO REDUNDANT WITH $aOneRow????????????????      
             $aDD = $this->m_aPatientDD;
-            $mdwsDao = $this->m_oContext->getMdwsClient();
             //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
 
             if($this->m_oCIE == NULL)
@@ -2338,8 +2339,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             , $prev_commit_dt, &$noteTextArray)
     {
         $tid = $nSiteID.'-'.$nIEN;
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOrderInfo = $oWL->getDashboardMap();
+        //$oWL = new \raptor\WorklistData($this->m_oContext);
+        //$aOrderInfo = $oWL->getDashboardMap();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aOrderInfo = $mdwsDao->getDashboardDetailsMap();
         $aQuestionsMetadata = $this->getAllSavedSafetyChecklistTicketData($nSiteID,$nIEN,$oAllUsers,$prev_commit_dt);
         if(count($aQuestionsMetadata)>0)
         {
@@ -2418,8 +2421,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     {
         //Get all the VISTA baseline information.
         $tid = $nSiteID.'-'.$nIEN;
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOrderInfo = $oWL->getDashboardMap();
+        //$oWL = new \raptor\WorklistData($this->m_oContext);
+        //$aOrderInfo = $oWL->getDashboardMap();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aOrderInfo = $mdwsDao->getDashboardDetailsMap();
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Embedded Due Date',$aOrderInfo,'DesiredDate');

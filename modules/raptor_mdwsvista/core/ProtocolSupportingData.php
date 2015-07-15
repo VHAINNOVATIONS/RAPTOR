@@ -16,7 +16,7 @@ namespace raptor_mdwsvista;
 module_load_include('php', 'raptor_glue', 'core/config');
 module_load_include('php', 'raptor_formulas', 'core/Labs');
 
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+//module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 module_load_include('php', 'raptor_datalayer', 'core/data_context');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultCache');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
@@ -45,7 +45,7 @@ class ProtocolSupportingData
         $this->m_oContext = $oContext;
         $this->m_oRuntimeResultCache = \raptor\RuntimeResultCache::getInstance($this->m_oContext,'ProtocolSupportingData');
         $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('ProtocolSupportingData');
-        $wl = new \raptor\WorklistData($this->m_oContext);
+        $wl = new \raptor_mdwsvista\WorklistData($this->m_oContext);
         $this->m_aDashboardMap = $wl->getDashboardMap();   // getWorklistForProtocolSupport();
         $this->m_aPatientInfo = $wl->getPatient($this->m_aDashboardMap["PatientID"]);
         if($this->m_aPatientInfo == NULL)

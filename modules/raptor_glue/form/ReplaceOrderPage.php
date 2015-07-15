@@ -31,7 +31,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
     function __construct()
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
-        module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
         //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         //module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
         module_load_include('php', 'raptor_datalayer', 'core/MdwsUtils');
@@ -54,11 +54,12 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         {
             throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
         }
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOneRow = $oWL->getDashboardMap();
-        $nUID = $this->m_oContext->getUID();
+        //$oWL = new \raptor\WorklistData($this->m_oContext);
+        //$aOneRow = $oWL->getDashboardMap();
         $mdwsDao = $this->m_oContext->getMdwsClient();
-        $imagetypes = MdwsNewOrderUtils::getImagingTypes($mdwsDao);
+        $aOneRow = $mdwsDao->getDashboardDetailsMap();
+        $nUID = $this->m_oContext->getUID();
+        $imagetypes = $mdwsDao->getImagingTypes($mdwsDao);
         
         $myvalues = array();
         $myvalues['formhost'] = 'fulltab';  //If form is embedded into another form, make this different value

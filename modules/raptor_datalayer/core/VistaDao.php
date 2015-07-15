@@ -16,6 +16,7 @@ namespace raptor;
 require_once 'IVistaDao.php';
 require_once 'data_context.php';
 require_once 'RuntimeResultFlexCache.php';
+require_once 'WorklistColumnMap.php';
 
 /**
  * This is the primary interface abstraction to EHR

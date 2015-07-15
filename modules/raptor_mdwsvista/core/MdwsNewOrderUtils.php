@@ -18,35 +18,46 @@ require_once 'MdwsStringUtils.php';
 
 class MdwsNewOrderUtils {
 
-    public static  function getImagingTypes($mdwsDao) {
+    public static function getImagingTypes($mdwsDao) 
+    {
         //$result = array();
         //$result['37'] = 'ANGIO/NEURO/INTERVENTIONAL';
         //$result['5'] = 'MRI';
         //return $result;
         
-        $soapResult = $mdwsDao->makeQuery('getImagingOrderTypes', array());
-     
-        if (isset($soapResult->getImagingOrderTypesResult->fault)) {
-            throw new \Exception($soapResult->getImagingOrderTypesResult->fault->message);
-        }
-        
-        $result = array();
-        if (!isset($soapResult->getImagingOrderTypesResult->OrderTypeTO) ||
-                count($soapResult->getImagingOrderTypesResult->OrderTypeTO) == 0) {
-            //Just return the empty array.
-            return $result;
-        }
-        $imagingTypes = $soapResult->getImagingOrderTypesResult->OrderTypeTO;
-        $typeCount = count($soapResult->getImagingOrderTypesResult->OrderTypeTO);
-        
-        for ($i = 0; $i < $typeCount; $i++) 
+        try
         {
-            $id = $soapResult->getImagingOrderTypesResult->OrderTypeTO[$i]->id;
-            $name = $soapResult->getImagingOrderTypesResult->OrderTypeTO[$i]->name1;
-            $result[$id] = $name;
+            $soapResult = $mdwsDao->makeQuery('getImagingOrderTypes', array());
+
+            if (isset($soapResult->getImagingOrderTypesResult->fault)) {
+                throw new \Exception($soapResult->getImagingOrderTypesResult->fault->message);
+            }
+
+            $result = array();
+            if (!isset($soapResult->getImagingOrderTypesResult->OrderTypeTO) ||
+                    count($soapResult->getImagingOrderTypesResult->OrderTypeTO) == 0) {
+                //Just return the empty array.
+                return $result;
+            }
+            //$imagingTypes = $soapResult->getImagingOrderTypesResult->OrderTypeTO;
+            $orderTypeTO = $soapResult->getImagingOrderTypesResult->OrderTypeTO;
+            if(!is_array($orderTypeTO))
+            {
+                throw new \Exception("Expected an array for orderTypeTO but got this instead ".print_r($orderTypeTO,TRUE));
+            }
+            $typeCount = count($soapResult->getImagingOrderTypesResult->OrderTypeTO);
+
+            for ($i = 0; $i < $typeCount; $i++) 
+            {
+                $id = $soapResult->getImagingOrderTypesResult->OrderTypeTO[$i]->id;
+                $name = $soapResult->getImagingOrderTypesResult->OrderTypeTO[$i]->name1;
+                $result[$id] = $name;
+            }
+
+            return $result;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getImagingTypes because " . $ex->getMessage(), 99765, $ex);
         }
-        
-        return $result;
     }
     
     /**

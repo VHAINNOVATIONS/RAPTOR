@@ -14,7 +14,7 @@
 namespace raptor_formulas;
 
 module_load_include('php', 'raptor_glue', 'core/Config');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+//module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 module_load_include('php', 'raptor_datalayer', 'core/data_user');
 
 /**
@@ -41,13 +41,13 @@ class MatchOrderToUser
         $oUser = $this->m_userinfo;
          
         $nNow = time();
-        $aProcName=explode(' ',strtoupper($aTicket[\raptor\WorklistData::WLIDX_STUDY]));
+        $aProcName=explode(' ',strtoupper($aTicket[\raptor\WorklistColumnMap::WLIDX_STUDY]));
         $score=0;
         $addscore=0;
         $comment=array();
         
         //Add 100pts if the ticket is assigned to the $oUser (always factor this in)
-        $a = $aTicket[\raptor\WorklistData::WLIDX_ASSIGNEDUSER];
+        $a = $aTicket[\raptor\WorklistColumnMap::WLIDX_ASSIGNEDUSER];
         if(is_array($a))
         {
             if($oUser->getUserID() == $a['uid'])
@@ -59,21 +59,21 @@ class MatchOrderToUser
 
         //Score depends on rights and workflow mode.
         $bFullScoring = FALSE;
-        if($aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'AC' 
-                || $aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'CO' 
-                || $aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'RV' )
+        if($aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AC' 
+                || $aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'CO' 
+                || $aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'RV' )
         {
             if($oUser->getPrivilegeSetting('PWI1') == 1)    //Can protocol an order
             {
                 $bFullScoring = TRUE;
-                if($aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'RV')
+                if($aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'RV')
                 {
                     //Ready for review means something to this user.    20140811
                     $score += 5;
                     $comment['review'] = 5;
                 }
             }
-        } else if($aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'AP' || $aTicket[\raptor\WorklistData::WLIDX_WORKFLOWSTATUS] == 'PA' ) {
+        } else if($aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AP' || $aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'PA' ) {
             if($oUser->getPrivilegeSetting('CE1') == 1)     //Can complete an examination
             {
                 $bFullScoring = TRUE;
@@ -83,12 +83,12 @@ class MatchOrderToUser
         if($bFullScoring)
         {
             //Score the urgency.
-            if($aTicket[\raptor\WorklistData::WLIDX_URGENCY] == 'STAT')
+            if($aTicket[\raptor\WorklistColumnMap::WLIDX_URGENCY] == 'STAT')
             {
                 $score += 500;
                 $comment['STAT'] = 500;
             } 
-            else if($aTicket[\raptor\WorklistData::WLIDX_URGENCY] == 'URGENT') 
+            else if($aTicket[\raptor\WorklistColumnMap::WLIDX_URGENCY] == 'URGENT') 
             {
                 $score += 250;
                 $comment['URGENT'] = 250;
@@ -101,7 +101,7 @@ class MatchOrderToUser
             } else {
                 $aModality=$oUser->getModalityPreferences();
             }
-            if(in_array($aTicket[\raptor\WorklistData::WLIDX_MODALITY], $aModality))
+            if(in_array($aTicket[\raptor\WorklistColumnMap::WLIDX_MODALITY], $aModality))
             {
                 //Position does not matter for modality
                 $score += 20;
@@ -162,7 +162,7 @@ class MatchOrderToUser
             }
 
             //See if there is scheduled time to consider.
-            $aSchedInfo = $aTicket[\raptor\WorklistData::WLIDX_SCHEDINFO];
+            $aSchedInfo = $aTicket[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO];
             if(isset($aSchedInfo['EventDT']) && !isset($aSchedInfo['CanceledDT']))
             {
                 $nEventSched = strtotime($aSchedInfo['EventDT']);
@@ -191,7 +191,7 @@ class MatchOrderToUser
                         }
                     }
                 }
-                //drupal_set_message('Found schedule date <br>event=' . date(DATE_ISO8601, $nEventSched) . '<br>now=' . date(DATE_ISO8601,$nNow) . '<br>diff=' . ($nEventSched-$nNow) . '<br>' . print_r($comment, TRUE) . '<br>'  . print_r($aTicket[\raptor\WorklistData::WLIDX_SCHEDINFO],TRUE));
+                //drupal_set_message('Found schedule date <br>event=' . date(DATE_ISO8601, $nEventSched) . '<br>now=' . date(DATE_ISO8601,$nNow) . '<br>diff=' . ($nEventSched-$nNow) . '<br>' . print_r($comment, TRUE) . '<br>'  . print_r($aTicket[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO],TRUE));
             }
 
             if(DISABLE_TICKET_AGE1_SCORING)
@@ -200,9 +200,9 @@ class MatchOrderToUser
                 $comment['#disabled_age1'] = 'age1 criteria was ignored!';
             } else {
                 //Factor in the age of the ticket too, older ticket scores slightly higher.
-                if(isset($aTicket[\raptor\WorklistData::WLIDX_DATETIMEDESIRED]))
+                if(isset($aTicket[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED]))
                 {
-                    $aDO = explode('@',$aTicket[\raptor\WorklistData::WLIDX_DATETIMEDESIRED]);
+                    $aDO = explode('@',$aTicket[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED]);
                     $aDO = date_parse($aDO[0]);
                     $nDO = mktime(0,0,0,$aDO['month'],$aDO['day'],$aDO['year']);
                 } else {
@@ -226,9 +226,9 @@ class MatchOrderToUser
                 //This has been disabled, generally done because our test data is YEARS OLD thus all tickets get HUGE scores if not disabled!
                 $comment['#disabled_age2'] = 'age2 criteria was ignored!';
             } else {
-                if(isset($aTicket[\raptor\WorklistData::WLIDX_DATEORDERED]))
+                if(isset($aTicket[\raptor\WorklistColumnMap::WLIDX_DATEORDERED]))
                 {
-                    $aDO = explode('@',$aTicket[\raptor\WorklistData::WLIDX_DATEORDERED]);
+                    $aDO = explode('@',$aTicket[\raptor\WorklistColumnMap::WLIDX_DATEORDERED]);
                     $aDO = date_parse($aDO[0]);
                     $nDO = mktime(0,0,0,$aDO['month'],$aDO['day'],$aDO['year']);
                 } else {

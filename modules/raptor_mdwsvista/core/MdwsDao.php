@@ -16,6 +16,7 @@ namespace raptor;
 
 require_once 'IMdwsDao.php';
 require_once 'MdwsUtils.php';
+require_once 'MdwsNewOrderUtils.php';
 require_once 'WorklistData.php';
 require_once 'ProtocolSupportingData.php';
 
@@ -384,7 +385,7 @@ class MdwsDao implements IMdwsDao
                 }
 
                 //Create it now and add it to the cache
-                $oWL = new \raptor\WorklistData($oContext);
+                $oWL = new \raptor_mdwsvista\WorklistData($oContext);
                 $aResult = $oWL->getWorklistRows();
                 if($oRuntimeResultFlexCacheHandler != NULL)
                 {
@@ -560,5 +561,10 @@ class MdwsDao implements IMdwsDao
     public function getRawVitalSignsMap()
     {
         return $this->getProtocolSupportingData('getRawVitalSigns');
+    }
+    
+    public function getImagingTypes()
+    {
+        return \raptor\MdwsNewOrderUtils::getImagingTypes($this);
     }
 }

@@ -15,7 +15,7 @@ namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
 require_once ('FormHelper.php');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+//module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 
 /**
  * Implementes the radation dose edit page.

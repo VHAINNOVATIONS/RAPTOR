@@ -31,7 +31,7 @@ class AddRadiationDoseHxEntryPage
     function __construct()
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
-        module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
         //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         
         $this->m_oContext = \raptor\Context::getInstance();

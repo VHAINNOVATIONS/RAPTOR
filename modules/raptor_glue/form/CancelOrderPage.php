@@ -28,7 +28,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
     function __construct()
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
-        module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+        //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oTT = new \raptor\TicketTrackingData();
     }
@@ -44,8 +44,10 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         {
             throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
         }
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOneRow = $oWL->getDashboardMap();    //$tid);
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aOneRow = $mdwsDao->getDashboardDetailsMap();
+        //$oWL = new \raptor\WorklistData($this->m_oContext);
+        //$aOneRow = $oWL->getDashboardMap();    //$tid);
         $nSiteID = $this->m_oContext->getSiteID();
         
         $nIEN = $tid;
@@ -165,8 +167,10 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             '#disabled' => $disabled,
         );
 
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOneRow = $oWL->getDashboardMap();    //$tid);
+        //$oWL = new \raptor\WorklistData($this->m_oContext);
+        //$aOneRow = $oWL->getDashboardMap();    //$tid);
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aOneRow = $mdwsDao->getDashboardDetailsMap();        
         $sRequestedByName = $aOneRow['RequestedBy'];
         $canOrderBeDCd = $aOneRow['canOrderBeDCd'];
         $orderFileStatus = $aOneRow['orderFileStatus'];

@@ -24,36 +24,6 @@ class WorklistData
 {
     private $m_oContext;
     
-    //RAPTOR Worklist Field Index
-    const WLIDX_TRACKINGID = 0;
-    const WLIDX_PATIENTID = 1;
-    const WLIDX_PATIENTNAME = 2;
-    const WLIDX_DATETIMEDESIRED = 3;
-    const WLIDX_DATEORDERED = 4;
-    const WLIDX_MODALITY = 5;
-    const WLIDX_STUDY = 6;
-    const WLIDX_URGENCY = 7;
-    const WLIDX_TRANSPORT = 8;
-    const WLIDX_PATIENTCATEGORYLOCATION = 9;
-    const WLIDX_ANATOMYIMAGESUBSPEC = 10;
-    const WLIDX_WORKFLOWSTATUS = 11;
-    const WLIDX_ASSIGNEDUSER = 12;
-    const WLIDX_ORDERSTATUS = 13;
-    const WLIDX_EDITINGUSER = 14;
-    const WLIDX_SCHEDINFO = 15;
-    const WLIDX_CPRSCODE = 16;
-    const WLIDX_IMAGETYPE = 17;
-    const WLIDX_RANKSCORE = 18;
-    const WLIDX_COUNTPENDINGORDERSSAMEPATIENT = 19;    
-    const WLIDX_MAPPENDINGORDERSSAMEPATIENT = 20;    
-    const WLIDX_EXAMLOCATION = 21;
-    const WLIDX_REQUESTINGPHYSICIAN = 22;
-    const WLIDX_NATUREOFORDERACTIVITY = 23;
-    const WLIDX_ORDERFILEIEN = 24;
-    const WLIDX_RADIOLOGYORDERSTATUS = 25;
-    const WLIDX_ISO8601_DATETIMEDESIRED = 26;
-    const WLIDX_ISO8601_DATEORDERED = 27;
-    
     //Worklist Vista Field Order
     const WLVFO_PatientID             = 1;
     const WLVFO_PatientName           = 2;
@@ -78,6 +48,7 @@ class WorklistData
             throw new \Exception("Cannot get instance of Worklist without context!");
         }
         
+        module_load_include('php', 'raptor_datalayer', 'core/WorklistColumnMap');
         module_load_include('php', 'raptor_glue', 'core/config');
         module_load_include('php', 'raptor_formulas', 'core/MatchOrderToUser');
         module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
@@ -216,11 +187,11 @@ class WorklistData
             $sqlScheduleTrackRow = array_key_exists($ienKey, $scheduleTrackRslt) ? $scheduleTrackRslt[$ienKey] : null; // use IEN from MDWS results as key
 
             $patientID = $exploded[WorklistData::WLVFO_PatientID];
-            $t[WorklistData::WLIDX_TRACKINGID]  = $exploded[0];
-            $t[WorklistData::WLIDX_PATIENTID]   = $patientID; 
-            $t[WorklistData::WLIDX_PATIENTNAME] = $this->formatPatientName($exploded[WorklistData::WLVFO_PatientName]);
+            $t[\raptor\WorklistColumnMap::WLIDX_TRACKINGID]  = $exploded[0];
+            $t[\raptor\WorklistColumnMap::WLIDX_PATIENTID]   = $patientID; 
+            $t[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME] = $this->formatPatientName($exploded[WorklistData::WLVFO_PatientName]);
             $desired_date_raw = $exploded[WorklistData::WLVFO_DesiredDate];
-            $t[WorklistData::WLIDX_DATETIMEDESIRED] = $desired_date_raw;
+            $t[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED] = $desired_date_raw;
             if(strpos($desired_date_raw, '@') !== FALSE)
             {
                 $desired_date_parts=explode('@',$desired_date_raw);
@@ -233,7 +204,7 @@ class WorklistData
                 $desired_date_timestamp = strtotime($desired_date_justdate);  
                 $desired_date_iso8601 = date('Y-m-d',$desired_date_timestamp);
             }
-            $t[WorklistData::WLIDX_ISO8601_DATETIMEDESIRED] = $desired_date_iso8601;
+            $t[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATETIMEDESIRED] = $desired_date_iso8601;
             
             if($exploded[WorklistData::WLVFO_OrderedDate] !== '' && ($last = strrpos($exploded[WorklistData::WLVFO_OrderedDate], ':')) !== FALSE)
             {
@@ -243,7 +214,7 @@ class WorklistData
                 //Assume there is no time portion.
                 $dateordered_raw = $exploded[WorklistData::WLVFO_OrderedDate];
             }
-            $t[WorklistData::WLIDX_DATEORDERED]     = $dateordered_raw;
+            $t[\raptor\WorklistColumnMap::WLIDX_DATEORDERED]     = $dateordered_raw;
             if(strpos($dateordered_raw, '@') !== FALSE)
             {
                 $dateordered_parts=explode('@',$dateordered_raw);
@@ -256,37 +227,37 @@ class WorklistData
                 $dateordered_timestamp = strtotime($dateordered_justdate);  
                 $dateordered_iso8601 = date('Y-m-d',$dateordered_timestamp);
             }
-            $t[WorklistData::WLIDX_ISO8601_DATEORDERED] = $dateordered_iso8601;
+            $t[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATEORDERED] = $dateordered_iso8601;
             
-            $t[WorklistData::WLIDX_STUDY]       = $exploded[WorklistData::WLVFO_Procedure];
-            $t[WorklistData::WLIDX_URGENCY]     = $exploded[WorklistData::WLVFO_Urgency]; 
+            $t[\raptor\WorklistColumnMap::WLIDX_STUDY]       = $exploded[WorklistData::WLVFO_Procedure];
+            $t[\raptor\WorklistColumnMap::WLIDX_URGENCY]     = $exploded[WorklistData::WLVFO_Urgency]; 
             switch(trim($exploded[WorklistData::WLVFO_Transport]))
             {
                 case "a":
-                    $t[WorklistData::WLIDX_TRANSPORT] = "AMBULATORY";
+                    $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = "AMBULATORY";
                     break;
                 case "p":
-                    $t[WorklistData::WLIDX_TRANSPORT] = "PORTABLE";
+                    $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = "PORTABLE";
                     break;
                 case "s":
-                    $t[WorklistData::WLIDX_TRANSPORT] = "STRETCHER";
+                    $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = "STRETCHER";
                     break;
                 case "w":
-                    $t[WorklistData::WLIDX_TRANSPORT] = "WHEEL CHAIR";
+                    $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = "WHEEL CHAIR";
                     break;
                 default:
-                    $t[WorklistData::WLIDX_TRANSPORT] = $exploded[WorklistData::WLVFO_Transport];
+                    $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = $exploded[WorklistData::WLVFO_Transport];
                     break;
             }
-            $t[WorklistData::WLIDX_PATIENTCATEGORYLOCATION]     = $exploded[WorklistData::WLVFO_ExamCategory];
-            $t[WorklistData::WLIDX_ANATOMYIMAGESUBSPEC]         = 'TODO ANATOMY';   //Placeholder for anatomy keywords
-            $t[WorklistData::WLIDX_WORKFLOWSTATUS]              = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : "AC"); // default to "AC"
+            $t[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION]     = $exploded[WorklistData::WLVFO_ExamCategory];
+            $t[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC]         = 'TODO ANATOMY';   //Placeholder for anatomy keywords
+            $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS]              = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : "AC"); // default to "AC"
 
             //Only show an assignment if ticket has not yet moved downstream in the workflow.
-            if($t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'AC' 
-                    || $t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'CO' || $t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'RV')
+            if($t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AC' 
+                    || $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'CO' || $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'RV')
             {
-                $t[WorklistData::WLIDX_ASSIGNEDUSER] = (isset($sqlTicketCollaborationRow) ? array(
+                $t[\raptor\WorklistColumnMap::WLIDX_ASSIGNEDUSER] = (isset($sqlTicketCollaborationRow) ? array(
                                                           'uid'=>$sqlTicketCollaborationRow->collaborator_uid
                                                         , 'requester_notes_tx'=>$sqlTicketCollaborationRow->requester_notes_tx
                                                         , 'requested_dt'=>$sqlTicketCollaborationRow->requested_dt
@@ -295,42 +266,42 @@ class WorklistData
                                                                 . ' ' .$sqlTicketCollaborationRow->lastname. ' ' .$sqlTicketCollaborationRow->suffix )
                                                     ) : NULL);    
             } else {
-                $t[WorklistData::WLIDX_ASSIGNEDUSER] = '';
+                $t[\raptor\WorklistColumnMap::WLIDX_ASSIGNEDUSER] = '';
             }
 
-            $t[WorklistData::WLIDX_ORDERSTATUS]  = '?ORDER STATUS?';   //Placeholder for Order Status
+            $t[\raptor\WorklistColumnMap::WLIDX_ORDERSTATUS]  = '?ORDER STATUS?';   //Placeholder for Order Status
                     
-            $t[WorklistData::WLIDX_EDITINGUSER]      = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
+            $t[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER]      = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
 
-            $t[WorklistData::WLIDX_EXAMLOCATION] = $exploded[WorklistData::WLVFO_ExamLocation];
-            $t[WorklistData::WLIDX_REQUESTINGPHYSICIAN] = $exploded[WorklistData::WLVFO_RequestingPhysician];
+            $t[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = $exploded[WorklistData::WLVFO_ExamLocation];
+            $t[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = $exploded[WorklistData::WLVFO_RequestingPhysician];
             $rfs = trim($exploded[WorklistData::WLVFO_Nature]);
             switch ($rfs)
             {
                 case 'w' :
-                    $t[WorklistData::WLIDX_NATUREOFORDERACTIVITY] = "WRITTEN";
+                    $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "WRITTEN";
                     break;
                 case 'v' :
-                    $t[WorklistData::WLIDX_NATUREOFORDERACTIVITY] = "VERBAL";
+                    $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "VERBAL";
                     break;
                 case 'p' :
-                    $t[WorklistData::WLIDX_NATUREOFORDERACTIVITY] = "TELEPHONED";
+                    $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "TELEPHONED";
                     break;
                 case 's' :
-                    $t[WorklistData::WLIDX_NATUREOFORDERACTIVITY] = "SERVICE CORRECTION";
+                    $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "SERVICE CORRECTION";
                     break;
                 case 'i' :
-                    $t[WorklistData::WLIDX_NATUREOFORDERACTIVITY] = "POLICY";
+                    $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "POLICY";
                     break;
                 case 'e' :
-                    $t[WorklistData::WLIDX_NATUREOFORDERACTIVITY] = "PHYSICIAN ENTERED";
+                    $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "PHYSICIAN ENTERED";
                     break;
                 default :
                     if(strlen($rfs)==0)
                     {
-                        $t[WorklistData::WLIDX_NATUREOFORDERACTIVITY] = "NOT ENTERED";
+                        $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "NOT ENTERED";
                     } else {
-                        $t[WorklistData::WLIDX_NATUREOFORDERACTIVITY] = $rfs;
+                        $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = $rfs;
                     }
                     break;
             }
@@ -384,7 +355,7 @@ class WorklistData
                     //Indicate there is someting to see in the form.
                     $showText = 'See details...';
                 }
-                $t[WorklistData::WLIDX_SCHEDINFO] = array(
+                $t[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = array(
                     'EventDT' => $sqlScheduleTrackRow->scheduled_dt,
                     'LocationTx' => $sqlScheduleTrackRow->location_tx,
                     'ConfirmedDT' => $sqlScheduleTrackRow->confirmed_by_patient_dt,
@@ -394,7 +365,7 @@ class WorklistData
                 print_r($sqlScheduleTrackRow, TRUE);
             } else {
                 //No record exists yet.
-                $t[WorklistData::WLIDX_SCHEDINFO] = array(
+                $t[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = array(
                     'EventDT' => NULL,
                     'LocationTx' => NULL,
                     'ConfirmedDT' => NULL,
@@ -403,29 +374,29 @@ class WorklistData
                 );
             }
 
-            $t[WorklistData::WLIDX_CPRSCODE]    = '';   //Placeholder for the CPRS code associated with this ticket
-            $t[WorklistData::WLIDX_IMAGETYPE]   = $exploded[WorklistData::WLVFO_ImageType];   //Placeholder for Imaging Type - file 75.1, field 3
-            $modality = $language_infer->inferModalityFromPhrase($t[WorklistData::WLIDX_IMAGETYPE]);
+            $t[\raptor\WorklistColumnMap::WLIDX_CPRSCODE]    = '';   //Placeholder for the CPRS code associated with this ticket
+            $t[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE]   = $exploded[WorklistData::WLVFO_ImageType];   //Placeholder for Imaging Type - file 75.1, field 3
+            $modality = $language_infer->inferModalityFromPhrase($t[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE]);
             if($modality == NULL)
             {
-                $modality = $language_infer->inferModalityFromPhrase($t[WorklistData::WLIDX_STUDY]);
+                $modality = $language_infer->inferModalityFromPhrase($t[\raptor\WorklistColumnMap::WLIDX_STUDY]);
             }
 
-            $t[WorklistData::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = -1;  //Important that we allocate something here, will replace later.
+            $t[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = -1;  //Important that we allocate something here, will replace later.
             
-            $t[WorklistData::WLIDX_MODALITY] = 'Unknown';
+            $t[\raptor\WorklistColumnMap::WLIDX_MODALITY] = 'Unknown';
             
             if($modality != '')    //Do not return the row if we cannot determine the modality.  TODO --- Replace this approach!!!!
             {
                 //Count this order as pending for the patient?
-                if($t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'AC'
-                        || $t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'CO'
-                        || $t[WorklistData::WLIDX_WORKFLOWSTATUS] == 'RV')
+                if($t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AC'
+                        || $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'CO'
+                        || $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'RV')
                 {
                     $aPatientPendingOrderMap[$patientID][$ienKey] 
                             = array($ienKey
                                 ,$modality
-                                ,$t[WorklistData::WLIDX_STUDY]);
+                                ,$t[\raptor\WorklistColumnMap::WLIDX_STUDY]);
                     if(isset($aPatientPendingOrderCount[$patientID]))
                     {
                         $aPatientPendingOrderCount[$patientID] +=  1; 
@@ -436,14 +407,14 @@ class WorklistData
                 
                 $nFound++;
                 $offset = $nFound;
-                $t[WorklistData::WLIDX_MODALITY] = $modality;
+                $t[\raptor\WorklistColumnMap::WLIDX_MODALITY] = $modality;
 
                 //Compute the score for this row.
-                $t[WorklistData::WLIDX_RANKSCORE] = $match_order_to_user->getTicketRelevance($t);
+                $t[\raptor\WorklistColumnMap::WLIDX_RANKSCORE] = $match_order_to_user->getTicketRelevance($t);
                         //TicketMetrics::getTicketRelevance($oUserInfo, $t);
                 
-                $t[WorklistData::WLIDX_ORDERFILEIEN] = $exploded[WorklistData::WLVFO_OrderFileIen]; 
-                $t[WorklistData::WLIDX_RADIOLOGYORDERSTATUS] = $exploded[WorklistData::WLVFO_RadOrderStatus]; 
+                $t[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = $exploded[WorklistData::WLVFO_OrderFileIen]; 
+                $t[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS] = $exploded[WorklistData::WLVFO_RadOrderStatus]; 
                 
 
                 //Add this row to the worklist because modality not blank.
@@ -461,15 +432,15 @@ class WorklistData
             if(is_array($t))
             {
                 //Yes, this is a real row.
-                $patientID = $t[WorklistData::WLIDX_PATIENTID];
+                $patientID = $t[\raptor\WorklistColumnMap::WLIDX_PATIENTID];
                 if(isset($aPatientPendingOrderMap[$patientID]))
                 {
-                    $t[WorklistData::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = $aPatientPendingOrderMap[$patientID];
-                    $t[WorklistData::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = $aPatientPendingOrderCount[$patientID];
+                    $t[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = $aPatientPendingOrderMap[$patientID];
+                    $t[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = $aPatientPendingOrderCount[$patientID];
                 } else {
                     //Found no pending orders for this IEN
-                    $t[WorklistData::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = array();;
-                    $t[WorklistData::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 0;
+                    $t[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = array();;
+                    $t[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 0;
                 }
             }
         }
@@ -678,25 +649,25 @@ class WorklistData
                         . 'current tracking id is not set!  '
                         . 'Your session may have timed out.');
             }
-            if(!isset($row[WorklistData::WLIDX_TRACKINGID]))
+            if(!isset($row[\raptor\WorklistColumnMap::WLIDX_TRACKINGID]))
             {
                 $msg = 'Expected to get value in WLIDX_TRACKINGID of dashboard for trackingID=['
                         .$currentTrackingID.'] but did not!';
                 error_log($msg.">>>row details=".print_r($row, TRUE));
                 throw new \Exception($msg);
             }
-            if($currentTrackingID != $row[WorklistData::WLIDX_TRACKINGID])
+            if($currentTrackingID != $row[\raptor\WorklistColumnMap::WLIDX_TRACKINGID])
             {
                 $msg = 'Expected to get dashboard for trackingID=['
                         .$currentTrackingID.'] but got data for ['
-                        .$row[WorklistData::WLIDX_TRACKINGID].'] instead!';
+                        .$row[\raptor\WorklistColumnMap::WLIDX_TRACKINGID].'] instead!';
                 error_log($msg.">>>row details=".print_r($row, TRUE));
                 throw new \Exception($msg);
             }
 
             $siteid = $this->m_oContext->getSiteID();
-            $tid = $row[WorklistData::WLIDX_TRACKINGID];
-            $pid = $row[WorklistData::WLIDX_PATIENTID];
+            $tid = $row[\raptor\WorklistColumnMap::WLIDX_TRACKINGID];
+            $pid = $row[\raptor\WorklistColumnMap::WLIDX_PATIENTID];
             $oPatientData = $this->getPatient($pid);
             if($oPatientData == NULL)
             {
@@ -728,28 +699,28 @@ class WorklistData
             // may be more to return here in the future
 
             $t['Tracking ID']       = $siteid.'-'.$tid;
-            $t['Procedure']         = $row[WorklistData::WLIDX_STUDY];
-            $t['Modality']          = $row[WorklistData::WLIDX_MODALITY];
+            $t['Procedure']         = $row[\raptor\WorklistColumnMap::WLIDX_STUDY];
+            $t['Modality']          = $row[\raptor\WorklistColumnMap::WLIDX_MODALITY];
 
-            $t['ExamCategory']      = $row[WorklistData::WLIDX_PATIENTCATEGORYLOCATION];
-            $t['PatientLocation']   = $row[WorklistData::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
-            $t['RequestedBy']       = $row[WorklistData::WLIDX_REQUESTINGPHYSICIAN];
+            $t['ExamCategory']      = $row[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION];
+            $t['PatientLocation']   = $row[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
+            $t['RequestedBy']       = $row[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN];
 
             // ATTENTION FRANK: new indices for requesting location and submit to location
             $t['RequestingLocation']= trim((isset($worklistItemDict['22']['I']) ? $worklistItemDict['22']['I'] : '') );
             $t['SubmitToLocation']  = trim((isset($worklistItemDict['20']['I']) ? $worklistItemDict['20']['I'] : '') );
             // END ATTN FRANK
 
-            $aSchedInfo = $row[WorklistData::WLIDX_SCHEDINFO];
+            $aSchedInfo = $row[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO];
             $t['SchedInfo']         = $aSchedInfo;
-            $t['RequestedDate']     = $row[WorklistData::WLIDX_DATEORDERED]; 
-            $t['DesiredDate']       = $row[WorklistData::WLIDX_DATETIMEDESIRED]; 
+            $t['RequestedDate']     = $row[\raptor\WorklistColumnMap::WLIDX_DATEORDERED]; 
+            $t['DesiredDate']       = $row[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED]; 
             $t['ScheduledDate']     = $aSchedInfo['EventDT'];
 
-            $t['PatientCategory']   = $row[WorklistData::WLIDX_PATIENTCATEGORYLOCATION];
+            $t['PatientCategory']   = $row[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION];
             // changed reason for study to real RFS, added 'NatureOfOrderActivity' key 
             $t['ReasonForStudy']    = trim((isset($worklistItemDict['1.1']['I']) ? $worklistItemDict['1.1']['I'] : '') );
-            $t['NatureOfOrderActivity'] = $row[WorklistData::WLIDX_NATUREOFORDERACTIVITY];
+            $t['NatureOfOrderActivity'] = $row[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY];
 
             $t['RequestingLocation'] = trim((isset($worklistItemDict['22']['E']) ? $worklistItemDict['22']['E'] : '') );
             $t['RequestingLocationIen'] = trim((isset($worklistItemDict['22']['I']) ? $worklistItemDict['22']['I'] : '') );
@@ -757,20 +728,20 @@ class WorklistData
             $t['ClinicalHistory']   = trim((isset($worklistItemDict['400']) ? $worklistItemDict['400'] : '') );
             $t['PatientID']         = $pid;
             $t['PatientSSN']        = WorklistData::formatSSN($oPatientData['ssn']);
-            $t['Urgency']           = $row[WorklistData::WLIDX_URGENCY];
-            $t['Transport']         = $row[WorklistData::WLIDX_TRANSPORT];
-            $t['PatientName']       = $row[WorklistData::WLIDX_PATIENTNAME];
+            $t['Urgency']           = $row[\raptor\WorklistColumnMap::WLIDX_URGENCY];
+            $t['Transport']         = $row[\raptor\WorklistColumnMap::WLIDX_TRANSPORT];
+            $t['PatientName']       = $row[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME];
             $t['PatientAge']        = $oPatientData['age'];
             $t['PatientDOB']        = $oPatientData['dob'];
             $t['PatientEthnicity']  = $oPatientData['ethnicity'];
             $t['PatientGender']     = $oPatientData['gender'];
-            $t['ImageType']         = $row[WorklistData::WLIDX_IMAGETYPE];
+            $t['ImageType']         = $row[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE];
             $t['mpiPid']            = $oPatientData['mpiPid'];
             $t['mpiChecksum']       = $oPatientData['mpiChecksum'];
-            $t['CountPendingOrders']   = $row[WorklistData::WLIDX_COUNTPENDINGORDERSSAMEPATIENT];
-            $t['MapPendingOrders']     = $row[WorklistData::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
-            $t['OrderFileIen']          = $row[WorklistData::WLIDX_ORDERFILEIEN];
-            $t['RadiologyOrderStatus']  = $row[WorklistData::WLIDX_RADIOLOGYORDERSTATUS];
+            $t['CountPendingOrders']   = $row[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT];
+            $t['MapPendingOrders']     = $row[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
+            $t['OrderFileIen']          = $row[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN];
+            $t['RadiologyOrderStatus']  = $row[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS];
             return $t;
             
         } catch (\Exception $ex) {

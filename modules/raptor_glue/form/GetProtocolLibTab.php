@@ -66,9 +66,10 @@ class GetProtocolLibTab
         $sTrackingID = $oTT->getTrackingID($sSiteID,$nIEN);
         if($nIEN > '')
         {
-            $oWL = new \raptor\WorklistData($this->m_oContext);
-            $aOneRow = $oWL->getDashboardMap();
-
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOneRow = $oWL->getDashboardMap();
+            $mdwsDao = $this->m_oContext->getMdwsClient();
+            $aOneRow = $mdwsDao->getDashboardDetailsMap();
             $myvalues = array();
             $myvalues['IEN'] = $nIEN;
             $myvalues['procName'] = $aOneRow['Procedure'];

@@ -16,7 +16,7 @@ namespace raptor_sched;
 
 module_load_include('php', 'raptor_datalayer', 'core/data_context');
 module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+//module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
 module_load_include('php', 'raptor_datalayer', 'core/vista_integration');
 //module_load_include('php', 'raptor_datalayer', 'core/MdwsDao');
@@ -47,8 +47,10 @@ class ScheduleTicketPage
     {
         $tid = $this->m_oContext->getSelectedTrackingID();
         
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOneRow = $oWL->getDashboardMap();
+        //$oWL = new \raptor\WorklistData($this->m_oContext);
+        //$aOneRow = $oWL->getDashboardMap();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aOneRow = $mdwsDao->getDashboardDetailsMap();
         //$aOneRow = $oWL->getOneWorklistRow();   //$tid);
         $nSiteID = $this->m_oContext->getSiteID();
         

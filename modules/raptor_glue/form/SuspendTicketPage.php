@@ -15,7 +15,7 @@ namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
 require_once ('FormHelper.php');
-module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+//module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 
 /**
  * Implements the suspend ticket page.
@@ -41,8 +41,10 @@ class SuspendTicketPage
     {
         $tid = $this->m_oContext->getSelectedTrackingID();
         
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aOneRow = $oWL->getDashboardMap();    //$tid);
+        //$oWL = new \raptor\WorklistData($this->m_oContext);
+        //$aOneRow = $oWL->getDashboardMap();    //$tid);
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aOneRow = $mdwsDao->getDashboardDetailsMap();
         $nSiteID = $this->m_oContext->getSiteID();
         
         $nIEN = $tid;

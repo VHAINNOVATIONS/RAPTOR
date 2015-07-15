@@ -232,7 +232,7 @@ function raptor_glue_page_alter(&$page)
 
                 //error_log('IN PAGEALTER worklist >>>[' . $currentpath . '] and [' . $currentpage . ']');
 
-                module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
+                //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 
                 //Clear any batch values from the session if any exist.
                 $oContext->clearPersonalBatchStack();
