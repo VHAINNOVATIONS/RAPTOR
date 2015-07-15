@@ -273,6 +273,12 @@ class RuntimeResultFlexCache
             if($item_data != NULL)
             {
                 $myblob = serialize($item_data);
+                $itemsize = strlen($myblob);
+                if($itemsize > MAX_CACHE_ITEM_SIZE)
+                {
+                    error_log("WARNING item {$this->m_sGroupName}[$item_name] will not be cached because it is too big to cache! Size=$itemsize");
+                    return;
+                }
             } else {
                 $myblob = NULL;
             }
@@ -293,7 +299,7 @@ class RuntimeResultFlexCache
                 ))
                 ->execute();
         } catch (\Exception $ex) {
-            throw $ex;
+            throw new \Exception("Failed updateRaptorCacheData($item_name)",99765,$ex);
         }
     }
 
@@ -328,7 +334,7 @@ class RuntimeResultFlexCache
                 ))
                 ->execute();
         } catch (\Exception $ex) {
-            throw $ex;
+            throw new \Exception("Failed updateRaptorCacheFlag($item_name,$flag_name)",99765,$ex);
         }
     }
 
@@ -400,11 +406,16 @@ class RuntimeResultFlexCache
      */
     public function addToCache($sThisResultName,$aResult,$nMaxDataAgeSeconds=600)
     {
-        $this->updateRaptorCacheData(
-            5
-            ,$nMaxDataAgeSeconds
-            ,$sThisResultName
-            ,$aResult);        
+        try
+        {
+            $this->updateRaptorCacheData(
+                5
+                ,$nMaxDataAgeSeconds
+                ,$sThisResultName
+                ,$aResult);        
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed addToCache($sThisResultName)",99876,$ex);
+        }
     }
     
     /**

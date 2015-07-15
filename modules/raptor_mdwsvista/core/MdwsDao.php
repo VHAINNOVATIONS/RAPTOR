@@ -19,6 +19,8 @@ require_once 'MdwsUtils.php';
 
 class MdwsDao implements IMdwsDao 
 {
+    private $m_groupname = 'MdwsDaoGroup';
+    
     private $instanceTimestamp;
     private $authenticationTimestamp;
     private $errorCount;
@@ -32,9 +34,6 @@ class MdwsDao implements IMdwsDao
     private $duz;
     private $selectedPatient;
     
-    private $m_oContext = NULL;
-    private $m_oRuntimeResultFlexCache = NULL;
-    
     public function __construct() 
     {
         //Load relevant modules
@@ -42,33 +41,7 @@ class MdwsDao implements IMdwsDao
         module_load_include('php', 'raptor_datalayer', 'core/data_context');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         $this->instanceTimestamp = microtime();
-        error_log('Created MdwsDao instance ' . $this->instanceTimestamp);
-    }
-    
-    public function hasContext()
-    {
-        return $this->m_oContext != NULL;
-    }
-    
-    public function setContext($oContext)
-    {
-        if($oContext == NULL)
-        {
-            throw new \Exception("Cannot have dao without context!");
-        }
-        $this->m_oContext = $oContext;
-        
-        //Initialize critical settings
-        $uid = $this->m_oContext->getUID();
-        if($uid > '')
-        {
-            //Only initialize cache if we have a user
-            $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance("MdwsDao[$uid]");
-            error_log("LOOK initialized runtimeflexcache>>>".$this->m_oRuntimeResultFlexCache);
-        } else {
-            error_log("LOOK setContext with NO runtimeflexcache [$uid]>>>".$this->m_oContext);
-            $this->m_oRuntimeResultFlexCache = NULL;
-        }
+        error_log('LOOK Created MdwsDao instance ' . $this->instanceTimestamp);
         $this->errorCount = 0; // initializing for clarity
         $this->initClient();
     }
@@ -365,51 +338,75 @@ class MdwsDao implements IMdwsDao
      */
     function getDashboardDetailsMap($override_tracking_id=NULL)
     {
-        if($override_tracking_id == NULL)
+        $aResult = array();
+        $oContext = \raptor\Context::getInstance();
+        if($oContext != NULL)
         {
-            $tid = $this->m_oContext->getSelectedTrackingID();
-        } else {
-            $tid = $override_tracking_id;
+            if($override_tracking_id == NULL)
+            {
+                $tid = $oContext->getSelectedTrackingID();
+            } else {
+                $tid = $override_tracking_id;
+            }
+            $oRuntimeResultFlexCacheHanlder = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if($oRuntimeResultFlexCacheHanlder != NULL)
+            {
+                $sThisResultName = "getDashboardDetailsMap[$tid]";
+                $aCachedResult = $oRuntimeResultFlexCacheHanlder->checkCache($sThisResultName);
+                if($aCachedResult !== NULL)
+                {
+                    //Found it in the cache!
+                    return $aCachedResult;
+                }
+            }
+
+            //Create it now and add it to the cache
+            $oWL = new \raptor\WorklistData($oContext);
+            $aResult = $oWL->getDashboardMap();
+            if($oRuntimeResultFlexCacheHanlder != NULL)
+            {
+                $oRuntimeResultFlexCacheHanlder->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+            }
         }
-        $sThisResultName = "getDashboardDetailsMap[$tid]";
-        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
-        if($aCachedResult !== NULL)
-        {
-            //Found it in the cache!
-            return $aCachedResult;
-        }
-        
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aResult = $oWL->getDashboardMap();
-        
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
         return $aResult;
     }
     
     public function getWorklistDetailsMap() 
     {
-        error_log("LOOK getWorklistDetailsMap>>>".$this->m_oContext);
-        if($this->m_oRuntimeResultFlexCache == NULL)
+        try 
         {
-            error_log("LOOK getWorklistDetailsMap NO CACHE INITIALIZED>>>".$this->m_oContext);
-            $oWL = new \raptor\WorklistData($this->m_oContext);
-            return $oWL->getWorklistRows();
-        }
+            $aResult = array();
+            $oContext = \raptor\Context::getInstance();
+            if($oContext != NULL)
+            {
+                $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+                $sThisResultName = 'getWorklistDetailsMap';
+                if($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
+                    if($aCachedResult !== NULL)
+                    {
+                        //Found it in the cache!
+                        return $aCachedResult;
+                    }
+                }
 
-        //Check the cache first
-        error_log("LOOK getWorklistDetailsMap YES CACHE INITIALIZED>>>".$this->m_oContext);
-        $sThisResultName = "getWorklistDetailsMap";
-        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
-        if($aCachedResult !== NULL)
-        {
-            //Found it in the cache!
-            return $aCachedResult;
+                //Create it now and add it to the cache
+                $oWL = new \raptor\WorklistData($oContext);
+                $aResult = $oWL->getWorklistRows();
+                if($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    try
+                    {
+                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+                    } catch (\Exception $ex) {
+                        error_log("Failed to cache $sThisResultName result because ".$ex->getMessage());
+                    }
+                }
+            }
+            return $aResult;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed to getWorklistDetailsMap",99876,$ex);
         }
-
-        $oWL = new \raptor\WorklistData($this->m_oContext);
-        $aResult = $oWL->getWorklistRows();
-        
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
-        return $aResult;
     }
 }

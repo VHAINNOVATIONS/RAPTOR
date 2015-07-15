@@ -285,7 +285,8 @@ function raptor_glue_page_alter(&$page)
         } catch (\Exception $ex) {
             //We should never be here, but if we do end up here let the login
             global $base_url;
-            error_log('PAGEALTER Sending to logout because '.$ex->getMessage());
+            error_log('PAGEALTER Sending to logout because '.$ex->getMessage() 
+                    . ">>>\nerror details...".print_r($ex,TRUE));
             if(user_is_logged_in())
             {
                 $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';

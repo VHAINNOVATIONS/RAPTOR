@@ -21,7 +21,7 @@ require_once 'VistaDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150605A');
+    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150715A');
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -42,6 +42,8 @@ class Context
     private $m_nInstanceUserActionTimestamp = NULL;     //Periodically update to check for timeout
     private $m_nInstanceSystemActionTimestamp = NULL;   //Periodically update for internal tuning
 
+    private $m_oRuntimeResultFlexCacheHandler = array();    //20150715
+    
     private $m_sCurrentTicketID = NULL;
     private $m_aPersonalBatchStack = NULL;
     private $m_sPersonalBatchStackMessage = NULL;
@@ -615,6 +617,7 @@ class Context
             }
         }
         
+        $candidate->getMdwsClient();    //Side effect of setting the context in the dao
         return $candidate;
     }
     
@@ -971,23 +974,6 @@ class Context
         return $this->getMdwsClient()->isAuthenticated();
     }
 
-    private function getContextHtmlDebugInfo()
-    {
-        return 'CONTEXT INFORMATION-><ol>'
-                . '<li>Created=' . $this->m_nInstanceTimestamp 
-                . "<li>"
-                . 'Cleared=' . $this->m_nInstanceClearedTimestamp
-                . "<li>"
-                . 'UID=' . $this->m_nUID
-                . "<li>"
-                . 'UserName=' . $this->m_sVistaUserID
-                . "<li>"
-                . 'CTID=' . $this->m_sCurrentTicketID
-                . "<li>"
-                . 'PBS=' . print_r($this->m_aPersonalBatchStack,TRUE)
-                . "</ol>";
-    }
-    
     private function clearAllContext()
     {
         $this->logoutMdwsSubsystem();
@@ -1220,14 +1206,51 @@ class Context
      */
     public function getMdwsClient($bRefreshConnection=FALSE)
     {
+        error_log("LOOK Getting the MdwsDao NOW from context ".$this);
+        /*
         if (!isset($this->m_mdwsClient) 
                 || $this->m_mdwsClient == NULL 
-                || !$this->m_mdwsClient->hasContext())
+                || (!$this->m_mdwsClient->hasContext() && $this->getUID() > 0))
         {
-            error_log("Setting the MdwsDao NOW");
+            error_log("LOOK Setting the MdwsDao NOW from context ".$this);
             $this->m_mdwsClient = MdwsDaoFactory::getMdwsDao(MDWS_EMR_FACADE);
             $this->m_mdwsClient->setContext($this);
         }
+         */
+        if($this->m_mdwsClient == NULL)
+        {
+            $this->m_mdwsClient = new \raptor\MdwsDao();
+        }
         return $this->m_mdwsClient;
+    }
+    
+    /**
+     * Returns NULL if no cache handler is available.
+     */
+    public function getRuntimeResultFlexCacheHandler($groupname,$embedUID=TRUE)
+    {
+        $handler = NULL;
+        $uid = $this->getUID();
+        if($uid > 0)
+        {
+            if($embedUID)
+            {
+                $groupname = "u:{$uid}_g:{$groupname}";
+            }
+            if(!isset($this->m_oRuntimeResultFlexCacheHandler[$groupname]))
+            {
+                $this->m_oRuntimeResultFlexCacheHandler[$groupname] = \raptor\RuntimeResultFlexCache::getInstance($groupname);
+            }
+            $handler = $this->m_oRuntimeResultFlexCacheHandler[$groupname];
+        } else {
+            if(!$embedUID)
+            {
+                if(isset($this->m_oRuntimeResultFlexCacheHandler[$groupname]))
+                {
+                    $handler = $this->m_oRuntimeResultFlexCacheHandler[$groupname];
+                }
+            }
+        }
+        return $handler;
     }
 }
