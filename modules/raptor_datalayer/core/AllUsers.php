@@ -13,8 +13,7 @@
 
 namespace raptor;
 
-//require_once 'data_utility.php';
-//require_once 'UserInfo.php';
+require_once 'UserInfo.php';
 
 /**
  * The context has all the details relevant to a user

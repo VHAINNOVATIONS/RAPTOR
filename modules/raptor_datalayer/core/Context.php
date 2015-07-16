@@ -13,16 +13,15 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
+module_load_include('php', 'raptor_datalayer', 'config/ehr_integration');
 
-require_once 'data_utility.php';
 require_once 'CustomKeywords.php';
 require_once 'UserInfo.php';
 require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150716A');
+    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150716B');
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);

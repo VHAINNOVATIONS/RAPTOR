@@ -22,7 +22,7 @@ function raptor_ewdvista_help($path, $arg)
   switch ($path)
   {
     case "admin/help#raptor_ewdvista":
-      return '<p>'.  t("Integration with VistA for the RAPTOR application"). '</p>';
+      return '<p>'.  t("Integration with VistA for the RAPTOR application using EWD"). '</p>';
       break;
   }
 }

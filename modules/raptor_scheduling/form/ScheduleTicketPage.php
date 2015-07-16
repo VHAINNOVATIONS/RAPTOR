@@ -16,7 +16,7 @@ namespace raptor_sched;
 
 module_load_include('php', 'raptor_datalayer', 'core/Context');
 module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
-module_load_include('php', 'raptor_datalayer', 'core/vista_integration');
+module_load_include('php', 'raptor_datalayer', 'core/ehr_integration');
 
 /**
  * Implements the schedule ticket/pass box page.

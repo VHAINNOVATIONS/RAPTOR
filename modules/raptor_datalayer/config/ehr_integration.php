@@ -12,5 +12,7 @@
  * 
  */ 
 
+
+//Include the loader file from the module that integrates with the EHR system
 module_load_include('php', 'raptor_mdwsvista', 'core/load_all_modules');
 

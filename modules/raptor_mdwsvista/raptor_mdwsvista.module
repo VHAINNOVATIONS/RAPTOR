@@ -21,7 +21,7 @@ function raptor_mdwsvista_help($path, $arg)
   switch ($path)
   {
     case "admin/help#raptor_mdwsvista":
-      return '<p>'.  t("A module that integrates RAPTOR with VistA data sources by utilizing MDWS"). '</p>';
+      return '<p>'.  t("Integrates RAPTOR with VistA data sources by utilizing MDWS"). '</p>';
       break;
   }
 }

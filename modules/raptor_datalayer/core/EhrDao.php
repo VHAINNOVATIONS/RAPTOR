@@ -32,7 +32,7 @@ class EhrDao implements \raptor\IEhrDao
     {
         $this->instanceTimestamp = time();
         error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
-        module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
+        module_load_include('php', 'raptor_datalayer', 'config/ehr_integration');
         $classname = EHR_INT_IMPL_DAO_CLASSNAME;
         $namespace = EHR_INT_IMPL_DAO_NAMESPACE;
         $class = "\\$namespace\\$classname";

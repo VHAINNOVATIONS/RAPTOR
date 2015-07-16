@@ -13,8 +13,6 @@
 
 namespace raptor;
 
-//require_once 'data_utility.php';
-
 /**
  * This returns values for pick lists.
  *
