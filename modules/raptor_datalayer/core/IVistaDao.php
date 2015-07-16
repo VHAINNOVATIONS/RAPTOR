@@ -62,6 +62,11 @@ interface IVistaDao
      * Get associative array of dashboard for one order.
      */
     public function getDashboardDetailsMap($override_tracking_id);
+
+    /**
+     * Get the EHR User ID of the user currently logged in.
+     */
+    public function getEHRUserID($fail_if_missing=TRUE);
     
     public function createNewRadiologyOrder($orderChecks, $args);
     public function createUnsignedRadiologyOrder($orderChecks, $args);
@@ -69,9 +74,9 @@ interface IVistaDao
     public function getRadiologyOrderChecks($args);
     public function getRadiologyOrderDialog($imagingTypeId, $patientId);
     public function getProviders($neworderprovider_name);
-    public function getUserSecurityKeys($userDuz);
-    public function isProvider($myDuz);
-    public function userHasKeyOREMAS($myDuz);
+    public function getUserSecurityKeys();
+    public function isProvider();
+    public function userHasKeyOREMAS();
     public function cancelRadiologyOrder($patientid,$orderFileIen,$providerDUZ,$locationthing,$reasonCode, $cancelesig);
     public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs=1000);
     public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
@@ -81,7 +86,7 @@ interface IVistaDao
     public function getOrderDetails($myIEN);
     public function getRadiologyCancellationReasons();
     public function getVisits();
-    public function signNote($newNoteIen, $userDuz, $eSig);
+    public function signNote($newNoteIen, $eSig);
     public function validateEsig($eSig);
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ);

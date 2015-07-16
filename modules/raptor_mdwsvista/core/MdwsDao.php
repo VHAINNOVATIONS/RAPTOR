@@ -66,7 +66,10 @@ class MdwsDao implements IMdwsDao
             return 'MdwsDao instance created at ' . $this->instanceTimestamp
                     . ' current error count=[' . $this->errorCount . ']'
                     . ' isAuthenticated=[' . $this->isAuthenticated . ']'
-                    . ' selectedPatient=[' . $this->selectedPatient . '] duz=[' . $this->duz . ']';
+                    . ' selectedPatient=[' . $this->selectedPatient . ']'
+                    . ' duz=[' 
+                    . $this->duz 
+                    . ']';
         } catch (\Exception $ex) {
             return 'Cannot get toString of MdwsDao because ' . $ex;
         }
@@ -109,7 +112,8 @@ class MdwsDao implements IMdwsDao
         //  if ($retryLimit < 0) {
         //      die('Retry limit exceeded in MdwsDao->makeQuery for '.$functionToInvoke.' with args: '.print_r($args));
         //  }
-        try {
+        try 
+        {
             // use the DAO factory to obtain the correct SOAP client
             // use the previous SOAP request/response headers to set the ASP.NET_SessionID header if the facde has changed
             //error_log('About to get getFacadeNameByFunction '.microtime());
@@ -164,13 +168,17 @@ class MdwsDao implements IMdwsDao
                 }
             } else
             {
+                $soapinfo = isset($TOResult->fault->message) ? ' soapfault='.$TOResult->fault->message : '';
+                $synopsis="Did NOT find value for soapResult->{$resultVarName}";
                 $stacktrace = \raptor\Context::debugGetCallerInfo(10);
-                error_log("Unexpected fault in makeQuery($functionToInvoke)>>>TOResult="
-                        . print_r($TOResult, TRUE)
+                error_log("Unexpected fault in makeQuery($functionToInvoke)"
+                        . "\n\tError summary=$synopsis"
                         . "\n\tInput args=" . print_r($args, TRUE)
+                        . "\n\tRawSoap=".print_r($soapResult,TRUE)        
                         . "\nStack trace... " . $stacktrace);
-                throw new \Exception("MdwsDao->makeQuery($functionToInvoke) unhandled exception: "
-                . $TOResult->fault->message
+                throw new \Exception("$synopsis in makeQuery($functionToInvoke)"
+                . $soapinfo
+                . " RawSoap=".print_r($soapResult,TRUE)        
                 . "<br>Stack trace..." . $stacktrace);
             }
 
@@ -178,7 +186,8 @@ class MdwsDao implements IMdwsDao
         } catch (\Exception $ex) {
             if (strpos($ex->getMessage(), "connection was forcibly closed") !== FALSE)
             {
-                error_log("Exception in makeQuery($functionToInvoke) --- connection was closed makeQuery>>>" . $ex->getMessage());
+                error_log("Exception in makeQuery($functionToInvoke) --- connection was closed makeQuery>>>" 
+                        . $ex->getMessage());
                 $this->initClient();
                 $this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                 return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
@@ -186,7 +195,9 @@ class MdwsDao implements IMdwsDao
             // any other exceptions that may be related to timeout? add here as found
             else
             {
-                error_log("Exception in makeQuery($functionToInvoke) --- about to throw exception in makeQuery/else>>>" . $ex->getMessage() . '<br>TOResult=' . print_r($TOResult, TRUE));
+                error_log("Exception in makeQuery($functionToInvoke) --- about to throw exception in makeQuery/else>>>" 
+                        . "\nError Message=".$ex->getMessage() 
+                        . "\n\t$resultVarName=" . print_r($resultVarName, TRUE));
                 throw $ex;
             }
         }
@@ -236,7 +247,10 @@ class MdwsDao implements IMdwsDao
             $this->userVerifyCode = $password;
             $this->duz = $TOResult->DUZ;
 
-            error_log('Authenticated in MdwsDao ' . $this->instanceTimestamp . ' at ' . $this->authenticationTimestamp);
+            error_log("Authenticated in MdwsDao as duz={$this->duz} " 
+                    . $this->instanceTimestamp 
+                    . ' at ' 
+                    . $this->authenticationTimestamp);
 
             // transparently re-select last selected patient
             if (isset($this->selectedPatient) && $this->selectedPatient != '')
@@ -245,7 +259,7 @@ class MdwsDao implements IMdwsDao
                 $this->makeQuery('select', array('DFN' => $this->selectedPatient));
             }
 
-            error_log('Finished connectAndLogin at ' . microtime());
+            error_log("Finished connectAndLogin duz={$this->duz} at " . microtime());
             return $loginResult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -262,11 +276,23 @@ class MdwsDao implements IMdwsDao
         return $this->isAuthenticated;
     }
 
-    public function getDUZ()
+    /**
+     * @deprecated use getEHRUserID instead!
+     */
+    function getDUZ($fail_if_missing=TRUE)
+    {
+        return $this->getEHRUserID($fail_if_missing);
+    }
+    
+    public function getEHRUserID($fail_if_missing=TRUE)
     {
         if (!$this->isAuthenticated)
         {
             throw new \Exception('Not authenticated');
+        }
+        if($fail_if_missing && trim($this->duz) == '')
+        {
+            throw new \Exception("Did NOT find an EHR user id value in ".$this);
         }
         return $this->duz;
     }
@@ -603,19 +629,21 @@ class MdwsDao implements IMdwsDao
         return \raptor\MdwsUserUtils::getProviders($this, $neworderprovider_name);
     }
 
-    public function getUserSecurityKeys($userDuz)
+    public function getUserSecurityKeys()
     {
-        return \raptor\MdwsUserUtils::getUserSecurityKeys($this, $userDuz);
+        return \raptor\MdwsUserUtils::getUserSecurityKeys($this);
     }
 
-    public function isProvider($myDuz)
+    public function isProvider()
     {
-        return \raptor\MdwsUserUtils::isProvider($this, $myDuz);
+        $userDuz = $this->getDUZ();
+        return \raptor\MdwsUserUtils::isProvider($this, $userDuz);
     }
 
-    public function userHasKeyOREMAS($myDuz)
+    public function userHasKeyOREMAS()
     {
-        return \raptor\MdwsUserUtils::userHasKeyOREMAS($this, $myDuz);
+        $userDuz = $this->getDUZ();
+        return \raptor\MdwsUserUtils::userHasKeyOREMAS($this, $userDuz);
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
@@ -663,9 +691,10 @@ class MdwsDao implements IMdwsDao
         return \raptor\MdwsUtils::getVisits($this);
     }
 
-    public function signNote($newNoteIen, $userDuz, $eSig)
+    public function signNote($newNoteIen, $eSig)
     {
-        return \raptor\MdwsUtils::signNote($this, $newNoteIen, $userDuz, $eSig);
+        $userDuz = $this->getDUZ();
+        return \raptor\MdwsUtils::signNote($this, $newNoteIen, $eSig);
     }
 
     public function validateEsig($eSig)

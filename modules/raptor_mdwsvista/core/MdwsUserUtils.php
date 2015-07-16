@@ -18,37 +18,47 @@ require_once 'MdwsStringUtils.php';
 
 class MdwsUserUtils {
 
-    public static function getUserSecurityKeys($mdwsDao, $userDuz) 
+    public static function getUserSecurityKeys($mdwsDao) 
     {
-        $soapResult = $mdwsDao->makeQuery('getUserSecurityKeys', array('uid'=>$userDuz));
-        
-        if (!(isset($soapResult->getUserSecurityKeysResult)) ||
-                isset($soapResult->getUserSecurityKeysResult->fault)) {
-            throw new \Exception('There was a problem fetching the user security keys: '
-                    .$soapResult->getUserSecurityKeysResult->fault);
-        }
-        
-        $result= array();
-        $keysTO = $soapResult->getUserSecurityKeysResult;
-        $keyCount = $soapResult->getUserSecurityKeysResult->count;
-        
-        if ($keyCount == 0) {
+        try 
+        {
+            $userDuz = $mdwsDao->getDUZ();
+            if(trim($userDuz) == '')
+            {
+                throw new \Exception("Missing DUZ for ".$mdwsDao);
+            }
+            $soapResult = $mdwsDao->makeQuery('getUserSecurityKeys', array('uid'=>$userDuz));
+
+            if (!(isset($soapResult->getUserSecurityKeysResult)) ||
+                    isset($soapResult->getUserSecurityKeysResult->fault)) {
+                throw new \Exception('There was a problem fetching the user security keys: '
+                        .$soapResult->getUserSecurityKeysResult->fault);
+            }
+
+            $result= array();
+            $keysTO = $soapResult->getUserSecurityKeysResult;
+            $keyCount = $soapResult->getUserSecurityKeysResult->count;
+
+            if ($keyCount == 0) {
+                return $result;
+            }
+
+            if (isset($keysTO->keys->UserSecurityKeyTO) && is_array($keysTO->keys->UserSecurityKeyTO)) {
+                $keysTO = $keysTO->keys->UserSecurityKeyTO;
+            } else {
+                $keysTO = array($keysTO->keys);
+            }
+
+            for ($i = 0; $i < $keyCount; $i++) {
+                $keyId = $keysTO[$i]->id;
+                $keyName = $keysTO[$i]->name;
+                $result[$keyId] = $keyName;
+            }
+
             return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        if (isset($keysTO->keys->UserSecurityKeyTO) && is_array($keysTO->keys->UserSecurityKeyTO)) {
-            $keysTO = $keysTO->keys->UserSecurityKeyTO;
-        } else {
-            $keysTO = array($keysTO->keys);
-        }
-        
-        for ($i = 0; $i < $keyCount; $i++) {
-            $keyId = $keysTO[$i]->id;
-            $keyName = $keysTO[$i]->name;
-            $result[$keyId] = $keyName;
-        }
-        
-        return $result;
     }
     
     public static function userHasKey($mdwsDao, $userDuz, $keyName) 

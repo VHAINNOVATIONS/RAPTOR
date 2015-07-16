@@ -93,15 +93,6 @@ class VistaDao implements IVistaDao
         return $aResult;
     }
     
-    /**
-     * Not intended as a primary public interface
-     * @deprecated USE SPECIAL PURPOSE FUNCTION CALLS INSTEAD OF THIS ONE!!!!
-     */
-    function makeQuery($functionToInvoke, $args) 
-    {
-        return $this->m_implclass->makeQuery($functionToInvoke, $args);
-    }
-
     public function getWorklistDetailsMap()
     {
         return $this->m_implclass->getWorklistDetailsMap();
@@ -119,117 +110,122 @@ class VistaDao implements IVistaDao
     
     public function createNewRadiologyOrder($orderChecks, $args)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->createNewRadiologyOrder($orderChecks, $args);
     }
 
     public function createUnsignedRadiologyOrder($orderChecks, $args)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->createUnsignedRadiologyOrder($orderChecks, $args);
     }
 
     public function getOrderableItems($imagingTypeId)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getOrderableItems($imagingTypeId);
     }
 
     public function getRadiologyOrderChecks($args)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getRadiologyOrderChecks($args);
     }
 
     public function getRadiologyOrderDialog($imagingTypeId, $patientId)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getRadiologyOrderDialog($imagingTypeId, $patientId);
     }
 
     public function getProviders($neworderprovider_name)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getProviders($neworderprovider_name);
     }
 
-    public function getUserSecurityKeys($userDuz)
+    public function getUserSecurityKeys()
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getUserSecurityKeys();
     }
 
-    public function isProvider($myDuz)
+    public function isProvider()
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->isProvider();
     }
 
-    public function userHasKeyOREMAS($myDuz)
+    public function userHasKeyOREMAS()
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->userHasKeyOREMAS();
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
     public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
     }
 
     public function getChemHemLabs()
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getChemHemLabs();
     }
 
     public function getEncounterStringFromVisit($vistitTo)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getEncounterStringFromVisit($vistitTo);
     }
 
     public function getHospitalLocations($startingitem)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getHospitalLocations($startingitem);
     }
 
     public function getOrderDetails($myIEN)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getOrderDetails($myIEN);
     }
 
     public function getRadiologyCancellationReasons()
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getRadiologyCancellationReasons();
     }
 
     public function getVisits()
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->getVisits();
     }
 
-    public function signNote($newNoteIen, $userDuz, $eSig)
+    public function signNote($newNoteIen, $eSig)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->signNote($newNoteIen, $eSig);
     }
 
     public function validateEsig($eSig)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->validateEsig($eSig);
     }
 
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);
     }
 
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ);
     }
 
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ);
     }
 
     public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs = 1000)
     {
-        throw new \Exception("Not implemented yet");
+        return $this->m_implclass->convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs);
+    }
+
+    public function getEHRUserID($fail_if_missing=TRUE)
+    {
+        return $this->m_implclass->getEHRUserID($fail_if_missing);
     }
 
 }

@@ -134,14 +134,16 @@ class raptor_datalayer_Choices
         return $aList;
     }
     
-    
+    /**
+     * If value is found in list, then returns the value.
+     */
     public static function getListItemFromArray($aValues,$sFindID,$sAltValue='')
     {
         foreach($aValues as $sValue)
         {
             if($sFindID == $sValue)
             {
-                return $$sValue;
+                return $sValue; //20150716 removed extra $
             } 
         }
         return $sAltValue;
