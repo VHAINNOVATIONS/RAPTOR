@@ -43,8 +43,8 @@ class SuspendTicketPage
         
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $aOneRow = $mdwsDao->getDashboardDetailsMap();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $aOneRow = $vistaDao->getDashboardDetailsMap();
         $nSiteID = $this->m_oContext->getSiteID();
         
         $nIEN = $tid;

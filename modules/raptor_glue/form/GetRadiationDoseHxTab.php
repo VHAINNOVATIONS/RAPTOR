@@ -238,8 +238,8 @@ class GetRadiationDoseHxTab
         $hights = NULL;
         $sLowTS = NULL;
         $sHighTS = NULL;
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $notesdetail = $mdwsDao->getNotesDetailMap();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $notesdetail = $vistaDao->getNotesDetailMap();
         //$notesdetail = $oPSD->getNotesDetail();
         foreach($notesdetail as $data_row) 
         {

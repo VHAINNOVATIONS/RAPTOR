@@ -44,8 +44,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         {
             throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
         }
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $aOneRow = $mdwsDao->getDashboardDetailsMap();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $aOneRow = $vistaDao->getDashboardDetailsMap();
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
         $nSiteID = $this->m_oContext->getSiteID();
@@ -113,8 +113,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         {
             $oContext = \raptor\Context::getInstance();
             $userinfo = $oContext->getUserInfo();
-            $mdwsDao = $oContext->getVistaDao();
-            $results = $mdwsDao->cancelRadiologyOrder( 
+            $vistaDao = $oContext->getVistaDao();
+            $results = $vistaDao->cancelRadiologyOrder( 
                     $myvalues['PatientID'],
                     $orderFileIen,
                     $providerDUZ,
@@ -169,8 +169,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
 
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $aOneRow = $mdwsDao->getDashboardDetailsMap();        
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $aOneRow = $vistaDao->getDashboardDetailsMap();        
         $sRequestedByName = $aOneRow['RequestedBy'];
         $canOrderBeDCd = $aOneRow['canOrderBeDCd'];
         $orderFileStatus = $aOneRow['orderFileStatus'];
@@ -189,11 +189,11 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         }
         
         
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $myDuz = $mdwsDao->getEHRUserID();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $myDuz = $vistaDao->getEHRUserID();
         $myIEN = $myvalues['tid'];
-        //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
-        $orderDetails = $mdwsDao->getOrderDetails($myIEN);
+        //$orderDetails = MdwsUtils::getOrderDetails($vistaDao, $myIEN);
+        $orderDetails = $vistaDao->getOrderDetails($myIEN);
         $orginalProviderDuz = $orderDetails['orderingPhysicianDuz'];
 
         //Hidden values
@@ -209,8 +209,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             , '#value' => $orginalProviderDuz);
 
         $needsESIG = FALSE;
-        //if(MdwsUserUtils::isProvider($mdwsDao, $myDuz))
-        if($mdwsDao->isProvider($myDuz))
+        //if(MdwsUserUtils::isProvider($vistaDao, $myDuz))
+        if($vistaDao->isProvider($myDuz))
         {
             //He is a provider, can only reallycancel if created the order
             if($myDuz == $orginalProviderDuz)
@@ -221,8 +221,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
                     . 'original order and will fully cancel '
                     . 'it by providing the electronic signature.</h2>');
             }
-        //} else if(MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz)) {
-        } else if($mdwsDao->userHasKeyOREMAS($myDuz)) {
+        //} else if(MdwsUserUtils::userHasKeyOREMAS($vistaDao, $myDuz)) {
+        } else if($vistaDao->userHasKeyOREMAS($myDuz)) {
             //They can cancel with signature on file feature
             $needsESIG = TRUE;
             $form['data_entry_area1']['introblurb'] = array('#type' => 'item'
@@ -241,8 +241,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         }
         
         //Provide the normal form.
-        //$aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
-        $aCancelOptions = $mdwsDao->getRadiologyCancellationReasons();
+        //$aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($vistaDao);
+        $aCancelOptions = $vistaDao->getRadiologyCancellationReasons();
         $form['data_entry_area1']['toppart']['reason'] = array(
             "#type" => "select",
             "#title" => t("Reason for Cancel"),

@@ -53,10 +53,10 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         }
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $aOneRow = $mdwsDao->getDashboardDetailsMap();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $aOneRow = $vistaDao->getDashboardDetailsMap();
         $nUID = $this->m_oContext->getUID();
-        $imagetypes = $mdwsDao->getImagingTypesMap($mdwsDao);
+        $imagetypes = $vistaDao->getImagingTypesMap($vistaDao);
         
         $myvalues = array();
         $myvalues['formhost'] = 'fulltab';  //If form is embedded into another form, make this different value
@@ -226,16 +226,16 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
     function updateDatabaseFromFormState($form, &$form_state)
     {
         $myvalues = $form_state['values'];
-        $mdwsDao = $this->m_oContext->getVistaDao();
+        $vistaDao = $this->m_oContext->getVistaDao();
         
         $canCreateNewOrder = $myvalues['canCreateNewOrder'];
         $canReallyCancel = $myvalues['canReallyCancel'];
         $canOrderBeDCd = $myvalues['canOrderBeDCd'];
-        $myDuz = $mdwsDao->getEHRUserID();
-        //$isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
-        $isPROVIDER = $mdwsDao->isProvider($myDuz);
-        //$hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz);
-        $hasOREMAS = $mdwsDao->userHasKeyOREMAS($myDuz);
+        $myDuz = $vistaDao->getEHRUserID();
+        //$isPROVIDER = MdwsUserUtils::isProvider($vistaDao, $myDuz);
+        $isPROVIDER = $vistaDao->isProvider($myDuz);
+        //$hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($vistaDao, $myDuz);
+        $hasOREMAS = $vistaDao->userHasKeyOREMAS($myDuz);
         if($isPROVIDER)
         {
             //Provider overrides OREMAS
@@ -326,13 +326,13 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     //We will be the provider on the new order
                     $args['requestingProviderDuz'] = $myDuz;
                 }
-                //$neworder = MdwsNewOrderUtils::createNewRadiologyOrder($mdwsDao, $orderChecks, $args);
-                $neworder = $mdwsDao->createNewRadiologyOrder($orderChecks, $args);
+                //$neworder = MdwsNewOrderUtils::createNewRadiologyOrder($vistaDao, $orderChecks, $args);
+                $neworder = $vistaDao->createNewRadiologyOrder($orderChecks, $args);
             } else {
                 //The other user will need to log into VISTA to sign it
                 $args['requestingProviderDuz'] = $myvalues['originalOrderProviderDuz'];
-                //$neworder = MdwsNewOrderUtils::createUnsignedRadiologyOrder($mdwsDao, $orderChecks, $args);
-                $neworder = $mdwsDao->createUnsignedRadiologyOrder($orderChecks, $args);
+                //$neworder = MdwsNewOrderUtils::createUnsignedRadiologyOrder($vistaDao, $orderChecks, $args);
+                $neworder = $vistaDao->createUnsignedRadiologyOrder($orderChecks, $args);
             }
             
             $neworder['replaced_tid'] = $myvalues['tid'];
@@ -397,7 +397,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 }
                 $cancelLocation = $myvalues['neworderlocation'];
                 $cancelDUZ = $myvalues['originalOrderProviderDuz'];    //Always the DUZ from the order being canceled
-                $results = $mdwsDao->cancelRadiologyOrder( 
+                $results = $vistaDao->cancelRadiologyOrder( 
                         $myvalues['PatientID'],
                         $orderFileIen,
                         $cancelDUZ,
@@ -608,12 +608,12 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $disabled_step1 = $disabled || ($currentstep > 1);
         $disabled_step2 = $disabled || ($currentstep > 2);
 
-        $mdwsDao = $this->m_oContext->getVistaDao();
+        $vistaDao = $this->m_oContext->getVistaDao();
         $myIEN = $myvalues['tid'];
         
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$rpd = $oDD->getDashboardDetails();
-        $rpd = $mdwsDao->getDashboardDetailsMap();
+        $rpd = $vistaDao->getDashboardDetailsMap();
         $gender = trim($rpd['PatientGender']);
         $age = intval(trim($rpd['PatientAge']));
         $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
@@ -629,16 +629,16 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             $myvalues['pregnant'] = 2;
         }
 
-        //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
+        //$orderDetails = MdwsUtils::getOrderDetails($vistaDao, $myIEN);
         $orginalProviderDuz = $myvalues['originalOrderProviderDuz'];
         $canOrderBeDCd = $myvalues['canOrderBeDCd'];
         $imagetypes = $myvalues['imagetypes'];
 
-        $myDuz = $mdwsDao->getEHRUserID();
-        //$isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
-        $isPROVIDER = $mdwsDao->isProvider($myDuz);
-        //$hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz);
-        $hasOREMAS = $mdwsDao->userHasKeyOREMAS($myDuz);
+        $myDuz = $vistaDao->getEHRUserID();
+        //$isPROVIDER = MdwsUserUtils::isProvider($vistaDao, $myDuz);
+        $isPROVIDER = $vistaDao->isProvider($myDuz);
+        //$hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($vistaDao, $myDuz);
+        $hasOREMAS = $vistaDao->userHasKeyOREMAS($myDuz);
         if($isPROVIDER)
         {
             //Provider overrides OREMAS
@@ -841,8 +841,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             '#disabled' => $disabled,
         );
 
-        //$aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
-        $aCancelOptions = $mdwsDao->getRadiologyCancellationReasons();
+        //$aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($vistaDao);
+        $aCancelOptions = $vistaDao->getRadiologyCancellationReasons();
         
         $form['data_entry_area1']['toppart']['cancelreason'] = array(
             "#type" => "select",
@@ -854,7 +854,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             '#required' => TRUE,
             );        
         
-        //$imagetypes = MdwsNewOrderUtils::getImagingTypes($mdwsDao);
+        //$imagetypes = MdwsNewOrderUtils::getImagingTypes($vistaDao);
         $neworderimagetype = FormHelper::getKeyOfValue($imagetypes, $rpd['ImageType']);
         if($neworderimagetype === FALSE)
         {
@@ -901,8 +901,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         if($currentstep > 1)
         {
             //Select the new order requester
-            //$neworderproviders = MdwsUserUtils::getProviders($mdwsDao, $neworderprovider_name);
-            $neworderproviders = $mdwsDao->getProviders($mdwsDao, $neworderprovider_name);
+            //$neworderproviders = MdwsUserUtils::getProviders($vistaDao, $neworderprovider_name);
+            $neworderproviders = $vistaDao->getProviders($vistaDao, $neworderprovider_name);
             $requestingProviderDuz = $this->
                     getNonEmptyValueFromArrayElseAlternateLiteral($myvalues
                             , 'requestingProviderDuz', $neworderproviders);
@@ -921,7 +921,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             
             //Important NOT to mark fields as #required else BACK will fail!!!
             $imagingTypeId = intval($myvalues['neworderimagetype']);
-            //$locations = $this->m_oPS->getAllHospitalLocations($mdwsDao);
+            //$locations = $this->m_oPS->getAllHospitalLocations($vistaDao);
             $locations = $this->m_oContext->getVistaDao()->getAllHospitalLocationsMap();
             $neworderlocation = FormHelper::getKeyOfValue($locations, $rpd['PatientLocation']);
             if($neworderlocation === FALSE)
@@ -942,8 +942,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 '#disabled' => $disabled_step2,
                 );        
             //error_log("LOOK ALL THE LOCATIONS OPTIONS>>>>".print_r($locations,TRUE));                
-            //$raw_orderitems = MdwsNewOrderUtils::getOrderableItems($mdwsDao, $imagingTypeId);
-            $raw_orderitems = $mdwsDao->getOrderableItems($imagingTypeId);
+            //$raw_orderitems = MdwsNewOrderUtils::getOrderableItems($vistaDao, $imagingTypeId);
+            $raw_orderitems = $vistaDao->getOrderableItems($imagingTypeId);
             $orderitems_options = array();
             foreach($raw_orderitems as $k=>$v)
             {
@@ -969,8 +969,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     = array('#type' => 'hidden', '#value' => $orderitems_options);
             
             $patientId = $myvalues['PatientID'];
-            //$raworderoptions = MdwsNewOrderUtils::getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId);
-            $raworderoptions = $mdwsDao->getRadiologyOrderDialog($imagingTypeId, $patientId);
+            //$raworderoptions = MdwsNewOrderUtils::getRadiologyOrderDialog($vistaDao, $imagingTypeId, $patientId);
+            $raworderoptions = $vistaDao->getRadiologyOrderDialog($imagingTypeId, $patientId);
 
             $raw_modifiers = $raworderoptions['modifiers'];
             if(!is_array($raw_modifiers) || count($raw_modifiers) < 1)
@@ -1280,8 +1280,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 
                 $args['locationIEN'] = $myvalues['neworderlocation'];
                 $args['orderableItemId'] = $myvalues['neworderitem'];
-                //$rawchecks = MdwsNewOrderUtils::getRadiologyOrderChecks($mdwsDao, $args);
-                $rawchecks = $mdwsDao->getRadiologyOrderChecks($args);
+                //$rawchecks = MdwsNewOrderUtils::getRadiologyOrderChecks($vistaDao, $args);
+                $rawchecks = $vistaDao->getRadiologyOrderChecks($args);
                 $form_state['orderchecks_result'] = $rawchecks;
                 
                 //Format the order check results for UI
@@ -1355,7 +1355,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'yes');
                 } else {
                     //Could be anyone on the order
-                    $ehr_user_id = $mdwsDao->getEHRUserID();
+                    $ehr_user_id = $vistaDao->getEHRUserID();
                     if($ehr_user_id == $myvalues['requestingProviderDuz'])
                     {
                         $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'yes');

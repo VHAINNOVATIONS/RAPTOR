@@ -68,8 +68,8 @@ class GetProtocolLibTab
         {
             //$oWL = new \raptor\WorklistData($this->m_oContext);
             //$aOneRow = $oWL->getDashboardMap();
-            $mdwsDao = $this->m_oContext->getVistaDao();
-            $aOneRow = $mdwsDao->getDashboardDetailsMap();
+            $vistaDao = $this->m_oContext->getVistaDao();
+            $aOneRow = $vistaDao->getDashboardDetailsMap();
             $myvalues = array();
             $myvalues['IEN'] = $nIEN;
             $myvalues['procName'] = $aOneRow['Procedure'];

@@ -49,8 +49,8 @@ class ScheduleTicketPage
         
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $aOneRow = $mdwsDao->getDashboardDetailsMap();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $aOneRow = $vistaDao->getDashboardDetailsMap();
         //$aOneRow = $oWL->getOneWorklistRow();   //$tid);
         $nSiteID = $this->m_oContext->getSiteID();
         
@@ -722,9 +722,9 @@ class ScheduleTicketPage
             '#disabled' => $disabled,
         );
         
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        //$aCancelOptions = \raptor\MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
-        $aCancelOptions = $mdwsDao->getRadiologyCancellationReasons();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        //$aCancelOptions = \raptor\MdwsUtils::getRadiologyCancellationReasons($vistaDao);
+        $aCancelOptions = $vistaDao->getRadiologyCancellationReasons();
         $fulloptionlist = array();
         $fulloptionlist[''] = '';   //Important that the key is empty string not just empty brackets!!!!
         foreach($aCancelOptions as $option)

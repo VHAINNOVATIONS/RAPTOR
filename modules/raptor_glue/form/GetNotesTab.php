@@ -82,8 +82,8 @@ class GetNotesTab
         
         //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         //$radiology_reports_detail = $oPSD->getNotesDetail();
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $radiology_reports_detail = $mdwsDao->getNotesDetailMap();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $radiology_reports_detail = $vistaDao->getNotesDetailMap();
         
         $rows = '';
         foreach($radiology_reports_detail as $data_row) 

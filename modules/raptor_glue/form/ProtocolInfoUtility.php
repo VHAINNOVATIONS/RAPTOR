@@ -1122,7 +1122,7 @@ class ProtocolInfoUtility
         $nSiteID = $this->m_oContext->getSiteID();
         $nIEN = $myvalues['tid'];
         $sCWFS = $this->getCurrentWorkflowState($nSiteID, $nIEN);
-        $mdwsDao = $this->m_oContext->getVistaDao();
+        $vistaDao = $this->m_oContext->getVistaDao();
         $sTrackingID = $this->m_oTT->getTrackingID($nSiteID, $nIEN);
         $nUID = $userinfo->getUserID();
         $datasaveactionbuttons = 0; //Count number of active buttons that can save changes.
@@ -1130,8 +1130,8 @@ class ProtocolInfoUtility
         $configuredVistaCommit=TRUE;
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_GENERAL;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_GENERAL;
-        //if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
-        if(!$mdwsDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
+        //if(!MdwsUtils::verifyNoteTitleMapping($vistaDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
+        if(!$vistaDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
             error_log("WARNING VISTA at site " 
@@ -1141,8 +1141,8 @@ class ProtocolInfoUtility
         }
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_SAFETY_CKLST;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST;
-        //if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
-        if(!$mdwsDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
+        //if(!MdwsUtils::verifyNoteTitleMapping($vistaDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
+        if(!$vistaDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
             error_log("WARNING VISTA at site ".VISTA_SITE." is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
@@ -3528,8 +3528,8 @@ class ProtocolInfoUtility
         {
             //$oDD = new \raptor\DashboardData($this->m_oContext);
             //$raptor_protocoldashboard = $oDD->getDashboardDetails();
-            $mdwsDao = $this->m_oContext->getVistaDao();
-            $raptor_protocoldashboard = $mdwsDao->getDashboardDetailsMap();
+            $vistaDao = $this->m_oContext->getVistaDao();
+            $raptor_protocoldashboard = $vistaDao->getDashboardDetailsMap();
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {
             throw new \Exception('Failed to get the dashboard to save exam fields',91111,$ex);

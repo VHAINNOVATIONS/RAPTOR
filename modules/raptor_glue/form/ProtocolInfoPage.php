@@ -661,9 +661,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
             //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
             //$aEGFR = $oPSD->getEGFRDetail();
-            $mdwsDao = $this->m_oContext->getVistaDao();
-            $aLatestVitals = $mdwsDao->getVitalsDetailOnlyLatestMap();            
-            $aEGFR = $mdwsDao->getEGFRDetailMap();            
+            $vistaDao = $this->m_oContext->getVistaDao();
+            $aLatestVitals = $vistaDao->getVitalsDetailOnlyLatestMap();            
+            $aEGFR = $vistaDao->getEGFRDetailMap();            
             
             $aPatientInfoForCIE = array();    
             $aPatientInfoForCIE['GENDER'] = $aDD['PatientGender'];
@@ -704,8 +704,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         {
             //$oWL = new \raptor\WorklistData($this->m_oContext);
             //$aOneRow = $oWL->getDashboardMap($tid);
-            $mdwsDao = $this->m_oContext->getVistaDao();
-            $aOneRow = $mdwsDao->getDashboardDetailsMap($tid);
+            $vistaDao = $this->m_oContext->getVistaDao();
+            $aOneRow = $vistaDao->getDashboardDetailsMap($tid);
             $nSiteID = $this->m_oContext->getSiteID();
             $nIEN = $tid;
             $nUID = $this->m_oContext->getUID();
@@ -719,8 +719,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             {
                 //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
                 //$aEGFR = $oPSD->getEGFRDetail();
-                $aLatestVitals = $mdwsDao->getVitalsDetailOnlyLatestMap();            
-                $aEGFR = $mdwsDao->getEGFRDetailMap();
+                $aLatestVitals = $vistaDao->getVitalsDetailOnlyLatestMap();            
+                $aEGFR = $vistaDao->getEGFRDetailMap();
 
                 $aPatientInfoForCIE = array();    //TODO move this code elsewhere
                 $aPatientInfoForCIE['GENDER'] = $aDD['PatientGender'];
@@ -1384,11 +1384,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             } else {
                 try
                 {
-                    $mdwsDao = $this->m_oContext->getVistaDao();
-                    $userDuz = $mdwsDao->getEHRUserID();
+                    $vistaDao = $this->m_oContext->getVistaDao();
+                    $userDuz = $vistaDao->getEHRUserID();
                     $eSig = $myvalues['commit_esig'];
-                    //$bValidESig = MdwsUtils::validateEsig($mdwsDao, $eSig);
-                    $bValidESig = $mdwsDao->validateEsig($eSig);
+                    //$bValidESig = MdwsUtils::validateEsig($vistaDao, $eSig);
+                    $bValidESig = $vistaDao->validateEsig($eSig);
                     if(!$bValidESig)
                     {
                         $bGood = FALSE;
@@ -2162,14 +2162,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         return $bSuccess;
     }
     
-    function isValidEsig($eSig,$mdwsDao=NULL)
+    function isValidEsig($eSig,$vistaDao=NULL)
     {
-        if($mdwsDao == NULL)
+        if($vistaDao == NULL)
         {
-            $mdwsDao = $this->m_oContext->getVistaDao();
+            $vistaDao = $this->m_oContext->getVistaDao();
         }
-        //return MdwsUtils::validateEsig($mdwsDao, $eSig);
-        return $mdwsDao->validateEsig($eSig);
+        //return MdwsUtils::validateEsig($vistaDao, $eSig);
+        return $vistaDao->validateEsig($eSig);
     }
     
     /**
@@ -2187,9 +2187,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         
         //Verify the electronic sigature
         $eSig = $myvalues['commit_esig'];
-        $mdwsDao = $this->m_oContext->getVistaDao();
+        $vistaDao = $this->m_oContext->getVistaDao();
         //$bValidESig = MdwsUtils::validateEsig($oMdwsDao, $eSig);
-        $bValidESig = $this->isValidEsig($eSig, $mdwsDao);
+        $bValidESig = $this->isValidEsig($eSig, $vistaDao);
         if(!$bValidESig)
         {
             $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' Safety Checklist note to Vista because invalid electronic signature');
@@ -2203,11 +2203,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
             try
             {
-                $mdwsDao = $this->m_oContext->getVistaDao();
+                $vistaDao = $this->m_oContext->getVistaDao();
                 if($encounterString == NULL)
                 {
-                    //$aVisits = \raptor\MdwsUtils::getVisits($mdwsDao);
-                    $aVisits = $mdwsDao->getVisits();
+                    //$aVisits = \raptor\MdwsUtils::getVisits($vistaDao);
+                    $aVisits = $vistaDao->getVisits();
                     if(is_array($aVisits) && count($aVisits) > 0)
                     {
                         if(isset($myvalues['selected_vid']) && $myvalues['selected_vid'] != '')
@@ -2222,7 +2222,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                                 if($aVisit['locationId'] == $locationId && $aVisit['visitTimestamp'] == $visitTimestamp)
                                 {
                                     //$encounterString = \raptor\MdwsUtils::getEncounterStringFromVisit($aVisit['visitTO']);   //TODO ask the user to pick one!!!
-                                    $encounterString = $mdwsDao->getEncounterStringFromVisit($aVisit['visitTO']);  
+                                    $encounterString = $vistaDao->getEncounterStringFromVisit($aVisit['visitTO']);  
                                 }
                             }
                             if($encounterString == NULL)
@@ -2246,7 +2246,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $newNoteIen = NULL;
                 try
                 {
-                    $userDuz = $mdwsDao->getEHRUserID();
+                    $userDuz = $vistaDao->getEHRUserID();
 
                     //Pull values from database that have not yet been committed to VISTA
                     $aChecklistData = array();
@@ -2254,10 +2254,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     if(count($aChecklistData)>0)
                     {
                         //Write the checklist note
-                        //$newNoteIen = \raptor\MdwsUtils::writeRaptorSafetyChecklist($mdwsDao,$aChecklistData,$encounterString,NULL);
-                        $newNoteIen = $mdwsDao->writeRaptorSafetyChecklist($aChecklistData,$encounterString,NULL);
-                        //MdwsUtils::signNote($mdwsDao, $newNoteIen, $userDuz, $eSig);
-                        $mdwsDao->signNote($newNoteIen, $eSig);
+                        //$newNoteIen = \raptor\MdwsUtils::writeRaptorSafetyChecklist($vistaDao,$aChecklistData,$encounterString,NULL);
+                        $newNoteIen = $vistaDao->writeRaptorSafetyChecklist($aChecklistData,$encounterString,NULL);
+                        //MdwsUtils::signNote($vistaDao, $newNoteIen, $userDuz, $eSig);
+                        $vistaDao->signNote($newNoteIen, $eSig);
                     }
 
                     //Pull values from database that have not yet been committed to VISTA
@@ -2266,10 +2266,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     if(count($noteTextArray)>0)
                     {
                         //Yes, write the general note.
-                        //$newGeneralNoteIen = \raptor\MdwsUtils::writeRaptorGeneralNote($mdwsDao, $noteTextArray, $encounterString, NULL); 
-                        $newGeneralNoteIen = $mdwsDao->writeRaptorGeneralNote($noteTextArray, $encounterString, NULL); 
-                        //MdwsUtils::signNote($mdwsDao, $newGeneralNoteIen, $userDuz, $eSig);
-                        $mdwsDao->signNote($newGeneralNoteIen, $eSig);
+                        //$newGeneralNoteIen = \raptor\MdwsUtils::writeRaptorGeneralNote($vistaDao, $noteTextArray, $encounterString, NULL); 
+                        $newGeneralNoteIen = $vistaDao->writeRaptorGeneralNote($noteTextArray, $encounterString, NULL); 
+                        //MdwsUtils::signNote($vistaDao, $newGeneralNoteIen, $userDuz, $eSig);
+                        $vistaDao->signNote($newGeneralNoteIen, $eSig);
                     }
                 } catch (\Exception $ex) {
                     drupal_set_message('Trouble in commit because ' . $ex->getMessage(),'error');
@@ -2349,8 +2349,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $tid = $nSiteID.'-'.$nIEN;
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOrderInfo = $oWL->getDashboardMap();
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $aOrderInfo = $mdwsDao->getDashboardDetailsMap();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $aOrderInfo = $vistaDao->getDashboardDetailsMap();
         $aQuestionsMetadata = $this->getAllSavedSafetyChecklistTicketData($nSiteID,$nIEN,$oAllUsers,$prev_commit_dt);
         if(count($aQuestionsMetadata)>0)
         {
@@ -2431,8 +2431,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $tid = $nSiteID.'-'.$nIEN;
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOrderInfo = $oWL->getDashboardMap();
-        $mdwsDao = $this->m_oContext->getVistaDao();
-        $aOrderInfo = $mdwsDao->getDashboardDetailsMap();
+        $vistaDao = $this->m_oContext->getVistaDao();
+        $aOrderInfo = $vistaDao->getDashboardDetailsMap();
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Embedded Due Date',$aOrderInfo,'DesiredDate');
@@ -2948,14 +2948,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         $oCIE = $this->m_oCIE;
         
-        $mdwsDao = $this->m_oContext->getVistaDao();
+        $vistaDao = $this->m_oContext->getVistaDao();
         
-        $patientDashboard = $mdwsDao->getPatientDashboardMap();
+        $patientDashboard = $vistaDao->getPatientDashboardMap();
         $examcategory = strtoupper($patientDashboard['ExamCategory']);
         
         //Flag as possible duplicate order if there is more than one active order for the same modality as this one.
         $modality = $protocolValues['modality_abbr'];   //Might be unknown or blank.
-        $pendingMap = $mdwsDao->getPendingOrdersMap();
+        $pendingMap = $vistaDao->getPendingOrdersMap();
         if(count($pendingMap) > 1)
         {
             if($modality == '' || $modality == 'Unknown')
@@ -3011,7 +3011,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
         //Get allergies to pass in.
         $aAllergies = array();
-        $aDetails = $mdwsDao->getAllergiesDetailMap();
+        $aDetails = $vistaDao->getAllergiesDetailMap();
         foreach($aDetails as $aItem)
         {
             $aAllergies[] = $aItem['Item'];
@@ -3019,14 +3019,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         $aCandidateData['CURRENT_ALLERGIES'] = $aAllergies;
 
-        $aCandidateData['KWL_RARE_CONTRAST'] = $mdwsDao->getRareContrastKeywordsMap();
-        $aCandidateData['KWL_RARE_RADIOISOTOPE'] = $mdwsDao->getRareRadioisotopeKeywordsMap();
-        $aCandidateData['KWL_BLOOD_THINNER'] = $mdwsDao->getBloodThinnerKeywordsMap();
-        $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = $mdwsDao->getAllergyContrastKeywordsMap();
+        $aCandidateData['KWL_RARE_CONTRAST'] = $vistaDao->getRareContrastKeywordsMap();
+        $aCandidateData['KWL_RARE_RADIOISOTOPE'] = $vistaDao->getRareRadioisotopeKeywordsMap();
+        $aCandidateData['KWL_BLOOD_THINNER'] = $vistaDao->getBloodThinnerKeywordsMap();
+        $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = $vistaDao->getAllergyContrastKeywordsMap();
         
         //Get meds to pass in.
         $aMeds = array();
-        $aMedBundle = $mdwsDao->getMedicationsDetailMap();
+        $aMedBundle = $vistaDao->getMedicationsDetailMap();
         $aMedDetail = $aMedBundle['details'];
         foreach($aMedDetail as $aMedItem)
         {
@@ -3273,25 +3273,25 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         //Set all the Protocol page values
         $raptor_protocoldashboard = $this->m_aPatientDD;
         //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-        $mdwsDao = $this->m_oContext->getVistaDao();
+        $vistaDao = $this->m_oContext->getVistaDao();
         $oGD = new \raptor\GraphData($this->m_oContext);
         $oLO = new \raptor\ListOptions();
         $atriskmeds= $oLO->getAtRiskMedsKeywords();
-        $aMedsBundle = $mdwsDao->getMedicationsDetailMap($atriskmeds);
+        $aMedsBundle = $vistaDao->getMedicationsDetailMap($atriskmeds);
 
         $raptor_protocol_content = array();
         $raptor_protocol_content['AtRiskMeds'] = $atriskmeds;
         $raptor_protocol_content['Reference']['MedicationsBundle'] = $aMedsBundle;
-        $raptor_protocol_content['Reference']['OrderOverview'] = $mdwsDao->getOrderOverviewMap();
-        $raptor_protocol_content['Reference']['VitalsSummary'] = $mdwsDao->getVitalsSummaryMap();
-        $raptor_protocol_content['Reference']['VitalsDetail'] = $mdwsDao->getVitalsDetailMap();
-        $raptor_protocol_content['Reference']['AllergiesDetail'] = $mdwsDao->getAllergiesDetailMap();
-        $raptor_protocol_content['Reference']['ProcedureLabsDetail'] = $mdwsDao->getProcedureLabsDetailMap();
-        $raptor_protocol_content['Reference']['DiagnosticLabsDetail'] = $mdwsDao->getDiagnosticLabsDetailMap();
-        $raptor_protocol_content['Reference']['PathologyReportsDetail'] = $mdwsDao->getPathologyReportsDetailMap();
-        $raptor_protocol_content['Reference']['SurgeryReportsDetail'] = $mdwsDao->getSurgeryReportsDetailMap();
-        $raptor_protocol_content['Reference']['ProblemsListDetail'] = $mdwsDao->getProblemsListDetailMap();
-        $raptor_protocol_content['Reference']['RadiologyReportsDetail'] = $mdwsDao->getRadiologyReportsDetailMap();
+        $raptor_protocol_content['Reference']['OrderOverview'] = $vistaDao->getOrderOverviewMap();
+        $raptor_protocol_content['Reference']['VitalsSummary'] = $vistaDao->getVitalsSummaryMap();
+        $raptor_protocol_content['Reference']['VitalsDetail'] = $vistaDao->getVitalsDetailMap();
+        $raptor_protocol_content['Reference']['AllergiesDetail'] = $vistaDao->getAllergiesDetailMap();
+        $raptor_protocol_content['Reference']['ProcedureLabsDetail'] = $vistaDao->getProcedureLabsDetailMap();
+        $raptor_protocol_content['Reference']['DiagnosticLabsDetail'] = $vistaDao->getDiagnosticLabsDetailMap();
+        $raptor_protocol_content['Reference']['PathologyReportsDetail'] = $vistaDao->getPathologyReportsDetailMap();
+        $raptor_protocol_content['Reference']['SurgeryReportsDetail'] = $vistaDao->getSurgeryReportsDetailMap();
+        $raptor_protocol_content['Reference']['ProblemsListDetail'] = $vistaDao->getProblemsListDetailMap();
+        $raptor_protocol_content['Reference']['RadiologyReportsDetail'] = $vistaDao->getRadiologyReportsDetailMap();
         $raptor_protocol_content['Reference']['Graph']['Thumbnail'] = $oGD->getThumbnailGraphValues();
         $raptor_protocol_content['Reference']['Graph']['Labs'] = $oGD->getLabsGraphValues();
         $raptor_protocol_content['Reference']['Graph']['Vitals'] = $oGD->getVitalsGraphValues();
