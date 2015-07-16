@@ -63,8 +63,27 @@ interface IVistaDao
      */
     public function getDashboardDetailsMap($override_tracking_id);
     
-    /**
-     * Do not spread these calls troughout the code
-     */
-    function makeQuery($functionToInvoke, $args);
+    public function createNewRadiologyOrder($orderChecks, $args);
+    public function createUnsignedRadiologyOrder($orderChecks, $args);
+    public function getOrderableItems($imagingTypeId);
+    public function getRadiologyOrderChecks($args);
+    public function getRadiologyOrderDialog($imagingTypeId, $patientId);
+    public function getProviders($neworderprovider_name);
+    public function getUserSecurityKeys($userDuz);
+    public function isProvider($myDuz);
+    public function userHasKeyOREMAS($myDuz);
+    public function cancelRadiologyOrder($patientid,$orderFileIen,$providerDUZ,$locationthing,$reasonCode, $cancelesig);
+    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
+    public function getChemHemLabs();
+    public function getEncounterStringFromVisit($vistitTo);
+    public function getHospitalLocations($startingitem);
+    public function getOrderDetails($myIEN);
+    public function getRadiologyCancellationReasons($mdwsDao);
+    public function getVisits();
+    public function parseDdrGetsEntryInternalAndExternal($soapResult);
+    public function signNote($newNoteIen, $userDuz, $eSig);
+    public function validateEsig($eSig);
+    public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);
+    public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ);
+    public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ);
 }

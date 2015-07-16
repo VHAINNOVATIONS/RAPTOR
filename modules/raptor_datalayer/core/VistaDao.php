@@ -116,4 +116,121 @@ class VistaDao implements IVistaDao
     {
         return $this->m_implclass->getPatientIDFromTrackingID($sTrackingID);
     }
+    
+    public function createNewRadiologyOrder($orderChecks, $args)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function createUnsignedRadiologyOrder($orderChecks, $args)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getOrderableItems($imagingTypeId)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getRadiologyOrderChecks($args)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getRadiologyOrderDialog($imagingTypeId, $patientId)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getProviders($neworderprovider_name)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getUserSecurityKeys($userDuz)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function isProvider($myDuz)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function userHasKeyOREMAS($myDuz)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getChemHemLabs()
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getEncounterStringFromVisit($vistitTo)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getHospitalLocations($startingitem)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getOrderDetails($myIEN)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getRadiologyCancellationReasons($mdwsDao)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function getVisits()
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function parseDdrGetsEntryInternalAndExternal($soapResult)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function signNote($newNoteIen, $userDuz, $eSig)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function validateEsig($eSig)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
+    public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+    
+    
 }
