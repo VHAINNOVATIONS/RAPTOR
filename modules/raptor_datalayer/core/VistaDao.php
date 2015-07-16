@@ -158,7 +158,7 @@ class VistaDao implements IVistaDao
         return $this->m_implclass->cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates)
+    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5)
     {
         return $this->m_implclass->convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
     }

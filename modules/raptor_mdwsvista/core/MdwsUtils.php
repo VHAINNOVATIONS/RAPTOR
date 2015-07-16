@@ -285,7 +285,7 @@ class MdwsUtils {
     /**
      * Default max returned dates is 5 unless you provide a different value.
      */
-    public static function convertSoapVitalsToGraph($typeArray, $vitals, $max_dates=5) 
+    public static function convertSoapVitalsToGraph($typeArray, $vitals, $max_dates=5)
     {
         global $user;
         //error_log('Starting convertSoapVitalsToGraph as user '.$user->name.' maxdates='.$max_dates);

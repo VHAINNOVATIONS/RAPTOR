@@ -656,7 +656,7 @@ class MdwsDao implements IMdwsDao
         return \raptor\MdwsUtils::convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs);
     }
 
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates)
+    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5)
     {
         return \raptor\MdwsUtils::convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
     }

@@ -79,7 +79,7 @@ interface IVistaDao
     public function userHasKeyOREMAS();
     public function cancelRadiologyOrder($patientid,$orderFileIen,$providerDUZ,$locationthing,$reasonCode, $cancelesig);
     public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs=1000);
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
+    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5);
     public function getChemHemLabs();
     public function getEncounterStringFromVisit($vistitTo);
     public function getHospitalLocations($startingitem);
