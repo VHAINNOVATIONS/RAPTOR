@@ -16,6 +16,7 @@ namespace raptor;
 module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
 
 require_once 'data_utility.php';
+require_once 'CustomKeywords.php';
 require_once 'data_user.php';
 require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';

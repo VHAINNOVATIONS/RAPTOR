@@ -86,8 +86,6 @@ interface IEhrDao
     public function createUnsignedRadiologyOrder($orderChecks, $args);
     public function getAllHospitalLocationsMap();
     public function getAllergiesDetailMap();
-    public function getAllergyContrastKeywordsMap();
-    public function getBloodThinnerKeywordsMap();
     public function getChemHemLabs();
     public function getDiagnosticLabsDetailMap();
     public function getEGFRDetailMap();
@@ -110,8 +108,6 @@ interface IEhrDao
     public function getRadiologyOrderChecks($args);
     public function getRadiologyOrderDialog($imagingTypeId, $patientId);
     public function getRadiologyReportsDetailMap();
-    public function getRareContrastKeywordsMap();
-    public function getRareRadioisotopeKeywordsMap();
     public function getRawVitalSignsMap();
     public function getSurgeryReportsDetailMap();
     public function getUserSecurityKeys();

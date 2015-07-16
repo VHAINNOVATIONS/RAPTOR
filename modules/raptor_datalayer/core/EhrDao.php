@@ -267,26 +267,6 @@ class EhrDao implements IEhrDao
         return $this->m_implclass->getPatientDashboardMap();
     }
 
-    public function getRareContrastKeywordsMap()
-    {
-        return $this->m_implclass->getRareContrastKeywordsMap();
-    }
-
-    public function getRareRadioisotopeKeywordsMap()
-    {
-        return $this->m_implclass->getRareRadioisotopeKeywordsMap();
-    }
-
-    public function getBloodThinnerKeywordsMap()
-    {
-        return $this->m_implclass->getBloodThinnerKeywordsMap();
-    }
-
-    public function getAllergyContrastKeywordsMap()
-    {
-        return $this->m_implclass->getAllergyContrastKeywordsMap();
-    }
-
     public function getRawVitalSignsMap()
     {
         return $this->m_implclass->getRawVitalSignsMap();

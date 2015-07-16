@@ -91,16 +91,6 @@ class EwdDao implements IEwdDao
         throw new \Exception("Not implemented");
     }
 
-    public function getAllergyContrastKeywordsMap()
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function getBloodThinnerKeywordsMap()
-    {
-        throw new \Exception("Not implemented");
-    }
-
     public function getChemHemLabs()
     {
         throw new \Exception("Not implemented");
@@ -222,16 +212,6 @@ class EwdDao implements IEwdDao
     }
 
     public function getRadiologyReportsDetailMap()
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function getRareContrastKeywordsMap()
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function getRareRadioisotopeKeywordsMap()
     {
         throw new \Exception("Not implemented");
     }

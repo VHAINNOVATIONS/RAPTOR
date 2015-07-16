@@ -3006,10 +3006,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         $aCandidateData['CURRENT_ALLERGIES'] = $aAllergies;
 
-        $aCandidateData['KWL_RARE_CONTRAST'] = $ehrDao->getRareContrastKeywordsMap();
-        $aCandidateData['KWL_RARE_RADIOISOTOPE'] = $ehrDao->getRareRadioisotopeKeywordsMap();
-        $aCandidateData['KWL_BLOOD_THINNER'] = $ehrDao->getBloodThinnerKeywordsMap();
-        $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = $ehrDao->getAllergyContrastKeywordsMap();
+        $aCandidateData['KWL_RARE_CONTRAST'] = \raptor\CustomKeywords::getBloodThinnerKeywords();
+        $aCandidateData['KWL_RARE_RADIOISOTOPE'] = \raptor\CustomKeywords::getRareRadioisotopeKeywords();
+        $aCandidateData['KWL_BLOOD_THINNER'] = \raptor\CustomKeywords::getBloodThinnerKeywords();
+        $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = \raptor\CustomKeywords::getAllergyContrastKeywords();
         
         //Get meds to pass in.
         $aMeds = array();

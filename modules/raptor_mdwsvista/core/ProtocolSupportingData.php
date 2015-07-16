@@ -15,8 +15,6 @@ namespace raptor_mdwsvista;
 
 module_load_include('php', 'raptor_glue', 'core/config');
 module_load_include('php', 'raptor_formulas', 'core/Labs');
-
-//module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
 module_load_include('php', 'raptor_datalayer', 'core/data_context');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultCache');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
@@ -84,50 +82,6 @@ class ProtocolSupportingData
                      'RqstStdy'=>$this->m_aDashboardMap['Procedure'],
                      'RsnStdy'=>$this->m_aDashboardMap['ReasonForStudy'],
                     );
-    }
-    
-    private function getKeywordsFromTable($sTablename, $sFieldName='keyword')
-    {
-        $rows = array();
-        try
-        {
-            $sSQL = 'SELECT ' . $sFieldName . ' '
-                    . ' FROM `' . $sTablename . '` '
-                    . ' ORDER BY '. $sFieldName;
-            $result = db_query($sSQL);
-            if($result->rowCount()>0)
-            {
-                foreach($result as $record) 
-                {
-                    $value = $record->$sFieldName;
-                    $rows[$value] = $value;
-                }
-            }
-        } catch (\Exception $ex) {
-            throw new \Exception("Failed getKeywordsFromTable($sTablename,$sFieldName) because " 
-                    . $ex->getMessage(),99345,$ex);
-        }
-        return $rows;
-    }
-    
-    function getRareContrastKeywords()
-    {
-        return $this->getKeywordsFromTable('raptor_atrisk_rare_contrast');
-    }
-    
-    function getRareRadioisotopeKeywords()
-    {
-        return $this->getKeywordsFromTable('raptor_atrisk_rare_radioisotope');
-    }
-    
-    function getAllergyContrastKeywords()
-    {
-        return $this->getKeywordsFromTable('raptor_atrisk_allergy_contrast');
-    }
-    
-    function getBloodThinnerKeywords()
-    {
-        return $this->getKeywordsFromTable('raptor_atrisk_bloodthinner');
     }
     
     /**

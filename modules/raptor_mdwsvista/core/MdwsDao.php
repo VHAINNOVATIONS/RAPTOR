@@ -584,26 +584,6 @@ class MdwsDao implements IMdwsDao
         return $this->getProtocolSupportingData('getPendingOrdersMap'); //Yes, has Map suffix
     }
 
-    public function getRareContrastKeywordsMap()
-    {
-        return $this->getProtocolSupportingData('getRareContrastKeywords');
-    }
-
-    public function getRareRadioisotopeKeywordsMap()
-    {
-        return $this->getProtocolSupportingData('getRareRadioisotopeKeywords');
-    }
-
-    public function getBloodThinnerKeywordsMap()
-    {
-        return $this->getProtocolSupportingData('getBloodThinnerKeywords');
-    }
-
-    public function getAllergyContrastKeywordsMap()
-    {
-        return $this->getProtocolSupportingData('getAllergyContrastKeywords');
-    }
-
     public function getRawVitalSignsMap()
     {
         return $this->getProtocolSupportingData('getRawVitalSigns');
@@ -737,5 +717,4 @@ class MdwsDao implements IMdwsDao
     {
         return $this;
     }
-
 }
