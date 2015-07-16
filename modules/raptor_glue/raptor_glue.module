@@ -103,7 +103,7 @@ function raptor_glue_init()
  */
 function raptor_glue_page_alter(&$page) 
 {
-    module_load_include('php', 'raptor_datalayer', 'core/data_context');
+    module_load_include('php', 'raptor_datalayer', 'core/Context');
     module_load_include('php', 'raptor_datalayer', 'core/data_user');
 
     global $user;

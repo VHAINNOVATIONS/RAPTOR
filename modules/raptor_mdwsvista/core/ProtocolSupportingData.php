@@ -15,7 +15,7 @@ namespace raptor_mdwsvista;
 
 module_load_include('php', 'raptor_glue', 'core/config');
 module_load_include('php', 'raptor_formulas', 'core/Labs');
-module_load_include('php', 'raptor_datalayer', 'core/data_context');
+module_load_include('php', 'raptor_datalayer', 'core/Context');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultCache');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
 

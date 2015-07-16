@@ -25,7 +25,7 @@ class EditContraIndicationsConfigPage
 
     public function __construct()
     {
-        module_load_include('php','raptor_datalayer','core/data_context');
+        module_load_include('php','raptor_datalayer','core/Context');
         $oContext = \raptor\Context::getInstance();
         $oUserInfo = $oContext->getUserInfo();
         if(!$oUserInfo->isSiteAdministrator() || !$oUserInfo->hasPrivilege('ECIR1'))

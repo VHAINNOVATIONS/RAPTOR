@@ -43,7 +43,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         //Load relevant modules
         module_load_include('php', 'raptor_glue', 'core/Config');
-        module_load_include('php', 'raptor_datalayer', 'core/data_context');
+        module_load_include('php', 'raptor_datalayer', 'core/Context');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         $this->instanceTimestamp = microtime();
         //error_log('LOOK Created MdwsDao instance ' . $this->instanceTimestamp);

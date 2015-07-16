@@ -37,7 +37,7 @@ class ViewContraindicationPage
         $this->m_oPageHelper = new \raptor\ContraIndicationPageHelper();
         
         
-        module_load_include('php','raptor_datalayer','core/data_context');
+        module_load_include('php','raptor_datalayer','core/Context');
         $oContext = \raptor\Context::getInstance();
         $oUserInfo = $oContext->getUserInfo();
         if(!$oUserInfo->hasPrivilege('ECIR1'))

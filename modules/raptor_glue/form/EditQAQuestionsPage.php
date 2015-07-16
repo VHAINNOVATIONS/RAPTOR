@@ -30,7 +30,7 @@ class EditQAQuestionsPage
 
     public function __construct()
     {
-        module_load_include('php','raptor_datalayer','core/data_context');
+        module_load_include('php','raptor_datalayer','core/Context');
         module_load_include('php','raptor_glue','utility/TermMapping');
         $this->m_oContext = \raptor\Context::getInstance();
         global $base_url;

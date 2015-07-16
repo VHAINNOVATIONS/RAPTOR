@@ -25,7 +25,7 @@ class GraphData
     
     function __construct($oContext)
     {
-        module_load_include('php', 'raptor_datalayer', 'core/data_context');
+        module_load_include('php', 'raptor_datalayer', 'core/Context');
         module_load_include('php', 'raptor_datalayer', 'core/VistaDao');
         $this->m_oContext = $oContext;
     }    

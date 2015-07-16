@@ -92,7 +92,7 @@ function raptor_glue_protocolinfo_form_inputarea()
 
 function raptor_glue_protocolinfo_form_builder($form, &$form_state)
 {
-    module_load_include('php', 'raptor_datalayer', 'core/data_context');
+    module_load_include('php', 'raptor_datalayer', 'core/Context');
     $oContext = \raptor\Context::getInstance();
     if(isset($_REQUEST['drupalmsg']))
     {
@@ -220,7 +220,7 @@ function raptor_glue_protocolinfo_form_builder_validate($form, &$form_state)
         //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
         $clickedvalue = 'Collaborate';
     }
-    module_load_include('php', 'raptor_datalayer', 'core/data_context');
+    module_load_include('php', 'raptor_datalayer', 'core/Context');
     module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
     $oContext = \raptor\Context::getInstance();
     $tid = $oContext->getSelectedTrackingID();
@@ -247,7 +247,7 @@ function raptor_glue_protocolinfo_form_builder_submit($form, &$form_state)
         //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
         $clickedvalue = 'Collaborate';
     }
-    module_load_include('php', 'raptor_datalayer', 'core/data_context');
+    module_load_include('php', 'raptor_datalayer', 'core/Context');
     module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
     $oContext = \raptor\Context::getInstance();
     $tid = $oContext->getSelectedTrackingID();
