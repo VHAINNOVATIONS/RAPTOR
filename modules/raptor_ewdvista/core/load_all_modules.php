@@ -13,7 +13,7 @@
  */ 
 
 
-defined('VISTA_INT_IMPL_DAO_CLASSNAME')
-    or define('VISTA_INT_IMPL_DAO_CLASSNAME', 'EwdVistaDao');
+defined('EHR_INT_IMPL_DAO_CLASSNAME')
+    or define('EHR_INT_IMPL_DAO_CLASSNAME', 'EwdDao');
 
-require_once 'EwdVistaDao.php';
+require_once 'EwdDao.php';

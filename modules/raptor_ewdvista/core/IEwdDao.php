@@ -16,6 +16,6 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'core/IVistaDao');
+module_load_include('php', 'raptor_datalayer', 'core/IEhrDao');
 
-interface IEwdVistaDao extends IEhrDao{}
+interface IEwdDao extends IEhrDao{}
