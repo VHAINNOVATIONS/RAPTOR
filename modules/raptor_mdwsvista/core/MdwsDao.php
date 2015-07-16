@@ -575,117 +575,117 @@ class MdwsDao implements IMdwsDao
 
     public function createNewRadiologyOrder($orderChecks, $args)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsNewOrderUtils::createNewRadiologyOrder($this, $orderChecks, $args);
     }
 
     public function createUnsignedRadiologyOrder($orderChecks, $args)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsNewOrderUtils::createUnsignedRadiologyOrder($this, $orderChecks, $args);
     }
 
     public function getOrderableItems($imagingTypeId)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsNewOrderUtils::getOrderableItems($this, $imagingTypeId);
     }
 
     public function getRadiologyOrderChecks($args)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsNewOrderUtils::getRadiologyOrderChecks($this, $args);
     }
 
     public function getRadiologyOrderDialog($imagingTypeId, $patientId)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsNewOrderUtils::getRadiologyOrderDialog($this, $imagingTypeId, $patientId);
     }
 
     public function getProviders($neworderprovider_name)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUserUtils::getProviders($this, $neworderprovider_name);
     }
 
     public function getUserSecurityKeys($userDuz)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUserUtils::getUserSecurityKeys($this, $userDuz);
     }
 
     public function isProvider($myDuz)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUserUtils::isProvider($this, $myDuz);
     }
 
     public function userHasKeyOREMAS($myDuz)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUserUtils::userHasKeyOREMAS($this, $myDuz);
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::cancelRadiologyOrder($this, $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
     public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
     }
 
     public function getChemHemLabs()
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::getChemHemLabs($this);
     }
 
     public function getEncounterStringFromVisit($vistitTo)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::getEncounterStringFromVisit($vistitTo);
     }
 
     public function getHospitalLocations($startingitem)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::getHospitalLocations($this, $startingitem);
     }
 
     public function getOrderDetails($myIEN)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::getOrderDetails($this, $myIEN);
     }
 
     public function getRadiologyCancellationReasons($mdwsDao)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::getRadiologyCancellationReasons($this);
     }
 
     public function getVisits()
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::getVisits($this);
     }
 
     public function parseDdrGetsEntryInternalAndExternal($soapResult)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal($soapResult);
     }
 
     public function signNote($newNoteIen, $userDuz, $eSig)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::signNote($this, $newNoteIen, $userDuz, $eSig);
     }
 
     public function validateEsig($eSig)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::validateEsig($this, $eSig);
     }
 
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::verifyNoteTitleMapping($this, $checkVistaNoteIEN, $checkVistaNoteTitle);
     }
 
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::writeRaptorGeneralNote($this, $noteTextArray, $encounterString, $cosignerDUZ);
     }
 
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ)
     {
-        throw new \Exception("Not implemented yet");
+        return \raptor\MdwsUtils::writeRaptorSafetyChecklist($this, $aChecklistData, $encounterString, $cosignerDUZ);
     }
 
 }
