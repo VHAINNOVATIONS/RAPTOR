@@ -95,7 +95,7 @@ class ViewAbout
     {
         global $base_url;
 
-        $vista_dao = new \raptor\VistaDao();
+        $vista_dao = new \raptor\EhrDao();
         
         $vista_integrationinfo = $vista_dao->getIntegrationInfo();
         $logomarkup = "<img style='float:right;' alt='RAPTOR Logo' "

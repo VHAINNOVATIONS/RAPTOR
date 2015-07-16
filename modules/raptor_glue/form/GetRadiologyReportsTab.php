@@ -128,12 +128,12 @@ class GetRadiologyReportsTab
 
         //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         //$radiology_reports_detail = $oPSD->getRadiologyReportsDetail();
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $radiology_reports_detail = $vistaDao->getRadiologyReportsDetailMap();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $radiology_reports_detail = $ehrDao->getRadiologyReportsDetailMap();
 
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$raptor_protocoldashboard = $oDD->getDashboardDetails();
-        $raptor_protocoldashboard = $vistaDao->getDashboardDetailsMap();
+        $raptor_protocoldashboard = $ehrDao->getDashboardDetailsMap();
         $sTrackingIDfromDD = $raptor_protocoldashboard['Tracking ID'];
         $patientDFN=$raptor_protocoldashboard['PatientID'];
         $patientICN=$raptor_protocoldashboard['mpiPid'];

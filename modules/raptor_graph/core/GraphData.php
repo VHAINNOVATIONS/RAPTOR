@@ -22,25 +22,21 @@ namespace raptor;
 class GraphData
 {
     private $m_oContext = NULL;
-    private $m_oRuntimeResultFlexCache = NULL;
     
     function __construct($oContext)
     {
         module_load_include('php', 'raptor_datalayer', 'core/data_context');
-        //module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
         module_load_include('php', 'raptor_datalayer', 'core/VistaDao');
-        module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
-        
         $this->m_oContext = $oContext;
-        $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('GraphData');
     }    
     
     function getThumbnailGraphValues()
     {
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $soapResult = $vistaDao->getRawVitalSignsMap();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $soapResult = $ehrDao->getRawVitalSignsMap();
         $max_dates = 5;
-        $result = $vistaDao->convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
+        $result = $ehrDao->convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
+        //error_log("LOOK thumb soap data>>>".print_r($soapResult,TRUE));
         if(!is_array($result))
         {
             $result = array();
@@ -50,10 +46,11 @@ class GraphData
     
     function getVitalsGraphValues()
     {
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $soapResult = $vistaDao->getRawVitalSignsMap();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $soapResult = $ehrDao->getRawVitalSignsMap();
         $max_dates = 20;
-        $result = $vistaDao->convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
+        $result = $ehrDao->convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
+        //error_log("LOOK vitals soap data>>>".print_r($soapResult,TRUE));
         if(!is_array($result))
         {
             $result = array();
@@ -66,16 +63,16 @@ class GraphData
        
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$aDD = $oDD->getDashboardDetails();
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $aDD = $vistaDao->getDashboardDetailsMap();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $aDD = $ehrDao->getDashboardDetailsMap();
         $selectedPatient = array(
                   'ethnicity'=>$aDD['PatientEthnicity']
                 , 'gender'=>$aDD['PatientGender']
                 , 'age'=>$aDD['PatientAge']);
-        $labsResult = $vistaDao->getChemHemLabs();
+        $labsResult = $ehrDao->getChemHemLabs();
             
         //Pass in selected patient and egfr formula if one is defined 
-        $result = $vistaDao->convertSoapLabsToGraph($selectedPatient, NULL, $labsResult);
+        $result = $ehrDao->convertSoapLabsToGraph($selectedPatient, NULL, $labsResult);
         //error_log('getLabsGraphValues patient>>>'.print_r($selectedPatient,TRUE));
         //error_log('getLabsGraphValues labs>>>'.print_r($labsResult,TRUE));
         //error_log('getLabsGraphValues filtered>>>'.print_r($result,TRUE));

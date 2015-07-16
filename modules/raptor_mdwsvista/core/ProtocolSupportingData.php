@@ -138,7 +138,7 @@ class ProtocolSupportingData
     {
         //$serviceResponse = $this->m_oContext->getEMRService()->getAllMeds();
         //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery('getAllMeds', NULL);
-        $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+        $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
         $serviceResponse = $mdwsDao->makeQuery('getAllMeds', NULL);
         
         $displayMeds = array();
@@ -328,7 +328,7 @@ class ProtocolSupportingData
             return $oCachedResult;
         }
         $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
-        $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+        $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
         $soapResult = $mdwsDao->makeQuery('getVitalSigns', NULL);
         //$soapResult = $this->m_oContext->getMdwsClient()->makeQuery('getVitalSigns', NULL);
         $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $soapResult, CACHE_AGE_LABS);
@@ -861,7 +861,7 @@ class ProtocolSupportingData
         
         //$serviceResponse = $this->m_oContext->getEMRService()->getAllergies();
         //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getAllergies", NULL);
-        $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+        $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
         $serviceResponse = $mdwsDao->makeQuery("getAllergies", NULL);
         $displayAllergies = array();
         
@@ -1158,7 +1158,7 @@ class ProtocolSupportingData
         $fromDate = "".($today['year'] - 20)."0101";
 
         //$serviceResponse = $this->m_oContext->getEMRService()->getChemHemReports(array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
-        $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+        $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
         //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getChemHemReports", array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
         $serviceResponse = $mdwsDao->makeQuery("getChemHemReports", array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
         
@@ -1471,7 +1471,7 @@ class ProtocolSupportingData
     {
         try
         {
-            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
             //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgicalPathologyReports"
             //        , array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>$max_reports));
             $serviceResponse = $mdwsDao->makeQuery("getSurgicalPathologyReports"
@@ -1566,7 +1566,7 @@ class ProtocolSupportingData
         try
         {
             //$serviceResponse = $this->m_oContext->getEMRService()->getSurgeryReportsWithText();
-            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
             $serviceResponse = $mdwsDao->makeQuery("getSurgeryReportsWithText", NULL);
             //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getSurgeryReportsWithText", NULL);
 
@@ -1649,7 +1649,7 @@ class ProtocolSupportingData
         try
         {
             //$serviceResponse = $this->m_oContext->getEMRService()->getProblemList(array('type'=>'active'));
-            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
             $serviceResponse = $mdwsDao->makeQuery("getProblemList", array('type'=>'active'));
             //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getProblemList", array('type'=>'active'));
             $result = array();       
@@ -1736,7 +1736,7 @@ class ProtocolSupportingData
     {
         try
         {
-            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
             $serviceResponse = $mdwsDao->makeQuery("getNotesWithText", array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>0));
             //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getNotesWithText", array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>0));
             $result = array();
@@ -1818,7 +1818,7 @@ class ProtocolSupportingData
     {
         try
         {
-            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
             $serviceResponse = $mdwsDao->makeQuery("getRadiologyReports", array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>0));
             //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getRadiologyReports", array('fromDate'=>'0', 'toDate'=>'0', 'nrpts'=>0));
 

@@ -13,7 +13,7 @@
 
 namespace raptor;
 
-require_once 'IVistaDao.php';
+require_once 'IEhrDao.php';
 require_once 'data_context.php';
 require_once 'RuntimeResultFlexCache.php';
 require_once 'WorklistColumnMap.php';
@@ -23,7 +23,7 @@ require_once 'WorklistColumnMap.php';
  *
  * @author Frank Font of SAN Business Consultants
  */
-class VistaDao implements IVistaDao
+class EhrDao implements IEhrDao
 {
     private $instanceTimestamp = NULL;
     private $m_implclass = NULL;
@@ -33,7 +33,7 @@ class VistaDao implements IVistaDao
     {
         $this->instanceTimestamp = time();
         $this->errorCount = 0;
-        error_log("Creating instance of VistaDao ts={$this->instanceTimestamp}");
+        error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
         module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
         $name = VISTA_INT_IMPL_DAO_CLASSNAME;
         $class = "\\raptor\\$name";
@@ -42,7 +42,7 @@ class VistaDao implements IVistaDao
         //$this->m_oContext = \raptor\Context::getInstance();
         global $user;
         $uid = $user->uid;  //$this->m_oContext->getUID();
-        $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance("VistaDao[$uid]");
+        $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance("EhrDao[$uid]");
         error_log("Constructor completed >>> ".$this);
     }
     
@@ -76,14 +76,14 @@ class VistaDao implements IVistaDao
         }
         try 
         {
-            return 'VistaDao instance created at ' 
+            return 'EhrDao instance created at ' 
                     . $this->instanceTimestamp . ' '
                     . 'current error count=[' . $this->errorCount . '] '
                     . $authenticated_info
                     . $ehr_user_info
                     . "\nImplementation DAO=".$this->m_implclass;
         } catch (\Exception $ex) {
-            return 'Cannot get toString of VistaDao because ' . $ex->getMessage();
+            return 'Cannot get toString of EhrDao because ' . $ex->getMessage();
         }
     }
     

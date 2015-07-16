@@ -14,9 +14,9 @@
 
 namespace raptor;
 
-module_load_include('php', 'raptor_datalayer', 'core/IVistaDao');
+module_load_include('php', 'raptor_datalayer', 'core/IEhrDao');
 
-interface IMdwsDao extends IVistaDao
+interface IMdwsDao extends IEhrDao
 {
     /**
      * Do not spread these calls outside of the mdws module

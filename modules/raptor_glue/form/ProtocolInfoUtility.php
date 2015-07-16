@@ -1122,7 +1122,7 @@ class ProtocolInfoUtility
         $nSiteID = $this->m_oContext->getSiteID();
         $nIEN = $myvalues['tid'];
         $sCWFS = $this->getCurrentWorkflowState($nSiteID, $nIEN);
-        $vistaDao = $this->m_oContext->getVistaDao();
+        $ehrDao = $this->m_oContext->getEhrDao();
         $sTrackingID = $this->m_oTT->getTrackingID($nSiteID, $nIEN);
         $nUID = $userinfo->getUserID();
         $datasaveactionbuttons = 0; //Count number of active buttons that can save changes.
@@ -1130,7 +1130,7 @@ class ProtocolInfoUtility
         $configuredVistaCommit=TRUE;
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_GENERAL;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_GENERAL;
-        if(!$vistaDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
+        if(!$ehrDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
             error_log("WARNING VISTA at site " 
@@ -1140,7 +1140,7 @@ class ProtocolInfoUtility
         }
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_SAFETY_CKLST;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST;
-        if(!$vistaDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
+        if(!$ehrDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
             error_log("WARNING VISTA at site ".VISTA_SITE." is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
@@ -3526,8 +3526,8 @@ class ProtocolInfoUtility
         {
             //$oDD = new \raptor\DashboardData($this->m_oContext);
             //$raptor_protocoldashboard = $oDD->getDashboardDetails();
-            $vistaDao = $this->m_oContext->getVistaDao();
-            $raptor_protocoldashboard = $vistaDao->getDashboardDetailsMap();
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $raptor_protocoldashboard = $ehrDao->getDashboardDetailsMap();
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {
             throw new \Exception('Failed to get the dashboard to save exam fields',91111,$ex);

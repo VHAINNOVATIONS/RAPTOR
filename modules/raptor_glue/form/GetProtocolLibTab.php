@@ -50,7 +50,7 @@ class GetProtocolLibTab
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$this->m_aPatientDD = $oDD->getDashboardDetails();
-        $this->m_aPatientDD = $this->m_oContext->getVistaDao()->getDashboardDetailsMap();
+        $this->m_aPatientDD = $this->m_oContext->getEhrDao()->getDashboardDetailsMap();
     }
 
     /**
@@ -68,8 +68,8 @@ class GetProtocolLibTab
         {
             //$oWL = new \raptor\WorklistData($this->m_oContext);
             //$aOneRow = $oWL->getDashboardMap();
-            $vistaDao = $this->m_oContext->getVistaDao();
-            $aOneRow = $vistaDao->getDashboardDetailsMap();
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $aOneRow = $ehrDao->getDashboardDetailsMap();
             $myvalues = array();
             $myvalues['IEN'] = $nIEN;
             $myvalues['procName'] = $aOneRow['Procedure'];

@@ -39,8 +39,8 @@ class ChooseVisitPage
      */
     function getFieldValues()
     {
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $myvalues['all_visits'] = $vistaDao->getVisits();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $myvalues['all_visits'] = $ehrDao->getVisits();
         $myvalues['selected_vid'] = NULL;
         return $myvalues;
     }

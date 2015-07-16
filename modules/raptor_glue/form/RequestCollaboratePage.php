@@ -44,8 +44,8 @@ class RequestCollaboratePage
         
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $aOneRow = $vistaDao->getDashboardDetailsMap();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $aOneRow = $ehrDao->getDashboardDetailsMap();
         $nSiteID = $this->m_oContext->getSiteID();
         
         $nIEN = $tid;

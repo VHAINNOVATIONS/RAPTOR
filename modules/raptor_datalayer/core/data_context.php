@@ -17,7 +17,7 @@ module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
 
 require_once 'data_utility.php';
 require_once 'data_user.php';
-require_once 'VistaDao.php';
+require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
@@ -57,8 +57,8 @@ class Context
     
     private $m_oVixDao = NULL;      //20140718 
 
-    private $m_oVistaDao = NULL;      //20150714 
-    private $m_mdwsClient=NULL;     //20140718
+    private $m_oEhrDao = NULL;      //20150714 
+    //private $m_mdwsClient=NULL;     //20140718
     
     private $m_sWorklistMode=NULL;  
 
@@ -600,7 +600,7 @@ class Context
             }
         }
         
-        if (!isset($candidate->m_oVistaDao))
+        if (!isset($candidate->m_oEhrDao))
         {
             if($candidate == NULL)
             {
@@ -617,7 +617,7 @@ class Context
             }
         }
         
-        $candidate->getVistaDao();    //Side effect of setting the context in the dao
+        $candidate->getEhrDao();    //Side effect of setting the context in the dao
         return $candidate;
     }
     
@@ -779,7 +779,7 @@ class Context
         $this->m_nLastUpdateTimestamp = microtime(TRUE);
         $this->m_sCurrentTicketID = $sTrackingID;
         
-        $oMC = $this->getVistaDao();
+        $oMC = $this->getEhrDao();
         $sPatientID = $this->checkLocalCache($sTrackingID);
         if($sPatientID == NULL)
         {
@@ -946,7 +946,7 @@ class Context
         try 
         {
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
-            $loginResult = $this->getVistaDao()->connectAndLogin(VISTA_SITE, $sVistaUserID, $sVAPassword);
+            $loginResult = $this->getEhrDao()->connectAndLogin(VISTA_SITE, $sVistaUserID, $sVAPassword);
             $this->clearForceLogoutReason();    //Important that we clear it now otherwise can be stuck in kickout mode.
             return ''; // per data functions doc - return empty string on success
         }  catch (\Exception $ex) {
@@ -963,7 +963,7 @@ class Context
     }
     
     private function isAuthenticatedInEhrSubsystem() {
-        return $this->getVistaDao()->isAuthenticated();
+        return $this->getEhrDao()->isAuthenticated();
     }
 
     private function clearAllContext()
@@ -1041,7 +1041,7 @@ class Context
     {
         try {
             $this->serializeNow('Logging out of MDWS',FALSE);
-            $this->getVistaDao()->disconnect();
+            $this->getEhrDao()->disconnect();
             return '';
         } catch (\Exception $ex) {
             //Log it and continue
@@ -1176,13 +1176,13 @@ class Context
     /**
      * Interface to the EHR
      */
-    public function getVistaDao()
+    public function getEhrDao()
     {
-        if (!isset($this->m_oVistaDao)) 
+        if (!isset($this->m_oEhrDao)) 
         {
-            $this->m_oVistaDao = new \raptor\VistaDao();
+            $this->m_oEhrDao = new \raptor\EhrDao();
         }
-        return $this->m_oVistaDao;
+        return $this->m_oEhrDao;
     }
     
     /**

@@ -251,19 +251,19 @@ function raptor_glue_page_alter(&$page)
                         //Set all the Worklist page values
                         //$oWL = new \raptor\WorklistData($oContext);
                         //$raptor_worklist_rows = $oWL->getWorklistRows();
-                        $vistaDao = $oContext->getVistaDao(); //TODO switch to VistaDao
-                        $raptor_worklist_rows = $vistaDao->getWorklistDetailsMap();
+                        $ehrDao = $oContext->getEhrDao(); //TODO switch to VistaDao
+                        $raptor_worklist_rows = $ehrDao->getWorklistDetailsMap();
                         if(count($raptor_worklist_rows) < 1)
                         {
                             //Empty result is not normal; check the user account.
                             $logmsg = 'No order data was returned from VistA using your account';
                             drupal_set_message($logmsg,'warning');
                             error_log($logmsg);
-                            $userDuz = $vistaDao->getEHRUserID();
-                            $accountproblems = $vistaDao->getVistaAccountKeyProblems();
+                            $userDuz = $ehrDao->getEHRUserID();
+                            $accountproblems = $ehrDao->getVistaAccountKeyProblems();
                             if($accountproblems != NULL)
                             {
-                                $allrights = $vistaDao->getUserSecurityKeys();
+                                $allrights = $ehrDao->getUserSecurityKeys();
                                 $logmsg = "BAD USER ACCOUNT DETECTED"
                                         . " site=$base_url uid=$user->uid path=$currentpath: $accountproblems"
                                         . "\nExisting rights for this user are as follows..." . print_r($allrights,TRUE);

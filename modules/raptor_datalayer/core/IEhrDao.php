@@ -17,7 +17,7 @@ namespace raptor;
 /**
  * The integration interface between RAPTOR and the EHR system.
  */
-interface IVistaDao
+interface IEhrDao
 {
     /**
      * Get user readable information of technology used to integrate with EHR

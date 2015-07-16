@@ -238,8 +238,8 @@ class GetRadiationDoseHxTab
         $hights = NULL;
         $sLowTS = NULL;
         $sHighTS = NULL;
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $notesdetail = $vistaDao->getNotesDetailMap();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $notesdetail = $ehrDao->getNotesDetailMap();
         //$notesdetail = $oPSD->getNotesDetail();
         foreach($notesdetail as $data_row) 
         {
@@ -348,7 +348,7 @@ class GetRadiationDoseHxTab
         global $base_url;
 
         //$protocoldashboard = $this->m_oDD->getDashboardDetails();
-        $protocoldashboard = $this->m_oContext->getVistaDao()->getDashboardDetailsMap();
+        $protocoldashboard = $this->m_oContext->getEhrDao()->getDashboardDetailsMap();
         $patientid=$protocoldashboard['PatientID'];
         $infopackage = $this->getRadDoseDetails();
         $modalitysummary = $infopackage['modalitysummary'];

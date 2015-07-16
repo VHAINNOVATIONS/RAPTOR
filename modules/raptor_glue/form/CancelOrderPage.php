@@ -44,8 +44,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         {
             throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
         }
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $aOneRow = $vistaDao->getDashboardDetailsMap();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $aOneRow = $ehrDao->getDashboardDetailsMap();
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
         $nSiteID = $this->m_oContext->getSiteID();
@@ -113,8 +113,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         {
             $oContext = \raptor\Context::getInstance();
             $userinfo = $oContext->getUserInfo();
-            $vistaDao = $oContext->getVistaDao();
-            $results = $vistaDao->cancelRadiologyOrder( 
+            $ehrDao = $oContext->getEhrDao();
+            $results = $ehrDao->cancelRadiologyOrder( 
                     $myvalues['PatientID'],
                     $orderFileIen,
                     $providerDUZ,
@@ -169,8 +169,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
 
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $aOneRow = $vistaDao->getDashboardDetailsMap();        
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $aOneRow = $ehrDao->getDashboardDetailsMap();        
         $sRequestedByName = $aOneRow['RequestedBy'];
         $canOrderBeDCd = $aOneRow['canOrderBeDCd'];
         $orderFileStatus = $aOneRow['orderFileStatus'];
@@ -189,10 +189,10 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         }
         
         
-        $vistaDao = $this->m_oContext->getVistaDao();
-        $myDuz = $vistaDao->getEHRUserID();
+        $ehrDao = $this->m_oContext->getEhrDao();
+        $myDuz = $ehrDao->getEHRUserID();
         $myIEN = $myvalues['tid'];
-        $orderDetails = $vistaDao->getOrderDetails($myIEN);
+        $orderDetails = $ehrDao->getOrderDetails($myIEN);
         $orginalProviderDuz = $orderDetails['orderingPhysicianDuz'];
 
         //Hidden values
@@ -208,7 +208,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             , '#value' => $orginalProviderDuz);
 
         $needsESIG = FALSE;
-        if($vistaDao->isProvider($myDuz))
+        if($ehrDao->isProvider($myDuz))
         {
             //He is a provider, can only reallycancel if created the order
             if($myDuz == $orginalProviderDuz)
@@ -219,7 +219,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
                     . 'original order and will fully cancel '
                     . 'it by providing the electronic signature.</h2>');
             }
-        } else if($vistaDao->userHasKeyOREMAS($myDuz)) {
+        } else if($ehrDao->userHasKeyOREMAS($myDuz)) {
             //They can cancel with signature on file feature
             $needsESIG = TRUE;
             $form['data_entry_area1']['introblurb'] = array('#type' => 'item'
@@ -238,7 +238,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         }
         
         //Provide the normal form.
-        $aCancelOptions = $vistaDao->getRadiologyCancellationReasons();
+        $aCancelOptions = $ehrDao->getRadiologyCancellationReasons();
         $form['data_entry_area1']['toppart']['reason'] = array(
             "#type" => "select",
             "#title" => t("Reason for Cancel"),
