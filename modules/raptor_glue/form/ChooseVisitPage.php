@@ -39,9 +39,10 @@ class ChooseVisitPage
      */
     function getFieldValues()
     {
-        $oMdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
         //$myvalues['patientid'] = 'TODO';    //!!!!!
-        $myvalues['all_visits'] = \raptor\MdwsUtils::getVisits($oMdwsDao);
+        //$myvalues['all_visits'] = \raptor\MdwsUtils::getVisits($oMdwsDao);
+        $myvalues['all_visits'] = $mdwsDao->getVisits();
         $myvalues['selected_vid'] = NULL;
 
         return $myvalues;

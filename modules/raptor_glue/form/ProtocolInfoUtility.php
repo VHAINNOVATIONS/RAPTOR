@@ -1130,15 +1130,19 @@ class ProtocolInfoUtility
         $configuredVistaCommit=TRUE;
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_GENERAL;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_GENERAL;
-        if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
+        //if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
+        if(!$mdwsDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
-            error_log("WARNING VISTA at site ".VISTA_SITE." is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
+            error_log("WARNING VISTA at site " 
+                    . VISTA_SITE 
+                    . " is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
             $configuredVistaCommit = FALSE;
         }
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_SAFETY_CKLST;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST;
-        if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
+        //if(!MdwsUtils::verifyNoteTitleMapping($mdwsDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
+        if(!$mdwsDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
             error_log("WARNING VISTA at site ".VISTA_SITE." is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");

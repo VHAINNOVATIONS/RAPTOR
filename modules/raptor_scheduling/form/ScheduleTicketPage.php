@@ -723,7 +723,8 @@ class ScheduleTicketPage
         );
         
         $mdwsDao = $this->m_oContext->getMdwsClient();
-        $aCancelOptions = \raptor\MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
+        //$aCancelOptions = \raptor\MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
+        $aCancelOptions = $mdwsDao->getRadiologyCancellationReasons();
         $fulloptionlist = array();
         $fulloptionlist[''] = '';   //Important that the key is empty string not just empty brackets!!!!
         foreach($aCancelOptions as $option)

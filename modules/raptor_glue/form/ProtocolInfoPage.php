@@ -1384,10 +1384,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             } else {
                 try
                 {
-                    $oMdwsDao = $this->m_oContext->getMdwsClient();
-                    $userDuz = $oMdwsDao->getDUZ();
+                    $mdwsDao = $this->m_oContext->getMdwsClient();
+                    $userDuz = $mdwsDao->getDUZ();
                     $eSig = $myvalues['commit_esig'];
-                    $bValidESig = MdwsUtils::validateEsig($oMdwsDao, $eSig);
+                    //$bValidESig = MdwsUtils::validateEsig($mdwsDao, $eSig);
+                    $bValidESig = $mdwsDao->validateEsig($eSig);
                     if(!$bValidESig)
                     {
                         $bGood = FALSE;
@@ -2161,13 +2162,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         return $bSuccess;
     }
     
-    function isValidEsig($eSig,$oMdwsDao=NULL)
+    function isValidEsig($eSig,$mdwsDao=NULL)
     {
-        if($oMdwsDao == NULL)
+        if($mdwsDao == NULL)
         {
-            $oMdwsDao = $this->m_oContext->getMdwsClient();
+            $mdwsDao = $this->m_oContext->getMdwsClient();
         }
-        return MdwsUtils::validateEsig($oMdwsDao, $eSig);
+        //return MdwsUtils::validateEsig($mdwsDao, $eSig);
+        return $mdwsDao->validateEsig($eSig);
     }
     
     /**
@@ -2185,9 +2187,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         
         //Verify the electronic sigature
         $eSig = $myvalues['commit_esig'];
-        $oMdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
         //$bValidESig = MdwsUtils::validateEsig($oMdwsDao, $eSig);
-        $bValidESig = $this->isValidEsig($eSig, $oMdwsDao);
+        $bValidESig = $this->isValidEsig($eSig, $mdwsDao);
         if(!$bValidESig)
         {
             $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' Safety Checklist note to Vista because invalid electronic signature');
@@ -2201,10 +2203,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
             try
             {
-                $oMdwsDao = $this->m_oContext->getMdwsClient();
+                $mdwsDao = $this->m_oContext->getMdwsClient();
                 if($encounterString == NULL)
                 {
-                    $aVisits = \raptor\MdwsUtils::getVisits($oMdwsDao);
+                    //$aVisits = \raptor\MdwsUtils::getVisits($mdwsDao);
+                    $aVisits = $mdwsDao->getVisits();
                     if(is_array($aVisits) && count($aVisits) > 0)
                     {
                         if(isset($myvalues['selected_vid']) && $myvalues['selected_vid'] != '')
@@ -2218,7 +2221,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             {
                                 if($aVisit['locationId'] == $locationId && $aVisit['visitTimestamp'] == $visitTimestamp)
                                 {
-                                    $encounterString = \raptor\MdwsUtils::getEncounterStringFromVisit($aVisit['visitTO']);   //TODO ask the user to pick one!!!
+                                    //$encounterString = \raptor\MdwsUtils::getEncounterStringFromVisit($aVisit['visitTO']);   //TODO ask the user to pick one!!!
+                                    $encounterString = $mdwsDao->getEncounterStringFromVisit($aVisit['visitTO']);  
                                 }
                             }
                             if($encounterString == NULL)
@@ -2242,7 +2246,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $newNoteIen = NULL;
                 try
                 {
-                    $userDuz = $oMdwsDao->getDUZ();
+                    $userDuz = $mdwsDao->getDUZ();
 
                     //Pull values from database that have not yet been committed to VISTA
                     $aChecklistData = array();
@@ -2250,8 +2254,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     if(count($aChecklistData)>0)
                     {
                         //Write the checklist note
-                        $newNoteIen = \raptor\MdwsUtils::writeRaptorSafetyChecklist($oMdwsDao,$aChecklistData,$encounterString,NULL);
-                        MdwsUtils::signNote($oMdwsDao, $newNoteIen, $userDuz, $eSig);
+                        //$newNoteIen = \raptor\MdwsUtils::writeRaptorSafetyChecklist($mdwsDao,$aChecklistData,$encounterString,NULL);
+                        $newNoteIen = $mdwsDao->writeRaptorSafetyChecklist($aChecklistData,$encounterString,NULL);
+                        //MdwsUtils::signNote($mdwsDao, $newNoteIen, $userDuz, $eSig);
+                        $mdwsDao->signNote($newNoteIen, $userDuz, $eSig);
                     }
 
                     //Pull values from database that have not yet been committed to VISTA
@@ -2260,8 +2266,10 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     if(count($noteTextArray)>0)
                     {
                         //Yes, write the general note.
-                        $newGeneralNoteIen = \raptor\MdwsUtils::writeRaptorGeneralNote($oMdwsDao, $noteTextArray, $encounterString, NULL); 
-                        MdwsUtils::signNote($oMdwsDao, $newGeneralNoteIen, $userDuz, $eSig);
+                        //$newGeneralNoteIen = \raptor\MdwsUtils::writeRaptorGeneralNote($mdwsDao, $noteTextArray, $encounterString, NULL); 
+                        $newGeneralNoteIen = $mdwsDao->writeRaptorGeneralNote($mdwsDao, $noteTextArray, $encounterString, NULL); 
+                        //MdwsUtils::signNote($mdwsDao, $newGeneralNoteIen, $userDuz, $eSig);
+                        $mdwsDao->signNote($newGeneralNoteIen, $userDuz, $eSig);
                     }
                 } catch (\Exception $ex) {
                     drupal_set_message('Trouble in commit because ' . $ex->getMessage(),'error');

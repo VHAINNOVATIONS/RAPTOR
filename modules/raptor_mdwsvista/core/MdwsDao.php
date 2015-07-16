@@ -623,6 +623,11 @@ class MdwsDao implements IMdwsDao
         return \raptor\MdwsUtils::cancelRadiologyOrder($this, $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
+    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs=1000)
+    {
+        return \raptor\MdwsUtils::convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs);
+    }
+
     public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates)
     {
         return \raptor\MdwsUtils::convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
@@ -648,7 +653,7 @@ class MdwsDao implements IMdwsDao
         return \raptor\MdwsUtils::getOrderDetails($this, $myIEN);
     }
 
-    public function getRadiologyCancellationReasons($mdwsDao)
+    public function getRadiologyCancellationReasons()
     {
         return \raptor\MdwsUtils::getRadiologyCancellationReasons($this);
     }
@@ -656,11 +661,6 @@ class MdwsDao implements IMdwsDao
     public function getVisits()
     {
         return \raptor\MdwsUtils::getVisits($this);
-    }
-
-    public function parseDdrGetsEntryInternalAndExternal($soapResult)
-    {
-        return \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal($soapResult);
     }
 
     public function signNote($newNoteIen, $userDuz, $eSig)

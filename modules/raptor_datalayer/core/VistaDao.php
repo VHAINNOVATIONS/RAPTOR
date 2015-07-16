@@ -192,17 +192,12 @@ class VistaDao implements IVistaDao
         throw new \Exception("Not implemented yet");
     }
 
-    public function getRadiologyCancellationReasons($mdwsDao)
+    public function getRadiologyCancellationReasons()
     {
         throw new \Exception("Not implemented yet");
     }
 
     public function getVisits()
-    {
-        throw new \Exception("Not implemented yet");
-    }
-
-    public function parseDdrGetsEntryInternalAndExternal($soapResult)
     {
         throw new \Exception("Not implemented yet");
     }
@@ -231,6 +226,10 @@ class VistaDao implements IVistaDao
     {
         throw new \Exception("Not implemented yet");
     }
-    
-    
+
+    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs = 1000)
+    {
+        throw new \Exception("Not implemented yet");
+    }
+
 }

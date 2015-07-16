@@ -114,7 +114,16 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             $oContext = \raptor\Context::getInstance();
             $userinfo = $oContext->getUserInfo();
             $mdwsDao = $oContext->getMdwsClient();
+            /*
             $results = MdwsUtils::cancelRadiologyOrder($mdwsDao, 
+                    $myvalues['PatientID'],
+                    $orderFileIen,
+                    $providerDUZ,
+                    'FakeLocation',
+                    $reasonCode, 
+                    $cancelesig);
+            */
+            $results = $mdwsDao->cancelRadiologyOrder( 
                     $myvalues['PatientID'],
                     $orderFileIen,
                     $providerDUZ,
@@ -192,7 +201,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $myDuz = $mdwsDao->getDUZ();
         $myIEN = $myvalues['tid'];
-        $orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
+        //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
+        $orderDetails = $mdwsDao->getOrderDetails($myIEN);
         $orginalProviderDuz = $orderDetails['orderingPhysicianDuz'];
 
         //Hidden values
@@ -208,7 +218,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             , '#value' => $orginalProviderDuz);
 
         $needsESIG = FALSE;
-        if(MdwsUserUtils::isProvider($mdwsDao, $myDuz))
+        //if(MdwsUserUtils::isProvider($mdwsDao, $myDuz))
+        if($mdwsDao->isProvider($myDuz))
         {
             //He is a provider, can only reallycancel if created the order
             if($myDuz == $orginalProviderDuz)
@@ -219,7 +230,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
                     . 'original order and will fully cancel '
                     . 'it by providing the electronic signature.</h2>');
             }
-        } else if(MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz)) {
+        //} else if(MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz)) {
+        } else if($mdwsDao->userHasKeyOREMAS($myDuz)) {
             //They can cancel with signature on file feature
             $needsESIG = TRUE;
             $form['data_entry_area1']['introblurb'] = array('#type' => 'item'
@@ -238,7 +250,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         }
         
         //Provide the normal form.
-        $aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
+        //$aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
+        $aCancelOptions = $mdwsDao->getRadiologyCancellationReasons();
         $form['data_entry_area1']['toppart']['reason'] = array(
             "#type" => "select",
             "#title" => t("Reason for Cancel"),

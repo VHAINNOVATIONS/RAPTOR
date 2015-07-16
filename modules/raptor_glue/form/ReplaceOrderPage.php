@@ -235,8 +235,10 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $canReallyCancel = $myvalues['canReallyCancel'];
         $canOrderBeDCd = $myvalues['canOrderBeDCd'];
         $myDuz = $mdwsDao->getDUZ();
-        $isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
-        $hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz);
+        //$isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
+        $isPROVIDER = $mdwsDao->isProvider($myDuz);
+        //$hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz);
+        $hasOREMAS = $mdwsDao->userHasKeyOREMAS($myDuz);
         if($isPROVIDER)
         {
             //Provider overrides OREMAS
@@ -327,11 +329,13 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     //We will be the provider on the new order
                     $args['requestingProviderDuz'] = $myDuz;
                 }
-                $neworder = MdwsNewOrderUtils::createNewRadiologyOrder($mdwsDao, $orderChecks, $args);
+                //$neworder = MdwsNewOrderUtils::createNewRadiologyOrder($mdwsDao, $orderChecks, $args);
+                $neworder = $mdwsDao->createNewRadiologyOrder($orderChecks, $args);
             } else {
                 //The other user will need to log into VISTA to sign it
                 $args['requestingProviderDuz'] = $myvalues['originalOrderProviderDuz'];
-                $neworder = MdwsNewOrderUtils::createUnsignedRadiologyOrder($mdwsDao, $orderChecks, $args);
+                //$neworder = MdwsNewOrderUtils::createUnsignedRadiologyOrder($mdwsDao, $orderChecks, $args);
+                $neworder = $mdwsDao->createUnsignedRadiologyOrder($orderChecks, $args);
             }
             
             $neworder['replaced_tid'] = $myvalues['tid'];
@@ -396,7 +400,16 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 }
                 $cancelLocation = $myvalues['neworderlocation'];
                 $cancelDUZ = $myvalues['originalOrderProviderDuz'];    //Always the DUZ from the order being canceled
+                /*
                 $results = MdwsUtils::cancelRadiologyOrder($mdwsDao, 
+                        $myvalues['PatientID'],
+                        $orderFileIen,
+                        $cancelDUZ,
+                        $cancelLocation,
+                        $reasonCode, 
+                        $cancel_esig);
+                */
+                $results = $mdwsDao->cancelRadiologyOrder( 
                         $myvalues['PatientID'],
                         $orderFileIen,
                         $cancelDUZ,
@@ -634,8 +647,10 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $imagetypes = $myvalues['imagetypes'];
 
         $myDuz = $mdwsDao->getDUZ();
-        $isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
-        $hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz);
+        //$isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
+        $isPROVIDER = $mdwsDao->isProvider($myDuz);
+        //$hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz);
+        $hasOREMAS = $mdwsDao->userHasKeyOREMAS($myDuz);
         if($isPROVIDER)
         {
             //Provider overrides OREMAS
@@ -838,7 +853,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             '#disabled' => $disabled,
         );
 
-        $aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
+        //$aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($mdwsDao);
+        $aCancelOptions = $mdwsDao->getRadiologyCancellationReasons();
         
         $form['data_entry_area1']['toppart']['cancelreason'] = array(
             "#type" => "select",
@@ -897,7 +913,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         if($currentstep > 1)
         {
             //Select the new order requester
-            $neworderproviders = MdwsUserUtils::getProviders($mdwsDao, $neworderprovider_name);
+            //$neworderproviders = MdwsUserUtils::getProviders($mdwsDao, $neworderprovider_name);
+            $neworderproviders = $mdwsDao->getProviders($mdwsDao, $neworderprovider_name);
             $requestingProviderDuz = $this->
                     getNonEmptyValueFromArrayElseAlternateLiteral($myvalues
                             , 'requestingProviderDuz', $neworderproviders);
@@ -937,7 +954,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 '#disabled' => $disabled_step2,
                 );        
             //error_log("LOOK ALL THE LOCATIONS OPTIONS>>>>".print_r($locations,TRUE));                
-            $raw_orderitems = MdwsNewOrderUtils::getOrderableItems($mdwsDao, $imagingTypeId);
+            //$raw_orderitems = MdwsNewOrderUtils::getOrderableItems($mdwsDao, $imagingTypeId);
+            $raw_orderitems = $mdwsDao->getOrderableItems($imagingTypeId);
             $orderitems_options = array();
             foreach($raw_orderitems as $k=>$v)
             {
@@ -963,7 +981,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     = array('#type' => 'hidden', '#value' => $orderitems_options);
             
             $patientId = $myvalues['PatientID'];
-            $raworderoptions = MdwsNewOrderUtils::getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId);
+            //$raworderoptions = MdwsNewOrderUtils::getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId);
+            $raworderoptions = $mdwsDao->getRadiologyOrderDialog($imagingTypeId, $patientId);
 
             $raw_modifiers = $raworderoptions['modifiers'];
             if(!is_array($raw_modifiers) || count($raw_modifiers) < 1)
@@ -1273,7 +1292,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 
                 $args['locationIEN'] = $myvalues['neworderlocation'];
                 $args['orderableItemId'] = $myvalues['neworderitem'];
-                $rawchecks = MdwsNewOrderUtils::getRadiologyOrderChecks($mdwsDao, $args);
+                //$rawchecks = MdwsNewOrderUtils::getRadiologyOrderChecks($mdwsDao, $args);
+                $rawchecks = $mdwsDao->getRadiologyOrderChecks($args);
                 $form_state['orderchecks_result'] = $rawchecks;
                 
                 //Format the order check results for UI

@@ -272,13 +272,15 @@ class ProtocolSupportingData
         }
         $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
         $queries = 1;
-        $locations = \raptor\MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
+        //$locations = \raptor\MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
+        $locations = $mdwsDao->getHospitalLocations($startingitem);   
         $prevend = end($locations);
         $lastitem = $prevend;
         while(is_array($locations) && end($locations) > '' && $queries < $maxqueries)
         {
             $queries++;
-            $morelocations = \raptor\MdwsUtils::getHospitalLocations($mdwsDao, $lastitem);
+            //$morelocations = \raptor\MdwsUtils::getHospitalLocations($mdwsDao, $lastitem);
+            $morelocations = $mdwsDao->getHospitalLocations($lastitem);
             $lastitem = end($morelocations);
             if($prevend >= $lastitem)
             {

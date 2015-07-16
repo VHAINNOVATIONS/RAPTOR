@@ -262,10 +262,12 @@ function raptor_glue_page_alter(&$page)
                             module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
                             $mdwsDao = $oContext->getMdwsClient();
                             $userDuz = $mdwsDao->getDUZ();
-                            $accountproblems = \raptor\MdwsUserUtils::getVistaAccountKeyProblems($mdwsDao, $userDuz);
+                            //$accountproblems = \raptor\MdwsUserUtils::getVistaAccountKeyProblems($mdwsDao, $userDuz);
+                            $accountproblems = $mdwsDao->getVistaAccountKeyProblems();
                             if($accountproblems != NULL)
                             {
-                                $allrights = \raptor\MdwsUserUtils::getUserSecurityKeys($mdwsDao, $userDuz);
+                                //$allrights = \raptor\MdwsUserUtils::getUserSecurityKeys($mdwsDao, $userDuz);
+                                $allrights = $mdwsDao->getUserSecurityKeys($userDuz);
                                 $logmsg = "BAD USER ACCOUNT DETECTED"
                                         . " site=$base_url uid=$user->uid path=$currentpath: $accountproblems"
                                         . "\nExisting rights for this user are as follows..." . print_r($allrights,TRUE);

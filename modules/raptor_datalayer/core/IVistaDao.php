@@ -73,14 +73,14 @@ interface IVistaDao
     public function isProvider($myDuz);
     public function userHasKeyOREMAS($myDuz);
     public function cancelRadiologyOrder($patientid,$orderFileIen,$providerDUZ,$locationthing,$reasonCode, $cancelesig);
+    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs=1000);
     public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
     public function getChemHemLabs();
     public function getEncounterStringFromVisit($vistitTo);
     public function getHospitalLocations($startingitem);
     public function getOrderDetails($myIEN);
-    public function getRadiologyCancellationReasons($mdwsDao);
+    public function getRadiologyCancellationReasons();
     public function getVisits();
-    public function parseDdrGetsEntryInternalAndExternal($soapResult);
     public function signNote($newNoteIen, $userDuz, $eSig);
     public function validateEsig($eSig);
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);

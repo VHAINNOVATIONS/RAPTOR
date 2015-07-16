@@ -40,7 +40,8 @@ class GraphData
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $soapResult = $mdwsDao->getRawVitalSignsMap();
         $max_dates = 5;
-        $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
+        //$result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
+        $result = $mdwsDao->convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
         if(!is_array($result))
         {
             $result = array();
@@ -53,7 +54,8 @@ class GraphData
         $mdwsDao = $this->m_oContext->getMdwsClient();
         $soapResult = $mdwsDao->getRawVitalSignsMap();
         $max_dates = 20;
-        $result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
+        //$result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
+        $result = $mdwsDao->convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
         if(!is_array($result))
         {
             $result = array();
@@ -66,15 +68,18 @@ class GraphData
        
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$aDD = $oDD->getDashboardDetails();
-        $aDD = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
+        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $aDD = $mdwsDao->getDashboardDetailsMap();
         $selectedPatient = array(
                   'ethnicity'=>$aDD['PatientEthnicity']
                 , 'gender'=>$aDD['PatientGender']
                 , 'age'=>$aDD['PatientAge']);
-        $labsResult = MdwsUtils::getChemHemLabs($this->m_oContext->getMdwsClient());
+        //$labsResult = MdwsUtils::getChemHemLabs($this->m_oContext->getMdwsClient());
+        $labsResult = $mdwsDao->getChemHemLabs();
             
         //Pass in selected patient and egfr formula if one is defined 
-        $result = MdwsUtils::convertSoapLabsToGraph($selectedPatient, NULL, $labsResult);   //Removed 3 hardcoded limit
+        //$result = MdwsUtils::convertSoapLabsToGraph($selectedPatient, NULL, $labsResult);   //Removed 3 hardcoded limit
+        $result = $mdwsDao->convertSoapLabsToGraph($selectedPatient, NULL, $labsResult);
         //error_log('getLabsGraphValues patient>>>'.print_r($selectedPatient,TRUE));
         //error_log('getLabsGraphValues labs>>>'.print_r($labsResult,TRUE));
         //error_log('getLabsGraphValues filtered>>>'.print_r($result,TRUE));
