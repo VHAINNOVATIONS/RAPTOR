@@ -40,7 +40,6 @@ class GraphData
         $vistaDao = $this->m_oContext->getVistaDao();
         $soapResult = $vistaDao->getRawVitalSignsMap();
         $max_dates = 5;
-        //$result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
         $result = $vistaDao->convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
         if(!is_array($result))
         {
@@ -54,7 +53,6 @@ class GraphData
         $vistaDao = $this->m_oContext->getVistaDao();
         $soapResult = $vistaDao->getRawVitalSignsMap();
         $max_dates = 20;
-        //$result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
         $result = $vistaDao->convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
         if(!is_array($result))
         {
@@ -74,11 +72,9 @@ class GraphData
                   'ethnicity'=>$aDD['PatientEthnicity']
                 , 'gender'=>$aDD['PatientGender']
                 , 'age'=>$aDD['PatientAge']);
-        //$labsResult = MdwsUtils::getChemHemLabs($this->m_oContext->getVistaDao());
         $labsResult = $vistaDao->getChemHemLabs();
             
         //Pass in selected patient and egfr formula if one is defined 
-        //$result = MdwsUtils::convertSoapLabsToGraph($selectedPatient, NULL, $labsResult);   //Removed 3 hardcoded limit
         $result = $vistaDao->convertSoapLabsToGraph($selectedPatient, NULL, $labsResult);
         //error_log('getLabsGraphValues patient>>>'.print_r($selectedPatient,TRUE));
         //error_log('getLabsGraphValues labs>>>'.print_r($labsResult,TRUE));

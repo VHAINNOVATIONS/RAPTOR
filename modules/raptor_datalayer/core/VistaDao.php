@@ -83,7 +83,7 @@ class VistaDao implements IVistaDao
                     . $ehr_user_info
                     . "\nImplementation DAO=".$this->m_implclass;
         } catch (\Exception $ex) {
-            return 'Cannot get toString of MdwsDao because ' . $ex->getMessage();
+            return 'Cannot get toString of VistaDao because ' . $ex->getMessage();
         }
     }
     

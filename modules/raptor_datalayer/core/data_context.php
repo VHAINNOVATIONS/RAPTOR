@@ -608,7 +608,7 @@ class Context
             } else {
                 if(!isset($candidate->m_nUID) || $candidate->m_nUID < 1)
                 {
-                    error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has NO existing Mdws connection for ' 
+                    error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has NO existing Vista connection for ' 
                             . $candidate->m_sVistaUserID . ' from ' 
                             . $_SERVER['REMOTE_ADDR'] 
                             . ' in ' 
@@ -779,7 +779,6 @@ class Context
         $this->m_nLastUpdateTimestamp = microtime(TRUE);
         $this->m_sCurrentTicketID = $sTrackingID;
         
-        //TODO -- make sure the MdwsDao is using the Patient ID for the currently selected sTrackingID
         $oMC = $this->getVistaDao();
         $sPatientID = $this->checkLocalCache($sTrackingID);
         if($sPatientID == NULL)
@@ -876,7 +875,7 @@ class Context
         $this->m_sVistaUserID = $sVistaUserID;  //Cache this for later re-authentications.
         $this->m_sVAPassword = $sVAPassword;    //Cache this for later re-authentications.
         $this->serializeNow();        
-        $result = $this->authenticateMdwsSubsystem($sVistaUserID, $sVAPassword);
+        $result = $this->authenticateEhrSubsystem($sVistaUserID, $sVAPassword);
         $updated_dt = date("Y-m-d H:i:s", time());
         global $user;
         $tempUID = $user->uid;  
@@ -939,27 +938,20 @@ class Context
         return $result;
     }
     
-    private function authenticateMdwsSubsystem($sVistaUserID, $sVAPassword) 
+    private function authenticateEhrSubsystem($sVistaUserID, $sVAPassword) 
     {
-        error_log('WORKFLOWDEBUG>>>Called authenticateMdwsSubsystem for ' 
+        error_log('WORKFLOWDEBUG>>>Called authenticateEhrSubsystem for ' 
                 . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR']  
                 . ' in ' . $this->m_nInstanceTimestamp);
         try 
         {
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
             $loginResult = $this->getVistaDao()->connectAndLogin(VISTA_SITE, $sVistaUserID, $sVAPassword);
-            // NOTE - this code as-is does not save any of the UserTO attributes from the login - may be important (e.g. DUZ)
-            
-            //drupal_set_message('>>>> login details>>>'.print_r($loginResult, TRUE));
-            
             $this->clearForceLogoutReason();    //Important that we clear it now otherwise can be stuck in kickout mode.
             return ''; // per data functions doc - return empty string on success
         }  catch (\Exception $ex) {
-            error_log('Failed to log into MDWS because '.$ex->getMessage());
-            return array(
-                "ERRNUM"=>MdwsUtils::getErrorNumberForException($ex), 
-                "ERRSUMMARY"=>"Error on connect/login", 
-                "ERRDETAIL"=>$ex);
+            error_log('Failed to log into EHR because '.$ex->getMessage());
+            throw new \Exception('Failed to log into EHR',99765,$ex);
         }
     }
     
@@ -967,16 +959,16 @@ class Context
      * @return type TRUE/FALSE
      */
     public function isAuthenticatedInSubsystem() {
-        return $this->isAuthenticatedInMdwsSubsystem();
+        return $this->isAuthenticatedInEhrSubsystem();
     }
     
-    private function isAuthenticatedInMdwsSubsystem() {
+    private function isAuthenticatedInEhrSubsystem() {
         return $this->getVistaDao()->isAuthenticated();
     }
 
     private function clearAllContext()
     {
-        $this->logoutMdwsSubsystem();
+        $this->logoutEhrSubsystem();
         $this->m_nLastUpdateTimestamp = microtime(TRUE);
         $this->m_nInstanceClearedTimestamp = microtime(TRUE);
         $this->m_nInstanceTimestamp = null;
@@ -1045,17 +1037,15 @@ class Context
         return '';  //TODO
     }
     
-    private function logoutMdwsSubsystem() 
+    private function logoutEhrSubsystem() 
     {
         try {
             $this->serializeNow('Logging out of MDWS',FALSE);
             $this->getVistaDao()->disconnect();
-            return "";
+            return '';
         } catch (\Exception $ex) {
-            return array(
-                "ERRNUM"=>MdwsUtils::getErrorNumberForException($ex), 
-                "ERRSUMMARY"=>"Error on disconnect", 
-                "ERRDETAIL"=>$ex);
+            //Log it and continue
+            error_log('Failed logout of EHR system because '.$ex);
         }
     }
 
@@ -1193,24 +1183,6 @@ class Context
             $this->m_oVistaDao = new \raptor\VistaDao();
         }
         return $this->m_oVistaDao;
-    }
-    
-    /**
-     * @description Return the session's MDWS client DAO
-     * @return IMdwsDao
-     * @deprecated WILL BE REMOVED ONCE getVistaDao is fully in use!!!!!
-     */
-    public function getMdwsClient($bRefreshConnection=FALSE)
-    {
-        return $this->getVistaDao();
-        
-        
-        error_log("LOOK Getting the MdwsDao NOW from context ".$this);
-        if($this->m_mdwsClient == NULL)
-        {
-            $this->m_mdwsClient = new \raptor\MdwsDao();
-        }
-        return $this->m_mdwsClient;
     }
     
     /**

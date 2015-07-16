@@ -1387,7 +1387,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     $vistaDao = $this->m_oContext->getVistaDao();
                     $userDuz = $vistaDao->getEHRUserID();
                     $eSig = $myvalues['commit_esig'];
-                    //$bValidESig = MdwsUtils::validateEsig($vistaDao, $eSig);
                     $bValidESig = $vistaDao->validateEsig($eSig);
                     if(!$bValidESig)
                     {
@@ -2168,7 +2167,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         {
             $vistaDao = $this->m_oContext->getVistaDao();
         }
-        //return MdwsUtils::validateEsig($vistaDao, $eSig);
         return $vistaDao->validateEsig($eSig);
     }
     
@@ -2188,7 +2186,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         //Verify the electronic sigature
         $eSig = $myvalues['commit_esig'];
         $vistaDao = $this->m_oContext->getVistaDao();
-        //$bValidESig = MdwsUtils::validateEsig($oMdwsDao, $eSig);
         $bValidESig = $this->isValidEsig($eSig, $vistaDao);
         if(!$bValidESig)
         {
@@ -2206,7 +2203,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $vistaDao = $this->m_oContext->getVistaDao();
                 if($encounterString == NULL)
                 {
-                    //$aVisits = \raptor\MdwsUtils::getVisits($vistaDao);
                     $aVisits = $vistaDao->getVisits();
                     if(is_array($aVisits) && count($aVisits) > 0)
                     {
@@ -2221,7 +2217,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             {
                                 if($aVisit['locationId'] == $locationId && $aVisit['visitTimestamp'] == $visitTimestamp)
                                 {
-                                    //$encounterString = \raptor\MdwsUtils::getEncounterStringFromVisit($aVisit['visitTO']);   //TODO ask the user to pick one!!!
                                     $encounterString = $vistaDao->getEncounterStringFromVisit($aVisit['visitTO']);  
                                 }
                             }
@@ -2231,10 +2226,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             }
                         } else {
                             throw new \Exception('Did not find any selected visit for the VISTA writeback!');
-                            //drupal_set_message('TODO remove automatic selection of first visit for writeback.  Used for writing this record!','warning');
-                            //error_log('commitChecklistToVista got visits='.print_r($aVisits,TRUE).'');                
-                            //$encounterString = \raptor\MdwsUtils::getEncounterStringFromVisit($aVisits[0]['visitTO']);   //TODO ask the user to pick one!!!
-                            //error_log('commitChecklistToVista got most recent visit on ticket '.$nSiteID.'-'.$nIEN.' as encounterString=['.$encounterString.']');                
                         }
                     } else {
                        drupal_set_message('Did NOT find any visits to which we can commit a note!','error'); 
@@ -2254,9 +2245,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     if(count($aChecklistData)>0)
                     {
                         //Write the checklist note
-                        //$newNoteIen = \raptor\MdwsUtils::writeRaptorSafetyChecklist($vistaDao,$aChecklistData,$encounterString,NULL);
                         $newNoteIen = $vistaDao->writeRaptorSafetyChecklist($aChecklistData,$encounterString,NULL);
-                        //MdwsUtils::signNote($vistaDao, $newNoteIen, $userDuz, $eSig);
                         $vistaDao->signNote($newNoteIen, $eSig);
                     }
 
@@ -2266,9 +2255,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     if(count($noteTextArray)>0)
                     {
                         //Yes, write the general note.
-                        //$newGeneralNoteIen = \raptor\MdwsUtils::writeRaptorGeneralNote($vistaDao, $noteTextArray, $encounterString, NULL); 
                         $newGeneralNoteIen = $vistaDao->writeRaptorGeneralNote($noteTextArray, $encounterString, NULL); 
-                        //MdwsUtils::signNote($vistaDao, $newGeneralNoteIen, $userDuz, $eSig);
                         $vistaDao->signNote($newGeneralNoteIen, $eSig);
                     }
                 } catch (\Exception $ex) {

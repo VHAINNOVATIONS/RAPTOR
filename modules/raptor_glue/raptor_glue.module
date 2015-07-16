@@ -259,13 +259,10 @@ function raptor_glue_page_alter(&$page)
                             $logmsg = 'No order data was returned from VistA using your account';
                             drupal_set_message($logmsg,'warning');
                             error_log($logmsg);
-                            //module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
                             $userDuz = $vistaDao->getEHRUserID();
-                            //$accountproblems = \raptor\MdwsUserUtils::getVistaAccountKeyProblems($vistaDao, $userDuz);
                             $accountproblems = $vistaDao->getVistaAccountKeyProblems();
                             if($accountproblems != NULL)
                             {
-                                //$allrights = \raptor\MdwsUserUtils::getUserSecurityKeys($vistaDao, $userDuz);
                                 $allrights = $vistaDao->getUserSecurityKeys();
                                 $logmsg = "BAD USER ACCOUNT DETECTED"
                                         . " site=$base_url uid=$user->uid path=$currentpath: $accountproblems"

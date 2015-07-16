@@ -10,12 +10,13 @@
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  * 
- * The core VistA integration functions that are required by RAPTOR
- * 
  */ 
 
 namespace raptor;
 
+/**
+ * The integration interface between RAPTOR and the EHR system.
+ */
 interface IVistaDao
 {
     /**
@@ -66,38 +67,63 @@ interface IVistaDao
     /**
      * Get associative array of dashboard for one order.
      */
-    public function getDashboardDetailsMap($override_tracking_id);
+    public function getDashboardDetailsMap($override_tracking_id=NULL);
 
     /**
      * Get the EHR User ID of the user currently logged in.
      */
     public function getEHRUserID($fail_if_missing=TRUE);
 
+    /**
+     * User readible information about the instance
+     */
+    public function __toString();
+    
+    public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
+    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs = 1000);
+    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5);
     public function createNewRadiologyOrder($orderChecks, $args);
     public function createUnsignedRadiologyOrder($orderChecks, $args);
-    public function getOrderableItems($imagingTypeId);
-    public function getRadiologyOrderChecks($args);
-    public function getRadiologyOrderDialog($imagingTypeId, $patientId);
-    public function getProviders($neworderprovider_name);
-    public function getUserSecurityKeys();
-    public function isProvider();
-    public function userHasKeyOREMAS();
-    public function cancelRadiologyOrder($patientid,$orderFileIen,$providerDUZ,$locationthing,$reasonCode, $cancelesig);
-    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs=1000);
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5);
+    public function getAllHospitalLocationsMap();
+    public function getAllergiesDetailMap();
+    public function getAllergyContrastKeywordsMap();
+    public function getBloodThinnerKeywordsMap();
     public function getChemHemLabs();
+    public function getDiagnosticLabsDetailMap();
+    public function getEGFRDetailMap();
     public function getEncounterStringFromVisit($vistitTo);
     public function getHospitalLocations($startingitem);
+    public function getImagingTypesMap();
+    public function getImplementationInstance();
+    public function getMedicationsDetailMap($atriskmeds = NULL);
+    public function getNotesDetailMap();
     public function getOrderDetails($myIEN);
+    public function getOrderOverviewMap();
+    public function getOrderableItems($imagingTypeId);
+    public function getPathologyReportsDetailMap();
+    public function getPatientDashboardMap();
+    public function getPendingOrdersMap();
+    public function getProblemsListDetailMap();
+    public function getProcedureLabsDetailMap();
+    public function getProviders($neworderprovider_name);
     public function getRadiologyCancellationReasons();
+    public function getRadiologyOrderChecks($args);
+    public function getRadiologyOrderDialog($imagingTypeId, $patientId);
+    public function getRadiologyReportsDetailMap();
+    public function getRareContrastKeywordsMap();
+    public function getRareRadioisotopeKeywordsMap();
+    public function getRawVitalSignsMap();
+    public function getSurgeryReportsDetailMap();
+    public function getUserSecurityKeys();
     public function getVisits();
+    public function getVitalsDetailMap();
+    public function getVitalsDetailOnlyLatestMap();
+    public function getVitalsSummaryMap();
+    public function isProvider();
     public function signNote($newNoteIen, $eSig);
+    public function userHasKeyOREMAS();
     public function validateEsig($eSig);
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ);
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ);
-    
-    //xxxxxxxxxxxxx
-    
-    public function getVitalsDetailOnlyLatestMap();
 }

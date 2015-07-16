@@ -1130,7 +1130,6 @@ class ProtocolInfoUtility
         $configuredVistaCommit=TRUE;
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_GENERAL;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_GENERAL;
-        //if(!MdwsUtils::verifyNoteTitleMapping($vistaDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
         if(!$vistaDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.
@@ -1141,7 +1140,6 @@ class ProtocolInfoUtility
         }
         $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_SAFETY_CKLST;
         $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST;
-        //if(!MdwsUtils::verifyNoteTitleMapping($vistaDao, $checkVistaNoteIEN, $checkVistaNoteTitle))
         if(!$vistaDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
         {
             //Write to the log and continue.

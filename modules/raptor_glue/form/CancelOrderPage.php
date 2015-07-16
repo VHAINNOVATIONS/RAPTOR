@@ -192,7 +192,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         $vistaDao = $this->m_oContext->getVistaDao();
         $myDuz = $vistaDao->getEHRUserID();
         $myIEN = $myvalues['tid'];
-        //$orderDetails = MdwsUtils::getOrderDetails($vistaDao, $myIEN);
         $orderDetails = $vistaDao->getOrderDetails($myIEN);
         $orginalProviderDuz = $orderDetails['orderingPhysicianDuz'];
 
@@ -209,7 +208,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             , '#value' => $orginalProviderDuz);
 
         $needsESIG = FALSE;
-        //if(MdwsUserUtils::isProvider($vistaDao, $myDuz))
         if($vistaDao->isProvider($myDuz))
         {
             //He is a provider, can only reallycancel if created the order
@@ -221,7 +219,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
                     . 'original order and will fully cancel '
                     . 'it by providing the electronic signature.</h2>');
             }
-        //} else if(MdwsUserUtils::userHasKeyOREMAS($vistaDao, $myDuz)) {
         } else if($vistaDao->userHasKeyOREMAS($myDuz)) {
             //They can cancel with signature on file feature
             $needsESIG = TRUE;
@@ -241,7 +238,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         }
         
         //Provide the normal form.
-        //$aCancelOptions = MdwsUtils::getRadiologyCancellationReasons($vistaDao);
         $aCancelOptions = $vistaDao->getRadiologyCancellationReasons();
         $form['data_entry_area1']['toppart']['reason'] = array(
             "#type" => "select",
