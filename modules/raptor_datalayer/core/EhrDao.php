@@ -27,23 +27,16 @@ class EhrDao implements IEhrDao
 {
     private $instanceTimestamp = NULL;
     private $m_implclass = NULL;
-    private $m_oRuntimeResultFlexCache;    //Cache results.
     
     function __construct()
     {
         $this->instanceTimestamp = time();
-        $this->errorCount = 0;
         error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
         module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
         $name = VISTA_INT_IMPL_DAO_CLASSNAME;
         $class = "\\raptor\\$name";
         $this->m_implclass = new $class();
-        
-        //$this->m_oContext = \raptor\Context::getInstance();
-        global $user;
-        $uid = $user->uid;  //$this->m_oContext->getUID();
-        $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance("EhrDao[$uid]");
-        error_log("Constructor completed >>> ".$this);
+        error_log("Construction completed >>> ".$this);
     }
     
     /**
@@ -78,7 +71,6 @@ class EhrDao implements IEhrDao
         {
             return 'EhrDao instance created at ' 
                     . $this->instanceTimestamp . ' '
-                    . 'current error count=[' . $this->errorCount . '] '
                     . $authenticated_info
                     . $ehr_user_info
                     . "\nImplementation DAO=".$this->m_implclass;
@@ -117,27 +109,7 @@ class EhrDao implements IEhrDao
      */
     function getDashboardDetailsMap($override_tracking_id=NULL)
     {
-        if($override_tracking_id == NULL)
-        {
-            $oContext = Context::getInstance();
-            $tid = $oContext->getSelectedTrackingID();
-        } else {
-            $tid = $override_tracking_id;
-        }
-        
-        //Look in the cache first
-        $sThisResultName = "getDashboardDetailsMap[$tid]";
-        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
-        if($aCachedResult !== NULL)
-        {
-            //Found it in the cache
-            return $aCachedResult;
-        }
-
-        //Get the content and add it to the cache
-        $aResult = $this->m_implclass->getDashboardDetailsMap();
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
-        return $aResult;
+        return $this->m_implclass->getDashboardDetailsMap();
     }
     
     public function getWorklistDetailsMap()
@@ -285,8 +257,6 @@ class EhrDao implements IEhrDao
         return $this->m_implclass->getVitalsDetailOnlyLatestMap();
     }
     
-    //xxxxxxxxxxxxxxxxxxxxx
-    
     public function getEGFRDetailMap()
     {
         return $this->m_implclass->getEGFRDetailMap();
@@ -321,9 +291,6 @@ class EhrDao implements IEhrDao
     {
         return $this->m_implclass->getRawVitalSignsMap();
     }
-    
-    
-//yyyyyyyyyyyyy
     
     public function getAllHospitalLocationsMap()
     {
@@ -385,8 +352,6 @@ class EhrDao implements IEhrDao
         return $this->m_implclass->getMedicationsDetailMap($atriskmeds);
     }
     
-//zzzzzzzzzzzzzzzzzz
-    
     public function getNotesDetailMap()
     {
         return $this->m_implclass->getNotesDetailMap();
@@ -401,6 +366,4 @@ class EhrDao implements IEhrDao
     {
         return $this->m_implclass->getImagingTypesMap();
     }
-    
-    
 }

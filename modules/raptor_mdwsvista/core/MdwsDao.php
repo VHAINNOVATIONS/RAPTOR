@@ -435,15 +435,40 @@ class MdwsDao implements IMdwsDao
         }
     }
 
-    private function getProtocolSupportingData($function_name, $args = NULL)
+    private function getProtocolSupportingDataNoCache($oContext, $function_name, $args = NULL)
+    {
+        $aResult = array();
+        if ($this->m_oPS == NULL)
+        {
+            $this->m_oPS = new \raptor_mdwsvista\ProtocolSupportingData($oContext);
+        }
+        if ($args != NULL)
+        {
+            $aResult = $this->m_oPS->$function_name($this);
+        } else {
+            $aResult = $this->m_oPS->$function_name();
+        }
+        return $aResult;
+    }
+    
+    private function getProtocolSupportingData($function_name, $args = NULL, $cache_item_name=NULL)
     {
         //error_log("LOOK TEMP getProtocolSupportingData($function_name,$args)");
-        $sThisResultName = $function_name;
-        try {
-            $aResult = array();
+        try 
+        {
             $oContext = \raptor\Context::getInstance();
-            if ($oContext != NULL)
+            if($oContext == NULL)
             {
+                throw new \Exception("Cannot execute $function_name without a valid context!");
+            }
+            $aResult = array();
+            if($cache_item_name == NULL)
+            {
+                //Simply call it, no cache.
+                $aResult = $this->getProtocolSupportingDataNoCache($oContext, $function_name, $args);
+            } else {
+                //Utilize the cache.
+                $sThisResultName = $cache_item_name;
                 $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
@@ -456,17 +481,7 @@ class MdwsDao implements IMdwsDao
                 }
 
                 //Create it now and add it to the cache
-                if ($this->m_oPS == NULL)
-                {
-                    $this->m_oPS = new \raptor_mdwsvista\ProtocolSupportingData($oContext);
-                }
-                if ($args != NULL)
-                {
-                    $aResult = $this->m_oPS->$function_name($this);
-                } else
-                {
-                    $aResult = $this->m_oPS->$function_name();
-                }
+                $aResult = $this->getProtocolSupportingDataNoCache($oContext, $function_name, $args);
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
                     try {
