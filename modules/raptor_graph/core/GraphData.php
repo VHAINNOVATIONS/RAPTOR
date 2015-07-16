@@ -37,7 +37,7 @@ class GraphData
     
     function getThumbnailGraphValues()
     {
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $soapResult = $mdwsDao->getRawVitalSignsMap();
         $max_dates = 5;
         //$result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
@@ -51,7 +51,7 @@ class GraphData
     
     function getVitalsGraphValues()
     {
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $soapResult = $mdwsDao->getRawVitalSignsMap();
         $max_dates = 20;
         //$result = MdwsUtils::convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
@@ -68,13 +68,13 @@ class GraphData
        
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$aDD = $oDD->getDashboardDetails();
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $aDD = $mdwsDao->getDashboardDetailsMap();
         $selectedPatient = array(
                   'ethnicity'=>$aDD['PatientEthnicity']
                 , 'gender'=>$aDD['PatientGender']
                 , 'age'=>$aDD['PatientAge']);
-        //$labsResult = MdwsUtils::getChemHemLabs($this->m_oContext->getMdwsClient());
+        //$labsResult = MdwsUtils::getChemHemLabs($this->m_oContext->getVistaDao());
         $labsResult = $mdwsDao->getChemHemLabs();
             
         //Pass in selected patient and egfr formula if one is defined 

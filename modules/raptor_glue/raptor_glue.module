@@ -251,7 +251,7 @@ function raptor_glue_page_alter(&$page)
                         //Set all the Worklist page values
                         //$oWL = new \raptor\WorklistData($oContext);
                         //$raptor_worklist_rows = $oWL->getWorklistRows();
-                        $mdwsDao = $oContext->getMdwsClient(); //TODO switch to VistaDao
+                        $mdwsDao = $oContext->getVistaDao(); //TODO switch to VistaDao
                         $raptor_worklist_rows = $mdwsDao->getWorklistDetailsMap();
                         if(count($raptor_worklist_rows) < 1)
                         {

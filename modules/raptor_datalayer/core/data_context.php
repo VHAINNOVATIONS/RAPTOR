@@ -54,10 +54,10 @@ class Context
 
     private $m_aForceLogoutReason = NULL;   //If not NULL, then we should force a logout.
 
-    private $m_oVistaDao = NULL;      //20150714 
     
     private $m_oVixDao = NULL;      //20140718 
 
+    private $m_oVistaDao = NULL;      //20150714 
     private $m_mdwsClient=NULL;     //20140718
     
     private $m_sWorklistMode=NULL;  
@@ -600,7 +600,7 @@ class Context
             }
         }
         
-        if (!isset($candidate->m_mdwsClient))
+        if (!isset($candidate->m_oVistaDao))
         {
             if($candidate == NULL)
             {
@@ -617,7 +617,7 @@ class Context
             }
         }
         
-        $candidate->getMdwsClient();    //Side effect of setting the context in the dao
+        $candidate->getVistaDao();    //Side effect of setting the context in the dao
         return $candidate;
     }
     
@@ -780,7 +780,7 @@ class Context
         $this->m_sCurrentTicketID = $sTrackingID;
         
         //TODO -- make sure the MdwsDao is using the Patient ID for the currently selected sTrackingID
-        $oMC = $this->getMdwsClient();
+        $oMC = $this->getVistaDao();
         $sPatientID = $this->checkLocalCache($sTrackingID);
         if($sPatientID == NULL)
         {
@@ -947,7 +947,7 @@ class Context
         try 
         {
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
-            $loginResult = $this->getMdwsClient()->connectAndLogin(VISTA_SITE, $sVistaUserID, $sVAPassword);
+            $loginResult = $this->getVistaDao()->connectAndLogin(VISTA_SITE, $sVistaUserID, $sVAPassword);
             // NOTE - this code as-is does not save any of the UserTO attributes from the login - may be important (e.g. DUZ)
             
             //drupal_set_message('>>>> login details>>>'.print_r($loginResult, TRUE));
@@ -971,7 +971,7 @@ class Context
     }
     
     private function isAuthenticatedInMdwsSubsystem() {
-        return $this->getMdwsClient()->isAuthenticated();
+        return $this->getVistaDao()->isAuthenticated();
     }
 
     private function clearAllContext()
@@ -985,10 +985,6 @@ class Context
         $this->m_nUID = 0;
         $this->m_sVistaUserID = null;
         $this->m_sVAPassword = null;
-        /*
-        $this->m_mdwsClient=NULL; // MdwsDao
-         * 
-         */
         Context::debugDrupalMsg('cleared all context of instance [' . $this->m_nInstanceTimestamp . '] at [' . microtime(TRUE) . ']');
         return '';
     }
@@ -1053,7 +1049,7 @@ class Context
     {
         try {
             $this->serializeNow('Logging out of MDWS',FALSE);
-            $this->getMdwsClient()->disconnect();
+            $this->getVistaDao()->disconnect();
             return "";
         } catch (\Exception $ex) {
             return array(
@@ -1206,6 +1202,9 @@ class Context
      */
     public function getMdwsClient($bRefreshConnection=FALSE)
     {
+        return $this->getVistaDao();
+        
+        
         error_log("LOOK Getting the MdwsDao NOW from context ".$this);
         if($this->m_mdwsClient == NULL)
         {

@@ -46,7 +46,7 @@ class ResetWorkflowPage extends \raptor\ASimpleFormPage
         }
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $aOneRow = $mdwsDao->getDashboardDetailsMap();
         $nSiteID = $this->m_oContext->getSiteID();
         

@@ -53,7 +53,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         }
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $aOneRow = $mdwsDao->getDashboardDetailsMap();
         $nUID = $this->m_oContext->getUID();
         $imagetypes = $mdwsDao->getImagingTypesMap($mdwsDao);
@@ -226,7 +226,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
     function updateDatabaseFromFormState($form, &$form_state)
     {
         $myvalues = $form_state['values'];
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         
         $canCreateNewOrder = $myvalues['canCreateNewOrder'];
         $canReallyCancel = $myvalues['canReallyCancel'];
@@ -608,7 +608,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $disabled_step1 = $disabled || ($currentstep > 1);
         $disabled_step2 = $disabled || ($currentstep > 2);
 
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $myIEN = $myvalues['tid'];
         
         //$oDD = new \raptor\DashboardData($this->m_oContext);
@@ -922,7 +922,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             //Important NOT to mark fields as #required else BACK will fail!!!
             $imagingTypeId = intval($myvalues['neworderimagetype']);
             //$locations = $this->m_oPS->getAllHospitalLocations($mdwsDao);
-            $locations = $this->m_oContext->getMdwsClient()->getAllHospitalLocationsMap();
+            $locations = $this->m_oContext->getVistaDao()->getAllHospitalLocationsMap();
             $neworderlocation = FormHelper::getKeyOfValue($locations, $rpd['PatientLocation']);
             if($neworderlocation === FALSE)
             {

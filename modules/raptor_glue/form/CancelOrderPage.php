@@ -44,7 +44,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         {
             throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
         }
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $aOneRow = $mdwsDao->getDashboardDetailsMap();
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
@@ -113,7 +113,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         {
             $oContext = \raptor\Context::getInstance();
             $userinfo = $oContext->getUserInfo();
-            $mdwsDao = $oContext->getMdwsClient();
+            $mdwsDao = $oContext->getVistaDao();
             $results = $mdwsDao->cancelRadiologyOrder( 
                     $myvalues['PatientID'],
                     $orderFileIen,
@@ -169,7 +169,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
 
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $aOneRow = $mdwsDao->getDashboardDetailsMap();        
         $sRequestedByName = $aOneRow['RequestedBy'];
         $canOrderBeDCd = $aOneRow['canOrderBeDCd'];
@@ -189,7 +189,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         }
         
         
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $myDuz = $mdwsDao->getEHRUserID();
         $myIEN = $myvalues['tid'];
         //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);

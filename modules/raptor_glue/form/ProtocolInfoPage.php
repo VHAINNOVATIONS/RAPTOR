@@ -68,7 +68,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$this->m_aPatientDD = $oDD->getDashboardDetails();
-        $this->m_aPatientDD = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
+        $this->m_aPatientDD = $this->m_oContext->getVistaDao()->getDashboardDetailsMap();
     }
 
     /**
@@ -661,7 +661,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
             //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
             //$aEGFR = $oPSD->getEGFRDetail();
-            $mdwsDao = $this->m_oContext->getMdwsClient();
+            $mdwsDao = $this->m_oContext->getVistaDao();
             $aLatestVitals = $mdwsDao->getVitalsDetailOnlyLatestMap();            
             $aEGFR = $mdwsDao->getEGFRDetailMap();            
             
@@ -704,7 +704,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         {
             //$oWL = new \raptor\WorklistData($this->m_oContext);
             //$aOneRow = $oWL->getDashboardMap($tid);
-            $mdwsDao = $this->m_oContext->getMdwsClient();
+            $mdwsDao = $this->m_oContext->getVistaDao();
             $aOneRow = $mdwsDao->getDashboardDetailsMap($tid);
             $nSiteID = $this->m_oContext->getSiteID();
             $nIEN = $tid;
@@ -1384,7 +1384,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             } else {
                 try
                 {
-                    $mdwsDao = $this->m_oContext->getMdwsClient();
+                    $mdwsDao = $this->m_oContext->getVistaDao();
                     $userDuz = $mdwsDao->getEHRUserID();
                     $eSig = $myvalues['commit_esig'];
                     //$bValidESig = MdwsUtils::validateEsig($mdwsDao, $eSig);
@@ -2166,7 +2166,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     {
         if($mdwsDao == NULL)
         {
-            $mdwsDao = $this->m_oContext->getMdwsClient();
+            $mdwsDao = $this->m_oContext->getVistaDao();
         }
         //return MdwsUtils::validateEsig($mdwsDao, $eSig);
         return $mdwsDao->validateEsig($eSig);
@@ -2187,7 +2187,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         
         //Verify the electronic sigature
         $eSig = $myvalues['commit_esig'];
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         //$bValidESig = MdwsUtils::validateEsig($oMdwsDao, $eSig);
         $bValidESig = $this->isValidEsig($eSig, $mdwsDao);
         if(!$bValidESig)
@@ -2203,7 +2203,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
             try
             {
-                $mdwsDao = $this->m_oContext->getMdwsClient();
+                $mdwsDao = $this->m_oContext->getVistaDao();
                 if($encounterString == NULL)
                 {
                     //$aVisits = \raptor\MdwsUtils::getVisits($mdwsDao);
@@ -2349,7 +2349,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $tid = $nSiteID.'-'.$nIEN;
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOrderInfo = $oWL->getDashboardMap();
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $aOrderInfo = $mdwsDao->getDashboardDetailsMap();
         $aQuestionsMetadata = $this->getAllSavedSafetyChecklistTicketData($nSiteID,$nIEN,$oAllUsers,$prev_commit_dt);
         if(count($aQuestionsMetadata)>0)
@@ -2431,7 +2431,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $tid = $nSiteID.'-'.$nIEN;
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOrderInfo = $oWL->getDashboardMap();
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $aOrderInfo = $mdwsDao->getDashboardDetailsMap();
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
@@ -2948,7 +2948,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         }
         $oCIE = $this->m_oCIE;
         
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         
         $patientDashboard = $mdwsDao->getPatientDashboardMap();
         $examcategory = strtoupper($patientDashboard['ExamCategory']);
@@ -3273,7 +3273,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         //Set all the Protocol page values
         $raptor_protocoldashboard = $this->m_aPatientDD;
         //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $oGD = new \raptor\GraphData($this->m_oContext);
         $oLO = new \raptor\ListOptions();
         $atriskmeds= $oLO->getAtRiskMedsKeywords();

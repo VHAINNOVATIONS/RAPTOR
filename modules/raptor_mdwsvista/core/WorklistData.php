@@ -509,7 +509,9 @@ class WorklistData
 //                '6' FOR ACTIVE;
 //                '8' FOR SCHEDULED;
 //                '11' FOR UNRELEASED;
-            $result = $this->m_oContext->getMdwsClient()->makeQuery("ddrLister", array(
+            //$mdwsDao = $this->m_oContext->getMdwsClient();
+            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            $result = $mdwsDao->makeQuery('ddrLister', array(
                 'file'=>'75.1', 
                 'iens'=>'',     //Only for sub files
                 'fields'=>$this->getWorklistVistaFieldArgumentString(), 
@@ -523,7 +525,7 @@ class WorklistData
                 ));
             
         } catch (\Exception $ex) {
-            $msg = 'Failed getting worklist because '.$ex;
+            $msg = 'Failed getting worklist because ' . $ex;
             error_log($msg);
             throw $ex;
         }
@@ -550,12 +552,21 @@ class WorklistData
                 throw new \Exception($sMsg);
             }
 
+            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            $aResult = \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal($mdwsDao->makeQuery("ddrGetsEntry", array(
+                'file'=>'75.1', 
+                'iens'=>($nIEN.','),
+                'flds'=>'*', 
+                'flags'=>'IEN'
+                )));
+            /*
             $aResult = \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
                 'file'=>'75.1', 
                 'iens'=>($nIEN.','),
                 'flds'=>'*', 
                 'flags'=>'IEN'
                 )));
+             */
 
             return $aResult;
         } catch (\Exception $ex) {
@@ -680,8 +691,18 @@ class WorklistData
             // use DDR GETS ENTRY to fetch CLINICAL Hx WP field
             $worklistItemDict = $this->getWorklistItemFromMDWS($tid);
             $orderFileIen = $worklistItemDict['7']['I'];
+            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            /*
             $orderFileRec = \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal
                ($this->m_oContext->getMdwsClient()->makeQuery('ddrGetsEntry', array(
+                   'file'=>'100', 
+                   'iens'=>($orderFileIen.','),
+                   'flds'=>'*', 
+                   'flags'=>'IEN'
+               )));
+             */
+            $orderFileRec = \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal
+               ($mdwsDao->makeQuery('ddrGetsEntry', array(
                    'file'=>'100', 
                    'iens'=>($orderFileIen.','),
                    'flds'=>'*', 
@@ -766,7 +787,9 @@ class WorklistData
         try
         {
             //$serviceResponse = $this->getEMRService()->select(array('DFN'=>$pid == null ? $this->getPatientID() : $pid));
-            $serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("select", array('DFN'=>$pid));
+            $mdwsDao = $this->m_oContext->getVistaDao()->getImplementationInstance();
+            $serviceResponse = $mdwsDao->makeQuery("select", array('DFN'=>$pid));
+            //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("select", array('DFN'=>$pid));
             //drupal_set_message('LOOK DFN RESULT>>>>' . print_r($serviceResponse, TRUE));
 
             $result = array();

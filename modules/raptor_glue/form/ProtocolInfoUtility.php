@@ -1122,7 +1122,7 @@ class ProtocolInfoUtility
         $nSiteID = $this->m_oContext->getSiteID();
         $nIEN = $myvalues['tid'];
         $sCWFS = $this->getCurrentWorkflowState($nSiteID, $nIEN);
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $sTrackingID = $this->m_oTT->getTrackingID($nSiteID, $nIEN);
         $nUID = $userinfo->getUserID();
         $datasaveactionbuttons = 0; //Count number of active buttons that can save changes.
@@ -3528,7 +3528,7 @@ class ProtocolInfoUtility
         {
             //$oDD = new \raptor\DashboardData($this->m_oContext);
             //$raptor_protocoldashboard = $oDD->getDashboardDetails();
-            $mdwsDao = $this->m_oContext->getMdwsClient();
+            $mdwsDao = $this->m_oContext->getVistaDao();
             $raptor_protocoldashboard = $mdwsDao->getDashboardDetailsMap();
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {

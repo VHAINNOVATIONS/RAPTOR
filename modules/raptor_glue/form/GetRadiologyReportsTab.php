@@ -128,7 +128,7 @@ class GetRadiologyReportsTab
 
         //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
         //$radiology_reports_detail = $oPSD->getRadiologyReportsDetail();
-        $mdwsDao = $this->m_oContext->getMdwsClient();
+        $mdwsDao = $this->m_oContext->getVistaDao();
         $radiology_reports_detail = $mdwsDao->getRadiologyReportsDetailMap();
 
         //$oDD = new \raptor\DashboardData($this->m_oContext);

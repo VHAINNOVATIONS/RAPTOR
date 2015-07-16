@@ -49,6 +49,11 @@ interface IVistaDao
     public function getPatientIDFromTrackingID($sTrackingID);
 
     /**
+     * Declare the patient currently being processed
+     */
+    public function setPatientID($sPatientID);
+    
+    /**
      * Get NULL if no problems, else text of the missing keys.
      */
     public function getVistaAccountKeyProblems();
@@ -67,7 +72,7 @@ interface IVistaDao
      * Get the EHR User ID of the user currently logged in.
      */
     public function getEHRUserID($fail_if_missing=TRUE);
-    
+
     public function createNewRadiologyOrder($orderChecks, $args);
     public function createUnsignedRadiologyOrder($orderChecks, $args);
     public function getOrderableItems($imagingTypeId);
@@ -91,4 +96,8 @@ interface IVistaDao
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ);
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ);
+    
+    //xxxxxxxxxxxxx
+    
+    public function getVitalsDetailOnlyLatestMap();
 }
