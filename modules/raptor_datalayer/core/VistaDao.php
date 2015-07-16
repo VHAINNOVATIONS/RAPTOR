@@ -287,11 +287,6 @@ class VistaDao implements IVistaDao
     
     //xxxxxxxxxxxxxxxxxxxxx
     
-    public function getNotesDetailMap()
-    {
-        return $this->m_implclass->getNotesDetailMap();
-    }
-
     public function getEGFRDetailMap()
     {
         return $this->m_implclass->getEGFRDetailMap();
@@ -300,11 +295,6 @@ class VistaDao implements IVistaDao
     public function getPatientDashboardMap()
     {
         return $this->m_implclass->getPatientDashboardMap();
-    }
-
-    public function getPendingOrdersMap()
-    {
-        return $this->m_implclass->getPendingOrdersMap();
     }
 
     public function getRareContrastKeywordsMap()
@@ -395,6 +385,22 @@ class VistaDao implements IVistaDao
         return $this->m_implclass->getMedicationsDetailMap($atriskmeds);
     }
     
+//zzzzzzzzzzzzzzzzzz
+    
+    public function getNotesDetailMap()
+    {
+        return $this->m_implclass->getNotesDetailMap();
+    }
+
+    public function getPendingOrdersMap()
+    {
+        return $this->m_implclass->getPendingOrdersMap();
+    }
+
+    public function getImagingTypesMap()
+    {
+        return $this->m_implclass->getImagingTypesMap();
+    }
     
     
 }

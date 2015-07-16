@@ -2257,7 +2257,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                         //$newNoteIen = \raptor\MdwsUtils::writeRaptorSafetyChecklist($mdwsDao,$aChecklistData,$encounterString,NULL);
                         $newNoteIen = $mdwsDao->writeRaptorSafetyChecklist($aChecklistData,$encounterString,NULL);
                         //MdwsUtils::signNote($mdwsDao, $newNoteIen, $userDuz, $eSig);
-                        $mdwsDao->signNote($newNoteIen, $userDuz, $eSig);
+                        $mdwsDao->signNote($newNoteIen, $eSig);
                     }
 
                     //Pull values from database that have not yet been committed to VISTA
@@ -2267,9 +2267,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     {
                         //Yes, write the general note.
                         //$newGeneralNoteIen = \raptor\MdwsUtils::writeRaptorGeneralNote($mdwsDao, $noteTextArray, $encounterString, NULL); 
-                        $newGeneralNoteIen = $mdwsDao->writeRaptorGeneralNote($mdwsDao, $noteTextArray, $encounterString, NULL); 
+                        $newGeneralNoteIen = $mdwsDao->writeRaptorGeneralNote($noteTextArray, $encounterString, NULL); 
                         //MdwsUtils::signNote($mdwsDao, $newGeneralNoteIen, $userDuz, $eSig);
-                        $mdwsDao->signNote($newGeneralNoteIen, $userDuz, $eSig);
+                        $mdwsDao->signNote($newGeneralNoteIen, $eSig);
                     }
                 } catch (\Exception $ex) {
                     drupal_set_message('Trouble in commit because ' . $ex->getMessage(),'error');

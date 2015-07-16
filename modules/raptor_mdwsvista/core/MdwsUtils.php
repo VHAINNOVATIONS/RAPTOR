@@ -695,7 +695,8 @@ class MdwsUtils {
         return $visitTO->location->id.';'.$visitTO->timestamp.';A';
     }
 
-    public static function formatNoteText($noteTextArray) {
+    public static function formatNoteText($noteTextArray) 
+    {
         if (!is_array($noteTextArray)) {
             throw new \Exception('Invalid note text argument>>>'.print_r($noteTextArray,TRUE));
         }
@@ -828,7 +829,7 @@ class MdwsUtils {
             'esig'=>$eSig));
 
         if (!isset($soapResult) || !isset($soapResult->signNoteResult) || isset($soapResult->signNoteResult->fault)) {
-                throw new \Exception('Invalid sign note result -> '.print_r($soapResult, true));
+            throw new \Exception('ERROR Invalid sign note result -> '.print_r($soapResult, true));
         }
 
         return TRUE;

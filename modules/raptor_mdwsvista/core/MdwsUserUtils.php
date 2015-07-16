@@ -18,11 +18,14 @@ require_once 'MdwsStringUtils.php';
 
 class MdwsUserUtils {
 
-    public static function getUserSecurityKeys($mdwsDao) 
+    public static function getUserSecurityKeys($mdwsDao, $userDuz=NULL) 
     {
         try 
         {
-            $userDuz = $mdwsDao->getDUZ();
+            if($userDuz == NULL)
+            {
+                $userDuz = $mdwsDao->getDUZ();
+            }
             if(trim($userDuz) == '')
             {
                 throw new \Exception("Missing DUZ for ".$mdwsDao);

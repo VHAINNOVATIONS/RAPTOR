@@ -631,7 +631,8 @@ class MdwsDao implements IMdwsDao
 
     public function getUserSecurityKeys()
     {
-        return \raptor\MdwsUserUtils::getUserSecurityKeys($this);
+        $userDuz = $this->getDUZ();
+        return \raptor\MdwsUserUtils::getUserSecurityKeys($this, $userDuz);
     }
 
     public function isProvider()
@@ -694,7 +695,7 @@ class MdwsDao implements IMdwsDao
     public function signNote($newNoteIen, $eSig)
     {
         $userDuz = $this->getDUZ();
-        return \raptor\MdwsUtils::signNote($this, $newNoteIen, $eSig);
+        return \raptor\MdwsUtils::signNote($this, $newNoteIen, $userDuz, $eSig);
     }
 
     public function validateEsig($eSig)
