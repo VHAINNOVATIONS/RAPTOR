@@ -31,12 +31,9 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
     function __construct()
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
-        //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-        //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
-        //module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
-        module_load_include('php', 'raptor_datalayer', 'core/MdwsUtils');
-        module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
-        module_load_include('php', 'raptor_datalayer', 'core/MdwsNewOrderUtils');
+        //module_load_include('php', 'raptor_datalayer', 'core/MdwsUtils');
+        //module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
+        //module_load_include('php', 'raptor_datalayer', 'core/MdwsNewOrderUtils');
         module_load_include('php', 'raptor_datalayer', 'core/StringUtils');
         module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
         $this->m_oContext = \raptor\Context::getInstance();
@@ -400,15 +397,6 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 }
                 $cancelLocation = $myvalues['neworderlocation'];
                 $cancelDUZ = $myvalues['originalOrderProviderDuz'];    //Always the DUZ from the order being canceled
-                /*
-                $results = MdwsUtils::cancelRadiologyOrder($mdwsDao, 
-                        $myvalues['PatientID'],
-                        $orderFileIen,
-                        $cancelDUZ,
-                        $cancelLocation,
-                        $reasonCode, 
-                        $cancel_esig);
-                */
                 $results = $mdwsDao->cancelRadiologyOrder( 
                         $myvalues['PatientID'],
                         $orderFileIen,
@@ -625,7 +613,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$rpd = $oDD->getDashboardDetails();
-        $rpd = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
+        $rpd = $mdwsDao->getDashboardDetailsMap();
         $gender = trim($rpd['PatientGender']);
         $age = intval(trim($rpd['PatientAge']));
         $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
@@ -948,7 +936,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 '#type' => 'select',
                 '#empty_option'=>t('- Select -'),
                 '#title' => FormHelper::getTitleAsRequiredField('Ordering Location'),
-                '#options' => $locations, // MdwsUtils::getHospitalLocations($mdwsDao,$lastitemtext), //$locations,
+                '#options' => $locations, 
                 '#description' => t('Select location'),
                 '#default_value' => $neworderlocation,
                 '#disabled' => $disabled_step2,

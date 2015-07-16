@@ -3528,7 +3528,8 @@ class ProtocolInfoUtility
         {
             //$oDD = new \raptor\DashboardData($this->m_oContext);
             //$raptor_protocoldashboard = $oDD->getDashboardDetails();
-            $raptor_protocoldashboard = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
+            $mdwsDao = $this->m_oContext->getMdwsClient();
+            $raptor_protocoldashboard = $mdwsDao->getDashboardDetailsMap();
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {
             throw new \Exception('Failed to get the dashboard to save exam fields',91111,$ex);

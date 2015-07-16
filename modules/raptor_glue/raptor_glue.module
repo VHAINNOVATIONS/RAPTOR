@@ -259,7 +259,7 @@ function raptor_glue_page_alter(&$page)
                             $logmsg = 'No order data was returned from VistA using your account';
                             drupal_set_message($logmsg,'warning');
                             error_log($logmsg);
-                            module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
+                            //module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
                             $userDuz = $mdwsDao->getDUZ();
                             //$accountproblems = \raptor\MdwsUserUtils::getVistaAccountKeyProblems($mdwsDao, $userDuz);
                             $accountproblems = $mdwsDao->getVistaAccountKeyProblems();

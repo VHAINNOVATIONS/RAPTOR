@@ -133,7 +133,7 @@ class GetRadiologyReportsTab
 
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$raptor_protocoldashboard = $oDD->getDashboardDetails();
-        $raptor_protocoldashboard = $this->m_oContext->getMdwsClient()->getDashboardDetailsMap();
+        $raptor_protocoldashboard = $mdwsDao->getDashboardDetailsMap();
         $sTrackingIDfromDD = $raptor_protocoldashboard['Tracking ID'];
         $patientDFN=$raptor_protocoldashboard['PatientID'];
         $patientICN=$raptor_protocoldashboard['mpiPid'];

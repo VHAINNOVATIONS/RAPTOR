@@ -114,15 +114,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             $oContext = \raptor\Context::getInstance();
             $userinfo = $oContext->getUserInfo();
             $mdwsDao = $oContext->getMdwsClient();
-            /*
-            $results = MdwsUtils::cancelRadiologyOrder($mdwsDao, 
-                    $myvalues['PatientID'],
-                    $orderFileIen,
-                    $providerDUZ,
-                    'FakeLocation',
-                    $reasonCode, 
-                    $cancelesig);
-            */
             $results = $mdwsDao->cancelRadiologyOrder( 
                     $myvalues['PatientID'],
                     $orderFileIen,
