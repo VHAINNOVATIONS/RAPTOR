@@ -231,7 +231,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $canCreateNewOrder = $myvalues['canCreateNewOrder'];
         $canReallyCancel = $myvalues['canReallyCancel'];
         $canOrderBeDCd = $myvalues['canOrderBeDCd'];
-        $myDuz = $mdwsDao->getDUZ();
+        $myDuz = $mdwsDao->getEHRUserID();
         //$isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
         $isPROVIDER = $mdwsDao->isProvider($myDuz);
         //$hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz);
@@ -634,7 +634,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         $canOrderBeDCd = $myvalues['canOrderBeDCd'];
         $imagetypes = $myvalues['imagetypes'];
 
-        $myDuz = $mdwsDao->getDUZ();
+        $myDuz = $mdwsDao->getEHRUserID();
         //$isPROVIDER = MdwsUserUtils::isProvider($mdwsDao, $myDuz);
         $isPROVIDER = $mdwsDao->isProvider($myDuz);
         //$hasOREMAS = MdwsUserUtils::userHasKeyOREMAS($mdwsDao, $myDuz);
@@ -1355,7 +1355,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'yes');
                 } else {
                     //Could be anyone on the order
-                    if($mdwsDao->getDUZ() == $myvalues['requestingProviderDuz'])
+                    $ehr_user_id = $mdwsDao->getEHRUserID();
+                    if($ehr_user_id == $myvalues['requestingProviderDuz'])
                     {
                         $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'yes');
                     } else {

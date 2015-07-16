@@ -260,7 +260,7 @@ function raptor_glue_page_alter(&$page)
                             drupal_set_message($logmsg,'warning');
                             error_log($logmsg);
                             //module_load_include('php', 'raptor_datalayer', 'core/MdwsUserUtils');
-                            $userDuz = $mdwsDao->getDUZ();
+                            $userDuz = $mdwsDao->getEHRUserID();
                             //$accountproblems = \raptor\MdwsUserUtils::getVistaAccountKeyProblems($mdwsDao, $userDuz);
                             $accountproblems = $mdwsDao->getVistaAccountKeyProblems();
                             if($accountproblems != NULL)

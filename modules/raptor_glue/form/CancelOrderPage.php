@@ -190,7 +190,7 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         
         
         $mdwsDao = $this->m_oContext->getMdwsClient();
-        $myDuz = $mdwsDao->getDUZ();
+        $myDuz = $mdwsDao->getEHRUserID();
         $myIEN = $myvalues['tid'];
         //$orderDetails = MdwsUtils::getOrderDetails($mdwsDao, $myIEN);
         $orderDetails = $mdwsDao->getOrderDetails($myIEN);

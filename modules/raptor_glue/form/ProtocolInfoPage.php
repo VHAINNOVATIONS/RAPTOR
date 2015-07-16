@@ -1385,7 +1385,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 try
                 {
                     $mdwsDao = $this->m_oContext->getMdwsClient();
-                    $userDuz = $mdwsDao->getDUZ();
+                    $userDuz = $mdwsDao->getEHRUserID();
                     $eSig = $myvalues['commit_esig'];
                     //$bValidESig = MdwsUtils::validateEsig($mdwsDao, $eSig);
                     $bValidESig = $mdwsDao->validateEsig($eSig);
@@ -2246,7 +2246,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $newNoteIen = NULL;
                 try
                 {
-                    $userDuz = $mdwsDao->getDUZ();
+                    $userDuz = $mdwsDao->getEHRUserID();
 
                     //Pull values from database that have not yet been committed to VISTA
                     $aChecklistData = array();
