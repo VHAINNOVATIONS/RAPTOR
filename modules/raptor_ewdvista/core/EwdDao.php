@@ -11,7 +11,7 @@
  * 
  */ 
 
-namespace raptor;
+namespace raptor_ewdvista;
 
 require_once 'IEwdDao.php';
 
@@ -20,7 +20,7 @@ require_once 'IEwdDao.php';
  *
  * @author Frank Font of SAN Business Consultants
  */
-class EwdDao implements IEwdDao
+class EwdDao implements \raptor_ewdvista\IEwdDao
 {
     function __construct()
     {

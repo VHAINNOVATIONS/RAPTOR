@@ -12,6 +12,9 @@
  * 
  */ 
 
+defined('EHR_INT_IMPL_DAO_NAMESPACE')
+    or define('EHR_INT_IMPL_DAO_NAMESPACE', 'raptor_mdwsvista');
+
 defined('EHR_INT_IMPL_DAO_CLASSNAME')
     or define('EHR_INT_IMPL_DAO_CLASSNAME', 'MdwsDao');
 

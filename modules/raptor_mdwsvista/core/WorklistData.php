@@ -553,14 +553,14 @@ class WorklistData
             }
 
             $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
-            $aResult = \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal($mdwsDao->makeQuery("ddrGetsEntry", array(
+            $aResult = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal($mdwsDao->makeQuery("ddrGetsEntry", array(
                 'file'=>'75.1', 
                 'iens'=>($nIEN.','),
                 'flds'=>'*', 
                 'flags'=>'IEN'
                 )));
             /*
-            $aResult = \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
+            $aResult = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
                 'file'=>'75.1', 
                 'iens'=>($nIEN.','),
                 'flds'=>'*', 
@@ -693,7 +693,7 @@ class WorklistData
             $orderFileIen = $worklistItemDict['7']['I'];
             $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
             /*
-            $orderFileRec = \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal
+            $orderFileRec = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal
                ($this->m_oContext->getMdwsClient()->makeQuery('ddrGetsEntry', array(
                    'file'=>'100', 
                    'iens'=>($orderFileIen.','),
@@ -701,7 +701,7 @@ class WorklistData
                    'flags'=>'IEN'
                )));
              */
-            $orderFileRec = \raptor\MdwsUtils::parseDdrGetsEntryInternalAndExternal
+            $orderFileRec = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal
                ($mdwsDao->makeQuery('ddrGetsEntry', array(
                    'file'=>'100', 
                    'iens'=>($orderFileIen.','),

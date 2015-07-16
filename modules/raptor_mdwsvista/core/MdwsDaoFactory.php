@@ -12,7 +12,7 @@
  * 
  */ 
 
-namespace raptor;
+namespace raptor_mdwsvista;
 
 module_load_include('php', 'raptor_glue', 'core/config');
 require_once 'IMdwsDao.php';

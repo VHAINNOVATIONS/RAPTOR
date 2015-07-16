@@ -12,11 +12,11 @@
  * 
  */ 
 
-namespace raptor;
+namespace raptor_mdwsvista;
 
 module_load_include('php', 'raptor_datalayer', 'core/IEhrDao');
 
-interface IMdwsDao extends IEhrDao
+interface IMdwsDao extends \raptor\IEhrDao
 {
     /**
      * Do not spread these calls outside of the mdws module

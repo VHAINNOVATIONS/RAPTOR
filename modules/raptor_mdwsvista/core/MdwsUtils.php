@@ -12,7 +12,7 @@
  * 
  */ 
 
-namespace raptor;
+namespace raptor_mdwsvista;
 
 require_once 'MdwsUserUtils.php';
 

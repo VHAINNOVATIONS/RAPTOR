@@ -14,8 +14,11 @@
  * 
  */ 
 
-namespace raptor;
+namespace raptor_ewdvista;
 
 module_load_include('php', 'raptor_datalayer', 'core/IEhrDao');
 
-interface IEwdDao extends IEhrDao{}
+interface IEwdDao extends \raptor_ewdvista\IEhrDao
+{
+    
+}

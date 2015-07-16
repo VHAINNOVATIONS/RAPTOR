@@ -23,7 +23,7 @@ require_once 'WorklistColumnMap.php';
  *
  * @author Frank Font of SAN Business Consultants
  */
-class EhrDao implements IEhrDao
+class EhrDao implements \raptor\IEhrDao
 {
     private $instanceTimestamp = NULL;
     private $m_implclass = NULL;
@@ -33,8 +33,9 @@ class EhrDao implements IEhrDao
         $this->instanceTimestamp = time();
         error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
         module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
-        $name = EHR_INT_IMPL_DAO_CLASSNAME;
-        $class = "\\raptor\\$name";
+        $classname = EHR_INT_IMPL_DAO_CLASSNAME;
+        $namespace = EHR_INT_IMPL_DAO_NAMESPACE;
+        $class = "\\$namespace\\$classname";
         $this->m_implclass = new $class();
         error_log("Construction completed >>> ".$this);
     }

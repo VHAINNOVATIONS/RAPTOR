@@ -13,7 +13,7 @@
  * 
  */
 
-namespace raptor;
+namespace raptor_mdwsvista;
 
 require_once 'IMdwsDao.php';
 require_once 'MdwsUtils.php';
@@ -21,7 +21,7 @@ require_once 'MdwsNewOrderUtils.php';
 require_once 'WorklistData.php';
 require_once 'ProtocolSupportingData.php';
 
-class MdwsDao implements IMdwsDao
+class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 {
 
     private $m_groupname = 'MdwsDaoGroup';
@@ -106,7 +106,7 @@ class MdwsDao implements IMdwsDao
             . $this->instanceTimestamp
             . '(previous authentication was '
             . $this->authenticationTimestamp . ')'
-            . ": Must authenticate before requesting data>>>" . Context::debugGetCallerInfo(2, 10));
+            . ": Must authenticate before requesting data>>>" . \raptor\Context::debugGetCallerInfo(2, 10));
         }
         //error_log('TODO:makeQuery  --- about to do stuff in makeQuery for '.$functionToInvoke.'...');
         //  if ($retryLimit < 0) {
@@ -349,7 +349,7 @@ class MdwsDao implements IMdwsDao
     public function getVistaAccountKeyProblems()
     {
         $userDuz = $this->getDUZ();
-        return \raptor\MdwsUserUtils::getVistaAccountKeyProblems($this, $userDuz);
+        return \raptor_mdwsvista\MdwsUserUtils::getVistaAccountKeyProblems($this, $userDuz);
     }
 
     /**
@@ -400,7 +400,8 @@ class MdwsDao implements IMdwsDao
 
     public function getWorklistDetailsMap()
     {
-        try {
+        try 
+        {
             $aResult = array();
             $oContext = \raptor\Context::getInstance();
             if ($oContext != NULL)
@@ -591,126 +592,126 @@ class MdwsDao implements IMdwsDao
 
     public function getImagingTypesMap()
     {
-        return \raptor\MdwsNewOrderUtils::getImagingTypes($this);
+        return \raptor_mdwsvista\MdwsNewOrderUtils::getImagingTypes($this);
     }
 
     public function createNewRadiologyOrder($orderChecks, $args)
     {
-        return \raptor\MdwsNewOrderUtils::createNewRadiologyOrder($this, $orderChecks, $args);
+        return \raptor_mdwsvista\MdwsNewOrderUtils::createNewRadiologyOrder($this, $orderChecks, $args);
     }
 
     public function createUnsignedRadiologyOrder($orderChecks, $args)
     {
-        return \raptor\MdwsNewOrderUtils::createUnsignedRadiologyOrder($this, $orderChecks, $args);
+        return \raptor_mdwsvista\MdwsNewOrderUtils::createUnsignedRadiologyOrder($this, $orderChecks, $args);
     }
 
     public function getOrderableItems($imagingTypeId)
     {
-        return \raptor\MdwsNewOrderUtils::getOrderableItems($this, $imagingTypeId);
+        return \raptor_mdwsvista\MdwsNewOrderUtils::getOrderableItems($this, $imagingTypeId);
     }
 
     public function getRadiologyOrderChecks($args)
     {
-        return \raptor\MdwsNewOrderUtils::getRadiologyOrderChecks($this, $args);
+        return \raptor_mdwsvista\MdwsNewOrderUtils::getRadiologyOrderChecks($this, $args);
     }
 
     public function getRadiologyOrderDialog($imagingTypeId, $patientId)
     {
-        return \raptor\MdwsNewOrderUtils::getRadiologyOrderDialog($this, $imagingTypeId, $patientId);
+        return \raptor_mdwsvista\MdwsNewOrderUtils::getRadiologyOrderDialog($this, $imagingTypeId, $patientId);
     }
 
     public function getProviders($neworderprovider_name)
     {
-        return \raptor\MdwsUserUtils::getProviders($this, $neworderprovider_name);
+        return \raptor_mdwsvista\MdwsUserUtils::getProviders($this, $neworderprovider_name);
     }
 
     public function getUserSecurityKeys()
     {
         $userDuz = $this->getDUZ();
-        return \raptor\MdwsUserUtils::getUserSecurityKeys($this, $userDuz);
+        return \raptor_mdwsvista\MdwsUserUtils::getUserSecurityKeys($this, $userDuz);
     }
 
     public function isProvider()
     {
         $userDuz = $this->getDUZ();
-        return \raptor\MdwsUserUtils::isProvider($this, $userDuz);
+        return \raptor_mdwsvista\MdwsUserUtils::isProvider($this, $userDuz);
     }
 
     public function userHasKeyOREMAS()
     {
         $userDuz = $this->getDUZ();
-        return \raptor\MdwsUserUtils::userHasKeyOREMAS($this, $userDuz);
+        return \raptor_mdwsvista\MdwsUserUtils::userHasKeyOREMAS($this, $userDuz);
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
     {
-        return \raptor\MdwsUtils::cancelRadiologyOrder($this, $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
+        return \raptor_mdwsvista\MdwsUtils::cancelRadiologyOrder($this, $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
     public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs=1000)
     {
-        return \raptor\MdwsUtils::convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs);
+        return \raptor_mdwsvista\MdwsUtils::convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs);
     }
 
     public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5)
     {
-        return \raptor\MdwsUtils::convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
+        return \raptor_mdwsvista\MdwsUtils::convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
     }
 
     public function getChemHemLabs()
     {
-        return \raptor\MdwsUtils::getChemHemLabs($this);
+        return \raptor_mdwsvista\MdwsUtils::getChemHemLabs($this);
     }
 
     public function getEncounterStringFromVisit($vistitTo)
     {
-        return \raptor\MdwsUtils::getEncounterStringFromVisit($vistitTo);
+        return \raptor_mdwsvista\MdwsUtils::getEncounterStringFromVisit($vistitTo);
     }
 
     public function getHospitalLocations($startingitem)
     {
-        return \raptor\MdwsUtils::getHospitalLocations($this, $startingitem);
+        return \raptor_mdwsvista\MdwsUtils::getHospitalLocations($this, $startingitem);
     }
 
     public function getOrderDetails($myIEN)
     {
-        return \raptor\MdwsUtils::getOrderDetails($this, $myIEN);
+        return \raptor_mdwsvista\MdwsUtils::getOrderDetails($this, $myIEN);
     }
 
     public function getRadiologyCancellationReasons()
     {
-        return \raptor\MdwsUtils::getRadiologyCancellationReasons($this);
+        return \raptor_mdwsvista\MdwsUtils::getRadiologyCancellationReasons($this);
     }
 
     public function getVisits()
     {
-        return \raptor\MdwsUtils::getVisits($this);
+        return \raptor_mdwsvista\MdwsUtils::getVisits($this);
     }
 
     public function signNote($newNoteIen, $eSig)
     {
         $userDuz = $this->getDUZ();
-        return \raptor\MdwsUtils::signNote($this, $newNoteIen, $userDuz, $eSig);
+        return \raptor_mdwsvista\MdwsUtils::signNote($this, $newNoteIen, $userDuz, $eSig);
     }
 
     public function validateEsig($eSig)
     {
-        return \raptor\MdwsUtils::validateEsig($this, $eSig);
+        return \raptor_mdwsvista\MdwsUtils::validateEsig($this, $eSig);
     }
 
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
     {
-        return \raptor\MdwsUtils::verifyNoteTitleMapping($this, $checkVistaNoteIEN, $checkVistaNoteTitle);
+        return \raptor_mdwsvista\MdwsUtils::verifyNoteTitleMapping($this, $checkVistaNoteIEN, $checkVistaNoteTitle);
     }
 
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
     {
-        return \raptor\MdwsUtils::writeRaptorGeneralNote($this, $noteTextArray, $encounterString, $cosignerDUZ);
+        return \raptor_mdwsvista\MdwsUtils::writeRaptorGeneralNote($this, $noteTextArray, $encounterString, $cosignerDUZ);
     }
 
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ)
     {
-        return \raptor\MdwsUtils::writeRaptorSafetyChecklist($this, $aChecklistData, $encounterString, $cosignerDUZ);
+        return \raptor_mdwsvista\MdwsUtils::writeRaptorSafetyChecklist($this, $aChecklistData, $encounterString, $cosignerDUZ);
     }
 
     public function getImplementationInstance()

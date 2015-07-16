@@ -12,7 +12,7 @@
  * 
  */ 
 
-namespace raptor;
+namespace raptor_mdwsvista;
 
 require_once 'MdwsStringUtils.php';
 
@@ -228,10 +228,10 @@ class MdwsNewOrderUtils {
         $pregnant = isset($args['pregnant']) ? $args['pregnant'] : '';
         $isolation = isset($args['isolation']) ? $args['isolation'] : '';
         $reasonForStudy = $args['reasonForStudy'];
-        $clinicalHx = \raptor\MdwsStringUtils::joinStrings($args['clinicalHx'], '|'); // 'Line 1|followed by 2|and three';
-        $startDateTime = \raptor\MdwsStringUtils::convertPhpDateTimeToISO($args['startDateTime']);
-        $preOpDateTime = isset($args['preOpDateTime']) ? \raptor\MdwsStringUtils::convertPhpDateTimeToISO($args['preOpDateTime']) : '';
-        $modifierIds = \raptor\MdwsStringUtils::joinStrings($args['modifierIds'], '|');
+        $clinicalHx = \raptor_mdwsvista\MdwsStringUtils::joinStrings($args['clinicalHx'], '|'); // 'Line 1|followed by 2|and three';
+        $startDateTime = \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToISO($args['startDateTime']);
+        $preOpDateTime = isset($args['preOpDateTime']) ? \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToISO($args['preOpDateTime']) : '';
+        $modifierIds = \raptor_mdwsvista\MdwsStringUtils::joinStrings($args['modifierIds'], '|');
         $eSig = isset($args['eSig']) ? $args['eSig'] : '';
         $orderCheckOverrideReason = isset($args['orderCheckOverrideReason']) ? $args['orderCheckOverrideReason'] : '';
         
@@ -351,7 +351,7 @@ class MdwsNewOrderUtils {
 
     public static function getRadiologyOrderChecks($mdwsDao, $args) {
         $patientId = $args['patientId'];
-        $orderDt = \raptor\MdwsStringUtils::convertPhpDateTimeToISO($args['startDateTime']);;
+        $orderDt = \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToISO($args['startDateTime']);;
         $locationId = $args['locationIEN'];
         $orderableItemIEN = $args['orderableItemId'];
         

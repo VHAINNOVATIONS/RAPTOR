@@ -249,9 +249,7 @@ function raptor_glue_page_alter(&$page)
                         drupal_set_message('Administrator accounts should not have privilege SWI1!, but this one does.  Check the database.','warning');
                     } else {
                         //Set all the Worklist page values
-                        //$oWL = new \raptor\WorklistData($oContext);
-                        //$raptor_worklist_rows = $oWL->getWorklistRows();
-                        $ehrDao = $oContext->getEhrDao(); //TODO switch to VistaDao
+                        $ehrDao = $oContext->getEhrDao();
                         $raptor_worklist_rows = $ehrDao->getWorklistDetailsMap();
                         if(count($raptor_worklist_rows) < 1)
                         {

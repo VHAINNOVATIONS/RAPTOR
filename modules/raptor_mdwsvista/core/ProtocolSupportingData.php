@@ -19,11 +19,6 @@ module_load_include('php', 'raptor_datalayer', 'core/data_context');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultCache');
 module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
 
-//require_once 'data_worklist.php';
-//require_once 'data_context.php';
-//require_once 'RuntimeResultCache.php';
-//require_once 'RuntimeResultFlexCache.php';
-
 /**
  * This class contains the functions that return supplemental information for the 
  * protocoling effort.
@@ -228,14 +223,14 @@ class ProtocolSupportingData
         }
         $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
         $queries = 1;
-        //$locations = \raptor\MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
+        //$locations = \raptor_mdwsvista\MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
         $locations = $mdwsDao->getHospitalLocations($startingitem);   
         $prevend = end($locations);
         $lastitem = $prevend;
         while(is_array($locations) && end($locations) > '' && $queries < $maxqueries)
         {
             $queries++;
-            //$morelocations = \raptor\MdwsUtils::getHospitalLocations($mdwsDao, $lastitem);
+            //$morelocations = \raptor_mdwsvista\MdwsUtils::getHospitalLocations($mdwsDao, $lastitem);
             $morelocations = $mdwsDao->getHospitalLocations($lastitem);
             $lastitem = end($morelocations);
             if($prevend >= $lastitem)

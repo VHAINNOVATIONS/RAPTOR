@@ -12,7 +12,7 @@
  * 
  */ 
 
-namespace raptor;
+namespace raptor_mdwsvista;
 
 require_once 'MdwsStringUtils.php';
 
@@ -93,13 +93,13 @@ class MdwsUserUtils {
     public static function getVistaAccountKeyProblems($mdwsDao, $userDuz)
     {
         $missingkeys = array();
-        $has_superkey = \raptor\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, 'XUPROGMODE');
+        $has_superkey = \raptor_mdwsvista\MdwsUserUtils::userHasKey($mdwsDao, $userDuz, 'XUPROGMODE');
         if(!$has_superkey)
         {
             $minSecondaryOptions = array('DVBA CAPRI GUI'); //'OR CPRS GUI CHART'
             foreach($minSecondaryOptions as $keyName)
             {
-                $haskey = \raptor\MdwsUserUtils::userHasSecondaryMenuOption($mdwsDao, $userDuz, $keyName);
+                $haskey = \raptor_mdwsvista\MdwsUserUtils::userHasSecondaryMenuOption($mdwsDao, $userDuz, $keyName);
                 if(!$haskey)
                 {
                     $missingkeys[] = $keyName;
