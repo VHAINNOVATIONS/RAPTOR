@@ -35,7 +35,7 @@ class GetProtocolLibTab
     function __construct()
     {
         //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
-        module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
         module_load_include('php', 'raptor_datalayer', 'core/FacilityRadiationDose');
         
         module_load_include('php', 'raptor_formulas', 'core/MatchOrderToProtocol');

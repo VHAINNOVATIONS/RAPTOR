@@ -17,7 +17,7 @@ module_load_include('php', 'raptor_datalayer', 'config/vista_integration');
 
 require_once 'data_utility.php';
 require_once 'CustomKeywords.php';
-require_once 'data_user.php';
+require_once 'UserInfo.php';
 require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
@@ -521,7 +521,8 @@ class Context
             {
                 //Preserve existing credientials.
                 $current=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
-                error_context_log('CONTEXTgetInstance::Clearing cache except login credentials for VistaUserID=' . $current->m_sVistaUserID);
+                error_log('CONTEXTgetInstance::Clearing cache except login credentials for '
+                        . 'EHR User ID=' . $current->m_sVistaUserID);
                 $candidate->m_sVistaUserID = $current->m_sVistaUserID;  //20140609
                 $candidate->m_sVAPassword = $current->m_sVAPassword;    //20140609
             }

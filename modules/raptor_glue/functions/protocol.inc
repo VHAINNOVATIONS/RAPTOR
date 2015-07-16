@@ -126,7 +126,7 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
     if(!$oContext->hasSelectedTrackingID())
     {
         //Clear all current ticket locks now!
-        module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
         $oTT = new \raptor\TicketTrackingData();
         $nUID = $oContext->getUID();
         $oTT->deleteAllUserTicketLocks($nUID);  //Clear all other ticket locks for this user now.

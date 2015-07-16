@@ -17,7 +17,7 @@ if(!defined('__MYFOLDER_CHOICES__')) {
     define('__MYFOLDER_CHOICES__',dirname(__FILE__));
 }
 
-require_once (dirname(__FILE__) . '/../core/data_listoptions.php');
+require_once (dirname(__FILE__) . '/../core/ListOptions.php');
 require_once ('Choice.php');
 
 

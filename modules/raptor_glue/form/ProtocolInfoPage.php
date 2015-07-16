@@ -3248,7 +3248,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
         //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
         //module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
-        module_load_include('php', 'raptor_datalayer', 'core/data_listoptions');
+        module_load_include('php', 'raptor_datalayer', 'core/ListOptions');
         module_load_include('php', 'raptor_graph', 'core/GraphData');
 
         if(!$this->m_oContext->hasSelectedTrackingID())
@@ -3414,7 +3414,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $modality_filter = array();
         if(isset($myvalues['protocol1_nm']) && trim($myvalues['protocol1_nm']) > '')
         {
-            module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
+            module_load_include('php', 'raptor_datalayer', 'core/ProtocolSettings');
             $oPS = new \raptor\ProtocolSettings();
             $metainfo = $oPS->getProtocolMetaInformation($myvalues['protocol1_nm']);
             $templatevalues = $metainfo['defaultvalues'];

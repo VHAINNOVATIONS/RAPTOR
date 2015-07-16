@@ -13,10 +13,10 @@
  *
  */
 
-require_once 'core/data_user.php';
-require_once 'core/data_utility.php';
+require_once 'core/UserInfo.php';
+//require_once 'core/data_utility.php';
 require_once 'core/Context.php';
-require_once 'core/data_ticket_tracking.php';
+require_once 'core/TicketTrackingData.php';
 
 defined('RAPTOR_DATALAYER_MODULE_PATH')
     or define('RAPTOR_DATALAYER_MODULE_PATH', dirname(__FILE__));  

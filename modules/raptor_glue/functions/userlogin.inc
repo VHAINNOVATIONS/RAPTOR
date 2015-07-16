@@ -70,7 +70,7 @@ function raptor_glue_login_validate( $form, &$form_state )
             } else {
                 $form_state['uid'] = $candidateuser->uid;
                 //Clear any left-over ticket locks this user may have created in a prior session
-                module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+                module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
                 $oTT = new \raptor\TicketTrackingData();
                 $nSiteID = VISTA_SITE;
                 $oTT->deleteAllStaleTicketLocks($nSiteID);

@@ -14,7 +14,7 @@
 namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'core/Context');
-module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
 
 require_once 'ASimpleFormPage.php';
 require_once 'ProtocolPageUtils.inc';

@@ -8,11 +8,6 @@
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
- * 
+ * @DEPRECATED 20150716
  */ 
 
-
-function error_context_log($msg, $trace=false)
-{
-    error_log('ContextMsg->' . $msg);
-}

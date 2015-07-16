@@ -16,7 +16,7 @@ namespace raptor;
 
 module_load_include('inc', 'raptor_glue', 'functions/protocol');
 
-module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
+module_load_include('php', 'raptor_datalayer', 'core/ProtocolSettings');
 
 require_once 'FormHelper.php';
 require_once 'ProtocolLibPageHelper.php';

@@ -13,7 +13,7 @@
 
 namespace raptor;
 
-require_once 'data_user.php';
+require_once 'UserInfo.php';
 
 /**
  * This class is used to manage the ticket tracking information.

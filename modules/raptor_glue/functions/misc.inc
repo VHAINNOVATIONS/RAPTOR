@@ -822,7 +822,7 @@ function raptor_glue_worklist_form_builder($form, &$form_state)
         if(strtoupper($releasealltickets) == 'TRUE')
         {
             //Clear all current ticket locks for this user now!
-            module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+            module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
             $oContext = \raptor\Context::getInstance();
             $oTT = new \raptor\TicketTrackingData();
             $nUID = $oContext->getUID();

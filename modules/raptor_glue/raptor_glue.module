@@ -1101,7 +1101,7 @@ function raptor_glue_ticketlocksgetinfo_form_builder($form, &$form_state)
     
     //Get the user information but do not polute the url output.
     ob_start(); //We will kill all messages.
-    module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+    module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
     
     $oTT = new \raptor\TicketTrackingData();
     
@@ -1163,7 +1163,7 @@ function raptor_glue_ticketlockrefresh_form_builder($form, &$form_state)
     
     try
     {
-        module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
         $oTT = new \raptor\TicketTrackingData();
         $oTT->updateTicketEditLock($tid, $uid);
         ob_end_clean();
@@ -1195,7 +1195,7 @@ function raptor_glue_ticketlockrelease_form_builder($form, &$form_state)
     
     try
     {
-        module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
         $oTT = new \raptor\TicketTrackingData();
         $num = $oTT->deleteTicketEditLock($tid,$uid);
         if($num !== 1)
@@ -1342,7 +1342,7 @@ function raptor_glue_userinteractionping_form_builder($form, &$form_state)
         }
         
         //Collect the ticket lock information
-        module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
         $oTT = new \raptor\TicketTrackingData();
         
         //Are we refreshing locks or are we just getting ticket lock information?

@@ -44,7 +44,7 @@ function raptor_unset_checkbox_section(&$form_state,$sectionname)
  */
 function raptor_fetch_protocol_defaults($form, &$form_state) 
 {
-    module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
+    module_load_include('php', 'raptor_datalayer', 'core/ProtocolSettings');
     
     $myvalues=$form_state['values'];
     $templatevalues = array('NO_TEMPLATE_DECLARED');
@@ -217,7 +217,7 @@ function raptor_fetch_protocol_defaults($form, &$form_state)
  */
 function raptor_fetch_protocollib_options($form, $form_state) 
 {
-    module_load_include('php', 'raptor_datalayer', 'core/data_protocolsettings');
+    module_load_include('php', 'raptor_datalayer', 'core/ProtocolSettings');
     
     $myvalues = $form_state['values'];
     $psn = $myvalues['protocol_shortname'];

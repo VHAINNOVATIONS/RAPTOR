@@ -27,7 +27,7 @@ class TicketActivity
     function __construct()
     {
         $loaded = module_load_include('php', 'raptor_datalayer', 'core/data_user');
-        $loaded = module_load_include('php', 'raptor_datalayer', 'core/data_ticket_tracking');
+        $loaded = module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
         if(!$loaded)
         {
             $msg = 'Failed to load the Ticket Tracking Engine';
