@@ -30,26 +30,69 @@ class DiagnosticPage
     /**
      * Return the initial field values for the page
      */
-    public function getFieldValues()
+    public function getFieldValues($form=NULL, $myvalues=array())
     {
-        return array();
+        $myvalues['values_timestamp']=time();
+        return $myvalues;
     }
     
     /**
      * Validate the provided values
      */
-    function looksValid($myvalues)
+    function looksValid($form, $myvalues)
     {
-        //Add value validations here and return TRUE if okay
-        return TRUE;
+        $isvalid = TRUE;
+        $action = isset($myvalues['formaction']) ? $myvalues['formaction'] : trim($myvalues['action']);
+        if($action == 'LOGIN') 
+        {
+            if(!isset($myvalues['username']))
+            {
+                form_set_error('username',"MIssing username for $action");
+                $isvalid = FALSE;
+            }
+            if(!isset($myvalues['password']))
+            {
+                form_set_error('password',"MIssing password for $action");
+                $isvalid = FALSE;
+            }
+        }
+        
+        return $isvalid;
     }
     
     /**
      * Execute the actions indicated by the values
      */
-    function updateDatabase($myvalues)
+    public function updateDatabase($myvalues)
     {
-        throw new \Exception("Not implemented!");
+        error_log("Starting updateDatabase at ".time().">>>".print_r($myvalues));
+        drupal_set_message("Starting updateDatabase at ".time(),'error');
+        try
+        {
+            if($action == 'CREATE')
+            {
+                drupal_set_message("Try to create dao...");
+                $this->testcreate();
+                drupal_set_message("Success!");
+            } else if($action == 'INIT') {
+                drupal_set_message("Try to run the init...");
+                $mydao = $this->testcreate();
+                $mydao->initClient();
+                drupal_set_message("Success!");
+            } else if($action == 'LOGIN') {
+                $username = $myvalues['username'];
+                $password = $myvalues['password'];
+                drupal_set_message("Try to login...");
+                drupal_set_message("TODO $action");
+            } else if($action == 'GETWORKLIST') {
+                drupal_set_message("Try to to get worklist...");
+                drupal_set_message("TODO $action");
+            } else {
+                drupal_set_message("No action parameter value was provided",'warn');
+            }
+        } catch (\Exception $ex) {
+            drupal_set_message("Failed for action '$action' because ".$ex,'error');
+        }
     }
     
     /**
@@ -62,6 +105,8 @@ class DiagnosticPage
             '#prefix' => "\n<section class='user-admin raptor-dialog'>\n",
             '#suffix' => "\n</section>\n",
         );
+        
+        drupal_set_message("LOOK <pre>".print_r($form_state,TRUE)."</pre>");
 
         $oContext = \raptor\Context::getInstance();
         $userinfo = $oContext->getUserInfo();
@@ -88,6 +133,32 @@ class DiagnosticPage
           '#disabled' => $disabled,
         );        
 
+        $username = isset($myvalues['username']) ? $myvalues['username'] : '01vehu';
+        $form['data_entry_area1']['userinput']['username'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('Username'), 
+          '#default_value' => $username, 
+          '#size' => 20, 
+          '#disabled' => $disabled,
+        );        
+        $password = isset($myvalues['password']) ? $myvalues['password'] : '';
+        $form['data_entry_area1']['userinput']['password'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('Password'), 
+          '#default_value' => $password, 
+          '#size' => 20, 
+          '#disabled' => $disabled,
+        );        
+        
+        $credentials = isset($myvalues['authcode']) ? $myvalues['credentials'] : '';
+        $form['data_entry_area1']['userinput']['credentials'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('Credentials'), 
+          '#default_value' => $credentials, 
+          '#size' => 80, 
+          '#disabled' => $disabled,
+        );        
+        
         $authcode = isset($myvalues['authcode']) ? $myvalues['authcode'] : '';
         $form['data_entry_area1']['userinput']['authcode'] = array(
           '#type' => 'textfield', 
@@ -100,37 +171,12 @@ class DiagnosticPage
         $key = isset($myvalues['key']) ? $myvalues['key'] : '';
         $form['data_entry_area1']['userinput']['key'] = array(
           '#type' => 'textfield', 
-          '#title' => t('Authentication'), 
+          '#title' => t('Key'), 
           '#default_value' => $key, 
           '#size' => 80, 
           '#disabled' => $disabled,
         );        
 
-        
-        try
-        {
-            if($action == 'CREATE')
-            {
-                drupal_set_message("Try to create dao...");
-                $this->testcreate();
-                drupal_set_message("Success!");
-            } else if($action == 'INIT') {
-                drupal_set_message("Try to run the init...");
-                $mydao = $this->testcreate();
-                $mydao->initClient();
-                drupal_set_message("Success!");
-            } else if($action == 'LOGIN') {
-                drupal_set_message("Try to login...");
-                drupal_set_message("TODO $action");
-            } else if($action == 'GETWORKLIST') {
-                drupal_set_message("Try to to get worklist...");
-                drupal_set_message("TODO $action");
-            } else {
-                drupal_set_message("No action parameter value was provided",'warn');
-            }
-        } catch (\Exception $ex) {
-            drupal_set_message("Failed for action '$action' because ".$ex,'error');
-        }
         
         $form['data_entry_area1']['action_buttons'] = array(
             '#type' => 'item', 
@@ -139,11 +185,12 @@ class DiagnosticPage
             '#tree' => TRUE,
         );
        
-        $form['data_entry_area1']['action_buttons']['submitpage'] = array('#type' => 'submit'
-                , '#attributes' => array('class' => array('admin-action-button'), 'id' => 'admin-action-submit')
+        $form['data_entry_area1']['action_buttons']['submitpage'] 
+                = array('#type' => 'submit'
                 , '#value' => t('Submit'));
 
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
+        $form['data_entry_area1']['action_buttons']['cancel'] 
+                = array('#type' => 'item'
                 , '#markup' => '<input class="raptor-dialog-cancel" type="button" value="Exit" />');        
 
         return $form;
