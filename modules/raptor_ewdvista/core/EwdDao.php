@@ -23,6 +23,10 @@ require_once 'IEwdDao.php';
 class EwdDao implements \raptor_ewdvista\IEwdDao
 {
     private $m_createdtimestamp = NULL;
+    private $m_authorization = NULL;
+    private $m_init_key = NULL;
+    private $m_credentials = NULL;
+    
     function __construct()
     {
         $this->m_createdtimestamp = time();
@@ -33,11 +37,66 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return "EWD VISTA EHR Integration"; //TODO get real runtime version number
     }
 
+    public function initClient()
+    {
+        try
+        {
+            $this->m_authorization = "AUTHTODO";
+            $this->m_init_key = "KEYTODO";
+        } catch (\Exception $ex) {
+            throw new \Exception("Trouble in initClient because ".$ex,99876,$ex);
+        }
+    }
+
     public function connectAndLogin($siteCode, $username, $password) 
     {
+        if($this->m_authorization == NULL)
+        {
+            throw new \Exception("No authorization code has been set!");
+        }
+        if($this->m_init_key == NULL)
+        {
+            throw new \Exception("No initialization key has been set!");
+        }
         throw new \Exception("Not implemented $siteCode, $username, $password");
     }
 
+    public function getWorklistDetailsMap()
+    {
+        if($this->m_credentials == NULL)
+        {
+            throw new \Exception("No credentials have been set!");
+        }
+        throw new \Exception("Not implemented");
+    }
+    
+    /**
+     * Return array of valuse from the indicated action
+     * This is good for developers to check results
+     */
+    public function getPrivateValue($keynames)
+    {
+        try
+        {
+            if(!is_array($keynames))
+            {
+                $keynames_ar = array($keynames);
+            } else {
+                $keynames_ar = $keynames;
+            }
+            $result = array();
+            foreach($keynames_ar as $keyname)
+            {
+                $varname = "m_{$keyname}";
+                $result[$keyname] = $this->$varname;
+            }
+            return $result;
+        } catch (\Exception $ex) {
+            $msg = "Failed getting keynames because ".$ex;
+            throw new \Exception($msg,99876,$ex);
+        }
+    }
+    
     public function disconnect() 
     {
         throw new \Exception("Not implemented");
@@ -249,16 +308,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     }
 
     public function getVitalsSummaryMap()
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function getWorklistDetailsMap()
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function initClient()
     {
         throw new \Exception("Not implemented");
     }

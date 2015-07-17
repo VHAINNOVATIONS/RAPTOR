@@ -20,7 +20,6 @@ namespace raptor_ewdvista;
  */
 class DiagnosticPage
 {
-
     public function __construct()
     {
         module_load_include('php', 'raptor_datalayer', 'core/Context');
@@ -32,8 +31,15 @@ class DiagnosticPage
      */
     public function getFieldValues($form=NULL, $myvalues=array())
     {
-        $myvalues['values_timestamp']=time();
+        $myvalues['getfieldvalues_timestamp']=time();
+        $myvalues['action'] = 'INIT';
+        $myvalues['valid_actions'] = 'CREATE,INIT,GETCREDENTIALS,LOGIN,GETWORKLIST';
         return $myvalues;
+    }
+    
+    private function arrayItemHasValue($myvalues,$itemname)
+    {
+        return isset($myvalues[$itemname]) && trim($myvalues[$itemname]) != '';
     }
     
     /**
@@ -42,46 +48,79 @@ class DiagnosticPage
     function looksValid($form, $myvalues)
     {
         $isvalid = TRUE;
-        $action = isset($myvalues['formaction']) ? $myvalues['formaction'] : trim($myvalues['action']);
-        if($action == 'LOGIN') 
+        $action = trim(isset($myvalues['formaction']) ? $myvalues['formaction'] : trim($myvalues['action']));
+        if($action == '')
         {
-            if(!isset($myvalues['username']))
+            form_set_error('formaction',"Missing action");
+            $isvalid = FALSE;
+        } else {
+            $valid_actions_ar = explode(',',$myvalues['valid_actions']);
+            if(!in_array($action,$valid_actions_ar))
             {
-                form_set_error('username',"MIssing username for $action");
+                form_set_error('formaction',"Invalid action '$action' provided!");
                 $isvalid = FALSE;
             }
-            if(!isset($myvalues['password']))
+            if($action == 'GETCREDENTIALS') 
             {
-                form_set_error('password',"MIssing password for $action");
-                $isvalid = FALSE;
+                $itemnames = array('username','password','key');
+                foreach($itemnames as $itemname)
+                {
+                    if(!$this->arrayItemHasValue($myvalues,$itemname))
+                    {
+                        form_set_error($itemname,"Missing $itemname for $action");
+                        $isvalid = FALSE;
+                    }
+                }
+            } else
+            if($action == 'LOGIN') 
+            {
+                $itemnames = array('authorization','credentials');
+                foreach($itemnames as $itemname)
+                {
+                    if(!$this->arrayItemHasValue($myvalues,$itemname))
+                    {
+                        form_set_error($itemname,"Missing $itemname for $action");
+                        $isvalid = FALSE;
+                    }
+                }
             }
         }
-        
         return $isvalid;
     }
     
     /**
      * Execute the actions indicated by the values
      */
-    public function updateDatabase($myvalues)
+    public function updateDatabase(&$form_state)
     {
-        error_log("Starting updateDatabase at ".time().">>>".print_r($myvalues));
-        drupal_set_message("Starting updateDatabase at ".time(),'error');
+        $myvalues = $form_state['values'];
+        $action = isset($myvalues['formaction']) ? $myvalues['formaction'] : trim($myvalues['action']);
         try
         {
             if($action == 'CREATE')
             {
                 drupal_set_message("Try to create dao...");
-                $this->testcreate();
+                $mydao = $this->testCreate();
                 drupal_set_message("Success!");
             } else if($action == 'INIT') {
                 drupal_set_message("Try to run the init...");
-                $mydao = $this->testcreate();
+                $mydao = $this->testCreate();
                 $mydao->initClient();
-                drupal_set_message("Success!");
-            } else if($action == 'LOGIN') {
+                $result = $mydao->getPrivateValue(array('init_key','authorization'));
+                drupal_set_message("Success result=".print_r($result,TRUE));
+            } else if($action == 'GETCREDENTIALS') {
+                drupal_set_message("Try to get the encrypted credentials...");
                 $username = $myvalues['username'];
                 $password = $myvalues['password'];
+                $key = $myvalues['key'];
+                $credentials = $this->testEncrypt($username,$password,$key);
+                drupal_set_message("Success credentials=[$credentials]");
+            } else if($action == 'LOGIN') {
+                drupal_set_message("Try to login...");
+                $mydao = $this->testcreate();
+                $mydao->initClient();
+                $password = $myvalues['password'];
+                $mydao-> testLogin($mydao,$username,$password);
                 drupal_set_message("Try to login...");
                 drupal_set_message("TODO $action");
             } else if($action == 'GETWORKLIST') {
@@ -106,24 +145,29 @@ class DiagnosticPage
             '#suffix' => "\n</section>\n",
         );
         
-        drupal_set_message("LOOK <pre>".print_r($form_state,TRUE)."</pre>");
-
         $oContext = \raptor\Context::getInstance();
         $userinfo = $oContext->getUserInfo();
-        $userprivs = $userinfo->getSystemPrivileges();
-
         $userinfomarkup = "<p>Logged in as ".$userinfo->getFullName()."</p>";
         $form["data_entry_area1"]['topinfo']['user'] 
                 = array('#type' => 'item',
                         '#markup' => $userinfomarkup,
                     );
 
+        /*
         $rawvaluesinfo = "<fieldset><p>Raw Input Values are ".print_r($myvalues,TRUE).'</p></fieldset>';
         $form["data_entry_area1"]['topinfo']['rawvalues'] 
                 = array('#type' => 'item',
                         '#markup' => $rawvaluesinfo,
                     );
-
+                    */
+        
+        $valid_actions = $myvalues['valid_actions'];
+        $form['data_entry_area1']['hiddenthings']['valid_actions'] = array(
+          '#type' => 'hidden', 
+          '#default_value' => $valid_actions, 
+        );        
+        
+        $actiondescription = "Supported actions include the following: <b>$valid_actions</b>";
         $action = isset($myvalues['formaction']) ? $myvalues['formaction'] : trim($myvalues['action']);
         $form['data_entry_area1']['userinput']['formaction'] = array(
           '#type' => 'textfield', 
@@ -131,9 +175,30 @@ class DiagnosticPage
           '#default_value' => $action, 
           '#size' => 20, 
           '#disabled' => $disabled,
+          '#description' => $actiondescription,
         );        
 
-        $username = isset($myvalues['username']) ? $myvalues['username'] : '01vehu';
+        $authcode = isset($myvalues['authcode']) ? $myvalues['authcode'] : '';
+        $form['data_entry_area1']['userinput']['authcode'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('Authentication'), 
+          '#default_value' => $authcode, 
+          '#size' => 80, 
+          '#disabled' => $disabled,
+          '#description' => 'Get this from INIT response',
+        );        
+
+        $key = isset($myvalues['key']) ? $myvalues['key'] : '';
+        $form['data_entry_area1']['userinput']['key'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('Key'), 
+          '#default_value' => $key, 
+          '#size' => 80, 
+          '#disabled' => $disabled,
+          '#description' => 'Get this from INIT response',
+        );        
+        
+        $username = isset($myvalues['username']) ? $myvalues['username'] : $userinfo->getUserName();
         $form['data_entry_area1']['userinput']['username'] = array(
           '#type' => 'textfield', 
           '#title' => t('Username'), 
@@ -157,26 +222,8 @@ class DiagnosticPage
           '#default_value' => $credentials, 
           '#size' => 80, 
           '#disabled' => $disabled,
+          '#description' => 'Get this from encryption of username, password, and key',
         );        
-        
-        $authcode = isset($myvalues['authcode']) ? $myvalues['authcode'] : '';
-        $form['data_entry_area1']['userinput']['authcode'] = array(
-          '#type' => 'textfield', 
-          '#title' => t('Authentication'), 
-          '#default_value' => $authcode, 
-          '#size' => 80, 
-          '#disabled' => $disabled,
-        );        
-
-        $key = isset($myvalues['key']) ? $myvalues['key'] : '';
-        $form['data_entry_area1']['userinput']['key'] = array(
-          '#type' => 'textfield', 
-          '#title' => t('Key'), 
-          '#default_value' => $key, 
-          '#size' => 80, 
-          '#disabled' => $disabled,
-        );        
-
         
         $form['data_entry_area1']['action_buttons'] = array(
             '#type' => 'item', 
@@ -196,12 +243,17 @@ class DiagnosticPage
         return $form;
     }
     
-    private function testcreate()
+    private function testCreate()
     {
         drupal_set_message("Test a new DAO instance");
         $mydao = new \raptor_ewdvista\EwdDao();
         drupal_set_message("Created ".$mydao);
         return $mydao;
+    }
+    
+    private function testEncrypt($username,$password,$key)
+    {
+        return "TODOENC-{$username}-{$password}-{$key}";
     }
     
 }

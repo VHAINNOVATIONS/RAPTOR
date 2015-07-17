@@ -31,11 +31,11 @@ function raptor_ewdvista_menu()
 {
     $items = array();
     $items['ewdvista/diagnostic'] = array(
-      'title' => t('Diagnostic Page'),
+      'title' => t('Developer Diagnostic Page'),
       'page callback' => 'raptor_ewdvista_diagnostic_form',
       'access arguments' => array('access content'),
       'access callback' => TRUE,        
-      'description' => t('Diagnostic Page'),
+      'description' => t('Developer Diagnostic Page'),
       'type' => MENU_CALLBACK,
       'file' => 'DiagnosticPage.php',
       'file path' => '/sites/all/modules/raptor_ewdvista/form/',
@@ -55,7 +55,6 @@ function raptor_ewdvista_diagnostic_form_builder($form, &$form_state)
 {
     try
     {
-        error_log("At raptor_ewdvista_diagnostic_form_builder ".time());
         $oPage = new \raptor_ewdvista\DiagnosticPage();
         if(isset($_GET['disabled']))
         {
@@ -77,7 +76,6 @@ function raptor_ewdvista_diagnostic_form_builder($form, &$form_state)
         }
         $myvalues['action'] = $action_tx;
         $myvalues['build_ts'] = time();
-        drupal_set_message("build at ".time());
         $disabled = ($disabled_tx == 'TRUE');
         return $oPage->getForm($form, $form_state, $disabled, $myvalues);
     } catch (\Exception $ex) {
@@ -88,18 +86,14 @@ function raptor_ewdvista_diagnostic_form_builder($form, &$form_state)
     }
 }
 
-function raptor_ewdvista_diagnostic_form_validate($form, &$form_state) 
+function raptor_ewdvista_diagnostic_form_builder_validate($form, &$form_state) 
 {
     try
     {
-        error_log("At raptor_ewdvista_diagnostic_form_validate ".time());
-        $oContext = \raptor\Context::getInstance();
-        $nUID = $oContext->getUID();
-        $oPI = new \raptor\EditWorklistRankingPage($nUID);
+        $oPage = new \raptor_ewdvista\DiagnosticPage();
         $myvalues = $form_state['values'];
         $myvalues['validate_ts'] = time();
-        drupal_set_message("validate at ".time());
-        return $oPI->looksValid($form, $myvalues);
+        return $oPage->looksValid($form, $myvalues);
     } catch (\Exception $ex) {
         $msg = "Failed validate because ".$ex;
         error_log($msg);
@@ -111,18 +105,14 @@ function raptor_ewdvista_diagnostic_form_validate($form, &$form_state)
 /**
  * Process the submitted form
  */
-function raptor_ewdvista_diagnostic_form_submit($form, &$form_state) 
+function raptor_ewdvista_diagnostic_form_builder_submit($form, &$form_state) 
 {
     try
     {
-        error_log("At raptor_ewdvista_diagnostic_form_submit ".time());
         $form_state['rebuild'] = TRUE;  //Stay on same page
         $oPage = new \raptor_ewdvista\DiagnosticPage();
-        $myvalues = $form_state['values'];
-        $myvalues['submit_ts'] = time();
-        drupal_set_message("Submit at ".time());
-        $oPage->updateDatabase($myvalues);
-        //$form_state['redirect'] = FALSE;
+        $form_state['values']['submit_ts'] = time();
+        $oPage->updateDatabase($form_state);
     } catch (\Exception $ex) {
         error_log("Failed raptor_ewdvista_diagnostic_form_submit because ".$ex);
         drupal_set_message($ex,'error');
