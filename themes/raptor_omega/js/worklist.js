@@ -8,43 +8,43 @@
 
     //Click function to open up the modal
     $(document)
-        .on('click', '.change-columns', function (e) {
-            $('#column-modal').dialog({
-                modal: true,
-                show: {
-                    effect: 'fadeIn'
-                },
-                hide: {
-                    effect: 'fadeOut'
-                },
-                buttons: {
-                    'Save': function () {
-                        var columnsToHide = [];
-
-                        $('[name=column_display]', '#column-modal').each(function (index, element) {
-                            // Use DataTables API to hide/show columns
-                            $worklistTable.column( element.value ).visible( element.checked ? true : false );
-
-                            // Keep track of columns hidden
-                            if (!element.checked) {
-                                columnsToHide.push($(element).next('span').text());
-                            }
-                        });
-
-                        // Persist hidden columns via Ajax
-                        $.get('raptor/declarehiddenworklistcols', { hidden_worklistcols: columnsToHide.join(',') });
-
-                        $(this).dialog('close');
+            .on('click', '.change-columns', function (e) {
+                $('#column-modal').dialog({
+                    modal: true,
+                    show: {
+                        effect: 'fadeIn'
                     },
-                    'Cancel': function () {
-                        $(this).dialog('close');
+                    hide: {
+                        effect: 'fadeOut'
+                    },
+                    buttons: {
+                        'Save': function () {
+                            var columnsToHide = [];
+
+                            $('[name=column_display]', '#column-modal').each(function (index, element) {
+                                // Use DataTables API to hide/show columns
+                                $worklistTable.column(element.value).visible(element.checked ? true : false);
+
+                                // Keep track of columns hidden
+                                if (!element.checked) {
+                                    columnsToHide.push($(element).next('span').text());
+                                }
+                            });
+
+                            // Persist hidden columns via Ajax
+                            $.get('raptor/declarehiddenworklistcols', {hidden_worklistcols: columnsToHide.join(',')});
+
+                            $(this).dialog('close');
+                        },
+                        'Cancel': function () {
+                            $(this).dialog('close');
+                        }
                     }
-                }
+                });
             });
-        });
 
     $(document).ready(function () {
-    
+
         /*** Column Modal Section ***/
 
 
@@ -64,20 +64,20 @@
                 $.cookie('worklistFilterMode', 'Ready for Examination');
             } else if (selectedWorklistFilterMode === 'QA') {
                 $.cookie('worklistFilterMode', 'QA');
-            } else if (selectedWorklistFilterMode === 'EC'){
+            } else if (selectedWorklistFilterMode === 'EC') {
                 $.cookie('worklistFilterMode', 'EC');
-            } else if (selectedWorklistFilterMode === 'IA'){
+            } else if (selectedWorklistFilterMode === 'IA') {
                 $.cookie('worklistFilterMode', 'IA')
             } else {
                 $.cookie('worklistFilterMode', '');
             }
-        }        
-        
+        }
+
         var checkWorklistFilterMode = function () {
             // TODO: Turn the cookie retrieval method below into a global function
             var worklistFilterMode = $.cookie('worklistFilterMode'),
-                $worklistFilter = $('#worklist_filter');
-            
+                    $worklistFilter = $('#worklist_filter');
+
             // Pre-select menu option
             if (worklistFilterMode === 'Ready for Examination') {
                 $worklistFilter.prop('selectedIndex', 1);
@@ -91,36 +91,36 @@
         checkWorklistFilterMode();
 
         $('#worklistTable')
-            .find('td:nth-of-type(n):not(td:first-child, td:nth-last-child(2), td:last-child)').on('click', function (e) {
-                var myrawrtid = $(this).closest('tr').attr('data-rawrtid'),
+                .find('td:nth-of-type(n):not(td:first-child, td:nth-last-child(2), td:last-child)').on('click', function (e) {
+            var myrawrtid = $(this).closest('tr').attr('data-rawrtid'),
                     clickMode = $('#selection_mode').val(),
                     protocolURL,
                     td = this;
 
-                e.preventDefault();
-                setWorklistFilterMode();
+            e.preventDefault();
+            setWorklistFilterMode();
 
-                if ( ['edit', 'view'].indexOf(clickMode) !== -1 ) {
-                    // make the page load asynchronous
-                    protocolURL = Drupal.pageData.baseURL + '/protocol?rawrtid=' + myrawrtid + (clickMode === 'view' ? '&mode=VIEW' : '');
-                    Drupal.behaviors.raptorShowSpinner('Gathering protocol data from VistA');
-                    $.get(protocolURL, function (response) {
-                        window.location.href = protocolURL; 
-                    });
-                }
+            if (['edit', 'view'].indexOf(clickMode) !== -1) {
+                // make the page load asynchronous
+                protocolURL = Drupal.pageData.baseURL + '/protocol?rawrtid=' + myrawrtid + (clickMode === 'view' ? '&mode=VIEW' : '');
+                Drupal.behaviors.raptorShowSpinner('Gathering protocol data from VistA');
+                $.get(protocolURL, function (response) {
+                    window.location.href = protocolURL;
+                });
+            }
 
-                if (clickMode === 'checkmark') {
-                    $(td)
+            if (clickMode === 'checkmark') {
+                $(td)
                         .parent()
                         .find('td:first-child :checkbox')
                         .trigger('click');
-                }
-            })
-            .end()
-            .find('td:first-child').on('click', function (e) {
-                // Usability improvement: toggle the checkbox when it's parent cell is clicked
-                if ($(e.target).is('td')) {
-                    $(this)
+            }
+        })
+                .end()
+                .find('td:first-child').on('click', function (e) {
+            // Usability improvement: toggle the checkbox when it's parent cell is clicked
+            if ($(e.target).is('td')) {
+                $(this)
                         .find('[type=checkbox]')
                         .each(function () {
                             if ($(this).is(':checked') === true) {
@@ -129,38 +129,38 @@
                                 this.checked = true;
                             }
                         })
-                }
-            })
-            .end()
-            .find('td:last-child').on('click', function (e) {
-                var $thisTd = $(this),
+            }
+        })
+                .end()
+                .find('td:last-child').on('click', function (e) {
+            var $thisTd = $(this),
                     scheduledText = $thisTd.text(),
                     scheduledArray = scheduledText.split('@'),
                     scheduledDate = new Date(scheduledArray[0].replace(/-/g, '/')),
                     scheduledTime = scheduledArray[1];
 
-                e.preventDefault();
+            e.preventDefault();
 
-                Drupal.behaviors.raptorShowAdministerDialog(
-                    'Pass Box for ' + $(this).parent().find('.pat_column').text(), 
-                    'raptor/scheduleticket?rawrtid='+ $(this).parent().attr('data-rawrtid'),
+            Drupal.behaviors.raptorShowAdministerDialog(
+                    'Pass Box for ' + $(this).parent().find('.pat_column').text(),
+                    'raptor/scheduleticket?rawrtid=' + $(this).parent().attr('data-rawrtid'),
                     function () {
                         // Set up time picker
                         $('#edit-event-starttime-tx').timepicker({
                             'timeFormat': 'H:i',
-                            'step' : 15
+                            'step': 15
                         });
                     },
                     true
-                );
+                    );
 
-            })
-        
+        })
+
         var showPendingImageOrders = function (patientName) {
             var wlTable = $('#worklistTable'),
-                dataTable = wlTable.DataTable(),
-                tableHeaders = wlTable.find('thead th'),
-                patientColumnIndex = -1;
+                    dataTable = wlTable.DataTable(),
+                    tableHeaders = wlTable.find('thead th'),
+                    patientColumnIndex = -1;
             // Make sure Worklist is set to 'Show All'
             $('#worklist_filter').val('.*').trigger('change');
             // Find position of Patient column. Most of the time it will be at position 3 (4th column).
@@ -176,7 +176,7 @@
                 // Sort by patient column
                 dataTable.order([patientColumnIndex, 'asc']);
                 // Do table search
-               $('.dataTables_filter input').val(patientName);
+                $('.dataTables_filter input').val(patientName);
 
                 dataTable.search(patientName, false, false);
 
@@ -195,30 +195,30 @@
 
         // Have to do this one separately since we'll use $worklistTable to hide and show columns later
         $worklistTable = $('#worklistTable').DataTable({
-                "order": [[ 2, "desc" ]],
-                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                "columnDefs": [
+            "order": [[2, "desc"]],
+            "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            "columnDefs": [
                 {
                     "targets": [9],
-                    "orderData": [2,9]
+                    "orderData": [2, 9]
                 },
                 {
-                    "type":'date-yyyy-mm-dd hh:mm', 
+                    "type": 'date-yyyy-mm-dd hh:mm',
                     "targets": 5
                 },
                 {
-                    "type":'date-yyyy-mm-dd',
+                    "type": 'date-yyyy-mm-dd',
                     "targets": 4
                 }]
-            });
-        
+        });
+
         // Filter Worklist by Worklist Status Code
         var updateWorklistFilterMode = function () {
             $('#worklistTable')
-                .DataTable()
-                .column(13)
-                .search('^(' + $('#worklist_filter').val() + ')$', true, true)
-                .draw();
+                    .DataTable()
+                    .column(13)
+                    .search('^(' + $('#worklist_filter').val() + ')$', true, true)
+                    .draw();
         }
 
         $('#worklist_filter').change(updateWorklistFilterMode);
@@ -227,50 +227,50 @@
 
         var hideWorklistColumns = function () {
             var columnKey = '',
-                columnNumber = 0,
-                valuePattern = /[\d]+/,
-                i = 0,
-                columns = {
-                    'Tracking ID': {
-                        selector: '[name=column_display][value=1]'
-                    },
-                    'Patient': {
-                        selector: '[name=column_display][value=3]'
-                    },
-                    'Date Desired': {
-                        selector: '[name=column_display][value=4]'
-                    },
-                    'Date Ordered': {
-                        selector: '[name=column_display][value=5]'
-                    },
-                    'Modality': {
-                        selector: '[name=column_display][value=6]'
-                    },
-                    'Image Type': {
-                        selector: '[name=column_display][value=7]'
-                    },
-                    'Study': {
-                        selector: '[name=column_display][value=8]'
-                    },
-                    'Urgency': {
-                        selector: '[name=column_display][value=9]'
-                    },
-                    'Transport': {
-                        selector: '[name=column_display][value=10]'
-                    },
-                    'Patient Category / Location': {
-                        selector: '[name=column_display][value=11]'
-                    },
-                    'Workflow Status': {
-                        selector: '[name=column_display][value=12]'
-                    },
-                    'Assignment': {
-                        selector: '[name=column_display][value=14]'
-                    },
-                    'Scheduled': {
-                        selector: '[name=column_display][value=15]'
-                    }
-                };
+                    columnNumber = 0,
+                    valuePattern = /[\d]+/,
+                    i = 0,
+                    columns = {
+                        'Tracking ID': {
+                            selector: '[name=column_display][value=1]'
+                        },
+                        'Patient': {
+                            selector: '[name=column_display][value=3]'
+                        },
+                        'Date Desired': {
+                            selector: '[name=column_display][value=4]'
+                        },
+                        'Date Ordered': {
+                            selector: '[name=column_display][value=5]'
+                        },
+                        'Modality': {
+                            selector: '[name=column_display][value=6]'
+                        },
+                        'Image Type': {
+                            selector: '[name=column_display][value=7]'
+                        },
+                        'Study': {
+                            selector: '[name=column_display][value=8]'
+                        },
+                        'Urgency': {
+                            selector: '[name=column_display][value=9]'
+                        },
+                        'Transport': {
+                            selector: '[name=column_display][value=10]'
+                        },
+                        'Patient Category / Location': {
+                            selector: '[name=column_display][value=11]'
+                        },
+                        'Workflow Status': {
+                            selector: '[name=column_display][value=12]'
+                        },
+                        'Assignment': {
+                            selector: '[name=column_display][value=14]'
+                        },
+                        'Scheduled': {
+                            selector: '[name=column_display][value=15]'
+                        }
+                    };
 
             // Loop through hidden columns
             for (i = 0; i < Drupal.pageData.hiddenColumns.length; i++) {
@@ -301,26 +301,26 @@
         $('#edit-ranking-mode').on('click', function (e) {
             e.preventDefault();
             $('#edit-ranking-mode-modal')
-              .load('raptor/editworklistranking #raptor-admin-container', function () {
+                    .load('raptor/editworklistranking #raptor-admin-container', function () {
 
-                  $(this)
-                    .find('h1')
-                    .remove()
-                    .end()
-                    .dialog({
-                        width: 1098,
-                        height: 800,
-                        modal: true,
-                        autoOpen: true
+                        $(this)
+                                .find('h1')
+                                .remove()
+                                .end()
+                                .dialog({
+                                    width: 1098,
+                                    height: 800,
+                                    modal: true,
+                                    autoOpen: true
+                                });
+
+                        var edit_ranking_mode_content = $('#edit-ranking-mode-modal');
+                        var admin_header = edit_ranking_mode_content.find('.top');
+                        admin_header.hide();
+                    })
+                    .on('click', '.raptor-dialog-cancel', function (e) {
+                        $('#edit-ranking-mode-modal').dialog('close');
                     });
-                    
-                    var edit_ranking_mode_content = $('#edit-ranking-mode-modal');
-                    var admin_header = edit_ranking_mode_content.find('.top');
-                    admin_header.hide();
-              })
-              .on('click', '.raptor-dialog-cancel', function (e) {
-                $('#edit-ranking-mode-modal').dialog('close');
-              });
         });
 
         // Edit Top Work Order button
@@ -336,8 +336,8 @@
                 // The selector has to check for visible TR elements because the table sort plug-in will occasionally hide rows from view
                 // TODO: Make sure rows that aren't visible due to jQuery table pagination are also selected
                 $checked = $('table tbody tr:visible')
-                                .eq(0)
-                                .find('td:first-child :checkbox');
+                        .eq(0)
+                        .find('td:first-child :checkbox');
             }
 
             // Create array of checked items
@@ -356,7 +356,7 @@
             }
 
             //20150314
-            if(urlIDs.trim() == '')
+            if (urlIDs.trim() == '')
             {
                 alert('There are no orders shown!');
                 return;
@@ -369,33 +369,66 @@
         $('.refresh-worklist').on('click', function (e) {
             e.preventDefault();
             window.location.href = Drupal.pageData.baseURL + '/worklist';
-        });  
+        });
 
         // When user is redirected back to Worklist via Cancel button bring up dialog to go back to where user left off
 
         if (location.search.indexOf('dialog=manageUsers') !== -1) {
-          $('#nav-manageusers').trigger('click');
+            $('#nav-manageusers').trigger('click');
         }
 
         if (location.search.indexOf('dialog=manageProtocolLib') !== -1) {
-          // $('#nav-manageprotocolLibpage').trigger('click');
-          location.href = $('#nav-manageprotocolLibpage').attr('href');
+            // $('#nav-manageprotocolLibpage').trigger('click');
+            location.href = $('#nav-manageprotocolLibpage').attr('href');
         }
 
         if (location.search.indexOf('dialog=manageContraindications') !== -1) {
-          $('#nav-managecontraindications').trigger('click');
+            $('#nav-managecontraindications').trigger('click');
         }
 
         if (location.search.indexOf('dialog=managelists') !== -1) {
-          $('#nav-managelists').trigger('click');
+            $('#nav-managelists').trigger('click');
         }
 
         if (location.search.indexOf('dialog=viewReports') !== -1) {
-          $('#nav-viewReports').trigger('click');
+            $('#nav-viewReports').trigger('click');
         }
-        
-        $('.logo').click(function(){
+
+        $('.logo').click(function () {
             window.location.href = Drupal.pageData.baseURL + '/worklist?releasealltickets=TRUE'
         });
+
+
+
+        /*caches the first five records in the worklist table.
+         starting_index allows us to cache the records at a particular page.
+         From DataTable jquery API, we can collect the page info on a paginated table, in this case, worklist,
+         and figure out which record index is at the top of the current table page. 
+         Note all records in a DataTable are indexed from 0...end. Based on how the pagination set up,
+         the records are indexed in such a way that we can cherry-pick the ones we would like to cache.
+         If we are on page 0 and we allow a max of 10 records per page, we can easily know that the 
+         records we are currently showing to the user are in the range of 0 - 10 inclusive. This information
+         is returned via json object when we make an API call to DataTable().page.info();
+         Here's a sample of what we get back if we are on page 5 (assume 0-based indexing for table pages):
+         {end: 50, length: 10, page: 4, pages: 90, recordsDisplay: 896, recordsTotal: 896, start: 40}
+         From this we can easily see that the first record the user sees on page 5 is located at
+         DataTable().columns(x).data()[0][40]. We can work from this starting value to cache the first 
+         5 records whenever we jump form page to page in a Data Table. 
+         */
+        var cacheFirstFiveTIDS = function (starting_index) {
+            //even if we don't have 5 records on the current page, this will work, slice stops at the last known good value and does not pad with nulls or undefined(s)
+            var records_to_cache = $worklistTable.columns(1).data()[0].slice(starting_index, starting_index+5); 
+            //console.log(records_to_cache);
+            //console.log(Drupal.pageData.baseURL + '/raptor/loadcache?tids=' + records_to_cache.join(','));
+            $.get(Drupal.pageData.baseURL + '/raptor/loadcache?tids=' + records_to_cache.join(','));
+        };
+        cacheFirstFiveTIDS(0);//calling the function for the first time since the page has loaded.
+        $('#worklistTable_paginate').on('click', function () {
+            var page_info = $worklistTable.page.info();
+            //console.log("Worklist Page Number: "+page_info.page+" Index of the top-most record currently displayed: "+ page_info.start);
+            cacheFirstFiveTIDS(page_info.start);
+        }); //calling the function each time we navigate to a different page
     }); // end $(document).ready()
+
+
 }(document, jQuery));
