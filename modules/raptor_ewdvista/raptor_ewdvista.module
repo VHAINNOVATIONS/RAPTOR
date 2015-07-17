@@ -79,7 +79,7 @@ function raptor_ewdvista_diagnostic_form_builder($form, &$form_state)
         return $oPage->getForm($form, $form_state, $disabled, $myvalues);
     } catch (\Exception $ex) {
         $msg = "Failed raptor_ewdvista_diagnostic_form_builder because ".$ex;
-        drupal_set_message($msg);
+        drupal_set_message($msg,'error');
         error_log($msg);
     }
 }
@@ -93,7 +93,8 @@ function raptor_ewdvista_diagnostic_form_submit($form, &$form_state)
     {
         $oPage = new \raptor_ewdvista\DiagnosticPage();
         $disabled = ($disabled_tx == 'TRUE');
-        $myvalues = $oPage->getFieldValues();
+        $myvalues = $form_state['values'];
+        $oPage->updateDatabase($myvalues);
     } catch (\Exception $ex) {
         error_log("Failed raptor_ewdvista_diagnostic_form_submit because ".$ex);
         drupal_set_message($ex,'error');

@@ -62,12 +62,6 @@ class DiagnosticPage
             '#prefix' => "\n<section class='user-admin raptor-dialog'>\n",
             '#suffix' => "\n</section>\n",
         );
-        $form['data_entry_area1']['table_container'] = array(
-            '#type' => 'item', 
-            '#prefix' => '<div class="raptor-dialog-container">',
-            '#suffix' => '</div>', 
-            '#tree' => TRUE,
-        );
 
         $oContext = \raptor\Context::getInstance();
         $userinfo = $oContext->getUserInfo();
@@ -84,8 +78,35 @@ class DiagnosticPage
                 = array('#type' => 'item',
                         '#markup' => $rawvaluesinfo,
                     );
+
+        $action = isset($myvalues['formaction']) ? $myvalues['formaction'] : trim($myvalues['action']);
+        $form['data_entry_area1']['userinput']['formaction'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('Form Action'), 
+          '#default_value' => $action, 
+          '#size' => 20, 
+          '#disabled' => $disabled,
+        );        
+
+        $authcode = isset($myvalues['authcode']) ? $myvalues['authcode'] : '';
+        $form['data_entry_area1']['userinput']['authcode'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('Authentication'), 
+          '#default_value' => $authcode, 
+          '#size' => 80, 
+          '#disabled' => $disabled,
+        );        
+
+        $key = isset($myvalues['key']) ? $myvalues['key'] : '';
+        $form['data_entry_area1']['userinput']['key'] = array(
+          '#type' => 'textfield', 
+          '#title' => t('Authentication'), 
+          '#default_value' => $key, 
+          '#size' => 80, 
+          '#disabled' => $disabled,
+        );        
+
         
-        $action = trim($myvalues['action']);
         try
         {
             if($action == 'CREATE')
