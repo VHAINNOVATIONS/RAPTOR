@@ -22,8 +22,10 @@ require_once 'IEwdDao.php';
  */
 class EwdDao implements \raptor_ewdvista\IEwdDao
 {
+    private $m_createdtimestamp = NULL;
     function __construct()
     {
+        $this->m_createdtimestamp = time();
     }
 
     public function getIntegrationInfo()
@@ -46,14 +48,9 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         throw new \Exception("Not implemented");
     }
 
-    public function makeQuery($functionToInvoke, $args) 
-    {
-        throw new \Exception("Not implemented");
-    }
-
     public function __toString()
     {
-        throw new \Exception("Not implemented");
+        return "EwdDao created $this->m_createdtimestamp";
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)

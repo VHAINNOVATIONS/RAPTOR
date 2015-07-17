@@ -30,7 +30,74 @@ function raptor_ewdvista_help($path, $arg)
 function raptor_ewdvista_menu() 
 {
     $items = array();
+    $items['ewdvista/diagnostic'] = array(
+      'title' => t('Diagnostic Page'),
+      'page callback' => 'raptor_ewdvista_diagnostic_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Diagnostic Page'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DiagnosticPage.php',
+      'file path' => '/sites/all/modules/raptor_ewdvista/form/',
+    );
     return $items;
 }
 
+function raptor_ewdvista_diagnostic_form() 
+{
+    return drupal_get_form('raptor_ewdvista_diagnostic_form_builder');
+}
+
+/**
+ * Build the page
+ */
+function raptor_ewdvista_diagnostic_form_builder($form, &$form_state)
+{
+    try
+    {
+        $oPage = new \raptor_ewdvista\DiagnosticPage();
+        if(isset($_GET['disabled']))
+        {
+            $disabled_tx = strtoupper(trim($_GET['disabled']));
+        } else {
+            $disabled_tx = 'FALSE';
+        }
+        if(isset($_GET['action']))
+        {
+            $action_tx = strtoupper(trim($_GET['action']));
+        } else {
+            $action_tx = '';
+        }
+        if(isset($form_state['values']))
+        {
+            $myvalues = $form_state['values'];    
+        } else {
+            $myvalues = $oPage->getFieldValues();
+        }
+        $myvalues['action'] = $action_tx;
+        $disabled = ($disabled_tx == 'TRUE');
+        return $oPage->getForm($form, $form_state, $disabled, $myvalues);
+    } catch (\Exception $ex) {
+        $msg = "Failed raptor_ewdvista_diagnostic_form_builder because ".$ex;
+        drupal_set_message($msg);
+        error_log($msg);
+    }
+}
+
+/**
+ * Process the submitted form
+ */
+function raptor_ewdvista_diagnostic_form_submit($form, &$form_state) 
+{
+    try
+    {
+        $oPage = new \raptor_ewdvista\DiagnosticPage();
+        $disabled = ($disabled_tx == 'TRUE');
+        $myvalues = $oPage->getFieldValues();
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_ewdvista_diagnostic_form_submit because ".$ex);
+        drupal_set_message($ex,'error');
+        $form_state['rebuild'] = TRUE;
+    }
+}
 
