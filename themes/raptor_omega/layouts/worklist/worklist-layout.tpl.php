@@ -2,6 +2,7 @@
 //global $user;
 global $raptor_context;
 global $raptor_worklist_rows;
+global $base_url;
 
 if(isset($raptor_worklist_rows["DataRows"]))
 {
