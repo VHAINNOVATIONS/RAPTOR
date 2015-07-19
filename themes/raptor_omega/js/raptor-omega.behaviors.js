@@ -327,6 +327,10 @@
             return location.href.indexOf('user/login') !== -1 || location.href.indexOf('raptor/kickout_timeout') !== -1;
         };
 
+        var isLogoutPage = function () {
+            return location.href.indexOf('user/logout') !== -1 || location.href.indexOf('raptor/kickout_timeout') !== -1;
+        };
+
 
         var isWorklistPage = function () {
             return location.href.split('/').indexOf('worklist') || location.href.split('/').indexOf('worklist?releasealltickets=TRUE') !== -1;
@@ -350,7 +354,7 @@
             // Ensure user isn't timed out if they are actively editing information on the page
             lastChange.lastAjaxCall = new Date(); // Idle time gets reset when page is first loaded
             lastChange.alivePingIntervalSeconds = 60; // This determines how often key presses and form changes reset the user's idle time
-            
+
             // Obtain lastChange.alivePingIntervalSeconds from server
             $.getJSON(Drupal.pageData.baseURL + '/raptor/userinteractionping', function (response) {
                 var seconds = parseFloat(response.thisuser.alive_ping_interval_seconds);
@@ -546,6 +550,10 @@
                     ;
                 }); // END $.getJSON
             }, 30 * 1000);
+        }
+        
+        if (isLoginPage() || isLogoutPage()){
+            return false; //we do not want to call out to user interaction ping endpoint on login or logout page 
         }
 
 
