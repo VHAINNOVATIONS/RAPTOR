@@ -5,13 +5,13 @@
 !.gitignore
 !EWDJSvistalayer
 !MDWSvistalayer
-!themes/raptor_omega
-!modules/raptor_*
 !modules/raptor_glue
 !modules/raptor_glue/*
 !modules/raptor_ewdvista
 !modules/raptor_ewdvista/*
+!modules/raptor_*
 !modules/simplerulesengine_*
+!themes/raptor_omega
 
 #App/Drupal7/themes/raptor_omega/.sass-cache
 #App/Drupal7/themes/raptor_omega/theme
