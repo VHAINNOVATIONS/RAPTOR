@@ -4,6 +4,7 @@ nbproject
 *.7z
 modules/*
 themes/*
+libraries/*
 
 #Except these things...
 !.gitignore
