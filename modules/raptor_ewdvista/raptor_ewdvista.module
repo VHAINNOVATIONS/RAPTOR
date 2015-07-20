@@ -31,7 +31,7 @@ function raptor_ewdvista_menu()
 {
     $items = array();
     $items['ewdvista/diagnostic1'] = array(
-      'title' => t('Developer Diagnostic1 Page'),
+      'title' => t('Developer Diagnostic Page1'),
       'page callback' => 'raptor_ewdvista_diagnostic1_form',
       'access arguments' => array('access content'),
       'access callback' => TRUE,        
