@@ -22,6 +22,6 @@ class Encryption
 {
     public static function getEncryptedCredentials($key,$username,$password)
     {
-        return "TODO";
+        return "TODO ENCRYPT ($key,$username,$password)";
     }
 }

@@ -19,4 +19,3 @@ defined('UATC_GENERAL')
 //Do NOT make this bigger than the MySql max_allowed_packet setting
 defined('MAX_CACHE_ITEM_SIZE')
     or define('MAX_CACHE_ITEM_SIZE', 1048576);
-

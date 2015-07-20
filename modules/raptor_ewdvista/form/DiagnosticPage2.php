@@ -77,12 +77,12 @@ class DiagnosticPage2
             } else
             if($action == 'LOGIN') 
             {
-                $itemnames = array('authorization','credentials');
+                $itemnames = array('authcode','credentials');
                 foreach($itemnames as $itemname)
                 {
                     if(!$this->arrayItemHasValue($myvalues,$itemname))
                     {
-                        form_set_error($itemname,"Missing $itemname for $action");
+                        form_set_error($itemname,"Missing $itemname for $action in validation");
                         $isvalid = FALSE;
                     }
                 }
@@ -128,9 +128,8 @@ class DiagnosticPage2
                 $mydao = $this->testcreate();
                 $mydao->initClient();
                 $password = $myvalues['password'];
-                $mydao-> testLogin($mydao,$username,$password);
-                drupal_set_message("Try to login...");
-                drupal_set_message("TODO $action");
+                $result = $mydao-> testLogin($mydao,$username,$password);
+                drupal_set_message("Result of $action is ".print_r($result,TRUE));
             } else if($action == 'GETWORKLIST') {
                 drupal_set_message("Try to to get worklist...");
                 //$method = 'initiate';

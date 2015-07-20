@@ -26,6 +26,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_authorization = NULL;
     private $m_init_key = NULL;
     private $m_credentials = NULL;
+    private $m_userduz = NULL;  //Keep as NULL until authenticated
+    private $m_userfullname = NULL;
     private $m_oWebServices = NULL;
     
     function __construct()
@@ -38,36 +40,96 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration"; //TODO get real runtime version number
+        return "EWD VISTA EHR Integration";
     }
 
+    /**
+     * Return the site specific fully qualified URL for the service.
+     */
+    private function getURL($servicename)
+    {
+        return EWDFED_BASE_URL . "/$servicename";
+    }
+    
+    /**
+     * Initialize the DAO client session
+     */
     public function initClient()
     {
         try
         {
-            //TODO make sure method and URL is configurable
             $method = 'initiate';
-            $url="http://localhost:8081/RaptorEwdVista/raptor/initiate";
+            //$url="http://localhost:8081/RaptorEwdVista/raptor/initiate";
+            $url = $this->getURL($method);
             $json_string = $this->m_oWebServices->callAPI($method, $url);
             $json_array = json_decode($json_string, TRUE);
-            $this->m_authorization = $json_array["Authorization"];
-            $this->m_init_key = $json_array["key"];
+            $this->m_authorization = trim($json_array["Authorization"]);
+            $this->m_init_key = trim($json_array["key"]);
+            if($this->m_authorization == '')
+            {
+                throw new \Exception("Missing authorization value in result!");
+            }
+            if($this->m_init_key == '')
+            {
+                throw new \Exception("Missing init key value in result!");
+            }
         } catch (\Exception $ex) {
             throw new \Exception("Trouble in initClient because ".$ex,99876,$ex);
         }
     }
 
+    /**
+     * Return TRUE if already authenticated
+     */
+    public function isAuthenticated() 
+    {
+        return ($this->m_userduz != NULL);
+    }
+
+    /**
+     * Disconnect this DAO from a session
+     */
+    public function disconnect() 
+    {
+        $this->m_userduz = NULL;
+        $this->m_authorization = NULL;
+        $this->m_init_key = NULL;
+        $this->m_credentials = NULL;
+    }
+
+    /**
+     * Attempt to login and mark the user authenticated
+     */
     public function connectAndLogin($siteCode, $username, $password) 
     {
-        if($this->m_authorization == NULL)
+        try
         {
-            throw new \Exception("No authorization code has been set!");
+            //Have we already initialized the client?
+            if($this->m_authorization == NULL)
+            {
+                throw new \Exception("No authorization code has been set!");
+            }
+            if($this->m_init_key == NULL)
+            {
+                throw new \Exception("No initialization key has been set!");
+            }
+            
+            //If we are here, lets try to login.
+            module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
+            $encryption = new \raptor_ewdvista\Encryption();
+            $key = $this->m_init_key;
+            $this->m_credentials = $encryption->getEncryptedCredentials($key, $username, $password);
+
+            throw new \Exception("TODO call the web service with credentials=[$this->m_credentials] for ($siteCode, $username, $password)");
+            
+            $this->m_userduz = 123456;  //Todo from JSON
+            $this->m_userfullname = "Dr TODO get from JSON result";
+    
+        } catch (\Exception $ex) {
+            $this->m_userduz = NULL;
+            $this->m_userfullname = NULL;
+            throw new \Exception("Trouble in connectAndLogin because ".$ex,99876,$ex);
         }
-        if($this->m_init_key == NULL)
-        {
-            throw new \Exception("No initialization key has been set!");
-        }
-        throw new \Exception("Not implemented $siteCode, $username, $password");
     }
 
     public function getWorklistDetailsMap()
@@ -106,19 +168,9 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
     
-    public function disconnect() 
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function isAuthenticated() 
-    {
-        throw new \Exception("Not implemented");
-    }
-
     public function __toString()
     {
-        return "EwdDao created $this->m_createdtimestamp";
+        return "EwdDao created {$this->m_createdtimestamp}";
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)

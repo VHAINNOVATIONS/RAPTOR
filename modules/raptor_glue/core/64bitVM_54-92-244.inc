@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150713.1 Config for DEV 54.235.92.244');
+    or define('RAPTOR_CONFIG_ID', '20150720.1 Config for DEV 54.235.92.244');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -36,3 +36,7 @@ defined('LAB_EGFR_ALERT_WARN_END_LEVEL')
     or define('LAB_EGFR_ALERT_WARN_END_LEVEL', 60);
 defined('LAB_EGFR_ALERT_BAD_END_LEVEL')
     or define('LAB_EGFR_ALERT_BAD_END_LEVEL', 30);
+
+//Base URL for the EWD Federator
+defined('EWDFED_BASE_URL')
+    or define('EWDFED_BASE_URL', "http://localhost:8081/RaptorEwdVista/raptor/");
