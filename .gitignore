@@ -1,5 +1,9 @@
 #Ignore everything
-./*
+nbproject
+*.zip
+*.7z
+modules/*
+themes/*
 
 #Except these things...
 !.gitignore
