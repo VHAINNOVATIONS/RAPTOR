@@ -18,7 +18,7 @@ namespace raptor_ewdvista;
  *
  * @author Frank Font of SAN Business Consultants
  */
-class DiagnosticPage
+class DiagnosticPage1
 {
     public function __construct()
     {

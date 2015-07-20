@@ -30,32 +30,43 @@ function raptor_ewdvista_help($path, $arg)
 function raptor_ewdvista_menu() 
 {
     $items = array();
-    $items['ewdvista/diagnostic'] = array(
-      'title' => t('Developer Diagnostic Page'),
-      'page callback' => 'raptor_ewdvista_diagnostic_form',
+    $items['ewdvista/diagnostic1'] = array(
+      'title' => t('Developer Diagnostic1 Page'),
+      'page callback' => 'raptor_ewdvista_diagnostic1_form',
       'access arguments' => array('access content'),
       'access callback' => TRUE,        
-      'description' => t('Developer Diagnostic Page'),
+      'description' => t('Developer Diagnostic1 Page'),
       'type' => MENU_CALLBACK,
-      'file' => 'DiagnosticPage.php',
+      'file' => 'DiagnosticPage1.php',
+      'file path' => '/sites/all/modules/raptor_ewdvista/form/',
+    );
+    $items['ewdvista/diagnostic2'] = array(
+      'title' => t('Developer Diagnostic Page2'),
+      'page callback' => 'raptor_ewdvista_diagnostic2_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Developer Diagnostic Page2'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DiagnosticPage2.php',
       'file path' => '/sites/all/modules/raptor_ewdvista/form/',
     );
     return $items;
 }
 
-function raptor_ewdvista_diagnostic_form() 
+function raptor_ewdvista_diagnostic1_form() 
 {
-    return drupal_get_form('raptor_ewdvista_diagnostic_form_builder');
+    return drupal_get_form('raptor_ewdvista_diagnostic1_form_builder');
 }
 
-/**
- * Build the page
- */
-function raptor_ewdvista_diagnostic_form_builder($form, &$form_state)
+function raptor_ewdvista_diagnostic2_form() 
+{
+    return drupal_get_form('raptor_ewdvista_diagnostic2_form_builder');
+}
+
+function raptor_ewdvista_diagnostic_root_pagebuilder($oPage, $form, &$form_state)
 {
     try
     {
-        $oPage = new \raptor_ewdvista\DiagnosticPage();
         if(isset($_GET['disabled']))
         {
             $disabled_tx = strtoupper(trim($_GET['disabled']));
@@ -79,18 +90,63 @@ function raptor_ewdvista_diagnostic_form_builder($form, &$form_state)
         $disabled = ($disabled_tx == 'TRUE');
         return $oPage->getForm($form, $form_state, $disabled, $myvalues);
     } catch (\Exception $ex) {
-        $msg = "Failed raptor_ewdvista_diagnostic_form_builder because ".$ex;
+        $msg = "Failed raptor_ewdvista_diagnostic1_form_builder because ".$ex;
         error_log($msg);
         drupal_set_message($msg,'error');
         throw new \Exception($msg,99777,$ex);
     }
 }
 
-function raptor_ewdvista_diagnostic_form_builder_validate($form, &$form_state) 
+/**
+ * Build the page
+ */
+function raptor_ewdvista_diagnostic1_form_builder($form, &$form_state)
 {
     try
     {
-        $oPage = new \raptor_ewdvista\DiagnosticPage();
+        $oPage = new \raptor_ewdvista\DiagnosticPage1();
+        return raptor_ewdvista_diagnostic_root_pagebuilder($oPage, $form, $form_state);
+    } catch (\Exception $ex) {
+        $msg = "Failed raptor_ewdvista_diagnostic1_form_builder because ".$ex;
+        error_log($msg);
+        drupal_set_message($msg,'error');
+        throw new \Exception($msg,99777,$ex);
+    }
+}
+function raptor_ewdvista_diagnostic2_form_builder($form, &$form_state)
+{
+    try
+    {
+        $oPage = new \raptor_ewdvista\DiagnosticPage2();
+        return raptor_ewdvista_diagnostic_root_pagebuilder($oPage, $form, $form_state);
+    } catch (\Exception $ex) {
+        $msg = "Failed raptor_ewdvista_diagnostic2_form_builder because ".$ex;
+        error_log($msg);
+        drupal_set_message($msg,'error');
+        throw new \Exception($msg,99777,$ex);
+    }
+}
+
+function raptor_ewdvista_diagnostic1_form_builder_validate($form, &$form_state) 
+{
+    try
+    {
+        $oPage = new \raptor_ewdvista\DiagnosticPage1();
+        $myvalues = $form_state['values'];
+        $myvalues['validate_ts'] = time();
+        return $oPage->looksValid($form, $myvalues);
+    } catch (\Exception $ex) {
+        $msg = "Failed validate because ".$ex;
+        error_log($msg);
+        drupal_set_message($msg,'error');
+        return FALSE;
+    }
+}
+function raptor_ewdvista_diagnostic2_form_builder_validate($form, &$form_state) 
+{
+    try
+    {
+        $oPage = new \raptor_ewdvista\DiagnosticPage2();
         $myvalues = $form_state['values'];
         $myvalues['validate_ts'] = time();
         return $oPage->looksValid($form, $myvalues);
@@ -102,19 +158,33 @@ function raptor_ewdvista_diagnostic_form_builder_validate($form, &$form_state)
     }
 }
 
+
 /**
  * Process the submitted form
  */
-function raptor_ewdvista_diagnostic_form_builder_submit($form, &$form_state) 
+function raptor_ewdvista_diagnostic1_form_builder_submit($form, &$form_state) 
 {
     try
     {
         $form_state['rebuild'] = TRUE;  //Stay on same page
-        $oPage = new \raptor_ewdvista\DiagnosticPage();
+        $oPage = new \raptor_ewdvista\DiagnosticPage1();
         $form_state['values']['submit_ts'] = time();
         $oPage->updateDatabase($form_state);
     } catch (\Exception $ex) {
-        error_log("Failed raptor_ewdvista_diagnostic_form_submit because ".$ex);
+        error_log("Failed raptor_ewdvista_diagnostic1_form_submit because ".$ex);
+        drupal_set_message($ex,'error');
+    }
+}
+function raptor_ewdvista_diagnostic2_form_builder_submit($form, &$form_state) 
+{
+    try
+    {
+        $form_state['rebuild'] = TRUE;  //Stay on same page
+        $oPage = new \raptor_ewdvista\DiagnosticPage2();
+        $form_state['values']['submit_ts'] = time();
+        $oPage->updateDatabase($form_state);
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_ewdvista_diagnostic2_form_submit because ".$ex);
         drupal_set_message($ex,'error');
     }
 }
