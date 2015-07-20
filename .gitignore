@@ -1,3 +1,7 @@
+#Ignore everything
+*
+
+#Except these things...
 !.gitignore
 !EWDJSvistalayer
 !MDWSvistalayer
