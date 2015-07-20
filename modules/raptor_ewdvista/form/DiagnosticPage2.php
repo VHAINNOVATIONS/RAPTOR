@@ -26,6 +26,7 @@ class DiagnosticPage2
         module_load_include('php', 'raptor_ewdvista', 'core/load_all_modules');
         module_load_include('php', 'raptor_ewdvista', 'core/Diagnostic');
         module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
+        module_load_include('php', 'raptor_ewdvista', 'core/WebServices');
     }
 
     /**
@@ -96,6 +97,7 @@ class DiagnosticPage2
     public function updateDatabase(&$form_state)
     {
         $oDiagnostic = new \raptor_ewdvista\Diagnostic();
+        $oWebServices = new \raptor_ewdvista\WebServices();
         
         $myvalues = $form_state['values'];
         $action = isset($myvalues['formaction']) ? $myvalues['formaction'] : trim($myvalues['action']);
@@ -131,7 +133,13 @@ class DiagnosticPage2
                 drupal_set_message("TODO $action");
             } else if($action == 'GETWORKLIST') {
                 drupal_set_message("Try to to get worklist...");
-                drupal_set_message("TODO $action");
+                //$method = 'initiate';
+                //$url="http://localhost:8081/RaptorEwdVista/raptor/initiate";
+                $method="emrservice";
+                $url="http://localhost/mdws2.5/emrsvc.asmx";
+                drupal_set_message("Testing $action with callAPI($method, $url)");
+                $result = $oWebServices->callAPI($method, $url);
+                drupal_set_message("TODO $action".print_r($result,TRUE));
             } else {
                 drupal_set_message("No action parameter value was provided",'warn');
             }
