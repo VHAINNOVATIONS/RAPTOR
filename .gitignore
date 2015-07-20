@@ -7,6 +7,8 @@
 !MDWSvistalayer
 !themes/raptor_omega
 !modules/raptor_*
+!modules/raptor_glue
+!modules/raptor_ewdvista
 !modules/simplerulesengine_*
 
 #App/Drupal7/themes/raptor_omega/.sass-cache
