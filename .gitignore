@@ -1,8 +1,15 @@
-App/Drupal7/themes/raptor_omega/.sass-cache
-App/Drupal7/themes/raptor_omega/theme
-nbproject
-themes/raptor_omega/.sass-cache
-*.zip
-*.7z
+!.gitignore
+!EWDJSvistalayer
+!MDWSvistalayer
+!themes/raptor_omega
+!modules/raptor_*
+!modules/simplerulesengine_*
+
+#App/Drupal7/themes/raptor_omega/.sass-cache
+#App/Drupal7/themes/raptor_omega/theme
+#nbproject
+#themes/raptor_omega/.sass-cache
+#*.zip
+#*.7z
 
 
