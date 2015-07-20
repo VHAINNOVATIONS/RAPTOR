@@ -24,6 +24,7 @@ class DiagnosticPage1
     {
         module_load_include('php', 'raptor_datalayer', 'core/Context');
         module_load_include('php', 'raptor_ewdvista', 'core/load_all_modules');
+        module_load_include('php', 'raptor_ewdvista', 'core/Diagnostic');
     }
 
     /**
