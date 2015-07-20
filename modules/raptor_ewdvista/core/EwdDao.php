@@ -26,10 +26,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_authorization = NULL;
     private $m_init_key = NULL;
     private $m_credentials = NULL;
+    private $m_oWebServices = NULL;
     
     function __construct()
     {
-        $this->m_createdtimestamp = time();
+        module_load_include('php', 'raptor_ewdvista', 'core/WebServices');
+
+        $this->m_createdtimestamp = time();        
+        $this->m_oWebServices = new \raptor_ewdvista\WebServices();
     }
 
     public function getIntegrationInfo()
@@ -41,8 +45,13 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
-            $this->m_authorization = "AUTHTODO";
-            $this->m_init_key = "KEYTODO";
+            //TODO make sure method and URL is configurable
+            $method = 'initiate';
+            $url="http://localhost:8081/RaptorEwdVista/raptor/initiate";
+            $json_string = $this->m_oWebServices->callAPI($method, $url);
+            $json_array = json_decode($json_string, TRUE);
+            $this->m_authorization = $json_array["Authorization"];
+            $this->m_init_key = $json_array["key"];
         } catch (\Exception $ex) {
             throw new \Exception("Trouble in initClient because ".$ex,99876,$ex);
         }
