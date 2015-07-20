@@ -25,6 +25,7 @@ class DiagnosticPage1
         module_load_include('php', 'raptor_datalayer', 'core/Context');
         module_load_include('php', 'raptor_ewdvista', 'core/load_all_modules');
         module_load_include('php', 'raptor_ewdvista', 'core/Diagnostic');
+        module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
     }
 
     /**
@@ -94,6 +95,8 @@ class DiagnosticPage1
      */
     public function updateDatabase(&$form_state)
     {
+        $oDiagnostic = new \raptor_ewdvista\Diagnostic();
+        
         $myvalues = $form_state['values'];
         $action = isset($myvalues['formaction']) ? $myvalues['formaction'] : trim($myvalues['action']);
         try
@@ -101,11 +104,13 @@ class DiagnosticPage1
             if($action == 'CREATE')
             {
                 drupal_set_message("Try to create dao...");
-                $mydao = $this->testCreate();
+                $mydao = $oDiagnostic->testCreateDao();
+                //$mydao = $this->testCreate();
                 drupal_set_message("Success!");
             } else if($action == 'INIT') {
                 drupal_set_message("Try to run the init...");
-                $mydao = $this->testCreate();
+                $mydao = $oDiagnostic->testCreateDao();
+                //$mydao = $this->testCreate();
                 $mydao->initClient();
                 $result = $mydao->getPrivateValue(array('init_key','authorization'));
                 drupal_set_message("Success result=".print_r($result,TRUE));

@@ -20,5 +20,33 @@ namespace raptor_ewdvista;
  */
 class Diagnostic
 {
-    //TODO core diagnostic functions here
+
+    /**
+     * Returns a DAO instance if configured properly.
+     * If you get non-null result, then success!
+     */
+    public function testCreateDao()
+    {
+        try
+        {
+            $mydao = new \raptor_ewdvista\EwdDao();
+            return $mydao;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    /**
+     * Returns a DAO instance if configured properly.
+     * If you get non-null result, then success!
+     */
+    public function testInitDao()
+    {
+        try
+        {
+            //TODO
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
 }
