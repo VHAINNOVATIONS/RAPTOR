@@ -9,6 +9,8 @@ themes/*
 !.gitignore
 !EWDJSvistalayer
 !MDWSvistalayer
+!themes/raptor_omega
+!themes/raptor_omega/*
 
 !modules/raptor_glue
 !modules/raptor_glue/*
