@@ -27,7 +27,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_init_key = NULL;
     private $m_credentials = NULL;
     private $m_userduz = NULL;  //Keep as NULL until authenticated
-    private $m_userfullname = NULL;
+    private $m_displayname = NULL;
     private $m_oWebServices = NULL;
     
     function __construct()
@@ -123,11 +123,11 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             throw new \Exception("TODO call the web service with credentials=[$this->m_credentials] for ($siteCode, $username, $password)");
             
             $this->m_userduz = 123456;  //Todo from JSON
-            $this->m_userfullname = "Dr TODO get from JSON result";
+            $this->m_displayname = "Dr TODO get from JSON result";
     
         } catch (\Exception $ex) {
             $this->m_userduz = NULL;
-            $this->m_userfullname = NULL;
+            $this->m_displayname = NULL;
             throw new \Exception("Trouble in connectAndLogin because ".$ex,99876,$ex);
         }
     }
