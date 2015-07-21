@@ -27,23 +27,24 @@ class Encryption
             //$algorithm = 'rijndael-128';
             $algorithm = 'aes-256-cbc';
             
-            $debugstuff = openssl_get_cipher_methods();
-
-            $key = hash('sha256', $keytext, TRUE);
-            $input = 'accessCode=' + $access_code + '&verifyCode=' + $verify_code;
-
-            $encrypted = openssl_encrypt($input, $algorithm, $key, 0, $iv);
+            //$debugstuff = openssl_get_cipher_methods();
+            //$key = hash('sha256', $keytext, TRUE);
             
+            $input = 'accessCode=' + $access_code + '&verifyCode=' + $verify_code;
+            $iv = 'raptoriv20150721';
+            $encrypted_data = openssl_encrypt($input, $algorithm, $keytext, 0, $iv);
+            /*
             $td = mcrypt_module_open($algorithm, '', 'cbc', '');
             $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_DEV_URANDOM);
             mcrypt_generic_init($td, $key, $iv);
             $encrypted_data = mcrypt_generic($td, $input);
             mcrypt_generic_deinit($td);
             mcrypt_module_close($td);
+            */
 
             $ciphertext_base64 = base64_encode($encrypted_data);
             $ciphertext_hex = bin2hex($encrypted_data);
-
+            error_log("LOOK encrypted_data=[$encrypted_data]");
             error_log("LOOK ciphertext_base64=[$ciphertext_base64]");
             error_log("LOOK ciphertext_hex=[$ciphertext_hex]");
             
