@@ -1,7 +1,8 @@
 var federator = require('ewd-federator');
 
 var params = {
-  restPort: 8080,
+  //FEDERATOR
+  restPort: 8081,
   poolSize: 2,
   traceLevel: 3,
       database: {
@@ -15,6 +16,7 @@ var params = {
 
     RaptorEwdVista: {
       host: '127.0.0.1',  // if federator installed on same physical machine as EWD.js / VistA
+	  //EWDVISTA
       port: 8082,
       ssl: false,
       ewdjs: true,

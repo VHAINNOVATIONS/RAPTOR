@@ -24,12 +24,17 @@ class Encryption
     {
         try
         {
+            //$algorithm = 'rijndael-128';
+            $algorithm = 'aes-256-cbc';
+            
             $debugstuff = openssl_get_cipher_methods();
 
-            $key = hash('sha256', $keytext, true);
+            $key = hash('sha256', $keytext, TRUE);
             $input = 'accessCode=' + $access_code + '&verifyCode=' + $verify_code;
 
-            $td = mcrypt_module_open('rijndael-128', '', 'cbc', '');
+            $encrypted = openssl_encrypt($input, $algorithm, $key, 0, $iv);
+            
+            $td = mcrypt_module_open($algorithm, '', 'cbc', '');
             $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_DEV_URANDOM);
             mcrypt_generic_init($td, $key, $iv);
             $encrypted_data = mcrypt_generic($td, $input);
