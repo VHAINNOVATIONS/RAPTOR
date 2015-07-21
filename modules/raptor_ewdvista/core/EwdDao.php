@@ -48,7 +48,11 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     private function getURL($servicename)
     {
-        return EWDFED_BASE_URL . "/$servicename";
+        //NOTE: assumption that EWDFED_BASE_URL already have slash "/" at the end
+        //TODO: at some point refactor to use some sort of combine functionality 
+        //      to makesure we are adding slash correctly something like http_build_url
+        //      http://php.net/manual/en/function.http-build-url.php#114753
+        return EWDFED_BASE_URL . "$servicename";
     }
     
     /**
@@ -60,6 +64,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         {
             $method = 'initiate';
             //$url="http://localhost:8081/RaptorEwdVista/raptor/initiate";
+            //      http://localhost:8081/RaptorEwdVista/raptor/initiate
             $url = $this->getURL($method);
             $json_string = $this->m_oWebServices->callAPI($method, $url);
             $json_array = json_decode($json_string, TRUE);
@@ -67,11 +72,11 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $this->m_init_key = trim($json_array["key"]);
             if($this->m_authorization == '')
             {
-                throw new \Exception("Missing authorization value in result!");
+                throw new \Exception("Missing authorization value in result! URL: $url");
             }
             if($this->m_init_key == '')
             {
-                throw new \Exception("Missing init key value in result!");
+                throw new \Exception("Missing init key value in result! URL: $url");
             }
         } catch (\Exception $ex) {
             throw new \Exception("Trouble in initClient because ".$ex,99876,$ex);
