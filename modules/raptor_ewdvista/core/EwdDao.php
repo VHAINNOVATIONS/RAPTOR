@@ -5,7 +5,7 @@
  * Created by SAN Business Consultants for RAPTOR phase 2
  * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
- * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * SAN Implementation: Andrew Casertano, Frank Font, Alex Podlesny, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  * 
@@ -25,10 +25,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_createdtimestamp = NULL;
     private $m_authorization = NULL;
     private $m_init_key = NULL;
-    private $m_credentials = NULL;
-    private $m_userduz = NULL;  //Keep as NULL until authenticated
-    private $m_displayname = NULL;
+    private $m_credentials = NULL;          //Encrypted credentials value
     private $m_oWebServices = NULL;
+
+    private $m_dt           = NULL;
+    private $m_userduz      = NULL;              //Keep as NULL until authenticated
+    private $m_displayname  = NULL;
+    private $m_fullname     = NULL;
+    private $m_greeting     = NULL;
     
     function __construct()
     {
@@ -102,6 +106,18 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         $this->m_credentials = NULL;
     }
 
+    /*
+     * TODO: !!! IMPORTANT remove this method after configuring LOGIN
+     */
+    public function setEncryptedCredentials($credentials)
+    {
+        if($this->m_credentials == NULL)
+        {
+            $this->m_credentials = $credentials;
+        }
+    }
+            
+    
     /**
      * Attempt to login and mark the user authenticated
      */
@@ -118,21 +134,51 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             {
                 throw new \Exception("No initialization key has been set!");
             }
-            
-            //If we are here, lets try to login.
-            module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
-            $encryption = new \raptor_ewdvista\Encryption();
-            $keytext = $this->m_init_key;
-            $this->m_credentials = $encryption->getEncryptedCredentials($keytext, $username, $password);
+            //if we dont have encrrypted credentials yet, lets get them
+            //otherwise lets use existing value
+            if($this->m_credentials == NULL)
+            {
+                //If we are here, lets try to login.
+                module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
+                $encryption = new \raptor_ewdvista\Encryption();
+                $keytext = $this->m_init_key;
+                $this->m_credentials = $encryption->getEncryptedCredentials($keytext, $username, $password);
+            }
+
+            $method = 'login';
+            //http://localhost:8081/RaptorEwdVista/raptor/login?credentials=
+            $url = $this->getURL($method) . "?credentials=" . $this->m_credentials;
+            $data["Authorization"]=$this->m_authorization;
+            $json_string = $this->m_oWebServices->callAPI($method, $url, $data);            
+            $json_array = json_decode($json_string, TRUE);
+
+            /*
+            {
+            DT: "3150721"
+            DUZ: "10000000344"
+            displayName: "SEVEN RADIOLOGIST"
+            greeting: "Good morning RADIOLOGIST,SEVEN"
+            username: "RADIOLOGIST,SEVEN"
+            }
+            */
+            $this->m_dt           = trim($json_array["DT"]);
+            $this->m_userduz      = trim($json_array["DUZ"]);
+            $this->m_displayname  = trim($json_array["displayName"]);
+            $this->m_fullname     = trim($json_array["username"]);
+            $this->m_greeting     = trim($json_array["greeting"]);
+            if($this->m_userduz == NULL)
+            {
+                throw new \Exception("Cannot obtain DUZ information");
+            }
 
             throw new \Exception("TODO call the web service with credentials=[$this->m_credentials] for ($siteCode, $username, $password)");
             
-            $this->m_userduz = 123456;  //Todo from JSON
-            $this->m_displayname = "Dr TODO get from JSON result";
-    
         } catch (\Exception $ex) {
-            $this->m_userduz = NULL;
-            $this->m_displayname = NULL;
+            $this->m_dt           = NULL;
+            $this->m_userduz      = NULL;
+            $this->m_displayname  = NULL;
+            $this->m_fullname     = NULL;
+            $this->m_greeting     = NULL;
             throw new \Exception("Trouble in connectAndLogin because ".$ex,99876,$ex);
         }
     }
