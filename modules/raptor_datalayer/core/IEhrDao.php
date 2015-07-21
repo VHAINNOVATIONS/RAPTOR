@@ -80,8 +80,6 @@ interface IEhrDao
     public function __toString();
     
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
-    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs = 1000);
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5);
     public function createNewRadiologyOrder($orderChecks, $args);
     public function createUnsignedRadiologyOrder($orderChecks, $args);
     public function getAllHospitalLocationsMap();
@@ -122,4 +120,13 @@ interface IEhrDao
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ);
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ);
+    
+    /**
+     * @deprecated to remove soap from API
+     */
+    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs = 1000);
+    /**
+     * @deprecated to remove soap from API
+     */
+    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5);
 }

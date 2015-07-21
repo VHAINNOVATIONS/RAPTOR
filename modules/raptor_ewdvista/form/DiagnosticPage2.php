@@ -264,9 +264,11 @@ class DiagnosticPage2
         return $mydao;
     }
     
-    private function testEncrypt($username,$password,$key)
+    private function testEncrypt($access_code,$verify_code,$keytext)
     {
-        return "TODOENC-{$username}-{$password}-{$key}";
+        $encryption = new \raptor_ewdvista\Encryption();
+        $credentials = $encryption->getEncryptedCredentials($keytext, $access_code, $verify_code);
+        return "ENC-{$access_code}-{$verify_code}-{$keytext} = [<pre>{$credentials}</pre>]";
     }
     
 }

@@ -117,8 +117,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             //If we are here, lets try to login.
             module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
             $encryption = new \raptor_ewdvista\Encryption();
-            $key = $this->m_init_key;
-            $this->m_credentials = $encryption->getEncryptedCredentials($key, $username, $password);
+            $keytext = $this->m_init_key;
+            $this->m_credentials = $encryption->getEncryptedCredentials($keytext, $username, $password);
 
             throw new \Exception("TODO call the web service with credentials=[$this->m_credentials] for ($siteCode, $username, $password)");
             
