@@ -77,7 +77,7 @@ class DiagnosticPage1
             } else
             if($action == 'LOGIN') 
             {
-                $itemnames = array('authorization','credentials');
+                $itemnames = array('authcode','credentials');
                 foreach($itemnames as $itemname)
                 {
                     if(!$this->arrayItemHasValue($myvalues,$itemname))
