@@ -9,26 +9,25 @@ libraries/*
 #Except these things...
 !.gitignore
 !EWDJSvistalayer
+!EWDJSvistalayer/*
+
 !MDWSvistalayer
+!MDWSvistalayer/*
+
 !themes/raptor_omega
 !themes/raptor_omega/*
 
 !modules/raptor_glue
-!modules/raptor_glue/*
-
-!modules/raptor_ewdvista
-!modules/raptor_ewdvista/*
-
-!modules/raptor_contraindications
-!modules/raptor_contraindications/*
-
 !modules/raptor_datalayer
+!modules/raptor_mdwsvista
+!modules/raptor_ewdvista
+!modules/raptor_contraindications
+!modules/raptor_reports
 !modules/raptor_floatingdialog
 !modules/raptor_formulas
 !modules/raptor_glue
 !modules/raptor_graph
 !modules/raptor_imageviewing
-!modules/raptor_mdwsvista
 !modules/raptor_protocollib
 !modules/raptor_scheduling
 !modules/raptor_workflow
@@ -36,13 +35,17 @@ libraries/*
 !modules/simplerulesengine_demo
 !modules/simplerulesengine_ui
 
+!modules/raptor_glue/*
 !modules/raptor_datalayer/*
+!modules/raptor_mdwsvista/*
+!modules/raptor_ewdvista/*
+!modules/raptor_contraindications/*
+!modules/raptor_reports/*
 !modules/raptor_floatingdialog/*
 !modules/raptor_formulas/*
 !modules/raptor_glue/*
 !modules/raptor_graph/*
 !modules/raptor_imageviewing/*
-!modules/raptor_mdwsvista/*
 !modules/raptor_protocollib/*
 !modules/raptor_scheduling/*
 !modules/raptor_workflow/*
