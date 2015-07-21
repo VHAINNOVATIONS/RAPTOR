@@ -266,9 +266,14 @@ class DiagnosticPage2
     
     private function testEncrypt($access_code,$verify_code,$keytext)
     {
-        $encryption = new \raptor_ewdvista\Encryption();
-        $credentials = $encryption->getEncryptedCredentials($keytext, $access_code, $verify_code);
-        return "ENC-{$access_code}-{$verify_code}-{$keytext} = [<pre>{$credentials}</pre>]";
+        try
+        {
+            $encryption = new \raptor_ewdvista\Encryption();
+            $credentials = $encryption->getEncryptedCredentials($keytext, $access_code, $verify_code);
+            return "ENC-{$access_code}-{$verify_code}-{$keytext} = [<pre>{$credentials}</pre>]";
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed testEncrypt($access_code,$verify_code,$keytext) because $ex",99876,$ex);
+        }
     }
     
 }

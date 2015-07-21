@@ -40,7 +40,9 @@ class Encryption
             $ciphertext_hex = bin2hex($encrypted_data);
 
             error_log("LOOK ciphertext_base64=[$ciphertext_base64]");
-            error_log("LOOK ciphertext_hex=[$ciphertext_hex]");        
+            error_log("LOOK ciphertext_hex=[$ciphertext_hex]");
+            
+            return $ciphertext_hex;
         } catch (\Exception $ex) {
             throw new \Exception("Failed encryption because ".$ex,99876,$ex);
         }
