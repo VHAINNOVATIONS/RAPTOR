@@ -72,4 +72,14 @@ class Diagnostic
         }        
     }
     
+    
+    public function testGetNotesDetailMap($mydao)
+    {
+        try
+        {
+             $mydao->getNotesDetailMap();
+        } catch (Exception $ex) {
+            throw $ex;
+        }        
+    }
 }

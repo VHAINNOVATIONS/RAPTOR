@@ -289,7 +289,21 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getNotesDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $errorMessage = "";
+        try
+        {
+            $method = 'getNotesDetailMap';
+            //http://localhost:8081/RaptorEwdVista/raptor/getNotesDetailMap
+            $url = $this->getURL($method);
+            $header["Authorization"]=$this->m_authorization;
+            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
+            $json_array = json_decode($json_string, TRUE);
+            
+            throw new \Exception("TODO: handle JSON conversion to array: ". print_r($json_array, TRUE));
+        } catch (\Exception $ex) {
+            $this->disconnect();
+            throw new \Exception("Trouble with getNotesDetailMap  because ".$ex,99876,$ex);;
+        }
     }
 
     public function getOrderDetails($myIEN)
