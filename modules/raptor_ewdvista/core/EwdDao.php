@@ -29,10 +29,12 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_oWebServices = NULL;
 
     private $m_dt           = NULL;
-    private $m_userduz      = NULL;              //Keep as NULL until authenticated
+    private $m_userduz      = NULL;         //Keep as NULL until authenticated
     private $m_displayname  = NULL;
     private $m_fullname     = NULL;
     private $m_greeting     = NULL;
+    
+    private $m_selectedPatient = NULL;      //The currently selected patient
     
     function __construct()
     {
@@ -122,6 +124,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         $this->m_displayname  = NULL;
         $this->m_fullname     = NULL;
         $this->m_greeting     = NULL;
+        $this->m_selectedPatient = NULL;
     }
 
     /**
@@ -212,6 +215,30 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return "EwdDao created {$this->m_createdtimestamp}";
     }
 
+    public function getNotesDetailMap()
+    {
+        $errorMessage = "";
+        try
+        {
+            $method = 'getNotesDetailMap';
+            //http://localhost:8081/RaptorEwdVista/raptor/getNotesDetailMap
+            $url = $this->getURL($method);
+            $header["Authorization"]=$this->m_authorization;
+            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
+            $json_array = json_decode($json_string, TRUE);
+            
+            throw new \Exception("TODO: handle JSON conversion to array: ". print_r($json_array, TRUE));
+        } catch (\Exception $ex) {
+            $this->disconnect();
+            throw new \Exception("Trouble with getNotesDetailMap  because ".$ex,99876,$ex);;
+        }
+    }
+
+    public function setPatientID($sPatientID)
+    {
+        $this->m_selectedPatient = $sPatientID;
+    }
+
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
     {
         throw new \Exception("Not implemented $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig");
@@ -285,25 +312,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     public function getMedicationsDetailMap($atriskmeds = NULL)
     {
         throw new \Exception("Not implemented");
-    }
-
-    public function getNotesDetailMap()
-    {
-        $errorMessage = "";
-        try
-        {
-            $method = 'getNotesDetailMap';
-            //http://localhost:8081/RaptorEwdVista/raptor/getNotesDetailMap
-            $url = $this->getURL($method);
-            $header["Authorization"]=$this->m_authorization;
-            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
-            $json_array = json_decode($json_string, TRUE);
-            
-            throw new \Exception("TODO: handle JSON conversion to array: ". print_r($json_array, TRUE));
-        } catch (\Exception $ex) {
-            $this->disconnect();
-            throw new \Exception("Trouble with getNotesDetailMap  because ".$ex,99876,$ex);;
-        }
     }
 
     public function getOrderDetails($myIEN)
@@ -417,11 +425,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     }
 
     public function isProvider()
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function setPatientID($sPatientID)
     {
         throw new \Exception("Not implemented");
     }
