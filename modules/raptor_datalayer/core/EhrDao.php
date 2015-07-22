@@ -178,11 +178,6 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5)
-    {
-        return $this->m_implclass->convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
-    }
-
     public function getChemHemLabs()
     {
         return $this->m_implclass->getChemHemLabs();
@@ -236,11 +231,6 @@ class EhrDao implements \raptor\IEhrDao
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ)
     {
         return $this->m_implclass->writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ);
-    }
-
-    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs = 1000)
-    {
-        return $this->m_implclass->convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs);
     }
 
     public function getEHRUserID($fail_if_missing=TRUE)

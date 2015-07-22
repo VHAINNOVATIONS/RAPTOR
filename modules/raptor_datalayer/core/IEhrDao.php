@@ -120,13 +120,5 @@ interface IEhrDao
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ);
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ);
-    
-    /**
-     * @deprecated to remove soap from API
-     */
-    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs = 1000);
-    /**
-     * @deprecated to remove soap from API
-     */
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5);
+   
 }

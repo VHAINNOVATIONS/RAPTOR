@@ -648,16 +648,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return \raptor_mdwsvista\MdwsUtils::cancelRadiologyOrder($this, $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
-    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs=1000)
-    {
-        return \raptor_mdwsvista\MdwsUtils::convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs);
-    }
-
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates=5)
-    {
-        return \raptor_mdwsvista\MdwsUtils::convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates);
-    }
-
     public function getChemHemLabs()
     {
         return \raptor_mdwsvista\MdwsUtils::getChemHemLabs($this);

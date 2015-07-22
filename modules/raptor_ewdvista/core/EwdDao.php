@@ -217,16 +217,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         throw new \Exception("Not implemented $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig");
     }
 
-    public function convertSoapLabsToGraph($patientInfo, $egfrFormula, $allLabs, $limitMaxLabs = 1000)
-    {
-        throw new \Exception("Not implemented $patientInfo, $egfrFormula, $allLabs, $limitMaxLabs");
-    }
-
-    public function convertSoapVitalsToGraph($vitalsdata, $soapResult, $max_dates = 5)
-    {
-        throw new \Exception("Not implemented $vitalsdata, $soapResult, $max_dates");
-    }
-
     public function createNewRadiologyOrder($orderChecks, $args)
     {
         throw new \Exception("Not implemented $orderChecks, $args");
