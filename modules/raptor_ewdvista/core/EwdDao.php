@@ -82,10 +82,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
-            $method = 'initiate';
-            //$url="http://localhost:8081/RaptorEwdVista/raptor/initiate";
-            //      http://localhost:8081/RaptorEwdVista/raptor/initiate
-            $url = $this->getURL($method);
+            $servicename = 'initiate';
+            $url = $this->getURL($servicename);
             $json_string = $this->m_oWebServices->callAPI($method, $url);
             $json_array = json_decode($json_string, TRUE);
             $this->m_authorization = trim($json_array["Authorization"]);
