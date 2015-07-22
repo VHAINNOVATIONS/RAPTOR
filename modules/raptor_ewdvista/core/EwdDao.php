@@ -239,6 +239,15 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         $this->m_selectedPatient = $sPatientID;
     }
 
+    public function getEHRUserID($fail_if_missing = TRUE)
+    {
+        if($this->m_userduz == NULL && $fail_if_missing)
+        {
+            throw new \Exception("No user is currently authenticated!");
+        }
+        return $this->m_userduz;
+    }
+
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
     {
         throw new \Exception("Not implemented $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig");
@@ -280,11 +289,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     }
 
     public function getEGFRDetailMap()
-    {
-        throw new \Exception("Not implemented");
-    }
-
-    public function getEHRUserID($fail_if_missing = TRUE)
     {
         throw new \Exception("Not implemented");
     }
