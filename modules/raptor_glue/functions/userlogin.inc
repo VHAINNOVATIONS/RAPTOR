@@ -243,8 +243,9 @@ function raptor_glue_check_user($username, $password, &$fatalerrmsg)
             }
         } catch (\Exception $ex) {
             //This can happen if admin is recovering a busted Drupal installation, log and simply continue
-            error_log("Failed raptor_glue_check_user for user=$drupaluser because " 
-                    . $ex->getMessage() 
+            $drupaluserinfo = print_r($drupaluser,TRUE);
+            error_log("Failed raptor_glue_check_user for user=$username (drupaluser=".$drupaluserinfo.") because " 
+                    . $ex 
                     . "\n...Reported this message and continued!");
         }
     }

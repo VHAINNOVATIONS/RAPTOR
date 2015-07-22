@@ -31,7 +31,8 @@ class Encryption
             //$key = hash('sha256', $keytext, TRUE);
             
             $input = 'accessCode=' + $access_code + '&verifyCode=' + $verify_code;
-            $iv = 'raptoriv20150721';
+            //$iv = unpack('C*', 'raptorraptor2015');
+            $iv = 'raptorraptor2015';
             $encrypted_data = openssl_encrypt($input, $algorithm, $keytext, 0, $iv);
             /*
             $td = mcrypt_module_open($algorithm, '', 'cbc', '');
