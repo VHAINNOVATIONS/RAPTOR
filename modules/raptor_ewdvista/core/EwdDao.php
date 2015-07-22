@@ -123,8 +123,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             {
                 throw new \Exception("No initialization key has been set!");
             }
-
-            //If we are here, lets try to login.
             module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
             $encryption = new \raptor_ewdvista\Encryption();
             $keytext = $this->m_init_key;

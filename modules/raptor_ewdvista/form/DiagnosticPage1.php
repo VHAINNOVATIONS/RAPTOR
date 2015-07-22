@@ -78,7 +78,7 @@ class DiagnosticPage1
             if($action == 'LOGIN') 
             {
                 //$itemnames = array('authcode','credentials');
-                $itemnames = array('username','password','credentials');
+                $itemnames = array('username','password');
                 foreach($itemnames as $itemname)
                 {
                     if(!$this->arrayItemHasValue($myvalues,$itemname))
@@ -130,9 +130,7 @@ class DiagnosticPage1
                 $mydao->initClient();
                 $username = $myvalues['username'];
                 $password = $myvalues['password'];
-                $credentials = $myvalues['credentials'];
-                //$mydao->setEncryptedCredentials($credentials);
-                drupal_set_message("(2) executing action: $action");
+                drupal_set_message("(2) executing login action: $action");
                 $oDiagnostic->testLogin($mydao,$username,$password);
                 drupal_set_message("(3) isAuthenticated=" . $mydao->isAuthenticated());
              } else if($action == 'GETWORKLIST') {
