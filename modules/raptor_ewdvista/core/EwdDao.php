@@ -118,6 +118,10 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         $this->m_authorization = NULL;
         $this->m_init_key = NULL;
         $this->m_credentials = NULL;
+        $this->m_dt           = NULL;
+        $this->m_displayname  = NULL;
+        $this->m_fullname     = NULL;
+        $this->m_greeting     = NULL;
     }
 
     /**
@@ -162,11 +166,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 throw new \Exception($errorMessage);
             }
         } catch (\Exception $ex) {
-            $this->m_dt           = NULL;
-            $this->m_userduz      = NULL;
-            $this->m_displayname  = NULL;
-            $this->m_fullname     = NULL;
-            $this->m_greeting     = NULL;
+            $this->disconnect();
             throw new \Exception("Trouble in connectAndLogin as cred={$this->m_credentials} because ".$ex,99876,$ex);
         }
     }
