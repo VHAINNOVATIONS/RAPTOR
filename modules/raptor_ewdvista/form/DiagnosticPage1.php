@@ -125,13 +125,16 @@ class DiagnosticPage1
                 drupal_set_message("Success credentials=[$credentials]");
             } else if($action == 'LOGIN') {
                 drupal_set_message("Try to login...");
-                $mydao = $this->testcreate();
+                $mydao = $oDiagnostic->testCreateDao();//$this->testcreate();
                 $mydao->initClient();
+                $username = $myvalues['username'];
                 $password = $myvalues['password'];
-                $mydao-> testLogin($mydao,$username,$password);
+                $credentials = $myvalues['credentials'];
+                $mydao->setEncryptedCredentials($credentials);
                 drupal_set_message("Try to login...");
                 drupal_set_message("TODO $action");
-            } else if($action == 'GETWORKLIST') {
+                $oDiagnostic->testLogin($mydao,$username,$password);
+             } else if($action == 'GETWORKLIST') {
                 drupal_set_message("Try to to get worklist from ...");
                 $method = 'initiate';
                 $url="http://localhost:8081/RaptorEwdVista/raptor/initiate";
@@ -257,6 +260,7 @@ class DiagnosticPage1
         return $form;
     }
     
+    /*
     private function testCreate()
     {
         drupal_set_message("Test a new DAO instance");
@@ -264,6 +268,7 @@ class DiagnosticPage1
         drupal_set_message("Created ".$mydao);
         return $mydao;
     }
+    */
     
     private function testEncrypt($username,$password,$key)
     {
