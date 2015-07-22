@@ -50,13 +50,27 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Return the site specific fully qualified URL for the service.
      */
-    private function getURL($servicename)
+    private function getURL($servicename,$args=NULL)
     {
         //NOTE: assumption that EWDFED_BASE_URL already have slash "/" at the end
         //TODO: at some point refactor to use some sort of combine functionality 
         //      to makesure we are adding slash correctly something like http_build_url
         //      http://php.net/manual/en/function.http-build-url.php#114753
-        return EWDFED_BASE_URL . "$servicename";
+        if($args === NULL)
+        {
+            return EWDFED_BASE_URL . "$servicename";
+        } else {
+            $argtext = '';
+            foreach($args as $k=>$v)
+            {
+                if($argtext > '')
+                {
+                    $argtext .= '&';
+                }
+                $argtext .= "$k=$v";
+            }
+            return EWDFED_BASE_URL . "$servicename?{$argtext}";
+        }
     }
     
     /**
