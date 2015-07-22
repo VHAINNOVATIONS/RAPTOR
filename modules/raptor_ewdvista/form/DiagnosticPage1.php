@@ -36,7 +36,7 @@ class DiagnosticPage1
     {
         $myvalues['getfieldvalues_timestamp']=time();
         $myvalues['action'] = 'INIT';
-        $myvalues['valid_actions'] = 'CREATE,INIT,GETCREDENTIALS,LOGIN,GETWORKLIST,NotesDetailMap';
+        $myvalues['valid_actions'] = strtoupper('CREATE,INIT,GETCREDENTIALS,LOGIN,GETWORKLIST,getNotesDetailMap');
         return $myvalues;
     }
     
@@ -134,7 +134,7 @@ class DiagnosticPage1
                 $oDiagnostic->testLogin($mydao,$username,$password);
                 drupal_set_message("(3) isAuthenticated=" . $mydao->isAuthenticated());
              } 
-             else if($action == 'getNotesDetailMap') {
+             else if($action == 'GETNOTESDETAILMAP') {
                 drupal_set_message("(1) Try to login...");
                 $mydao = $oDiagnostic->testCreateDao();//$this->testcreate();
                 $mydao->initClient();
@@ -144,7 +144,7 @@ class DiagnosticPage1
                 $oDiagnostic->testLogin($mydao,$username,$password);
                 drupal_set_message("(3) executing: $action");
                 $oDiagnostic->testGetNotesDetailMap($mydao);
-                drupal_set_message("(3) isAuthenticated=" . $mydao->isAuthenticated());
+                drupal_set_message("(3) if we gt here then nothing seems failed, but it is not all");
              }
              else if($action == 'GETWORKLIST') {
                 drupal_set_message("Try to to get worklist from ...");
