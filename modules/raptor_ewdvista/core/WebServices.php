@@ -5,15 +5,13 @@
  * Created by SAN Business Consultants for RAPTOR phase 2
  * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
- * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * SAN Implementation: Andrew Casertano, Frank Font, Alex Podlesny, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
  * ------------------------------------------------------------------------------------
  * 
  */ 
 
-
 namespace raptor_ewdvista;
-
 
 /**
  * This is the primary interface to call web services
@@ -25,8 +23,11 @@ class WebServices
     /**
      * Call a web service method.
      * See http://stackoverflow.com/questions/9802788/call-a-rest-api-in-php
+     * 
+     * NOTE:  $data is an associative array (data[fieldname] = value) 
+     *        which holds the data sent to the api method
      */
-    public function callAPI($method, $url, $data = FALSE)
+    public function callAPI($method, $url, $data = FALSE, $headers_ar = FALSE)
     {
         try
         {
@@ -47,7 +48,16 @@ class WebServices
                     if ($data)
                         $url = sprintf("%s?%s", $url, http_build_query($data));
             }
-
+            if($headers_ar !== FALSE)
+            {
+                $headers = array();
+                foreach($headers_ar as $key=>$value)
+                {
+                    $headers[] = "$key: $value";
+                }
+                curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            }
+            
             // Optional Authentication:
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
             curl_setopt($curl, CURLOPT_USERPWD, "username:password");

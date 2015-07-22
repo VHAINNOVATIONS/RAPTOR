@@ -23,7 +23,7 @@ class Encryption
     public static function getEncryptedCredentials($keytext,$access_code,$verify_code)
     {
         //FAKE CODE NOT ENCRYPT
-        $input = 'accessCode:' + $access_code + ';verifyCode:' + $verify_code;
+        $input = 'accessCode:' . $access_code . ';verifyCode:' . $verify_code;
         return $input;
         
         /* REAL CODE

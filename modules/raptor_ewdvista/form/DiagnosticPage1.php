@@ -77,7 +77,8 @@ class DiagnosticPage1
             } else
             if($action == 'LOGIN') 
             {
-                $itemnames = array('authcode','credentials');
+                //$itemnames = array('authcode','credentials');
+                $itemnames = array('username','password','credentials');
                 foreach($itemnames as $itemname)
                 {
                     if(!$this->arrayItemHasValue($myvalues,$itemname))
@@ -124,16 +125,16 @@ class DiagnosticPage1
                 $credentials = $this->testEncrypt($username,$password,$key);
                 drupal_set_message("Success credentials=[$credentials]");
             } else if($action == 'LOGIN') {
-                drupal_set_message("Try to login...");
+                drupal_set_message("(1) Try to login...");
                 $mydao = $oDiagnostic->testCreateDao();//$this->testcreate();
                 $mydao->initClient();
                 $username = $myvalues['username'];
                 $password = $myvalues['password'];
                 $credentials = $myvalues['credentials'];
-                $mydao->setEncryptedCredentials($credentials);
-                drupal_set_message("Try to login...");
-                drupal_set_message("TODO $action");
+                //$mydao->setEncryptedCredentials($credentials);
+                drupal_set_message("(2) executing action: $action");
                 $oDiagnostic->testLogin($mydao,$username,$password);
+                drupal_set_message("(3) isAuthenticated=" . $mydao->isAuthenticated());
              } else if($action == 'GETWORKLIST') {
                 drupal_set_message("Try to to get worklist from ...");
                 $method = 'initiate';
