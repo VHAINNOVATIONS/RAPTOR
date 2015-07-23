@@ -88,7 +88,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             error_log('Starting EWD initClient at ' . microtime());
             $servicename = 'initiate';
             $url = $this->getURL($servicename);
-            $json_string = $this->m_oWebServices->callAPI($method, $url);
+            $json_string = $this->m_oWebServices->callAPI($servicename, $url);
             $json_array = json_decode($json_string, TRUE);
             $this->m_authorization = trim($json_array["Authorization"]);
             $this->m_init_key = trim($json_array["key"]);
