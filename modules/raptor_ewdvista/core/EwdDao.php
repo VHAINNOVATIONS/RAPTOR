@@ -142,7 +142,9 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             //Have we already initialized the client?
             if($this->m_authorization == NULL)
             {
-                throw new \Exception("No authorization code has been set!");
+                //Initialize it now
+                error_log("Calling init from connectAndLogin for $this");
+                $this->initClient();
             }
             if($this->m_init_key == NULL)
             {
@@ -237,7 +239,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     
     public function __toString()
     {
-        $extrainfo = trim("displayname=$this->m_displayname");
+        $extrainfo = trim("auth={$this->m_authorization} and displayname=$this->m_displayname");
         return trim("EwdDao created {$this->m_createdtimestamp} $extrainfo");
     }
 
