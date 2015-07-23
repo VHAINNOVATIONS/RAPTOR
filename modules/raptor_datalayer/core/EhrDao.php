@@ -188,11 +188,6 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getHospitalLocations($startingitem);
     }
 
-    public function getOrderDetails($myIEN)
-    {
-        return $this->m_implclass->getOrderDetails($myIEN);
-    }
-
     public function getRadiologyCancellationReasons()
     {
         return $this->m_implclass->getRadiologyCancellationReasons();
@@ -247,13 +242,6 @@ class EhrDao implements \raptor\IEhrDao
     {
         return $this->m_implclass->getEGFRDetailMap();
     }
-
-    /* 20150723 redundant with getDashboardDetailsMap
-    public function getPatientDashboardMap()
-    {
-        return $this->m_implclass->getPatientDashboardMap();
-    }
-     */
 
     public function getRawVitalSignsMap()
     {

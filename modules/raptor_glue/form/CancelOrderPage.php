@@ -192,8 +192,9 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         $ehrDao = $this->m_oContext->getEhrDao();
         $myDuz = $ehrDao->getEHRUserID();
         $myIEN = $myvalues['tid'];
-        $orderDetails = $ehrDao->getOrderDetails($myIEN);
-        $orginalProviderDuz = $orderDetails['orderingPhysicianDuz'];
+        //$orderDetails = $ehrDao->getOrderDetails($myIEN);
+        //$orginalProviderDuz = $orderDetails['orderingPhysicianDuz'];
+        $orginalProviderDuz = $aOneRow['orderingPhysicianDuz'];
 
         //Hidden values
         $form['hiddenthings']['tid'] = array('#type' => 'hidden'

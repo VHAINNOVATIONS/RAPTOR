@@ -374,12 +374,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 		return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getOrderDetails($myIEN)
-    {
-        $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
-    }
-
     public function getOrderOverviewMap()
     {
         $serviceName = $this->getCallingFunctionName();

@@ -88,11 +88,9 @@ interface IEhrDao
     public function getImplementationInstance();
     public function getMedicationsDetailMap($atriskmeds = NULL);
     public function getNotesDetailMap();
-    public function getOrderDetails($myIEN);
     public function getOrderOverviewMap();
     public function getOrderableItems($imagingTypeId);
     public function getPathologyReportsDetailMap();
-    //public function getPatientDashboardMap();
     public function getPendingOrdersMap();
     public function getProblemsListDetailMap();
     public function getProcedureLabsDetailMap();
