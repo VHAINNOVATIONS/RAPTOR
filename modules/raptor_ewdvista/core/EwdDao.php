@@ -180,30 +180,28 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
 
-    public function getWorklistDetailsMap()
+    private function getServiceRelatedData($serviceName)
     {
-        error_log('Starting EWD getWorklistDetailsMap at ' . microtime());
+        error_log("Starting EWD $serviceName at " . microtime());
         $errorMessage = "";
-        $serviceName = 'getWorklistDetailsMap';
         try
         {
-            //http://localhost:8081/RaptorEwdVista/raptor/getNotesDetailMap
             $url = $this->getURL($serviceName);
             $header["Authorization"]=$this->m_authorization;
             
-            //TODO: this line probably wrong... why would one want to reloa web services...???
-            //module_load_include('php', 'raptor_ewdvista', 'core/WebServices');
-            //$mWebServices = new \raptor_ewdvista\WebServices();
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
             $php_array = json_decode($json_string, TRUE);
             
-            error_log("LOOK PHP Data: " . print_r($php_array, TRUE));
-            
-            error_log('Finish EWD getWorklistDetailsMap at ' . microtime());
+            error_log("Finish EWD $serviceName at " . microtime());
             return $php_array;
         } catch (\Exception $ex) {
             throw new \Exception("Trouble with $serviceName  because ".$ex,99876,$ex);;
         }
+    }
+    
+    public function getWorklistDetailsMap()
+    {
+        return $this->getServiceRelatedData('getWorklistDetailsMap');
     }
     
     /**
@@ -241,22 +239,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getNotesDetailMap()
     {
-        //TODO: refactor!!!! the newer code is in the getWorklistDetailsMap
-        $errorMessage = "";
-        try
-        {
-            $method = 'getNotesDetailMap';
-            //http://localhost:8081/RaptorEwdVista/raptor/getNotesDetailMap
-            $url = $this->getURL($method);
-            $header["Authorization"]=$this->m_authorization;
-            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
-            $json_array = json_decode($json_string, TRUE);
-            
-            throw new \Exception("TODO: handle JSON conversion to array: ". print_r($json_array, TRUE));
-        } catch (\Exception $ex) {
-            $this->disconnect();
-            throw new \Exception("Trouble with getNotesDetailMap  because ".$ex,99876,$ex);;
-        }
+        return $this->getServiceRelatedData('getNotesDetailMap');
     }
 
     public function setPatientID($sPatientID)
@@ -305,7 +288,9 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getDashboardDetailsMap($override_tracking_id = NULL)
     {
-        throw new \Exception("Not implemented");
+        //TODO: we need to implement $override_tracking_id
+        error_log('TODO: we need to implement $override_tracking_id');
+        return $this->getServiceRelatedData('getDashboardDetailsMap');
     }
 
     public function getDiagnosticLabsDetailMap()
