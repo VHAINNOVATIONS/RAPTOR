@@ -92,7 +92,7 @@ interface IEhrDao
     public function getOrderOverviewMap();
     public function getOrderableItems($imagingTypeId);
     public function getPathologyReportsDetailMap();
-    public function getPatientDashboardMap();
+    //public function getPatientDashboardMap();
     public function getPendingOrdersMap();
     public function getProblemsListDetailMap();
     public function getProcedureLabsDetailMap();

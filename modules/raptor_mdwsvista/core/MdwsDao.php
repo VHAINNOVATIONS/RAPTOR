@@ -458,7 +458,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     
     private function getProtocolSupportingData($function_name, $args = NULL, $cache_item_name=NULL)
     {
-        //error_log("LOOK TEMP getProtocolSupportingData($function_name,$args)");
         try 
         {
             $oContext = \raptor\Context::getInstance();
@@ -579,11 +578,13 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $this->getProtocolSupportingData('getEGFRDetail');
     }
 
+    /* 20150723 redundant with getDashboardDetailsMap
     public function getPatientDashboardMap()
     {
         return $this->getProtocolSupportingData('getPatientDashboard');
     }
-
+    */
+    
     public function getPendingOrdersMap()
     {
         return $this->getProtocolSupportingData('getPendingOrdersMap'); //Yes, has Map suffix

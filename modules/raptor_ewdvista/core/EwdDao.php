@@ -398,12 +398,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 		return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getPatientDashboardMap()
-    {
-        $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
-    }
-
     public function getPatientIDFromTrackingID($sTrackingID)
     {
         $serviceName = $this->getCallingFunctionName();
