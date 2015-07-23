@@ -199,9 +199,43 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
     
+    /*
+    http://stackoverflow.com/questions/190421/caller-function-in-php-5
+    */
+    private function getCallingFunctionName($completeTrace=FALSE)
+    {
+        $trace=debug_backtrace();
+        $functionName = "";
+        if($completeTrace)
+        {
+            $str = '';
+            foreach($trace as $caller)
+            {
+                //get the name, and we really interested in the last name in the wholepath 
+                $functionName = "".$caller['function'];
+                //get log information    
+                $str .= " -- Called by {$caller['function']}";
+                if (isset($caller['class']))
+                    $str .= " From Class {$caller['class']}";
+            }
+        }
+        else
+        {
+            $caller=$trace[2];
+            $functionName = "".$caller['function'];
+            $str = "Called by {$caller['function']}";
+            if (isset($caller['class']))
+                $str .= " From Class {$caller['class']}";
+        }
+        error_log("LOOK getCallingFunctionName: " . $str);
+        return $functionName;
+    }
+    
     public function getWorklistDetailsMap()
     {
-        return $this->getServiceRelatedData('getWorklistDetailsMap');
+        //$serviceName = 'getWorklistDetailsMap';
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
     
     /**
@@ -239,7 +273,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getNotesDetailMap()
     {
-        return $this->getServiceRelatedData('getNotesDetailMap');
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function setPatientID($sPatientID)
@@ -273,204 +308,244 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getAllHospitalLocationsMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getAllergiesDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getChemHemLabs()
     {
-        throw new \Exception("Not implemented");
+       $serviceName = $this->getCallingFunctionName();
+       return $this->getServiceRelatedData($serviceName);
     }
 
     public function getDashboardDetailsMap($override_tracking_id = NULL)
     {
         //TODO: we need to implement $override_tracking_id
         error_log('TODO: we need to implement $override_tracking_id');
-        return $this->getServiceRelatedData('getDashboardDetailsMap');
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getDiagnosticLabsDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getEGFRDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getEncounterStringFromVisit($vistitTo)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getHospitalLocations($startingitem)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getImagingTypesMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getImplementationInstance()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getMedicationsDetailMap($atriskmeds = NULL)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getOrderDetails($myIEN)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getOrderOverviewMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getOrderableItems($imagingTypeId)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getPathologyReportsDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getPatientDashboardMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getPatientIDFromTrackingID($sTrackingID)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getPendingOrdersMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getProblemsListDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getProcedureLabsDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getProviders($neworderprovider_name)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRadiologyCancellationReasons()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRadiologyOrderChecks($args)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRadiologyOrderDialog($imagingTypeId, $patientId)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRadiologyReportsDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRawVitalSignsMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getSurgeryReportsDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getUserSecurityKeys()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVisits()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVistaAccountKeyProblems()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVitalsDetailMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVitalsDetailOnlyLatestMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVitalsSummaryMap()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function isProvider()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function signNote($newNoteIen, $eSig)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function userHasKeyOREMAS()
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function validateEsig($eSig)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ)
     {
-        throw new \Exception("Not implemented");
+        $serviceName = $this->getCallingFunctionName();
+		return $this->getServiceRelatedData($serviceName);
     }
 
 }
