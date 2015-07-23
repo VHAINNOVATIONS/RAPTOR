@@ -14,6 +14,7 @@
 namespace raptor_ewdvista;
 
 require_once 'IEwdDao.php';
+require_once 'WebServices.php';
 
 /**
  * This is the primary interface implementation to VistA using EWDJS
@@ -38,7 +39,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     
     function __construct()
     {
-        module_load_include('php', 'raptor_ewdvista', 'core/WebServices');
 
         $this->m_createdtimestamp = time();        
         $this->m_oWebServices = new \raptor_ewdvista\WebServices();
