@@ -84,6 +84,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
+            error_log('Starting EWD initClient at ' . microtime());
             $servicename = 'initiate';
             $url = $this->getURL($servicename);
             $json_string = $this->m_oWebServices->callAPI($method, $url);
@@ -98,6 +99,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             {
                 throw new \Exception("Missing init key value in result! URL: $url");
             }
+            error_log('EWD initClient is DONE at ' . microtime());
         } catch (\Exception $ex) {
             throw new \Exception("Trouble in initClient because ".$ex,99876,$ex);
         }
@@ -132,6 +134,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function connectAndLogin($siteCode, $username, $password) 
     {
+        error_log('Starting EWD connectAndLogin at ' . microtime());
         $errorMessage = "";
         try
         {
