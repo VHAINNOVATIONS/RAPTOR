@@ -1042,7 +1042,7 @@ class Context
     private function logoutEhrSubsystem() 
     {
         try {
-            $this->serializeNow('Logging out of MDWS',FALSE);
+            $this->serializeNow('Logging out of EHR',FALSE);
             $this->getEhrDao()->disconnect();
             return '';
         } catch (\Exception $ex) {
