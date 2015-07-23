@@ -182,6 +182,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getWorklistDetailsMap()
     {
+        error_log('Starting EWD getWorklistDetailsMap at ' . microtime());
         $errorMessage = "";
         $serviceName = 'getWorklistDetailsMap';
         try
@@ -191,19 +192,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$this->m_authorization;
             
             //TODO: this line probably wrong... why would one want to reloa web services...???
-            module_load_include('php', 'raptor_ewdvista', 'core/WebServices');
-            $mWebServices = new \raptor_ewdvista\WebServices();
-            error_log("LOOK Webservice: " . print_r($mWebServices, TRUE));
-            error_log("LOOK m_authorization: " . print_r($this->m_authorization, TRUE));
-            error_log("LOOK m_init_key: " . print_r($this->m_init_key, TRUE));
-            error_log("LOOK Header: " . print_r($header, TRUE));
-            
-            $json_string = $mWebServices->callAPI("GET", $url, FALSE, $header);            
+            //module_load_include('php', 'raptor_ewdvista', 'core/WebServices');
+            //$mWebServices = new \raptor_ewdvista\WebServices();
+            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
             $php_array = json_decode($json_string, TRUE);
             
             error_log("LOOK PHP Data: " . print_r($php_array, TRUE));
             
-            //throw new \Exception("TODO: handle JSON conversion to array: ". print_r($php_array, TRUE));
+            error_log('Finish EWD getWorklistDetailsMap at ' . microtime());
             return $php_array;
         } catch (\Exception $ex) {
             throw new \Exception("Trouble with $serviceName  because ".$ex,99876,$ex);;
