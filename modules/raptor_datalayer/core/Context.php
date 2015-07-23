@@ -933,10 +933,9 @@ class Context
         {
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
             $oEhrDao = $this->getEhrDao();
-            error_log("LOOK before login $oEhrDao");
+            //error_log("LOOK before login $oEhrDao");
             $loginResult = $this->getEhrDao()->connectAndLogin(VISTA_SITE, $sVistaUserID, $sVAPassword);
-            error_log("LOOK after login PART1 $loginResult");
-            error_log("LOOK after login PART2 $oEhrDao");
+            //error_log("LOOK after login $oEhrDao");
             $this->clearForceLogoutReason();    //Important that we clear it now otherwise can be stuck in kickout mode.
             return ''; // per data functions doc - return empty string on success
         }  catch (\Exception $ex) {
