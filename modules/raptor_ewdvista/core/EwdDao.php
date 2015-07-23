@@ -187,6 +187,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $mWebServices = new \raptor_ewdvista\WebServices();
             error_log("LOOK Webservice: " . print_r($mWebServices, TRUE));
             error_log("LOOK m_authorization: " . print_r($this->m_authorization, TRUE));
+            error_log("LOOK m_init_key: " . print_r($this->m_init_key, TRUE));
             error_log("LOOK Header: " . print_r($header, TRUE));
             
             $json_string = $mWebServices->callAPI("GET", $url, FALSE, $header);            
