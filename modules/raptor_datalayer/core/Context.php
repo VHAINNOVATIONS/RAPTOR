@@ -21,7 +21,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150723e');
+    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150723f');
     //or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150716B');
 
 defined('DISABLE_CONTEXT_DEBUG')
@@ -895,22 +895,6 @@ class Context
                     ))
                     ->execute();
                     //Write the recent activity to the single record that tracks it too.
-                /*
-                    db_merge('raptor_user_recent_activity_tracking')
-                    ->key(array('uid'=>$tempUID,
-                        'ipaddress'=>$_SERVER['REMOTE_ADDR'],
-                        'sessionid' => session_id(),
-                        ))
-                    ->fields(array(
-                            'uid'=>$tempUID,
-                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                            'sessionid' => session_id(),
-                            'most_recent_login_dt'=>$updated_dt,
-                            'most_recent_action_dt'=>$updated_dt,
-                            'most_recent_action_cd' => UATC_LOGIN,
-                        ))
-                        ->execute();
-                 */
                     db_merge('raptor_user_recent_activity_tracking')
                     ->key(array('uid'=>$tempUID,
                         ))
@@ -948,7 +932,11 @@ class Context
         try 
         {
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
+            $oEhrDao = $this->getEhrDao();
+            error_log("LOOK before login $oEhrDao");
             $loginResult = $this->getEhrDao()->connectAndLogin(VISTA_SITE, $sVistaUserID, $sVAPassword);
+            error_log("LOOK after login PART1 $loginResult");
+            error_log("LOOK after login PART2 $oEhrDao");
             $this->clearForceLogoutReason();    //Important that we clear it now otherwise can be stuck in kickout mode.
             return ''; // per data functions doc - return empty string on success
         }  catch (\Exception $ex) {
