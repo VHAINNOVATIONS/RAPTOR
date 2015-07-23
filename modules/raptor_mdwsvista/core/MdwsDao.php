@@ -430,6 +430,9 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     }
                 }
             }
+            error_log("LOOK getWorklistDetailsMap PHP Array: " . print_r($aResult,TRUE));
+            error_log("LOOK getWorklistDetailsMap JSON: " . json_encode($aResult));
+            
             return $aResult;
         } catch (\Exception $ex) {
             throw new \Exception("Failed to getWorklistDetailsMap", 99876, $ex);

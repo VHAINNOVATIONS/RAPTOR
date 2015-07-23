@@ -174,11 +174,31 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getWorklistDetailsMap()
     {
-        if($this->m_credentials == NULL)
+        $errorMessage = "";
+        $serviceName = 'getWorklistDetailsMap';
+        try
         {
-            throw new \Exception("No credentials have been set!");
+            //http://localhost:8081/RaptorEwdVista/raptor/getNotesDetailMap
+            $url = $this->getURL($serviceName);
+            $header["Authorization"]=$this->m_authorization;
+            
+            //TODO: this line probably wrong... why would one want to reloa web services...???
+            module_load_include('php', 'raptor_ewdvista', 'core/WebServices');
+            $mWebServices = new \raptor_ewdvista\WebServices();
+            error_log("LOOK Webservice: " . print_r($mWebServices, TRUE));
+            error_log("LOOK m_authorization: " . print_r($this->m_authorization, TRUE));
+            error_log("LOOK Header: " . print_r($header, TRUE));
+            
+            $json_string = $mWebServices->callAPI("GET", $url, FALSE, $header);            
+            $php_array = json_decode($json_string, TRUE);
+            
+            error_log("LOOK PHP Data: " . print_r($php_array, TRUE));
+            
+            //throw new \Exception("TODO: handle JSON conversion to array: ". print_r($php_array, TRUE));
+            return $php_array;
+        } catch (\Exception $ex) {
+            throw new \Exception("Trouble with $serviceName  because ".$ex,99876,$ex);;
         }
-        throw new \Exception("Not implemented");
     }
     
     /**
@@ -215,6 +235,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getNotesDetailMap()
     {
+        //TODO: refactor!!!! the newer code is in the getWorklistDetailsMap
         $errorMessage = "";
         try
         {
