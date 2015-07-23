@@ -42,6 +42,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
         $this->m_createdtimestamp = time();        
         $this->m_oWebServices = new \raptor_ewdvista\WebServices();
+        
+        error_log("LOOK constructed ".$this);
     }
 
     public function getIntegrationInfo()
@@ -230,7 +232,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     
     public function __toString()
     {
-        return "EwdDao created {$this->m_createdtimestamp}";
+        $extrainfo = trim("displayname=$this->m_displayname");
+        return trim("EwdDao created {$this->m_createdtimestamp} $extrainfo");
     }
 
     public function getNotesDetailMap()
