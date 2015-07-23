@@ -716,8 +716,11 @@ function raptor_glue_intercept_bad_users()
   {
     $oContext = \raptor\Context::getInstance(FALSE,TRUE);
   } catch (\Exception $ex) {
+      isset($user) ? print_r($user) : 'NO-USER-INFO';
+      $userinfo = print_r($user);
       //This can happen if system admin is recovering a corrupted Drupal installation, log it and exit.
-      error_log("Did NOT have valid context instance in raptor_glue_intercept_bad_users for user=$user because ".$ex->getMessage());
+      error_log("Did NOT have valid context instance in "
+              . "raptor_glue_intercept_bad_users for user=$userinfo because $ex");
       return;
   }
   if (!$user->uid) 

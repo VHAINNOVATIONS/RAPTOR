@@ -395,6 +395,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 }
             }
         }
+        error_log("LOOK JSON getDashboardDetailsMap>>>" . print_r(json_encode($aResult,TRUE)));
         return $aResult;
     }
 
