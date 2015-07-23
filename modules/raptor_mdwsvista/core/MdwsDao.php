@@ -374,7 +374,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
             if ($oRuntimeResultFlexCacheHandler != NULL)
             {
-                $sThisResultName = "{$tid}_getDashboardDetailsMap";
+                $sThisResultName = "{$tid}_getDashboardDetailsMapMDWS";
                 $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
                 if ($aCachedResult !== NULL)
                 {
@@ -395,7 +395,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 }
             }
         }
-        error_log("LOOK JSON getDashboardDetailsMap>>>" . print_r(json_encode($aResult,TRUE)));
+        error_log("LOOK JSON getDashboardDetailsMap>>>" . print_r(json_encode($aResult),TRUE));
         return $aResult;
     }
 
