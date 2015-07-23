@@ -21,7 +21,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150723c');
+    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150723e');
     //or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150716B');
 
 defined('DISABLE_CONTEXT_DEBUG')
@@ -1184,6 +1184,7 @@ class Context
         {
             $this->m_oEhrDao = new \raptor\EhrDao();
         }
+        error_log("LOOK DAO from context is >>>".$this->m_oEhrDao);
         return $this->m_oEhrDao;
     }
     
