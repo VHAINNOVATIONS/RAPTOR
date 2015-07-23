@@ -66,8 +66,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
-        //$oDD = new \raptor\DashboardData($this->m_oContext);
-        //$this->m_aPatientDD = $oDD->getDashboardDetails();
         $this->m_aPatientDD = $this->m_oContext->getEhrDao()->getDashboardDetailsMap();
     }
 
@@ -652,15 +650,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     {
         if($this->m_oCIE == NULL)
         {
-            //$tid = $this->m_oContext->getSelectedTrackingID();
-            //$oWL = new \raptor\WorklistData($this->m_oContext);
-            //$aOneRow = $oWL->getDashboardMap();    //$tid);
-            //$oDD = new \raptor\DashboardData($this->m_oContext);
-            //$aDD = $oDD->getDashboardDetails();  
             $aDD = $this->m_aPatientDD;
-            //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-            //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
-            //$aEGFR = $oPSD->getEGFRDetail();
             $ehrDao = $this->m_oContext->getEhrDao();
             $aLatestVitals = $ehrDao->getVitalsDetailOnlyLatestMap();            
             $aEGFR = $ehrDao->getEGFRDetailMap();            
@@ -703,22 +693,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         try
         {
             //$oWL = new \raptor\WorklistData($this->m_oContext);
-            //$aOneRow = $oWL->getDashboardMap($tid);
             $ehrDao = $this->m_oContext->getEhrDao();
-            $aOneRow = $ehrDao->getDashboardDetailsMap($tid);
             $nSiteID = $this->m_oContext->getSiteID();
             $nIEN = $tid;
             $nUID = $this->m_oContext->getUID();
-
-            //$oDD = new \raptor\DashboardData($this->m_oContext);
-            //$aDD = $oDD->getDashboardDetails();     //TODO REDUNDANT WITH $aOneRow????????????????      
             $aDD = $this->m_aPatientDD;
             //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-
             if($this->m_oCIE == NULL)
             {
-                //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
-                //$aEGFR = $oPSD->getEGFRDetail();
                 $aLatestVitals = $ehrDao->getVitalsDetailOnlyLatestMap();            
                 $aEGFR = $ehrDao->getEGFRDetailMap();
 
@@ -743,7 +725,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $this->m_oCIE = $oCIE;
             }
 
-            //drupal_set_message(print_r($aOneRow,TRUE),'warning');
             $prev_protocolnotes_tx = $this->m_oUtility->
                     getSchedulerNotesMarkup($nSiteID,$nIEN);
             $prev_protocolnotes_tx .= $this->m_oUtility->
@@ -770,7 +751,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $myvalues = array();
             ProtocolInfoPage::setAllValuesNull($myvalues);  //Initialize all values to NULL first.
             $myvalues['tid'] = $tid;
-            $myvalues['procName'] = $aOneRow['Procedure'];  //TODO REDUNDANT WITH $aDD?????
+            $myvalues['procName'] = $aDD['Procedure'];
             $myvalues['prev_protocolnotes_tx'] = $prev_protocolnotes_tx;
             $myvalues['prev_exam_notes_tx'] = $prev_exam_notes_tx;
             $myvalues['prev_interpret_notes_tx'] = $prev_interpret_notes_tx;

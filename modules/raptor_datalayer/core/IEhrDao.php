@@ -25,11 +25,6 @@ interface IEhrDao
     public function getIntegrationInfo();
     
     /**
-     * Initialize the EHR client
-     */
-    public function initClient();
-    
-    /**
      * Connect and login to the EHR
      */
     public function connectAndLogin($siteCode, $username, $password);

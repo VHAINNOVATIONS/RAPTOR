@@ -81,7 +81,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Initialize the DAO client session
      */
-    public function initClient()
+    private function initClient()
     {
         try
         {

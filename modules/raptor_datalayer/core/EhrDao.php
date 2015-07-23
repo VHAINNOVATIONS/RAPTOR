@@ -85,11 +85,6 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getIntegrationInfo();
     }
     
-    public function initClient()
-    {
-        return $this->m_implclass->initClient();
-    }
-
     public function connectAndLogin($siteCode, $username, $password) 
     {
         return $this->m_implclass->connectAndLogin($siteCode, $username, $password);
