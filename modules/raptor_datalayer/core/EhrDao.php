@@ -322,4 +322,14 @@ class EhrDao implements \raptor\IEhrDao
     {
         return $this->m_implclass->getImagingTypesMap();
     }
+
+    public function invalidateCacheForOrder($tid)
+    {
+        return $this->m_implclass->invalidateCacheForOrder($tid);
+    }
+
+    public function invalidateCacheForPatient($pid)
+    {
+        return $this->m_implclass->invalidateCacheForPatient($pid);
+    }
 }

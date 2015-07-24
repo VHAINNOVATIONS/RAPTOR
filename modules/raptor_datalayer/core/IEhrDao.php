@@ -73,6 +73,16 @@ interface IEhrDao
      * User readible information about the instance
      */
     public function __toString();
+
+    /**
+     * Clear all cached data for the specified order
+     */
+    public function invalidateCacheForOrder($tid);
+    
+    /**
+     * Clear all cached data for the specified patient
+     */
+    public function invalidateCacheForPatient($pid);
     
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     public function createNewRadiologyOrder($orderChecks, $args);

@@ -983,18 +983,9 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
                     break;
                 }
                 $oContext = \raptor\Context::getInstance();
-                //$userid = $oContext->getUserInfo()->getUserID();
-                //$groupname = 'DashboardData';
-                //$oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance($groupname);
-                //$sThisResultName = "LOOK TODO userid=[$userid] tid=[$onetid]";
                 $oEhrDao = $oContext->getEhrDao();
-                error_log("LOOK ABOUT TO CACHE $onetid");
-                $aResult = $oEhrDao->getDashboardDetailsMap($onetid);  //Let the DAO use its own cache
-                error_log("LOOK CACHED $onetid>>>".print_r($aResult,TRUE));
-                //$aResult = array("TODO"=>"call getDashboardMap for $onetid");
-                //$oRuntimeResultFlexCache->addToCache($sThisResultName,$aResult);
+                $oEhrDao->getDashboardDetailsMap($onetid);  //Let the DAO use its own cache
                 $cachedcount++;
-                //error_log("LOOK $cachedcount called loadcache($groupname) for $sThisResultName");
             }
             return array('feedback' => 
                 array('#type'=>'item'

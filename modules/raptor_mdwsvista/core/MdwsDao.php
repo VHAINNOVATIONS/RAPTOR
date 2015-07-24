@@ -700,4 +700,24 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         return $this;
     }
+    
+    public function invalidateCacheForOrder($tid)
+    {
+        try
+        {
+            //TODO clear all the cache entries!
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function invalidateCacheForPatient($pid)
+    {
+        try
+        {
+            //TODO clear all the cache entries!
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
 }

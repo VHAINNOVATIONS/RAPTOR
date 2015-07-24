@@ -245,7 +245,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      * Return array of valuse from the indicated action
      * This is good for developers to check results
      */
-    public function getPrivateValue($keynames)
+    function getPrivateValue($keynames)
     {
         try
         {
@@ -291,7 +291,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         {
             throw new \Exception("No user is currently authenticated!");
         }
-		error_log("LOOK user duz={$this->m_userduz}");
         return $this->m_userduz;
     }
 
@@ -375,169 +374,188 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     public function getMedicationsDetailMap($atriskmeds = NULL)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getOrderOverviewMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getOrderableItems($imagingTypeId)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getPathologyReportsDetailMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getPatientIDFromTrackingID($sTrackingID)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getPendingOrdersMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getProblemsListDetailMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getProcedureLabsDetailMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getProviders($neworderprovider_name)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRadiologyCancellationReasons()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRadiologyOrderChecks($args)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRadiologyOrderDialog($imagingTypeId, $patientId)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRadiologyReportsDetailMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRawVitalSignsMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getSurgeryReportsDetailMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getUserSecurityKeys()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVisits()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVistaAccountKeyProblems()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVitalsDetailMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVitalsDetailOnlyLatestMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVitalsSummaryMap()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function isProvider()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function signNote($newNoteIen, $eSig)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function userHasKeyOREMAS()
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function validateEsig($eSig)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ)
     {
         $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
+	return $this->getServiceRelatedData($serviceName);
     }
 
+    public function invalidateCacheForOrder($tid)
+    {
+        try
+        {
+            //TODO clear all the cache entries!
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function invalidateCacheForPatient($pid)
+    {
+        try
+        {
+            //TODO clear all the cache entries!
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
 }
