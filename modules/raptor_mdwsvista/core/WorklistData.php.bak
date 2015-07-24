@@ -613,7 +613,7 @@ class WorklistData
                 );	
             return $aResult;
         } catch (\Exception $ex) {
-            error_log("Failed getWorklistRows because ".$ex->getMessage());
+            error_log("Failed getWorklistRows because $ex");
             throw $ex;
         }
     }
@@ -625,16 +625,22 @@ class WorklistData
     }
     
     /**
-     * Gets dashboard details for the currently selected ticket of the session
+     * Gets dashboard details for the one ticket
+     * Defaults to current session ticket if none is specified
      */
-    public function getDashboardMap($override_tracking_id=NULL)
+    public function getDashboardMap($override_match_this_IEN=NULL)
     {
         try
         {
-            if($override_tracking_id !== NULL)
+            if($override_match_this_IEN != NULL)
             {
+                error_log("LOOK trouble we specified the IEN=$override_match_this_IEN in getDashboardMap!");
                 //Potential enhancement note: Change this side-effect so override does NOT alter the context for the session.
-                $this->m_oContext->setSelectedTrackingID($override_tracking_id);        
+                $this->m_oContext->setSelectedTrackingID($override_match_this_IEN);        
+                $currentTrackingID = $override_match_this_IEN;
+            } else {
+                error_log("LOOK trouble we DID NOT specify the IEN in getDashboardMap!");
+                $currentTrackingID = $this->m_oContext->getSelectedTrackingID();
             }
 
             $aResult = $this->getWorklistRows();
@@ -642,10 +648,9 @@ class WorklistData
             $all_rows = $aResult['DataRows'];
             $row = $all_rows[$offset];
 
-            $currentTrackingID = $this->m_oContext->getSelectedTrackingID();
             if($currentTrackingID == '')
             {
-                throw new \Exception('Cannot get dashboard data when '
+                throw new \Exception("Cannot get dashboard($override_match_this_IEN) data when "
                         . 'current tracking id is not set!  '
                         . 'Your session may have timed out.');
             }
@@ -681,6 +686,15 @@ class WorklistData
             $worklistItemDict = $this->getWorklistItemFromMDWS($tid);
             $orderFileIen = $worklistItemDict['7']['I'];
             $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
+            /*
+            $orderFileRec = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal
+               ($this->m_oContext->getMdwsClient()->makeQuery('ddrGetsEntry', array(
+                   'file'=>'100', 
+                   'iens'=>($orderFileIen.','),
+                   'flds'=>'*', 
+                   'flags'=>'IEN'
+               )));
+             */
             $orderFileRec = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal
                ($mdwsDao->makeQuery('ddrGetsEntry', array(
                    'file'=>'100', 
@@ -707,8 +721,10 @@ class WorklistData
             $t['PatientLocation']   = $row[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
             $t['RequestedBy']       = $row[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN];
 
+            // ATTENTION FRANK: new indices for requesting location and submit to location
             $t['RequestingLocation']= trim((isset($worklistItemDict['22']['I']) ? $worklistItemDict['22']['I'] : '') );
             $t['SubmitToLocation']  = trim((isset($worklistItemDict['20']['I']) ? $worklistItemDict['20']['I'] : '') );
+            // END ATTN FRANK
 
             $aSchedInfo = $row[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO];
             $t['SchedInfo']         = $aSchedInfo;

@@ -493,7 +493,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             }
             return $aResult;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed to $sThisResultName", 99876, $ex);
+            throw new \Exception("Failed to getProtocolSupportingData because $ex", 99876, $ex);
         }
     }
 
