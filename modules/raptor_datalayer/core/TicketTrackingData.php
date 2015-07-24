@@ -1015,4 +1015,64 @@ class TicketTrackingData
         }
         return $map;
     }
+    
+    
+    /**
+    /* simply create a "dictionary" organized by key field IEN
+     */
+    private function createMapOnIEN($sqlResult) 
+    {
+        try
+        {
+            $result = array();
+
+            if ($sqlResult->rowCount() === 0) {
+                return $result;
+            }
+
+            foreach ($sqlResult as $row) 
+            {
+                $key = $row->IEN;
+                if(!isset($row->workflow_state) || $row->workflow_state == NULL)
+                {
+                    $row->workflow_state = 'AC';    //Because NULL means AC.
+                }
+                $result[$key] = $row;
+            }
+
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    
+    /**
+     * Return consolidated information of all the tickets
+     */
+    public function getConsolidatedWorklistTracking() 
+    {
+        try
+        {
+            $sql = "SELECT * FROM raptor_ticket_tracking";
+            $sqlResult = db_query($sql);
+            $ticketTrackingResult = $this->createMapOnIEN($sqlResult);
+
+            $sql = "SELECT c.IEN, c.collaborator_uid, c.requester_notes_tx, c.requested_dt, u.username, u.usernametitle, u.firstname, u.lastname, u.suffix FROM raptor_ticket_collaboration c left join raptor_user_profile u on c.collaborator_uid=u.uid WHERE active_yn";
+            $sqlResult = db_query($sql);
+            $ticketCollaborationResult = $this->createMapOnIEN($sqlResult);
+
+            $sql = "SELECT * FROM raptor_schedule_track";
+            $sqlResult = db_query($sql);
+            $scheduleTrackResult = $this->createMapOnIEN($sqlResult);
+
+            return array(
+                "raptor_ticket_tracking" => $ticketTrackingResult,
+                "raptor_ticket_collaboration" => $ticketCollaborationResult,
+                "raptor_schedule_track" => $scheduleTrackResult);
+        } catch (\Exception $ex) {
+            error_log("FAILED getWorklistTrackingFromSQL ".$ex->getMessage());
+            throw $ex;
+        }
+    }
 }

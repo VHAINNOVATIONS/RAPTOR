@@ -78,51 +78,15 @@ class WorklistData
     }
     
 
-    // simply create a "dictionary" organized by key field IEN
-    private function parseSqlTicketTracking($sqlResult) {
-        $result = array();
-        
-        if ($sqlResult->rowCount() === 0) {
-            return $result;
-        }
-        
-        foreach ($sqlResult as $row) {
-            $key = $row->IEN;
-            if(!isset($row->workflow_state) || $row->workflow_state == NULL)
-            {
-                $row->workflow_state = 'AC';    //Because NULL means AC.
-            }
-            $result[$key] = $row;
-        }
-
-        return $result;
-    }
-    
+    /**
+     * @deprecated use getConsolidatedWorklistTracking instead
+     */
     private function getWorklistTrackingFromSQL() 
     {
-        try
-        {
-            $sql = "SELECT * FROM raptor_ticket_tracking";
-            $sqlResult = db_query($sql);
-            $ticketTrackingResult = $this->parseSqlTicketTracking($sqlResult);
-
-            //$sql = "SELECT * FROM raptor_ticket_collaboration WHERE active_yn";
-            $sql = "SELECT c.IEN, c.collaborator_uid, c.requester_notes_tx, c.requested_dt, u.username, u.usernametitle, u.firstname, u.lastname, u.suffix FROM raptor_ticket_collaboration c left join raptor_user_profile u on c.collaborator_uid=u.uid WHERE active_yn";
-            $sqlResult = db_query($sql);
-            $ticketCollaborationResult = $this->parseSqlTicketTracking($sqlResult);
-
-            $sql = "SELECT * FROM raptor_schedule_track";
-            $sqlResult = db_query($sql);
-            $scheduleTrackResult = $this->parseSqlTicketTracking($sqlResult);
-
-            return array(
-                "raptor_ticket_tracking" => $ticketTrackingResult,
-                "raptor_ticket_collaboration" => $ticketCollaborationResult,
-                "raptor_schedule_track" => $scheduleTrackResult);
-        } catch (\Exception $ex) {
-            error_log("FAILED getWorklistTrackingFromSQL ".$ex->getMessage());
-            throw $ex;
-        }
+        error_log("WARNING using deprecated getWorklistTrackingFromSQL!");
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+        $oTT = new \raptor\TicketTrackingData();
+        return $oTT->getConsolidatedWorklistTracking();
     }
 
     /**
