@@ -75,7 +75,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         }
     }
 
-    public function initClient()
+    private function initClient()
     {
         //we'll use the EmrSvc facade for initialization but this may change when a SOAP call is executed
         $this->currentFacade = EMRSERVICE_URL;
