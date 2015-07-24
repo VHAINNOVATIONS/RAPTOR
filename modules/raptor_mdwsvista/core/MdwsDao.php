@@ -359,7 +359,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
      */
     function getDashboardDetailsMap($override_tracking_id = NULL)
     {
-        error_log("LOOK START getDashboardDetailsMap");
+        error_log("LOOK START getDashboardDetailsMap($override_tracking_id)");
         $aResult = array();
         $oContext = \raptor\Context::getInstance();
         if ($oContext != NULL)
@@ -395,7 +395,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 }
             }
         }
-        error_log("LOOK JSON getDashboardDetailsMap>>>" . print_r(json_encode($aResult),TRUE));
         return $aResult;
     }
 
@@ -431,9 +430,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     }
                 }
             }
-            error_log("LOOK getWorklistDetailsMap PHP Array: " . print_r($aResult,TRUE));
-            error_log("LOOK getWorklistDetailsMap JSON: " . json_encode($aResult));
-            
             return $aResult;
         } catch (\Exception $ex) {
             throw new \Exception("Failed to getWorklistDetailsMap", 99876, $ex);
