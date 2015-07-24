@@ -192,6 +192,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$this->m_authorization;
             
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
+            error_log("LOOK JSON DATA for $serviceName: " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
             error_log("Finish EWD $serviceName at " . microtime());
