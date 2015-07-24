@@ -104,7 +104,7 @@ function raptor_glue_init()
 function raptor_glue_page_alter(&$page) 
 {
     module_load_include('php', 'raptor_datalayer', 'core/Context');
-    module_load_include('php', 'raptor_datalayer', 'core/data_user');
+    module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
 
     global $user;
     global $base_url;

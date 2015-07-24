@@ -3340,7 +3340,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                         //Looks like it was not stale.
                         if($locrec['locked_by_uid'] != $nUID)
                         {
-                            module_load_include('php', 'raptor_datalayer', 'core/data_user');
+                            module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
                             $otheruser = new \raptor\UserInfo($locrec['locked_by_uid']);
                             drupal_set_message('Ticket already edit locked by '
                                     .$otheruser->getFullName()

@@ -14,7 +14,7 @@
 namespace raptor;
 
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
-module_load_include('php', 'raptor_datalayer', 'core/data_user');
+module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
 
 require_once ("FormHelper.php");
 require_once ("UserPageHelper.php");

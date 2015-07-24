@@ -38,7 +38,7 @@ class UserActivity
         }
         $this->m_oWF = new \raptor\Transitions();
         
-        $loaded = module_load_include('php', 'raptor_datalayer', 'core/data_user');
+        $loaded = module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
         $this->m_aUserInfo = UserInfo::getUserInfoMap();
     }    
     

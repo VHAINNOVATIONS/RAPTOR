@@ -20,7 +20,7 @@
  */
 function raptor_fetch_userprofile_role_defaults($form, &$form_state) 
 {
-    module_load_include('php', 'raptor_datalayer', 'core/data_user');
+    module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
     
     $myvalues=$form_state['values'];
     $templatevalues = array('NO_TEMPLATE_DECLARED');

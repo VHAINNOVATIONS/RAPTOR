@@ -29,7 +29,7 @@ class RequestCollaboratePage
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
         //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-        module_load_include('php', 'raptor_datalayer', 'core/data_user');
+        module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oTT = new \raptor\TicketTrackingData();
     }

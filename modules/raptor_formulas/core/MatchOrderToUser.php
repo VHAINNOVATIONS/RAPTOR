@@ -14,8 +14,7 @@
 namespace raptor_formulas;
 
 module_load_include('php', 'raptor_glue', 'core/Config');
-//module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-module_load_include('php', 'raptor_datalayer', 'core/data_user');
+module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
 
 /**
  * Logic for scoring order match

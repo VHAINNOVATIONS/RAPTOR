@@ -34,7 +34,7 @@ class EditUserPage extends \raptor\ChildEditBasePage
     function __construct($nUID, $gobacktooverride=NULL)
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
-        module_load_include('php', 'raptor_datalayer', 'core/data_user');
+        module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
 
         if(!isset($nUID) || !is_numeric($nUID))
         {
