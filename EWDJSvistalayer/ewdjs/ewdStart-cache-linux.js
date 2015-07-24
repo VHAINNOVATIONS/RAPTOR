@@ -19,10 +19,12 @@ var params = {
   traceLevel: 3,
   database: {
     type: 'cache',
-    path:"/opt/cache/mgr",
+    //path:"/opt/cache/mgr",
+    path:"/srv/mgr",
     username: "_SYSTEM",
     password: "SYS",
-    namespace: "USER"
+    //namespace: "USER"
+    namespace: "CPM"
   },
   management: {
     password: 'keepThisSecret!'

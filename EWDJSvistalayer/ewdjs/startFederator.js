@@ -7,10 +7,12 @@ var params = {
   traceLevel: 3,
       database: {
         type: 'cache',
-        path:"c:\\InterSystems\\Cache\\Mgr",
+        //path:"c:\\InterSystems\\Cache\\Mgr",
+        path:"/srv/mgr",
         username: "_SYSTEM",
         password: "SYS",
-        namespace: "EDU"
+        //namespace: "EDU"
+        namespace: "CPM"
       },
   server: {
 

@@ -24,7 +24,7 @@
  |  limitations under the License.                                          |
  ----------------------------------------------------------------------------
 
-  Build 29; 03 July 2015
+  Build 30; 14 July 2015
 
   Thanks to David Wicksell for bug fix to fast getDocument() function
 
@@ -647,6 +647,7 @@ proto._getDocument = function(base, useArrays) {
   };
 
   var fastGetDocument = function(node) {
+    var noOfSubscripts = node.subscripts.length;
 
     var addToJSON = function(obj, subscripts, value) {
 
@@ -684,7 +685,7 @@ proto._getDocument = function(base, useArrays) {
     var isSubNode = function(signature, currentArray) {
       var match = true;
       for (var i = 0; i < signature.length; i++) {
-        if (signature[i] !== currentArray[i]) {
+        if (signature[i].toString() !== currentArray[i].toString()) {
           match = false;
           break;
         }
@@ -695,12 +696,15 @@ proto._getDocument = function(base, useArrays) {
     var document = {};
     var signature = node.subscripts;
     var match = true;
+    var subsCopy;
     do {
       node = ewd.mumps.next_node(node);
       match = false;
       if (node.defined !== 0) match = isSubNode(signature, node.subscripts);
       if (match) {
-        document = addToJSON(document, node.subscripts, node.data);
+        subsCopy = node.subscripts.slice(0);
+        subsCopy.splice(0, noOfSubscripts);
+        document = addToJSON(document, subsCopy, node.data);
       }  
     } while (match);
     return document;

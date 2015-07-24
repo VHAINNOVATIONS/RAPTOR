@@ -6,10 +6,12 @@ console.log('db: ' + JSON.stringify(db));
 // Change these parameters to match your GlobalsDB or Cache system:
 
 var ok = db.open({
-  path: '/opt/globalsdb/mgr',
+  //path: '/opt/globalsdb/mgr',
+  path: '/srv/mgr',
   username: '_SYSTEM',
   password: 'SYS',
-  namespace: 'USER'
+  //namespace: 'USER'
+  namespace: 'CPM'
 });
 
 
@@ -47,6 +49,11 @@ test._setDocument(json);
 
 var x = test._getDocument();
 console.log(JSON.stringify(x, null, 2));
+
+
+var dir = db.global_directory({});
+console.log(JSON.stringify(dir, null, 2));
+
 
 db.close();
 

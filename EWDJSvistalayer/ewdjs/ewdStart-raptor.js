@@ -1,5 +1,5 @@
 /*
-Example EWD.js Startup file for use with Cache on Windows
+Example EWD.js Startup file for use with Cache on Linux
 
 Notes:
 
@@ -14,20 +14,22 @@ of your EWD.js configuration
 var ewd = require('ewdjs');
 
 var params = {
-      //cwd: 'c:\ewdjs',
-      poolSize: 2,
-      httpPort: 8082,
-	  traceLevel: 3,
-      database: {
-        type: 'cache',
-        path:"c:\\InterSystems\\Cache\\Mgr",
-        username: "_SYSTEM",
-        password: "SYS",
-        namespace: "EDU"
-      },
-      management: {
-        password: 'keepThisSecret!'
-     }
+  logFile: '/var/log/raptor/ewdjs.log',
+  poolSize: 2,
+  httpPort: 8082,
+  traceLevel: 3,
+  database: {
+    type: 'cache',
+    //path:"/opt/cache/mgr",
+    path:"/srv/mgr",
+    username: "_SYSTEM",
+    password: "SYS",
+    //namespace: "USER"
+    namespace: "CPM"
+  },
+  management: {
+    password: 'keepThisSecret!'
+  }
 };
 
 ewd.start(params);
