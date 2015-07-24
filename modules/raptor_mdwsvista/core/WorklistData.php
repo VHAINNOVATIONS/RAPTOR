@@ -60,7 +60,7 @@ class WorklistData
      * Convert the code into a word
      * @param type $sWMODE
      * @return string the word associated with the code
-     */
+     * UNUSED
     static function getWorklistModeName($sWMODE)
     {
         if($sWMODE=='P'){
@@ -76,6 +76,7 @@ class WorklistData
         }
         return $sName;
     }
+     */
     
 
     /**
@@ -561,7 +562,10 @@ class WorklistData
         try
         {
             $mdwsResponse = $this->getWorklistFromMDWS($startIEN);
-            $sqlResponse = $this->getWorklistTrackingFromSQL();
+            module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+            $oTT = new \raptor\TicketTrackingData();
+            $sqlResponse = $oTT->getConsolidatedWorklistTracking();
+            //$sqlResponse = $this->getWorklistTrackingFromSQL();
             if($match_this_IEN == NULL)
             {
                 $match_this_IEN = $this->m_oContext->getSelectedTrackingID();

@@ -37,7 +37,7 @@ defined('LAB_EGFR_ALERT_WARN_END_LEVEL')
 defined('LAB_EGFR_ALERT_BAD_END_LEVEL')
     or define('LAB_EGFR_ALERT_BAD_END_LEVEL', 30);
 
-//Base URL for the EWD Federator
+//Base URL for the EWD Federator (only relevant if using raptor_ewdvista)
 defined('EWDFED_BASE_URL')
     or define('EWDFED_BASE_URL', "BASEURLTODO");
 

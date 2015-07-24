@@ -1071,7 +1071,7 @@ class TicketTrackingData
                 "raptor_ticket_collaboration" => $ticketCollaborationResult,
                 "raptor_schedule_track" => $scheduleTrackResult);
         } catch (\Exception $ex) {
-            error_log("FAILED getWorklistTrackingFromSQL ".$ex->getMessage());
+            error_log("FAILED getConsolidatedWorklistTracking because $ex");
             throw $ex;
         }
     }
