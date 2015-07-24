@@ -692,7 +692,6 @@ class MdwsUtils {
     /**
      * JOEL RECOMMENDS DELETING THIS AND USING RESULT FROM data_worklist::getDashboardMap
      * @DEPRECATED
-     */
     public static function getOrderDetails($mdwsDao, $radiologyOrderIen)
     {
         error_log("WARNING using deprecated getOrderDetails");
@@ -717,6 +716,7 @@ class MdwsUtils {
         // may be more to return here in the future
         return $details;
     }
+     */
       
 }
 

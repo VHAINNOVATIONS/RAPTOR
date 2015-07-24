@@ -66,8 +66,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
-        //$oDD = new \raptor\DashboardData($this->m_oContext);
-        //$this->m_aPatientDD = $oDD->getDashboardDetails();
         $this->m_aPatientDD = $this->m_oContext->getEhrDao()->getDashboardDetailsMap();
     }
 
@@ -652,15 +650,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     {
         if($this->m_oCIE == NULL)
         {
-            //$tid = $this->m_oContext->getSelectedTrackingID();
-            //$oWL = new \raptor\WorklistData($this->m_oContext);
-            //$aOneRow = $oWL->getDashboardMap();    //$tid);
-            //$oDD = new \raptor\DashboardData($this->m_oContext);
-            //$aDD = $oDD->getDashboardDetails();  
             $aDD = $this->m_aPatientDD;
-            //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-            //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
-            //$aEGFR = $oPSD->getEGFRDetail();
             $ehrDao = $this->m_oContext->getEhrDao();
             $aLatestVitals = $ehrDao->getVitalsDetailOnlyLatestMap();            
             $aEGFR = $ehrDao->getEGFRDetailMap();            
@@ -703,22 +693,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         try
         {
             //$oWL = new \raptor\WorklistData($this->m_oContext);
-            //$aOneRow = $oWL->getDashboardMap($tid);
             $ehrDao = $this->m_oContext->getEhrDao();
-            $aOneRow = $ehrDao->getDashboardDetailsMap($tid);
             $nSiteID = $this->m_oContext->getSiteID();
             $nIEN = $tid;
             $nUID = $this->m_oContext->getUID();
-
-            //$oDD = new \raptor\DashboardData($this->m_oContext);
-            //$aDD = $oDD->getDashboardDetails();     //TODO REDUNDANT WITH $aOneRow????????????????      
             $aDD = $this->m_aPatientDD;
             //$oPSD = new \raptor\ProtocolSupportingData($this->m_oContext);
-
             if($this->m_oCIE == NULL)
             {
-                //$aLatestVitals = $oPSD->getVitalsDetailOnlyLatest();
-                //$aEGFR = $oPSD->getEGFRDetail();
                 $aLatestVitals = $ehrDao->getVitalsDetailOnlyLatestMap();            
                 $aEGFR = $ehrDao->getEGFRDetailMap();
 
@@ -743,7 +725,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $this->m_oCIE = $oCIE;
             }
 
-            //drupal_set_message(print_r($aOneRow,TRUE),'warning');
             $prev_protocolnotes_tx = $this->m_oUtility->
                     getSchedulerNotesMarkup($nSiteID,$nIEN);
             $prev_protocolnotes_tx .= $this->m_oUtility->
@@ -770,7 +751,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $myvalues = array();
             ProtocolInfoPage::setAllValuesNull($myvalues);  //Initialize all values to NULL first.
             $myvalues['tid'] = $tid;
-            $myvalues['procName'] = $aOneRow['Procedure'];  //TODO REDUNDANT WITH $aDD?????
+            $myvalues['procName'] = $aDD['Procedure'];
             $myvalues['prev_protocolnotes_tx'] = $prev_protocolnotes_tx;
             $myvalues['prev_exam_notes_tx'] = $prev_exam_notes_tx;
             $myvalues['prev_interpret_notes_tx'] = $prev_interpret_notes_tx;
@@ -2921,308 +2902,322 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     
     /**
      * Get the markup for contraindications
-     * @return map of results
      */
     function getContraindicationFormMarkup($nSiteID, $nIEN, $myvalues
             , $protocolValues
             , $aMapCI_AlreadyAcknowledged)
     {
-        $aResultMap = array();
-        
-        if($this->m_oCIE == NULL)
-        {
-            $this->m_oCIE = $this->getCIE();
-        }
-        $oCIE = $this->m_oCIE;
-        
-        $ehrDao = $this->m_oContext->getEhrDao();
-        
-        $patientDashboard = $ehrDao->getPatientDashboardMap();
-        $examcategory = strtoupper($patientDashboard['ExamCategory']);
-        
-        //Flag as possible duplicate order if there is more than one active order for the same modality as this one.
-        $modality = $protocolValues['modality_abbr'];   //Might be unknown or blank.
-        $pendingMap = $ehrDao->getPendingOrdersMap();
-        if(count($pendingMap) > 1)
-        {
-            if($modality == '' || $modality == 'Unknown')
-            {
-                //This will happen if no modality was specified in the protocol template.
-                //error_log('No modality was specified in the protocol template for '.print_r($protocolValues,TRUE));
-                $possibleDups = TRUE;   //Assume we could have duplicates. 
-            } else {
-                $modalitycount = 0;
-                foreach($pendingMap as $key=>$values)
-                {
-                    if($values[1] == $modality || $values[1] == 'Unknown')
-                    {
-                        $modalitycount++;
-                    }
-                }
-                $possibleDups = $modalitycount > 1;
-            }
-        } else {
-            $possibleDups = FALSE;
-        }
-        $aCandidateData = array();  
-        $aCandidateData['IS_INPATIENT'] = ($examcategory == 'INPATIENT');
-        $aCandidateData['IS_OUTPATIENT'] = ($examcategory == 'OUTPATIENT');
-        $aCandidateData['IS_POSSIBLE_DUP_PROC']         = $possibleDups;
-        $aCandidateData['IS_IMG_GUIDED_EXAM']           = $protocolValues['image_guided_yn'];
-        if(!isset($protocolValues['image_guided_yn']) || $protocolValues['image_guided_yn'] == '')
-        {
-            //Undeclared.
-            $is_diagnostic_exam = NULL;
-        } else {
-            //Make this the opposite of image guided.
-            if($protocolValues['image_guided_yn'] == 1)
-            {
-                $is_diagnostic_exam = 0;
-            } else {
-                $is_diagnostic_exam = 1;
-            }
-        }
-        $aCandidateData['IS_DIAGNOSTIC_EXAM']           = $is_diagnostic_exam;
-        $aCandidateData['PROC_NM']                      = $myvalues['procName'];
-        $aCandidateData['MODALITY']                     = $protocolValues['modality_abbr'];
-        $aCandidateData['GIVE_HYDRATION_ORAL']          = $this->arrayKeysHaveValues($myvalues,array('hydration_oral_customtx','hydration_oral_id'));
-        $aCandidateData['GIVE_HYDRATION_IV']            = $this->arrayKeysHaveValues($myvalues,array('hydration_iv_customtx','hydration_iv_id'));
-        $aCandidateData['GIVE_CONTRAST_ENTERIC']        = $this->arrayKeysHaveValues($myvalues,array('contrast_enteric_customtx','contrast_enteric_id'));
-        $aCandidateData['GIVE_CONTRAST_IV']             = $this->arrayKeysHaveValues($myvalues,array('contrast_iv_customtx','contrast_iv_id'));
-        $aCandidateData['GIVE_SEDATION_ORAL']           = $this->arrayKeysHaveValues($myvalues,array('sedation_oral_customtx','sedation_oral_id'));
-        $aCandidateData['GIVE_SEDATION_IV']             = $this->arrayKeysHaveValues($myvalues,array('sedation_iv_customtx','sedation_iv_id'));
-        $aCandidateData['GIVE_RADIOISOTOPE_ENTERIC']    = $this->arrayKeysHaveValues($myvalues,array('radioisotope_enteric_customtx','radioisotope_enteric_id'));
-        $aCandidateData['GIVE_RADIOISOTOPE_IV']         = $this->arrayKeysHaveValues($myvalues,array('radioisotope_iv_customtx','radioisotope_iv_id'));
-        $aCandidateData['IS_CLAUSTROPHOBIC']            = $this->arrayKeysAllHaveSpecificValues($myvalues,array('claustrophobic_cd'=>'yes'));
-        $aCandidateData['HAS_ALLERGY']                  = $this->arrayKeysAllHaveSpecificValues($myvalues,array('allergy_cd'=>'yes'));
-
-        //Get allergies to pass in.
-        $aAllergies = array();
-        $aDetails = $ehrDao->getAllergiesDetailMap();
-        foreach($aDetails as $aItem)
-        {
-            $aAllergies[] = $aItem['Item'];
-            //drupal_set_message('Look>>>'.print_r($aItem,TRUE));
-        }
-        $aCandidateData['CURRENT_ALLERGIES'] = $aAllergies;
-
-        $aCandidateData['KWL_RARE_CONTRAST'] = \raptor\CustomKeywords::getBloodThinnerKeywords();
-        $aCandidateData['KWL_RARE_RADIOISOTOPE'] = \raptor\CustomKeywords::getRareRadioisotopeKeywords();
-        $aCandidateData['KWL_BLOOD_THINNER'] = \raptor\CustomKeywords::getBloodThinnerKeywords();
-        $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = \raptor\CustomKeywords::getAllergyContrastKeywords();
-        
-        //Get meds to pass in.
-        $aMeds = array();
-        $aMedBundle = $ehrDao->getMedicationsDetailMap();
-        $aMedDetail = $aMedBundle['details'];
-        foreach($aMedDetail as $aMedItem)
-        {
-            $aMeds[] = $aMedItem['Med'];
-        }
-        $aCandidateData['CURRENT_MEDS'] = $aMeds;
-        $aCandidateData['CURRENT_CONTRASTS'] = array();
-        if($this->arrayValueExistsAndNotBlank($myvalues,'contrast_enteric_customtx'))
-        {
-            $name = $myvalues['contrast_enteric_customtx'];
-            $aCandidateData['CURRENT_CONTRASTS'][] = $name;
-        } else {
-            if($this->arrayValueExistsAndNotBlank($myvalues,'contrast_enteric_id'))
-            {
-                $name = $myvalues['contrast_enteric_id'];
-                $aCandidateData['CURRENT_CONTRASTS'][] = $name;
-            }
-        }
-        if($this->arrayValueExistsAndNotBlank($myvalues,'contrast_iv_customtx'))
-        {
-            $name = $myvalues['contrast_iv_customtx'];
-            $aCandidateData['CURRENT_CONTRASTS'][] = $name;
-        } else {
-            if($this->arrayValueExistsAndNotBlank($myvalues,'contrast_iv_id'))
-            {
-                $name = $myvalues['contrast_iv_id'];
-                $aCandidateData['CURRENT_CONTRASTS'][] = $name;
-            }
-        }
-        $aCandidateData['CURRENT_RADIOISOTOPES'] = array(); 
-        if($this->arrayValueExistsAndNotBlank($myvalues,'radioisotope_enteric_customtx'))
-        {
-            $name = $myvalues['radioisotope_enteric_customtx'];
-            $aCandidateData['CURRENT_RADIOISOTOPES'][] = $name;
-        } else {
-            if($this->arrayValueExistsAndNotBlank($myvalues,'radioisotope_enteric_id'))
-            {
-                $name = $myvalues['radioisotope_enteric_id'];
-                $aCandidateData['CURRENT_RADIOISOTOPES'][] = $name;
-            }
-        }
-        if($this->arrayValueExistsAndNotBlank($myvalues,'radioisotope_iv_customtx'))
-        {
-            $name = $myvalues['radioisotope_iv_customtx'];
-            $aCandidateData['CURRENT_RADIOISOTOPES'][] = $name;
-        } else {
-            if($this->arrayValueExistsAndNotBlank($myvalues,'radioisotope_iv_id'))
-            {
-                $name = $myvalues['radioisotope_iv_id'];
-                $aCandidateData['CURRENT_RADIOISOTOPES'][] = $name;
-            }
-        }
-        //Now invoke the contraindication engine.
         try
         {
-            $oCI = $oCIE->getResults($aCandidateData);
-            $aContraindications = $oCI->getAll();
-        } catch (\Exception $ex) {
-            $aContraindications = array();
-            drupal_set_message('Failed to run the contraindications engine because ' 
-                    . $ex->getMessage(),'error');
-        }
-
-        //Get the contraindications markup and details for markup.
-        $sStaticWarningMsgsHTML = NULL;
-        $aAllCIWarnings=array();    //Content to display in static warning area.
-        $aCI_AlreadyAcknowledgedMarkup = array();
-        $aCI_AcknowledgeMarkup = array();
-        $aCI_AcknowledgeMarkup['#tree'] = TRUE;
-        $nCI_Acknowledge = 0;
-        $nCI_AlreadyAcknowledged = 0;
-        $aCI_NoAcknowledgeMarkup = array();
-        $aCI_NoAcknowledgeMarkup['#tree'] = TRUE;
-        $nCI_NoAcknowledge = 0;
-        $nRuleExplainID = 1231000;  //Start with a large number unlikely to be used elsewhere on the form.
-        $nItem=0;
-        $aCI_AlreadyAcknowledgedMarkup[] = array('#markup' => '<ul>');
-        foreach($aContraindications as $oCI)
-        {
-            $nItem++;
-            $sID = $oCI->getUniqueID();
-            $sSummaryMsg = $oCI->getSummaryMessage();
-            $aCIS = $oCI->getResultSource();
-            $bReqAck = $oCI->isConfirmationRequired();
-            if(!isset($aAllCIWarnings[$sSummaryMsg]))
+            $aResultMap = array();
+            if($this->m_oCIE == NULL)
             {
-                //So we don't display more than once.
-                $aAllCIWarnings[$sSummaryMsg] = $sSummaryMsg;   
-                $sStaticWarningMsgsHTML .= "\n<li id='static_{$sID}'>" . $sSummaryMsg;
+                $this->m_oCIE = $this->getCIE();
             }
-            //There can be multiple CI associated with the same summary text.
-            $aCI_2Ack = array();
-            $aCI_2NoAck = array();
-            foreach($aCIS as $oCIS)
+            $oCIE = $this->m_oCIE;
+
+            $ehrDao = $this->m_oContext->getEhrDao();
+
+            //$patientDashboard = $ehrDao->getPatientDashboardMap();
+            //$examcategory = strtoupper($patientDashboard['ExamCategory']);
+            $examcategory = $this->m_aPatientDD['ExamCategory'];
+
+            //Flag as possible duplicate order if there is more than one active order for the same modality as this one.
+            $modality = $protocolValues['modality_abbr'];   //Might be unknown or blank.
+            $pendingMap = $ehrDao->getPendingOrdersMap();
+            if(count($pendingMap) > 1)
             {
-                $sRuleName = $oCIS->getRuleName();  //Each rule name appears only once.
-                $nRuleExplainID++;  //Had to go numeric because trouble with quotes in the generated html.
-                if($oCI->isConfirmationRequired())
+                if($modality == '' || $modality == 'Unknown')
                 {
-                    //This one requires confirmation
-                    if(isset($aMapCI_AlreadyAcknowledged[$sRuleName]))
+                    //This will happen if no modality was specified in the protocol template.
+                    //error_log('No modality was specified in the protocol template for '.print_r($protocolValues,TRUE));
+                    $possibleDups = TRUE;   //Assume we could have duplicates. 
+                } else {
+                    $modalitycount = 0;
+                    foreach($pendingMap as $key=>$values)
                     {
-                        //This one was already acknowledged.
-                        $nCI_AlreadyAcknowledged++;
-                        $aDetails = $aMapCI_AlreadyAcknowledged[$sRuleName];
-                        $blurb = 'Acknowledged on '.$aDetails['acknowledged_dt']
-                                .' by '.$aDetails['fullname'];
-                        $aCI_AlreadyAcknowledgedMarkup[][] 
-                                = array('#markup' 
-                                    => "\n<li>"
+                        if($values[1] == $modality || $values[1] == 'Unknown')
+                        {
+                            $modalitycount++;
+                        }
+                    }
+                    $possibleDups = $modalitycount > 1;
+                }
+            } else {
+                $possibleDups = FALSE;
+            }
+            $aCandidateData = array();  
+            $aCandidateData['IS_INPATIENT'] = ($examcategory == 'INPATIENT');
+            $aCandidateData['IS_OUTPATIENT'] = ($examcategory == 'OUTPATIENT');
+            $aCandidateData['IS_POSSIBLE_DUP_PROC']         = $possibleDups;
+            $aCandidateData['IS_IMG_GUIDED_EXAM']           = $protocolValues['image_guided_yn'];
+            if(!isset($protocolValues['image_guided_yn']) || $protocolValues['image_guided_yn'] == '')
+            {
+                //Undeclared.
+                $is_diagnostic_exam = NULL;
+            } else {
+                //Make this the opposite of image guided.
+                if($protocolValues['image_guided_yn'] == 1)
+                {
+                    $is_diagnostic_exam = 0;
+                } else {
+                    $is_diagnostic_exam = 1;
+                }
+            }
+            $aCandidateData['IS_DIAGNOSTIC_EXAM']           = $is_diagnostic_exam;
+            $aCandidateData['PROC_NM']                      = $myvalues['procName'];
+            $aCandidateData['MODALITY']                     = $protocolValues['modality_abbr'];
+            $aCandidateData['GIVE_HYDRATION_ORAL']          
+                    = $this->arrayKeysHaveValues($myvalues,array('hydration_oral_customtx','hydration_oral_id'));
+            $aCandidateData['GIVE_HYDRATION_IV']           
+                    = $this->arrayKeysHaveValues($myvalues,array('hydration_iv_customtx','hydration_iv_id'));
+            $aCandidateData['GIVE_CONTRAST_ENTERIC']        
+                    = $this->arrayKeysHaveValues($myvalues,array('contrast_enteric_customtx','contrast_enteric_id'));
+            $aCandidateData['GIVE_CONTRAST_IV']             
+                    = $this->arrayKeysHaveValues($myvalues,array('contrast_iv_customtx','contrast_iv_id'));
+            $aCandidateData['GIVE_SEDATION_ORAL']           
+                    = $this->arrayKeysHaveValues($myvalues,array('sedation_oral_customtx','sedation_oral_id'));
+            $aCandidateData['GIVE_SEDATION_IV']             
+                    = $this->arrayKeysHaveValues($myvalues,array('sedation_iv_customtx','sedation_iv_id'));
+            $aCandidateData['GIVE_RADIOISOTOPE_ENTERIC']    
+                    = $this->arrayKeysHaveValues($myvalues,array('radioisotope_enteric_customtx','radioisotope_enteric_id'));
+            $aCandidateData['GIVE_RADIOISOTOPE_IV']         
+                    = $this->arrayKeysHaveValues($myvalues,array('radioisotope_iv_customtx','radioisotope_iv_id'));
+            $aCandidateData['IS_CLAUSTROPHOBIC']            
+                    = $this->arrayKeysAllHaveSpecificValues($myvalues,array('claustrophobic_cd'=>'yes'));
+            $aCandidateData['HAS_ALLERGY']                  
+                    = $this->arrayKeysAllHaveSpecificValues($myvalues,array('allergy_cd'=>'yes'));
+
+            //Get allergies to pass in.
+            $aAllergies = array();
+            $aDetails = $ehrDao->getAllergiesDetailMap();
+            foreach($aDetails as $aItem)
+            {
+                $aAllergies[] = $aItem['Item'];
+                //drupal_set_message('Look>>>'.print_r($aItem,TRUE));
+            }
+            $aCandidateData['CURRENT_ALLERGIES'] = $aAllergies;
+
+            $aCandidateData['KWL_RARE_CONTRAST'] = \raptor\CustomKeywords::getBloodThinnerKeywords();
+            $aCandidateData['KWL_RARE_RADIOISOTOPE'] = \raptor\CustomKeywords::getRareRadioisotopeKeywords();
+            $aCandidateData['KWL_BLOOD_THINNER'] = \raptor\CustomKeywords::getBloodThinnerKeywords();
+            $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = \raptor\CustomKeywords::getAllergyContrastKeywords();
+
+            //Get meds to pass in.
+            $aMeds = array();
+            $aMedBundle = $ehrDao->getMedicationsDetailMap();
+            $aMedDetail = $aMedBundle['details'];
+            foreach($aMedDetail as $aMedItem)
+            {
+                $aMeds[] = $aMedItem['Med'];
+            }
+            $aCandidateData['CURRENT_MEDS'] = $aMeds;
+            $aCandidateData['CURRENT_CONTRASTS'] = array();
+            if($this->arrayValueExistsAndNotBlank($myvalues,'contrast_enteric_customtx'))
+            {
+                $name = $myvalues['contrast_enteric_customtx'];
+                $aCandidateData['CURRENT_CONTRASTS'][] = $name;
+            } else {
+                if($this->arrayValueExistsAndNotBlank($myvalues,'contrast_enteric_id'))
+                {
+                    $name = $myvalues['contrast_enteric_id'];
+                    $aCandidateData['CURRENT_CONTRASTS'][] = $name;
+                }
+            }
+            if($this->arrayValueExistsAndNotBlank($myvalues,'contrast_iv_customtx'))
+            {
+                $name = $myvalues['contrast_iv_customtx'];
+                $aCandidateData['CURRENT_CONTRASTS'][] = $name;
+            } else {
+                if($this->arrayValueExistsAndNotBlank($myvalues,'contrast_iv_id'))
+                {
+                    $name = $myvalues['contrast_iv_id'];
+                    $aCandidateData['CURRENT_CONTRASTS'][] = $name;
+                }
+            }
+            $aCandidateData['CURRENT_RADIOISOTOPES'] = array(); 
+            if($this->arrayValueExistsAndNotBlank($myvalues,'radioisotope_enteric_customtx'))
+            {
+                $name = $myvalues['radioisotope_enteric_customtx'];
+                $aCandidateData['CURRENT_RADIOISOTOPES'][] = $name;
+            } else {
+                if($this->arrayValueExistsAndNotBlank($myvalues,'radioisotope_enteric_id'))
+                {
+                    $name = $myvalues['radioisotope_enteric_id'];
+                    $aCandidateData['CURRENT_RADIOISOTOPES'][] = $name;
+                }
+            }
+            if($this->arrayValueExistsAndNotBlank($myvalues,'radioisotope_iv_customtx'))
+            {
+                $name = $myvalues['radioisotope_iv_customtx'];
+                $aCandidateData['CURRENT_RADIOISOTOPES'][] = $name;
+            } else {
+                if($this->arrayValueExistsAndNotBlank($myvalues,'radioisotope_iv_id'))
+                {
+                    $name = $myvalues['radioisotope_iv_id'];
+                    $aCandidateData['CURRENT_RADIOISOTOPES'][] = $name;
+                }
+            }
+            //Now invoke the contraindication engine.
+            try
+            {
+                $oCI = $oCIE->getResults($aCandidateData);
+                $aContraindications = $oCI->getAll();
+            } catch (\Exception $ex) {
+                $aContraindications = array();
+                drupal_set_message('Failed to run the contraindications engine because ' 
+                        . $ex->getMessage(),'error');
+            }
+
+            //Get the contraindications markup and details for markup.
+            $sStaticWarningMsgsHTML = NULL;
+            $aAllCIWarnings=array();    //Content to display in static warning area.
+            $aCI_AlreadyAcknowledgedMarkup = array();
+            $aCI_AcknowledgeMarkup = array();
+            $aCI_AcknowledgeMarkup['#tree'] = TRUE;
+            $nCI_Acknowledge = 0;
+            $nCI_AlreadyAcknowledged = 0;
+            $aCI_NoAcknowledgeMarkup = array();
+            $aCI_NoAcknowledgeMarkup['#tree'] = TRUE;
+            $nCI_NoAcknowledge = 0;
+            $nRuleExplainID = 1231000;  //Start with a large number unlikely to be used elsewhere on the form.
+            $nItem=0;
+            $aCI_AlreadyAcknowledgedMarkup[] = array('#markup' => '<ul>');
+            foreach($aContraindications as $oCI)
+            {
+                $nItem++;
+                $sID = $oCI->getUniqueID();
+                $sSummaryMsg = $oCI->getSummaryMessage();
+                $aCIS = $oCI->getResultSource();
+                $bReqAck = $oCI->isConfirmationRequired();
+                if(!isset($aAllCIWarnings[$sSummaryMsg]))
+                {
+                    //So we don't display more than once.
+                    $aAllCIWarnings[$sSummaryMsg] = $sSummaryMsg;   
+                    $sStaticWarningMsgsHTML .= "\n<li id='static_{$sID}'>" . $sSummaryMsg;
+                }
+                //There can be multiple CI associated with the same summary text.
+                $aCI_2Ack = array();
+                $aCI_2NoAck = array();
+                foreach($aCIS as $oCIS)
+                {
+                    $sRuleName = $oCIS->getRuleName();  //Each rule name appears only once.
+                    $nRuleExplainID++;  //Had to go numeric because trouble with quotes in the generated html.
+                    if($oCI->isConfirmationRequired())
+                    {
+                        //This one requires confirmation
+                        if(isset($aMapCI_AlreadyAcknowledged[$sRuleName]))
+                        {
+                            //This one was already acknowledged.
+                            $nCI_AlreadyAcknowledged++;
+                            $aDetails = $aMapCI_AlreadyAcknowledged[$sRuleName];
+                            $blurb = 'Acknowledged on '.$aDetails['acknowledged_dt']
+                                    .' by '.$aDetails['fullname'];
+                            $aCI_AlreadyAcknowledgedMarkup[][] 
+                                    = array('#markup' 
+                                        => "\n<li>"
+                                        . "\n<a href='javascript:showContraIndicationsExplanationPopup($nRuleExplainID);'>" 
+                                        . $oCIS->getMessage() 
+                                        . "</a>"
+                                        . "<data-explanation hidden id='$nRuleExplainID'>".$oCIS->getExplanation()
+                                    ."</data-explanation>"
+                                    . " ($blurb)"
+                                    . "</li>");
+                        } else {
+                            //Not yet acknowledged.
+                            $nCI_Acknowledge++;
+                            $aCI_2Ack['ci_rules'][$sRuleName] = array('#type' => 'hidden'
+                                , '#value' => $sRuleName);   //So we know what to record in database.
+                            $aCI_2Ack['sources'][] = array('#markup' 
+                                => "\n<li>"
                                     . "\n<a href='javascript:showContraIndicationsExplanationPopup($nRuleExplainID);'>" 
-                                    . $oCIS->getMessage() 
-                                    . "</a>"
-                                    . "<data-explanation hidden id='$nRuleExplainID'>".$oCIS->getExplanation()
-                                ."</data-explanation>"
-                                . " ($blurb)"
-                                . "</li>");
+                                    .$oCIS->getMessage() 
+                                    ."</a><data-explanation hidden id='$nRuleExplainID'>" 
+                                    .$oCIS->getExplanation() 
+                                    ."</data-explanation></li>");
+                        }
                     } else {
-                        //Not yet acknowledged.
-                        $nCI_Acknowledge++;
-                        $aCI_2Ack['ci_rules'][$sRuleName] = array('#type' => 'hidden'
+                        //This one does not require confirmation.
+                        $nCI_NoAcknowledge++;
+                        $aCI_2NoAck['ci_rules'][$sRuleName] = array('#type' => 'hidden'
                             , '#value' => $sRuleName);   //So we know what to record in database.
-                        $aCI_2Ack['sources'][] = array('#markup' 
-                            => "\n<li>"
-                                . "\n<a href='javascript:showContraIndicationsExplanationPopup($nRuleExplainID);'>" 
+                        $aCI_2NoAck['sources'][] = array('#markup' 
+                            => "\n<li>\n<a href='javascript:showContraIndicationsExplanationPopup($nRuleExplainID);'>" 
                                 .$oCIS->getMessage() 
                                 ."</a><data-explanation hidden id='$nRuleExplainID'>" 
                                 .$oCIS->getExplanation() 
                                 ."</data-explanation></li>");
                     }
-                } else {
-                    //This one does not require confirmation.
-                    $nCI_NoAcknowledge++;
-                    $aCI_2NoAck['ci_rules'][$sRuleName] = array('#type' => 'hidden'
-                        , '#value' => $sRuleName);   //So we know what to record in database.
-                    $aCI_2NoAck['sources'][] = array('#markup' 
-                        => "\n<li>\n<a href='javascript:showContraIndicationsExplanationPopup($nRuleExplainID);'>" 
-                            .$oCIS->getMessage() 
-                            ."</a><data-explanation hidden id='$nRuleExplainID'>" 
-                            .$oCIS->getExplanation() 
-                            ."</data-explanation></li>");
+                }
+                if(count($aCI_2NoAck) > 0)
+                {
+                    if(!isset($aCI_NoAcknowledgeMarkup[$sSummaryMsg]))
+                    {
+                        //There is only one checkbox per summary text.
+                        $aCI_NoAcknowledgeMarkup[$sSummaryMsg] = array();
+                        $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['chk_ack'] 
+                                = array('#markup' 
+                                    => '<p class="raptor-ci-noack-notice">' 
+                                    . t("Notification: $sSummaryMsg") 
+                                    . '</p>',
+                            );
+                    }
+                    foreach($aCI_2NoAck['ci_rules'] as $k=>$v)
+                    {
+                        $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['ci_rules'][$k] = $v;
+                    }
+                    $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['sources'][] 
+                            = array('#markup' => '<ul>');
+                    foreach($aCI_2NoAck['sources'] as $v)
+                    {
+                        $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['sources'][] = $v;
+                    }
+                    $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['sources'][] = array('#markup' => '</ul>');
+                }
+                if(count($aCI_2Ack) > 0)
+                {
+                    if(!isset($aCI_AcknowledgeMarkup[$sSummaryMsg]))
+                    {
+                        //There is only one checkbox per summary text.
+                        $aCI_AcknowledgeMarkup[$sSummaryMsg] = array();
+                        $aCI_AcknowledgeMarkup[$sSummaryMsg]['chk_ack'] = array('#type' => 'checkbox',    
+                            '#title' => t("Acknowledgement of $sSummaryMsg"),
+                            );
+                    }
+                    foreach($aCI_2Ack['ci_rules'] as $k=>$v)
+                    {
+                        $aCI_AcknowledgeMarkup[$sSummaryMsg]['ci_rules'][$k] = $v;
+                    }
+                    $aCI_AcknowledgeMarkup[$sSummaryMsg]['sources'][] = array('#markup' => '<ul>');
+                    foreach($aCI_2Ack['sources'] as $v)
+                    {
+                        $aCI_AcknowledgeMarkup[$sSummaryMsg]['sources'][] = $v;
+                    }
+                    $aCI_AcknowledgeMarkup[$sSummaryMsg]['sources'][] = array('#markup' => '</ul>');
                 }
             }
-            if(count($aCI_2NoAck) > 0)
+            $aCI_AlreadyAcknowledgedMarkup[] = array('#markup' => '</ul>');
+            if($sStaticWarningMsgsHTML !== NULL)
             {
-                if(!isset($aCI_NoAcknowledgeMarkup[$sSummaryMsg]))
-                {
-                    //There is only one checkbox per summary text.
-                    $aCI_NoAcknowledgeMarkup[$sSummaryMsg] = array();
-                    $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['chk_ack'] 
-                            = array('#markup' 
-                                => '<p class="raptor-ci-noack-notice">' 
-                                . t("Notification: $sSummaryMsg") 
-                                . '</p>',
-                        );
-                }
-                foreach($aCI_2NoAck['ci_rules'] as $k=>$v)
-                {
-                    $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['ci_rules'][$k] = $v;
-                }
-                $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['sources'][] 
-                        = array('#markup' => '<ul>');
-                foreach($aCI_2NoAck['sources'] as $v)
-                {
-                    $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['sources'][] = $v;
-                }
-                $aCI_NoAcknowledgeMarkup[$sSummaryMsg]['sources'][] = array('#markup' => '</ul>');
+                $sStaticWarningMsgsHTML = "\n<ul>" . $sStaticWarningMsgsHTML . "\n</ul>";
             }
-            if(count($aCI_2Ack) > 0)
-            {
-                if(!isset($aCI_AcknowledgeMarkup[$sSummaryMsg]))
-                {
-                    //There is only one checkbox per summary text.
-                    $aCI_AcknowledgeMarkup[$sSummaryMsg] = array();
-                    $aCI_AcknowledgeMarkup[$sSummaryMsg]['chk_ack'] = array('#type' => 'checkbox',    
-                        '#title' => t("Acknowledgement of $sSummaryMsg"),
-                        );
-                }
-                foreach($aCI_2Ack['ci_rules'] as $k=>$v)
-                {
-                    $aCI_AcknowledgeMarkup[$sSummaryMsg]['ci_rules'][$k] = $v;
-                }
-                $aCI_AcknowledgeMarkup[$sSummaryMsg]['sources'][] = array('#markup' => '<ul>');
-                foreach($aCI_2Ack['sources'] as $v)
-                {
-                    $aCI_AcknowledgeMarkup[$sSummaryMsg]['sources'][] = $v;
-                }
-                $aCI_AcknowledgeMarkup[$sSummaryMsg]['sources'][] = array('#markup' => '</ul>');
-            }
-        }
-        $aCI_AlreadyAcknowledgedMarkup[] = array('#markup' => '</ul>');
-        if($sStaticWarningMsgsHTML !== NULL)
-        {
-            $sStaticWarningMsgsHTML = "\n<ul>" . $sStaticWarningMsgsHTML . "\n</ul>";
-        }
 
-        //Populate the result map.
-        $aResultMap['StaticWarningMsgsHTML'] = $sStaticWarningMsgsHTML;
-        $aResultMap['CI_AcknowledgeMarkup'] = $aCI_AcknowledgeMarkup;
-        $aResultMap['CI_Acknowledge'] = $nCI_Acknowledge;
-        $aResultMap['CI_NoAcknowledgeMarkup'] = $aCI_NoAcknowledgeMarkup;
-        $aResultMap['CI_NoAcknowledge'] = $nCI_NoAcknowledge;
-        $aResultMap['CI_AlreadyAcknowledgedMarkup'] = $aCI_AlreadyAcknowledgedMarkup;
-        $aResultMap['CI_AlreadyAcknowledged'] = $nCI_AlreadyAcknowledged;
-        $aResultMap['AllCIWarnings'] = $aAllCIWarnings;
-        
-        //drupal_set_message('LOOK>>>'.print_r($aCandidateData,TRUE));
-        
-        return $aResultMap;
+            //Populate the result map.
+            $aResultMap['StaticWarningMsgsHTML'] = $sStaticWarningMsgsHTML;
+            $aResultMap['CI_AcknowledgeMarkup'] = $aCI_AcknowledgeMarkup;
+            $aResultMap['CI_Acknowledge'] = $nCI_Acknowledge;
+            $aResultMap['CI_NoAcknowledgeMarkup'] = $aCI_NoAcknowledgeMarkup;
+            $aResultMap['CI_NoAcknowledge'] = $nCI_NoAcknowledge;
+            $aResultMap['CI_AlreadyAcknowledgedMarkup'] = $aCI_AlreadyAcknowledgedMarkup;
+            $aResultMap['CI_AlreadyAcknowledged'] = $nCI_AlreadyAcknowledged;
+            $aResultMap['AllCIWarnings'] = $aAllCIWarnings;
+
+            //drupal_set_message('LOOK>>>'.print_r($aCandidateData,TRUE));
+
+            return $aResultMap;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed to get contraindications markup because $ex",99876,$ex);
+        }
     }
     
     /**

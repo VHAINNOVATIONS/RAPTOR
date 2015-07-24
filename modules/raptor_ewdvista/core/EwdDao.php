@@ -81,7 +81,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Initialize the DAO client session
      */
-    public function initClient()
+    private function initClient()
     {
         try
         {
@@ -377,12 +377,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 		return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getOrderDetails($myIEN)
-    {
-        $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
-    }
-
     public function getOrderOverviewMap()
     {
         $serviceName = $this->getCallingFunctionName();
@@ -396,12 +390,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     }
 
     public function getPathologyReportsDetailMap()
-    {
-        $serviceName = $this->getCallingFunctionName();
-		return $this->getServiceRelatedData($serviceName);
-    }
-
-    public function getPatientDashboardMap()
     {
         $serviceName = $this->getCallingFunctionName();
 		return $this->getServiceRelatedData($serviceName);

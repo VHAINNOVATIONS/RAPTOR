@@ -75,7 +75,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         }
     }
 
-    public function initClient()
+    private function initClient()
     {
         //we'll use the EmrSvc facade for initialization but this may change when a SOAP call is executed
         $this->currentFacade = EMRSERVICE_URL;
@@ -359,7 +359,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
      */
     function getDashboardDetailsMap($override_tracking_id = NULL)
     {
-        error_log("LOOK START getDashboardDetailsMap");
+        error_log("LOOK START getDashboardDetailsMap($override_tracking_id)");
         $aResult = array();
         $oContext = \raptor\Context::getInstance();
         if ($oContext != NULL)
@@ -395,7 +395,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 }
             }
         }
-        error_log("LOOK JSON getDashboardDetailsMap>>>" . print_r(json_encode($aResult),TRUE));
         return $aResult;
     }
 
@@ -431,9 +430,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     }
                 }
             }
-            error_log("LOOK getWorklistDetailsMap PHP Array: " . print_r($aResult,TRUE));
-            error_log("LOOK getWorklistDetailsMap JSON: " . json_encode($aResult));
-            
             return $aResult;
         } catch (\Exception $ex) {
             throw new \Exception("Failed to getWorklistDetailsMap", 99876, $ex);
@@ -458,7 +454,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     
     private function getProtocolSupportingData($function_name, $args = NULL, $cache_item_name=NULL)
     {
-        //error_log("LOOK TEMP getProtocolSupportingData($function_name,$args)");
         try 
         {
             $oContext = \raptor\Context::getInstance();
@@ -579,11 +574,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $this->getProtocolSupportingData('getEGFRDetail');
     }
 
-    public function getPatientDashboardMap()
-    {
-        return $this->getProtocolSupportingData('getPatientDashboard');
-    }
-
     public function getPendingOrdersMap()
     {
         return $this->getProtocolSupportingData('getPendingOrdersMap'); //Yes, has Map suffix
@@ -665,11 +655,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     public function getHospitalLocations($startingitem)
     {
         return \raptor_mdwsvista\MdwsUtils::getHospitalLocations($this, $startingitem);
-    }
-
-    public function getOrderDetails($myIEN)
-    {
-        return \raptor_mdwsvista\MdwsUtils::getOrderDetails($this, $myIEN);
     }
 
     public function getRadiologyCancellationReasons()

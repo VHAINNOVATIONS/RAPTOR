@@ -85,11 +85,6 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getIntegrationInfo();
     }
     
-    public function initClient()
-    {
-        return $this->m_implclass->initClient();
-    }
-
     public function connectAndLogin($siteCode, $username, $password) 
     {
         return $this->m_implclass->connectAndLogin($siteCode, $username, $password);
@@ -193,11 +188,6 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getHospitalLocations($startingitem);
     }
 
-    public function getOrderDetails($myIEN)
-    {
-        return $this->m_implclass->getOrderDetails($myIEN);
-    }
-
     public function getRadiologyCancellationReasons()
     {
         return $this->m_implclass->getRadiologyCancellationReasons();
@@ -251,11 +241,6 @@ class EhrDao implements \raptor\IEhrDao
     public function getEGFRDetailMap()
     {
         return $this->m_implclass->getEGFRDetailMap();
-    }
-
-    public function getPatientDashboardMap()
-    {
-        return $this->m_implclass->getPatientDashboardMap();
     }
 
     public function getRawVitalSignsMap()
