@@ -37,8 +37,8 @@ class WorklistData
     const WLVFO_Nature                = 10;
     const WLVFO_Transport             = 11;
     const WLVFO_DesiredDate           = 12;
-    const WLVFO_OrderFileIen           = 13;
-    const WLVFO_RadOrderStatus           = 14;
+    const WLVFO_OrderFileIen          = 13;
+    const WLVFO_RadOrderStatus        = 14;
     
     
     function __construct($oContext)
@@ -127,20 +127,13 @@ class WorklistData
 
     /**
      * Gets each row of the worklist.
-     * @return array with following keys ...
-     *  'all_rows'              = array with integer index of all the worklist rows
-     *  'pending_orders_map'   = array with patient id key and count of orders for that patient
-     *  'matching_offset'       = offset of the row matching the match IEN
      */
     private function parseWorklist($MDWSResponse, $ticketTrackingDict, $match_IEN=NULL)
     {
-        $sThisResultName = 'parseWorklist';
         $aPatientPendingOrderCount = array();
         $aPatientPendingOrderMap = array();
         $nOffsetMatchIEN = NULL;
         
-        $ls=0;
-                
         $oUserInfo = $this->m_oContext->getUserInfo();
         
         $match_order_to_user = new \raptor_formulas\MatchOrderToUser($oUserInfo);
@@ -489,14 +482,13 @@ class WorklistData
     /**
      * @description Return result of web service call to MDWS, web method QueryService.ddrLister
      */
-    private function getWorklistFromMDWS($startIEN='', $filterDiscontinued = true)
+    private function getWorklistFromMDWS($startIEN='', $filterDiscontinued = TRUE, $MAXRECS = 1500)
     {
-        $MAXRECS = 1500;  //Starts grabbing from end of file
-        
         //error_log('DEBUG called getWorklistFromMDWS start');
         $sThisResultName = 'getWorklistFromMDWS';
         $result = NULL;
-        try{
+        try
+        {
             if(!isset($this->m_oContext))
             {
                 throw new \Exception('getWorklistFromMDWS failed because Context object is not set!');
@@ -691,15 +683,6 @@ class WorklistData
             $worklistItemDict = $this->getWorklistItemFromMDWS($tid);
             $orderFileIen = $worklistItemDict['7']['I'];
             $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
-            /*
-            $orderFileRec = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal
-               ($this->m_oContext->getMdwsClient()->makeQuery('ddrGetsEntry', array(
-                   'file'=>'100', 
-                   'iens'=>($orderFileIen.','),
-                   'flds'=>'*', 
-                   'flags'=>'IEN'
-               )));
-             */
             $orderFileRec = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal
                ($mdwsDao->makeQuery('ddrGetsEntry', array(
                    'file'=>'100', 
@@ -726,10 +709,8 @@ class WorklistData
             $t['PatientLocation']   = $row[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
             $t['RequestedBy']       = $row[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN];
 
-            // ATTENTION FRANK: new indices for requesting location and submit to location
             $t['RequestingLocation']= trim((isset($worklistItemDict['22']['I']) ? $worklistItemDict['22']['I'] : '') );
             $t['SubmitToLocation']  = trim((isset($worklistItemDict['20']['I']) ? $worklistItemDict['20']['I'] : '') );
-            // END ATTN FRANK
 
             $aSchedInfo = $row[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO];
             $t['SchedInfo']         = $aSchedInfo;
