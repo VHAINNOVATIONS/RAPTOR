@@ -1171,7 +1171,7 @@ class Context
         {
             $this->m_oEhrDao = new \raptor\EhrDao();
         }
-        error_log("LOOK DAO from context is >>>".$this->m_oEhrDao);
+        //error_log("LOOK DAO from context is >>>".$this->m_oEhrDao);
         return $this->m_oEhrDao;
     }
     

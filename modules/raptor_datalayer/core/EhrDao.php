@@ -105,7 +105,7 @@ class EhrDao implements \raptor\IEhrDao
      */
     function getDashboardDetailsMap($override_tracking_id=NULL)
     {
-        return $this->m_implclass->getDashboardDetailsMap();
+        return $this->m_implclass->getDashboardDetailsMap($override_tracking_id);
     }
     
     public function getWorklistDetailsMap()

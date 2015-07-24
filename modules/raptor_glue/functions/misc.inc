@@ -971,7 +971,7 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
     {
         if(isset($_GET['tids']))
         {
-            module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
+            //module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
             $tids = trim($_GET['tids']);
             $tids_ar=explode(',',$tids);
             $cachedcount=0;
@@ -983,18 +983,22 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
                     break;
                 }
                 $oContext = \raptor\Context::getInstance();
-                $userid = $oContext->getUserInfo()->getUserID();
-                $groupname = 'DashboardData';
-                $oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance($groupname);
-                $sThisResultName = "LOOK TODO userid=[$userid] tid=[$onetid]";
-                $aResult = array("TODO"=>"call getDashboardMap for $onetid");
-                $oRuntimeResultFlexCache->addToCache($sThisResultName,$aResult);
+                //$userid = $oContext->getUserInfo()->getUserID();
+                //$groupname = 'DashboardData';
+                //$oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance($groupname);
+                //$sThisResultName = "LOOK TODO userid=[$userid] tid=[$onetid]";
+                $oEhrDao = $oContext->getEhrDao();
+                error_log("LOOK ABOUT TO CACHE $onetid");
+                $aResult = $oEhrDao->getDashboardDetailsMap($onetid);  //Let the DAO use its own cache
+                error_log("LOOK CACHED $onetid>>>".print_r($aResult,TRUE));
+                //$aResult = array("TODO"=>"call getDashboardMap for $onetid");
+                //$oRuntimeResultFlexCache->addToCache($sThisResultName,$aResult);
                 $cachedcount++;
-                error_log("LOOK $cachedcount called loadcache($groupname) for $sThisResultName");
+                //error_log("LOOK $cachedcount called loadcache($groupname) for $sThisResultName");
             }
             return array('feedback' => 
                 array('#type'=>'item'
-                    ,'#markup'=>"Cached $cachedcount from tids=$tids")
+                    ,'#markup'=>"Cached first $cachedcount from tids=$tids")
                 );
         }
     } catch (\Exception $ex) {

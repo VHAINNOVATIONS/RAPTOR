@@ -354,48 +354,51 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     /**
      * Gets dashboard details for the currently selected ticket of the session
-     * 
-     * !!! IMPORTANT TODO --- MAKE THE OVERRIDE NOT STATEFUL so we can precache!!!!!!
      */
-    function getDashboardDetailsMap($override_tracking_id = NULL)
+    public function getDashboardDetailsMap($override_tracking_id = NULL)
     {
-        error_log("LOOK START getDashboardDetailsMap($override_tracking_id)");
-        $aResult = array();
-        $oContext = \raptor\Context::getInstance();
-        if ($oContext != NULL)
+        try
         {
-            if ($override_tracking_id == NULL)
+            error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
+            $aResult = array();
+            $oContext = \raptor\Context::getInstance();
+            if ($oContext != NULL)
             {
-                $tid = $oContext->getSelectedTrackingID();
-            } else
-            {
-                $tid = $override_tracking_id;
-            }
-            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
-            if ($oRuntimeResultFlexCacheHandler != NULL)
-            {
-                $sThisResultName = "{$tid}_getDashboardDetailsMapMDWS";
-                $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
-                if ($aCachedResult !== NULL)
+                if ($override_tracking_id == NULL)
                 {
-                    //Found it in the cache!
-                    return $aCachedResult;
+                    $tid = $oContext->getSelectedTrackingID();
+                } else
+                {
+                    $tid = $override_tracking_id;
                 }
-            }
+                $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+                if ($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    $sThisResultName = "{$tid}_getDashboardDetailsMapMDWS";
+                    $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
+                    if ($aCachedResult !== NULL)
+                    {
+                        //Found it in the cache!
+                        return $aCachedResult;
+                    }
+                }
 
-            //Create it now and add it to the cache
-            $oWL = new \raptor_mdwsvista\WorklistData($oContext);
-            $aResult = $oWL->getDashboardMap();
-            if ($oRuntimeResultFlexCacheHandler != NULL)
-            {
-                try {
-                    $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
-                } catch (\Exception $ex) {
-                    error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
+                //Create it now and add it to the cache
+                $oWL = new \raptor_mdwsvista\WorklistData($oContext);
+                $aResult = $oWL->getDashboardMap($tid); //20150724
+                if ($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    try {
+                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+                    } catch (\Exception $ex) {
+                        error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
+                    }
                 }
             }
+            return $aResult;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getDashboardDetailsMap becasue $ex",99876,$ex);
         }
-        return $aResult;
     }
 
     public function getWorklistDetailsMap()
