@@ -533,10 +533,17 @@ class WorklistData
         return $result;
     }
     
-    private function getWorklistItemFromMDWS($sTrackingID)
+    /**
+     * Return ONE item
+     */
+    private function getWorklistItemFromMDWS($sTrackingID=NULL)
     {
         try
         {
+            if($sTrackingID == NULL)
+            {
+                throw new \Exception('Missing required TrackingID!');
+            }
             //Get the IEN from the tracking ID
             $aParts = (explode('-',$sTrackingID));
             if(count($aParts) == 2)
@@ -559,15 +566,7 @@ class WorklistData
                 'flds'=>'*', 
                 'flags'=>'IEN'
                 )));
-            /*
-            $aResult = \raptor_mdwsvista\MdwsUtils::parseDdrGetsEntryInternalAndExternal($this->m_oContext->getMdwsClient()->makeQuery("ddrGetsEntry", array(
-                'file'=>'75.1', 
-                'iens'=>($nIEN.','),
-                'flds'=>'*', 
-                'flags'=>'IEN'
-                )));
-             */
-
+            
             return $aResult;
         } catch (\Exception $ex) {
             error_log("Failed getWorklistItemFromMDWS because ".$ex->getMessage());
