@@ -119,6 +119,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function disconnect() 
     {
+		error_log("LOOK BEFORE DISCONNECT $this");
         $this->m_userduz = NULL;
         $this->m_authorization = NULL;
         $this->m_init_key = NULL;
@@ -128,6 +129,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         $this->m_fullname     = NULL;
         $this->m_greeting     = NULL;
         $this->m_selectedPatient = NULL;
+		error_log("LOOK AFTER DISCONNECT $this");
     }
 
     /**
@@ -288,6 +290,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         {
             throw new \Exception("No user is currently authenticated!");
         }
+		error_log("LOOK user duz={$this->m_userduz}");
         return $this->m_userduz;
     }
 
