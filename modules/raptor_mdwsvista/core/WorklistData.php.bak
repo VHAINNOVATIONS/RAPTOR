@@ -613,7 +613,7 @@ class WorklistData
                 );	
             return $aResult;
         } catch (\Exception $ex) {
-            error_log("Failed getWorklistRows because $ex");
+            error_log("Failed getWorklistRows because ".$ex->getMessage());
             throw $ex;
         }
     }
