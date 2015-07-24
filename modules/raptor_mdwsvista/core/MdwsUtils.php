@@ -717,6 +717,7 @@ class MdwsUtils {
         return $details;
     }
      */
+      
 }
 
 

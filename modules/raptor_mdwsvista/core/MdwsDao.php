@@ -75,7 +75,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         }
     }
 
-    private function initClient()
+    public function initClient()
     {
         //we'll use the EmrSvc facade for initialization but this may change when a SOAP call is executed
         $this->currentFacade = EMRSERVICE_URL;
@@ -458,6 +458,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     
     private function getProtocolSupportingData($function_name, $args = NULL, $cache_item_name=NULL)
     {
+        //error_log("LOOK TEMP getProtocolSupportingData($function_name,$args)");
         try 
         {
             $oContext = \raptor\Context::getInstance();
@@ -578,6 +579,11 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $this->getProtocolSupportingData('getEGFRDetail');
     }
 
+    public function getPatientDashboardMap()
+    {
+        return $this->getProtocolSupportingData('getPatientDashboard');
+    }
+
     public function getPendingOrdersMap()
     {
         return $this->getProtocolSupportingData('getPendingOrdersMap'); //Yes, has Map suffix
@@ -660,6 +666,13 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         return \raptor_mdwsvista\MdwsUtils::getHospitalLocations($this, $startingitem);
     }
+
+    /*
+    public function getOrderDetails($myIEN)
+    {
+        return \raptor_mdwsvista\MdwsUtils::getOrderDetails($this, $myIEN);
+    }
+     */
 
     public function getRadiologyCancellationReasons()
     {
