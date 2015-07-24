@@ -13,8 +13,8 @@
 
 namespace raptor;
 
-require_once 'IEhrDao.php';
 require_once 'Context.php';
+require_once 'IEhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 require_once 'WorklistColumnMap.php';
 
@@ -30,14 +30,29 @@ class EhrDao implements \raptor\IEhrDao
     
     function __construct()
     {
-        $this->instanceTimestamp = microtime();
-        error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
-        module_load_include('php', 'raptor_datalayer', 'config/ehr_integration');
-        $classname = EHR_INT_IMPL_DAO_CLASSNAME;
-        $namespace = EHR_INT_IMPL_DAO_NAMESPACE;
-        $class = "\\$namespace\\$classname";
-        $this->m_implclass = new $class();
-        error_log("Construction completed >>> ".$this);
+        try
+        {
+            $this->instanceTimestamp = microtime();
+            error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
+            $loaded = module_load_include('php', 'raptor_datalayer', 'config/ehr_integration');
+            if($loaded === FALSE)
+            {
+                throw new \Exception("Failed to load config/ehr_integration!");
+            }
+            defined('EHR_INT_IMPL_DAO_NAMESPACE')
+                or define('EHR_INT_IMPL_DAO_NAMESPACE', 'MISSING');
+            if(EHR_INT_IMPL_DAO_NAMESPACE == 'MISSING')
+            {
+                throw new \Exception("Did NOT find definition for EHR_INT_IMPL_DAO_NAMESPACE!");
+            }
+            $classname = EHR_INT_IMPL_DAO_CLASSNAME;
+            $namespace = EHR_INT_IMPL_DAO_NAMESPACE;
+            $class = "\\$namespace\\$classname";
+            $this->m_implclass = new $class();
+            error_log("Construction completed >>> ".$this);
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed constructor EhrDao because $ex",99876,$ex);
+        }
     }
     
     /**

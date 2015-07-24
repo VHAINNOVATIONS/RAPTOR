@@ -12,13 +12,18 @@
  * 
  */ 
 
-
 //Include the loader file from the module that integrates with the EHR system
-//module_load_include('php', 'raptor_mdwsvista', 'core/load_all_modules');
-//module_load_include('php', 'raptor_ewdvista', 'core/load_all_modules');
-$loaded = module_load_include('php', EHR_INT_MODULE_NAME, 'core/load_all_modules');
-if($loaded === FALSE)
+$loaded_mainconfig = module_load_include('php', 'raptor_glue', 'core/config');
+if($loaded_mainconfig == FALSE)
 {
-    throw new \Exception('Failed to load EHR integration module called "'.EHR_INT_MODULE_NAME.'"');
+    error_log("FAILED: did NOT find raptor_glue main config file!  Assuming MDWSVISTA!  This can happen during setup but should never happen in prod system.");
+    $loaded = module_load_include('php', 'raptor_mdwsvista', 'core/load_all_modules');
+} else {
+    //If we are not here, this means the server is being configured.
+    $loaded = module_load_include('php', EHR_INT_MODULE_NAME, 'core/load_all_modules');
+    if($loaded === FALSE)
+    {
+        throw new \Exception('Failed to load EHR integration module called "'.EHR_INT_MODULE_NAME.'"');
+    }
 }
 

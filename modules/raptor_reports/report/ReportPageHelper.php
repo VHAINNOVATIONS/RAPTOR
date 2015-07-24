@@ -13,7 +13,7 @@
 namespace raptor;
 
 require_once 'FormHelper.php';
-module_load_include('inc', 'raptor_datalayer', 'core/User.php');
+module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
 
 /**
  * Helper for report pages.
