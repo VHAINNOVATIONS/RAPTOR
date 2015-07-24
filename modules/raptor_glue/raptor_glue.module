@@ -243,7 +243,7 @@ function raptor_glue_page_alter(&$page)
                     $raptor_worklist_rows = array();
                     if(!$userinfo->isSiteAdministrator())
                     {
-                        drupal_set_message('This VistA user account does not have privileges to view the worklist contents!','warning');
+                        drupal_set_message('This RAPTOR user account does not have privileges to view the worklist contents!','warning');
                     }
                 } else {
                     if($userinfo->isSiteAdministrator())
