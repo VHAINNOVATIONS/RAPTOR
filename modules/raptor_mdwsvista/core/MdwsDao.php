@@ -575,13 +575,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $this->getProtocolSupportingData('getEGFRDetail');
     }
 
-    /*
-    public function getPatientDashboardMap()
-    {
-        return $this->getProtocolSupportingData('getPatientDashboard');
-    }
-    */
-    
     public function getPendingOrdersMap()
     {
         return $this->getProtocolSupportingData('getPendingOrdersMap'); //Yes, has Map suffix
@@ -664,13 +657,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         return \raptor_mdwsvista\MdwsUtils::getHospitalLocations($this, $startingitem);
     }
-
-    /*
-    public function getOrderDetails($myIEN)
-    {
-        return \raptor_mdwsvista\MdwsUtils::getOrderDetails($this, $myIEN);
-    }
-     */
 
     public function getRadiologyCancellationReasons()
     {
