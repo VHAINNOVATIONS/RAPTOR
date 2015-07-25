@@ -2108,7 +2108,7 @@ class ProtocolInfoUtility
         $root[$col1fieldsetname][$radio_nm] = array(
             '#type'    => 'radios',
             '#options' => $options,
-            '#attributes' => $bLockedReadonly ? array() : array('onchange' => 'notDefaultValuesInSection("'.$section_name.'")'),
+            '#attributes' => $bLockedReadonly ? array() : array('onchange' => 'notDefaultValuesInSectionRadios("'.$section_name.'",this)'),
             '#disabled' => $disabled,
         );
         if($defaultoptionvalue !== NULL)

@@ -436,6 +436,7 @@ function getProtocolControlIDMap()
 function getTemplateDataJSON()
 {
     var realdata = $("#json-default-values-all-sections").html();
+    //alert('look template realdata='.realdata);
     aTemplateData = realdata;
     if((typeof aTemplateData) === 'string')
     {
@@ -1211,6 +1212,14 @@ function notDefaultValuesInSectionAndSetCheckboxes(sectionname,triggeringControl
     syncCheckboxesAndComboboxes(sectionname, triggeringControl);
     return;
 }
+
+function notDefaultValuesInSectionRadios(sectionname,triggeringControl)
+{
+    notDefaultValuesInSection(sectionname);
+    //alert("look control is "+JSON.stringify(triggeringControl, null, 4));
+    return;
+}
+
 
 /**
  * Call this to place text into the textbox
