@@ -580,17 +580,19 @@ function setAckRequiredForSection(sectionname)
 {
     var id_map = getProtocolControlIDMap();
     var id_ackgrp = id_map[sectionname]['acknowledge']['group'];
-    var id_ackchk = id_map[sectionname]['acknowledge']['checkbox'];
-    var id_ackreq = id_map[sectionname]['acknowledge']['required'];
-    
-    var oGrp=document.getElementById(id_ackgrp);
-    oGrp.style.display = 'inline';
-    
-    var oCB=document.getElementById(id_ackchk);
-    oCB.checked = false;
-    
-    var oTB=document.getElementById(id_ackreq);
-    oTB.value = 'yes';
+    if(typeof id_ackgrp !== 'undefined')
+    {
+        var id_ackchk = id_map[sectionname]['acknowledge']['checkbox'];
+        var id_ackreq = id_map[sectionname]['acknowledge']['required'];
+        var oGrp=document.getElementById(id_ackgrp);
+        oGrp.style.display = 'inline';
+
+        var oCB=document.getElementById(id_ackchk);
+        oCB.checked = false;
+
+        var oTB=document.getElementById(id_ackreq);
+        oTB.value = 'yes';
+    }
 }
 
 /**
@@ -666,9 +668,11 @@ function setDefaultInCheckboxTypeSection(sectionname, ackid, sEntericValue, sIVV
     var id_list_iv = id_map[sectionname]['list']['id_iv'];
     var id_text_iv = id_map[sectionname]['text']['id_iv'];
     
-    
-    var checkbox = document.getElementById(ackid);
-    checkbox.checked = false;
+    if(typeof ackid !== 'undefined')
+    {
+        var checkbox = document.getElementById(ackid);
+        checkbox.checked = false;
+    }
     var radiobtn = document.getElementById(id_none);    //radioidroot + 'none');
     clearCheckboxById(id_enteric);  //radioidroot + 'enteric');
     clearCheckboxById(id_iv);   //radioidroot + 'iv');
@@ -737,6 +741,36 @@ function setDefaultInCheckboxTypeSection(sectionname, ackid, sEntericValue, sIVV
     setEnabledDisabledInCheckboxTypeSection(sectionname);
     
 //    alert('Done setDefaultInCheckboxTypeSection for ['+sectionname+']');
+}
+
+function setBlanksInRadioTypeSection(sectionname, ackid)
+{
+    doit = confirm('Any currently selected values in the ' + sectionname + ' section will be cleared if you continue.\n\nContinue with value clearing?');
+    if(doit)
+    {
+        if(ackid)
+        {
+            var checkbox = document.getElementById(ackid);
+            checkbox.checked = false;
+        }
+        clearValuesInSection(sectionname);
+    }
+    return doit;
+}
+
+function setBlanksInCheckboxTypeSection(sectionname, ackid)
+{
+    doit = confirm('Any currently selected values in the ' + sectionname + ' section will be cleared if you continue.\n\nContinue with value clearing?');
+    if(doit)
+    {
+        if(ackid)
+        {
+            var checkbox = document.getElementById(ackid);
+            checkbox.checked = false;
+        }
+        clearValuesInSection(sectionname);
+    }
+    return doit;
 }
 
 /**
@@ -904,8 +938,6 @@ function setDefaultValuesInSection(sectionname, aTemplateData)
 
 /**
  * Clear all the values in the section.
- * @param {type} sectionname
- * @returns {undefined}
  */
 function clearValuesInSection(sectionname)
 {
@@ -917,6 +949,9 @@ function clearValuesInSection(sectionname)
     //Now clear all the controls in the section.
     if(sectionname === 'hydration')
     {
+        var ackid = id_map[sectionname]['acknowledge']['checkbox'];
+        setDefaultInRadioTypeSection(sectionname, ackid, '', '');
+        
         setAsPickFromListByName('hydration_oral_');
         setAsPickFromListByName('hydration_iv_');
         
@@ -926,11 +961,26 @@ function clearValuesInSection(sectionname)
     } else
     if(sectionname === 'sedation')
     {
+        var ackid = id_map[sectionname]['acknowledge']['checkbox'];
+        setDefaultInRadioTypeSection(sectionname, ackid, '', '');
+        
         setAsPickFromListByName('sedation_oral_');
         setAsPickFromListByName('sedation_iv_');
         
         var id_none = id_map[sectionname]['radio']['id_none'];
         activateRadioButtonById(id_none);
+    } else
+    if(sectionname === 'contrast')
+    {
+        var ackid = id_map[sectionname]['acknowledge']['checkbox'];
+        setDefaultInCheckboxTypeSection(sectionname, ackid, '', '');
+        
+        var id_none = id_map[sectionname]['checkbox']['id_none'];
+        var id_enteric = id_map[sectionname]['checkbox']['id_enteric'];
+        var id_iv = id_map[sectionname]['checkbox']['id_iv'];
+        clearCheckboxById(id_enteric);
+        clearCheckboxById(id_iv);
+        activateCheckboxById(id_none);
     } else
     if(sectionname === 'consentreq')
     {
@@ -942,6 +992,9 @@ function clearValuesInSection(sectionname)
     } else
     if(sectionname === 'radioisotope' || sectionname === 'contrast')
     {
+        var ackid = id_map[sectionname]['acknowledge']['checkbox'];
+        setDefaultInCheckboxTypeSection(sectionname, ackid, '', '');
+        
         var id_none = id_map[sectionname]['checkbox']['id_none'];
         var id_enteric = id_map[sectionname]['checkbox']['id_enteric'];
         var id_iv = id_map[sectionname]['checkbox']['id_iv'];
@@ -1124,13 +1177,18 @@ function syncCheckboxesAndComboboxes(sectionname, triggeringControl)
     {
         if(triggeringControl.checked)
         {
-            //Clear the other checkboxes now.
-            clearCheckboxById(sEntericID);
-            clearCheckboxById(sIVID);
-            var sRootName = sectionname + '_enteric_';
-            resetComboInputByName(sRootName,true);
-            var sRootName = sectionname + '_iv_';
-            resetComboInputByName(sRootName,true);
+            var ackid = id_map[sectionname]['acknowledge']['checkbox'];
+            var didit = setBlanksInCheckboxTypeSection(sectionname, ackid);
+            if(didit)
+            {
+                //Clear the other checkboxes now.
+                clearCheckboxById(sEntericID);
+                clearCheckboxById(sIVID);
+                var sRootName = sectionname + '_enteric_';
+                resetComboInputByName(sRootName,true);
+                var sRootName = sectionname + '_iv_';
+                resetComboInputByName(sRootName,true);
+            }
         }
     } else {
         if(triggeringControl.checked)
