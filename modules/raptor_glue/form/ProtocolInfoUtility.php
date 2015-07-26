@@ -1942,12 +1942,14 @@ class ProtocolInfoUtility
         $root[$section_name.'_fieldset_row2']['showconditionally'] 
                 = $this->getDefaultValueControls($section_name, $disabled, $defaultvalue, $req_ack);
         //Always show this in each section that can have default values!
-        if(!$disabled)
+        if(FALSE && !$disabled)
         {
             $root[$section_name.'_fieldset_col3']['reset_'.$section_name] = array(
                 '#markup' => "\n"
                 . '<div class="reset-values-button-container" name="reset-section-values">'
-                . '<a href="javascript:setDefaultValuesInSection('."'".$section_name."',getTemplateDataJSON()".')" title="The default template values will be restored">'
+                . '<a href="javascript:setDefaultValuesInSection('."'" 
+                . $section_name 
+                . "',getTemplateDataJSON()".')" title="The default template values will be restored">'
                 . 'RESET'
                 . '</a>'
                 . '</div>', 
@@ -2129,11 +2131,13 @@ class ProtocolInfoUtility
         $root[$row2fieldsetname]['showconditionally'] 
                 = $this->getDefaultValueControls($section_name, $disabled, $defaultoptionvalue, $req_ack);
         //Always show this in each section that can have default values!
-        if(!$disabled)
+        if(FALSE && !$disabled)
         {
             $root[$col3fieldsetname]['reset_'.$section_name] = array(
                 '#markup' => "\n".'<div class="reset-values-button-container" name="reset-section-values">'
-                . '<a href="javascript:setDefaultValuesInSection('."'".$section_name."',getTemplateDataJSON()".')" title="The default template values will be restored">'
+                . '<a href="javascript:setDefaultValuesInSection(' 
+                . "'".$section_name 
+                . "',getTemplateDataJSON()".')" title="The default template values will be restored">'
                 . 'RESET'
                 . '</a>'
                 . '</div>', 
@@ -2406,7 +2410,7 @@ class ProtocolInfoUtility
         $defaultvalue = isset($myvalues['DefaultValues'][$section_name]) ? $myvalues['DefaultValues'][$section_name] : NULL;
         $root[$section_name.'_fieldset_row2']['showconditionally'] 
                 = $this->getDefaultValueControls($section_name, $disabled, $defaultvalue, $req_ack);
-        if(!$disabled)
+        if(FALSE && !$disabled)
         {
             //Always show this in each section that can have default values!
             $root[$section_name.'_fieldset_col3']['reset_'.$section_name] = array(
