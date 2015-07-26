@@ -674,8 +674,6 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                 <input type="radio" name="tabs" id="tab9" accesskey="n">
                 <label for="tab9">Notes</label>
                 <div id="tab-content9" class="tab-content animated fadeIn">
-                  <!--<iframe id="iframe_a" style="display:none;" name="iframe_a" width="100%" height="600px" ></iframe>-->
-
                   <!-- Readonly -->
                   <section class="read-only2" data-url="<?php echo($base_url) ?>/raptor/getnotestab">
           
