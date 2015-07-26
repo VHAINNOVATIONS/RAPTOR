@@ -2412,7 +2412,9 @@ class ProtocolInfoUtility
             $root[$section_name.'_fieldset_col3']['reset_'.$section_name] = array(
                 '#markup' => "\n"
                     . '<div class="reset-values-button-container" name="reset-section-values">'
-                    . '<a href="javascript:setDefaultValuesInSection('."'".$section_name."',getTemplateDataJSON()".')" title="The default template values will be restored">RESET</a></div>', 
+                    . '<a href="javascript:setDefaultValuesInSection(' 
+                    . "'".$section_name."',getTemplateDataJSON()".')" title="The default template values will be restored">'
+                    . 'RESET</a></div>', 
                 '#disabled' => $disabled,
             );
         }
@@ -2559,7 +2561,8 @@ class ProtocolInfoUtility
                     //Always show this in each section that can have default values!
                     $root[$section_name.'_fieldset_col3']['reset_'.$section_name] = array(
                         '#markup' => "\n"
-                        .'<div class="reset-values-button-container boilerplate-reset-note" name="reset-section-values"><a href="javascript:setDefaultValuesInSection('
+                        .'<div class="reset-values-button-container boilerplate-reset-note" '
+                        .' name="reset-section-values"><a href="javascript:setDefaultValuesInSection('
                         ."'".$section_name."',getTemplateDataJSON()"
                         .')" title="The default values for ' . $section_name . ' will be restored">RESET</a></div>', 
                         '#disabled' => $disabled,
@@ -3256,7 +3259,7 @@ class ProtocolInfoUtility
     }    
     
     /**
-     * Saves values when in protocol mode.
+     * Saves values when in protocol mode.  Call this on approval, request approval, reserve, and collaborate.
      */
     public function saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues)
     {
@@ -3274,7 +3277,9 @@ class ProtocolInfoUtility
             if($nRows > 0)
             {
                 //Replace the record but save the values.
-                error_log('Replacing protocol information SITEID=' . $nSiteID . ' IEN=' . $nIEN . ' UID=' . $nUID . ' CWFS=' . $sCWFS . ' NWFS=' . $sNewWFS);
+                error_log('Replacing protocol information SITEID=' . $nSiteID 
+                        . ' IEN=' . $nIEN . ' UID=' . $nUID 
+                        . ' CWFS=' . $sCWFS . ' NWFS=' . $sNewWFS);
                 $record = $result->fetchAssoc();
                 $oInsert = db_insert('raptor_ticket_protocol_settings_replaced')
                         ->fields(array(
@@ -3305,7 +3310,7 @@ class ProtocolInfoUtility
                             'replaced_dt' => $updated_dt,
                         ))
                         ->execute();
-                $nDeleted = db_delete('raptor_ticket_protocol_settings')
+                db_delete('raptor_ticket_protocol_settings')
                     ->condition('siteid',$nSiteID,'=')
                     ->condition('IEN',$nIEN,'=')
                     ->execute();

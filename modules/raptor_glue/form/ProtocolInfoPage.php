@@ -2103,6 +2103,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 $sNewWFS = 'CO'; 
                 $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
                 */
+                $sNewWFS = $sCWFS;  //No NOT change the workflow state.
+                $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
                 
                 //Write success message
                 if($sMode == 'C')
