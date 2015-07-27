@@ -3,7 +3,7 @@
  * @file
  * ------------------------------------------------------------------------------------
  * Created by SAN Business Consultants for RAPTOR phase 2
- * Open Source VA Innovation Project 2011-2014
+ * Open Source VA Innovation Project 2011-2015
  * VA Innovator: Dr. Jonathan Medverd
  * SAN Implementation: Andrew Casertano, Frank Font, et al
  * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
@@ -14,8 +14,8 @@
 namespace raptor;
 
 module_load_include('inc', 'raptor_glue', 'functions/protocol');
-
 module_load_include('php', 'raptor_datalayer', 'config/Choices');
+module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
 
 require_once 'FormHelper.php';
 
@@ -130,10 +130,10 @@ class ManageProtocolLibPage
             '#tree' => TRUE,
         );
 
-		global $base_url;
+	global $base_url;
+        $language_infer = new \raptor_formulas\LanguageInference();
 		
         $rows = "\n";
-        //$result = db_query('SELECT protocol_shortname, name, version, modality_abbr, image_guided_yn, contrast_yn, sedation_yn, filename, active_yn, updated_dt FROM raptor_protocol_lib ORDER BY protocol_shortname');
         $result = db_select('raptor_protocol_lib', 'p')
                 ->fields('p')
                 ->orderBy('protocol_shortname')
@@ -152,10 +152,32 @@ class ManageProtocolLibPage
             }
             $keywords = $this->getFormattedKeywordsForTable($protocol_shortname);
             $active_markup = $item->active_yn == 1 ? '<b>Yes</b>' : 'No';
+            $declaredHasContrast = $item->contrast_yn == 1 ? TRUE : FALSE;
+            $hasSedation = $item->sedation_yn == 1 ? '<b>Yes</b>' : 'No';
+            $hasRadioisotope = $item->sedation_yn == 1 ? '<b>Yes</b>' : 'No';
+            $fullname = $item->name;
+            $infered_hascontrast = $language_infer->inferContrastFromPhrase($fullname);
+            $hasContrast = $declaredHasContrast ? '<b>Yes</b>' : 'No';
+            if($infered_hascontrast !== NULL)
+            {
+                if($hasContrast != $infered_hascontrast)
+                {
+                    if($infered_hascontrast)
+                    {
+                        $troublemsg = "protocol long name implies YES";
+                    } else {
+                        $troublemsg = "protocol long name implies NO";
+                    }
+                    $hasContrast = "<span class='error' title='$troublemsg'>!!! $hasContrast!!!</span>";
+                }
+            }
             $rows .= "\n".'<tr>'
                   . '<td>'.$protocol_shortname.'</td>'
-                  . '<td>'.$item->name.'</td>'
+                  . '<td>'.$fullname.'</td>'
                   . '<td>'.$active_markup.'</td>'
+                  . '<td>'.$hasContrast.'</td>'
+                  . '<td>'.$hasSedation.'</td>'
+                  . '<td>'.$hasRadioisotope.'</td>'
                   . '<td>'.$item->modality_abbr.'</td>'
                   . '<td>'.$item->version.'</td>'
                   . '<td>'.$docuploadedmarkup.'</td>'
@@ -169,16 +191,19 @@ class ManageProtocolLibPage
                  '#markup' => '<table id="my-raptor-dialog-table" class="dataTable">'
                             . '<thead>'
                             . '<tr>'
-                            . '<th>Short Name</th>'
-                            . '<th>Long Name</th>'
+                            . '<th title="System unique identifier for the protocol">Short Name</th>'
+                            . '<th title="Full name of the protocol">Long Name</th>'
                             . '<th title="Only active protocols are available for use on new exams">Is Active</th>'
-                            . '<th>Modality</th>'
-                            . '<th>Version</th>'
-                            . '<th>Doc Uploaded</th>'
-                            . '<th>Keywords</th>'
-                            . '<th>View</th>'
-                            . '<th>Edit</th>'
-                            . '<th>Delete</th>'
+                            . '<th title="Has contrast">C</th>'
+                            . '<th title="Has sedation">S</th>'
+                            . '<th title="Has radioisotope">R</th>'
+                            . '<th title="The equipment context for this protocol">Modality</th>'
+                            . '<th title="Value increases with each saved edit">Version</th>'
+                            . '<th title="The scanned document">Doc Uploaded</th>'
+                            . '<th title="Keywords used for matching this protocol programatically">Keywords</th>'
+                            . '<th title="Just view the protocol">View</th>'
+                            . '<th title="Edit the protocol details">Edit</th>'
+                            . '<th title="Remove this protocol from the library">Delete</th>'
                             . '</tr>'
                             . '</thead>'
                             . '<tbody>'

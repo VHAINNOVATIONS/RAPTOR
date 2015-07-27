@@ -27,92 +27,104 @@ class PLLoadUtils
         return $aLines;
     }    
     
-    public static function loadProtocolLibBasedata($clearall=FALSE)
+    public static function loadProtocolLibBasedata($clearall=TRUE)
     {
-        $aLines = self::getFileAsArray('load_demoprotocollib.raw');
-        $aProtocols=array();
-        $aTables=array();
-        $sTablename=NULL;
-        $nRows = NULL;
-        $aData=NULL;
-        foreach($aLines as $row)
+        $loadStep = 0;
+        try
         {
-            if(substr($row,0,13) == '>>>tablename=')
+            $loadStep++;
+            $aLines = self::getFileAsArray('load_demoprotocollib.raw');
+            $aProtocols=array();
+            $aTables=array();
+            $sTablename=NULL;
+            $nRows = NULL;
+            $aData=NULL;
+            $loadStep++;
+            foreach($aLines as $row)
             {
-                $sTablename = substr($row,13);
-                $aTables[] = $sTablename;
-            } else
-            if(substr($row,0,8) == '>>>rows=')
-            {
-                $nRows = intval(substr($row,8));
-            } else
-            if($nRows !== NULL && $nRows > 0 && substr($row,0,8) == '>>>data=')
-            {
-                $aData = unserialize(substr($row,8));
-                if($sTablename == 'raptor_protocol_lib')
+                if(substr($row,0,13) == '>>>tablename=')
                 {
-                    foreach($aData as $aRow)
+                    $sTablename = substr($row,13);
+                    $aTables[] = $sTablename;
+                } else
+                if(substr($row,0,8) == '>>>rows=')
+                {
+                    $nRows = intval(substr($row,8));
+                } else
+                if($nRows !== NULL && $nRows > 0 && substr($row,0,8) == '>>>data=')
+                {
+                    $aData = unserialize(substr($row,8));
+                    if($sTablename == 'raptor_protocol_lib')
                     {
-                        $protocol_shortname = trim($aRow->protocol_shortname);
-                        $aProtocols[] = $protocol_shortname;
+                        foreach($aData as $aRow)
+                        {
+                            $protocol_shortname = trim($aRow->protocol_shortname);
+                            $aProtocols[] = $protocol_shortname;
+                        }
                     }
                 }
             }
-        }
-        if($clearall)
-        {
-            //Clear all the tables declared in the file.
-            foreach($aTables as $sTable)
+            $loadStep++;
+            if($clearall)
             {
-                db_delete($sTable)
-                        ->execute();
-            }
-        }
-
-        //Now load all the tables
-        $sTablename = NULL;
-        $nRows=NULL;
-        $aData=NULL;
-        $rowsloaded = array();
-        foreach($aLines as $row)
-        {
-            if(substr($row,0,13) == '>>>tablename=')
-            {
-                $sTablename = substr($row,13);
-            } else
-            if(substr($row,0,8) == '>>>rows=')
-            {
-                $nRows = intval(substr($row,8));
-            } else
-            if($nRows !== NULL && $nRows > 0 && substr($row,0,8) == '>>>data=')
-            {
-                $aData = unserialize(substr($row,8));
-                if($sTablename !== NULL)
+                //Clear all the tables declared in the file.
+                foreach($aTables as $sTable)
                 {
-                    $rowsloaded[$sTablename] = 0;
-                    $newuid = NULL;
-                    $fields = array();
-                    foreach($aData as $aRow)
-                    {
-                        foreach($aRow as $fieldname => $value)
-                        {
-                            $fields[$fieldname] = $value;
-                        }
-                        $inserted = db_insert($sTablename)
-                                    ->fields($fields)
-                                    ->execute();
-                        $rowsloaded[$sTablename] ++;
-                    }                
+                    db_delete($sTable)
+                            ->execute();
                 }
-                $sTablename = NULL; //Now clear it.
             }
+
+            //Now load all the tables
+            $loadStep++;
+            $sTablename = NULL;
+            $nRows=NULL;
+            $aData=NULL;
+            $rowsloaded = array();
+            foreach($aLines as $row)
+            {
+                if(substr($row,0,13) == '>>>tablename=')
+                {
+                    $sTablename = substr($row,13);
+                } else
+                if(substr($row,0,8) == '>>>rows=')
+                {
+                    $nRows = intval(substr($row,8));
+                } else
+                if($nRows !== NULL && $nRows > 0 && substr($row,0,8) == '>>>data=')
+                {
+                    $aData = unserialize(substr($row,8));
+                    if($sTablename !== NULL)
+                    {
+                        $rowsloaded[$sTablename] = 0;
+                        $newuid = NULL;
+                        $fields = array();
+                        foreach($aData as $aRow)
+                        {
+                            foreach($aRow as $fieldname => $value)
+                            {
+                                $fields[$fieldname] = $value;
+                            }
+                            $inserted = db_insert($sTablename)
+                                        ->fields($fields)
+                                        ->execute();
+                            $rowsloaded[$sTablename] ++;
+                        }                
+                    }
+                    $sTablename = NULL; //Now clear it.
+                }
+            }
+            $loadStep++;
+            $showtableinfo = array();
+            foreach($rowsloaded as $sTablename=>$rowcount)
+            {
+                $showtableinfo[] = "$sTablename inserted $rowcount rows";
+            }
+            $loadStep++;
+            drupal_set_message('Loaded '.count($aTables).' protocollib tables<ol><li>'.implode('<li>',$showtableinfo).'</ol>');
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed loadProtocolLibBasedata($clearall) at step $loadStep because $ex",99876,$ex);
         }
-        $showtableinfo = array();
-        foreach($rowsloaded as $sTablename=>$rowcount)
-        {
-            $showtableinfo[] = "$sTablename inserted $rowcount rows";
-        }
-        drupal_set_message('Loaded '.count($aTables).' protocollib tables<ol><li>'.implode('<li>',$showtableinfo).'</ol>');
     }
 }
 
