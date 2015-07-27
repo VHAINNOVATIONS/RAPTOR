@@ -168,7 +168,7 @@ class ManageProtocolLibPage
                     } else {
                         $troublemsg = "protocol long name implies NO";
                     }
-                    $hasContrast = "<span class='error' title='$troublemsg'>!!! $hasContrast!!!</span>";
+                    $hasContrast = "<span class='error' title='$troublemsg'>!!! $hasContrast !!!</span>";
                 }
             }
             $rows .= "\n".'<tr>'
