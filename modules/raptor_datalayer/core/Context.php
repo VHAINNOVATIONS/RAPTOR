@@ -779,6 +779,13 @@ class Context
             $this->clearPersonalBatchStack();
         }
         $this->m_nLastUpdateTimestamp = microtime(TRUE);
+        $aParts = explode('-',$sTrackingID);    //Allow for older type ticket format
+        if(count($aParts) == 1)
+        {
+            $nIEN = $aParts[0];
+        } else {
+            $nIEN = $aParts[1];
+        }
         $this->m_sCurrentTicketID = $sTrackingID;
         
         $oMC = $this->getEhrDao();
@@ -804,7 +811,7 @@ class Context
         $this->m_nLastUpdateTimestamp = microtime(TRUE);
         $this->m_sPersonalBatchStackMessage = NULL;
         $this->m_aPersonalBatchStack = $aPBatch;
-        $this->m_sCurrentTicketID = null;   //Clear it so we pop from the stack on request
+        $this->m_sCurrentTicketID = NULL;   //Clear it so we pop from the stack on request
         $this->serializeNow();        
     }
 
@@ -814,7 +821,7 @@ class Context
     function clearPersonalBatchStack()
     {
         Context::debugDrupalMsg('<h1>called clearPersonalBatchStack</h1>');
-        $this->m_aPersonalBatchStack = null;
+        $this->m_aPersonalBatchStack = NULL;
         $this->m_nLastUpdateTimestamp = microtime(TRUE);
         $this->serializeNow();        
     }

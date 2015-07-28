@@ -44,6 +44,17 @@ function raptor_datalayer_menu()
       'file' => 'EditDatalayerConfigPage.php',
       'file path' => '/sites/all/modules/raptor_datalayer/form/',
     );
+
+    $items['getdaoruntimemetrics'] = array(
+      'title' => t('Get DAO Runtime Metrics'),
+      'page callback' => 'raptor_datalayer_getdaoruntimemetrics_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Get DAO Runtime Metrics'),
+      'type' => MENU_CALLBACK,
+      'file' => 'GetDaoRuntimeMetrics.php',
+      'file path' => '/sites/all/modules/raptor_datalayer/core/',
+    );
     
     return $items;
 }
@@ -57,6 +68,23 @@ function raptor_datalayer_edit_config_form()
 function raptor_datalayer_edit_config_form_builder($form, &$form_state)
 {
     $oPI = new \raptor\EditDatalayerConfigPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+function raptor_datalayer_getdaoruntimemetrics_form() 
+{
+    return drupal_get_form('raptor_datalayer_getdaoruntimemetrics_form_builder');
+}
+
+function raptor_datalayer_getdaoruntimemetrics_form_builder($form, &$form_state)
+{
+    $oPI = new \raptor\GetDaoRuntimeMetrics();
+    $oPI->debug();
+    return array();
+    
     $form = array();
     $disabled = false;
     $myvalues = array();    //No values for this one.
