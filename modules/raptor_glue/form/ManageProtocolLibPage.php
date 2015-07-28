@@ -156,26 +156,29 @@ class ManageProtocolLibPage
             $hasSedation = $item->sedation_yn == 1 ? '<b>Yes</b>' : 'No';
             $hasRadioisotope = $item->sedation_yn == 1 ? '<b>Yes</b>' : 'No';
             $fullname = $item->name;
-            $infered_hascontrast = $language_infer->inferContrastFromPhrase($fullname);
-            $hasContrast = $declaredHasContrast ? '<b>Yes</b>' : 'No';
-            if($infered_hascontrast !== NULL)
+            $infered_hasContrast = $language_infer->inferContrastFromPhrase($fullname);
+            $hasContrastMarkup = $declaredHasContrast ? '<b>Yes</b>' : 'No';
+            if($infered_hasContrast !== NULL)
             {
-                if($hasContrast != $infered_hascontrast)
+                if(!(
+                        ($declaredHasContrast && $infered_hasContrast) || 
+                        (!$declaredHasContrast && !$infered_hasContrast))
+                    )
                 {
-                    if($infered_hascontrast)
+                    if($infered_hasContrast)
                     {
                         $troublemsg = "protocol long name implies YES";
                     } else {
                         $troublemsg = "protocol long name implies NO";
                     }
-                    $hasContrast = "<span class='error' title='$troublemsg'>!!! $hasContrast !!!</span>";
+                    $hasContrastMarkup = "<span class='error' title='$troublemsg'>!!! $hasContrastMarkup !!!</span>";
                 }
             }
             $rows .= "\n".'<tr>'
                   . '<td>'.$protocol_shortname.'</td>'
                   . '<td>'.$fullname.'</td>'
                   . '<td>'.$active_markup.'</td>'
-                  . '<td>'.$hasContrast.'</td>'
+                  . '<td>'.$hasContrastMarkup.'</td>'
                   . '<td>'.$hasSedation.'</td>'
                   . '<td>'.$hasRadioisotope.'</td>'
                   . '<td>'.$item->modality_abbr.'</td>'
