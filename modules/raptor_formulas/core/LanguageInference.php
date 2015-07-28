@@ -181,10 +181,12 @@ class LanguageInference
 
         //Look for indication of both
         $both_contrast = FALSE; //Assume not both
-        //TODO -- pull the content from raptor_list_kw_withandwithout_contrast
         $both_contrast_ind[] = 'W&WO CONT';
         $both_contrast_ind[] = 'W&W/O CONT';
         $both_contrast_ind[] = 'WITH AND WITHOUT CONT';
+        $both_contrast_ind[] = 'WITHOUT AND WITH CONT';
+        $both_contrast_ind[] = 'WITH & WITHOUT CONT';
+        $both_contrast_ind[] = 'WITHOUT & WITH CONT';
         foreach($both_contrast_ind as $needle)
         {
             $p = strpos($haystack, $needle);
@@ -199,7 +201,6 @@ class LanguageInference
             //Look for the NO indicators
             $no_contrast = NULL;
             $no_contrast_ind = array();
-            //TODO -- pull the content from raptor_list_kw_without_contrast
             $no_contrast_ind[] = 'WO CONT';
             $no_contrast_ind[] = 'W/O CONT';
             $no_contrast_ind[] = 'WN CONT';
@@ -220,7 +221,6 @@ class LanguageInference
             //Look for the YES indicators
             $yes_contrast = NULL;
             $yes_contrast_ind = array();
-            //TODO -- pull the content from raptor_list_kw_with_contrast
             $yes_contrast_ind[] = 'W CONT';
             $yes_contrast_ind[] = 'WITH CONT';
             $yes_contrast_ind[] = 'W/IV CONT';
