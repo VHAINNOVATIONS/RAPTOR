@@ -133,6 +133,8 @@ class ManageProtocolLibPage
 	global $base_url;
         $language_infer = new \raptor_formulas\LanguageInference();
 		
+        $showDeleteOption = TRUE;
+        
         $rows = "\n";
         $result = db_select('raptor_protocol_lib', 'p')
                 ->fields('p')
@@ -174,6 +176,12 @@ class ManageProtocolLibPage
                     $hasContrastMarkup = "<span class='medical-health-warn' title='$troublemsg'>!!! $hasContrastMarkup !!!</span>";
                 }
             }
+            if(!$showDeleteOption)
+            {
+                $deleteActionMarkup = '';
+            } else {
+                $deleteActionMarkup = '<a href="'.$base_url.'/raptor/deleteprotocollib?protocol_shortname='.$item->protocol_shortname.'">Delete</a>';
+            }
             $rows .= "\n".'<tr>'
                   . '<td>'.$protocol_shortname.'</td>'
                   . '<td>'.$fullname.'</td>'
@@ -187,7 +195,8 @@ class ManageProtocolLibPage
                   . '<td>'.$keywords.'</td>'
                   . '<td><a href="'.$base_url.'/raptor/viewprotocollib?protocol_shortname='.$item->protocol_shortname.'">View</a></td>'
                   . '<td><a href="'.$base_url.'/raptor/editprotocollib?protocol_shortname='.$item->protocol_shortname.'">Edit</a></td>'
-                  . '<td><a href="'.$base_url.'/raptor/deleteprotocollib?protocol_shortname='.$item->protocol_shortname.'">Delete</a></td></tr>';
+                  . "<td>$deleteActionMarkup</td>"
+                  . '</tr>';
         }
 
         $form["data_entry_area1"]['table_container']['protocols'] = array('#type' => 'item',
