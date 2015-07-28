@@ -43,3 +43,14 @@ defined('EWDFED_BASE_URL')
 
 defined('EHR_INT_MODULE_NAME')
     or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
+
+//Disable the AGE scoring if using a test VISTA with VERY OLD orders.
+defined('DISABLE_TICKET_AGE1_SCORING')
+    or define('DISABLE_TICKET_AGE1_SCORING', TRUE);
+defined('DISABLE_TICKET_AGE2_SCORING')
+    or define('DISABLE_TICKET_AGE2_SCORING', TRUE);
+
+//Set DAYS very high if using a test VISTA with VERY OLD orders.
+defined('DEFAULT_GET_VISIT_DAYS')
+    or define('DEFAULT_GET_VISIT_DAYS', 9999); //For PROD set this to 30 days!!!!!!
+

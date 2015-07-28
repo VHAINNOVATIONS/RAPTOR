@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150723.1 978 for VA 147 AppServer2');
+    or define('RAPTOR_CONFIG_ID', '20150728.1 978 for VA 147 AppServer2');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -46,3 +46,14 @@ defined('EWDFED_BASE_URL')
 
 defined('EHR_INT_MODULE_NAME')
     or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
+
+//Disable the AGE scoring if using a test VISTA with VERY OLD orders.
+defined('DISABLE_TICKET_AGE1_SCORING')
+    or define('DISABLE_TICKET_AGE1_SCORING', FALSE);
+defined('DISABLE_TICKET_AGE2_SCORING')
+    or define('DISABLE_TICKET_AGE2_SCORING', FALSE);
+
+//Set DAYS very high if using a test VISTA with VERY OLD orders.
+defined('DEFAULT_GET_VISIT_DAYS')
+    or define('DEFAULT_GET_VISIT_DAYS', 30); //For PROD set this to 30 days!!!!!!
+
