@@ -20,7 +20,7 @@ require_once 'Context.php';
  *
  * @author Frank Font of SAN Business Consultants
  */
-class GetDaoRuntimeMetrics
+class EhrDaoRuntimeMetrics
 {
     private $m_instanceTimestamp = NULL;
     private $m_ehrDao = NULL;
@@ -34,7 +34,7 @@ class GetDaoRuntimeMetrics
             $this->m_instanceTimestamp = microtime();
             $this->m_ehrDao = $this->m_oContext->getEhrDao();
         } catch (\Exception $ex) {
-            throw new \Exception("Failed constructor GetDaoRuntimeMetrics because $ex",99876,$ex);
+            throw new \Exception("Failed constructor EhrDaoRuntimeMetrics because $ex",99876,$ex);
         }
     }
 

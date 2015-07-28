@@ -52,7 +52,7 @@ function raptor_datalayer_menu()
       'access callback' => TRUE,        
       'description' => t('Get DAO Runtime Metrics'),
       'type' => MENU_CALLBACK,
-      'file' => 'GetDaoRuntimeMetrics.php',
+      'file' => 'EhrDaoRuntimeMetrics.php',
       'file path' => '/sites/all/modules/raptor_datalayer/core/',
     );
     
@@ -81,7 +81,7 @@ function raptor_datalayer_getdaoruntimemetrics_form()
 
 function raptor_datalayer_getdaoruntimemetrics_form_builder($form, &$form_state)
 {
-    $oPI = new \raptor\GetDaoRuntimeMetrics();
+    $oPI = new \raptor\EhrDaoRuntimeMetrics();
     $oPI->debug();
     return array();
     
