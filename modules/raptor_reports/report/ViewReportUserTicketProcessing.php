@@ -112,8 +112,20 @@ class ViewReportUserTicketProcessing extends AReport
      * Get the values to populate the form.
      * @return type result of the queries as an array
      */
-    function getFieldValues($report_start_date=NULL,$report_end_date=NULL)
+    function getFieldValues($myvalues=NULL)
     {
+        if(isset($myvalues['report_start_date'])) 
+        {
+            $report_start_date=$myvalues['report_start_date'];
+        } else {
+            $report_start_date='-7 days';
+        }
+        if(isset($myvalues['report_end_date'])) 
+        {
+            $report_end_date=$myvalues['report_end_date'];
+        } else {
+            $report_end_date=NULL;
+        }
         $rowdata = array();
         $startdateoptions = $this->getStartDateOptions();
         if($report_start_date>'' && $report_start_date[0] == '-')

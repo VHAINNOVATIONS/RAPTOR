@@ -17,12 +17,14 @@ abstract class AReport
     private $m_required_privs = NULL;
     private $m_menukey = NULL;
     private $m_name = NULL;
+    private $m_hide_from_list = NULL;
 
-    function __construct($required_privs,$menukey,$reportname)
+    function __construct($required_privs,$menukey,$reportname,$hide_from_list=FALSE)
     {
         $this->m_required_privs = $required_privs;
         $this->m_name = $reportname;
         $this->m_menukey = $menukey;
+        $this->m_hide_from_list = $hide_from_list;
     }
             
     /**
@@ -31,6 +33,14 @@ abstract class AReport
     public function getName()
     {
         return $this->m_name;
+    }
+    
+    /**
+     * If TRUE, then a user can only run this report if they know the URL themselves.
+     */
+    public function hideFromList()
+    {
+        return $this->m_hide_from_list;
     }
     
     /**
@@ -67,7 +77,7 @@ abstract class AReport
     /**
      * Some reports return initial values from this function.
      */
-    function getFieldValues()
+    function getFieldValues($myvalues=NULL)
     {
         return array();
     }

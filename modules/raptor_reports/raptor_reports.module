@@ -125,9 +125,11 @@ function raptor_reports_runner_form_builder($form, &$form_state)
             //Run this one!
             $reportstartdate='-7 days';
             $reportenddate  =NULL;
+            $initialvalues = array();
             if(isset($form_state['values']))
             {
                 $myvalues = $form_state['values'];    
+                /*
                 if(isset($myvalues['report_start_date'])) 
                 {
                     $reportstartdate=$myvalues['report_start_date'];
@@ -136,10 +138,13 @@ function raptor_reports_runner_form_builder($form, &$form_state)
                 {
                     $reportenddate=$myvalues['report_end_date'];
                 }
+                 */
+                $initialvalues = $myvalues;
             }
             $form = array();
             $disabled = FALSE;
-            $myvalues = $oReport->getFieldValues($reportstartdate,$reportenddate);
+            //$myvalues = $oReport->getFieldValues($reportstartdate,$reportenddate,$initialvalues);
+            $myvalues = $oReport->getFieldValues($initialvalues);
             if($downloadtype != NULL)
             {
                 if(!$oReport->isDownloadSupported($downloadtype, $form_state, $myvalues))

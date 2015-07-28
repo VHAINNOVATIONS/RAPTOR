@@ -27,8 +27,6 @@ class ManageReportsPage
     public static function getReportsList()
     {
         $aReportClassNames  = array();
-        //$aReportClassNames[] = 'ViewReport1Page';
-        //$aReportClassNames[] = 'ViewReport2Page';
         
         $aReportClassNames[] = 'ViewReportDeptTicketProcessing';
         $aReportClassNames[] = 'ViewReportUserTicketProcessing';
@@ -41,6 +39,7 @@ class ManageReportsPage
         $aReportClassNames[] = 'ViewReportRoomReservations';
         $aReportClassNames[] = 'ViewReportUserActivity';
         $aReportClassNames[] = 'ViewTechSupportConfigDetails';
+        $aReportClassNames[] = 'ViewEhrDaoPerformance';
         
         return $aReportClassNames;
     }
@@ -90,15 +89,21 @@ class ManageReportsPage
         foreach($aReports as $classname=>$oReport)
         {
             //Can this user run this report?
-            if($oReport->hasRequiredPrivileges($userprivs))
+            if(!$oReport->hideFromList())
             {
-                //Yes, make the report available.
-                $name = $oReport->getName(); // . '['.$base_url.']';
-                $description = $oReport->getDescription();
-                $menukey = $oReport->getMenuKey();
-                $rows   .= "\n".'<tr><td><a href="javascript:window.location.href=\''.$base_url.'/'.$menukey.'\'">View '.$name.' Report</a></td>'
-                          .'<td>'.$description.'</td>'
-                          .'</tr>';
+                if($oReport->hasRequiredPrivileges($userprivs))
+                {
+                    //Yes, make the report available.
+                    $name = $oReport->getName(); // . '['.$base_url.']';
+                    $description = $oReport->getDescription();
+                    $menukey = $oReport->getMenuKey();
+                    $rows   .= "\n".'<tr><td><a href="javascript:window.location.href=\'' 
+                              . $base_url . '/' 
+                              . $menukey.'\'">View ' 
+                              . $name.' Report</a></td>'
+                              .'<td>'.$description.'</td>'
+                              .'</tr>';
+                }
             }
         }
         
