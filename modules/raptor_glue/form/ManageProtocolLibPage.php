@@ -26,6 +26,15 @@ require_once 'FormHelper.php';
  */
 class ManageProtocolLibPage
 {
+    private $m_oContext = NULL;
+    private $m_oUserInfo = NULL;
+    
+    public function __construct()
+    {
+        $this->m_oContext = \raptor\Context::getInstance();
+        $this->m_oUserInfo = $this->m_oContext->getUserInfo();
+    }
+    
     public function getKeywords($protocol_shortname)
     {
         $myvalues = array();
@@ -133,7 +142,8 @@ class ManageProtocolLibPage
 	global $base_url;
         $language_infer = new \raptor_formulas\LanguageInference();
 		
-        $showDeleteOption = TRUE;
+        $showDeleteOption = $this->m_oUserInfo->hasPrivilege('REP1');
+        $showAddOption = $this->m_oUserInfo->hasPrivilege('UNP1');
         
         $rows = "\n";
         $result = db_select('raptor_protocol_lib', 'p')
@@ -176,6 +186,14 @@ class ManageProtocolLibPage
                     $hasContrastMarkup = "<span class='medical-health-warn' title='$troublemsg'>!!! $hasContrastMarkup !!!</span>";
                 }
             }
+            if(!$showAddOption)
+            {
+                $addActionMarkup = '';
+                $editActionMarkup = '';
+            } else {
+                $addActionMarkup = '<a href="'.$base_url.'/raptor/viewprotocollib?protocol_shortname='.$item->protocol_shortname.'">View</a>';
+                $editActionMarkup = '<a href="'.$base_url.'/raptor/editprotocollib?protocol_shortname='.$item->protocol_shortname.'">Edit</a>';
+            }
             if(!$showDeleteOption)
             {
                 $deleteActionMarkup = '';
@@ -193,8 +211,8 @@ class ManageProtocolLibPage
                   . '<td>'.$item->version.'</td>'
                   . '<td>'.$docuploadedmarkup.'</td>'
                   . '<td>'.$keywords.'</td>'
-                  . '<td><a href="'.$base_url.'/raptor/viewprotocollib?protocol_shortname='.$item->protocol_shortname.'">View</a></td>'
-                  . '<td><a href="'.$base_url.'/raptor/editprotocollib?protocol_shortname='.$item->protocol_shortname.'">Edit</a></td>'
+                  . "<td>$addActionMarkup</td>"
+                  . "<td>$editActionMarkup</td>"
                   . "<td>$deleteActionMarkup</td>"
                   . '</tr>';
         }

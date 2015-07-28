@@ -105,8 +105,19 @@ class Menus
             $item['helpText'] = 'Create, edit, delete contraindication rules evaluated by the system';
             $menuelements[] = $item;
         }
-        if($userprivs['UNP1'] == 1 && $userprivs['REP1'] == 1)
+        if($userprivs['UNP1'] == 1 || $userprivs['REP1'] == 1)
         {
+            $allowactions = array();
+            if($userprivs['UNP1'] == 1)
+            {
+                $allowactions[] = 'add';
+                $allowactions[] = 'edit';
+            }
+            if($userprivs['REP1'] == 1)
+            {
+                $allowactions[] = 'delete';
+            }
+            $helptxt = "Interface for the view, ".implode(', ',$allowactions)." actions on protocol library content";
             $item = array();
             $item['id'] = 'nav-manageprotocolLibpage';
             $item['size'] = 'normal';
@@ -114,7 +125,7 @@ class Menus
             $item['url'] = $base_url.'/raptor/manageprotocollib';
             $item['enabled']=($this->m_uicontext == \raptor\Menus::UICONTEXT_PROTOCOL ? FALSE : TRUE);
             $item['indialog']=FALSE;
-            $item['helpText'] = 'Create, edit, delete the protocol library content';
+            $item['helpText'] = $helptxt;
             $menuelements[] = $item;
         }
         $allow = $userprivs['ELCO1'] + $userprivs['ELHO1'] + $userprivs['ELRO1'] 
