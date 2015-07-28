@@ -167,11 +167,11 @@ class ManageProtocolLibPage
                 {
                     if($infered_hasContrast)
                     {
-                        $troublemsg = "protocol long name implies YES";
+                        $troublemsg = "protocol long name implies YES contrast";
                     } else {
-                        $troublemsg = "protocol long name implies NO";
+                        $troublemsg = "protocol long name implies NO contrast";
                     }
-                    $hasContrastMarkup = "<span class='error' title='$troublemsg'>!!! $hasContrastMarkup !!!</span>";
+                    $hasContrastMarkup = "<span class='medical-health-warn' title='$troublemsg'>!!! $hasContrastMarkup !!!</span>";
                 }
             }
             $rows .= "\n".'<tr>'
