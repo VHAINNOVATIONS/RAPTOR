@@ -514,7 +514,7 @@ class WorklistData
             {
                 $nIEN = $aParts[0]; //Just IEN
             } else {
-                $sMsg = 'Did NOT recognize format of tracking id ['.$sTrackingID.'] expected SiteID-IEN format!';
+                $sMsg = 'Worklist did NOT recognize format of tracking id ['.$sTrackingID.'] expected SiteID-IEN format!';
                 error_log($sMsg);
                 throw new \Exception($sMsg);
             }

@@ -49,9 +49,30 @@ class GetDaoRuntimeMetrics
                 = array('namespace'=>'raptor'
                     ,'classname'=>'Context'
                     ,'methodname'=>'setSelectedTrackingID'
+                    ,'sourcemodule'=>'raptor_datalayer'
+                    ,'sourcefile'=>'core/Context.php'
+                    ,'getinstanceliteral'=>'\raptor\Context::getInstance()'
                     ,'params'=>array('$tid')
                 );
-        return array($callfunctions);
+        $callfunctions[] 
+                = array('namespace'=>'raptor'
+                    ,'classname'=>'EhrDao'
+                    ,'methodname'=>'getWorklistDetailsMap'
+                    ,'sourcemodule'=>'raptor_datalayer'
+                    ,'sourcefile'=>'core/EhrDao.php'
+                    ,'getinstanceliteral'=>'$this->m_oContext->getEhrDao()'
+                    ,'params'=>array()
+                );
+        $callfunctions[] 
+                = array('namespace'=>'raptor'
+                    ,'classname'=>'EhrDao'
+                    ,'methodname'=>'getDashboardDetailsMap'
+                    ,'sourcemodule'=>'raptor_datalayer'
+                    ,'sourcefile'=>'core/EhrDao.php'
+                    ,'getinstanceliteral'=>'$this->m_oContext->getEhrDao()'
+                    ,'params'=>array('$tid')
+                );
+        return $callfunctions;
     }
     
     public function debug()
@@ -83,29 +104,43 @@ class GetDaoRuntimeMetrics
             $metrics = array();
             foreach($ticketlist as $tid)
             {
-                foreach($functionstocall as $key=>$details)
+                //TODO --- Clear all caches here
+                foreach($functionstocall as $details)
                 {
-                    drupal_set_message("LOOK $key=>$details".print_r($details,TRUE));
                     $oneitem = array();
                     $oneitem['start_ts'] = microtime();
+                    $oneitem['tracking_id'] = $tid;
                     try
                     {
                         $oneitem['metadata'] = $details;
                         $namespace = $details['namespace'];
                         $classname = $details['classname'];
                         $methodname = $details['methodname'];
+                        $getinstanceliteral = isset($details['getinstanceliteral']) ? $details['getinstanceliteral'] : NULL;
                         $params = array();
                         foreach($details['params'] as $oneparam)
                         {
-                            $oneparamvalue = eval($oneparam);
+                            $oneparamvalue = eval("return {$oneparam};");
                             $params[] = $oneparamvalue;
                         }
                         $oneitem['paramvalues'] = $params;
                         $class = "\\$namespace\\$classname";
-                        $implclass = new $class();
+                        if($getinstanceliteral != NULL)
+                        {
+                            //Call a method to get the instance
+                            $implclass = eval("return {$getinstanceliteral};");
+                        } else {
+                            //Simply use the constructor
+                            $implclass = new $class();
+                        }
                         if(count($params > 0))
                         {
-                            $callresult = $implclass->$methodname($params);
+                            if(count($params) == 1)
+                            {
+                                $callresult = $implclass->$methodname($params[0]);
+                            } else {
+                                $callresult = $implclass->$methodname($params);
+                            }
                         } else {
                             $callresult = $implclass->$methodname();
                         }
@@ -118,6 +153,7 @@ class GetDaoRuntimeMetrics
                 }
             }
             $result['metrics'] = $metrics;
+            error_log("LOOK metrics details>>>".print_r($metrics,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
