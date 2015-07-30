@@ -39,14 +39,23 @@ class EhrDaoRuntimeMetrics
     }
 
     /**
+     * These are the available filter options
+     */
+    public function getMetricFilterOptions()
+    {
+        return array('core','setup','oneorder');
+    }
+    
+    /**
      * Returns the list of functions to call on each ticket
      */
-    private function getFunctionsToCall()
+    private function getFunctionsToCall($membership_filter)
     {
         //Return stuff we need to call for each ticket
         $callfunctions = array();
         $callfunctions[] 
                 = array('namespace'=>'raptor'
+                    ,'membership'=>array('core','setup')
                     ,'classname'=>'Context'
                     ,'methodname'=>'setSelectedTrackingID'
                     ,'sourcemodule'=>'raptor_datalayer'
@@ -56,6 +65,7 @@ class EhrDaoRuntimeMetrics
                 );
         $callfunctions[] 
                 = array('namespace'=>'raptor'
+                    ,'membership'=>array('core')
                     ,'classname'=>'EhrDao'
                     ,'methodname'=>'getWorklistDetailsMap'
                     ,'sourcemodule'=>'raptor_datalayer'
@@ -65,6 +75,7 @@ class EhrDaoRuntimeMetrics
                 );
         $callfunctions[] 
                 = array('namespace'=>'raptor'
+                    ,'membership'=>array('core','oneorder')
                     ,'classname'=>'EhrDao'
                     ,'methodname'=>'getDashboardDetailsMap'
                     ,'sourcemodule'=>'raptor_datalayer'
@@ -72,31 +83,39 @@ class EhrDaoRuntimeMetrics
                     ,'getinstanceliteral'=>'$this->m_oContext->getEhrDao()'
                     ,'params'=>array('$tid')
                 );
-        return $callfunctions;
-    }
-    
-    public function debug()
-    {
-        $ticketlist = array();
-        $ticketlist[] = '2010';
-        $ticketlist[] = '2007';
-        $ticketlist[] = '2005';
-        $result = $this->getPerformanceDetails($ticketlist);
-        drupal_set_message("LOOK RESULT ".print_r($result,TRUE));
+        $filtered = array();
+        foreach($callfunctions as $candidate)
+        {
+            $membership = $candidate['membership'];
+            foreach($membership_filter as $onefilter)
+            {
+                if(in_array($onefilter, $membership))
+                {
+                    $filtered[] = $candidate;
+                    break;
+                }
+            }
+        }
+        return $filtered;
     }
     
     /**
      * Returns associative array of performance results
      */
-    public function getPerformanceDetails($ticketlist)
+    public function getPerformanceDetails($ticketlist,$membership_filter=array('setup','oneorder'))
     {
         if(!is_array($ticketlist))
         {
             throw new \Exception('Must provide an input list of tickets to process!');
         }
+        if(!is_array($membership_filter))
+        {
+            throw new \Exception('Must provide a valid membership_filter array instead of '.print_r($membership_filter,TRUE));
+        }
+        $ticketstats = array();
         try
         {
-            $functionstocall = $this->getFunctionsToCall();
+            $functionstocall = $this->getFunctionsToCall($membership_filter);
             $result = array();
             $info = array();
             $info['description'] = "{$this->m_ehrDao}"; 
@@ -104,6 +123,9 @@ class EhrDaoRuntimeMetrics
             $metrics = array();
             foreach($ticketlist as $tid)
             {
+                $ticketstats[$tid] = array();
+                $ticketstats[$tid]['error_count'] = 0;
+                $ticketstats[$tid]['start_ts'] = microtime(TRUE);
                 foreach($functionstocall as $details)
                 {
                     $oneitem = array();
@@ -146,19 +168,22 @@ class EhrDaoRuntimeMetrics
                         }
                     } catch (\Exception $ex) {
                         //Continue with other items
-                        $oneitem['failed'] = $ex;
+                        $oneitem['failed_info'] = $ex;
+                        $ticketstats[$tid]['error_count'] = $ticketstats[$tid]['error_count'] + 1;
                     }
                     $oneitem['end_ts'] = microtime(TRUE);
                     $resultsize = strlen(print_r($callresult,TRUE));
                     $oneitem['resultsize'] = $resultsize;
                     $metrics[] = $oneitem;
                 }
+                $ticketstats[$tid]['end_ts'] = microtime(TRUE);
+                $ticketstats[$tid]['duration'] = $ticketstats[$tid]['end_ts'] - $ticketstats[$tid]['start_ts'];
             }
+            $result['ticketstats'] = $ticketstats;
             $result['metrics'] = $metrics;
-            //error_log("LOOK metrics details>>>".print_r($metrics,TRUE));
             return $result;
         } catch (\Exception $ex) {
-            throw $ex;
+            throw new \Exception("Failed getting metrics",99876,$ex);
         }
     }
 }

@@ -619,9 +619,13 @@ class WorklistData
             $aResult = $this->getWorklistRows($startIEN,$match_this_IEN);
             $offset = $aResult['matching_offset'];
             $all_rows = $aResult['DataRows'];
+            if($offset == '')
+            {
+                throw new \Exception("Did NOT find IEN=[$match_this_IEN] in worklist result!");
+            }
             if(!array_key_exists($offset, $all_rows))
             {
-                throw new \Exception("Did NOT find offset=$offset in worklist result!");
+                throw new \Exception("Did NOT find IEN=[$match_this_IEN] at offset=[$offset] in worklist result!");
             }
             $row = $all_rows[$offset];
 

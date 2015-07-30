@@ -52,138 +52,199 @@ class ViewEhrDaoPerformance extends AReport
      */
     function getFieldValues($myvalues = NULL)
     {
-        $bundle = array();
-        $bundle['DAO'] = array();
-        $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
-        $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
-        if($tickets_for_test > '')
+        if($myvalues == NULL)
         {
-            $ticketlist = explode(',',$tickets_for_test);
-        } else {
-            $ticketlist = array();
+            $myvalues = array();
         }
-        $bundle['ticketlist'] = $ticketlist;
-        $biggestsize_item = array(); 
-        $biggestsize_item['resultsize'] = -1;
-        $slowest_item = array(); 
-        $slowest_item['duration'] = 0; 
-        $total_action_duration = array();
-        $total_action_size = array();
-        $total_rows = 0;
-        $action_names_map = array();
-        $rowdata = array();
-        $enhancedrows = array();
-        $prevdaoinfo = NULL;
-        for($iteration=1; $iteration <= $iterations; $iteration++)
+        try
         {
-            $rawdetails = $this->m_oEDRM->getPerformanceDetails($ticketlist);
-            $daoinfo = $rawdetails['DAO'];
-            if($prevdaoinfo != $daoinfo)
+            $bundle = array();
+            $bundle['DAO'] = array();
+            $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
+            $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
+            $available_filter_options_ar = $this->m_oEDRM->getMetricFilterOptions();
+            $bundle['available_filter_options'] = implode(',',$available_filter_options_ar);
+            $selected_filters = isset($myvalues['selected_filters']) ? $myvalues['selected_filters'] : $bundle['available_filter_options'];
+            $selected_filters_ar = explode(',',$selected_filters);
+            $bundle['selected_filters'] = $selected_filters;
+            if($tickets_for_test > '')
             {
-                //Add this one because it changed
-                $bundle['DAO'][$iteration] = $rawdetails['DAO'];
-                $prevdaoinfo = $daoinfo;
+                $ticketlist = explode(',',$tickets_for_test);
+            } else {
+                $ticketlist = array();
             }
-            $metrics = $rawdetails['metrics'];
-            foreach($metrics as $onetest)
+            $bundle['ticketlist'] = $ticketlist;
+            $biggestsize_item = array(); 
+            $biggestsize_item['resultsize'] = -1;
+            $slowest_item = array(); 
+            $slowest_item['duration'] = 0; 
+            $total_action_duration = array();
+            $total_action_size = array();
+            $total_good_rows = 0;
+            $action_names_map = array();
+            $rowdata = array();
+            $enhancedrows = array();
+            $ticketstats = array();
+            $prevdaoinfo = NULL;
+            $total_error_count = 0;
+            for($iteration=1; $iteration <= $iterations; $iteration++)
             {
-                $rowdata[] = array(
-                    'iteration'=>$iteration,
-                    'tracking_id'=>$onetest['tracking_id'],
-                    'start_ts'=>$onetest['start_ts'],
-                    'end_ts'=>$onetest['end_ts'],
-                    'action'=>$onetest['metadata']['methodname'],
-                    'duration'=>$onetest['end_ts']-$onetest['start_ts'],
-                    'resultsize'=>$onetest['resultsize'],
-                );
+                try
+                {
+                    $rawdetails = $this->m_oEDRM->getPerformanceDetails($ticketlist,$selected_filters_ar);
+                } catch (\Exception $ex) {
+                    throw new \Exception("Failed to get performance details at iteration $iteration",99876,$ex);
+                }
+                $daoinfo = $rawdetails['DAO'];
+                if($prevdaoinfo != $daoinfo)
+                {
+                    //Add this one because it changed
+                    $bundle['DAO'][$iteration] = $rawdetails['DAO'];
+                    $prevdaoinfo = $daoinfo;
+                }
+                $ticketstats[$iteration] = $rawdetails['ticketstats'];
+                foreach($ticketstats[$iteration] as $oneticketstat)
+                {
+                    $errs = $oneticketstat['error_count'];
+                    if($errs > 0)
+                    {
+                        $total_error_count += $errs;
+                    }
+                }
+                $metrics = $rawdetails['metrics'];
+                foreach($metrics as $onetest)
+                {
+                    $actionname = $onetest['metadata']['methodname'];
+                    if(isset($onetest['failed_info']))
+                    {
+                        $ex = $onetest['failed_info'];
+                        $has_error = 'YES';
+                    } else {
+                        $ex = NULL;
+                        $has_error = 'NO';
+                    }
+                    $rowdata[] = array(
+                        'has_error'=>$has_error,
+                        'error_detail'=>$ex,
+                        'iteration'=>$iteration,
+                        'tracking_id'=>$onetest['tracking_id'],
+                        'start_ts'=>$onetest['start_ts'],
+                        'end_ts'=>$onetest['end_ts'],
+                        'action'=>$actionname,
+                        'duration'=>$onetest['end_ts']-$onetest['start_ts'],
+                        'resultsize'=>$onetest['resultsize'],
+                    );
+                }
+                //Compute statistics for actions that did not fail.
+                foreach($rowdata as $onerow)
+                {
+                    if($onerow['has_error'] == 'NO')
+                    {
+                        //If we are here, then the test did not fail.
+                        $total_good_rows++;
+                        $action_name = $onerow['action'];
+                        if(!isset($action_names_map[$action_name]))
+                        {
+                            $action_names_map[$action_name] = 1;
+                        } else {
+                            $action_names_map[$action_name] = $action_names_map[$action_name] + 1;
+                        }
+                        $duration = $onerow['duration'];
+                        $resultsize = $onerow['resultsize'];
+                        if($onerow['resultsize'] > $biggestsize_item['resultsize'])
+                        {
+                            $biggestsize_item['resultsize'] = $onerow['resultsize']; 
+                            $biggestsize_item['itemdetails'] = $onerow; 
+                        }
+                        if($onerow['duration'] > $slowest_item['duration'])
+                        {
+                            $slowest_item['duration'] = $onerow['duration']; 
+                            $slowest_item['itemdetails'] = $onerow; 
+                        }
+                        if(!isset($total_action_duration[$action_name]))
+                        {
+                            $total_action_duration[$action_name] = $duration;
+                        } else {
+                            $total_action_duration[$action_name] = $total_action_duration[$action_name] + $duration;
+                        }
+                        if(!isset($total_action_size[$action_name]))
+                        {
+                            $total_action_size[$action_name] = $resultsize;
+                        } else {
+                            $total_action_size[$action_name] = $total_action_size[$action_name] + $resultsize;
+                        }
+                    }
+                }
             }
-
+            //Compute averages
+            $avg_action_duration = array();
+            $avg_action_size = array();
+            foreach($action_names_map as $action_name=>$occurance_count)
+            {
+                if($occurance_count > 0)
+                {
+                    $avg_action_duration[$action_name] = $total_action_duration[$action_name] / $occurance_count;
+                    $avg_action_size[$action_name] = $total_action_size[$action_name] / $occurance_count;
+                }
+            }
+            //Enhance the row content
             foreach($rowdata as $onerow)
             {
-                $total_rows++;
+                $iteration = $onerow['iteration'];
+                $tid = $onerow['tracking_id'];
                 $action_name = $onerow['action'];
-                if(!isset($action_names_map[$action_name]))
+                if($onerow['has_error'] == 'NO')
                 {
-                    $action_names_map[$action_name] = 1;
+                    $thisticketduration = $ticketstats[$iteration][$tid]['duration'];
+                    $duration = $onerow['duration'];
+                    $duration_delta = $duration - $avg_action_duration[$action_name];
+                    $duration_pct = 100 * $duration / $thisticketduration;
+                    $resultsize = $onerow['resultsize'];
+                    $resultsize_delta = $resultsize - $avg_action_size[$action_name];
                 } else {
-                    $action_names_map[$action_name] = $action_names_map[$action_name] + 1;
+                    $thisticketduration = NULL;
+                    $duration = NULL;
+                    $duration_delta = NULL;
+                    $resultsize = NULL;
+                    $resultsize_delta = NULL;
+                    $duration_pct = NULL;
                 }
-                $duration = $onerow['duration'];
-                $resultsize = $onerow['resultsize'];
-                if($onerow['resultsize'] > $biggestsize_item['resultsize'])
+
+                $onerow['duration_delta'] = $duration_delta;
+                $onerow['resultsize_delta'] = $resultsize_delta;
+                if($resultsize > 0 && $duration > 0)
                 {
-                    $biggestsize_item['resultsize'] = $onerow['resultsize']; 
-                    $biggestsize_item['itemdetails'] = $onerow; 
-                }
-                if($onerow['duration'] > $slowest_item['duration'])
-                {
-                    $slowest_item['duration'] = $onerow['duration']; 
-                    $slowest_item['itemdetails'] = $onerow; 
-                }
-                if(!isset($total_action_duration[$action_name]))
-                {
-                    $total_action_duration[$action_name] = $duration;
+                    if($resultsize < 10000)
+                    {
+                        //Improve numerical accuracy of result
+                        $normalized_duration = 1000000 * (10000 * $duration) / (10000 * $resultsize);
+                    } else {
+                        $normalized_duration = 1000000 * ($duration / $resultsize);
+                    }
+                    $onerow['duration_per_1MB'] = $normalized_duration;
                 } else {
-                    $total_action_duration[$action_name] = $total_action_duration[$action_name] + $duration;
+                    $onerow['duration_per_1MB'] = '';
                 }
-                if(!isset($total_action_size[$action_name]))
-                {
-                    $total_action_size[$action_name] = $resultsize;
-                } else {
-                    $total_action_size[$action_name] = $total_action_size[$action_name] + $resultsize;
-                }
+                $onerow['duration_pct'] = $duration_pct;
+                $enhancedrows[] = $onerow;
             }
+            $bundle['iterations'] = $iterations;
+            $bundle['total_error_count'] = $total_error_count;
+            $bundle['stats'] 
+                    = array('avg_action_duration'=>$avg_action_duration
+                           ,'avg_action_size'=>$avg_action_size
+                           ,'total_action_duration'=>$total_action_duration
+                           ,'biggestsize_item'=>$biggestsize_item
+                           ,'slowest_item'=>$slowest_item
+                    );
+            $bundle['ticketstats'] = $ticketstats;
+            $bundle['tickets_for_test'] = $tickets_for_test;
+            $bundle['rowdata'] = $enhancedrows;
+            $myvalues['reportdata'] = $bundle;
+            return $myvalues;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed to get field values!",99876,$ex);
         }
-        //Compute averages
-        $avg_action_duration = array();
-        $avg_action_size = array();
-        foreach($action_names_map as $action_name=>$occurance_count)
-        {
-            if($occurance_count > 0)
-            {
-                $avg_action_duration[$action_name] = $total_action_duration[$action_name] / $occurance_count;
-                $avg_action_size[$action_name] = $total_action_size[$action_name] / $occurance_count;
-            }
-        }
-        //Enhance the row content
-        foreach($rowdata as $onerow)
-        {
-            $iteration = $onerow['iteration'];
-            $tid = $onerow['tracking_id'];
-            $action_name = $onerow['action'];
-            $duration = $onerow['duration'];
-            $duration_delta = $duration - $avg_action_duration[$action_name];
-            $resultsize = $onerow['resultsize'];
-            $resultsize_delta = $resultsize - $avg_action_size[$action_name];
-            
-            $onerow['duration_delta'] = $duration_delta;
-            $onerow['resultsize_delta'] = $resultsize_delta;
-            if($resultsize > 0 && $duration > 0)
-            {
-                if($resultsize < 10000)
-                {
-                    //Improve numerical accuracy of result
-                    $normalized_duration = 1000000 * (10000 * $duration) / (10000 * $resultsize);
-                } else {
-                    $normalized_duration = 1000000 * ($duration / $resultsize);
-                }
-                $onerow['duration_per_1MB'] = $normalized_duration;
-            } else {
-                $onerow['duration_per_1MB'] = '';
-            }
-            $enhancedrows[] = $onerow;
-        }
-        $bundle['iterations'] = $iterations;
-        $bundle['stats'] 
-                = array('avg_action_duration'=>$avg_action_duration
-                       ,'avg_action_size'=>$avg_action_size
-                       ,'total_action_duration'=>$total_action_duration
-                       ,'biggestsize_item'=>$biggestsize_item
-                       ,'slowest_item'=>$slowest_item
-                );
-        $bundle['rowdata'] = $enhancedrows;
-        $values = array('reportdata'=>$bundle);
-        return $values;
     }
 	
     function getDownloadTypes()
@@ -205,18 +266,24 @@ class ViewEhrDaoPerformance extends AReport
     }
     
     
-    private function formatBytes($bytes, $precision = 2) { 
-        $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+    private function formatBytes($bytes, $precision = 2) 
+    {
+        try
+        {
+            $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
 
-        $bytes = max($bytes, 0); 
-        $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
-        $pow = min($pow, count($units) - 1); 
+            $bytes = max($bytes, 0); 
+            $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+            $pow = min($pow, count($units) - 1); 
 
-        // Uncomment one of the following alternatives
-        $bytes /= pow(1024, $pow);
-        // $bytes /= (1 << (10 * $pow)); 
+            // Uncomment one of the following alternatives
+            $bytes /= pow(1024, $pow);
+            // $bytes /= (1 << (10 * $pow)); 
 
-        return round($bytes, $precision) . ' ' . $units[$pow]; 
+            return round($bytes, $precision) . ' ' . $units[$pow]; 
+        } catch (\Exception $ex) {
+            return "ERR";
+        }
     }     
     
     /**
@@ -228,7 +295,9 @@ class ViewEhrDaoPerformance extends AReport
         $now_dt = date("Y-m-d H:i:s", time());
         $reportdata = $myvalues['reportdata'];
         $iterations = isset($reportdata['iterations']) ? $reportdata['iterations'] : '1';
-        $tickets_for_test = isset($reportdata['tickets_for_test']) ? $reportdata['tickets_for_test'] : '';
+        $tickets_for_test = isset($reportdata['tickets_for_test']) ? $reportdata['tickets_for_test'] : 'YABA';
+        $selected_filters = isset($reportdata['selected_filters']) ? $reportdata['selected_filters'] : '';
+        $available_filter_options = isset($reportdata['available_filter_options']) ? $reportdata['available_filter_options'] : 'MISSING';
         $headertext = array('#'=>'Iteration number',
             'TrackingID'=>'Ticket tracking number',
             'Start Time'=>'Start time of the action',
@@ -238,7 +307,8 @@ class ViewEhrDaoPerformance extends AReport
             'Delta from Ave Duration'=>'Difference from average duration',
             'Result Size'=>'Approximate size of action result',
             'Delta from Avg Size'=>'Difference from average size',
-            'Normalized Duration'=>'Duration to get result per 1MB');
+            'Normalized Duration'=>'Duration to get result per 1MB',
+            '% Duration'=>'Percentage of total ticket duration due to this action');
 
         $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
@@ -248,7 +318,11 @@ class ViewEhrDaoPerformance extends AReport
                 '#markup' => '<p>Raptor Site '.VISTA_SITE.' as of '.$now_dt."</p>", 
             );
 
-        $downloadlinks = $this->getDownloadLinksMarkup();
+        $keyparams = array();
+        $keyparams['tickets_for_test'] = $tickets_for_test;
+        $keyparams['iterations'] = $iterations;
+        $keyparams['selected_filters'] = $selected_filters;
+        $downloadlinks = $this->getDownloadLinksMarkup($keyparams);
         if(count($downloadlinks) > 0)
         {
             $markup = implode(' | ',$downloadlinks);
@@ -270,9 +344,11 @@ class ViewEhrDaoPerformance extends AReport
                     . print_r($reportdata,TRUE) 
                     . '<pre>'
             );
+         * 
          */
         
         $rows = '';
+        $total_error_count = $reportdata['total_error_count'];
         $reportstats = $reportdata['stats'];
         $biggestsize_amount = NULL;
         $biggestsize_action = NULL;
@@ -305,7 +381,6 @@ class ViewEhrDaoPerformance extends AReport
             }
         }
         
-        
         $rowdata = $reportdata['rowdata'];
         foreach($rowdata as $onerow)
         {
@@ -316,6 +391,7 @@ class ViewEhrDaoPerformance extends AReport
             $resultsize = $onerow['resultsize'];
             $resultsize_delta = $onerow['resultsize_delta'];
             $normalized_resultspeed = $onerow['duration_per_1MB'];
+            $duration_pct = number_format($onerow['duration_pct'],2);
             $nicesizetext = $this->formatBytes($resultsize);
             $nicesizedeltatext = $this->formatBytes($resultsize_delta);
             $tid = trim($onerow['tracking_id']);
@@ -338,6 +414,10 @@ class ViewEhrDaoPerformance extends AReport
                     $tidmarkup = "<b title='$action_name $extremetitle'>$tid</b>";
                 }
             }
+            if($onerow['error_detail'] != NULL)
+            {
+                $action_name = "FAILED $action_name {$onerow['error_detail']}";
+            }
             $rows .= '<tr>'
                     . "<td>{$iteration}</td>"
                     . "<td>{$tidmarkup}</td>"
@@ -349,11 +429,19 @@ class ViewEhrDaoPerformance extends AReport
                     . "<td title='$nicesizetext'>$resultsize</td>"
                     . "<td title='$nicesizedeltatext'>$resultsize_delta</td>"
                     . "<td>$normalized_resultspeed</td>"
+                    . "<td>$duration_pct</td>"
                     . '</tr>';
         }
 
         $context_markup_ar = array();
+        if($total_error_count>0)
+        {
+            $context_markup_ar[] = "<b>RUNTIME ERRORS : " . $total_error_count . "</b>";
+        } else {
+            $context_markup_ar[] = "Runtime errors : NONE";
+        }
         $context_markup_ar[] = "Iterations in report run: " . $iterations;
+        $context_markup_ar[] = "Selected Filters: " . print_r($selected_filters,TRUE);
         $it=0;
         foreach($reportdata['DAO'] as $daodetail)
         {
@@ -363,6 +451,7 @@ class ViewEhrDaoPerformance extends AReport
                 $context_markup_ar[] = "DAO of iteration $it $key: $value";
             }
         }
+        $ticketcount = 0;
         if(is_array($reportdata['ticketlist']))
         {
             $ticketlist = $reportdata['ticketlist'];
@@ -373,27 +462,30 @@ class ViewEhrDaoPerformance extends AReport
                 $context_markup_ar[] = "Tickets Tested: " . implode(',',$ticketlist);
             }
         }
-        if($biggestsize_action !== NULL)
+        if($ticketcount > 0 && $total_error_count == 0)
         {
-            $context_markup_ar[] = "Biggest result : " 
-                    . $biggestsize_amount
-                    . " found in " . $biggestsize_action 
-                    . ' of ' . $biggestsize_tid
-                    . ' at iteration '.$biggestsize_iteration;
-        }
-        if($slowest_action !== NULL)
-        {
-            $context_markup_ar[] = "Slowest result : " 
-                    . $slowest_amount 
-                    . " found in " . $slowest_action
-                    . ' of ' . $slowest_tid
-                    . ' at iteration '.$slowest_iteration;
-        }
-        if(is_array($reportstats))
-        {
-            foreach($reportstats as $key=>$value)
+            if($biggestsize_action !== NULL)
             {
-                $context_markup_ar[] = "Statistic detail of $key: " . print_r($value,TRUE);
+                $context_markup_ar[] = "Biggest result : " 
+                        . $biggestsize_amount
+                        . " found in " . $biggestsize_action 
+                        . ' of ' . $biggestsize_tid
+                        . ' at iteration '.$biggestsize_iteration;
+            }
+            if($slowest_action !== NULL)
+            {
+                $context_markup_ar[] = "Slowest result : " 
+                        . $slowest_amount 
+                        . " found in " . $slowest_action
+                        . ' of ' . $slowest_tid
+                        . ' at iteration '.$slowest_iteration;
+            }
+            if(is_array($reportstats))
+            {
+                foreach($reportstats as $key=>$value)
+                {
+                    $context_markup_ar[] = "Statistic detail of $key: " . print_r($value,TRUE);
+                }
             }
         }
         $form['data_entry_area1']['table_container']['daocontext'] 
@@ -427,6 +519,14 @@ class ViewEhrDaoPerformance extends AReport
                     '#disabled' => $disabled,
                     '#size' => 2,
                     '#default_value' => $iterations,
+            );
+        $form['data_entry_area1']['selections']['selected_filters'] 
+                = array('#type' => 'textfield',
+                    '#title' => t('Number of iterations for the test'),
+                    '#disabled' => $disabled,
+                    '#size' => 100,
+                    '#description' => "Available options are $available_filter_options",
+                    '#default_value' => $selected_filters,
             );
         $form['data_entry_area1']['selections']['tickets_for_test'] 
                 = array('#type' => 'textarea',

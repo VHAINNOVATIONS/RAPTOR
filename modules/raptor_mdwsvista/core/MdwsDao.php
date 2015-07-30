@@ -144,7 +144,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 {
                     // TODO:makeQuery  - haven't tested this auto-reconnect code atl all. need to write tests
                     // we received a fault - might be a session timeout in which case we want to handle gracefully
-                    error_log('Encounted a fault in makeQuery >>>' . $TOResult->fault->message);
+                    error_log('Encountered a fault in makeQuery >>>' . $TOResult->fault->message);
                     if (strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_1) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_2) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_3) !== FALSE ||

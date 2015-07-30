@@ -141,7 +141,6 @@ class ViewReportDeptTicketProcessing extends AReport
         
         $allthedetail = $this->m_oDA->getActivityByModalityAndDay(VISTA_SITE,$report_start_date,$report_end_date);
         
-        
         $deptdetails = $allthedetail['dept_activity'];
         foreach($deptdetails['rowdetail'] as $key=>$rowdetail)
         {

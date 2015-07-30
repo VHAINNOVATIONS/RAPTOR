@@ -116,7 +116,7 @@ abstract class AReport
     /**
      * Return download contents directly into the HTTP stream
      */
-    function downloadReport($downloadtype, $form_state, $myvalues)
+    public function downloadReport($downloadtype, $form_state, $myvalues)
     {
         $now = date('Y-m-d H:i:s');
         $report_start_date = isset($myvalues['report_start_date']) ? $myvalues['report_start_date'] : NULL;
@@ -137,7 +137,23 @@ abstract class AReport
         {
             throw new \Exception("Download $shortname of type '$downloadtype' is NOT supported");
         }
-        
+        if(isset($myvalues['reportdata']))
+        {
+            //Improved approach
+            $rowdata = $myvalues['reportdata']['rowdata'];
+        } else {
+            if(isset($myvalues['rowdata']))
+            {
+                //Support legacy approach
+                $rowdata = $myvalues['rowdata'];
+            } else {
+                throw new \Exception("Did NOT find any ROW DATA to export!");
+            }
+        }
+        $myvalues2 = isset($form_state['values']) ? $form_state['values'] : 'NO VALUES';
+error_log("LOOK DOWNLOAD>>>".print_r($rowdata,TRUE) 
+        ."\n>>>>LOOK1 FULL".print_r($myvalues,TRUE)
+        ."\n>>>>LOOK2 FULL".print_r($myvalues2,TRUE));        
         //Export it.
         header("Cache-Control: public");
         header("Content-Description: File Transfer");
@@ -147,7 +163,6 @@ abstract class AReport
         header("Content-Transfer-Encoding: binary");
 
         $rownum=0;
-        $rowdata = $myvalues['rowdata'];
         foreach($rowdata as $row)
         {
             $rownum++;
@@ -171,7 +186,7 @@ abstract class AReport
     /**
      * Return an array with download links for all supported download types
      */
-    function getDownloadLinksMarkup()
+    function getDownloadLinksMarkup($urlparams=array())
     {
         $downloadlinks = array();
         foreach($this->getDownloadTypes() as $downloadtype=>$details)
@@ -179,8 +194,20 @@ abstract class AReport
             $helptext = $details['helptext'];
             $linktext = $details['linktext'];
             $exporturl = $details['downloadurl']; 
+            if(count($urlparams) > 0)
+            {
+                //Add in the parameters
+                if(FALSE === strpos($exporturl, '?'))
+                {
+                    $exporturl .= '?';
+                }
+                foreach($urlparams as $key=>$value)
+                {
+                    $cleanparam = urlencode($value);
+                    $exporturl .= '&' . $key . '=' . $cleanparam;
+                }
+            }
             $downloadlinks[] = "<span  title='$helptext'><a href='$exporturl'>$linktext</a></span>";
-               
         }
         return $downloadlinks;
     }
