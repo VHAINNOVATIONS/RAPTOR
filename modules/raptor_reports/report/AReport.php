@@ -150,10 +150,6 @@ abstract class AReport
                 throw new \Exception("Did NOT find any ROW DATA to export!");
             }
         }
-        $myvalues2 = isset($form_state['values']) ? $form_state['values'] : 'NO VALUES';
-error_log("LOOK DOWNLOAD>>>".print_r($rowdata,TRUE) 
-        ."\n>>>>LOOK1 FULL".print_r($myvalues,TRUE)
-        ."\n>>>>LOOK2 FULL".print_r($myvalues2,TRUE));        
         //Export it.
         header("Cache-Control: public");
         header("Content-Description: File Transfer");

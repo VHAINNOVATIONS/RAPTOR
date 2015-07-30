@@ -501,7 +501,7 @@ class ViewEhrDaoPerformance extends AReport
             $headermarkup .= "<th title='$title'>$label</th>";
         }
         $form['data_entry_area1']['table_container']['activity'] = array('#type' => 'item',
-                 '#markup' => '<h2>Details</h2>'
+                 '#markup' => '<h2>Performance Details</h2>'
                             . '<table id="my-raptor-dialog-table" class="raptor-dialog-table dataTable">'
                             . '<thead><tr>'
                             . $headermarkup
