@@ -320,7 +320,9 @@ class ViewReportQAScores extends AReport
                 );
         }
 
-        $downloadlinks = $this->getDownloadLinksMarkup();
+        $keyparams = array();
+        $keyparams['report_start_date'] = $myvalues['report_start_date'];
+        $downloadlinks = $this->getDownloadLinksMarkup($keyparams);
         if(count($downloadlinks) > 0)
         {
             $markup = implode(' | ',$downloadlinks);

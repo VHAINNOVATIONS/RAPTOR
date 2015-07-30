@@ -276,7 +276,9 @@ class ViewReportDeptTicketProcessing extends AReport
                 '#markup' => '<p>Raptor Site '.VISTA_SITE.' as of '.$now_dt." ($scopetext)</p>", 
             );
 
-        $downloadlinks = $this->getDownloadLinksMarkup();
+        $keyparams = array();
+        $keyparams['report_start_date'] = $myvalues['report_start_date'];
+        $downloadlinks = $this->getDownloadLinksMarkup($keyparams);
         if(count($downloadlinks) > 0)
         {
             $markup = implode(' | ',$downloadlinks);
