@@ -93,6 +93,14 @@ function raptor_reports_viewreports_form_builder($form, &$form_state)
     } else {
         $myvalues = array();
     }
+    if(isset($_GET['showhiddenreports']))
+    {
+        $showhiddenreports_tx = strtoupper($_GET['showhiddenreports']);
+        $showhiddenreports = (strtoupper(trim($showhiddenreports_tx)) == 'TRUE');
+    } else {
+        $showhiddenreports = FALSE;
+    }
+    $myvalues['showhiddenreports'] = $showhiddenreports;
     return $oPI->getForm($form, $form_state, $disabled, $myvalues);
 }
 
@@ -129,16 +137,6 @@ function raptor_reports_runner_form_builder($form, &$form_state)
             if(isset($form_state['values']))
             {
                 $myvalues = $form_state['values'];    
-                /*
-                if(isset($myvalues['report_start_date'])) 
-                {
-                    $reportstartdate=$myvalues['report_start_date'];
-                }
-                if(isset($myvalues['report_end_date'])) 
-                {
-                    $reportenddate=$myvalues['report_end_date'];
-                }
-                 */
                 $initialvalues = $myvalues;
             }
             $form = array();

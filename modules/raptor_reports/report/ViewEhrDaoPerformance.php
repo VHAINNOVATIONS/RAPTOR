@@ -50,14 +50,33 @@ class ViewEhrDaoPerformance extends AReport
      * Get the values to populate the form.
      * @return type result of the queries as an array
      */
-    function getFieldValues($report_start_date=NULL,$report_end_date=NULL)
+    function getFieldValues($myvalues = NULL)
     {
-        $rawdetails = array();
-        $ticketlist = array('2009','2010');
-        $this->m_oEDRM->getPerformanceDetails($ticketlist);
-        $bundle['ticketlist'] = $ticketlist;
+        $bundle = array();
+        $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
+        if($tickets_for_test > '')
+        {
+            $ticketlist = explode(',',$tickets_for_test);
+        } else {
+            $ticketlist = array();
+        }
+        $rawdetails = $this->m_oEDRM->getPerformanceDetails($ticketlist);
         $bundle['debug'] = $rawdetails;
-        $rowdata = array(); //TODO
+        $bundle['ticketlist'] = $ticketlist;
+        $bundle['DAO'] = $rawdetails['DAO'];
+        $bundle['metrics'] = $rawdetails['metrics'];
+        $rowdata = array();
+        foreach($rawdetails['metrics'] as $onetest)
+        {
+            $rowdata[] = array(
+                'tracking_id'=>$onetest['tracking_id'],
+                'start_ts'=>$onetest['start_ts'],
+                'end_ts'=>$onetest['end_ts'],
+                'action'=>$onetest['metadata']['methodname'],
+                'duration'=>$onetest['end_ts']-$onetest['start_ts'],
+                'resultsize'=>$onetest['resultsize'],
+            );
+        }
         $bundle['rowdata'] = $rowdata;
         return $bundle;
     }
@@ -87,6 +106,15 @@ class ViewEhrDaoPerformance extends AReport
     function getForm($form, &$form_state, $disabled, $myvalues)
     {
         $now_dt = date("Y-m-d H:i:s", time());
+        $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
+        $headertext = array('TrackingID'=>'Ticket tracking number',
+            'Start Time'=>'Start time of the action',
+            'End Time'=>'End time of the action',
+            'Action Name'=>'The action that took place',
+            'Duration'=>'Number of seconds duration',
+            'Delta from Ave Duration'=>'Difference from average duration',
+            'Result Size'=>'Approximate size of action result',
+            'Delta from Avg Size'=>'Difference from average size');
 
         $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
@@ -122,32 +150,153 @@ class ViewEhrDaoPerformance extends AReport
                         . '<pre>'
                 );
         }
-
+        
         $rows = '';
         $rowdata = $myvalues['rowdata'];
-        foreach($rowdata as $coldata)
+        $biggestsize_item = array(); 
+        $biggestsize_item['resultsize'] = -1;
+        $slowest_item = array(); 
+        $slowest_item['duration'] = 9999; 
+        $total_action_duration = array();
+        $total_action_size = array();
+        $total_rows = 0;
+        $action_names_map = array();
+        foreach($rowdata as $onerow)
         {
+            $total_rows++;
+            $action_name = $onerow['action'];
+            if(!isset($action_names_map[$action_name]))
+            {
+                $action_names_map[$action_name] = 1;
+            } else {
+                $action_names_map[$action_name] = $action_names_map[$action_name] + 1;
+            }
+            $duration = $onerow['duration'];
+            $resultsize = $onerow['resultsize'];
+            if($onerow['resultsize'] > $biggestsize_item['resultsize'])
+            {
+                $biggestsize_item['resultsize'] = $onerow['resultsize']; 
+                $biggestsize_item['itemdetails'] = $onerow; 
+            }
+            if($onerow['duration'] < $slowest_item['duration'])
+            {
+                $slowest_item['duration'] = $onerow['duration']; 
+                $slowest_item['itemdetails'] = $onerow; 
+            }
+            if(!isset($total_action_duration[$action_name]))
+            {
+                $total_action_duration[$action_name] = $duration;
+            } else {
+                $total_action_duration[$action_name] = $total_action_duration[$action_name] + $duration;
+            }
+            if(!isset($total_action_size[$action_name]))
+            {
+                $total_action_size[$action_name] = $resultsize;
+            } else {
+                $total_action_size[$action_name] = $total_action_size[$action_name] + $resultsize;
+            }
+        }
+        //Compute averages
+        $avg_action_duration = array();
+        $avg_action_size = array();
+        foreach($action_names_map as $action_name=>$occurance_count)
+        {
+            if($occurance_count > 0)
+            {
+                $avg_action_duration[$action_name] = $total_action_duration[$action_name] / $occurance_count;
+                $avg_action_size[$action_name] = $total_action_size[$action_name] / $occurance_count;
+            }
+        }
+        //Create the enhanced detail rows
+        foreach($rowdata as $onerow)
+        {
+            $action_name = $onerow['action'];
+            $duration = $onerow['duration'];
+            $duration_delta = $duration - $avg_action_duration[$action_name];
+            $resultsize = $onerow['resultsize'];
+            $resultsize_delta = $resultsize - $avg_action_size[$action_name];
             $rows .= '<tr>'
-                    . '<td>TODO</td>'
+                    . "<td>{$onerow['tracking_id']}</td>"
+                    . "<td>{$onerow['start_ts']}</td>"
+                    . "<td>{$onerow['end_ts']}</td>"
+                    . "<td title='Counted $total_rows occurances'>$action_name</td>"
+                    . "<td>$duration</td>"
+                    . "<td>$duration_delta</td>"
+                    . "<td>$resultsize</td>"
+                    . "<td>$resultsize_delta</td>"
                     . '</tr>';
         }
 
+        $context_markup_ar = array();
+        //$context_markup_ar[] = "DAO Details: " . print_r($myvalues['DAO'],TRUE);
+        foreach($myvalues['DAO'] as $key=>$value)
+        {
+            $context_markup_ar[] = "DAO $key: $value";
+        }
+        if(is_array($myvalues['ticketlist']))
+        {
+            $ticketlist = $myvalues['ticketlist'];
+            $context_markup_ar[] = "Total Tickets: " . count($ticketlist);
+            $context_markup_ar[] = "Tickets Tested: " . implode(',',$ticketlist);
+        }
+        if(isset($biggestsize_item['itemdetails']['action']))
+        {
+            $context_markup_ar[] = "Biggest result : " 
+                    . $biggestsize_item['resultsize'] 
+                    . " found in " . $biggestsize_item['itemdetails']['action'] 
+                    . ' of ' . $biggestsize_item['itemdetails']['tracking_id'];
+        }
+        if(isset($slowest_item['itemdetails']['action']))
+        {
+            $context_markup_ar[] = "Slowest result : " 
+                    . $slowest_item['duration'] 
+                    . " found in " . $slowest_item['itemdetails']['action'] 
+                    . ' of ' . $slowest_item['itemdetails']['tracking_id'];
+        }
+        $form['data_entry_area1']['table_container']['daocontext'] = array('#type' => 'item',
+                '#markup' => '<h1>Result Context</h1>'
+                    . '<ul><li>' . implode('</li><li>',$context_markup_ar) 
+                    . '</ul>'
+            );
+
+        
+        $headermarkup = '';
+        foreach($headertext as $label=>$title)
+        {
+            $headermarkup .= "<th title='$title'>$label</th>";
+        }
         $form['data_entry_area1']['table_container']['activity'] = array('#type' => 'item',
-                 '#markup' => '<table id="my-raptor-dialog-table" class="raptor-dialog-table dataTable">'
+                 '#markup' => '<h2>Details</h2>'
+                            . '<table id="my-raptor-dialog-table" class="raptor-dialog-table dataTable">'
                             . '<thead><tr>'
-                            . '<th title="The modality abbreviation of this metric" >TODO</th>'
+                            . $headermarkup
                             . '</tr></thead>'
                             . '<tbody>'
                             . $rows
                             .  '</tbody>'
                             . '</table>');
+
+        
+        $form['data_entry_area1']['table_container']['tidanalysis'] = array('#type' => 'item',
+                '#markup' => '<h2>Summary Analysis by Tracking IDs</h2>'
+                    . '<p>' 
+                    . 'TODO'
+                    . '<p>'
+            );
+        
+        $form['data_entry_area1']['table_container']['actionanalysis'] = array('#type' => 'item',
+                '#markup' => '<h2>Summary Analysis of Actions</h2>'
+                    . '<p>' 
+                    . 'TODO'
+                    . '<p>'
+            );
         
         //Provide context options to the user
         $form['data_entry_area1']['selections']['tickets_for_test'] 
                 = array('#type' => 'textarea',
                     '#title' => t('Tickets for performance test use'),
                     '#disabled' => $disabled,
-                    '#default_value' => $myvalues['tickets_for_test'],
+                    '#default_value' => $tickets_for_test,
             );
         
         $form['data_entry_area1']['action_buttons'] = array(

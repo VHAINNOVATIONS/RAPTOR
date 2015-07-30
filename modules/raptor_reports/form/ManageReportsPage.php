@@ -85,11 +85,13 @@ class ManageReportsPage
         
         //Construct a page with all the available reports for the user.
         $rows = "\n";
+        $showhiddenreports = isset($myvalues['showhiddenreports']) ? $myvalues['showhiddenreports'] : FALSE;
         global $base_url;
         foreach($aReports as $classname=>$oReport)
         {
             //Can this user run this report?
-            if(!$oReport->hideFromList())
+            $hidefromlist = $oReport->hideFromList();
+            if($showhiddenreports || !$hidefromlist)
             {
                 if($oReport->hasRequiredPrivileges($userprivs))
                 {
@@ -97,10 +99,20 @@ class ManageReportsPage
                     $name = $oReport->getName(); // . '['.$base_url.']';
                     $description = $oReport->getDescription();
                     $menukey = $oReport->getMenuKey();
-                    $rows   .= "\n".'<tr><td><a href="javascript:window.location.href=\'' 
+                    if($hidefromlist)
+                    {
+                        $titleattr = ' title="Normally hidden report" ';
+                        $prefixattr = '<b>';
+                        $suffixattr = '</b>';
+                    } else {
+                        $titleattr = '';
+                        $prefixattr = '';
+                        $suffixattr = '';
+                    }
+                    $rows   .= "\n".'<tr><td '.$titleattr.'><a href="javascript:window.location.href=\'' 
                               . $base_url . '/' 
-                              . $menukey.'\'">View ' 
-                              . $name.' Report</a></td>'
+                              . $menukey.'\'">'.$prefixattr.'View ' 
+                              . $name.' Report'.$suffixattr.'</a></td>'
                               .'<td>'.$description.'</td>'
                               .'</tr>';
                 }

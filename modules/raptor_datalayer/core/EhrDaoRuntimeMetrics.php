@@ -104,12 +104,12 @@ class EhrDaoRuntimeMetrics
             $metrics = array();
             foreach($ticketlist as $tid)
             {
-                //TODO --- Clear all caches here
                 foreach($functionstocall as $details)
                 {
                     $oneitem = array();
-                    $oneitem['start_ts'] = microtime();
+                    $oneitem['start_ts'] = microtime(TRUE);
                     $oneitem['tracking_id'] = $tid;
+                    $callresult = NULL;
                     try
                     {
                         $oneitem['metadata'] = $details;
@@ -148,12 +148,14 @@ class EhrDaoRuntimeMetrics
                         //Continue with other items
                         $oneitem['failed'] = $ex;
                     }
-                    $oneitem['end_ts'] = microtime();
+                    $oneitem['end_ts'] = microtime(TRUE);
+                    $resultsize = strlen(print_r($callresult,TRUE));
+                    $oneitem['resultsize'] = $resultsize;
                     $metrics[] = $oneitem;
                 }
             }
             $result['metrics'] = $metrics;
-            error_log("LOOK metrics details>>>".print_r($metrics,TRUE));
+            //error_log("LOOK metrics details>>>".print_r($metrics,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
