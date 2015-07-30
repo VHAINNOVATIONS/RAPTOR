@@ -53,30 +53,16 @@ class ViewEhrDaoPerformance extends AReport
     function getFieldValues($myvalues = NULL)
     {
         $bundle = array();
+        $bundle['DAO'] = array();
         $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
+        $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
         if($tickets_for_test > '')
         {
             $ticketlist = explode(',',$tickets_for_test);
         } else {
             $ticketlist = array();
         }
-        $rawdetails = $this->m_oEDRM->getPerformanceDetails($ticketlist);
         $bundle['ticketlist'] = $ticketlist;
-        $bundle['DAO'] = $rawdetails['DAO'];
-        $bundle['metrics'] = $rawdetails['metrics'];
-        $rowdata = array();
-        foreach($rawdetails['metrics'] as $onetest)
-        {
-            $rowdata[] = array(
-                'tracking_id'=>$onetest['tracking_id'],
-                'start_ts'=>$onetest['start_ts'],
-                'end_ts'=>$onetest['end_ts'],
-                'action'=>$onetest['metadata']['methodname'],
-                'duration'=>$onetest['end_ts']-$onetest['start_ts'],
-                'resultsize'=>$onetest['resultsize'],
-            );
-        }
-        
         $biggestsize_item = array(); 
         $biggestsize_item['resultsize'] = -1;
         $slowest_item = array(); 
@@ -85,39 +71,67 @@ class ViewEhrDaoPerformance extends AReport
         $total_action_size = array();
         $total_rows = 0;
         $action_names_map = array();
-        foreach($rowdata as $onerow)
+        $rowdata = array();
+        $enhancedrows = array();
+        $prevdaoinfo = NULL;
+        for($iteration=1; $iteration <= $iterations; $iteration++)
         {
-            $total_rows++;
-            $action_name = $onerow['action'];
-            if(!isset($action_names_map[$action_name]))
+            $rawdetails = $this->m_oEDRM->getPerformanceDetails($ticketlist);
+            $daoinfo = $rawdetails['DAO'];
+            if($prevdaoinfo != $daoinfo)
             {
-                $action_names_map[$action_name] = 1;
-            } else {
-                $action_names_map[$action_name] = $action_names_map[$action_name] + 1;
+                //Add this one because it changed
+                $bundle['DAO'][$iteration] = $rawdetails['DAO'];
+                $prevdaoinfo = $daoinfo;
             }
-            $duration = $onerow['duration'];
-            $resultsize = $onerow['resultsize'];
-            if($onerow['resultsize'] > $biggestsize_item['resultsize'])
+            $metrics = $rawdetails['metrics'];
+            foreach($metrics as $onetest)
             {
-                $biggestsize_item['resultsize'] = $onerow['resultsize']; 
-                $biggestsize_item['itemdetails'] = $onerow; 
+                $rowdata[] = array(
+                    'iteration'=>$iteration,
+                    'tracking_id'=>$onetest['tracking_id'],
+                    'start_ts'=>$onetest['start_ts'],
+                    'end_ts'=>$onetest['end_ts'],
+                    'action'=>$onetest['metadata']['methodname'],
+                    'duration'=>$onetest['end_ts']-$onetest['start_ts'],
+                    'resultsize'=>$onetest['resultsize'],
+                );
             }
-            if($onerow['duration'] > $slowest_item['duration'])
+
+            foreach($rowdata as $onerow)
             {
-                $slowest_item['duration'] = $onerow['duration']; 
-                $slowest_item['itemdetails'] = $onerow; 
-            }
-            if(!isset($total_action_duration[$action_name]))
-            {
-                $total_action_duration[$action_name] = $duration;
-            } else {
-                $total_action_duration[$action_name] = $total_action_duration[$action_name] + $duration;
-            }
-            if(!isset($total_action_size[$action_name]))
-            {
-                $total_action_size[$action_name] = $resultsize;
-            } else {
-                $total_action_size[$action_name] = $total_action_size[$action_name] + $resultsize;
+                $total_rows++;
+                $action_name = $onerow['action'];
+                if(!isset($action_names_map[$action_name]))
+                {
+                    $action_names_map[$action_name] = 1;
+                } else {
+                    $action_names_map[$action_name] = $action_names_map[$action_name] + 1;
+                }
+                $duration = $onerow['duration'];
+                $resultsize = $onerow['resultsize'];
+                if($onerow['resultsize'] > $biggestsize_item['resultsize'])
+                {
+                    $biggestsize_item['resultsize'] = $onerow['resultsize']; 
+                    $biggestsize_item['itemdetails'] = $onerow; 
+                }
+                if($onerow['duration'] > $slowest_item['duration'])
+                {
+                    $slowest_item['duration'] = $onerow['duration']; 
+                    $slowest_item['itemdetails'] = $onerow; 
+                }
+                if(!isset($total_action_duration[$action_name]))
+                {
+                    $total_action_duration[$action_name] = $duration;
+                } else {
+                    $total_action_duration[$action_name] = $total_action_duration[$action_name] + $duration;
+                }
+                if(!isset($total_action_size[$action_name]))
+                {
+                    $total_action_size[$action_name] = $resultsize;
+                } else {
+                    $total_action_size[$action_name] = $total_action_size[$action_name] + $resultsize;
+                }
             }
         }
         //Compute averages
@@ -132,9 +146,9 @@ class ViewEhrDaoPerformance extends AReport
             }
         }
         //Enhance the row content
-        $enhancedrows = array();
         foreach($rowdata as $onerow)
         {
+            $iteration = $onerow['iteration'];
             $tid = $onerow['tracking_id'];
             $action_name = $onerow['action'];
             $duration = $onerow['duration'];
@@ -158,7 +172,8 @@ class ViewEhrDaoPerformance extends AReport
                 $onerow['duration_per_1MB'] = '';
             }
             $enhancedrows[] = $onerow;
-        }        
+        }
+        $bundle['iterations'] = $iterations;
         $bundle['stats'] 
                 = array('avg_action_duration'=>$avg_action_duration
                        ,'avg_action_size'=>$avg_action_size
@@ -214,7 +229,8 @@ class ViewEhrDaoPerformance extends AReport
         $reportdata = $myvalues['reportdata'];
         $iterations = isset($reportdata['iterations']) ? $reportdata['iterations'] : '1';
         $tickets_for_test = isset($reportdata['tickets_for_test']) ? $reportdata['tickets_for_test'] : '';
-        $headertext = array('TrackingID'=>'Ticket tracking number',
+        $headertext = array('#'=>'Iteration number',
+            'TrackingID'=>'Ticket tracking number',
             'Start Time'=>'Start time of the action',
             'End Time'=>'End time of the action',
             'Action Name'=>'The action that took place',
@@ -228,9 +244,8 @@ class ViewEhrDaoPerformance extends AReport
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
             '#suffix' => "\n</section>\n",
         );
-        $scopetext = 'All available data in the system.';
         $form['data_entry_area1']['context']['blurb'] = array('#type' => 'item',
-                '#markup' => '<p>Raptor Site '.VISTA_SITE.' as of '.$now_dt." ($scopetext)</p>", 
+                '#markup' => '<p>Raptor Site '.VISTA_SITE.' as of '.$now_dt."</p>", 
             );
 
         $downloadlinks = $this->getDownloadLinksMarkup();
@@ -249,20 +264,24 @@ class ViewEhrDaoPerformance extends AReport
             '#tree' => TRUE,
         );
 
+        /*
         $form['data_entry_area1']['table_container']['debugstuff'] = array('#type' => 'item',
                 '#markup' => '<h1>debug report data details</h1><pre>' 
                     . print_r($reportdata,TRUE) 
                     . '<pre>'
             );
+         */
         
         $rows = '';
         $reportstats = $reportdata['stats'];
         $biggestsize_amount = NULL;
         $biggestsize_action = NULL;
         $biggestsize_tid = NULL;
+        $biggestsize_iteration = NULL;
         $slowest_amount = NULL;
         $slowest_action = NULL;
         $slowest_tid = NULL;
+        $slowest_iteration = NULL;
         if(isset($reportstats['biggestsize_item']))
         {
             $biggestsize_item = $reportstats['biggestsize_item'];
@@ -271,6 +290,7 @@ class ViewEhrDaoPerformance extends AReport
                 $biggestsize_amount = $this->formatBytes($biggestsize_item['resultsize']);
                 $biggestsize_action = $biggestsize_item['itemdetails']['action'];
                 $biggestsize_tid = $biggestsize_item['itemdetails']['tracking_id'];
+                $biggestsize_iteration = $biggestsize_item['itemdetails']['iteration'];
             }
         }
         if(isset($reportstats['slowest_item']))
@@ -281,6 +301,7 @@ class ViewEhrDaoPerformance extends AReport
                 $slowest_amount = $slowest_item['duration'];
                 $slowest_action = $slowest_item['itemdetails']['action'];
                 $slowest_tid = $slowest_item['itemdetails']['tracking_id'];
+                $slowest_iteration = $slowest_item['itemdetails']['iteration'];
             }
         }
         
@@ -288,6 +309,7 @@ class ViewEhrDaoPerformance extends AReport
         $rowdata = $reportdata['rowdata'];
         foreach($rowdata as $onerow)
         {
+            $iteration = $onerow['iteration'];
             $action_name = $onerow['action'];
             $duration = $onerow['duration'];
             $duration_delta = $onerow['duration_delta'];
@@ -302,11 +324,11 @@ class ViewEhrDaoPerformance extends AReport
             if($tid == $slowest_tid || $tid == $biggestsize_tid)
             {
                 $extreme_items = array();
-                if($action_name == $slowest_action)
+                if($action_name == $slowest_action && $iteration == $slowest_iteration)
                 {
                     $extreme_items[] = 'slowest';
                 }
-                if($action_name == $biggestsize_action)
+                if($action_name == $biggestsize_action && $iteration == $biggestsize_iteration)
                 {
                     $extreme_items[] = 'biggest result';
                 }
@@ -317,8 +339,9 @@ class ViewEhrDaoPerformance extends AReport
                 }
             }
             $rows .= '<tr>'
+                    . "<td>{$iteration}</td>"
                     . "<td>{$tidmarkup}</td>"
-                    . "<td>sl=$slowest_tid b=[$biggestsize_tid]{$onerow['start_ts']}</td>"
+                    . "<td>{$onerow['start_ts']}</td>"
                     . "<td>{$onerow['end_ts']}</td>"
                     . "<td>$action_name</td>"
                     . "<td>$duration</td>"
@@ -330,9 +353,15 @@ class ViewEhrDaoPerformance extends AReport
         }
 
         $context_markup_ar = array();
-        foreach($reportdata['DAO'] as $key=>$value)
+        $context_markup_ar[] = "Iterations in report run: " . $iterations;
+        $it=0;
+        foreach($reportdata['DAO'] as $daodetail)
         {
-            $context_markup_ar[] = "DAO $key: $value";
+            $it++;
+            foreach($daodetail as $key=>$value)
+            {
+                $context_markup_ar[] = "DAO of iteration $it $key: $value";
+            }
         }
         if(is_array($reportdata['ticketlist']))
         {
@@ -344,24 +373,28 @@ class ViewEhrDaoPerformance extends AReport
                 $context_markup_ar[] = "Tickets Tested: " . implode(',',$ticketlist);
             }
         }
-        if(isset($reportstats['biggestsize_item']))
+        if($biggestsize_action !== NULL)
         {
-            $biggestsize_item = $reportstats['biggestsize_item'];
-            if(isset($biggestsize_item['itemdetails']))
-            {
-                $biggestsize_amount = $this->formatBytes($biggestsize_item['resultsize']);
-                $context_markup_ar[] = "Biggest result : " 
-                        . $biggestsize_amount
-                        . " found in " . $biggestsize_item['itemdetails']['action'] 
-                        . ' of ' . $biggestsize_item['itemdetails']['tracking_id'];
-            }
+            $context_markup_ar[] = "Biggest result : " 
+                    . $biggestsize_amount
+                    . " found in " . $biggestsize_action 
+                    . ' of ' . $biggestsize_tid
+                    . ' at iteration '.$biggestsize_iteration;
         }
         if($slowest_action !== NULL)
         {
             $context_markup_ar[] = "Slowest result : " 
                     . $slowest_amount 
                     . " found in " . $slowest_action
-                    . ' of ' . $slowest_tid;
+                    . ' of ' . $slowest_tid
+                    . ' at iteration '.$slowest_iteration;
+        }
+        if(is_array($reportstats))
+        {
+            foreach($reportstats as $key=>$value)
+            {
+                $context_markup_ar[] = "Statistic detail of $key: " . print_r($value,TRUE);
+            }
         }
         $form['data_entry_area1']['table_container']['daocontext'] 
                 = array('#type' => 'item',
@@ -398,6 +431,7 @@ class ViewEhrDaoPerformance extends AReport
         $form['data_entry_area1']['selections']['tickets_for_test'] 
                 = array('#type' => 'textarea',
                     '#title' => t('Tickets for performance test use'),
+                    '#rows' => 2,
                     '#disabled' => $disabled,
                     '#default_value' => $tickets_for_test,
             );
