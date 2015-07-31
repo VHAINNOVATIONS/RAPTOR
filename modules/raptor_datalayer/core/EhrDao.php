@@ -166,9 +166,9 @@ class EhrDao implements \raptor\IEhrDao
     /**
      * Return limited list of providers starting with neworderprovider_name
      */
-    public function getProviders($neworderprovider_name='')
+    public function getProviders($start_name)
     {
-        return $this->m_implclass->getProviders($neworderprovider_name);
+        return $this->m_implclass->getProviders($start_name);
     }
 
     public function getUserSecurityKeys()

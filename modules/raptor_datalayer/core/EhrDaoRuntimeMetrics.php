@@ -147,11 +147,13 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('setPatientID'
                 ,array('$testres_patient_id'));
         
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProviders',array(),array('core','dialog'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProviders'
+                ,array('""')
+                ,array('core','dialog')
+                );
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getEncounterStringFromVisit'
-                ,array('$testres_visits[0]')
+                ,array('$testres_visits[0]["visitTO"]')
                 ,array('core','dialog'));
-        
         
         $filtered = array();
         foreach($callfunctions as $candidate)
@@ -210,6 +212,7 @@ class EhrDaoRuntimeMetrics
                         $methodname = $details['methodname'];
                         $store_result_varname = NULL;
                         $store_result = $details['store_result'];
+error_log("LOOK about to call $methodname on ticket $tid");                            
                         if(is_array($store_result))
                         {
                             if(count($store_result) == 1)
@@ -249,6 +252,7 @@ error_log("LOOK about to eval this for param [[[ $evalthis ]]]");
                             //Simply use the constructor
                             $implclass = new $class();
                         }
+error_log("LOOK about to call $methodname on ticket $tid params=".print_r($params,TRUE));                            
                         if(count($params > 0))
                         {
                             if(count($params) == 1)
@@ -263,8 +267,16 @@ error_log("LOOK about to eval this for param [[[ $evalthis ]]]");
                         if($store_result_varname != NULL)
                         {
                             $eval_assign = "{$store_result_varname} = " . '$callresult;';
-error_log("LOOK about to eval this assignment [[[ $eval_assign ]]]");                            
+error_log("LOOK 1 about to eval this assignment [[[ $eval_assign ]]]");                            
                             eval($eval_assign);
+                            $evalthis = "return {$store_result_varname};";
+error_log("LOOK 2 about to eval this as a test [[[ $evalthis ]]]");                            
+                            $justlooking = eval($evalthis);
+error_log("LOOK 3 about to eval this as a test>>> ".print_r($justlooking,TRUE)); 
+if(is_array($justlooking))
+{
+    error_log("LOOK 4 is array get item " . print_r($justlooking[0]['visitTO'],TRUE));                            
+}
                         }
                     } catch (\Exception $ex) {
                         //Continue with other items

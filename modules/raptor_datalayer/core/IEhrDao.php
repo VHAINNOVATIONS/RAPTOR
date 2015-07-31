@@ -87,7 +87,7 @@ interface IEhrDao
     /**
      * Return limited list of providers starting with neworderprovider_name
      */
-    public function getProviders($neworderprovider_name='');
+    public function getProviders($start_name);
     
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     public function createNewRadiologyOrder($orderChecks, $args);
