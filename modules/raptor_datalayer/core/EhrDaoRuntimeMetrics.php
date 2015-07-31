@@ -52,9 +52,12 @@ class EhrDaoRuntimeMetrics
             );
     }
     
-    private function getOneCallFunctionBlockForEhrDao($methodname, $params=array(), $membership=array('core','oneorder'))
+    private function getOneCallFunctionDefForEhrDao($methodname
+            , $params=array()
+            , $membership=array('core','oneorder')
+            , $store_result=array())
     {
-        return array('namespace'=>'raptor'
+        $def = array('namespace'=>'raptor'
                     ,'membership'=>$membership
                     ,'classname'=>'EhrDao'
                     ,'methodname'=>$methodname
@@ -62,7 +65,9 @@ class EhrDaoRuntimeMetrics
                     ,'sourcefile'=>'core/EhrDao.php'
                     ,'getinstanceliteral'=>'$this->m_oContext->getEhrDao()'
                     ,'params'=>$params
+                    ,'store_result'=>$store_result
                 );
+        return $def;
     }
     
     /**
@@ -83,46 +88,69 @@ class EhrDaoRuntimeMetrics
                     ,'sourcefile'=>'core/Context.php'
                     ,'getinstanceliteral'=>'\raptor\Context::getInstance()'
                     ,'params'=>array('$tid')
+                    ,'store_result'=>array()
                 );
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getImplementationInstance',array(),array('core','setup'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImplementationInstance'
+                ,array()
+                ,array('core','setup'));
 
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('isAuthenticated',array(),array('core','user'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('isProvider',array(),array('core','user'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('userHasKeyOREMAS',array(),array('core','user'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getUserSecurityKeys',array(),array('core','user'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVistaAccountKeyProblems',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('isAuthenticated',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('isProvider',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('userHasKeyOREMAS',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getUserSecurityKeys',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVistaAccountKeyProblems',array(),array('core','user'));
         
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getIntegrationInfo',array(),array('core'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getWorklistDetailsMap',array(),array('core'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getIntegrationInfo'
+                ,array()
+                ,array('core'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getWorklistDetailsMap'
+                ,array()
+                ,array('core'));
         
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getDashboardDetailsMap',array('$tid'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getPatientIDFromTrackingID',array('$tid'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDashboardDetailsMap'
+                ,array('$tid'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPatientIDFromTrackingID'
+                ,array('$tid')
+                ,array('core','oneorder')
+                ,array('$testres_patient_id'));
         
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getAllHospitalLocationsMap',array(),array('core','dialog'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getAllergiesDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getChemHemLabs');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getAllHospitalLocationsMap'
+                ,array()
+                ,array('core','dialog'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getAllergiesDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getChemHemLabs');
         
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getDiagnosticLabsDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getEGFRDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getImagingTypesMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getNotesDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDiagnosticLabsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getEGFRDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImagingTypesMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getNotesDetailMap');
         
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getOrderOverviewMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getPathologyReportsDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getPendingOrdersMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getProblemsListDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getProcedureLabsDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getRadiologyCancellationReasons');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getOrderOverviewMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPathologyReportsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPendingOrdersMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProblemsListDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProcedureLabsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyCancellationReasons');
 
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getRadiologyReportsDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getRawVitalSignsMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getSurgeryReportsDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVisits');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyReportsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRawVitalSignsMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getSurgeryReportsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVisits'
+                ,array('$tid')
+                ,array('core','oneorder')
+                ,array('$testres_visits'));
         
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVitalsDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVitalsDetailOnlyLatestMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVitalsSummaryMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsDetailOnlyLatestMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsSummaryMap');
 
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('setPatientID'
+                ,array('$testres_patient_id'));
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProviders',array(),array('core','dialog'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getEncounterStringFromVisit'
+                ,array('$testres_visits[0]')
+                ,array('core','dialog'));
         
         
         $filtered = array();
@@ -180,11 +208,35 @@ class EhrDaoRuntimeMetrics
                         $namespace = $details['namespace'];
                         $classname = $details['classname'];
                         $methodname = $details['methodname'];
+                        $store_result_varname = NULL;
+                        $store_result = $details['store_result'];
+                        if(is_array($store_result))
+                        {
+                            if(count($store_result) == 1)
+                            {
+                                $store_result_varname = $store_result[0];
+                                $required_prefix = '$testres_';
+                                if(strlen($store_result_varname) <= strlen($required_prefix))
+                                {
+                                    throw new \Exception("Unsupported (too short) store_result value=".print_r($store_result));
+                                }
+                                if(substr($store_result_varname,0,9) != $required_prefix)
+                                {
+                                    throw new \Exception("Unsupported (missing prefix '$required_prefix') store_result value=".print_r($store_result));
+                                }
+                            } else
+                            if(count($store_result) > 1)
+                            {
+                                throw new \Exception("Unsupported store_result value=".print_r($store_result));
+                            }
+                        }
                         $getinstanceliteral = isset($details['getinstanceliteral']) ? $details['getinstanceliteral'] : NULL;
                         $params = array();
                         foreach($details['params'] as $oneparam)
                         {
-                            $oneparamvalue = eval("return {$oneparam};");
+                            $evalthis = "return {$oneparam};";
+error_log("LOOK about to eval this for param [[[ $evalthis ]]]");                            
+                            $oneparamvalue = eval($evalthis);
                             $params[] = $oneparamvalue;
                         }
                         $oneitem['paramvalues'] = $params;
@@ -207,6 +259,12 @@ class EhrDaoRuntimeMetrics
                             }
                         } else {
                             $callresult = $implclass->$methodname();
+                        }
+                        if($store_result_varname != NULL)
+                        {
+                            $eval_assign = "{$store_result_varname} = " . '$callresult;';
+error_log("LOOK about to eval this assignment [[[ $eval_assign ]]]");                            
+                            eval($eval_assign);
                         }
                     } catch (\Exception $ex) {
                         //Continue with other items
