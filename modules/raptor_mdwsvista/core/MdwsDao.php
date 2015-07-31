@@ -619,7 +619,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return \raptor_mdwsvista\MdwsNewOrderUtils::getRadiologyOrderDialog($this, $imagingTypeId, $patientId);
     }
 
-    public function getProviders($neworderprovider_name)
+    public function getProviders($neworderprovider_name='')
     {
         return \raptor_mdwsvista\MdwsUserUtils::getProviders($this, $neworderprovider_name);
     }

@@ -84,13 +84,16 @@ class EhrDaoRuntimeMetrics
                     ,'getinstanceliteral'=>'\raptor\Context::getInstance()'
                     ,'params'=>array('$tid')
                 );
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getIntegrationInfo',array(),array('core'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getImplementationInstance',array(),array('core'));
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getWorklistDetailsMap',array(),array('core'));
-        
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getImplementationInstance',array(),array('core','setup'));
+
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('isAuthenticated',array(),array('core','user'));
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('isProvider',array(),array('core','user'));
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('userHasKeyOREMAS',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getUserSecurityKeys',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVistaAccountKeyProblems',array(),array('core','user'));
+        
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getIntegrationInfo',array(),array('core'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getWorklistDetailsMap',array(),array('core'));
         
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getDashboardDetailsMap',array('$tid'));
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getPatientIDFromTrackingID',array('$tid'));
@@ -114,9 +117,7 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getRadiologyReportsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getRawVitalSignsMap');
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getSurgeryReportsDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getUserSecurityKeys');
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVisits');
-        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVistaAccountKeyProblems');
         
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVitalsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVitalsDetailOnlyLatestMap');

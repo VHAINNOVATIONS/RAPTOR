@@ -84,6 +84,11 @@ interface IEhrDao
      */
     public function invalidateCacheForPatient($pid);
     
+    /**
+     * Return limited list of providers starting with neworderprovider_name
+     */
+    public function getProviders($neworderprovider_name='');
+    
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     public function createNewRadiologyOrder($orderChecks, $args);
     public function createUnsignedRadiologyOrder($orderChecks, $args);
@@ -104,7 +109,7 @@ interface IEhrDao
     public function getPendingOrdersMap();
     public function getProblemsListDetailMap();
     public function getProcedureLabsDetailMap();
-    public function getProviders($neworderprovider_name);
+
     public function getRadiologyCancellationReasons();
     public function getRadiologyOrderChecks($args);
     public function getRadiologyOrderDialog($imagingTypeId, $patientId);

@@ -119,8 +119,6 @@ class MdwsUserUtils {
 
     /**
      * Return max of 44 providers starting with target string
-     * @return array
-     * @throws \Exception
      */
     public static function getProviders($mdwsDao, $target)
     {
@@ -154,7 +152,6 @@ class MdwsUserUtils {
         return $result;
     }
 
-    // TODO - refactor this function to retrieve keys from MdwsUserUtils::getUserSecurityKeys
     /**
      * @return boolean TRUE if the user is a provider, else FALSE
      */

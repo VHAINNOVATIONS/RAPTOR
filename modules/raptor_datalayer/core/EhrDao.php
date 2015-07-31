@@ -163,7 +163,10 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getRadiologyOrderDialog($imagingTypeId, $patientId);
     }
 
-    public function getProviders($neworderprovider_name)
+    /**
+     * Return limited list of providers starting with neworderprovider_name
+     */
+    public function getProviders($neworderprovider_name='')
     {
         return $this->m_implclass->getProviders($neworderprovider_name);
     }
