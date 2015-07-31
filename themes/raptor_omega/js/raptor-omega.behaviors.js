@@ -289,11 +289,42 @@
                 }
             });
 
-
     /***** END WORKFLOW DIALOGS *****/
-
-
     $(document).ready(function () {
+        //set the global constant: user interaction ping interval seconds
+        var interval_seconds = null;
+        var user_ping_info = $.ajax({
+            url: Drupal.pageData.baseURL + '/raptor/userinteractionping',
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            timeout: 3000, //3 seconds to timeout
+        });
+        //Handle Failure to load by stopping all subsequent ajax requests and displaying an error message
+        user_ping_info.fail(function () {
+            $('#worklistLoaderWrapper').append('<h1 class="messages error" style="color:red">ERROR ENCOUNTERED</h1>').fadeIn('slow');
+            $('#worklistLoader').hide('slow');
+            $.xhrPool = [];
+            $.xhrPool.abortAll = function () {
+                $(this).each(function (i, jqXHR) {   //  cycle through list of recorded connection
+                    jqXHR.abort();  //  aborts connection
+                    $.xhrPool.splice(i, 1); //  removes from list by index
+                });
+            };
+            $.ajaxSetup({
+                beforeSend: function (jqXHR) {
+                    $.xhrPool.push(jqXHR);
+                }, //  annd connection to list
+                complete: function (jqXHR) {
+                    var i = $.xhrPool.indexOf(jqXHR);   //  get index for current connection completed
+                    if (i > -1)
+                        $.xhrPool.splice(i, 1); //  removes from list by index
+                }
+            });
+        });
+        if (user_ping_info !== undefined){
+            interval_seconds = parseInt(user_ping_info.responseJSON.thisuser.alive_ping_interval_seconds);
+        }
         /*** Idle timeout ***/
         var countdownIntervalId = 0,
                 $timeoutWarningContainer = $('#timeout-warning'),
@@ -490,6 +521,7 @@
 
             // Check each minute to see if the user needs to be logged out or not
             var runSessionAndLockChecks = setInterval(function () {
+                //console.log("session locks executing " + interval_seconds);
                 var userinteractionpingParam = isProtocolPage() ? '?refreshlocks' : '';
                 // Need to use grab the base URL from PHP to keep the URL path from breaking userinteractionpingParam
                 $.getJSON(Drupal.pageData.baseURL + '/raptor/userinteractionping', function (response) {
@@ -549,10 +581,10 @@
                     }
                     ;
                 }); // END $.getJSON
-            }, 30 * 1000);
+            }, interval_seconds * 1000);
         }
-        
-        if (isLoginPage() || isLogoutPage()){
+
+        if (isLoginPage() || isLogoutPage()) {
             return false; //we do not want to call out to user interaction ping endpoint on login or logout page 
         }
 
