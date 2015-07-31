@@ -61,6 +61,27 @@ class ViewEhrDaoPerformance extends AReport
             $bundle = array();
             $bundle['DAO'] = array();
             $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
+            if(strlen($tickets_for_test) > 3)
+            {
+                $checkcmd = strtoupper(trim($tickets_for_test));
+                $cmdparts = explode(':',$checkcmd);
+                if($cmdparts[0] == 'GET')
+                {
+                    //Second param is number of tickets to grab
+                    $limit = intval($cmdparts[1]);
+                    $realtickets = $this->m_oEDRM->getRealTickets($limit);
+                    $tickets_for_test = '';
+                    foreach($realtickets as $tid=>$details)
+                    {
+                        if($tickets_for_test > '')
+                        {
+                            $tickets_for_test .= ',';
+                        }
+                        $tickets_for_test .= $tid;
+                    }
+                    $myvalues['tickets_for_test'] = $tickets_for_test;
+                }
+            }
             $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
             $available_filter_options_ar = $this->m_oEDRM->getMetricFilterOptions();
             $bundle['available_filter_options'] = implode(',',$available_filter_options_ar);

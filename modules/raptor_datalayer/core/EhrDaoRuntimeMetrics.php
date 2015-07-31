@@ -39,6 +39,47 @@ class EhrDaoRuntimeMetrics
     }
 
     /**
+     * Return real worklist tickets
+     */
+    public function getRealTickets($limit=100,$fail_if_too_few=TRUE)
+    {
+        try
+        {
+            $real_tickets = array();
+            $oContext = \raptor\Context::getInstance();
+            $ehrDao = $oContext->getEhrDao();
+            $worklistbundle = $ehrDao->getWorklistDetailsMap();
+            $datarows = $worklistbundle['DataRows'];
+            if(count($datarows) < 1)
+            {
+                //Empty result is not normal; check the user account.
+                $logmsg = 'No order data was returned from VistA using your account';
+                drupal_set_message($logmsg,'warning');
+                error_log($logmsg);
+            }
+            $added = 0;
+            foreach($datarows as $onerow)
+            {
+                $tid = $onerow[0];
+                $real_tickets[$tid] = $onerow;
+                $added++;
+                if($added >= $limit)
+                {
+                    break;
+                }
+            }
+            $found = count($real_tickets);
+            if($fail_if_too_few && $found < $limit)
+            {
+                throw new \Exception("Only found $found but needed $limit");
+            }
+            return $real_tickets;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getRealTickets($limit)",99876,$ex);
+        }
+    }
+    
+    /**
      * These are the available filter options
      */
     public function getMetricFilterOptions()
@@ -178,7 +219,8 @@ class EhrDaoRuntimeMetrics
                 ,array('core','dialog'));
 
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyOrderDialog'
-                ,array('$this->getFirstArrayKey($testres_imagetypes, $testres_patient_id)')
+                ,array('$this->getFirstArrayKey($testres_imagetypes)'
+                     , '$testres_patient_id')
                 ,array('core','dialog'));
         
         //Now filter out the functions we do not want to call.
