@@ -87,6 +87,7 @@ class EhrDaoRuntimeMetrics
         return array(
             'core'      //All methods are members of this group
             ,'user'     //Only methods that are for ther user account are members of this group
+            ,'worklist' //Only the worklist for special testing (not one order specific)
             ,'dialog'   //Only methods that are used in dialogs are members of this group
             ,'setup'    //Critical functions for setup are members of this group
             ,'oneorder' //Only methods that operate on ONE order are members of this group
@@ -122,7 +123,7 @@ class EhrDaoRuntimeMetrics
         $callfunctions = array();
         $callfunctions[] 
                 = array('namespace'=>'raptor'
-                    ,'membership'=>array('core','setup','oneorder')
+                    ,'membership'=>$this->getMetricFilterOptions() //Always all for this one
                     ,'classname'=>'Context'
                     ,'methodname'=>'setSelectedTrackingID'
                     ,'sourcemodule'=>'raptor_datalayer'
@@ -131,25 +132,42 @@ class EhrDaoRuntimeMetrics
                     ,'params'=>array('$tid')
                     ,'store_result'=>array()
                 );
+        
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImplementationInstance'
                 ,array()
                 ,array('core','setup'));
 
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('isAuthenticated',array(),array('core','user'));
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('isProvider',array(),array('core','user'));
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('userHasKeyOREMAS',array(),array('core','user'));
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getUserSecurityKeys',array(),array('core','user'));
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVistaAccountKeyProblems',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('isAuthenticated'
+                ,array()
+                ,array('core','user'));
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('isProvider'
+                ,array()
+                ,array('core','user'));
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('userHasKeyOREMAS'
+                ,array()
+                ,array('core','user'));
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getUserSecurityKeys'
+                ,array()
+                ,array('core','user'));
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVistaAccountKeyProblems'
+                ,array()
+                ,array('core','user'));
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getIntegrationInfo'
                 ,array()
                 ,array('core'));
+        
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getWorklistDetailsMap'
                 ,array()
-                ,array('core'));
+                ,array('core','worklist'));
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDashboardDetailsMap'
                 ,array('$tid'));
+        
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPatientIDFromTrackingID'
                 ,array('$tid')
                 ,array('core','oneorder')
@@ -309,6 +327,9 @@ class EhrDaoRuntimeMetrics
      */
     public function getPerformanceDetails($ticketlist,$membership_filter=array('setup','oneorder'))
     {
+        global $user;
+        $usertxtinfo = "user {$user->uid} from vista site ".VISTA_SITE." at host {$user->hostname}";
+        error_log("Starting getPerformanceDetails for ticketlist=" . print_r($ticketlist,TRUE) . " as $usertxtinfo");   //This can take many resources so log it
         if(!is_array($ticketlist))
         {
             throw new \Exception('Must provide an input list of tickets to process!');
@@ -418,6 +439,7 @@ class EhrDaoRuntimeMetrics
             }
             $result['ticketstats'] = $ticketstats;
             $result['metrics'] = $metrics;
+            error_log("Done getPerformanceDetails for ticketlist=" . print_r($ticketlist,TRUE) . " as $usertxtinfo");   //This can take many resources so log it
             return $result;
         } catch (\Exception $ex) {
             throw new \Exception("Failed getting metrics",99876,$ex);
