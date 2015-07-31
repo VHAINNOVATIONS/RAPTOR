@@ -71,13 +71,13 @@ class EhrDaoRuntimeMetrics
     }
     
     /**
-     * Returns the list of functions to call on each ticket
+     * Returns the filtered list of functions to call
      */
-    private function getFunctionsToCall($membership_filter)
+    private function getFunctionsToCall($membership_filter=array('core'))
     {
         $def_getinstanceliteral = '$this->m_oContext->getEhrDao()';
         
-        //Return stuff we need to call for each ticket
+        //Create an array with entire sequence of available functions to call
         $callfunctions = array();
         $callfunctions[] 
                 = array('namespace'=>'raptor'
@@ -122,7 +122,11 @@ class EhrDaoRuntimeMetrics
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDiagnosticLabsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getEGFRDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImagingTypesMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImagingTypesMap'
+                ,array()
+                ,array('core','oneorder')
+                ,array('$testres_imagetypes'));
+        
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getNotesDetailMap');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getOrderOverviewMap');
@@ -143,6 +147,7 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsDetailOnlyLatestMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsSummaryMap');
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getMedicationsDetailMap');
 
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('setPatientID'
                 ,array('$testres_patient_id'));
@@ -154,7 +159,18 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getEncounterStringFromVisit'
                 ,array('$testres_visits[0]["visitTO"]')
                 ,array('core','dialog'));
+
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getOrderableItems'
+                ,array('$this->getFirstArrayKey($testres_imagetypes)')
+                ,array('core','dialog'));
         
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('verifyNoteTitleMapping'
+                ,array(
+                     '"'.VISTA_NOTE_TITLE_RAPTOR_GENERAL.'"'
+                    ,'"'.VISTA_NOTEIEN_RAPTOR_GENERAL.'"')
+                ,array('core','setup'));
+        
+        //Now filter out the functions we do not want to call.
         $filtered = array();
         foreach($callfunctions as $candidate)
         {
@@ -169,6 +185,46 @@ class EhrDaoRuntimeMetrics
             }
         }
         return $filtered;
+    }
+    
+    /**
+     * Used by METADATA COMMANDS not literal code!!!!!
+     */
+    private function getFirstArrayValue($myarray,$error_if_empty=TRUE)
+    {
+        if(!is_array($myarray))
+        {
+            throw new \Exception("Expected an array!");
+        }
+        foreach($myarray as $value)
+        {
+            return $value;
+        }
+        if($error_if_empty)
+        {
+            throw new \Exception("Expected an array with at least one value!");
+        }
+        return NULL;
+    }
+
+    /**
+     * Used by METADATA COMMANDS not literal code!!!!!
+     */
+    private function getFirstArrayKey($myarray,$error_if_empty=TRUE)
+    {
+        if(!is_array($myarray))
+        {
+            throw new \Exception("Expected an array!");
+        }
+        foreach($myarray as $key=>$value)
+        {
+            return $key;
+        }
+        if($error_if_empty)
+        {
+            throw new \Exception("Expected an array with at least one value!");
+        }
+        return NULL;
     }
     
     /**
@@ -237,7 +293,7 @@ error_log("LOOK about to call $methodname on ticket $tid");
                         $params = array();
                         foreach($details['params'] as $oneparam)
                         {
-                            $evalthis = "return {$oneparam};";
+                            $evalthis = "return ".$oneparam." ;";
 error_log("LOOK about to eval this for param [[[ $evalthis ]]]");                            
                             $oneparamvalue = eval($evalthis);
                             $params[] = $oneparamvalue;
@@ -253,16 +309,18 @@ error_log("LOOK about to eval this for param [[[ $evalthis ]]]");
                             $implclass = new $class();
                         }
 error_log("LOOK about to call $methodname on ticket $tid params=".print_r($params,TRUE));                            
-                        if(count($params > 0))
-                        {
-                            if(count($params) == 1)
-                            {
-                                $callresult = $implclass->$methodname($params[0]);
-                            } else {
-                                $callresult = $implclass->$methodname($params);
-                            }
-                        } else {
+                        $num_params = count($params);
+                        if($num_params == 0) {
                             $callresult = $implclass->$methodname();
+                        } else if($num_params == 1) {
+                            $callresult = $implclass->$methodname($params[0]);
+                        } else if($num_params == 2) {
+                            $callresult = $implclass->$methodname($params[0],$params[1]);
+                        } else if($num_params == 3) {
+                            $callresult = $implclass->$methodname($params[0],$params[1],$params[2]);
+                        } else {
+                            //If this happens, add another handler above.
+                            throw new \Exception("Currently no support implemented to call with $num_params arguments!");
                         }
                         if($store_result_varname != NULL)
                         {
@@ -273,9 +331,11 @@ error_log("LOOK 1 about to eval this assignment [[[ $eval_assign ]]]");
 error_log("LOOK 2 about to eval this as a test [[[ $evalthis ]]]");                            
                             $justlooking = eval($evalthis);
 error_log("LOOK 3 about to eval this as a test>>> ".print_r($justlooking,TRUE)); 
-if(is_array($justlooking))
+if(isset($justlooking[0]['visitTO']))
 {
-    error_log("LOOK 4 is array get item " . print_r($justlooking[0]['visitTO'],TRUE));                            
+    error_log("LOOK 4 is visit array item " . print_r($justlooking[0]['visitTO'],TRUE));                            
+} else {
+    error_log("LOOK 4 is item " . print_r($justlooking,TRUE));                            
 }
                         }
                     } catch (\Exception $ex) {
