@@ -586,7 +586,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getHospitalLocations($startingitem)
+    public function getHospitalLocationsMap($startingitem)
     {
         $serviceName = $this->getCallingFunctionName();
         return $this->getServiceRelatedData($serviceName);
