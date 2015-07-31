@@ -116,7 +116,9 @@ class EhrDaoRuntimeMetrics
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getAllHospitalLocationsMap'
                 ,array()
-                ,array('core','dialog'));
+                ,array('core','dialog')
+                ,array('$testres_hosplocations'));
+        
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getAllergiesDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getChemHemLabs');
         
@@ -162,13 +164,18 @@ class EhrDaoRuntimeMetrics
 
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getOrderableItems'
                 ,array('$this->getFirstArrayKey($testres_imagetypes)')
-                ,array('core','dialog'));
+                ,array('core','dialog')
+                ,array('$testres_orderableitems'));
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('verifyNoteTitleMapping'
                 ,array(
                      '"'.VISTA_NOTE_TITLE_RAPTOR_GENERAL.'"'
                     ,'"'.VISTA_NOTEIEN_RAPTOR_GENERAL.'"')
                 ,array('core','setup'));
+
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyOrderChecks'
+                ,array('$this->getArgsForRadOrdCheck($testres_hosplocations,$testres_orderableitems,$testres_patient_id)')
+                ,array('core','dialog'));
         
         //Now filter out the functions we do not want to call.
         $filtered = array();
@@ -225,6 +232,30 @@ class EhrDaoRuntimeMetrics
             throw new \Exception("Expected an array with at least one value!");
         }
         return NULL;
+    }
+    
+    /**
+     * Used by METADATA COMMANDS not literal code!!!!!
+     */
+    private function getArgsForRadOrdCheck($hosplocations,$orderableitems,$patient_id)
+    {
+        try
+        {
+            $location = $this->getFirstArrayKey($hosplocations);
+            $orderitem = $this->getFirstArrayKey($orderableitems);
+            $args = array();
+            $date = new \DateTime();
+            $args['startDateTime'] = $date->getTimestamp();
+            $args['locationIEN'] = $location;
+            $args['orderableItemId'] = $orderitem;
+            $args['patientId'] = $patient_id;
+            return $args;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getArgsForRadOrdCheck for p=" 
+                    . print_r($hosplocations,TRUE) 
+                    . " and p2=" 
+                    . print_r($orderableitems,TRUE));
+        }
     }
     
     /**
