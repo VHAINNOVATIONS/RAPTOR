@@ -122,7 +122,6 @@ class MdwsUserUtils {
      */
     public static function getProviders($mdwsDao, $target='')
     {
-error_log("LOOK getProviders --- about to call makeQuery(cprsUserLookup,target) with target=" . print_r($target,TRUE));
         try
         {
             $soapResult = $mdwsDao->makeQuery('cprsUserLookup', array('target'=>$target));
@@ -146,13 +145,13 @@ error_log("LOOK getProviders --- about to call makeQuery(cprsUserLookup,target) 
                 $cprsUserTOs = $soapResult->cprsUserLookupResult->users->UserTO;
             }
 
-            for ($i = 0; $i < count($cprsUserTOs); $i++) {
+            for ($i = 0; $i < count($cprsUserTOs); $i++) 
+            {
                 $userDuz = $cprsUserTOs[$i]->DUZ;
                 $userName = $cprsUserTOs[$i]->name;
                 $result[$userDuz] = $userName;
             }
 
-error_log("LOOK getProviders --- done got result =" . print_r($result,TRUE)); 
             return $result;
         } catch (\Exception $ex) {
             throw new \Exception("Failed getProviders on target ".print_r($target,TRUE),99876,$ex);

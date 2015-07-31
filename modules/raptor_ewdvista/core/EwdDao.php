@@ -44,8 +44,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         $this->m_createdtimestamp = microtime();        
         $this->m_oWebServices = new \raptor_ewdvista\WebServices();
         $this->initClient();
-        
-        error_log("LOOK constructed ".$this);
     }
 
     public function getIntegrationInfo()

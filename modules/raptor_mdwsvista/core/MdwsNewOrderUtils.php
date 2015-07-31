@@ -335,18 +335,6 @@ class MdwsNewOrderUtils {
                 . "failed to find orderid=$orderId ($orderCount rows) "
                 . "in the bottom $maxrecordschecked records!"
                 . "\nResult Details>>> ".print_r($result,TRUE));
-        /* TO BE REMOVED
-        $result = $result->ddrListerResult->text->string;
-        // double check field 7 matches order IEN
-        $resultPieces = explode('^', $result);
-        $radFileOrderIen = $resultPieces[2];    
-        if ($radFileOrderIen != $orderId) {
-            throw new \Exception('Verification of matching record in file 75.1 failed: '.$result);
-        }
-        
-        return $resultPieces[0];
-         * 
-         */
     }
 
     public static function getRadiologyOrderChecks($mdwsDao, $args) {

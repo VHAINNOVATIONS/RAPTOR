@@ -1286,7 +1286,7 @@ function raptor_glue_resetsecondssincelastaction_form_builder($form, &$form_stat
         throw new \Exception($errormsg,$ex);
     }
     
-    error_log('Successfully called raptor_glue_resetsecondssincelastaction_form_builder');  //TODO remove
+    //error_log('Successfully called raptor_glue_resetsecondssincelastaction_form_builder');  //TODO remove
     
     //Stop all processing.
     drupal_exit();  //Otherwise more stuff gets added to the file.

@@ -303,7 +303,6 @@ class EhrDaoRuntimeMetrics
                         $methodname = $details['methodname'];
                         $store_result_varname = NULL;
                         $store_result = $details['store_result'];
-error_log("LOOK about to call $methodname on ticket $tid");                            
                         if(is_array($store_result))
                         {
                             if(count($store_result) == 1)
@@ -329,7 +328,6 @@ error_log("LOOK about to call $methodname on ticket $tid");
                         foreach($details['params'] as $oneparam)
                         {
                             $evalthis = "return ".$oneparam." ;";
-error_log("LOOK about to eval this for param [[[ $evalthis ]]]");                            
                             $oneparamvalue = eval($evalthis);
                             $params[] = $oneparamvalue;
                         }
@@ -343,7 +341,6 @@ error_log("LOOK about to eval this for param [[[ $evalthis ]]]");
                             //Simply use the constructor
                             $implclass = new $class();
                         }
-error_log("LOOK about to call $methodname on ticket $tid params=".print_r($params,TRUE));                            
                         $num_params = count($params);
                         if($num_params == 0) {
                             $callresult = $implclass->$methodname();
@@ -360,18 +357,9 @@ error_log("LOOK about to call $methodname on ticket $tid params=".print_r($param
                         if($store_result_varname != NULL)
                         {
                             $eval_assign = "{$store_result_varname} = " . '$callresult;';
-error_log("LOOK 1 about to eval this assignment [[[ $eval_assign ]]]");                            
                             eval($eval_assign);
                             $evalthis = "return {$store_result_varname};";
-error_log("LOOK 2 about to eval this as a test [[[ $evalthis ]]]");                            
                             $justlooking = eval($evalthis);
-error_log("LOOK 3 about to eval this as a test>>> ".print_r($justlooking,TRUE)); 
-if(isset($justlooking[0]['visitTO']))
-{
-    error_log("LOOK 4 is visit array item " . print_r($justlooking[0]['visitTO'],TRUE));                            
-} else {
-    error_log("LOOK 4 is item " . print_r($justlooking,TRUE));                            
-}
                         }
                     } catch (\Exception $ex) {
                         //Continue with other items
