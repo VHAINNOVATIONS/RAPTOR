@@ -176,6 +176,10 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyOrderChecks'
                 ,array('$this->getArgsForRadOrdCheck($testres_hosplocations,$testres_orderableitems,$testres_patient_id)')
                 ,array('core','dialog'));
+
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyOrderDialog'
+                ,array('$this->getFirstArrayKey($testres_imagetypes, $testres_patient_id)')
+                ,array('core','dialog'));
         
         //Now filter out the functions we do not want to call.
         $filtered = array();
