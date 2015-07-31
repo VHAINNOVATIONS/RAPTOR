@@ -198,7 +198,12 @@ class ViewEhrDaoPerformance extends AReport
                     $thisticketduration = $ticketstats[$iteration][$tid]['duration'];
                     $duration = $onerow['duration'];
                     $duration_delta = $duration - $avg_action_duration[$action_name];
-                    $duration_pct = 100 * $duration / $thisticketduration;
+                    if($thisticketduration > 0)
+                    {
+                        $duration_pct = 100 * $duration / $thisticketduration;
+                    } else {
+                        $duration_pct = NULL;
+                    }
                     $resultsize = $onerow['resultsize'];
                     $resultsize_delta = $resultsize - $avg_action_size[$action_name];
                 } else {
@@ -522,7 +527,7 @@ class ViewEhrDaoPerformance extends AReport
             );
         $form['data_entry_area1']['selections']['selected_filters'] 
                 = array('#type' => 'textfield',
-                    '#title' => t('Number of iterations for the test'),
+                    '#title' => t('Function call groups to include'),
                     '#disabled' => $disabled,
                     '#size' => 100,
                     '#description' => "Available options are $available_filter_options",

@@ -43,7 +43,26 @@ class EhrDaoRuntimeMetrics
      */
     public function getMetricFilterOptions()
     {
-        return array('core','setup','oneorder');
+        return array(
+            'core'      //All methods are members of this group
+            ,'user'     //Only methods that are for ther user account are members of this group
+            ,'dialog'   //Only methods that are used in dialogs are members of this group
+            ,'setup'    //Critical functions for setup are members of this group
+            ,'oneorder' //Only methods that operate on ONE order are members of this group
+            );
+    }
+    
+    private function getOneCallFunctionBlockForEhrDao($methodname, $params=array(), $membership=array('core','oneorder'))
+    {
+        return array('namespace'=>'raptor'
+                    ,'membership'=>$membership
+                    ,'classname'=>'EhrDao'
+                    ,'methodname'=>$methodname
+                    ,'sourcemodule'=>'raptor_datalayer'
+                    ,'sourcefile'=>'core/EhrDao.php'
+                    ,'getinstanceliteral'=>'$this->m_oContext->getEhrDao()'
+                    ,'params'=>$params
+                );
     }
     
     /**
@@ -51,11 +70,13 @@ class EhrDaoRuntimeMetrics
      */
     private function getFunctionsToCall($membership_filter)
     {
+        $def_getinstanceliteral = '$this->m_oContext->getEhrDao()';
+        
         //Return stuff we need to call for each ticket
         $callfunctions = array();
         $callfunctions[] 
                 = array('namespace'=>'raptor'
-                    ,'membership'=>array('core','setup')
+                    ,'membership'=>array('core','setup','oneorder')
                     ,'classname'=>'Context'
                     ,'methodname'=>'setSelectedTrackingID'
                     ,'sourcemodule'=>'raptor_datalayer'
@@ -63,26 +84,46 @@ class EhrDaoRuntimeMetrics
                     ,'getinstanceliteral'=>'\raptor\Context::getInstance()'
                     ,'params'=>array('$tid')
                 );
-        $callfunctions[] 
-                = array('namespace'=>'raptor'
-                    ,'membership'=>array('core')
-                    ,'classname'=>'EhrDao'
-                    ,'methodname'=>'getWorklistDetailsMap'
-                    ,'sourcemodule'=>'raptor_datalayer'
-                    ,'sourcefile'=>'core/EhrDao.php'
-                    ,'getinstanceliteral'=>'$this->m_oContext->getEhrDao()'
-                    ,'params'=>array()
-                );
-        $callfunctions[] 
-                = array('namespace'=>'raptor'
-                    ,'membership'=>array('core','oneorder')
-                    ,'classname'=>'EhrDao'
-                    ,'methodname'=>'getDashboardDetailsMap'
-                    ,'sourcemodule'=>'raptor_datalayer'
-                    ,'sourcefile'=>'core/EhrDao.php'
-                    ,'getinstanceliteral'=>'$this->m_oContext->getEhrDao()'
-                    ,'params'=>array('$tid')
-                );
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getIntegrationInfo',array(),array('core'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getImplementationInstance',array(),array('core'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getWorklistDetailsMap',array(),array('core'));
+        
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('isAuthenticated',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('isProvider',array(),array('core','user'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('userHasKeyOREMAS',array(),array('core','user'));
+        
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getDashboardDetailsMap',array('$tid'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getPatientIDFromTrackingID',array('$tid'));
+        
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getAllHospitalLocationsMap',array(),array('core','dialog'));
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getAllergiesDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getChemHemLabs');
+        
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getDiagnosticLabsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getEGFRDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getImagingTypesMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getNotesDetailMap');
+        
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getOrderOverviewMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getPathologyReportsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getPendingOrdersMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getProblemsListDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getProcedureLabsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getRadiologyCancellationReasons');
+
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getRadiologyReportsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getRawVitalSignsMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getSurgeryReportsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getUserSecurityKeys');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVisits');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVistaAccountKeyProblems');
+        
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVitalsDetailMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVitalsDetailOnlyLatestMap');
+        $callfunctions[] = $this->getOneCallFunctionBlockForEhrDao('getVitalsSummaryMap');
+
+        
+        
         $filtered = array();
         foreach($callfunctions as $candidate)
         {

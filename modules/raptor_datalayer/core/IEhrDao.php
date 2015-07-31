@@ -93,7 +93,7 @@ interface IEhrDao
     public function getDiagnosticLabsDetailMap();
     public function getEGFRDetailMap();
     public function getEncounterStringFromVisit($vistitTo);
-    public function getHospitalLocations($startingitem);
+    public function getHospitalLocationsMap($startingitem);
     public function getImagingTypesMap();
     public function getImplementationInstance();
     public function getMedicationsDetailMap($atriskmeds = NULL);
