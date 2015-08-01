@@ -41,10 +41,14 @@ class EhrDaoRuntimeMetrics
     /**
      * Return real worklist tickets
      */
-    public function getRealTickets($limit=100,$fail_if_too_few=TRUE)
+    public function getRealTickets($limit=100,$start_after=NULL,$fail_if_too_few=TRUE)
     {
         try
         {
+            if($start_after == NULL)
+            {
+                $start_after = 0;
+            }
             $real_tickets = array();
             $oContext = \raptor\Context::getInstance();
             $ehrDao = $oContext->getEhrDao();
@@ -57,25 +61,30 @@ class EhrDaoRuntimeMetrics
                 drupal_set_message($logmsg,'warning');
                 error_log($logmsg);
             }
+            $visited = 0;
             $added = 0;
             foreach($datarows as $onerow)
             {
-                $tid = $onerow[0];
-                $real_tickets[$tid] = $onerow;
-                $added++;
-                if($added >= $limit)
+                $visited++;
+                if($visited > $start_after)
                 {
-                    break;
+                    $tid = $onerow[0];
+                    $real_tickets[$tid] = $onerow;
+                    $added++;
+                    if($added >= $limit)
+                    {
+                        break;
+                    }
                 }
             }
             $found = count($real_tickets);
             if($fail_if_too_few && $found < $limit)
             {
-                throw new \Exception("Only found $found but needed $limit");
+                throw new \Exception("Only found $found but needed $limit after $start_after");
             }
             return $real_tickets;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed getRealTickets($limit)",99876,$ex);
+            throw new \Exception("Failed getRealTickets($limit,$start_after)",99876,$ex);
         }
     }
     
@@ -97,7 +106,9 @@ class EhrDaoRuntimeMetrics
     private function getOneCallFunctionDefForEhrDao($methodname
             , $params=array()
             , $membership=array('core','oneorder')
-            , $store_result=array())
+            , $store_result=array()
+            , $expected_result=NULL //NULL or 0bytes or array or something or array(something)
+            )
     {
         $def = array('namespace'=>'raptor'
                     ,'membership'=>$membership
@@ -108,6 +119,7 @@ class EhrDaoRuntimeMetrics
                     ,'getinstanceliteral'=>'$this->m_oContext->getEhrDao()'
                     ,'params'=>$params
                     ,'store_result'=>$store_result
+                    ,'expected_result'=>$expected_result
                 );
         return $def;
     }
@@ -131,6 +143,7 @@ class EhrDaoRuntimeMetrics
                     ,'getinstanceliteral'=>'\raptor\Context::getInstance()'
                     ,'params'=>array('$tid')
                     ,'store_result'=>array()
+                    ,'expected_result'=>NULL
                 );
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImplementationInstance'
@@ -163,7 +176,9 @@ class EhrDaoRuntimeMetrics
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getWorklistDetailsMap'
                 ,array()
-                ,array('core','worklist'));
+                ,array('core','worklist')
+                ,array()
+                ,'something');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDashboardDetailsMap'
                 ,array('$tid'));
@@ -171,7 +186,8 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPatientIDFromTrackingID'
                 ,array('$tid')
                 ,array('core','oneorder')
-                ,array('$testres_patient_id'));
+                ,array('$testres_patient_id')
+                ,'something');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getAllHospitalLocationsMap'
                 ,array()
@@ -203,7 +219,8 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVisits'
                 ,array('$tid')
                 ,array('core','oneorder')
-                ,array('$testres_visits'));
+                ,array('$testres_visits')
+                ,'array(something)');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsDetailOnlyLatestMap');
@@ -211,20 +228,25 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getMedicationsDetailMap');
 
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('setPatientID'
-                ,array('$testres_patient_id'));
+                ,array('$testres_patient_id')
+                ,array('core','oneorder')
+                );
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProviders'
                 ,array('""')
                 ,array('core','dialog')
-                );
+                ,array()
+                ,'array(something)');
+        
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getEncounterStringFromVisit'
-                ,array('$testres_visits[0]["visitTO"]')
+                ,array('$this->getFirstVisitTO($testres_visits)')
                 ,array('core','dialog'));
 
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getOrderableItems'
                 ,array('$this->getFirstArrayKey($testres_imagetypes)')
                 ,array('core','dialog')
-                ,array('$testres_orderableitems'));
+                ,array('$testres_orderableitems')
+                ,'array(something)');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('verifyNoteTitleMapping'
                 ,array(
@@ -256,6 +278,18 @@ class EhrDaoRuntimeMetrics
             }
         }
         return $filtered;
+    }
+    
+    /**
+     * Used by METADATA COMMANDS not literal code!!!!!
+     */
+    private function getFirstVisitTO($testres_visits)
+    {
+        if(!isset($testres_visits[0]['visitTO']))
+        {
+            throw new \Exception("Did NOT find 'visitTO' at offset 0 in ".print_r($testres_visits,TRUE));
+        }
+        return $testres_visits[0]['visitTO'];
     }
     
     /**
@@ -366,6 +400,7 @@ class EhrDaoRuntimeMetrics
                         $methodname = $details['methodname'];
                         $store_result_varname = NULL;
                         $store_result = $details['store_result'];
+                        $expected_result = $details['expected_result'];
                         if(is_array($store_result))
                         {
                             if(count($store_result) == 1)
@@ -417,12 +452,47 @@ class EhrDaoRuntimeMetrics
                             //If this happens, add another handler above.
                             throw new \Exception("Currently no support implemented to call with $num_params arguments!");
                         }
+                        if($expected_result !== NULL)
+                        {
+                            //We defined an expected result, check it.
+                            if($expected_result == '0bytes' || $expected_result == 'something')
+                            {
+                                $rsize = strlen(print_r($callresult,TRUE));
+                                if($expected_result == '0bytes')
+                                {
+                                    if($rsize > 0)
+                                    {
+                                        throw new \Exception("Expected result as $expected_result but got something as ".print_r($callresult,TRUE));
+                                    }
+                                } else {
+                                    if($rsize < 1)
+                                    {
+                                        throw new \Exception("Expected result as $expected_result but got 0 bytes ".print_r($callresult,TRUE));
+                                    }
+                                }
+                            } else if($expected_result == 'array' || $expected_result == 'array(something)') {
+                                if(!is_array($callresult))
+                                {
+                                    throw new \Exception("Expected result as $expected_result but got ".print_r($callresult,TRUE));
+                                }
+                                if($expected_result == 'array(something)')
+                                {
+                                    if(count($callresult) < 1)
+                                    {
+                                        throw new \Exception("Expected result as $expected_result but got 0 count in ".print_r($callresult,TRUE));
+                                    }
+                                }
+                            } else {
+                                throw new \Exception("Cannot parse '$expected_result' as an expected result");
+                            }
+                        }
                         if($store_result_varname != NULL)
                         {
                             $eval_assign = "{$store_result_varname} = " . '$callresult;';
                             eval($eval_assign);
                             $evalthis = "return {$store_result_varname};";
-                            $justlooking = eval($evalthis);
+$justlooking = eval($evalthis);
+error_log("LOOK eval assign( $eval_assign ) just looking >>>" . print_r($justlooking,TRUE));                            
                         }
                     } catch (\Exception $ex) {
                         //Continue with other items

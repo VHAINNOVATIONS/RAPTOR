@@ -120,13 +120,14 @@ abstract class AReport
     {
         $now = date('Y-m-d H:i:s');
         $report_start_date = isset($myvalues['report_start_date']) ? $myvalues['report_start_date'] : NULL;
+        $filename_insert = isset($myvalues['filename_insert']) ? '_'.$myvalues['filename_insert'] : '';
         $filesuffix = strtolower($downloadtype);
         $shortname = $this->getUniqueShortname();
         if($report_start_date > '')
         {
-            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE."_from_{$report_start_date}_until_{$now}.$filesuffix";
+            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE."{$filename_insert}_from_{$report_start_date}_until_{$now}.$filesuffix";
         } else {
-            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE."_all_until_{$now}.$filesuffix";
+            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE."{$filename_insert}_all_until_{$now}.$filesuffix";
         }
         
         $downloadmap = $this->getDownloadTypes();        

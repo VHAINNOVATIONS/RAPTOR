@@ -361,7 +361,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         try
         {
-            error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
+            //error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
             $aResult = array();
             $oContext = \raptor\Context::getInstance();
             if ($oContext != NULL)

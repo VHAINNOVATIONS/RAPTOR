@@ -24,7 +24,7 @@ class ViewEhrDaoPerformance extends AReport
 {
     private static $reqprivs = array();
     private static $menukey = 'raptor/showehrdaoperformance';
-    private static $reportname = 'System Tuning EHR DAO Performance Details';
+    private static $reportname = 'Show EHR DAO Performance Details';
 
     private $m_oEDRM = NULL;
     
@@ -66,11 +66,29 @@ class ViewEhrDaoPerformance extends AReport
             {
                 $checkcmd = strtoupper(trim($tickets_for_test));
                 $cmdparts = explode(':',$checkcmd);
+                $part_count = count($cmdparts);
                 if($cmdparts[0] == 'GET')
                 {
                     //Second param is number of tickets to grab
+                    if(!is_numeric($cmdparts[1]))
+                    {
+                        throw new \Exception("Expected INTEGER in offset 1 of ".print_r($cmdparts,TRUE));
+                    }
                     $limit = intval($cmdparts[1]);
-                    $realtickets = $this->m_oEDRM->getRealTickets($limit);
+                    $startafter = NULL;
+                    if($part_count > 2)
+                    {
+                        if($cmdparts[2] != 'AFTER')
+                        {
+                            throw new \Exception("Expected AFTER in offset 2 of ".print_r($cmdparts,TRUE));
+                        }
+                        if(!is_numeric($cmdparts[3]))
+                        {
+                            throw new \Exception("Expected INTEGER in offset 3 of ".print_r($cmdparts,TRUE));
+                        }
+                        $startafter = intval($cmdparts[3]);
+                    } 
+                    $realtickets = $this->m_oEDRM->getRealTickets($limit,$startafter);
                     $tickets_for_test = '';
                     foreach($realtickets as $tid=>$details)
                     {
@@ -81,6 +99,14 @@ class ViewEhrDaoPerformance extends AReport
                         $tickets_for_test .= $tid;
                     }
                     $myvalues['tickets_for_test'] = $tickets_for_test;
+                    
+                    //Create a meaningful insert for the download filename
+                    $filename_insert = "get$limit";
+                    if($startafter != NULL)
+                    {
+                        $filename_insert .= "_after{$startafter}";
+                    }
+                    $myvalues['filename_insert'] = $filename_insert;
                 }
             }
             $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
@@ -149,10 +175,10 @@ class ViewEhrDaoPerformance extends AReport
                     }
                     $seqnum++;
                     $rowdata[] = array(
+                        'iteration'=>$iteration,
                         'seqnum' => $seqnum,
                         'has_error'=>$has_error,
                         'error_detail'=>$ex,
-                        'iteration'=>$iteration,
                         'tracking_id'=>$onetest['tracking_id'],
                         'start_ts'=>$onetest['start_ts'],
                         'end_ts'=>$onetest['end_ts'],
@@ -277,7 +303,7 @@ class ViewEhrDaoPerformance extends AReport
             $myvalues['reportdata'] = $bundle;
             return $myvalues;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed to get field values!",99876,$ex);
+            throw new \Exception("Failed to get field values becase $ex",99876,$ex);
         }
     }
 	
@@ -313,7 +339,10 @@ class ViewEhrDaoPerformance extends AReport
             $bytes = max($bytes, 0); 
             $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
             $pow = min($pow, count($units) - 1); 
-
+            if($pow < 0)
+            {
+                return "ERR pow=$pow for input ($bytes, $precision)";
+            }
             // Uncomment one of the following alternatives
             $bytes /= pow(1024, $pow);
             // $bytes /= (1 << (10 * $pow)); 
@@ -592,6 +621,7 @@ class ViewEhrDaoPerformance extends AReport
                     '#title' => t('Tickets for performance test use'),
                     '#rows' => 2,
                     '#disabled' => $disabled,
+                    '#description' => "Provide comma delimited list of tickets to process or provide get:X:after:Y where X is number of tickets to process and Y is where to start grabbing them from the worklist.",
                     '#default_value' => $tickets_for_test,
             );
         
