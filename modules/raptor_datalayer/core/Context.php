@@ -108,7 +108,7 @@ class Context
         {
             //error_log('Successful hit on local cache for '.$sKey);
             $aItem = $this->m_aLocalCache[$sKey];
-            $aItem['hit'] = microtime();
+            $aItem['hit'] = microtime(TRUE);    //20150731
             return $aItem['value'];
         }
         return NULL;
@@ -798,8 +798,9 @@ class Context
         $oMC->setPatientID($sPatientID);
 
         //Now is the perfect time to reset the session to invalidate other windows!!!
-        $SHORT_DELAY_REFRESH_OVERRIDE = 120;    //Must be at least 2 minutes
-        $this->serializeNow('', TRUE, $SHORT_DELAY_REFRESH_OVERRIDE);
+        //$SHORT_DELAY_REFRESH_OVERRIDE = 120;    //Must be at least 2 minutes
+        //$this->serializeNow('', TRUE, $SHORT_DELAY_REFRESH_OVERRIDE);
+        $this->serializeNow('', TRUE);
     }
 
     

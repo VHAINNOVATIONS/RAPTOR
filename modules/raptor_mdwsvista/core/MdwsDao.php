@@ -131,10 +131,12 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             //}
             // functionToInvoke is the name of the SOAP call, args is the list of arguments
             // PHP seems to like this format (using the functionToInvoke string as the SOAP name) just fine!
-            //error_log('TODO:makeQuery  --- soap client looks like this>>>' . print_r($this->mdwsClient,TRUE));
+//error_log('LOOK makeQuery --- soap client looks like this>>>' . print_r($this->mdwsClient,TRUE));
+//error_log("LOOK makeQuery --- about to call $functionToInvoke with args=" . print_r($args,TRUE));
             $soapResult = $this->mdwsClient->$functionToInvoke($args);
             // TO object is always stored in "soapCallResult". e.g. select result stored in 'selectResult'
             $resultVarName = strval($functionToInvoke) . "Result";
+//error_log("LOOK makeQuery result --- $resultVarName");
             // this block of code before the return $soapResult statement is error checking/auto-re-authentication
             if (isset($soapResult->$resultVarName)) //20140723 JAM why would this ever not be set?? ->  //20140707 FJF prevent missing property error message
             {
@@ -359,7 +361,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         try
         {
-            error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
+            //error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
             $aResult = array();
             $oContext = \raptor\Context::getInstance();
             if ($oContext != NULL)
@@ -617,9 +619,9 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return \raptor_mdwsvista\MdwsNewOrderUtils::getRadiologyOrderDialog($this, $imagingTypeId, $patientId);
     }
 
-    public function getProviders($neworderprovider_name)
+    public function getProviders($start_name)
     {
-        return \raptor_mdwsvista\MdwsUserUtils::getProviders($this, $neworderprovider_name);
+        return \raptor_mdwsvista\MdwsUserUtils::getProviders($this, $start_name);
     }
 
     public function getUserSecurityKeys()
@@ -655,9 +657,9 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return \raptor_mdwsvista\MdwsUtils::getEncounterStringFromVisit($vistitTo);
     }
 
-    public function getHospitalLocations($startingitem)
+    public function getHospitalLocationsMap($startingitem)
     {
-        return \raptor_mdwsvista\MdwsUtils::getHospitalLocations($this, $startingitem);
+        return \raptor_mdwsvista\MdwsUtils::getHospitalLocationsMap($this, $startingitem);
     }
 
     public function getRadiologyCancellationReasons()

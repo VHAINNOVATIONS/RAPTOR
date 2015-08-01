@@ -24,7 +24,7 @@ class ViewEhrDaoPerformance extends AReport
 {
     private static $reqprivs = array();
     private static $menukey = 'raptor/showehrdaoperformance';
-    private static $reportname = 'System Tuning EHR DAO Performance Details';
+    private static $reportname = 'Show EHR DAO Performance Details';
 
     private $m_oEDRM = NULL;
     
@@ -52,6 +52,7 @@ class ViewEhrDaoPerformance extends AReport
      */
     function getFieldValues($myvalues = NULL)
     {
+        $getfieldvalues_starttime = microtime(TRUE);
         if($myvalues == NULL)
         {
             $myvalues = array();
@@ -61,6 +62,53 @@ class ViewEhrDaoPerformance extends AReport
             $bundle = array();
             $bundle['DAO'] = array();
             $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
+            if(strlen($tickets_for_test) > 3)
+            {
+                $checkcmd = strtoupper(trim($tickets_for_test));
+                $cmdparts = explode(':',$checkcmd);
+                $part_count = count($cmdparts);
+                if($cmdparts[0] == 'GET')
+                {
+                    //Second param is number of tickets to grab
+                    if(!is_numeric($cmdparts[1]))
+                    {
+                        throw new \Exception("Expected INTEGER in offset 1 of ".print_r($cmdparts,TRUE));
+                    }
+                    $limit = intval($cmdparts[1]);
+                    $startafter = NULL;
+                    if($part_count > 2)
+                    {
+                        if($cmdparts[2] != 'AFTER')
+                        {
+                            throw new \Exception("Expected AFTER in offset 2 of ".print_r($cmdparts,TRUE));
+                        }
+                        if(!is_numeric($cmdparts[3]))
+                        {
+                            throw new \Exception("Expected INTEGER in offset 3 of ".print_r($cmdparts,TRUE));
+                        }
+                        $startafter = intval($cmdparts[3]);
+                    } 
+                    $realtickets = $this->m_oEDRM->getRealTickets($limit,$startafter);
+                    $tickets_for_test = '';
+                    foreach($realtickets as $tid=>$details)
+                    {
+                        if($tickets_for_test > '')
+                        {
+                            $tickets_for_test .= ',';
+                        }
+                        $tickets_for_test .= $tid;
+                    }
+                    $myvalues['tickets_for_test'] = $tickets_for_test;
+                    
+                    //Create a meaningful insert for the download filename
+                    $filename_insert = "get$limit";
+                    if($startafter != NULL)
+                    {
+                        $filename_insert .= "_after{$startafter}";
+                    }
+                    $myvalues['filename_insert'] = $filename_insert;
+                }
+            }
             $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
             $available_filter_options_ar = $this->m_oEDRM->getMetricFilterOptions();
             $bundle['available_filter_options'] = implode(',',$available_filter_options_ar);
@@ -87,6 +135,7 @@ class ViewEhrDaoPerformance extends AReport
             $ticketstats = array();
             $prevdaoinfo = NULL;
             $total_error_count = 0;
+            $exec_order = 0;
             for($iteration=1; $iteration <= $iterations; $iteration++)
             {
                 try
@@ -112,6 +161,7 @@ class ViewEhrDaoPerformance extends AReport
                     }
                 }
                 $metrics = $rawdetails['metrics'];
+                $seqnum = 0;
                 foreach($metrics as $onetest)
                 {
                     $actionname = $onetest['metadata']['methodname'];
@@ -123,10 +173,12 @@ class ViewEhrDaoPerformance extends AReport
                         $ex = NULL;
                         $has_error = 'NO';
                     }
+                    $seqnum++;
                     $rowdata[] = array(
+                        'iteration'=>$iteration,
+                        'seqnum' => $seqnum,
                         'has_error'=>$has_error,
                         'error_detail'=>$ex,
-                        'iteration'=>$iteration,
                         'tracking_id'=>$onetest['tracking_id'],
                         'start_ts'=>$onetest['start_ts'],
                         'end_ts'=>$onetest['end_ts'],
@@ -198,7 +250,12 @@ class ViewEhrDaoPerformance extends AReport
                     $thisticketduration = $ticketstats[$iteration][$tid]['duration'];
                     $duration = $onerow['duration'];
                     $duration_delta = $duration - $avg_action_duration[$action_name];
-                    $duration_pct = 100 * $duration / $thisticketduration;
+                    if($thisticketduration > 0)
+                    {
+                        $duration_pct = 100 * $duration / $thisticketduration;
+                    } else {
+                        $duration_pct = NULL;
+                    }
                     $resultsize = $onerow['resultsize'];
                     $resultsize_delta = $resultsize - $avg_action_size[$action_name];
                 } else {
@@ -226,6 +283,7 @@ class ViewEhrDaoPerformance extends AReport
                     $onerow['duration_per_1MB'] = '';
                 }
                 $onerow['duration_pct'] = $duration_pct;
+                $onerow['thisticketduration'] = $thisticketduration;
                 $enhancedrows[] = $onerow;
             }
             $bundle['iterations'] = $iterations;
@@ -240,10 +298,12 @@ class ViewEhrDaoPerformance extends AReport
             $bundle['ticketstats'] = $ticketstats;
             $bundle['tickets_for_test'] = $tickets_for_test;
             $bundle['rowdata'] = $enhancedrows;
+            $getfieldvalues_endtime = microtime(TRUE);
+            $bundle['getvalues_duration'] = $getfieldvalues_endtime - $getfieldvalues_starttime;;
             $myvalues['reportdata'] = $bundle;
             return $myvalues;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed to get field values!",99876,$ex);
+            throw new \Exception("Failed to get field values becase $ex",99876,$ex);
         }
     }
 	
@@ -270,12 +330,19 @@ class ViewEhrDaoPerformance extends AReport
     {
         try
         {
+            if($bytes < 0)
+            {
+                return NULL;
+            }
             $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
 
             $bytes = max($bytes, 0); 
             $pow = floor(($bytes ? log($bytes) : 0) / log(1024)); 
             $pow = min($pow, count($units) - 1); 
-
+            if($pow < 0)
+            {
+                return "ERR pow=$pow for input ($bytes, $precision)";
+            }
             // Uncomment one of the following alternatives
             $bytes /= pow(1024, $pow);
             // $bytes /= (1 << (10 * $pow)); 
@@ -294,21 +361,24 @@ class ViewEhrDaoPerformance extends AReport
     {
         $now_dt = date("Y-m-d H:i:s", time());
         $reportdata = $myvalues['reportdata'];
+        $getvalues_duration = $reportdata['getvalues_duration'];
         $iterations = isset($reportdata['iterations']) ? $reportdata['iterations'] : '1';
         $tickets_for_test = isset($reportdata['tickets_for_test']) ? $reportdata['tickets_for_test'] : 'YABA';
         $selected_filters = isset($reportdata['selected_filters']) ? $reportdata['selected_filters'] : '';
         $available_filter_options = isset($reportdata['available_filter_options']) ? $reportdata['available_filter_options'] : 'MISSING';
-        $headertext = array('#'=>'Iteration number',
+        $headertext = array('i#'=>'Iteration number',
+            's#'=>'Sequence number within the iteration',
             'TrackingID'=>'Ticket tracking number',
             'Start Time'=>'Start time of the action',
             'End Time'=>'End time of the action',
             'Action Name'=>'The action that took place',
-            'Duration'=>'Number of seconds duration',
+            'Duration'=>'Number of seconds duration for this action',
             'Delta from Ave Duration'=>'Difference from average duration',
             'Result Size'=>'Approximate size of action result',
             'Delta from Avg Size'=>'Difference from average size',
             'Normalized Duration'=>'Duration to get result per 1MB',
-            '% Duration'=>'Percentage of total ticket duration due to this action');
+            '% Duration'=>'Percentage of total ticket duration due to this action',
+            'All Duration'=>'Total duration of all executed actions of this ticket');
 
         $form['data_entry_area1'] = array(
             '#prefix' => "\n<section class='user-admin raptor-dialog-table'>\n",
@@ -385,6 +455,7 @@ class ViewEhrDaoPerformance extends AReport
         foreach($rowdata as $onerow)
         {
             $iteration = $onerow['iteration'];
+            $seqnum = $onerow['seqnum'];
             $action_name = $onerow['action'];
             $duration = $onerow['duration'];
             $duration_delta = $onerow['duration_delta'];
@@ -392,7 +463,13 @@ class ViewEhrDaoPerformance extends AReport
             $resultsize_delta = $onerow['resultsize_delta'];
             $normalized_resultspeed = $onerow['duration_per_1MB'];
             $duration_pct = number_format($onerow['duration_pct'],2);
-            $nicesizetext = $this->formatBytes($resultsize);
+            $thisticketduration = $onerow['thisticketduration'];
+            if($resultsize >= 0)
+            {
+                $nicesizetext = $this->formatBytes($resultsize);
+            } else {
+                $nicesizetext = 'Not a valid size!';
+            }
             $nicesizedeltatext = $this->formatBytes($resultsize_delta);
             $tid = trim($onerow['tracking_id']);
             $tidmarkup = $tid;
@@ -420,6 +497,7 @@ class ViewEhrDaoPerformance extends AReport
             }
             $rows .= '<tr>'
                     . "<td>{$iteration}</td>"
+                    . "<td>{$seqnum}</td>"
                     . "<td>{$tidmarkup}</td>"
                     . "<td>{$onerow['start_ts']}</td>"
                     . "<td>{$onerow['end_ts']}</td>"
@@ -430,6 +508,7 @@ class ViewEhrDaoPerformance extends AReport
                     . "<td title='$nicesizedeltatext'>$resultsize_delta</td>"
                     . "<td>$normalized_resultspeed</td>"
                     . "<td>$duration_pct</td>"
+                    . "<td>$thisticketduration</td>"
                     . '</tr>';
         }
 
@@ -440,17 +519,17 @@ class ViewEhrDaoPerformance extends AReport
         } else {
             $context_markup_ar[] = "Runtime errors : NONE";
         }
+        if($getvalues_duration > 0)
+        {
+            //Strip off most of the decimals
+            $getvalues_duration_clean = number_format($getvalues_duration,2);
+        } else {
+            //Don't strip anything off
+            $getvalues_duration_clean = $getvalues_duration;
+        }
+        $context_markup_ar[] = "Total time to get report results: $getvalues_duration_clean seconds";
         $context_markup_ar[] = "Iterations in report run: " . $iterations;
         $context_markup_ar[] = "Selected Filters: " . print_r($selected_filters,TRUE);
-        $it=0;
-        foreach($reportdata['DAO'] as $daodetail)
-        {
-            $it++;
-            foreach($daodetail as $key=>$value)
-            {
-                $context_markup_ar[] = "DAO of iteration $it $key: $value";
-            }
-        }
         $ticketcount = 0;
         if(is_array($reportdata['ticketlist']))
         {
@@ -488,6 +567,15 @@ class ViewEhrDaoPerformance extends AReport
                 }
             }
         }
+        $it=0;
+        foreach($reportdata['DAO'] as $daodetail)
+        {
+            $it++;
+            foreach($daodetail as $key=>$value)
+            {
+                $context_markup_ar[] = "DAO of iteration $it $key: $value";
+            }
+        }
         $form['data_entry_area1']['table_container']['daocontext'] 
                 = array('#type' => 'item',
                 '#markup' => '<h1>Result Context</h1>'
@@ -522,7 +610,7 @@ class ViewEhrDaoPerformance extends AReport
             );
         $form['data_entry_area1']['selections']['selected_filters'] 
                 = array('#type' => 'textfield',
-                    '#title' => t('Number of iterations for the test'),
+                    '#title' => t('Function call groups to include'),
                     '#disabled' => $disabled,
                     '#size' => 100,
                     '#description' => "Available options are $available_filter_options",
@@ -533,6 +621,7 @@ class ViewEhrDaoPerformance extends AReport
                     '#title' => t('Tickets for performance test use'),
                     '#rows' => 2,
                     '#disabled' => $disabled,
+                    '#description' => "Provide comma delimited list of tickets to process or provide get:X:after:Y where X is number of tickets to process and Y is where to start grabbing them from the worklist.",
                     '#default_value' => $tickets_for_test,
             );
         

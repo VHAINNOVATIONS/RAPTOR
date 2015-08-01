@@ -163,9 +163,12 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getRadiologyOrderDialog($imagingTypeId, $patientId);
     }
 
-    public function getProviders($neworderprovider_name)
+    /**
+     * Return limited list of providers starting with neworderprovider_name
+     */
+    public function getProviders($start_name)
     {
-        return $this->m_implclass->getProviders($neworderprovider_name);
+        return $this->m_implclass->getProviders($start_name);
     }
 
     public function getUserSecurityKeys()
@@ -198,9 +201,9 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getEncounterStringFromVisit($vistitTo);
     }
 
-    public function getHospitalLocations($startingitem)
+    public function getHospitalLocationsMap($startingitem)
     {
-        return $this->m_implclass->getHospitalLocations($startingitem);
+        return $this->m_implclass->getHospitalLocationsMap($startingitem);
     }
 
     public function getRadiologyCancellationReasons()

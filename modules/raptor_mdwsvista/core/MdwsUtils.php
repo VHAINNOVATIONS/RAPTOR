@@ -374,7 +374,8 @@ class MdwsUtils {
         return $newNoteIen;
     }
     
-    public static function getHospitalLocations($mdwsDao,$target = '') {
+    public static function getHospitalLocationsMap($mdwsDao,$target = '') 
+    {
         $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
         
         if (!isset($soapResult) || 

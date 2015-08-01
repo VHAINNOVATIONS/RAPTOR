@@ -119,42 +119,45 @@ class MdwsUserUtils {
 
     /**
      * Return max of 44 providers starting with target string
-     * @return array
-     * @throws \Exception
      */
-    public static function getProviders($mdwsDao, $target)
+    public static function getProviders($mdwsDao, $target='')
     {
-        $soapResult = $mdwsDao->makeQuery('cprsUserLookup', array('target'=>$target));
-        
-        if (!isset($soapResult->cprsUserLookupResult) || isset($soapResult->cprsUserLookupResult->fault)) {
-            throw new \Exception('There was a problem fetching CPRS users: '
-                .$soapResult->cprsUserLookupResult->fault->message);
-        }
-        
-        $result = array();
+        try
+        {
+            $soapResult = $mdwsDao->makeQuery('cprsUserLookup', array('target'=>$target));
 
-        if (!isset($soapResult->cprsUserLookupResult->users) ||
-                !isset($soapResult->cprsUserLookupResult->users->UserTO)) {
-            return $result;
-        }
-        
-        $cprsUserTOs = $soapResult->cprsUserLookupResult->users->UserTO;
-        if (!is_array($cprsUserTOs)) {
-            $cprsUserTOs = array($cprsUserTOs);
-        } else {
+            if (!isset($soapResult->cprsUserLookupResult) || isset($soapResult->cprsUserLookupResult->fault)) {
+                throw new \Exception('There was a problem fetching CPRS users: '
+                    .$soapResult->cprsUserLookupResult->fault->message);
+            }
+
+            $result = array();
+
+            if (!isset($soapResult->cprsUserLookupResult->users) ||
+                    !isset($soapResult->cprsUserLookupResult->users->UserTO)) {
+                return $result;
+            }
+
             $cprsUserTOs = $soapResult->cprsUserLookupResult->users->UserTO;
+            if (!is_array($cprsUserTOs)) {
+                $cprsUserTOs = array($cprsUserTOs);
+            } else {
+                $cprsUserTOs = $soapResult->cprsUserLookupResult->users->UserTO;
+            }
+
+            for ($i = 0; $i < count($cprsUserTOs); $i++) 
+            {
+                $userDuz = $cprsUserTOs[$i]->DUZ;
+                $userName = $cprsUserTOs[$i]->name;
+                $result[$userDuz] = $userName;
+            }
+
+            return $result;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getProviders on target ".print_r($target,TRUE),99876,$ex);
         }
-        
-        for ($i = 0; $i < count($cprsUserTOs); $i++) {
-            $userDuz = $cprsUserTOs[$i]->DUZ;
-            $userName = $cprsUserTOs[$i]->name;
-            $result[$userDuz] = $userName;
-        }
-        
-        return $result;
     }
 
-    // TODO - refactor this function to retrieve keys from MdwsUserUtils::getUserSecurityKeys
     /**
      * @return boolean TRUE if the user is a provider, else FALSE
      */
