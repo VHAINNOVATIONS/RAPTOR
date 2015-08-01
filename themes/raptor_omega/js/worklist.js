@@ -43,10 +43,20 @@
                 });
             });
 
+
     $(document).ready(function () {
-
+        console.log("in ready");
         /*** Column Modal Section ***/
-
+        
+        //give table a max of 10 seconds to load, if it does not load, the user is shown an error message
+        setTimeout(function () {
+            if (!$('.table-content').is(':visible')) {
+                $('#worklistLoaderWrapper').fadeOut('slow').hide();
+                $('#worklistLoaderWrapper').text("");
+                $('#worklistLoaderWrapper').append('<h1 class="messages errors" style="color:red;">ERROR LOADING WORKLIST</h1>');
+                $('#worklistLoaderWrapper').fadeIn('slow');
+            }
+        }, 10 * 1000);
 
         //check all checkbox code is here
         $('.chk-all').on('click', function () {
@@ -104,8 +114,15 @@
                 // make the page load asynchronous
                 protocolURL = Drupal.pageData.baseURL + '/protocol?rawrtid=' + myrawrtid + (clickMode === 'view' ? '&mode=VIEW' : '');
                 Drupal.behaviors.raptorShowSpinner('Gathering protocol data from VistA');
-                $.get(protocolURL, function (response) {
+                var protocol_content = $.get(protocolURL, function (response) {
                     window.location.href = protocolURL;
+                });
+                protocol_content.fail(function () {
+                    $('#administer-modal').dialog({width: 500});
+                    $('.ui-dialog-title').text("ERROR");
+                    $('#raptor-spinner-container').fadeOut('slow').hide();
+                    $('#raptor-spinner-container').text('There is a problem loading this VistA order. Please contact the support team and provide the RAPTOR ticket number.');
+                    $('#raptor-spinner-container').fadeIn('slow');
                 });
             }
 
@@ -356,7 +373,7 @@
             }
 
             //20150314
-            if (urlIDs.trim() == '')
+            if (urlIDs.trim() === '')
             {
                 alert('There are no orders shown!');
                 return;
@@ -417,7 +434,7 @@
          */
         var cacheFirstFiveTIDS = function (starting_index) {
             //even if we don't have 5 records on the current page, this will work, slice stops at the last known good value and does not pad with nulls or undefined(s)
-            var records_to_cache = $worklistTable.columns(1).data()[0].slice(starting_index, starting_index+5); 
+            var records_to_cache = $worklistTable.columns(1).data()[0].slice(starting_index, starting_index + 5);
             //console.log(records_to_cache);
             //console.log(Drupal.pageData.baseURL + '/raptor/loadcache?tids=' + records_to_cache.join(','));
             $.get(Drupal.pageData.baseURL + '/raptor/loadcache?tids=' + records_to_cache.join(','));
