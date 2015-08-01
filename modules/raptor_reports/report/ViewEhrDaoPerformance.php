@@ -174,11 +174,17 @@ class ViewEhrDaoPerformance extends AReport
                         $has_error = 'NO';
                     }
                     $seqnum++;
+                    $error_detail = "$ex";
+                    if(strlen($error_detail) > 10000)
+                    {
+                        //Prevent out of memory!
+                        $error_detail = substr($error_detail,0,10000) . '...';
+                    }
                     $rowdata[] = array(
                         'iteration'=>$iteration,
                         'seqnum' => $seqnum,
                         'has_error'=>$has_error,
-                        'error_detail'=>$ex,
+                        'error_detail'=>$error_detail,
                         'tracking_id'=>$onetest['tracking_id'],
                         'start_ts'=>$onetest['start_ts'],
                         'end_ts'=>$onetest['end_ts'],
@@ -451,6 +457,7 @@ class ViewEhrDaoPerformance extends AReport
             }
         }
         
+        $errors_hit=0;
         $rowdata = $reportdata['rowdata'];
         foreach($rowdata as $onerow)
         {
@@ -493,7 +500,16 @@ class ViewEhrDaoPerformance extends AReport
             }
             if($onerow['error_detail'] != NULL)
             {
-                $action_name = "FAILED $action_name {$onerow['error_detail']}";
+                $errors_hit++;
+                if($errors_hit > 5)
+                {
+                    //Avoid out of memory!!!
+                    $errsubstr = substr($onerow['error_detail'],0,1000) . '...';
+                    $action_name = "FAILED $action_name {$errsubstr}";
+                } else {
+                    $action_name = "FAILED $action_name {$onerow['error_detail']}";
+                }
+                
             }
             $rows .= '<tr>'
                     . "<td>{$iteration}</td>"

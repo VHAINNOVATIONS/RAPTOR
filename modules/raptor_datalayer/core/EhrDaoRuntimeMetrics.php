@@ -185,7 +185,7 @@ class EhrDaoRuntimeMetrics
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPatientIDFromTrackingID'
                 ,array('$tid')
-                ,array('core','oneorder')
+                ,array('core','dialog','oneorder')
                 ,array('$testres_patient_id')
                 ,'something');
         
@@ -199,10 +199,6 @@ class EhrDaoRuntimeMetrics
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDiagnosticLabsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getEGFRDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImagingTypesMap'
-                ,array()
-                ,array('core','oneorder')
-                ,array('$testres_imagetypes'));
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getNotesDetailMap');
         
@@ -216,21 +212,22 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyReportsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRawVitalSignsMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getSurgeryReportsDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVisits'
-                ,array('$tid')
-                ,array('core','oneorder')
-                ,array('$testres_visits')
-                ,'array(something)');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsDetailOnlyLatestMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVitalsSummaryMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getMedicationsDetailMap');
 
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('setPatientID'
-                ,array('$testres_patient_id')
-                ,array('core','oneorder')
-                );
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImagingTypesMap'
+                ,array()
+                ,array('core','dialog')
+                ,array('$testres_imagetypes'));
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVisits'
+                ,array('$tid')
+                ,array('core','dialog')
+                ,array('$testres_visits')
+                ,'array(something)');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProviders'
                 ,array('""')
@@ -248,12 +245,6 @@ class EhrDaoRuntimeMetrics
                 ,array('$testres_orderableitems')
                 ,'array(something)');
         
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('verifyNoteTitleMapping'
-                ,array(
-                     '"'.VISTA_NOTE_TITLE_RAPTOR_GENERAL.'"'
-                    ,'"'.VISTA_NOTEIEN_RAPTOR_GENERAL.'"')
-                ,array('core','setup'));
-
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyOrderChecks'
                 ,array('$this->getArgsForRadOrdCheck($testres_hosplocations,$testres_orderableitems,$testres_patient_id)')
                 ,array('core','dialog'));
@@ -262,6 +253,17 @@ class EhrDaoRuntimeMetrics
                 ,array('$this->getFirstArrayKey($testres_imagetypes)'
                      , '$testres_patient_id')
                 ,array('core','dialog'));
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('verifyNoteTitleMapping'
+                ,array(
+                     '"'.VISTA_NOTE_TITLE_RAPTOR_GENERAL.'"'
+                    ,'"'.VISTA_NOTEIEN_RAPTOR_GENERAL.'"')
+                ,array('core','setup'));
+
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('setPatientID'
+                ,array('$testres_patient_id')
+                ,array('core','oneorder')
+                );
         
         //Now filter out the functions we do not want to call.
         $filtered = array();
@@ -381,11 +383,39 @@ class EhrDaoRuntimeMetrics
             $info['description'] = "{$this->m_ehrDao}"; 
             $result['DAO'] = $info;
             $metrics = array();
+            //Process all the tickets
             foreach($ticketlist as $tid)
             {
                 $ticketstats[$tid] = array();
                 $ticketstats[$tid]['error_count'] = 0;
                 $ticketstats[$tid]['start_ts'] = microtime(TRUE);
+                //Initialize all the variables now and check syntax
+                foreach($functionstocall as $details)
+                {
+                    $store_result = $details['store_result'];
+                    if(is_array($store_result))
+                    {
+                        if(count($store_result) == 1)
+                        {
+                            $store_result_varname = $store_result[0];
+                            $required_prefix = '$testres_';
+                            if(strlen($store_result_varname) <= strlen($required_prefix))
+                            {
+                                throw new \Exception("Unsupported (too short) store_result value=".print_r($store_result));
+                            }
+                            if(substr($store_result_varname,0,9) != $required_prefix)
+                            {
+                                throw new \Exception("Unsupported (missing prefix '$required_prefix') store_result value=".print_r($store_result));
+                            }
+                            $eval_assign = "{$store_result_varname} = NULL;";   //Simply initialize so we avoid MISSING VARIABLE on errors later!
+                            eval($eval_assign);
+                        } else
+                        if(count($store_result) > 1)
+                        {
+                            throw new \Exception("Unsupported store_result value=".print_r($store_result));
+                        }
+                    }
+                }
                 foreach($functionstocall as $details)
                 {
                     $oneitem = array();
@@ -491,8 +521,8 @@ class EhrDaoRuntimeMetrics
                             $eval_assign = "{$store_result_varname} = " . '$callresult;';
                             eval($eval_assign);
                             $evalthis = "return {$store_result_varname};";
-$justlooking = eval($evalthis);
-error_log("LOOK eval assign( $eval_assign ) just looking >>>" . print_r($justlooking,TRUE));                            
+//$justlooking = eval($evalthis);
+//error_log("LOOK eval assign( $eval_assign ) just looking >>>" . print_r($justlooking,TRUE));                            
                         }
                     } catch (\Exception $ex) {
                         //Continue with other items
