@@ -57,6 +57,7 @@ class ViewEhrDaoPerformance extends AReport
             throw new \Exception("Cannot run because ENABLE_RAPTOR_PERFORMANCE_TUNING=FALSE");
         }
         $getfieldvalues_starttime = microtime(TRUE);
+        $myvalues['filename_insert'] = NULL;
         if($myvalues == NULL)
         {
             $myvalues = array();
@@ -65,14 +66,18 @@ class ViewEhrDaoPerformance extends AReport
         {
             $bundle = array();
             $bundle['DAO'] = array();
+            $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
             $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
             if(strlen($tickets_for_test) > 3)
             {
                 $checkcmd = strtoupper(trim($tickets_for_test));
                 $cmdparts = explode(':',$checkcmd);
                 $part_count = count($cmdparts);
-                if($cmdparts[0] == 'GET')
-                {
+                if($cmdparts[0] != 'GET')
+                { 
+                    //Create a meaningful insert for the download filename
+                    $filename_insert = "iters$iterations";
+                } else {
                     //Second param is number of tickets to grab
                     if(!is_numeric($cmdparts[1]))
                     {
@@ -105,15 +110,14 @@ class ViewEhrDaoPerformance extends AReport
                     $myvalues['tickets_for_test'] = $tickets_for_test;
                     
                     //Create a meaningful insert for the download filename
-                    $filename_insert = "get$limit";
+                    $filename_insert = "iters{$iterations}_get{$limit}";
                     if($startafter != NULL)
                     {
                         $filename_insert .= "_after{$startafter}";
                     }
-                    $myvalues['filename_insert'] = $filename_insert;
                 }
+                $myvalues['filename_insert'] = $filename_insert;
             }
-            $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
             $available_filter_options_ar = $this->m_oEDRM->getMetricFilterOptions();
             $bundle['available_filter_options'] = implode(',',$available_filter_options_ar);
             $selected_filters = isset($myvalues['selected_filters']) ? $myvalues['selected_filters'] : $bundle['available_filter_options'];

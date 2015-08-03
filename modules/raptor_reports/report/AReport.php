@@ -125,9 +125,11 @@ abstract class AReport
         $shortname = $this->getUniqueShortname();
         if($report_start_date > '')
         {
-            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE."{$filename_insert}_from_{$report_start_date}_until_{$now}.$filesuffix";
+            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE 
+                    . "{$filename_insert}_from_{$report_start_date}_until_{$now}.$filesuffix";
         } else {
-            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE."{$filename_insert}_all_until_{$now}.$filesuffix";
+            $exportfilename = "raptor_report_{$shortname}_rs".VISTA_SITE 
+                    . "{$filename_insert}_all_until_{$now}.$filesuffix";
         }
         
         $downloadmap = $this->getDownloadTypes();        
