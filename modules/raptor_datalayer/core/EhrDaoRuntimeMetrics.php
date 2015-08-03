@@ -365,7 +365,9 @@ class EhrDaoRuntimeMetrics
     {
         global $user;
         $usertxtinfo = "user {$user->uid} from vista site ".VISTA_SITE." at host {$user->hostname}";
-        error_log("Starting getPerformanceDetails for ticketlist=" . print_r($ticketlist,TRUE) . " as $usertxtinfo");   //This can take many resources so log it
+        error_log("Started getPerformanceDetails for ticketlist=" . print_r($ticketlist,TRUE) 
+                . " as $usertxtinfo"
+                . "\n\tfilter = ".print_r($membership_filter,TRUE));   //This can take many resources so log it
         if(!is_array($ticketlist))
         {
             throw new \Exception('Must provide an input list of tickets to process!');
@@ -539,7 +541,9 @@ class EhrDaoRuntimeMetrics
             }
             $result['ticketstats'] = $ticketstats;
             $result['metrics'] = $metrics;
-            error_log("Done getPerformanceDetails for ticketlist=" . print_r($ticketlist,TRUE) . " as $usertxtinfo");   //This can take many resources so log it
+            error_log("Finished getPerformanceDetails for ticketlist=" 
+                    . print_r($ticketlist,TRUE) 
+                    . " as $usertxtinfo");   //This can take many resources so log it
             return $result;
         } catch (\Exception $ex) {
             throw new \Exception("Failed getting metrics",99876,$ex);

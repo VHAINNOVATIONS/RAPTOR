@@ -397,6 +397,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     }
                 }
             }
+            
+//error_log("LOOK dash>>>".print_r($aResult,TRUE));            
             return $aResult;
         } catch (\Exception $ex) {
             throw new \Exception("Failed getDashboardDetailsMap becasue $ex",99876,$ex);

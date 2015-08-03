@@ -52,6 +52,10 @@ class ViewEhrDaoPerformance extends AReport
      */
     function getFieldValues($myvalues = NULL)
     {
+        if(!ENABLE_RAPTOR_PERFORMANCE_TUNING)
+        {
+            throw new \Exception("Cannot run because ENABLE_RAPTOR_PERFORMANCE_TUNING=FALSE");
+        }
         $getfieldvalues_starttime = microtime(TRUE);
         if($myvalues == NULL)
         {
@@ -121,6 +125,11 @@ class ViewEhrDaoPerformance extends AReport
             } else {
                 $ticketlist = array();
             }
+            global $user;
+            error_log("Started getting values for ViewEhrDaoPerformance from site ".VISTA_SITE." as user {$user->uid} " 
+                    . "\n\ttickets = $tickets_for_test"
+                    . "\n\tfilters = $selected_filters"
+                    . "\n\titerations = $iterations");
             $bundle['ticketlist'] = $ticketlist;
             $biggestsize_item = array(); 
             $biggestsize_item['resultsize'] = -1;
@@ -135,6 +144,7 @@ class ViewEhrDaoPerformance extends AReport
             $ticketstats = array();
             $prevdaoinfo = NULL;
             $total_error_count = 0;
+            $error_detail_truncations = 0;
             $exec_order = 0;
             for($iteration=1; $iteration <= $iterations; $iteration++)
             {
@@ -177,8 +187,19 @@ class ViewEhrDaoPerformance extends AReport
                     $error_detail = "$ex";
                     if(strlen($error_detail) > 10000)
                     {
-                        //Prevent out of memory!
-                        $error_detail = substr($error_detail,0,10000) . '...';
+                        $error_detail_truncations++;
+                        //Let the first few get captured completely
+                        if($error_detail_truncations < 3)
+                        {
+                            if(strlen($error_detail) > 100000)  //100k
+                            {
+                                //Prevent out of memory!
+                                $error_detail = substr($error_detail,0,100000) . '...'; //100k
+                            }
+                        } else {
+                            //Prevent out of memory!
+                            $error_detail = substr($error_detail,0,10000) . '...';
+                        }
                     }
                     $rowdata[] = array(
                         'iteration'=>$iteration,
@@ -307,6 +328,11 @@ class ViewEhrDaoPerformance extends AReport
             $getfieldvalues_endtime = microtime(TRUE);
             $bundle['getvalues_duration'] = $getfieldvalues_endtime - $getfieldvalues_starttime;;
             $myvalues['reportdata'] = $bundle;
+            error_log("Finished getting values for ViewEhrDaoPerformance from site ".VISTA_SITE." as user {$user->uid} " 
+                    . "\n\ttickets = $tickets_for_test"
+                    . "\n\tfilters = $selected_filters"
+                    . "\n\titerations = $iterations"
+                    . "\n\ttotal errors = $total_error_count");
             return $myvalues;
         } catch (\Exception $ex) {
             throw new \Exception("Failed to get field values becase $ex",99876,$ex);
