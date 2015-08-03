@@ -1094,8 +1094,13 @@ class ProtocolLibPageHelper
         return $value;
     }
     
+    /**
+     * Input area for the PROTOCOL LIBRARY EDIT PAGE
+     */
     private function getInputArea1($oPI, $form_state, $disabled, $myvalues, $supportEditMode=TRUE)
     {
+        
+        $modality_filter = array();
         
         //Hydration
         $shownow = !$disabled || $oPI->hasHydrationValues($myvalues);
@@ -1121,24 +1126,33 @@ class ProtocolLibPageHelper
         
         //Radioisotope
         $shownow = !$disabled || $oPI->hasRadioisotopeValues($myvalues);
+        $radioisotope_showResetButton = $myvalues['show_reset_button'];
         $radioisotopearea = $oPI->getOverallSectionCheckboxType($form_state
                 , 'radioisotope', 'Radionuclide'
                 , $disabled
                 , $myvalues
                 , NULL
                 , TRUE
-                , $shownow); 
+                , $shownow
+                , $shownow
+                , $modality_filter
+                , $radioisotope_showResetButton); 
         $form['radioisotope'] = $radioisotopearea;
         
         //Contrast
         $shownow = !$disabled || $oPI->hasRadioisotopeValues($myvalues);
+        $contrast_showResetButton = $myvalues['show_reset_button'];
         $contrastarea = $oPI->getOverallSectionCheckboxType($form_state
-                , 'contrast', 'Contrast'
+                , 'contrast'
+                , 'Contrast'
                 , $disabled
                 , $myvalues
                 , NULL
                 , TRUE
-                , $shownow); 
+                , $shownow
+                , $shownow
+                , $modality_filter
+                , $contrast_showResetButton); 
         $form['contrast'] = $contrastarea;
 
         //Consent Required
@@ -1414,7 +1428,6 @@ class ProtocolLibPageHelper
     {
         $aOptions = $this->getAllOptions();
         $aFormattedKeywordText = $this->formatKeywordText($myvalues);
-
         if($containerID == NULL)    //201407018
         {
             $topidtxt = '';
@@ -1431,7 +1444,10 @@ class ProtocolLibPageHelper
         $form[] = array('#markup' 
             => '<div id="protocol-lib-options-data">'
             . '<div style="visibility:hidden" id="json-option-values-all-sections"></div></div>');
-
+        $myvalues['show_reset_button'] = FALSE;
+        $form['hidden_constant_things']['show_reset_button'] 
+                = array('#type' => 'hidden', '#value' => $myvalues['show_reset_button']);
+        
         $form['data_entry_area1']['toppart'] = array(
             '#type'     => 'fieldset',
             '#attributes' => array(

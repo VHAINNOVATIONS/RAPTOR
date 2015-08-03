@@ -480,6 +480,9 @@ class ProtocolInfoUtility
         return $sNotesMarkup;
     }
 
+    /**
+     * Input areas for the PATIENT CARE USER'S PROTOCOL PAGE
+     */
     function getOverallProtocolDataEntryArea1($sCWFS, &$form_state, $disabled
             , $myvalues
             , $template_json=NULL
@@ -516,6 +519,7 @@ class ProtocolInfoUtility
         
         //Contrast
         $shownow = $this->hasContrastValues($myvalues, $form_state);
+        $contrast_showResetButton = $myvalues['show_reset_button'];
         $contrastarea = $this->getOverallSectionCheckboxType($form_state
                 , 'contrast', 'Contrast'
                 , $disableChildInput
@@ -524,7 +528,8 @@ class ProtocolInfoUtility
                 , TRUE
                 , $shownow
                 , $shownow
-                , $modality_filter); 
+                , $modality_filter
+                , $contrast_showResetButton); 
         $form['protocolinput'][] = $contrastarea;
 
         //Consent Required
@@ -563,15 +568,18 @@ class ProtocolInfoUtility
         
         //Radioisotope
         $shownow = $this->hasRadioisotopeValues($myvalues);
+        $radioisotope_showResetButton = $myvalues['show_reset_button'];
         $radioisotopearea = $this->getOverallSectionCheckboxType($form_state
-                , 'radioisotope', 'Radionuclide'
+                , 'radioisotope'
+                , 'Radionuclide'
                 , $disableChildInput
                 , $myvalues
                 , NULL
                 , TRUE
                 , $shownow
                 , $shownow
-                , $modality_filter); 
+                , $modality_filter
+                , $radioisotope_showResetButton); 
         $form['protocolinput'][] = $radioisotopearea;
         
         //Allergy
@@ -1844,11 +1852,13 @@ class ProtocolInfoUtility
      */
     function getSectionCheckboxType($section_name, $titleoverride
             , $aEntericChoices, $aIVChoices, &$form_state, $disabled, $myvalues
-            , $containerstates, $supportEditMode=TRUE
+            , $containerstates
+            , $supportEditMode=TRUE
             , $aCustomOverride=NULL
             , $shownow=TRUE
             , $req_ack=FALSE
-            , $requirevalue=TRUE)
+            , $requirevalue=TRUE
+            , $showResetButton=FALSE)
     {
         if($aCustomOverride == NULL)
         {
@@ -1942,7 +1952,7 @@ class ProtocolInfoUtility
         $root[$section_name.'_fieldset_row2']['showconditionally'] 
                 = $this->getDefaultValueControls($section_name, $disabled, $defaultvalue, $req_ack);
         //Always show this in each section that can have default values!
-        if(FALSE && !$disabled)
+        if($showResetButton && !$disabled)
         {
             $root[$section_name.'_fieldset_col3']['reset_'.$section_name] = array(
                 '#markup' => "\n"
@@ -2033,7 +2043,8 @@ class ProtocolInfoUtility
             , $supportEditMode=TRUE, $aCustomOverride=NULL
             , $shownow=TRUE
             , $req_ack=FALSE
-            , $requirevalue=TRUE)
+            , $requirevalue=TRUE
+            , $showResetButton=FALSE)
     {
         if($aCustomOverride == NULL)
         {
@@ -2131,7 +2142,7 @@ class ProtocolInfoUtility
         $root[$row2fieldsetname]['showconditionally'] 
                 = $this->getDefaultValueControls($section_name, $disabled, $defaultoptionvalue, $req_ack);
         //Always show this in each section that can have default values!
-        if(FALSE && !$disabled)
+        if($showResetButton && !$disabled)
         {
             $root[$col3fieldsetname]['reset_'.$section_name] = array(
                 '#markup' => "\n".'<div class="reset-values-button-container" name="reset-section-values">'
@@ -2158,7 +2169,8 @@ class ProtocolInfoUtility
             , $supportEditMode=TRUE
             , $shownow=TRUE
             , $req_ack=FALSE
-            , $modality_filter=NULL)
+            , $modality_filter=NULL
+            , $showResetButton=FALSE)
     {
         
         if($modality_filter == NULL || !is_array($modality_filter))
@@ -2207,12 +2219,15 @@ class ProtocolInfoUtility
                 $aControlOverrides['iv'] = $iv_tx;
             }
         }
+        $requirevalue=TRUE;
         return $this->getSectionRadioType($section_name, $titleoverride
                 , $aOralChoices, $aIVChoices, $form_state
                 , $disabled, $myvalues, $containerstates
                 , $supportEditMode, $aControlOverrides
                 , $shownow
-                , $req_ack);
+                , $req_ack
+                , $requirevalue
+                , $showResetButton);
     }
     
     /**
@@ -2283,9 +2298,9 @@ class ProtocolInfoUtility
             , $supportEditMode=TRUE
             , $shownow=TRUE
             , $req_ack=FALSE 
-            , $modality_filter=NULL)
+            , $modality_filter=NULL
+            , $showResetButton=FALSE)
     {
-        
         if($modality_filter == NULL || !is_array($modality_filter))
         {
             $modality_filter = array();
@@ -2328,6 +2343,7 @@ class ProtocolInfoUtility
             $aControlOverrides['iv'] = $iv_tx;
         }
         
+        $req_value = TRUE;
         return $this->getSectionCheckboxType($section_name, $titleoverride
                 , $aEntericChoices
                 , $aIVChoices
@@ -2335,7 +2351,9 @@ class ProtocolInfoUtility
                 , $supportEditMode
                 , $aControlOverrides
                 , $shownow
-                , $req_ack);
+                , $req_ack
+                , $req_value
+                , $showResetButton);
     }
     
     function getYesNoResetRadioTypeSection($section_name, $titleoverride

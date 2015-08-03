@@ -3399,6 +3399,9 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         );
 
         //Set the hidden fields.
+        $myvalues['show_reset_button'] = TRUE;
+        $form['hidden_constant_things']['show_reset_button'] 
+                = array('#type' => 'hidden', '#value' => $myvalues['show_reset_button']);
         $form['hidden_constant_things']['tid'] = array('#type' => 'hidden', '#value' => $myvalues['tid']);
         $form['hidden_constant_things']['procName'] = array('#type' => 'hidden', '#value' => $myvalues['procName']);
         $form['hidden_volatile_things']['modality_abbr'] = array('#type' => 'hidden', '#default_value' => $modality_abbr);
