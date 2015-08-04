@@ -112,6 +112,25 @@
     'use strict';
     // this function is strict...
 
+    //
+    //
+    //
+    $(document).on('click', '.select-protocol', function () {
+        Drupal.behaviors.raptorShowSpinner("Please wait, loading selected template...");
+        function checkAjaxLoadStatus() {
+            setTimeout(
+                    function() {
+                        if ($('.message').is(':visible')) {
+                            loop();
+                        } else {
+                            $('.ui-dialog-titlebar-close').click();
+                        }
+                    }, 5000
+            );
+        }
+        checkAjaxLoadStatus();
+    });
+
     // This content will be loaded by Ajax so we attach the click event to the document
     // which is always available.
     $(document)
@@ -609,11 +628,11 @@
         // Default sort for Notes tab tables
         $('#tab9').on('click', function () {
             //once the table is loaded, default sorting is applied
-            $(document).ajaxSuccess(function(){
+            $(document).ajaxSuccess(function () {
                 $('.notes-tab-table').
-                    DataTable().
-                    order([1, 'desc']).
-                    draw();
+                        DataTable().
+                        order([1, 'desc']).
+                        draw();
             });
         });
 

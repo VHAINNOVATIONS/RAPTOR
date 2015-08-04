@@ -48,7 +48,7 @@
         console.log("in ready");
         /*** Column Modal Section ***/
         
-        //give table a max of 10 seconds to load, if it does not load, the user is shown an error message
+        //give table a max of 20 seconds to load, if it does not load, the user is shown an error message
         setTimeout(function () {
             if (!$('.table-content').is(':visible')) {
                 $('#worklistLoaderWrapper').fadeOut('slow').hide();
@@ -56,7 +56,7 @@
                 $('#worklistLoaderWrapper').append('<h1 class="messages errors" style="color:red;">ERROR LOADING WORKLIST</h1>');
                 $('#worklistLoaderWrapper').fadeIn('slow');
             }
-        }, 10 * 1000);
+        }, 20 * 1000);
 
         //check all checkbox code is here
         $('.chk-all').on('click', function () {
