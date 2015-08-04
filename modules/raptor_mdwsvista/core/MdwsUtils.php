@@ -19,13 +19,18 @@ require_once 'MdwsUserUtils.php';
 class MdwsUtils {
     
     public static function getVariableValue($mdwsDao, $arg) {
-        $soapResult = $mdwsDao->makeQuery('getVariableValue', array('arg'=>$arg));
-        
-        if (isset($soapResult->getVariableValueResult->fault)) {
-            throw new \Exception('Error calling GVV: '.$soapResult->getVariableValueResult->fault->message);
+        try
+        {
+            $soapResult = $mdwsDao->makeQuery('getVariableValue', array('arg'=>$arg));
+
+            if (isset($soapResult->getVariableValueResult->fault)) {
+                throw new \Exception('Error calling GVV: '.$soapResult->getVariableValueResult->fault->message);
+            }
+
+            return $soapResult->getVariableValueResult->text;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getVariableValue for args ".print_r($arg,TRUE),99876,$ex);
         }
-        
-        return $soapResult->getVariableValueResult->text;
     }
     
     /**
@@ -524,6 +529,10 @@ class MdwsUtils {
             // check for zero results
             if (!isset($soapResult->getVisitsResult->count) ||
                     $soapResult->getVisitsResult->count == 0) {
+                
+                error_log("LOOK we got empty result from getVisits see soapResult=" . print_r($soapResult,TRUE) 
+                        .  "\n\tand see $mdwsDao = " . print_r($mdwsDao,TRUE));
+                
                 return $result; // TBD - return null or empty array?
             }
 
@@ -544,6 +553,12 @@ class MdwsUtils {
             }
             $aSorted = array_reverse($result); //Now this is descrnding.
 
+            if(count($aSorted) == 0)
+            {
+                error_log("LOOK ERROR we got empty SORTED result from getVisits see soapResult=" . print_r($soapResult,TRUE) 
+                        .  "\n\tand see $mdwsDao = " . print_r($mdwsDao,TRUE));
+            }
+            
             return $aSorted;
          } catch (\Exception $ex) {
              throw new \Exception('Trouble in getVisits because ' . $ex);
