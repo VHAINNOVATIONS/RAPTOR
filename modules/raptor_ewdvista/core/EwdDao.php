@@ -37,6 +37,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     
     private $m_selectedPatientID = NULL;      //The currently selected patient
     
+    private $m_info_message  = NULL;
+    
     function __construct()
     {
         module_load_include('php', 'raptor_datalayer', 'core/Context');
@@ -51,6 +53,22 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return "EWD VISTA EHR Integration";
     }
 
+    /**
+     * Set the instance info message.  
+     */
+    public function setCustomInfoMessage($msg)
+    {
+        $this->m_info_message = $msg;
+    }
+    
+    /**
+     * Get the instance info message.
+     */
+    public function getCustomInfoMessage()
+    {
+        return $this->m_info_message;
+    }
+    
     /**
      * Return the site specific fully qualified URL for the service.
      */

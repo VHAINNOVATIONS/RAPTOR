@@ -39,6 +39,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $duz;
     private $selectedPatient;
 
+    private $m_info_message = NULL;
+    
     public function __construct()
     {
         //Load relevant modules
@@ -57,19 +59,40 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     }
 
     /**
+     * Set the instance info message.  
+     */
+    public function setCustomInfoMessage($msg)
+    {
+        $this->m_info_message = $msg;
+    }
+    
+    /**
+     * Get the instance info message.
+     */
+    public function getCustomInfoMessage()
+    {
+        return $this->m_info_message;
+    }
+    
+    /**
      * Make it simpler to output details about this instance.
      * @return text
      */
     public function __toString()
     {
         try {
+            $infomsg = $this->getCustomInfoMessage();
+            if($infomsg > '')
+            {
+                $infomsg_txt = "\n\tCustom info message=$infomsg";
+            } else {
+                $infomsg_txt = '';
+            }
             return 'MdwsDao instance created at ' . $this->instanceTimestamp
-                    . ' current error count=[' . $this->errorCount . ']'
                     . ' isAuthenticated=[' . $this->isAuthenticated . ']'
                     . ' selectedPatient=[' . $this->selectedPatient . ']'
-                    . ' duz=[' 
-                    . $this->duz 
-                    . ']';
+                    . ' duz=[' . $this->duz . ']'
+                    . $infomsg_txt;
         } catch (\Exception $ex) {
             return 'Cannot get toString of MdwsDao because ' . $ex;
         }
@@ -257,7 +280,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             // transparently re-select last selected patient
             if (isset($this->selectedPatient) && $this->selectedPatient != '')
             {
-                error_log('Transparently re-selecting patient ID>>>[' . $this->selectedPatient . ']');
+                error_log('LOOK Transparently re-selecting patient ID>>>[' . $this->selectedPatient . "] from $this");
                 $this->makeQuery('select', array('DFN' => $this->selectedPatient));
             }
 
@@ -305,7 +328,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
      */
     public function setPatientID($sPatientID)
     {
-error_log("LOOK setting the patient ID now to $sPatientID");       
+error_log("LOOK setting the patient ID now to $sPatientID in $this");       
         $this->selectedPatient = $sPatientID;
     }
 

@@ -23,6 +23,16 @@ interface IEhrDao
      * Get user readable information of technology used to integrate with EHR
      */
     public function getIntegrationInfo();
+
+    /**
+     * Set the instance info message.  
+     */
+    public function setCustomInfoMessage($msg);
+    
+    /**
+     * Get the instance info message.
+     */
+    public function getCustomInfoMessage();
     
     /**
      * Connect and login to the EHR

@@ -157,6 +157,18 @@ class EhrDaoRuntimeMetrics
                 ,array()
                 ,array('core','user'));
         
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getSelectedPatientID'
+                ,array()
+                ,array('core','dialog','oneorder')
+                ,array('$testres_patient_id')
+                ,'something');
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPatientIDFromTrackingID'
+                ,array('$tid')
+                ,array('core','dialog','oneorder')
+                ,array('$testres_patient_id_for_ticket')
+                ,'mustmatch($testres_patient_id)');
+        
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('isProvider'
                 ,array()
                 ,array('core','user'));
@@ -188,18 +200,6 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDashboardDetailsMap'
                 ,array('$tid') 
                 ,array('core'));
-        
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getSelectedPatientID'
-                ,array()
-                ,array('core','dialog','oneorder')
-                ,array('$testres_patient_id')
-                ,'something');
-        
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPatientIDFromTrackingID'
-                ,array('$tid')
-                ,array('core','dialog','oneorder')
-                ,array('$testres_patient_id_for_ticket')
-                ,'mustmatch($testres_patient_id)');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getAllHospitalLocationsMap'
                 ,array()
@@ -236,7 +236,7 @@ class EhrDaoRuntimeMetrics
                 ,array('$testres_imagetypes'));
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getVisits'
-                ,array('$tid')
+                ,array()
                 ,array('core','dialog')
                 ,array('$testres_visits')
                 ,'array');
@@ -666,10 +666,10 @@ class EhrDaoRuntimeMetrics
                         } else {
                             $pidonfail = 'UNKNOWN';
                         }
-                        error_log("Test on tid=$tid (patient=$pidonfail)"
-                                . " of Dao method={$methodname}"
-                                . " Error#{$newerrorcount} $exception_txt_tolog"
-                                . "\n\tClass instance on fail=".print_r($implclass,TRUE));
+                        error_log("Error#{$newerrorcount} for test on tid=$tid (patient=$pidonfail)"
+                                . " of Dao method={$methodname} using DAO=" . $this->m_ehrDao
+                                . "\n\tClass instance on fail=".print_r($implclass,TRUE)
+                                . "\n\tException Details=$exception_txt_tolog");
                     }
                     $oneitem['end_ts'] = microtime(TRUE);
                     $oneitem['patient_id'] = $this->m_ehrDao->getSelectedPatientID();

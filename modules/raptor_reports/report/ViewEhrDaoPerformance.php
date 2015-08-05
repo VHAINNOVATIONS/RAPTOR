@@ -66,8 +66,8 @@ class ViewEhrDaoPerformance extends AReport
         {
             $bundle = array();
             $bundle['DAO'] = array();
-            $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
-            $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
+            $iterations = isset($myvalues['iterations']) ? trim($myvalues['iterations']) : '1';
+            $tickets_for_test = isset($myvalues['tickets_for_test']) ? trim($myvalues['tickets_for_test']) : '';
             $patientlist = array();    //We will get these FROM the result
             if(strlen($tickets_for_test) > 3)
             {
@@ -76,8 +76,9 @@ class ViewEhrDaoPerformance extends AReport
                 $part_count = count($cmdparts);
                 if($cmdparts[0] != 'GET')
                 { 
-                    //Create a meaningful insert for the download filename
-                    $filename_insert = "iters$iterations";
+                    //Create a meaningful insert for the download filename here
+                    $ticketlist = explode(',',$tickets_for_test);
+                    $filename_insert = "iters{$iterations}_x".count($ticketlist);
                 } else {
                     //Second param is number of tickets to grab
                     if(!is_numeric($cmdparts[1]))
@@ -126,7 +127,13 @@ class ViewEhrDaoPerformance extends AReport
             $bundle['selected_filters'] = $selected_filters;
             if($tickets_for_test > '')
             {
-                $ticketlist = explode(',',$tickets_for_test);
+                $rawticketlist = explode(',',$tickets_for_test);
+                //Important that we CLEAN THIS UP now!
+                $ticketlist = array();
+                foreach($rawticketlist as $onetid)
+                {
+                    $ticketlist[] = trim($onetid);  //Whitespace kills!
+                }
             } else {
                 $ticketlist = array();
             }
@@ -361,7 +368,7 @@ class ViewEhrDaoPerformance extends AReport
                     . "\n\ttotal errors = $total_error_count");
             return $myvalues;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed to get field values becase $ex",99876,$ex);
+            throw new \Exception("Failed to get field values because $ex",99876,$ex);
         }
     }
 	

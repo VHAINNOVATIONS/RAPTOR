@@ -21,8 +21,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150724A');
-    //or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150716B');
+    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150805B');
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -232,9 +231,15 @@ class Context
     {
         try
         {
-            return 'Context for user ['.$this->m_nUID.'] instance created at ['.$this->m_nInstanceTimestamp . ']'
+            $rc = $_SESSION['REGENERATED_COUNT'];
+            $lct = $_SESSION['CREATED'];
+            $ehr_dao = $this->getEhrDao(FALSE);
+            return 'Context of user ['.$this->m_nUID.']'
+                    . ' instance created=['.$this->m_nInstanceTimestamp . ']'
                     . ' last updated=['.$this->m_nLastUpdateTimestamp . ']'
-                    . ' with current TrackingID=['.$this->m_sCurrentTicketID.']';
+                    . ' current tid=['.$this->m_sCurrentTicketID.']'
+                    . " session regenerated $rc times last created $lct"
+                    . "\n\tDAO=$ehr_dao";
         } catch (\Exception $ex) {
             return 'Cannot get toString of Context because '.$ex;
         }
@@ -318,6 +323,7 @@ class Context
             $startedtime = time();
             error_log('CONTEXTgetInstance::Setting CREATED value of session to '.$startedtime);
             $_SESSION['CREATED'] = $startedtime;
+            $_SESSION['REGENERATED_COUNT'] = 0;
         } 
         
         global $user;
@@ -336,6 +342,12 @@ class Context
         {
             //We will return this instance unless ...
             $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
+            $ehr_dao = $candidate->getEhrDao(FALSE);
+            if($ehr_dao != NULL)
+            {
+                $ehr_dao->setCustomInfoMessage('unserialized@'.microtime(TRUE));
+            }
+//error_log("LOOK unserialized $candidate");            
             $wmodeParam = $candidate->getWorklistMode();
             $candidateUID = $candidate->getUID();
             if($candidateUID == 0 && $tempUID != 0 && !$candidate->hasForceLogoutReason())
@@ -521,6 +533,12 @@ class Context
             {
                 //Preserve existing credientials.
                 $current=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
+                $ehr_dao = $current->getEhrDao(FALSE);
+                if($ehr_dao != NULL)
+                {
+                    $ehr_dao->setCustomInfoMessage('unserialized@'.microtime(TRUE));
+                }
+//error_log("LOOK unserialized 1 for reset $current");                
                 error_log('CONTEXTgetInstance::Clearing cache except login credentials for '
                         . 'EHR User ID=' . $current->m_sVistaUserID);
                 $candidate->m_sVistaUserID = $current->m_sVistaUserID;  //20140609
@@ -528,6 +546,12 @@ class Context
             }
             $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate);
             $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
+            $ehr_dao = $candidate->getEhrDao(FALSE);
+            if($ehr_dao != NULL)
+            {
+                $ehr_dao->setCustomInfoMessage('unserialized@'.microtime(TRUE));
+            }
+//error_log("LOOK unserialized 2 for reset $candidate");                
             Context::debugDrupalMsg('Created new context at ' + $candidate->m_nInstanceTimestamp);
         } else {
             Context::debugDrupalMsg('[' . $candidate->m_nInstanceTimestamp . '] Got context from cache! UID='.$candidate->getUID());
@@ -771,34 +795,48 @@ class Context
         return $this->getSelectedTrackingID() == $key;  //20140604
     }
 
+    /**
+     * Critical interface that sets dependent selections and saves to the session.
+     */
     function setSelectedTrackingID($sTrackingID, $bClearPersonalBatchStack=FALSE)
     {
-        Context::debugDrupalMsg('setSelectedTrackingID with ['.$sTrackingID.']');
-        if($bClearPersonalBatchStack)   //20140619
+        try
         {
-            $this->clearPersonalBatchStack();
+            $prevtime = $this->m_nLastUpdateTimestamp;
+            $prevtid = $this->m_sCurrentTicketID;
+            if($bClearPersonalBatchStack)   //20140619
+            {
+                $this->clearPersonalBatchStack();
+            }
+            $this->m_nLastUpdateTimestamp = microtime(TRUE);
+            $aParts = explode('-',$sTrackingID);    //Allow for older type ticket tracking format
+            if(count($aParts) == 1)
+            {
+                //Just IEN
+                $nIEN = $aParts[0];
+            } else {
+                //Site-IEN
+                $nIEN = $aParts[1];
+            }
+            $this->m_sCurrentTicketID = $sTrackingID;
+
+            $oMC = $this->getEhrDao();
+            $sPatientID = $this->checkLocalCache($sTrackingID);
+            if($sPatientID == NULL)
+            {
+                $sPatientID = $oMC->getPatientIDFromTrackingID($sTrackingID);
+                $this->updateLocalCache($sTrackingID, $sPatientID);
+            }
+            $prevpid = $oMC->getSelectedPatientID();
+            $oMC->setPatientID($sPatientID);
+            $logmsg = "LOOK finished setSelectedTrackingID"
+                    . " to tid=[$sTrackingID] and pid=[$sPatientID]"
+                    . " (prevtid=[$prevtid] and prevpid=[$prevpid] from last update $prevtime)"
+                    . "\n\tCurrent context>>> $this";
+            $this->serializeNow($logmsg, TRUE);
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed setSelectedTrackingID($sTrackingID, $bClearPersonalBatchStack) because $ex",99876,$ex);
         }
-        $this->m_nLastUpdateTimestamp = microtime(TRUE);
-        $aParts = explode('-',$sTrackingID);    //Allow for older type ticket tracking format
-        if(count($aParts) == 1)
-        {
-            //Just IEN
-            $nIEN = $aParts[0];
-        } else {
-            //Site-IEN
-            $nIEN = $aParts[1];
-        }
-        $this->m_sCurrentTicketID = $sTrackingID;
-        
-        $oMC = $this->getEhrDao();
-        $sPatientID = $this->checkLocalCache($sTrackingID);
-        if($sPatientID == NULL)
-        {
-            $sPatientID = $oMC->getPatientIDFromTrackingID($sTrackingID);
-            $this->updateLocalCache($sTrackingID, $sPatientID);
-        }
-        $oMC->setPatientID($sPatientID);
-        $this->serializeNow('', TRUE);
     }
 
     
@@ -1069,18 +1107,22 @@ class Context
     /**
      * We call this whenever we change something significant in the instance.
      */
-    private function serializeNow($logMsg = ''
+    private function serializeNow($logMsg = NULL
             , $bSystemDrivenAction=TRUE
             , $nSessionRefreshDelayOverride=NULL
             , $checkSessionTimeout=TRUE)
     {
+        if($logMsg != NULL)
+        {
+            error_log('@serializeNow: '.$logMsg);
+        }
         if($bSystemDrivenAction)
         {
             $this->m_nInstanceSystemActionTimestamp = time(); //Capture the time whenever we serialize.
         } else {
             $this->m_nInstanceUserActionTimestamp = time(); //Capture the time whenever we serialize.
         }
-        $this->bNeedsSave=FALSE;    //Because now we are saving it now.
+        $this->bNeedsSave=FALSE;    //Because we are saving it now.
         if(!isset($this->m_nInstanceTimestamp))
         {
             $this->m_nInstanceTimestamp = microtime(TRUE);
@@ -1108,6 +1150,11 @@ class Context
         {
             error_log("Unserializing now for kickout processing!");
             $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
+            $ehr_dao = $candidate->getEhrDao(FALSE);
+            if($ehr_dao != NULL)
+            {
+                $ehr_dao->setCustomInfoMessage('kickout unserialized@'.microtime(TRUE));
+            }
             if($candidate == '')
             {
                 error_log("No existing context instance found, creating a temporary one now for kickout processing!");
@@ -1158,11 +1205,18 @@ class Context
             {
                 $currentpath = current_path();
                 // session started more than SESSION_REFRESH_DELAY seconds ago
-                error_log('WORKFLOWDEBUG>>>Session key timeout of '
+                error_log('LOOK WORKFLOWDEBUG>>>Session key timeout of '
                         .$grace_seconds
-                        .' seconds (grace seconds) reached so generated new key for uid='.$this->getUID()
-                        ."\nURL at key timeout = ".$currentpath);
+                        .' seconds (grace seconds) reached so generated new key for uid=' . $this->getUID()
+                        ."\nURL at key timeout = " . $currentpath);
                 session_regenerate_id(FALSE);   // change session ID for the current session and invalidate old session ID
+                if(!isset($_SESSION['REGENERATED_COUNT']))
+                {
+                    $_SESSION['REGENERATED_COUNT'] = 1;
+                } else {
+                    $rc = $_SESSION['REGENERATED_COUNT'];
+                    $_SESSION['REGENERATED_COUNT'] = $rc + 1;
+                }
                 $_SESSION['CREATED'] = time();  // update creation time
             }
         }
@@ -1171,10 +1225,14 @@ class Context
     /**
      * Interface to the EHR
      */
-    public function getEhrDao()
+    public function getEhrDao($create_if_not_set=TRUE)
     {
         if (!isset($this->m_oEhrDao)) 
         {
+            if(!$create_if_not_set)
+            {
+                return NULL;
+            }
             $this->m_oEhrDao = new \raptor\EhrDao();
         }
         //error_log("LOOK DAO from context is >>>".$this->m_oEhrDao);

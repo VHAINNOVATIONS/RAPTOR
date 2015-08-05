@@ -80,133 +80,141 @@ class ProtocolSupportingData
     }
     
     /**
-     * @abstract Return array of medications for a patient. Patient must be set in MDWS context. 
-     * @return array
+     * Return array of medications for a patient. Patient must be set in MDWS context. 
      */
     function getMedicationsDetail($atriskmeds=NULL)
     {
-        //$serviceResponse = $this->m_oContext->getEMRService()->getAllMeds();
-        //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery('getAllMeds', NULL);
-        $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
-        $serviceResponse = $mdwsDao->makeQuery('getAllMeds', NULL);
-error_log("LOOK we called getMedicationsDetail");      
-        $displayMeds = array();
-        $atriskhits = array();
-        $bundle = array('details' => $displayMeds, 'atrisk_hits'=>$atriskhits);
-        
-        if(!isset($serviceResponse->getAllMedsResult->count))
+        try
         {
-                return $bundle;
-        }
-        $numMeds = $serviceResponse->getAllMedsResult->count;
-        
-        if($numMeds == 0)
-        {
-            return $bundle;
-        }
- 
-        if($atriskmeds==NULL)
-        {
-            $atriskmeds = array();
-            $checkatrisk = FALSE;
-        } else {
-            $checkatrisk = TRUE;
-        }
-        
-        $displayMedsLast = array();
-        for ($i=0; $i<$numMeds; $i++){
-            // Check to see if 'arrays' is actually an array or just an object
-            $objType = gettype($serviceResponse->getAllMedsResult->arrays);
-            if ($objType == 'array')
-                $medications = $serviceResponse->getAllMedsResult->arrays->TaggedMedicationArray[$i];
-            elseif ($objType == 'object')
-                $medications = $serviceResponse->getAllMedsResult->arrays->TaggedMedicationArray;
-            else {
-                return $bundle;
+            //$serviceResponse = $this->m_oContext->getEMRService()->getAllMeds();
+            //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery('getAllMeds', NULL);
+            $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
+            $serviceResponse = $mdwsDao->makeQuery('getAllMeds', NULL);
+            $displayMeds = array();
+            $atriskhits = array();
+            $bundle = array('details' => $displayMeds, 'atrisk_hits'=>$atriskhits);
+
+            if(!isset($serviceResponse->getAllMedsResult->count))
+            {
+                    return $bundle;
             }
-            
-            $n = $medications->count;
-            if($n == 0)
+            $numMeds = $serviceResponse->getAllMedsResult->count;
+
+            if($numMeds == 0)
             {
                 return $bundle;
             }
-            
-            for ($j=0; $j<$n; $j++)
+
+            if($atriskmeds==NULL)
             {
-                // Check to see if is actually an array or just an object
-                $objType = gettype($medications->meds->MedicationTO);
+                $atriskmeds = array();
+                $checkatrisk = FALSE;
+            } else {
+                $checkatrisk = TRUE;
+            }
+
+            $displayMedsLast = array();
+            for ($i=0; $i<$numMeds; $i++){
+                // Check to see if 'arrays' is actually an array or just an object
+                $objType = gettype($serviceResponse->getAllMedsResult->arrays);
                 if ($objType == 'array')
-                    $med = $medications->meds->MedicationTO[$j];
+                    $medications = $serviceResponse->getAllMedsResult->arrays->TaggedMedicationArray[$i];
                 elseif ($objType == 'object')
-                    $med = $medications->meds->MedicationTO;
+                    $medications = $serviceResponse->getAllMedsResult->arrays->TaggedMedicationArray;
                 else {
-                    $med = NULL;
+                    return $bundle;
                 }
-                if($med !== NULL)
+
+                $n = $medications->count;
+                if($n == 0)
                 {
-                    $tempMeds = array();
-                    if(isset($med->name))
+                    return $bundle;
+                }
+
+                for ($j=0; $j<$n; $j++)
+                {
+                    // Check to see if is actually an array or just an object
+                    $objType = gettype($medications->meds->MedicationTO);
+                    if ($objType == 'array')
+                        $med = $medications->meds->MedicationTO[$j];
+                    elseif ($objType == 'object')
+                        $med = $medications->meds->MedicationTO;
+                    else {
+                        $med = NULL;
+                    }
+                    if($med !== NULL)
                     {
-                        $medname = trim($med->name);
-                        $tempMeds['Med'] = $medname;
-                        $status = isset($med->status) ? $med->status : " ";
-                        $tempMeds['Status'] = $status;
-                        $cleanstatus = strtoupper(trim($status));
-                        if($checkatrisk)
+                        $tempMeds = array();
+                        if(isset($med->name))
                         {
-                            $atriskmatchtext = self::findSubstringMatchInArray($medname, $atriskmeds);
-                            $atrisk = $atriskmatchtext !== FALSE;
-                            $tempMeds['AtRisk'] = ($atrisk ? 'YES' : 'no');
-                            $tempMeds['warn'] = ($atrisk && ($cleanstatus == '' 
-                                    || $cleanstatus == 'ACTIVE' 
-                                    || $cleanstatus == 'PENDING')); 
-                            if($atrisk)
+                            $medname = trim($med->name);
+                            $tempMeds['Med'] = $medname;
+                            $status = isset($med->status) ? $med->status : " ";
+                            $tempMeds['Status'] = $status;
+                            $cleanstatus = strtoupper(trim($status));
+                            if($checkatrisk)
                             {
-                                $atriskhits[$atriskmatchtext] = $atriskmatchtext;   //Set the key and value the same!
-                                $displayMeds[] = $tempMeds;
+                                $atriskmatchtext = self::findSubstringMatchInArray($medname, $atriskmeds);
+                                $atrisk = $atriskmatchtext !== FALSE;
+                                $tempMeds['AtRisk'] = ($atrisk ? 'YES' : 'no');
+                                $tempMeds['warn'] = ($atrisk && ($cleanstatus == '' 
+                                        || $cleanstatus == 'ACTIVE' 
+                                        || $cleanstatus == 'PENDING')); 
+                                if($atrisk)
+                                {
+                                    $atriskhits[$atriskmatchtext] = $atriskmatchtext;   //Set the key and value the same!
+                                    $displayMeds[] = $tempMeds;
+                                } else {
+                                    $displayMedsLast[] = $tempMeds;
+                                }
                             } else {
-                                $displayMedsLast[] = $tempMeds;
+                                $tempMeds['AtRisk'] = '';
+                                $tempMeds['warn'] = FALSE;
+                                $displayMeds[] = $tempMeds;
                             }
-                        } else {
-                            $tempMeds['AtRisk'] = '';
-                            $tempMeds['warn'] = FALSE;
-                            $displayMeds[] = $tempMeds;
                         }
                     }
                 }
             }
-        }
-        $bottom = array();
-        foreach($displayMedsLast as $medsinfo)
-        {
-            if($medsinfo['warn'])
+            $bottom = array();
+            foreach($displayMedsLast as $medsinfo)
             {
-                $displayMeds[] = $medsinfo;
-            } else {
-                $bottom[] = $medsinfo;
+                if($medsinfo['warn'])
+                {
+                    $displayMeds[] = $medsinfo;
+                } else {
+                    $bottom[] = $medsinfo;
+                }
             }
+            $displayMeds = array_merge($displayMeds, $bottom);
+            $bundle = array('details' => $displayMeds, 'atrisk_hits'=>$atriskhits);
+            return $bundle;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $displayMeds = array_merge($displayMeds, $bottom);
-        $bundle = array('details' => $displayMeds, 'atrisk_hits'=>$atriskhits);
-        return $bundle;
     }
 
     private static function findSubstringMatchInArray($needle, $haystackarray)
     {
-        $cleanneedle = strtoupper(trim($needle));
-        foreach($haystackarray as $check)
+        try
         {
-            $cleancheck = strtoupper(trim($check));
-            if(FALSE !== strpos($cleancheck,$cleanneedle))
+            $cleanneedle = strtoupper(trim($needle));
+            foreach($haystackarray as $check)
             {
-                return $check;
+                $cleancheck = strtoupper(trim($check));
+                if(FALSE !== strpos($cleancheck,$cleanneedle))
+                {
+                    return $check;
+                }
+                if(FALSE !== strpos($cleanneedle,$cleancheck))
+                {
+                    return $check;
+                }
             }
-            if(FALSE !== strpos($cleanneedle,$cleancheck))
-            {
-                return $check;
-            }
+            return FALSE;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return FALSE;
     }
     
     public function getAllHospitalLocations($mdwsDao,$maxqueries=120,$startingitem='',$prependlist=NULL)

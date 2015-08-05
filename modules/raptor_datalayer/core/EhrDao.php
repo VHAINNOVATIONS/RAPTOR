@@ -57,11 +57,13 @@ class EhrDao implements \raptor\IEhrDao
     
     /**
      * Get the implementation instance
+     * This function should NOT be overridden.
      */
     public function getImplementationInstance()
     {
         return $this->m_implclass;
     }
+    
     
     public function __toString()
     {
@@ -89,7 +91,7 @@ class EhrDao implements \raptor\IEhrDao
                     . $this->instanceTimestamp . ' '
                     . $authenticated_info
                     . $ehr_user_info
-                    . "\nImplementation DAO=".$this->m_implclass;
+                    . "\n\tImplementation DAO=".$this->m_implclass;
         } catch (\Exception $ex) {
             return 'Cannot get toString of EhrDao because ' . $ex->getMessage();
         }
@@ -98,6 +100,16 @@ class EhrDao implements \raptor\IEhrDao
     public function getIntegrationInfo() 
     {
         return $this->m_implclass->getIntegrationInfo();
+    }
+    
+    public function setCustomInfoMessage($msg)
+    {
+        return $this->m_implclass->setCustomInfoMessage($msg);
+    }
+    
+    public function getCustomInfoMessage()
+    {
+        return $this->getCustomInfoMessage;
     }
     
     public function connectAndLogin($siteCode, $username, $password) 
