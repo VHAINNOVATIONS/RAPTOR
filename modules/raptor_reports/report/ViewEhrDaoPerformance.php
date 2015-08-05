@@ -226,7 +226,8 @@ class ViewEhrDaoPerformance extends AReport
                         'action'=>$actionname,
                         'duration'=>$onetest['end_ts']-$onetest['start_ts'],
                         'resultsize'=>$onetest['resultsize'],
-                        'skipped_info'=>$skipped_info
+                        'skipped_info'=>$skipped_info,
+                        'paramvalues'=>$onetest['paramvalues'],
                     );
                 }
                 //Compute statistics for actions that did not fail.
@@ -550,14 +551,39 @@ class ViewEhrDaoPerformance extends AReport
             $pid = trim($onerow['patient_id']);
             if($onerow['error_detail'] != NULL)
             {
+                $paramstxt = '';
+                $params = $onerow['paramvalues'];
+                if(is_array($params))
+                {
+                    if($paramstxt > '')
+                    {
+                        $paramstxt .= ', ';
+                    }
+                    foreach($params as $oneparam)
+                    {
+                        if(is_array($oneparam))
+                        {
+                            $paramstxt .= 'Array(size ' . count($oneparam) . ')';
+                        } else if(is_object($oneparam)) {
+                            $paramstxt .= 'Object';
+                        } else {
+                            if(is_string($oneparam))
+                            {
+                                $paramstxt .= $oneparam;
+                            } else {
+                                $paramstxt .= print_r($oneparam,TRUE);
+                            }
+                        }
+                    }
+                }
                 $errors_hit++;
                 if($errors_hit > 5)
                 {
                     //Avoid out of memory!!!
                     $errsubstr = substr($onerow['error_detail'],0,1000) . '...';
-                    $action_name = "FAILED $action_name {$errsubstr}";
+                    $action_name = "FAILED $action_name($paramstxt) {$errsubstr}";
                 } else {
-                    $action_name = "FAILED $action_name {$onerow['error_detail']}";
+                    $action_name = "FAILED $action_name($paramstxt) {$onerow['error_detail']}";
                 }
                 
             } else if(isset($onerow['skipped_info']) && $onerow['skipped_info'] != NULL) {

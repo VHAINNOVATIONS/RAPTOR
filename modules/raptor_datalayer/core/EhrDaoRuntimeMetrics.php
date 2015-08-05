@@ -500,22 +500,23 @@ class EhrDaoRuntimeMetrics
                             }
                         }
                         $getinstanceliteral = isset($details['getinstanceliteral']) ? $details['getinstanceliteral'] : NULL;
-                        $params = array();
+                        $paramvalues = array();
                         if(!$test_this_method)
                         {
                             //Just assume a NULL result
                             $implclass = NULL;
                             $callresult = NULL;
                             $oneitem['skipped_info'] = "FALSE from $call_only_if";
+                            $oneitem['paramvalues'] = $paramvalues;
                         } else {
                             //Actually test the method
                             foreach($details['params'] as $oneparam)
                             {
                                 $evalthis = "return ".$oneparam." ;";
                                 $oneparamvalue = eval($evalthis);
-                                $params[] = $oneparamvalue;
+                                $paramvalues[] = $oneparamvalue;
                             }
-                            $oneitem['paramvalues'] = $params;
+                            $oneitem['paramvalues'] = $paramvalues;
                             $class = "\\$namespace\\$classname";
                             try
                             {
@@ -543,15 +544,15 @@ class EhrDaoRuntimeMetrics
                                 }
                                 throw new \Exception($valueaddedtext,99765,$ex);
                             }
-                            $num_params = count($params);
+                            $num_params = count($paramvalues);
                             if($num_params == 0) {
                                 $callresult = $implclass->$methodname();
                             } else if($num_params == 1) {
-                                $callresult = $implclass->$methodname($params[0]);
+                                $callresult = $implclass->$methodname($paramvalues[0]);
                             } else if($num_params == 2) {
-                                $callresult = $implclass->$methodname($params[0],$params[1]);
+                                $callresult = $implclass->$methodname($paramvalues[0],$paramvalues[1]);
                             } else if($num_params == 3) {
-                                $callresult = $implclass->$methodname($params[0],$params[1],$params[2]);
+                                $callresult = $implclass->$methodname($paramvalues[0],$paramvalues[1],$paramvalues[2]);
                             } else {
                                 //If this happens, add another handler above.
                                 throw new \Exception("Currently no support implemented to call with $num_params arguments!");
@@ -619,14 +620,14 @@ class EhrDaoRuntimeMetrics
                                     }
                                     if($match_failed)
                                     {
-                                        if(count($params) == 0)
+                                        if(count($paramvalues) == 0)
                                         {
                                             throw new \Exception("Method with NO parameters failed because " 
                                                     . $match_failed_msg);
                                         } else {
-                                            $params_txt = implode(',',$params);
+                                            $params_txt = implode(',',$paramvalues);
                                             throw new \Exception("Method with " 
-                                                    . count($params) 
+                                                    . count($paramvalues) 
                                                     . " parameters=$params_txt failed because " 
                                                     . $match_failed_msg);
                                         }
