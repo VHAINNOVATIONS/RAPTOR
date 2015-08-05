@@ -149,6 +149,7 @@ class ViewEhrDaoPerformance extends AReport
             $ticketstats = array();
             $prevdaoinfo = NULL;
             $total_error_count = 0;
+            $total_skip_count = 0;
             $error_detail_truncations = 0;
             $exec_order = 0;
             for($iteration=1; $iteration <= $iterations; $iteration++)
@@ -188,9 +189,10 @@ class ViewEhrDaoPerformance extends AReport
                         $ex = NULL;
                         $has_error = 'NO';
                     }
-                    if(isset($onetest['skipped_info']))
+                    if(isset($onetest['skipped_info']) && $onetest['skipped_info'] > '')
                     {
                         $skipped_info = $onetest['skipped_info'];
+                        $total_skip_count++;
                     } else {
                         //Not skipped
                         $skipped_info = NULL;
@@ -336,6 +338,7 @@ class ViewEhrDaoPerformance extends AReport
             }
             $bundle['iterations'] = $iterations;
             $bundle['total_error_count'] = $total_error_count;
+            $bundle['total_skip_count'] = $total_skip_count;
             $bundle['stats'] 
                     = array('avg_action_duration'=>$avg_action_duration
                            ,'avg_action_size'=>$avg_action_size
@@ -354,6 +357,7 @@ class ViewEhrDaoPerformance extends AReport
                     . "\n\ttickets = $tickets_for_test"
                     . "\n\tfilters = $selected_filters"
                     . "\n\titerations = $iterations"
+                    . "\n\ttotal skipped = $total_skip_count"
                     . "\n\ttotal errors = $total_error_count");
             return $myvalues;
         } catch (\Exception $ex) {
@@ -475,6 +479,7 @@ class ViewEhrDaoPerformance extends AReport
         
         $rows = '';
         $total_error_count = $reportdata['total_error_count'];
+        $total_skip_count = $reportdata['total_skip_count'];
         $reportstats = $reportdata['stats'];
         $biggestsize_amount = NULL;
         $biggestsize_action = NULL;
@@ -549,33 +554,9 @@ class ViewEhrDaoPerformance extends AReport
                 }
             }
             $pid = trim($onerow['patient_id']);
+            $paramstxt = $this->getParameterValuesAsText($onerow['paramvalues']);
             if($onerow['error_detail'] != NULL)
             {
-                $paramstxt = '';
-                $params = $onerow['paramvalues'];
-                if(is_array($params))
-                {
-                    if($paramstxt > '')
-                    {
-                        $paramstxt .= ', ';
-                    }
-                    foreach($params as $oneparam)
-                    {
-                        if(is_array($oneparam))
-                        {
-                            $paramstxt .= 'Array(size ' . count($oneparam) . ')';
-                        } else if(is_object($oneparam)) {
-                            $paramstxt .= 'Object';
-                        } else {
-                            if(is_string($oneparam))
-                            {
-                                $paramstxt .= $oneparam;
-                            } else {
-                                $paramstxt .= print_r($oneparam,TRUE);
-                            }
-                        }
-                    }
-                }
                 $errors_hit++;
                 if($errors_hit > 5)
                 {
@@ -587,7 +568,9 @@ class ViewEhrDaoPerformance extends AReport
                 }
                 
             } else if(isset($onerow['skipped_info']) && $onerow['skipped_info'] != NULL) {
-                $action_name = "SKIPPED $action_name because {$onerow['skipped_info']}";
+                $action_name = "SKIPPED $action_name($paramstxt) because {$onerow['skipped_info']}";
+            } else {
+                $action_name = "$action_name($paramstxt)";
             }
             $rows .= '<tr>'
                     . "<td>{$iteration}</td>"
@@ -613,6 +596,12 @@ class ViewEhrDaoPerformance extends AReport
             $context_markup_ar[] = "<b>RUNTIME ERRORS : " . $total_error_count . "</b>";
         } else {
             $context_markup_ar[] = "Runtime errors : NONE";
+        }
+        if($total_skip_count>0)
+        {
+            $context_markup_ar[] = "<b>SKIPPED ACTIONS : " . $total_skip_count . "</b>";
+        } else {
+            $context_markup_ar[] = "Skipped actions : NONE";
         }
         if($getvalues_duration > 0)
         {
@@ -738,4 +727,45 @@ class ViewEhrDaoPerformance extends AReport
         $form['data_entry_area1']['action_buttons']['cancel'] = $this->getExitButtonMarkup($goback);
         return $form;
     }
+    
+    private function getParameterValuesAsText($params,$max_len=25)
+    {
+        try
+        {
+            $paramstxt = '';
+            if(is_array($params))
+            {
+                if($paramstxt > '')
+                {
+                    $paramstxt .= ', ';
+                }
+                foreach($params as $oneparam)
+                {
+                    if(is_array($oneparam))
+                    {
+                        $oneparamtxt = 'Array(size ' . count($oneparam) . ')';
+                    } else if(is_object($oneparam)) {
+                        $oneparamtxt = 'Object';
+                    } else {
+                        if(is_string($oneparam))
+                        {
+                            $oneparamtxt = $oneparam;
+                        } else {
+                            $oneparamtxt = print_r($oneparam,TRUE);
+                        }
+                    }
+                    if(strlen($oneparamtxt) > $max_len)
+                    {
+                        $paramstxt .= strlen($oneparamtxt,0,$max_len-3) + '...';
+                    } else {
+                        $paramstxt .= $oneparamtxt;
+                    }
+                }
+            }
+            return $paramstxt;
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed getParameterValuesAsText for ".print_r($params,TRUE),99888,$ex);
+        }
+    }
+    
 }

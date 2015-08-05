@@ -183,8 +183,11 @@ class EhrDaoRuntimeMetrics
                 ,array()
                 ,'something');
         
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDashboardDetailsMap');
+
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDashboardDetailsMap'
-                ,array('$tid'));
+                ,array('$tid') 
+                ,array('core'));
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getSelectedPatientID'
                 ,array()
