@@ -50,6 +50,11 @@ interface IEhrDao
     public function setPatientID($sPatientID);
     
     /**
+     * Get the patient ID that is currently selected
+     */
+    public function getSelectedPatientID();
+        
+    /**
      * Get NULL if no problems, else text of the missing keys.
      */
     public function getVistaAccountKeyProblems();

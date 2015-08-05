@@ -268,6 +268,15 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         }
     }
 
+    public function getSelectedPatientID()
+    {
+        if (isset($this->selectedPatient) && $this->selectedPatient != '')
+        {
+            return $this->selectedPatient;
+        }
+        return NULL;
+    }
+    
     public function connectRemoteSites($applicationPassword)
     {
         throw new \Exception("This function has not been implemented");

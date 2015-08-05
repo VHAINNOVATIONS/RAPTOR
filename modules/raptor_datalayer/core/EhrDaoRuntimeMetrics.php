@@ -107,7 +107,7 @@ class EhrDaoRuntimeMetrics
             , $params=array()
             , $membership=array('core','oneorder')
             , $store_result=array()
-            , $expected_result=NULL //NULL or 0bytes or array or something or array(something)
+            , $expected_result=NULL //NULL or 0bytes or array or something or array(something) or mustmatch(varname)
             , $call_only_if=NULL    //NULL means always call this method
             )
     {
@@ -186,11 +186,17 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getDashboardDetailsMap'
                 ,array('$tid'));
         
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPatientIDFromTrackingID'
-                ,array('$tid')
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getSelectedPatientID'
+                ,array()
                 ,array('core','dialog','oneorder')
                 ,array('$testres_patient_id')
                 ,'something');
+        
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPatientIDFromTrackingID'
+                ,array('$tid')
+                ,array('core','dialog','oneorder')
+                ,array('$testres_patient_id_for_ticket')
+                ,'mustmatch($testres_patient_id)');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getAllHospitalLocationsMap'
                 ,array()
@@ -230,7 +236,7 @@ class EhrDaoRuntimeMetrics
                 ,array('$tid')
                 ,array('core','dialog')
                 ,array('$testres_visits')
-                ,'array(something)');
+                ,'array');
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProviders'
                 ,array('""')
@@ -293,13 +299,10 @@ class EhrDaoRuntimeMetrics
      */
     private function isArrayWithData($candidate)
     {
-        error_log("LOOK we called isArrayWithData with ".print_r($candidate,TRUE));
         if(!is_array($candidate) || count($candidate) < 1)
         {
-        error_log("LOOK we called isArrayWithData with EMPTY ".print_r($candidate,TRUE));
             return FALSE;
         }
-        error_log("LOOK we called isArrayWithData with FULL ".print_r($candidate,TRUE));
         return TRUE;
     }
     
@@ -581,6 +584,31 @@ class EhrDaoRuntimeMetrics
                                         {
                                             throw new \Exception("Expected result as $expected_result but got 0 count in ".print_r($callresult,TRUE));
                                         }
+                                    }
+                                } else if(substr($expected_result,0,11) == 'mustmatch($') {
+                                    $firstpart_match_varname = substr($expected_result,10);
+                                    $match_varname = substr($firstpart_match_varname,0,strlen($firstpart_match_varname)-1);
+                                    $evalthis = "return {$match_varname};";
+                                    $match_value = eval($evalthis);
+                                    $txt_match_value = print_r($match_value,TRUE);
+                                    $size_txt_match_value = strlen($txt_match_value);
+                                    if($callresult === NULL && $match_value !== NULL)
+                                    {
+                                        throw new \Exception("Expected result to match variable $match_varname but NULL result " 
+                                                . " does not match "  . print_r($match_value,TRUE));
+                                    } else
+                                    if($callresult !== NULL && $match_value === NULL)
+                                    {
+                                        throw new \Exception("Expected result to match variable $match_varname but result " 
+                                                . print_r($callresult,TRUE) 
+                                                . " does not match NULL value");
+                                    } else
+                                    if($callresult !== $match_value)
+                                    {
+                                        throw new \Exception("Expected result to match variable $match_varname but result " 
+                                                . print_r($callresult,TRUE) 
+                                                . " does not match value (len=$size_txt_match_value) "  
+                                                . $txt_match_value);
                                     }
                                 } else {
                                     throw new \Exception("Cannot parse '$expected_result' as an expected result");

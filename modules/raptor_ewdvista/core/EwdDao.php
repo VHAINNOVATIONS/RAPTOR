@@ -35,7 +35,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_fullname     = NULL;
     private $m_greeting     = NULL;
     
-    private $m_selectedPatient = NULL;      //The currently selected patient
+    private $m_selectedPatientID = NULL;      //The currently selected patient
     
     function __construct()
     {
@@ -126,7 +126,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         $this->m_displayname  = NULL;
         $this->m_fullname     = NULL;
         $this->m_greeting     = NULL;
-        $this->m_selectedPatient = NULL;
+        $this->m_selectedPatientID = NULL;
     }
 
     /**
@@ -177,6 +177,11 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $this->disconnect();
             throw new \Exception("Trouble in connectAndLogin as cred={$this->m_credentials} because ".$ex,99876,$ex);
         }
+    }
+    
+    public function getSelectedPatientID()
+    {
+        return $this->m_selectedPatientID;
     }
 
     private function getServiceRelatedData($serviceName)
@@ -513,7 +518,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function setPatientID($sPatientID)
     {
-        $this->m_selectedPatient = $sPatientID;
+        $this->m_selectedPatientID = $sPatientID;
     }
 
     public function getEHRUserID($fail_if_missing = TRUE)

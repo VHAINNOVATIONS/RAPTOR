@@ -133,6 +133,11 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getVistaAccountKeyProblems();
     }
 
+    public function getSelectedPatientID()
+    {
+        return $this->m_implclass->getSelectedPatientID();
+    }
+    
     public function getPatientIDFromTrackingID($sTrackingID) 
     {
         return $this->m_implclass->getPatientIDFromTrackingID($sTrackingID);

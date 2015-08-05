@@ -521,11 +521,14 @@ class MdwsUtils {
                        // . "\n<br>". 'RAW SOAP RESULT='.print_r($soapResult,TRUE));
             }
             
+error_log("LOOK getVisits soap result for patient ".$mdwsDao->getSelectedPatientID() 
+        . " (fd=$fromDate td=$toDate) is ". print_r($soapResult,TRUE));
             // check for zero results
             if (!isset($soapResult->getVisitsResult->count) ||
                     $soapResult->getVisitsResult->count == 0) {
                 
-                error_log("LOOK we got empty result from getVisits(fd=$fromDate td=$toDate)"
+                error_log("LOOK we got empty getVisits result for patient " 
+                        . $mdwsDao->getSelectedPatientID() . " (fd=$fromDate td=$toDate)"
                         . "\n\tsoapResult = " . print_r($soapResult,TRUE) 
                         . "\n\tand mdwsDao = " . print_r($mdwsDao,TRUE));
                 
@@ -547,7 +550,6 @@ class MdwsUtils {
                 $result[] = $aryItem;   //Already acending
             }
             $aSorted = array_reverse($result); //Now this is descrnding.
-
             return $aSorted;
          } catch (\Exception $ex) {
              throw new \Exception('Trouble in getVisits because ' . $ex);
