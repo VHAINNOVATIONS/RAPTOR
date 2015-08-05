@@ -285,13 +285,26 @@ class EhrDaoRuntimeMetrics
     /**
      * Used by METADATA COMMANDS not literal code!!!!!
      */
-    private function getFirstVisitTO($testres_visits)
+    private function getFirstVisitTO($testres_visits,$fail_if_empty=TRUE)
     {
-        if(!isset($testres_visits[0]['visitTO']))
+        if(!is_array($testres_visits))
+        {
+            throw new \Exception("Expected array of visits but got this instead = ".print_r($testres_visits,TRUE));
+        }
+        foreach($testres_visits as $onevisit)
+        {
+            //Just return the first one and we are done!
+            if(!isset($onevisit['visitTO']))
+            {
+                throw new \Exception("Did NOT find 'visitTO' in ".print_r($onevisit,TRUE));
+            }
+            return $onevisit['visitTO'];
+        }
+        if($fail_if_empty)
         {
             throw new \Exception("Did NOT find 'visitTO' at offset 0 in ".print_r($testres_visits,TRUE));
         }
-        return $testres_visits[0]['visitTO'];
+        return FALSE;
     }
     
     /**
@@ -418,6 +431,7 @@ class EhrDaoRuntimeMetrics
                         }
                     }
                 }
+                //Call each of the functions on the current ticket.
                 foreach($functionstocall as $details)
                 {
                     $oneitem = array();
@@ -463,13 +477,31 @@ class EhrDaoRuntimeMetrics
                         }
                         $oneitem['paramvalues'] = $params;
                         $class = "\\$namespace\\$classname";
-                        if($getinstanceliteral != NULL)
+                        try
                         {
-                            //Call a method to get the instance
-                            $implclass = eval("return {$getinstanceliteral};");
-                        } else {
-                            //Simply use the constructor
-                            $implclass = new $class();
+                            if($getinstanceliteral != NULL)
+                            {
+                                //Call a method to get the instance
+                                $implclass = eval("return {$getinstanceliteral};");
+                            } else {
+                                //Simply use the constructor
+                                $implclass = new $class();
+                            }
+                        } catch (\Exception $ex) {
+                            //Provide something meaningful for debugging
+                            if($getinstanceliteral != NULL)
+                            {
+                                $valueaddedtext = "Failed to get instance of"
+                                        . " implementing class"
+                                        . " from literal cmd '$getinstanceliteral' because $ex";
+                                $implclass = "[Failed literal {$getinstanceliteral}]";
+                            } else {
+                                $valueaddedtext = "Failed to get instance of"
+                                        . " implementing class"
+                                        . " called '$class' because $ex";
+                                $implclass = "[Failed load class {$class}]";
+                            }
+                            throw new \Exception($valueaddedtext,99765,$ex);
                         }
                         $num_params = count($params);
                         if($num_params == 0) {
@@ -523,16 +555,36 @@ class EhrDaoRuntimeMetrics
                             $eval_assign = "{$store_result_varname} = " . '$callresult;';
                             eval($eval_assign);
                             $evalthis = "return {$store_result_varname};";
-//$justlooking = eval($evalthis);
-//error_log("LOOK eval assign( $eval_assign ) just looking >>>" . print_r($justlooking,TRUE));                            
                         }
                     } catch (\Exception $ex) {
                         //Continue with other items
                         $oneitem['failed_info'] = $ex;
-                        $ticketstats[$tid]['error_count'] = $ticketstats[$tid]['error_count'] + 1;
+                        $newerrorcount = $ticketstats[$tid]['error_count'] + 1;
+                        $ticketstats[$tid]['error_count'] = $newerrorcount;
+                        $exception_txt_tolog = print_r($ex,TRUE);
+                        if($newerrorcount > 5)
+                        {
+                            //Prevent overwhelming the log file!
+                            if(strlen($exception_txt_tolog) > 500)
+                            {
+                                $exception_txt_tolog = '(TRUNCATED exception text) '.substr($exception_txt_tolog,0,500);
+                            }
+                        }
+                        if(trim($tid) > '')
+                        {
+                            $pidonfail = $this->m_ehrDao->getPatientIDFromTrackingID($tid);
+                        } else {
+                            $pidonfail = 'UNKNOWN';
+                        }
+                        error_log("Test on tid=$tid (patient=$pidonfail)"
+                                . " of Dao method={$methodname}"
+                                . " Error#{$newerrorcount} $exception_txt_tolog"
+                                . "\n\tClass instance on fail=".print_r($implclass,TRUE));
                     }
                     $oneitem['end_ts'] = microtime(TRUE);
+                    $oneitem['patient_id'] = $this->m_ehrDao->getPatientIDFromTrackingID($tid);
                     $resultsize = strlen(print_r($callresult,TRUE));
+//error_log("LOOK the raw result on ticket $tid for $methodname >>>>".print_r($callresult,TRUE));                    
                     $oneitem['resultsize'] = $resultsize;
                     $metrics[] = $oneitem;
                 }

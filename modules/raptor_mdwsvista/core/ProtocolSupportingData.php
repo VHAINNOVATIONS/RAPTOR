@@ -89,7 +89,7 @@ class ProtocolSupportingData
         //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery('getAllMeds', NULL);
         $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
         $serviceResponse = $mdwsDao->makeQuery('getAllMeds', NULL);
-        
+error_log("LOOK we called getMedicationsDetail");      
         $displayMeds = array();
         $atriskhits = array();
         $bundle = array('details' => $displayMeds, 'atrisk_hits'=>$atriskhits);

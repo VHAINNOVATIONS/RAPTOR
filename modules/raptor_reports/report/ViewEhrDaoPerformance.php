@@ -68,6 +68,7 @@ class ViewEhrDaoPerformance extends AReport
             $bundle['DAO'] = array();
             $iterations = isset($myvalues['iterations']) ? $myvalues['iterations'] : '1';
             $tickets_for_test = isset($myvalues['tickets_for_test']) ? $myvalues['tickets_for_test'] : '';
+            $patientlist = array();    //We will get these FROM the result
             if(strlen($tickets_for_test) > 3)
             {
                 $checkcmd = strtoupper(trim($tickets_for_test));
@@ -211,6 +212,7 @@ class ViewEhrDaoPerformance extends AReport
                         'has_error'=>$has_error,
                         'error_detail'=>$error_detail,
                         'tracking_id'=>$onetest['tracking_id'],
+                        'patient_id'=>$onetest['patient_id'],
                         'start_ts'=>$onetest['start_ts'],
                         'end_ts'=>$onetest['end_ts'],
                         'action'=>$actionname,
@@ -275,6 +277,11 @@ class ViewEhrDaoPerformance extends AReport
             {
                 $iteration = $onerow['iteration'];
                 $tid = $onerow['tracking_id'];
+                $pid = $onerow['patient_id'];
+                if(!in_array($pid, $patientlist))
+                {
+                    $patientlist[] = $pid;
+                }
                 $action_name = $onerow['action'];
                 if($onerow['has_error'] == 'NO')
                 {
@@ -328,6 +335,7 @@ class ViewEhrDaoPerformance extends AReport
                     );
             $bundle['ticketstats'] = $ticketstats;
             $bundle['tickets_for_test'] = $tickets_for_test;
+            $bundle['patientlist'] = $patientlist;
             $bundle['rowdata'] = $enhancedrows;
             $getfieldvalues_endtime = microtime(TRUE);
             $bundle['getvalues_duration'] = $getfieldvalues_endtime - $getfieldvalues_starttime;;
@@ -399,12 +407,14 @@ class ViewEhrDaoPerformance extends AReport
         $reportdata = $myvalues['reportdata'];
         $getvalues_duration = $reportdata['getvalues_duration'];
         $iterations = isset($reportdata['iterations']) ? $reportdata['iterations'] : '1';
-        $tickets_for_test = isset($reportdata['tickets_for_test']) ? $reportdata['tickets_for_test'] : 'YABA';
+        $tickets_for_test = isset($reportdata['tickets_for_test']) ? $reportdata['tickets_for_test'] : '';
+        $patientlist = isset($reportdata['patientlist']) ? $reportdata['patientlist'] : array();
         $selected_filters = isset($reportdata['selected_filters']) ? $reportdata['selected_filters'] : '';
         $available_filter_options = isset($reportdata['available_filter_options']) ? $reportdata['available_filter_options'] : 'MISSING';
         $headertext = array('i#'=>'Iteration number',
             's#'=>'Sequence number within the iteration',
             'TrackingID'=>'Ticket tracking number',
+            'PatientID'=>'Patient tracking number at end of action',
             'Start Time'=>'Start time of the action',
             'End Time'=>'End time of the action',
             'Action Name'=>'The action that took place',
@@ -528,6 +538,7 @@ class ViewEhrDaoPerformance extends AReport
                     $tidmarkup = "<b title='$action_name $extremetitle'>$tid</b>";
                 }
             }
+            $pid = trim($onerow['patient_id']);
             if($onerow['error_detail'] != NULL)
             {
                 $errors_hit++;
@@ -545,6 +556,7 @@ class ViewEhrDaoPerformance extends AReport
                     . "<td>{$iteration}</td>"
                     . "<td>{$seqnum}</td>"
                     . "<td>{$tidmarkup}</td>"
+                    . "<td>{$pid}</td>"
                     . "<td>{$onerow['start_ts']}</td>"
                     . "<td>{$onerow['end_ts']}</td>"
                     . "<td>$action_name</td>"
@@ -585,6 +597,7 @@ class ViewEhrDaoPerformance extends AReport
             if($ticketcount > 0)
             {
                 $context_markup_ar[] = "Tickets Tested: " . implode(',',$ticketlist);
+                $context_markup_ar[] = "Patients in test: " . implode(',',$patientlist);
             }
         }
         if($ticketcount > 0 && $total_error_count == 0)

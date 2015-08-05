@@ -504,19 +504,14 @@ class MdwsUtils {
          {
             if (!isset($fromDate) || trim($fromDate) == '') {
                 $oneMonthAgo = MdwsUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
-                $fromDate = MdwsUtils::convertVistaDateToYYYYMMDD($oneMonthAgo); // TODO - get today-30 date in this format
+                $fromDate = MdwsUtils::convertVistaDateToYYYYMMDD($oneMonthAgo);
             }
             if (!isset($toDate) || trim($toDate) == '') {
                 $today = MdwsUtils::getVistaDate(0);
                 $toDate = MdwsUtils::convertVistaDateToYYYYMMDD($today);
-                //$toDate = '20140718'; // TODO - get today's date in this format
             }
             $soapResult = $mdwsDao->makeQuery('getVisits', array('fromDate'=>$fromDate, 'toDate'=>$toDate));
-            //$soapResult = $mdwsDao->makeQuery('getAllMeds', NULL);
-            //$soapResult = $mdwsDao->makeQuery('getAllMeds', null); // TODO - remove this line and uncomment line above
             $result = array();
-            //return $result; // TODO - remove this line
-
             if (!isset($soapResult) || 
                     !isset($soapResult->getVisitsResult) || 
                     isset($soapResult->getVisitsResult->fault)) {
@@ -530,8 +525,9 @@ class MdwsUtils {
             if (!isset($soapResult->getVisitsResult->count) ||
                     $soapResult->getVisitsResult->count == 0) {
                 
-                error_log("LOOK we got empty result from getVisits see soapResult=" . print_r($soapResult,TRUE) 
-                        .  "\n\tand see $mdwsDao = " . print_r($mdwsDao,TRUE));
+                error_log("LOOK we got empty result from getVisits(fd=$fromDate td=$toDate)"
+                        . "\n\tsoapResult = " . print_r($soapResult,TRUE) 
+                        . "\n\tand mdwsDao = " . print_r($mdwsDao,TRUE));
                 
                 return $result; // TBD - return null or empty array?
             }
@@ -549,16 +545,9 @@ class MdwsUtils {
                     'visitTO' => $visit
                 );
                 $result[] = $aryItem;   //Already acending
-                //array_push($result, $aryItem);
             }
             $aSorted = array_reverse($result); //Now this is descrnding.
 
-            if(count($aSorted) == 0)
-            {
-                error_log("LOOK ERROR we got empty SORTED result from getVisits see soapResult=" . print_r($soapResult,TRUE) 
-                        .  "\n\tand see $mdwsDao = " . print_r($mdwsDao,TRUE));
-            }
-            
             return $aSorted;
          } catch (\Exception $ex) {
              throw new \Exception('Trouble in getVisits because ' . $ex);
