@@ -779,11 +779,13 @@ class Context
             $this->clearPersonalBatchStack();
         }
         $this->m_nLastUpdateTimestamp = microtime(TRUE);
-        $aParts = explode('-',$sTrackingID);    //Allow for older type ticket format
+        $aParts = explode('-',$sTrackingID);    //Allow for older type ticket tracking format
         if(count($aParts) == 1)
         {
+            //Just IEN
             $nIEN = $aParts[0];
         } else {
+            //Site-IEN
             $nIEN = $aParts[1];
         }
         $this->m_sCurrentTicketID = $sTrackingID;
@@ -796,10 +798,6 @@ class Context
             $this->updateLocalCache($sTrackingID, $sPatientID);
         }
         $oMC->setPatientID($sPatientID);
-
-        //Now is the perfect time to reset the session to invalidate other windows!!!
-        //$SHORT_DELAY_REFRESH_OVERRIDE = 120;    //Must be at least 2 minutes
-        //$this->serializeNow('', TRUE, $SHORT_DELAY_REFRESH_OVERRIDE);
         $this->serializeNow('', TRUE);
     }
 

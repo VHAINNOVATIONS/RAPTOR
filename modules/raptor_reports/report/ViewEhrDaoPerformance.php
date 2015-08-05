@@ -607,8 +607,8 @@ class ViewEhrDaoPerformance extends AReport
             $context_markup_ar[] = "Total Tickets: " . $ticketcount;
             if($ticketcount > 0)
             {
-                $context_markup_ar[] = "Tickets Tested: " . implode(',',$ticketlist);
-                $context_markup_ar[] = "Patients in test: " . implode(',',$patientlist);
+                $context_markup_ar[] = "Tickets IDs Tested: " . implode(',',$ticketlist);
+                $context_markup_ar[] = "Patient IDs in Test: " . implode(',',$patientlist);
             }
         }
         if($ticketcount > 0 && $total_error_count == 0)

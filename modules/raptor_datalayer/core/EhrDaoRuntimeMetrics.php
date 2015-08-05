@@ -272,9 +272,10 @@ class EhrDaoRuntimeMetrics
                     ,'"'.VISTA_NOTEIEN_RAPTOR_GENERAL.'"')
                 ,array('core','setup'));
 
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('setPatientID'
-                ,array('$testres_patient_id')
-                ,array('core','oneorder')
+        //Test this one last because it is REDUNDANT with the first command in the core chain!!!!
+        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('setPatientID' 
+                ,array('$testres_patient_id')   //Set it to the value we already got
+                ,array('core')
                 );
         
         //Now filter out the functions we do not want to call.
@@ -594,21 +595,41 @@ class EhrDaoRuntimeMetrics
                                     $size_txt_match_value = strlen($txt_match_value);
                                     if($callresult === NULL && $match_value !== NULL)
                                     {
-                                        throw new \Exception("Expected result to match variable $match_varname but NULL result " 
-                                                . " does not match "  . print_r($match_value,TRUE));
+                                        $match_failed = TRUE;
+                                        $match_failed_msg = ("expected result to match variable $match_varname but NULL result " 
+                                                . " does not match " 
+                                                . print_r($match_value,TRUE));
                                     } else
                                     if($callresult !== NULL && $match_value === NULL)
                                     {
-                                        throw new \Exception("Expected result to match variable $match_varname but result " 
+                                        $match_failed = TRUE;
+                                        $match_failed_msg = ("expected result to match variable $match_varname but result " 
                                                 . print_r($callresult,TRUE) 
                                                 . " does not match NULL value");
                                     } else
                                     if($callresult !== $match_value)
                                     {
-                                        throw new \Exception("Expected result to match variable $match_varname but result " 
+                                        $match_failed = TRUE;
+                                        $match_failed_msg = ("expected result to match variable $match_varname but result " 
                                                 . print_r($callresult,TRUE) 
                                                 . " does not match value (len=$size_txt_match_value) "  
                                                 . $txt_match_value);
+                                    } else {
+                                        $match_failed = FALSE;
+                                    }
+                                    if($match_failed)
+                                    {
+                                        if(count($params) == 0)
+                                        {
+                                            throw new \Exception("Method with NO parameters failed because " 
+                                                    . $match_failed_msg);
+                                        } else {
+                                            $params_txt = implode(',',$params);
+                                            throw new \Exception("Method with " 
+                                                    . count($params) 
+                                                    . " parameters=$params_txt failed because " 
+                                                    . $match_failed_msg);
+                                        }
                                     }
                                 } else {
                                     throw new \Exception("Cannot parse '$expected_result' as an expected result");
@@ -647,7 +668,7 @@ class EhrDaoRuntimeMetrics
                                 . "\n\tClass instance on fail=".print_r($implclass,TRUE));
                     }
                     $oneitem['end_ts'] = microtime(TRUE);
-                    $oneitem['patient_id'] = $this->m_ehrDao->getPatientIDFromTrackingID($tid);
+                    $oneitem['patient_id'] = $this->m_ehrDao->getSelectedPatientID();
                     $resultsize = strlen(print_r($callresult,TRUE));
                     $oneitem['resultsize'] = $resultsize;
                     $metrics[] = $oneitem;

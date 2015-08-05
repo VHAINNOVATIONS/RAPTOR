@@ -268,15 +268,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         }
     }
 
-    public function getSelectedPatientID()
-    {
-        if (isset($this->selectedPatient) && $this->selectedPatient != '')
-        {
-            return $this->selectedPatient;
-        }
-        return NULL;
-    }
-    
     public function connectRemoteSites($applicationPassword)
     {
         throw new \Exception("This function has not been implemented");
@@ -314,9 +305,19 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
      */
     public function setPatientID($sPatientID)
     {
+error_log("LOOK setting the patient ID now to $sPatientID");       
         $this->selectedPatient = $sPatientID;
     }
 
+    public function getSelectedPatientID()
+    {
+        if (isset($this->selectedPatient) && $this->selectedPatient != '')
+        {
+            return $this->selectedPatient;
+        }
+        return NULL;
+    }
+    
     /**
      * Context needs simple way of getting patient ID.
      * @return the patientid associated with an order
