@@ -108,6 +108,7 @@ class EhrDaoRuntimeMetrics
             , $membership=array('core','oneorder')
             , $store_result=array()
             , $expected_result=NULL //NULL or 0bytes or array or something or array(something)
+            , $call_only_if=NULL    //NULL means always call this method
             )
     {
         $def = array('namespace'=>'raptor'
@@ -120,6 +121,7 @@ class EhrDaoRuntimeMetrics
                     ,'params'=>$params
                     ,'store_result'=>$store_result
                     ,'expected_result'=>$expected_result
+                    ,'call_only_if'=>$call_only_if
                 );
         return $def;
     }
@@ -144,6 +146,7 @@ class EhrDaoRuntimeMetrics
                     ,'params'=>array('$tid')
                     ,'store_result'=>array()
                     ,'expected_result'=>NULL
+                    ,'call_only_if'=>NULL
                 );
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getImplementationInstance'
@@ -237,7 +240,10 @@ class EhrDaoRuntimeMetrics
         
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getEncounterStringFromVisit'
                 ,array('$this->getFirstVisitTO($testres_visits)')
-                ,array('core','dialog'));
+                ,array('core','dialog')
+                ,array()
+                ,'something'
+                ,'$this->isArrayWithData($testres_visits)');
 
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getOrderableItems'
                 ,array('$this->getFirstArrayKey($testres_imagetypes)')
@@ -280,6 +286,21 @@ class EhrDaoRuntimeMetrics
             }
         }
         return $filtered;
+    }
+
+    /**
+     * Used by METADATA COMMANDS not literal code!!!!!
+     */
+    private function isArrayWithData($candidate)
+    {
+        error_log("LOOK we called isArrayWithData with ".print_r($candidate,TRUE));
+        if(!is_array($candidate) || count($candidate) < 1)
+        {
+        error_log("LOOK we called isArrayWithData with EMPTY ".print_r($candidate,TRUE));
+            return FALSE;
+        }
+        error_log("LOOK we called isArrayWithData with FULL ".print_r($candidate,TRUE));
+        return TRUE;
     }
     
     /**
@@ -444,6 +465,13 @@ class EhrDaoRuntimeMetrics
                         $namespace = $details['namespace'];
                         $classname = $details['classname'];
                         $methodname = $details['methodname'];
+                        $call_only_if = $details['call_only_if'];
+                        if($call_only_if != NULL)
+                        {
+                           $test_this_method = eval("return ".$call_only_if." ;");
+                        } else {
+                            $test_this_method = TRUE;
+                        }
                         $store_result_varname = NULL;
                         $store_result = $details['store_result'];
                         $expected_result = $details['expected_result'];
@@ -469,85 +497,94 @@ class EhrDaoRuntimeMetrics
                         }
                         $getinstanceliteral = isset($details['getinstanceliteral']) ? $details['getinstanceliteral'] : NULL;
                         $params = array();
-                        foreach($details['params'] as $oneparam)
+                        if(!$test_this_method)
                         {
-                            $evalthis = "return ".$oneparam." ;";
-                            $oneparamvalue = eval($evalthis);
-                            $params[] = $oneparamvalue;
-                        }
-                        $oneitem['paramvalues'] = $params;
-                        $class = "\\$namespace\\$classname";
-                        try
-                        {
-                            if($getinstanceliteral != NULL)
-                            {
-                                //Call a method to get the instance
-                                $implclass = eval("return {$getinstanceliteral};");
-                            } else {
-                                //Simply use the constructor
-                                $implclass = new $class();
-                            }
-                        } catch (\Exception $ex) {
-                            //Provide something meaningful for debugging
-                            if($getinstanceliteral != NULL)
-                            {
-                                $valueaddedtext = "Failed to get instance of"
-                                        . " implementing class"
-                                        . " from literal cmd '$getinstanceliteral' because $ex";
-                                $implclass = "[Failed literal {$getinstanceliteral}]";
-                            } else {
-                                $valueaddedtext = "Failed to get instance of"
-                                        . " implementing class"
-                                        . " called '$class' because $ex";
-                                $implclass = "[Failed load class {$class}]";
-                            }
-                            throw new \Exception($valueaddedtext,99765,$ex);
-                        }
-                        $num_params = count($params);
-                        if($num_params == 0) {
-                            $callresult = $implclass->$methodname();
-                        } else if($num_params == 1) {
-                            $callresult = $implclass->$methodname($params[0]);
-                        } else if($num_params == 2) {
-                            $callresult = $implclass->$methodname($params[0],$params[1]);
-                        } else if($num_params == 3) {
-                            $callresult = $implclass->$methodname($params[0],$params[1],$params[2]);
+                            //Just assume a NULL result
+                            $implclass = NULL;
+                            $callresult = NULL;
+                            $oneitem['skipped_info'] = "FALSE from $call_only_if";
                         } else {
-                            //If this happens, add another handler above.
-                            throw new \Exception("Currently no support implemented to call with $num_params arguments!");
-                        }
-                        if($expected_result !== NULL)
-                        {
-                            //We defined an expected result, check it.
-                            if($expected_result == '0bytes' || $expected_result == 'something')
+                            //Actually test the method
+                            foreach($details['params'] as $oneparam)
                             {
-                                $rsize = strlen(print_r($callresult,TRUE));
-                                if($expected_result == '0bytes')
+                                $evalthis = "return ".$oneparam." ;";
+                                $oneparamvalue = eval($evalthis);
+                                $params[] = $oneparamvalue;
+                            }
+                            $oneitem['paramvalues'] = $params;
+                            $class = "\\$namespace\\$classname";
+                            try
+                            {
+                                if($getinstanceliteral != NULL)
                                 {
-                                    if($rsize > 0)
+                                    //Call a method to get the instance
+                                    $implclass = eval("return {$getinstanceliteral};");
+                                } else {
+                                    //Simply use the constructor
+                                    $implclass = new $class();
+                                }
+                            } catch (\Exception $ex) {
+                                //Provide something meaningful for debugging
+                                if($getinstanceliteral != NULL)
+                                {
+                                    $valueaddedtext = "Failed to get instance of"
+                                            . " implementing class"
+                                            . " from literal cmd '$getinstanceliteral' because $ex";
+                                    $implclass = "[Failed literal {$getinstanceliteral}]";
+                                } else {
+                                    $valueaddedtext = "Failed to get instance of"
+                                            . " implementing class"
+                                            . " called '$class' because $ex";
+                                    $implclass = "[Failed load class {$class}]";
+                                }
+                                throw new \Exception($valueaddedtext,99765,$ex);
+                            }
+                            $num_params = count($params);
+                            if($num_params == 0) {
+                                $callresult = $implclass->$methodname();
+                            } else if($num_params == 1) {
+                                $callresult = $implclass->$methodname($params[0]);
+                            } else if($num_params == 2) {
+                                $callresult = $implclass->$methodname($params[0],$params[1]);
+                            } else if($num_params == 3) {
+                                $callresult = $implclass->$methodname($params[0],$params[1],$params[2]);
+                            } else {
+                                //If this happens, add another handler above.
+                                throw new \Exception("Currently no support implemented to call with $num_params arguments!");
+                            }
+                            if($expected_result !== NULL)
+                            {
+                                //We defined an expected result, check it.
+                                if($expected_result == '0bytes' || $expected_result == 'something')
+                                {
+                                    $rsize = strlen(print_r($callresult,TRUE));
+                                    if($expected_result == '0bytes')
                                     {
-                                        throw new \Exception("Expected result as $expected_result but got something as ".print_r($callresult,TRUE));
+                                        if($rsize > 0)
+                                        {
+                                            throw new \Exception("Expected result as $expected_result but got something as ".print_r($callresult,TRUE));
+                                        }
+                                    } else {
+                                        if($rsize < 1)
+                                        {
+                                            throw new \Exception("Expected result as $expected_result but got 0 bytes ".print_r($callresult,TRUE));
+                                        }
+                                    }
+                                } else if($expected_result == 'array' || $expected_result == 'array(something)') {
+                                    if(!is_array($callresult))
+                                    {
+                                        throw new \Exception("Expected result as $expected_result but got ".print_r($callresult,TRUE));
+                                    }
+                                    if($expected_result == 'array(something)')
+                                    {
+                                        if(count($callresult) < 1)
+                                        {
+                                            throw new \Exception("Expected result as $expected_result but got 0 count in ".print_r($callresult,TRUE));
+                                        }
                                     }
                                 } else {
-                                    if($rsize < 1)
-                                    {
-                                        throw new \Exception("Expected result as $expected_result but got 0 bytes ".print_r($callresult,TRUE));
-                                    }
+                                    throw new \Exception("Cannot parse '$expected_result' as an expected result");
                                 }
-                            } else if($expected_result == 'array' || $expected_result == 'array(something)') {
-                                if(!is_array($callresult))
-                                {
-                                    throw new \Exception("Expected result as $expected_result but got ".print_r($callresult,TRUE));
-                                }
-                                if($expected_result == 'array(something)')
-                                {
-                                    if(count($callresult) < 1)
-                                    {
-                                        throw new \Exception("Expected result as $expected_result but got 0 count in ".print_r($callresult,TRUE));
-                                    }
-                                }
-                            } else {
-                                throw new \Exception("Cannot parse '$expected_result' as an expected result");
                             }
                         }
                         if($store_result_varname != NULL)
@@ -584,7 +621,6 @@ class EhrDaoRuntimeMetrics
                     $oneitem['end_ts'] = microtime(TRUE);
                     $oneitem['patient_id'] = $this->m_ehrDao->getPatientIDFromTrackingID($tid);
                     $resultsize = strlen(print_r($callresult,TRUE));
-//error_log("LOOK the raw result on ticket $tid for $methodname >>>>".print_r($callresult,TRUE));                    
                     $oneitem['resultsize'] = $resultsize;
                     $metrics[] = $oneitem;
                 }

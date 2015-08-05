@@ -188,6 +188,14 @@ class ViewEhrDaoPerformance extends AReport
                         $ex = NULL;
                         $has_error = 'NO';
                     }
+                    if(isset($onetest['skipped_info']))
+                    {
+                        $skipped_info = $onetest['skipped_info'];
+                    } else {
+                        //Not skipped
+                        $skipped_info = NULL;
+                    }
+                    
                     $seqnum++;
                     $error_detail = "$ex";
                     if(strlen($error_detail) > 10000)
@@ -218,6 +226,7 @@ class ViewEhrDaoPerformance extends AReport
                         'action'=>$actionname,
                         'duration'=>$onetest['end_ts']-$onetest['start_ts'],
                         'resultsize'=>$onetest['resultsize'],
+                        'skipped_info'=>$skipped_info
                     );
                 }
                 //Compute statistics for actions that did not fail.
@@ -551,6 +560,8 @@ class ViewEhrDaoPerformance extends AReport
                     $action_name = "FAILED $action_name {$onerow['error_detail']}";
                 }
                 
+            } else if(isset($onerow['skipped_info']) && $onerow['skipped_info'] != NULL) {
+                $action_name = "SKIPPED $action_name because {$onerow['skipped_info']}";
             }
             $rows .= '<tr>'
                     . "<td>{$iteration}</td>"
