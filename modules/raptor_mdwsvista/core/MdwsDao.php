@@ -37,7 +37,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $userAccessCode;
     private $userVerifyCode;
     private $duz;
-    private $selectedPatient;
+    //private $selectedPatient;
 
     private $m_info_message = NULL;
     
@@ -88,9 +88,10 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             } else {
                 $infomsg_txt = '';
             }
+            $spid = $this->getSelectedPatientID();
             return 'MdwsDao instance created at ' . $this->instanceTimestamp
                     . ' isAuthenticated=[' . $this->isAuthenticated . ']'
-                    . ' selectedPatient=[' . $this->selectedPatient . ']'
+                    . ' selectedPatient=[' . $spid . ']'
                     . ' duz=[' . $this->duz . ']'
                     . $infomsg_txt;
         } catch (\Exception $ex) {
@@ -278,10 +279,11 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     . $this->authenticationTimestamp);
 
             // transparently re-select last selected patient
-            if (isset($this->selectedPatient) && $this->selectedPatient != '')
+            $spid = $this->getSelectedPatientID();
+            if($spid != NULL)
             {
-                error_log('LOOK Transparently re-selecting patient ID>>>[' . $this->selectedPatient . "] from $this");
-                $this->makeQuery('select', array('DFN' => $this->selectedPatient));
+                error_log('LOOK Transparently re-selecting patient ID>>>[' . $spid . "] from $this");
+                $this->makeQuery('select', array('DFN' => $spid));
             }
 
             error_log("Finished connectAndLogin duz={$this->duz} at " . microtime());
@@ -329,14 +331,16 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     public function setPatientID($sPatientID)
     {
 error_log("LOOK setting the patient ID now to $sPatientID in $this");       
-        $this->selectedPatient = $sPatientID;
+        //$this->selectedPatient = $sPatientID;
+        $_SESSION['MDWSDAO_selectedPatientID'] = $sPatientID;
     }
 
     public function getSelectedPatientID()
     {
-        if (isset($this->selectedPatient) && $this->selectedPatient != '')
+        if(isset($_SESSION['MDWSDAO_selectedPatientID']) 
+                && $_SESSION['MDWSDAO_selectedPatientID'] > '')
         {
-            return $this->selectedPatient;
+            return $_SESSION['MDWSDAO_selectedPatientID'];
         }
         return NULL;
     }
