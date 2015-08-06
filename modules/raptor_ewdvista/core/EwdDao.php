@@ -24,6 +24,8 @@ require_once 'WebServices.php';
 class EwdDao implements \raptor_ewdvista\IEwdDao
 {
     private $m_createdtimestamp = NULL;
+    
+    //TODO MOVE ALL THESE INTO SESSION USING setSession and getSession functions like MdwsDao!!!!
     private $m_authorization = NULL;
     private $m_init_key = NULL;
     private $m_credentials = NULL;          //Encrypted credentials value
@@ -114,11 +116,11 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $this->m_init_key = trim($json_array["key"]);
             if($this->m_authorization == '')
             {
-                throw new \Exception("Missing authorization value in result! URL: $url");
+                throw new \Exception("Missing authorization value in result! [URL: $url]\n >>> result=".print_r($json_array,TRUE));
             }
             if($this->m_init_key == '')
             {
-                throw new \Exception("Missing init key value in result! URL: $url");
+                throw new \Exception("Missing init key value in result! [URL: $url]\n >>> result=".print_r($json_array,TRUE));
             }
             error_log('EWD initClient is DONE at ' . microtime());
         } catch (\Exception $ex) {
@@ -134,6 +136,23 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return ($this->m_userduz != NULL);
     }
 
+    private function setSessionVariable($name,$value)
+    {
+        $fullname = "{$this->m_session_key_prefix}_$name";
+        $_SESSION[$fullname] = $value;
+    }
+
+    private function getSessionVariable($name)
+    {
+        $fullname = "{$this->m_session_key_prefix}_$name";
+        if(isset($_SESSION[$fullname]) 
+                && $_SESSION[$fullname] > '')
+        {
+            return $_SESSION[$fullname];
+        }
+        return NULL;
+    }
+    
     /**
      * Disconnect this DAO from a session
      */
