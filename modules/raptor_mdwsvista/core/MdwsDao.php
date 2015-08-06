@@ -30,19 +30,22 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $authenticationTimestamp;
     private $errorCount;
     private $mdwsClient;
-    private $isAuthenticated;
     private $currentFacade;
     // these need to be cached for re-try purposes
     private $userSiteId;
-    private $userAccessCode;
-    private $userVerifyCode;
+    //private $userAccessCode;
+    //private $userVerifyCode;
     private $duz;
     //private $selectedPatient;
+    //private $isAuthenticated;
 
     private $m_info_message = NULL;
+    private $m_session_key_prefix = NULL;
     
-    public function __construct()
+    public function __construct($session_key_prefix='MDWSDAO')
     {
+        $this->m_session_key_prefix = $session_key_prefix;
+        
         //Load relevant modules
         module_load_include('php', 'raptor_glue', 'core/Config');
         module_load_include('php', 'raptor_datalayer', 'core/Context');
@@ -89,8 +92,9 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 $infomsg_txt = '';
             }
             $spid = $this->getSelectedPatientID();
+            $is_authenticated = $this->isAuthenticated() ? 'YES' : 'NO';
             return 'MdwsDao instance created at ' . $this->instanceTimestamp
-                    . ' isAuthenticated=[' . $this->isAuthenticated . ']'
+                    . ' isAuthenticated=[' . $is_authenticated . ']'
                     . ' selectedPatient=[' . $spid . ']'
                     . ' duz=[' . $this->duz . ']'
                     . $infomsg_txt;
@@ -108,15 +112,35 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         // $this->currentSoapClientFunctions = $this->mdwsClient->__getFunctions();        
     }
 
+    private function setSessionVariable($name,$value)
+    {
+        $fullname = "{$this->m_session_key_prefix}_$name";
+        $_SESSION[$fullname] = $value;
+    }
+
+    private function getSessionVariable($name)
+    {
+        $fullname = "{$this->m_session_key_prefix}_$name";
+        if(isset($_SESSION[$fullname]) 
+                && $_SESSION[$fullname] > '')
+        {
+            return $_SESSION[$fullname];
+        }
+        return NULL;
+    }
+    
     public function disconnect()
     {
-        //error_log('Called MdwsDao disconnect!!!!!');
-        $this->errorCount = 0;
-        $this->isAuthenticated = FALSE;
-        try {
+        $this->setSessionVariable('errorCount',0);
+        $this->setSessionVariable('is_authenticated',NULL);
+        $this->setSessionVariable('userAccessCode', NULL);
+        $this->setSessionVariable('userVerifyCode', NULL);
+        $this->setPatientID(NULL);
+        try 
+        {
             $this->mdwsClient->disconnect();
         } catch (\Exception $e) {
-            // just swallow - generally don't care if this errored
+            // just continue we don't care if this errored
         }
     }
 
@@ -178,7 +202,10 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     {
                         $this->initClient();
                         error_log('makeQuery  --- getting the credentials for fault resolution now>>>' . $TOResult->fault->message);
-                        $this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
+                        $userAccessCode = $this->getSessionVariable('userAccessCode');
+                        $userVerifyCode = $this->getSessionVariable('userVerifyCode');
+                        $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
+                        //$this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                         return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
                     } else
                     {
@@ -215,7 +242,10 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 error_log("Exception in makeQuery($functionToInvoke) --- connection was closed makeQuery>>>" 
                         . $ex->getMessage());
                 $this->initClient();
-                $this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
+                $userAccessCode = $this->getSessionVariable('userAccessCode');
+                $userVerifyCode = $this->getSessionVariable('userVerifyCode');
+                $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
+                //$this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                 return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
             }
             // any other exceptions that may be related to timeout? add here as found
@@ -265,12 +295,14 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 }
             }
             $this->errorCount = 0; // reset on success
-            $this->isAuthenticated = TRUE;
+            $this->setSessionVariable('is_authenticated', TRUE);
             $this->authenticationTimestamp = microtime();
             // cache for transparent re-authentication on MDWS-Vista timeout
             $this->userSiteId = $siteCode;
-            $this->userAccessCode = $username;
-            $this->userVerifyCode = $password;
+            //$this->userAccessCode = $username;
+            //$this->userVerifyCode = $password;
+            $this->setSessionVariable('userAccessCode',$username);
+            $this->setSessionVariable('userVerifyCode',$password);
             $this->duz = $TOResult->DUZ;
 
             error_log("Authenticated in MdwsDao as duz={$this->duz} " 
@@ -300,7 +332,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     public function isAuthenticated()
     {
-        return $this->isAuthenticated;
+        return $this->getSessionVariable('is_authenticated');
     }
 
     /**
@@ -313,7 +345,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     
     public function getEHRUserID($fail_if_missing=TRUE)
     {
-        if (!$this->isAuthenticated)
+        if (!$this->isAuthenticated())
         {
             throw new \Exception('Not authenticated');
         }
@@ -326,54 +358,36 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     /**
      * When context changes this has to change.
-     * @param type $sPatientID
      */
     public function setPatientID($sPatientID)
     {
-error_log("LOOK setting the patient ID now to $sPatientID in $this");       
-        //$this->selectedPatient = $sPatientID;
-        $_SESSION['MDWSDAO_selectedPatientID'] = $sPatientID;
+        $this->setSessionVariable('selectedPatientID',$sPatientID);
     }
 
     public function getSelectedPatientID()
     {
-        if(isset($_SESSION['MDWSDAO_selectedPatientID']) 
-                && $_SESSION['MDWSDAO_selectedPatientID'] > '')
-        {
-            return $_SESSION['MDWSDAO_selectedPatientID'];
-        }
-        return NULL;
+        return $this->getSessionVariable('selectedPatientID');
     }
-    
+
     /**
      * Context needs simple way of getting patient ID.
      * @return the patientid associated with an order
      */
     public function getPatientIDFromTrackingID($sTrackingID)
     {
-
-        //$debugmsg = 'LOOK getPatientIDFromTrackingID for ['.$sTrackingID.']';
-        //error_log($debugmsg);
         //Get the IEN from the tracking ID
         $aParts = (explode('-', $sTrackingID));
         if (count($aParts) == 2)
         {
             $nIEN = $aParts[1]; //siteid-IEN
-        } else
-        if (count($aParts) == 1)
-        {
+        } else if (count($aParts) == 1) {
             $nIEN = $aParts[0]; //Just IEN
-        } else
-        {
+        } else {
             $sMsg = 'Did NOT recognize format of tracking id [' . $sTrackingID . '] expected SiteID-IEN format!';
             error_log($sMsg);
             throw new \Exception($sMsg);
         }
-        //$debugmsg = 'LOOK getPatientIDFromTrackingID for IEN=['.$nIEN.']';
-        //error_log($debugmsg);
-
         $pid = MdwsUtils::getVariableValue($this, '$P(^RAO(75.1,' . $sTrackingID . ',0),U,1)');
-        //$debugmsg = 'LOOK Found PID as ['.$pid.']';
         if ($pid == NULL)
         {
             $msg = 'Expected to find a PID but did not find one for ticket [' . $sTrackingID . '] '
@@ -381,7 +395,6 @@ error_log("LOOK setting the patient ID now to $sPatientID in $this");
                     . '<br>Soapresult>>>' . print_r($serviceResponse, TRUE);
             throw new \Exception($msg);
         }
-        //error_log($debugmsg);
         return $pid;
     }
 
