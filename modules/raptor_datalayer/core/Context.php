@@ -21,7 +21,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150806C');
+    or define('CONST_NM_RAPTOR_CONTEXT', 'RAPTOR150806D');
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);

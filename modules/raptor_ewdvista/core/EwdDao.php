@@ -24,24 +24,26 @@ require_once 'WebServices.php';
 class EwdDao implements \raptor_ewdvista\IEwdDao
 {
     private $m_createdtimestamp = NULL;
-    //private $m_authorization = NULL;
-    //private $m_init_key = NULL;
-    //private $m_credentials = NULL;          //Encrypted credentials value
+    private $m_authorization = NULL;
+    private $m_init_key = NULL;
+    private $m_credentials = NULL;          //Encrypted credentials value
     private $m_oWebServices = NULL;
 
-    //private $m_dt           = NULL;
-    //private $m_userduz      = NULL;         //Keep as NULL until authenticated
-    //private $m_displayname  = NULL;
-    //private $m_fullname     = NULL;
-    //private $m_greeting     = NULL;
+    private $m_dt           = NULL;
+    private $m_userduz      = NULL;         //Keep as NULL until authenticated
+    private $m_displayname  = NULL;
+    private $m_fullname     = NULL;
+    private $m_greeting     = NULL;
     
-    private $m_info_message  = NULL;
+    private $m_selectedPatient = NULL;      //The currently selected patient
     
+    private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
     
     public function __construct($session_key_prefix='MDWSDAO')
     {
         $this->m_session_key_prefix = $session_key_prefix;
+        
         module_load_include('php', 'raptor_datalayer', 'core/Context');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         $this->m_createdtimestamp = microtime();        
@@ -108,18 +110,16 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $url = $this->getURL($servicename);
             $json_string = $this->m_oWebServices->callAPI($servicename, $url);
             $json_array = json_decode($json_string, TRUE);
-            $authorization = trim($json_array["Authorization"]);
-            $init_key = trim($json_array["key"]);
-            if($authorization == '')
+            $this->m_authorization = trim($json_array["Authorization"]);
+            $this->m_init_key = trim($json_array["key"]);
+            if($this->m_authorization == '')
             {
                 throw new \Exception("Missing authorization value in result! URL: $url");
             }
-            if($init_key == '')
+            if($this->m_init_key == '')
             {
                 throw new \Exception("Missing init key value in result! URL: $url");
             }
-            $this->setSessionVariable('authorization', $authorization);
-            $this->setSessionVariable('init_key', $init_key);
             error_log('EWD initClient is DONE at ' . microtime());
         } catch (\Exception $ex) {
             throw new \Exception("Trouble in initClient because ".$ex,99876,$ex);
@@ -131,41 +131,23 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function isAuthenticated() 
     {
-        $userduz = $this->getSessionVariable('userduz');
-        return ($userduz != NULL);
+        return ($this->m_userduz != NULL);
     }
 
-    private function setSessionVariable($name,$value)
-    {
-        $fullname = "{$this->m_session_key_prefix}_$name";
-        $_SESSION[$fullname] = $value;
-    }
-
-    private function getSessionVariable($name)
-    {
-        $fullname = "{$this->m_session_key_prefix}_$name";
-        if(isset($_SESSION[$fullname]) 
-                && $_SESSION[$fullname] > '')
-        {
-            return $_SESSION[$fullname];
-        }
-        return NULL;
-    }
-    
     /**
      * Disconnect this DAO from a session
      */
     public function disconnect() 
     {
-        $this->setSessionVariable('authorization', NULL);
-        $this->setSessionVariable('init_key', NULL);
-        $this->setSessionVariable('credentials', NULL);
-        $this->setSessionVariable('userduz', NULL);
-        $this->setSessionVariable('dt', NULL);
-        $this->setSessionVariable('displayname', NULL);
-        $this->setSessionVariable('fullname', NULL);
-        $this->setSessionVariable('greeting', NULL);
-        $this->setPatientID(NULL);
+        $this->m_userduz = NULL;
+        $this->m_authorization = NULL;
+        $this->m_init_key = NULL;
+        $this->m_credentials = NULL;
+        $this->m_dt           = NULL;
+        $this->m_displayname  = NULL;
+        $this->m_fullname     = NULL;
+        $this->m_greeting     = NULL;
+        $this->m_selectedPatient = NULL;
     }
 
     /**
@@ -178,50 +160,46 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             //Have we already initialized the client?
-            $authorization = $this->getSessionVariable('authorization');
-            if($authorization == NULL)
+            if($this->m_authorization == NULL)
             {
                 //Initialize it now
                 error_log("Calling init from connectAndLogin for $this");
                 $this->initClient();
             }
-            $init_key = $this->getSessionVariable('init_key');
-            if($init_key == NULL)
+            if($this->m_init_key == NULL)
             {
                 throw new \Exception("No initialization key has been set!");
             }
             module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
             $encryption = new \raptor_ewdvista\Encryption();
-            $keytext = $init_key;
-            $credentials = $encryption->getEncryptedCredentials($keytext, $username, $password);
-            $this->setSessionVariable('credentials',$credentials);
+            $keytext = $this->m_init_key;
+            $this->m_credentials = $encryption->getEncryptedCredentials($keytext, $username, $password);
 
             $method = 'login';
             //http://localhost:8081/RaptorEwdVista/raptor/login?credentials=
-            $url = $this->getURL($method) . "?credentials=" . $credentials;
-            $header['Authorization']=$authorization;
-            $json_string = $this->m_oWebServices->callAPI('GET', $url, FALSE, $header);            
+            $url = $this->getURL($method) . "?credentials=" . $this->m_credentials;
+            $header["Authorization"]=$this->m_authorization;
+            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
             $json_array = json_decode($json_string, TRUE);
             
             if (array_key_exists("DUZ", $json_array))
             {
-                $this->setSessionVariable('dt',trim($json_array['DT']));
-                $this->setSessionVariable('userduz',trim($json_array['DUZ']));
-                $this->setSessionVariable('displayname',trim($json_array['displayName']));
-                $this->setSessionVariable('fullname',trim($json_array['username']));
-                $this->setSessionVariable('greeting',trim($json_array['greeting']));
+                $this->m_dt           = trim($json_array["DT"]);
+                $this->m_userduz      = trim($json_array["DUZ"]);
+                $this->m_displayname  = trim($json_array["displayName"]);
+                $this->m_fullname     = trim($json_array["username"]);
+                $this->m_greeting     = trim($json_array["greeting"]);
             }
             else {
-                $errorMessage = 'Unable to LOGIN ' . print_r($json_array, TRUE);
+                $errorMessage = "Unable to LOGIN " . print_r($json_array, TRUE);
                 throw new \Exception($errorMessage);
             }
         } catch (\Exception $ex) {
             $this->disconnect();
-            $credentials = $this->getSessionVariable('credentials');
-            throw new \Exception("Trouble in connectAndLogin as cred={$credentials} because " . $ex,99876,$ex);
+            throw new \Exception("Trouble in connectAndLogin as cred={$this->m_credentials} because ".$ex,99876,$ex);
         }
     }
-    
+
     private function getServiceRelatedData($serviceName)
     {
         error_log("Starting EWD $serviceName at " . microtime());
@@ -229,13 +207,13 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             $url = $this->getURL($serviceName);
-            $header["Authorization"]=$this->getSessionVariable('authorization');
+            $header["Authorization"]=$this->m_authorization;
             
-            $json_string = $this->m_oWebServices->callAPI('GET', $url, FALSE, $header);            
+            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
             error_log("LOOK JSON DATA for $serviceName: " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
-            error_log("Finish EWD $serviceName at " . microtime(TRUE));
+            error_log("Finish EWD $serviceName at " . microtime());
             return $php_array;
         } catch (\Exception $ex) {
             throw new \Exception("Trouble with $serviceName  because ".$ex,99876,$ex);;
@@ -544,13 +522,26 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     
     public function __toString()
     {
-        $spid = $this->getSelectedPatientID();
-        $authorization = $this->getSessionVariable('authorization');
-        $displayname = $this->getSessionVariable('displayname');
-        $extrainfo = trim("auth={$authorization}"
-            . " and displayname=$displayname"
-            . " and selectedPatientID=$spid");
-        return trim("EwdDao created {$this->m_createdtimestamp} $extrainfo");
+        try 
+        {
+            $infomsg = $this->getCustomInfoMessage();
+            if($infomsg > '')
+            {
+                $infomsg_txt = "\n\tCustom info message=$infomsg";
+            } else {
+                $infomsg_txt = '';
+            }
+            $spid = $this->getSelectedPatientID();
+            $is_authenticated = $this->isAuthenticated() ? 'YES' : 'NO';
+            $displayname = $this->m_displayname;
+            return 'EwdDao instance created at ' . $this->m_createdtimestamp
+                    . ' isAuthenticated=[' . $is_authenticated . ']'
+                    . ' selectedPatient=[' . $spid . ']'
+                    . ' displayname=[' . $displayname . ']'
+                    . $infomsg_txt;
+        } catch (\Exception $ex) {
+            return 'Cannot get toString of EwdDao because ' . $ex;
+        }
     }
 
     public function getNotesDetailMap()
@@ -559,27 +550,19 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return $this->getServiceRelatedData($serviceName);
     }
 
-    /**
-     * When context changes this has to change.
-     */
     public function setPatientID($sPatientID)
     {
-        $this->setSessionVariable('selectedPatientID',$sPatientID);
-    }
-
-    public function getSelectedPatientID()
-    {
-        return $this->getSessionVariable('selectedPatientID');
+        error_log("LOOK setting patient ID>>>".print_r($sPatientID,TRUE));
+        $this->m_selectedPatient = $sPatientID;
     }
 
     public function getEHRUserID($fail_if_missing = TRUE)
     {
-        $userduz = $this->getSessionVariable('userduz');
-        if($userduz == NULL && $fail_if_missing)
+        if($this->m_userduz == NULL && $fail_if_missing)
         {
             throw new \Exception("No user is currently authenticated!");
         }
-        return $userduz;
+        return $this->m_userduz;
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
@@ -846,4 +829,10 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             throw $ex;
         }
     }
+
+    public function getSelectedPatientID()
+    {
+        return $this->m_selectedPatient;
+    }
+
 }

@@ -28,14 +28,13 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $m_oPS = NULL;
     private $instanceTimestamp;
     private $authenticationTimestamp;
-    private $errorCount;
     private $mdwsClient;
     private $currentFacade;
     // these need to be cached for re-try purposes
     private $userSiteId;
     //private $userAccessCode;
     //private $userVerifyCode;
-    private $duz;
+    //private $duz;
     //private $selectedPatient;
     //private $isAuthenticated;
 
@@ -52,7 +51,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         $this->instanceTimestamp = microtime();
         //error_log('LOOK Created MdwsDao instance ' . $this->instanceTimestamp);
-        $this->errorCount = 0; // initializing for clarity
+        $this->setSessionVariable('error_count', 0);
         $this->initClient();
     }
 
@@ -83,7 +82,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
      */
     public function __toString()
     {
-        try {
+        try 
+        {
             $infomsg = $this->getCustomInfoMessage();
             if($infomsg > '')
             {
@@ -93,10 +93,11 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             }
             $spid = $this->getSelectedPatientID();
             $is_authenticated = $this->isAuthenticated() ? 'YES' : 'NO';
+            $userduz = $this->getSessionVariable('duz');
             return 'MdwsDao instance created at ' . $this->instanceTimestamp
                     . ' isAuthenticated=[' . $is_authenticated . ']'
                     . ' selectedPatient=[' . $spid . ']'
-                    . ' duz=[' . $this->duz . ']'
+                    . ' duz=[' . $userduz . ']'
                     . $infomsg_txt;
         } catch (\Exception $ex) {
             return 'Cannot get toString of MdwsDao because ' . $ex;
@@ -131,7 +132,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     
     public function disconnect()
     {
-        $this->setSessionVariable('errorCount',0);
+        $this->setSessionVariable('error_count',0);
         $this->setSessionVariable('is_authenticated',NULL);
         $this->setSessionVariable('userAccessCode', NULL);
         $this->setSessionVariable('userVerifyCode', NULL);
@@ -267,14 +268,15 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             $connectResult = $this->mdwsClient->connect(array("sitelist" => $siteCode))->connectResult;
             if (isset($connectResult->fault))
             {
-                if ($this->errorCount > MDWS_CONNECT_MAX_ATTEMPTS)
+                $error_count = $this->getSessionVariable('error_count');
+                if ($error_count > MDWS_CONNECT_MAX_ATTEMPTS)
                 {
                     throw new \Exception($connectResult->fault->message);
                 }
                 // erroneous error message - re-try connect for configured # of re-tries
                 if (strpos($connectResult->fault->message, "XUS SIGNON SETUP is not registered to the option XUS SIGNON") || strpos($connectResult->fault->message, "XUS INTRO MSG is not registered to the option XUS SIGNON"))
                 {
-                    $this->errorCount++;
+                    $this->setSessionVariable('error_count', errorCount + 1);
                     // first sleep for a short configurable time...
                     usleep(MDWS_QUERY_RETRY_WAIT_INTERVAL_MS * 1000);
                     return $this->connectAndLogin($siteCode, $username, $password);
@@ -294,7 +296,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     throw new \Exception($TOResult->fault->message);
                 }
             }
-            $this->errorCount = 0; // reset on success
+            $this->setSessionVariable('error_count', 0);
             $this->setSessionVariable('is_authenticated', TRUE);
             $this->authenticationTimestamp = microtime();
             // cache for transparent re-authentication on MDWS-Vista timeout
@@ -303,9 +305,10 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             //$this->userVerifyCode = $password;
             $this->setSessionVariable('userAccessCode',$username);
             $this->setSessionVariable('userVerifyCode',$password);
-            $this->duz = $TOResult->DUZ;
+            $userduz = $TOResult->DUZ;
+            $this->setSessionVariable('duz', $userduz);
 
-            error_log("Authenticated in MdwsDao as duz={$this->duz} " 
+            error_log("Authenticated in MdwsDao as duz={$userduz} " 
                     . $this->instanceTimestamp 
                     . ' at ' 
                     . $this->authenticationTimestamp);
@@ -318,7 +321,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 $this->makeQuery('select', array('DFN' => $spid));
             }
 
-            error_log("Finished connectAndLogin duz={$this->duz} at " . microtime());
+            error_log("Finished connectAndLogin duz={$userduz} at " . microtime());
             return $loginResult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -349,11 +352,12 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         {
             throw new \Exception('Not authenticated');
         }
-        if($fail_if_missing && trim($this->duz) == '')
+        $userduz = $this->getSessionVariable('duz');
+        if($fail_if_missing && trim($userduz) == '')
         {
             throw new \Exception("Did NOT find an EHR user id value in ".$this);
         }
-        return $this->duz;
+        return $userduz;
     }
 
     /**
