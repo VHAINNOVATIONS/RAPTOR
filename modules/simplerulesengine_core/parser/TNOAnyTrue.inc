@@ -48,7 +48,7 @@ class TNOAnyTrue extends \simplerulesengine\TNOUnary
             {
                 if($bVerboseDiagnostic)
                 {
-                    drupal_set_message(t('Verbose '.$this->m_sFunctionName.' is TRUE because of ['.$node_obj.'] for '.print_r($this->m_aParams)));
+                    drupal_set_message(t('Verbose '.$this->m_sFunctionName.' is TRUE because of ['.$node_obj.'] for '.print_r($this->m_aParams,TRUE)));
                 }
                 return TRUE;
             }

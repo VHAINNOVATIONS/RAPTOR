@@ -313,7 +313,7 @@ class MdwsNewOrderUtils {
             if (!isset($result) || !isset($result->ddrListerResult)
                     || isset($result->ddrListerResult->fault) 
                     || !isset($result->ddrListerResult->text)) {
-                throw new \Exception('Error when attempting to locate radiology order IEN by Order file IEN: '.print_r($result));
+                throw new \Exception('Error when attempting to locate radiology order IEN by Order file IEN: '.print_r($result,TRUE));
             }
 
             $orderCount = count($result->ddrListerResult->text->string);

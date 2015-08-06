@@ -68,8 +68,6 @@ class ProtocolPageUtils
             }
         }
         $element['#options'] = $a;   
-
-        //die("<br>choices...".print_r($choices,true)."<br><br>".$nIndex." ------------> ".print_r($a,true)."<br>  kkkkkkkkkkkkkkkkkkkkkkkkkkkkk ".print_r($element,true));
         return $element;
     }    
 }

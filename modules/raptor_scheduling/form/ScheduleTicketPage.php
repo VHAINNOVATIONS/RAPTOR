@@ -503,7 +503,7 @@ class ScheduleTicketPage
         }
         catch(\Exception $e)
         {
-            error_log('Failed to create raptor_schedule_track: ' . $e . "\nDetails..." . print_r($oInsert,true));
+            error_log('Failed to create raptor_schedule_track: ' . $e . "\nDetails..." . print_r($oInsert,TRUE));
             //form_set_error('notes_tx','Failed to save notes for this ticket!');
             throw new \Exception('Failed to save notes for this ticket!');
         }

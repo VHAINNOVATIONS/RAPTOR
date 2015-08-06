@@ -49,14 +49,14 @@ class TNOAllFalse extends \simplerulesengine\TNOUnary
             {
                 if($bVerboseDiagnostic)
                 {
-                    drupal_set_message(t('Verbose '.$this->m_sFunctionName.' is FALSE because of ['.$node_obj.'] for '.print_r().'$this->m_aParams'));
+                    drupal_set_message(t('Verbose '.$this->m_sFunctionName.' is FALSE because of ['.$node_obj.'] for '.print_r($this->m_aParams,TRUE)));
                 }
                 return FALSE;
             }
         }
         if($bVerboseDiagnostic)
         {
-            drupal_set_message(t('Verbose '.$this->m_sFunctionName.' is TRUE for '.print_r().'$this->m_aParams'));
+            drupal_set_message(t('Verbose '.$this->m_sFunctionName.' is TRUE for '.print_r($this->m_aParams,TRUE)));
         }
         return TRUE;
     }

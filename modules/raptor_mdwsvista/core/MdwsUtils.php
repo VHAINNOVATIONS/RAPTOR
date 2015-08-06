@@ -386,7 +386,7 @@ class MdwsUtils {
         if (!isset($soapResult) || 
                 !isset($soapResult->getHospitalLocationsResult) || 
                 isset($soapResult->getHospitalLocationsResult->fault)) {
-            throw new \Exception('Unable to get locations -> '.print_r($soapResult, true));
+            throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
         }
 
         $locations = array();
@@ -431,11 +431,11 @@ class MdwsUtils {
                 $soapResult->discontinueRadiologyOrderResult;
         
         if (!isset($soapResult) || !isset($inner) || isset($inner->fault)) {
-            throw new \Exception('Unable to cancel order -> '.print_r($soapResult, true));
+            throw new \Exception('Unable to cancel order -> '.print_r($soapResult, TRUE));
         }
 
         if ($inner->id == '') {
-            throw new \Exception('Did not receive new order ID string when canceling... -> '.print_r($soapResult, true));
+            throw new \Exception('Did not receive new order ID string when canceling... -> '.print_r($soapResult, TRUE));
         }
         
         error_log('No errors from cancelRadiologyOrder with params reasoncode=['.$reasonCode.'] and IEN=['.$orderIen.']');
@@ -452,7 +452,7 @@ class MdwsUtils {
         if (!isset($soapResult) || 
             !isset($soapResult->getRadiologyCancellationReasonsResult) || 
             isset($soapResult->getRadiologyCancellationReasonsResult->fault)) {
-            throw new \Exception('Invalid getRadiologyCancellationReasons result -> '.print_r($soapResult, true));
+            throw new \Exception('Invalid getRadiologyCancellationReasons result -> '.print_r($soapResult, TRUE));
         }
         
         $resultAry = array();
@@ -515,7 +515,7 @@ class MdwsUtils {
             if (!isset($soapResult) || 
                     !isset($soapResult->getVisitsResult) || 
                     isset($soapResult->getVisitsResult->fault)) {
-                throw new \Exception('Invalid getVisits result -> '.print_r($soapResult, true));
+                throw new \Exception('Invalid getVisits result -> '.print_r($soapResult, TRUE));
                        // . "\n<br>MdwsDao=". $mdwsDao
                        // . "\n<br>Which of these is TRUE? 1=[".!isset($soapResult->getVisitsResult).'] or 2=['.isset($soapResult->getVisitsResult->fault).']'
                        // . "\n<br>". 'RAW SOAP RESULT='.print_r($soapResult,TRUE));
@@ -598,7 +598,7 @@ error_log("LOOK getVisits soap result for patient ".$mdwsDao->getSelectedPatient
         $soapResult = $mdwsDao->makeQuery('isValidEsig', array('esig'=>$eSig));
 
         if (!isset($soapResult) || !isset($soapResult->isValidEsigResult) || isset($soapResult->isValidEsigResult->fault)) {
-            throw new \Exception('Invalid electronic signature code -> '.print_r($soapResult, true));
+            throw new \Exception('Invalid electronic signature code -> '.print_r($soapResult, TRUE));
         }
 
         if ($soapResult->isValidEsigResult->text == 'FALSE') {
@@ -614,7 +614,7 @@ error_log("LOOK getVisits soap result for patient ".$mdwsDao->getSelectedPatient
             'esig'=>$eSig));
 
         if (!isset($soapResult) || !isset($soapResult->signNoteResult) || isset($soapResult->signNoteResult->fault)) {
-            throw new \Exception('ERROR Invalid sign note result -> '.print_r($soapResult, true));
+            throw new \Exception('ERROR Invalid sign note result -> '.print_r($soapResult, TRUE));
         }
 
         return TRUE;

@@ -444,18 +444,18 @@ class EhrDaoRuntimeMetrics
                             $required_prefix = '$testres_';
                             if(strlen($store_result_varname) <= strlen($required_prefix))
                             {
-                                throw new \Exception("Unsupported (too short) store_result value=".print_r($store_result));
+                                throw new \Exception("Unsupported (too short) store_result value=".print_r($store_result,TRUE));
                             }
                             if(substr($store_result_varname,0,9) != $required_prefix)
                             {
-                                throw new \Exception("Unsupported (missing prefix '$required_prefix') store_result value=".print_r($store_result));
+                                throw new \Exception("Unsupported (missing prefix '$required_prefix') store_result value=".print_r($store_result,TRUE));
                             }
                             $eval_assign = "{$store_result_varname} = NULL;";   //Simply initialize so we avoid MISSING VARIABLE on errors later!
                             eval($eval_assign);
                         } else
                         if(count($store_result) > 1)
                         {
-                            throw new \Exception("Unsupported store_result value=".print_r($store_result));
+                            throw new \Exception("Unsupported store_result value=".print_r($store_result,TRUE));
                         }
                     }
                 }
@@ -490,16 +490,16 @@ class EhrDaoRuntimeMetrics
                                 $required_prefix = '$testres_';
                                 if(strlen($store_result_varname) <= strlen($required_prefix))
                                 {
-                                    throw new \Exception("Unsupported (too short) store_result value=".print_r($store_result));
+                                    throw new \Exception("Unsupported (too short) store_result value=".print_r($store_result,TRUE));
                                 }
                                 if(substr($store_result_varname,0,9) != $required_prefix)
                                 {
-                                    throw new \Exception("Unsupported (missing prefix '$required_prefix') store_result value=".print_r($store_result));
+                                    throw new \Exception("Unsupported (missing prefix '$required_prefix') store_result value=".print_r($store_result,TRUE));
                                 }
                             } else
-                            if(count($store_result) > 1)
+                            if(count($store_result,TRUE) > 1)
                             {
-                                throw new \Exception("Unsupported store_result value=".print_r($store_result));
+                                throw new \Exception("Unsupported store_result value=".print_r($store_result,TRUE));
                             }
                         }
                         $getinstanceliteral = isset($details['getinstanceliteral']) ? $details['getinstanceliteral'] : NULL;

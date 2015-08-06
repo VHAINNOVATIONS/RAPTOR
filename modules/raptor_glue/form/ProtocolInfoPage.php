@@ -869,9 +869,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 //Process the CI acknowledgements.
                 $updated_dt = date("Y-m-d H:i:s", time());
                 $aCI_Ack = $myvalues['ci_responses'];
-
-                //die('Look at $aCI_Ack>>>'.print_r($aCI_Ack,TRUE));
-
                 foreach($aCI_Ack as $sSummaryMsg=>$aOneCI_AckGrp)
                 {
                     $bChecked = (isset($aOneCI_AckGrp['chk_ack']) && $aOneCI_AckGrp['chk_ack'] == 1);
@@ -1676,7 +1673,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 }
                 catch(\Exception $e)
                 {
-                    error_log('Failed to create raptor_ticket_checklist: ' . $e . "\nDetails..." . print_r($oInsert,true));
+                    error_log('Failed to create raptor_ticket_checklist: ' . $e . "\nDetails..." . print_r($oInsert,TRUE));
                     drupal_set_message('Unable to properly save this record because '.$e->getMessage(),'error');
                     $bSuccess = FALSE;
                 }
@@ -1965,7 +1962,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 }
                 catch(\Exception $e)
                 {
-                    error_log('Failed to create raptor_ticket_suspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,true));
+                    error_log('Failed to create raptor_ticket_suspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,TRUE));
                     form_set_error('suspend_notes_tx','Failed to save notes for this ticket!');
                     $bSuccess = FALSE;
                 }
@@ -1997,7 +1994,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 }
                 catch(\Exception $e)
                 {
-                    error_log('Failed to create raptor_ticket_unsuspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,true));
+                    error_log('Failed to create raptor_ticket_unsuspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,TRUE));
                     form_set_error('unsuspend_notes_tx','Failed to save notes for this ticket!');
                     $bSuccess = FALSE;
                 }
@@ -2069,7 +2066,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             $showmsg = 'Unable deactivate existing collaboration settings!';
                             drupal_set_message($showmsg,'error');
                             throw new \Exception($showmsg . '  Failed to reserve because failed update: ' 
-                                    . $ex . "\nDetails..." . print_r($myvalues,true),99123,$ex);
+                                    . $ex . "\nDetails..." . print_r($myvalues,TRUE),99123,$ex);
                         }
                         try
                         {
@@ -2086,7 +2083,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                                     ->execute();
                         } catch (\Exception $ex) {
                             $showmsg = 'Unable insert collaboration record!';
-                            error_log($showmsg.' Failed to collaborate because failed raptor_ticket_collaboration insert: ' . $ex . "\nDetails..." . print_r($myvalues,true));
+                            error_log($showmsg.' Failed to collaborate because failed raptor_ticket_collaboration insert: ' 
+                                    . $ex . "\nDetails..." . print_r($myvalues,TRUE));
                             drupal_set_message($showmsg,'error');
                             return 0;
                         }
@@ -2094,7 +2092,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 }
                 catch(\Exception $ex)
                 {
-                    error_log('Failed to create raptor_ticket_collaboration: ' . $ex . "\nDetails..." . print_r($myvalues,true));
+                    error_log('Failed to create raptor_ticket_collaboration: ' . $ex . "\nDetails..." . print_r($myvalues,TRUE));
                     form_set_error('protocol1_nm','Failed to reserve this ticket!');
                     $bSuccess = FALSE;
                 }
@@ -2119,7 +2117,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 //Did not recognize the button STOP EVERYTHING!
                 $diemsg = ('Did NOT recognize the ['.$clickedvalue.'] button pressed in updateDatabase!!!>>>'.print_r($myvalues,TRUE));
                 error_log($diemsg);
-                die($diemsg);
+                throw new \Exception($diemsg);
             }
         }
         if(!$bSuccess)
@@ -2996,7 +2994,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             foreach($aDetails as $aItem)
             {
                 $aAllergies[] = $aItem['Item'];
-                //drupal_set_message('Look>>>'.print_r($aItem,TRUE));
             }
             $aCandidateData['CURRENT_ALLERGIES'] = $aAllergies;
 

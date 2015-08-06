@@ -297,7 +297,7 @@ class AddUserPage extends \raptor\ChildEditBasePage
         catch(\Exception $ex)
         {
             $errmsg = ('Failed to add user: ' . print_r($ex,TRUE) 
-                    . "\nDetails..." . print_r($oInsert,true));
+                    . "\nDetails..." . print_r($oInsert,TRUE));
             //die('Failed to add the user record.  Try again later.');
             throw new \Exception($errmsg);
         }

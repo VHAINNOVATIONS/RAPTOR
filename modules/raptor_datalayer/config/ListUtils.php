@@ -72,7 +72,6 @@ class ListUtils {
             //Store the content for the completed category.
             $aCategory[$sCategory] = $aContent;
         }        
-//die(print_r($aCategory)."<hr>".print_r($aLines,true));
         return $aCategory;
     }
     

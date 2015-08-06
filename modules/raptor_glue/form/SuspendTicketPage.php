@@ -110,9 +110,9 @@ class SuspendTicketPage
         }
         catch(\Exception $e)
         {
-            error_log('Failed to create raptor_ticket_suspend_notes: ' . $e . "\nDetails..." . print_r($oInsert,true));
+            error_log('Failed to create raptor_ticket_suspend_notes: ' . $e . "\nDetails..." . print_r($oInsert,TRUE));
             form_set_error('suspend_notes_tx','Failed to save notes for this ticket!');
-             return 0;
+            return 0;
         }
 
         $sNewWFS = 'IA';

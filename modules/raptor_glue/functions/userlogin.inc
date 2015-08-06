@@ -716,7 +716,7 @@ function raptor_glue_intercept_bad_users()
   {
     $oContext = \raptor\Context::getInstance(FALSE,TRUE);
   } catch (\Exception $ex) {
-      isset($user) ? print_r($user) : 'NO-USER-INFO';
+      isset($user) ? print_r($user,TRUE) : 'NO-USER-INFO';
       $userinfo = print_r($user,TRUE);
       //This can happen if system admin is recovering a corrupted Drupal installation, log it and exit.
       error_log("Did NOT have valid context instance in "
@@ -731,7 +731,6 @@ function raptor_glue_intercept_bad_users()
     if ($_GET['q']) 
     {
       $destination = array('destination' => $_GET['q']);
-      //error_log('In raptor_glue_init setting destination as ' . print_r($destination,true));
     }
 
     // If this site is set to private we want to redirect all anonymous users to the login form.

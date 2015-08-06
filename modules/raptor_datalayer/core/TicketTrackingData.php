@@ -243,7 +243,8 @@ class TicketTrackingData
         catch(\Exception $e)
         {
             error_log('Failed to create raptor_ticket_collaboration: ' 
-                    . $e . "\nDetails..." . print_r($oInsert,true));
+                    . $e 
+                    . "\nDetails..." . print_r($oInsert,TRUE));
             throw new \Exception('Failed to reserve ['.$sTrackingID.'] ticket!',99123,$e);
         }
 

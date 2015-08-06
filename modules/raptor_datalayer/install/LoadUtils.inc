@@ -222,7 +222,7 @@ class LoadUtils
                                 }
                                 catch(\Exception $e)
                                 {
-                                    error_log('Failed to add DRUPAL user: ' . $e . "\nDetails..." . print_r($newUserInfo,true));
+                                    error_log('Failed to add DRUPAL user: ' . $e . "\nDetails..." . print_r($newUserInfo,TRUE));
                                     drupal_set_message('Unable to create raptor user '.$username.' because ' . $e->getMessage());
                                 }
                                 $newuid = $newuser->uid;

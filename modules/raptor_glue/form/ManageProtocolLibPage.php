@@ -71,7 +71,7 @@ class ManageProtocolLibPage
                         $myvalues['keywords3'][] = $kw;
                     }
                 } else {
-                    die("Invalid weightgroup value for filter=" . print_r($filter, true));
+                    throw new \Exception("Invalid weightgroup value for filter=" . print_r($filter, TRUE));
                 }
             }
         }
