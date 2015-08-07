@@ -28,18 +28,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
     
-    //MOVED ALL THESE INTO SESSION USING setSession and getSession functions like MdwsDao
-    //private $m_authorization = NULL;
-    //private $m_init_key = NULL;
-    //private $m_credentials = NULL;          //Encrypted credentials value
-    //private $m_dt           = NULL;
-    //private $m_userduz      = NULL;         //Keep as NULL until authenticated
-    //private $m_displayname  = NULL;
-    //private $m_fullname     = NULL;
-    //private $m_greeting     = NULL;
-    //private $m_selectedPatient = NULL;      //The currently selected patient
-    
-    
     public function __construct($session_key_prefix='MDWSDAO')
     {
         $this->m_session_key_prefix = $session_key_prefix;
@@ -72,18 +60,32 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return $this->m_info_message;
     }
     
+    
+    private function endsWith($string, $test) 
+    {
+        $strlen = strlen($string);
+        $testlen = strlen($test);
+        if ($testlen > $strlen) 
+        {
+            return FALSE;
+        }
+        return substr_compare($string, $test, $strlen - $testlen, $testlen) === 0;
+    }
+    
     /**
      * Return the site specific fully qualified URL for the service.
      */
     private function getURL($servicename,$args=NULL)
     {
-        //NOTE: assumption that EWDFED_BASE_URL already have slash "/" at the end
-        //TODO: at some point refactor to use some sort of combine functionality 
-        //      to makesure we are adding slash correctly something like http_build_url
-        //      http://php.net/manual/en/function.http-build-url.php#114753
+        $base_ewdfed_url = trim(EWDFED_BASE_URL);
+        if(!$this->endsWith($base_ewdfed_url,'/'))
+        {
+           error_log("TUNING TIP: Add missing '/' at the end of the EWDFED_BASE_URL declaration (Currently declared as '$base_ewdfed_url')");
+           $base_ewdfed_url .= '/';
+        }
         if($args === NULL)
         {
-            return EWDFED_BASE_URL . "$servicename";
+            return $base_ewdfed_url . "$servicename";
         } else {
             $argtext = '';
             foreach($args as $k=>$v)
@@ -94,14 +96,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 }
                 $argtext .= "$k=$v";
             }
-            return EWDFED_BASE_URL . "$servicename?{$argtext}";
+            return $base_ewdfed_url . "$servicename?{$argtext}";
         }
     }
     
     /**
      * Initialize the DAO client session
      */
-private function initClient()
+    private function initClient()
     {
         try
         {
