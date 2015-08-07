@@ -521,18 +521,16 @@ class MdwsUtils {
                        // . "\n<br>". 'RAW SOAP RESULT='.print_r($soapResult,TRUE));
             }
             
-error_log("LOOK getVisits soap result for patient ".$mdwsDao->getSelectedPatientID() 
-        . " (fd=$fromDate td=$toDate) is ". print_r($soapResult,TRUE));
             // check for zero results
             if (!isset($soapResult->getVisitsResult->count) ||
                     $soapResult->getVisitsResult->count == 0) {
                 
-                error_log("LOOK we got empty getVisits result for patient " 
+                error_log("WARNING: We got empty getVisits result for patient " 
                         . $mdwsDao->getSelectedPatientID() . " (fd=$fromDate td=$toDate)"
                         . "\n\tsoapResult = " . print_r($soapResult,TRUE) 
                         . "\n\tand mdwsDao = " . print_r($mdwsDao,TRUE));
                 
-                return $result; // TBD - return null or empty array?
+                return $result;
             }
 
             // homogenize result of 1 to array

@@ -253,9 +253,6 @@ class RuntimeResultFlexCache
                 ->condition('group_name', $this->m_sGroupName, '=')
                 ->condition('item_name', $item_name, '=')
                 ->execute();
-            
-error_log("LOOK called invalidateRaptorCacheData($item_name)");       
-            
         } catch (\Exception $ex) {
             error_log("Failed clearRaptorCacheData because ".$ex->getMessage());
             throw $ex;

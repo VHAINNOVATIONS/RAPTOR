@@ -829,7 +829,7 @@ class Context
             }
             $prevpid = $oMC->getSelectedPatientID();
             $oMC->setPatientID($sPatientID);
-            $logmsg = "LOOK finished setSelectedTrackingID"
+            $logmsg = "Finished setSelectedTrackingID"
                     . " to tid=[$sTrackingID] and pid=[$sPatientID]"
                     . " (prevtid=[$prevtid] and prevpid=[$prevpid] from last update $prevtime)"
                     . "\n\tCurrent context>>> $this";
@@ -1205,7 +1205,7 @@ class Context
             {
                 $currentpath = current_path();
                 // session started more than SESSION_REFRESH_DELAY seconds ago
-                error_log('LOOK WORKFLOWDEBUG>>>Session key timeout of '
+                error_log('WORKFLOWDEBUG>>>Session key timeout of '
                         .$grace_seconds
                         .' seconds (grace seconds) reached so generated new key for uid=' . $this->getUID()
                         ."\nURL at key timeout = " . $currentpath);
