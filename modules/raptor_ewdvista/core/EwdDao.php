@@ -16,6 +16,11 @@ namespace raptor_ewdvista;
 require_once 'IEwdDao.php';
 require_once 'WebServices.php';
 
+defined('REDAO_CACHE_NM_WORKLIST')
+    or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
+defined('REDAO_CACHE_NM_SUFFIX_DASHBOARD')
+    or define('REDAO_CACHE_NM_SUFFIX_DASHBOARD', '_getDashboardDetailsMapMDWS');
+
 /**
  * This is the primary interface implementation to VistA using EWDJS
  *
@@ -28,7 +33,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
     
-    public function __construct($session_key_prefix='MDWSDAO')
+    public function __construct($session_key_prefix='EWDDAO')
     {
         $this->m_session_key_prefix = $session_key_prefix;
         
@@ -870,6 +875,16 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 	return $this->getServiceRelatedData($serviceName);
     }
 
+    public function invalidateCacheForEverything()
+    {
+        try
+        {
+            //TODO clear all the cache entries
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     public function invalidateCacheForOrder($tid)
     {
         try

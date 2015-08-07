@@ -21,6 +21,11 @@ require_once 'MdwsNewOrderUtils.php';
 require_once 'WorklistData.php';
 require_once 'ProtocolSupportingData.php';
 
+defined('RMDAO_CACHE_NM_WORKLIST')
+    or define('RMDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
+defined('RMDAO_CACHE_NM_SUFFIX_DASHBOARD')
+    or define('RMDAO_CACHE_NM_SUFFIX_DASHBOARD', '_getDashboardDetailsMapMDWS');
+
 class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 {
 
@@ -430,7 +435,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
-                    $sThisResultName = "{$tid}_getDashboardDetailsMapMDWS";
+                    $sThisResultName = "{$tid}" . RMDAO_CACHE_NM_SUFFIX_DASHBOARD;
                     $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
                     if ($aCachedResult !== NULL)
                     {
@@ -468,7 +473,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             if ($oContext != NULL)
             {
                 $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
-                $sThisResultName = 'getWorklistDetailsMapData';
+                $sThisResultName = RMDAO_CACHE_NM_WORKLIST;
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
                     $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
@@ -513,6 +518,9 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $aResult;
     }
     
+    /**
+     * If a cache name is provided, then cache will be checked and updated using long age value
+     */
     private function getProtocolSupportingData($function_name, $args = NULL, $cache_item_name=NULL)
     {
         try 
@@ -637,7 +645,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     public function getPendingOrdersMap()
     {
-        return $this->getProtocolSupportingData('getPendingOrdersMap'); //Yes, has Map suffix
+        return $this->getProtocolSupportingData('getPendingOrdersMap');
     }
 
     public function getRawVitalSignsMap()
@@ -759,11 +767,32 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $this;
     }
     
+    public function invalidateCacheForEverything()
+    {
+        try
+        {
+            $oContext = \raptor\Context::getInstance();
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if ($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheAllDataAndFlags();
+            }
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     public function invalidateCacheForOrder($tid)
     {
         try
         {
-            //TODO clear all the cache entries!
+            $oContext = \raptor\Context::getInstance();
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if ($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData("{$tid}" . RMDAO_CACHE_NM_SUFFIX_DASHBOARD);
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(RMDAO_CACHE_NM_WORKLIST);
+            }
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -773,7 +802,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         try
         {
-            //TODO clear all the cache entries!
+            //TODO clear all the cache entries for one patient!
+            $oContext = \raptor\Context::getInstance();
         } catch (\Exception $ex) {
             throw $ex;
         }
