@@ -2139,6 +2139,14 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             $this->m_oTT->markTicketUnlocked($sTrackingID, $nUID);
         }
         
+        //Invalidate any cached worklist now because tickets may have changed with this update
+        if($nIEN > '' && $bSuccess)
+        {
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $ehrDao->invalidateCacheForOrder($nIEN);
+        }
+
+        //Return the status.
         return $bSuccess;
     }
     

@@ -126,7 +126,7 @@ class RuntimeResultFlexCache
      */
     public function clearCacheBuilding($sThisResultName)
     {
-        $this->clearRaptorCacheFlag($sThisResultName,'building');
+        $this->invalidateRaptorCacheFlag($sThisResultName,'building');
     }
     
     private function getRaptorCacheFlagInfo($item_name, $flag_name)
@@ -154,7 +154,7 @@ class RuntimeResultFlexCache
             if($flag_age > $max_age)
             {
                 //Kill it.
-                $this->clearRaptorCacheFlag($item_name, $flag_name);
+                $this->invalidateRaptorCacheFlag($item_name, $flag_name);
                 return NULL;
             }
             return $foundinfo;
@@ -195,7 +195,7 @@ class RuntimeResultFlexCache
             if($data_age > $max_age)
             {
                 //Kill it.
-                $this->clearRaptorCacheData($item_name);
+                $this->invalidateRaptorCacheData($item_name);
                 return NULL;
             }
             return $foundinfo;
@@ -225,7 +225,7 @@ class RuntimeResultFlexCache
     /**
      * Remove one flag
      */
-    private function clearRaptorCacheFlag($item_name,$flag_name)
+    private function invalidateRaptorCacheFlag($item_name,$flag_name)
     {
         try
         {
@@ -240,18 +240,18 @@ class RuntimeResultFlexCache
             throw $ex;
         }
     }
-    
+
     /**
      * Remove one data item
      */
-    private function clearRaptorCacheData($item_name)
+    public function invalidateRaptorCacheData($item_name)
     {
         try
         {
             $query = db_delete('raptor_cache_data')
                 ->condition('uid', $this->m_uid,'=')
-                ->condition('group_name', $this->m_sGroupName,'=')
-                ->condition('item_name', $item_name,'=')
+                ->condition('group_name', $this->m_sGroupName, '=')
+                ->condition('item_name', $item_name, '=')
                 ->execute();
         } catch (\Exception $ex) {
             error_log("Failed clearRaptorCacheData because ".$ex->getMessage());
@@ -260,9 +260,42 @@ class RuntimeResultFlexCache
     }
     
     /**
+     * Remove all data items and flags for the user
+     * Use % as wildclard in the optional filter
+     */
+    public function invalidateRaptorCacheAllDataAndFlags($item_name_filter=NULL)
+    {
+        try
+        {
+            //First clear all the data
+            $query_data = db_delete('raptor_cache_data')
+                ->condition('uid', $this->m_uid,'=')
+                ->condition('group_name', $this->m_sGroupName,'=');
+            if($item_name_filter != NULL)
+            {
+                $query_data->condition('item_name', $item_name_filter,'LIKE');
+            }
+            $query_data->execute();
+            
+            //Now clear all the flags
+            $query_flag = db_delete('raptor_cache_flag')
+                ->condition('uid', $this->m_uid,'=')
+                ->condition('group_name', $this->m_sGroupName,'=');
+            if($item_name_filter != NULL)
+            {
+                $query_flag->condition('item_name', $item_name_filter,'LIKE');
+            }
+            $query_flag->execute();
+        } catch (\Exception $ex) {
+            error_log("Failed clearRaptorCacheAllDataAndFlags because ".$ex->getMessage());
+            throw $ex;
+        }
+    }
+    
+    /**
      * Store one data item
      */
-    private function updateRaptorCacheData(
+    public function updateRaptorCacheData(
             $retry_delay
             ,$max_age
             ,$item_name
@@ -281,7 +314,7 @@ class RuntimeResultFlexCache
                 }
             } else {
                 $myblob = NULL;
-                $this->clearRaptorCacheData($item_name);
+                $this->invalidateRaptorCacheData($item_name);
                 return;
             }
             $created_dt = date("Y-m-d H:i:s", time());

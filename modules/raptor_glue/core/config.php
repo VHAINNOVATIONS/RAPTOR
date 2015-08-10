@@ -1,7 +1,11 @@
 <?php
 
 defined('RAPTOR_BUILD_ID')
+<<<<<<< HEAD
     or define('RAPTOR_BUILD_ID', 'Test Candidate 20150810.1');
+=======
+    or define('RAPTOR_BUILD_ID', 'Test Candidate 20150807.1');
+>>>>>>> 5cb8845b582c41615010798667543c0a8e4c476a
 
 //If this is not empty, then username must be prefixed with this text
 defined('USERNAME_PREFIX_SALT')

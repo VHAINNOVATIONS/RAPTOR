@@ -201,7 +201,6 @@ function raptor_fetch_protocol_defaults($form, &$form_state)
     $commands[] = ajax_command_replace('#static-warnings',$staticwarninghtml);
     $commands[] = ajax_command_replace('#input-right-side',$area1);
     $commands[] = ajax_command_replace('#input-bottom-protocol',$area2);
-error_log('LOOK Executing ajax_command_replace(#protocol-template-data >>>'.print_r($hiddenhtml,TRUE));
     $commands[] = ajax_command_replace('#protocol-template-data',$hiddenhtml);
     //$commands[] = ajax_command_invoke(NULL, 'doDefaultValuesInFromProtocolTemplate');
     //$commands[] = ajax_command_replace('#ci-not-acknowledged',$htmlack);

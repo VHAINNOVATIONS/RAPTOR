@@ -90,6 +90,11 @@ interface IEhrDao
     public function __toString();
 
     /**
+     * Clear all cached data for this DAO instance.
+     */
+    public function invalidateCacheForEverything();
+
+    /**
      * Clear all cached data for the specified order
      */
     public function invalidateCacheForOrder($tid);

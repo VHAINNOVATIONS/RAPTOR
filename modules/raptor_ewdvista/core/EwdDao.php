@@ -16,6 +16,11 @@ namespace raptor_ewdvista;
 require_once 'IEwdDao.php';
 require_once 'WebServices.php';
 
+defined('REDAO_CACHE_NM_WORKLIST')
+    or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
+defined('REDAO_CACHE_NM_SUFFIX_DASHBOARD')
+    or define('REDAO_CACHE_NM_SUFFIX_DASHBOARD', '_getDashboardDetailsMapMDWS');
+
 /**
  * This is the primary interface implementation to VistA using EWDJS
  *
@@ -24,25 +29,11 @@ require_once 'WebServices.php';
 class EwdDao implements \raptor_ewdvista\IEwdDao
 {
     private $m_createdtimestamp = NULL;
-    
-    //TODO MOVE ALL THESE INTO SESSION USING setSession and getSession functions like MdwsDao!!!!
-    private $m_authorization = NULL;
-    private $m_init_key = NULL;
-    private $m_credentials = NULL;          //Encrypted credentials value
     private $m_oWebServices = NULL;
-
-    private $m_dt           = NULL;
-    private $m_userduz      = NULL;         //Keep as NULL until authenticated
-    private $m_displayname  = NULL;
-    private $m_fullname     = NULL;
-    private $m_greeting     = NULL;
-    
-    private $m_selectedPatient = NULL;      //The currently selected patient
-    
     private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
     
-    public function __construct($session_key_prefix='MDWSDAO')
+    public function __construct($session_key_prefix='EWDDAO')
     {
         $this->m_session_key_prefix = $session_key_prefix;
         
@@ -74,18 +65,32 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return $this->m_info_message;
     }
     
+    
+    private function endsWith($string, $test) 
+    {
+        $strlen = strlen($string);
+        $testlen = strlen($test);
+        if ($testlen > $strlen) 
+        {
+            return FALSE;
+        }
+        return substr_compare($string, $test, $strlen - $testlen, $testlen) === 0;
+    }
+    
     /**
      * Return the site specific fully qualified URL for the service.
      */
     private function getURL($servicename,$args=NULL)
     {
-        //NOTE: assumption that EWDFED_BASE_URL already have slash "/" at the end
-        //TODO: at some point refactor to use some sort of combine functionality 
-        //      to makesure we are adding slash correctly something like http_build_url
-        //      http://php.net/manual/en/function.http-build-url.php#114753
+        $base_ewdfed_url = trim(EWDFED_BASE_URL);
+        if(!$this->endsWith($base_ewdfed_url,'/'))
+        {
+           error_log("TUNING TIP: Add missing '/' at the end of the EWDFED_BASE_URL declaration (Currently declared as '$base_ewdfed_url')");
+           $base_ewdfed_url .= '/';
+        }
         if($args === NULL)
         {
-            return EWDFED_BASE_URL . "$servicename";
+            return $base_ewdfed_url . "$servicename";
         } else {
             $argtext = '';
             foreach($args as $k=>$v)
@@ -96,7 +101,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 }
                 $argtext .= "$k=$v";
             }
-            return EWDFED_BASE_URL . "$servicename?{$argtext}";
+            return $base_ewdfed_url . "$servicename?{$argtext}";
         }
     }
     
@@ -107,24 +112,27 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
-            error_log('Starting EWD initClient at ' . microtime());
+            error_log('Starting EWD initClient at ' . microtime(TRUE));
+            $this->disconnect();    //Clear all session variables
             $servicename = 'initiate';
             $url = $this->getURL($servicename);
             $json_string = $this->m_oWebServices->callAPI($servicename, $url);
             $json_array = json_decode($json_string, TRUE);
-            $this->m_authorization = trim($json_array["Authorization"]);
-            $this->m_init_key = trim($json_array["key"]);
-            if($this->m_authorization == '')
+            $this->setSessionVariable('authorization',trim($json_array["Authorization"]));
+            $this->setSessionVariable('init_key',trim($json_array["key"]));
+            $authorization = $this->getSessionVariable('authorization');
+            if($authorization == '')
             {
                 throw new \Exception("Missing authorization value in result! [URL: $url]\n >>> result=".print_r($json_array,TRUE));
             }
-            if($this->m_init_key == '')
+            $init_key = $this->getSessionVariable('init_key');
+            if($init_key == '')
             {
                 throw new \Exception("Missing init key value in result! [URL: $url]\n >>> result=".print_r($json_array,TRUE));
             }
-            error_log('EWD initClient is DONE at ' . microtime());
+            error_log('EWD initClient is DONE at ' . microtime(TRUE));
         } catch (\Exception $ex) {
-            throw new \Exception("Trouble in initClient because ".$ex,99876,$ex);
+            throw new \Exception('Trouble in initClient because ' . $ex , 99876 , $ex);
         }
     }
 
@@ -133,7 +141,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function isAuthenticated() 
     {
-        return ($this->m_userduz != NULL);
+        $userduz = $this->getSessionVariable('userduz');
+        return ($userduz != NULL);
     }
 
     private function setSessionVariable($name,$value)
@@ -158,15 +167,15 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function disconnect() 
     {
-        $this->m_userduz = NULL;
-        $this->m_authorization = NULL;
-        $this->m_init_key = NULL;
-        $this->m_credentials = NULL;
-        $this->m_dt           = NULL;
-        $this->m_displayname  = NULL;
-        $this->m_fullname     = NULL;
-        $this->m_greeting     = NULL;
-        $this->m_selectedPatient = NULL;
+        $this->setSessionVariable('userduz',NULL);
+        $this->setSessionVariable('authorization',NULL);
+        $this->setSessionVariable('init_key', NULL);
+        $this->setSessionVariable('credentials', NULL);
+        $this->setSessionVariable('dt', NULL);
+        $this->setSessionVariable('displayname', NULL);
+        $this->setSessionVariable('fullname', NULL);
+        $this->setSessionVariable('greeting', NULL);
+        $this->setPatientID(NULL);
     }
 
     /**
@@ -174,65 +183,85 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function connectAndLogin($siteCode, $username, $password) 
     {
-        error_log('Starting EWD connectAndLogin at ' . microtime());
-        $errorMessage = "";
         try
         {
+            error_log('Starting EWD connectAndLogin at ' . microtime());
+            $errorMessage = "";
+            
+            //Are we already logged in?
+            if($this->isAuthenticated())
+            {
+                //Log out before we try again!
+                $this->disconnect();
+            }
+            
             //Have we already initialized the client?
-            if($this->m_authorization == NULL)
+            $authorization = $this->getSessionVariable('authorization');
+            if($authorization == NULL)
             {
                 //Initialize it now
                 error_log("Calling init from connectAndLogin for $this");
                 $this->initClient();
+                $authorization = $this->getSessionVariable('authorization');
             }
-            if($this->m_init_key == NULL)
+            $init_key = $this->getSessionVariable('init_key');
+            if($init_key == NULL)
             {
                 throw new \Exception("No initialization key has been set!");
             }
             module_load_include('php', 'raptor_ewdvista', 'core/Encryption');
             $encryption = new \raptor_ewdvista\Encryption();
-            $keytext = $this->m_init_key;
-            $this->m_credentials = $encryption->getEncryptedCredentials($keytext, $username, $password);
+            $credentials = $encryption->getEncryptedCredentials($init_key, $username, $password);
+            $this->setSessionVariable('credentials', $credentials);
 
             $method = 'login';
             //http://localhost:8081/RaptorEwdVista/raptor/login?credentials=
-            $url = $this->getURL($method) . "?credentials=" . $this->m_credentials;
-            $header["Authorization"]=$this->m_authorization;
+            $url = $this->getURL($method) . "?credentials=" . $credentials;
+            $header["Authorization"]=$authorization;
+            
+            error_log("LOOK header>>>".print_r($header,TRUE));
+            error_log("LOOK url>>>".print_r($url,TRUE));
+            
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
             $json_array = json_decode($json_string, TRUE);
             
             if (array_key_exists("DUZ", $json_array))
             {
-                $this->m_dt           = trim($json_array["DT"]);
-                $this->m_userduz      = trim($json_array["DUZ"]);
-                $this->m_displayname  = trim($json_array["displayName"]);
-                $this->m_fullname     = trim($json_array["username"]);
-                $this->m_greeting     = trim($json_array["greeting"]);
+                $this->setSessionVariable('dt',trim($json_array['DT']));
+                $this->setSessionVariable('userduz',trim($json_array['DUZ']));
+                $this->setSessionVariable('displayname',trim($json_array['displayName']));
+                $this->setSessionVariable('fullname',trim($json_array['username']));
+                $this->setSessionVariable('greeting',trim($json_array['greeting']));
             }
             else {
                 $errorMessage = "Unable to LOGIN " . print_r($json_array, TRUE);
                 throw new \Exception($errorMessage);
             }
         } catch (\Exception $ex) {
+            $thecreds = $this->getSessionVariable('credentials');
             $this->disconnect();
-            throw new \Exception("Trouble in connectAndLogin as cred={$this->m_credentials} because ".$ex,99876,$ex);
+            throw new \Exception("Trouble in connectAndLogin at $siteCode as $username with cred={$thecreds} because ".$ex,99876,$ex);
         }
     }
 
     private function getServiceRelatedData($serviceName)
     {
-        error_log("Starting EWD $serviceName at " . microtime());
-        $errorMessage = "";
         try
         {
+            error_log("Starting EWD $serviceName at " . microtime(TRUE));
             $url = $this->getURL($serviceName);
-            $header["Authorization"]=$this->m_authorization;
+            $authorization = $this->getSessionVariable('authorization');
+            if($authorization == NULL)
+            {
+                throw new \Exception("Missing the authorization string in call to $serviceName");
+            }
+            $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
             error_log("LOOK JSON DATA for $serviceName: " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
-            error_log("Finish EWD $serviceName at " . microtime());
+            error_log("Finish EWD $serviceName at " . microtime(TRUE));
             return $php_array;
         } catch (\Exception $ex) {
             throw new \Exception("Trouble with $serviceName  because ".$ex,99876,$ex);;
@@ -278,6 +307,15 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
+            if(!is_array($rawdatarows))
+            {
+                throw new \Exception("Cannot parse worklist content from ".print_r($rawdatarows,TRUE));
+            }
+            if(!array_key_exists('data',$rawdatarows))
+            {
+                throw new \Exception("Missing the 'data' key in worklist result ".print_r($rawdatarows,TRUE));
+            }
+            
             module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
             module_load_include('php', 'raptor_formulas', 'core/MatchOrderToUser');
             module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
@@ -494,22 +532,28 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function getWorklistDetailsMap()
     {
-        //$serviceName = 'getWorklistDetailsMap';
-        $serviceName = $this->getCallingFunctionName();
-        $rawdatarows = $this->getServiceRelatedData($serviceName);
-        $matching_offset = NULL;    //TODO
-        $pending_orders_map = NULL; //TODO
-        $formated_datarows = $this->getFormatWorklistRows($rawdatarows);
-        //{"Pages":1,"Page":1,"RowsPerPage":9999,"DataRows":{"1":{"0":
-        $aResult = array('Pages'=>1
-                        ,'Page'=>1
-                        ,'RowsPerPage'=>9999
-                        ,'DataRows'=>$formated_datarows
-                        ,'matching_offset' => $matching_offset
-                        ,'pending_orders_map' => $pending_orders_map
-            );
-        error_log("LOOK worklist result>>>".print_r($aResult,TRUE));
-        return $aResult;
+        try
+        {
+            //$serviceName = 'getWorklistDetailsMap';
+            $serviceName = $this->getCallingFunctionName();
+            $rawdatarows = $this->getServiceRelatedData($serviceName);
+            error_log("LOOK raw worklist result from '$serviceName'>>>".print_r($rawdatarows,TRUE));
+            $matching_offset = NULL;    //TODO
+            $pending_orders_map = NULL; //TODO
+            $formated_datarows = $this->getFormatWorklistRows($rawdatarows);
+            //{"Pages":1,"Page":1,"RowsPerPage":9999,"DataRows":{"1":{"0":
+            $aResult = array('Pages'=>1
+                            ,'Page'=>1
+                            ,'RowsPerPage'=>9999
+                            ,'DataRows'=>$formated_datarows
+                            ,'matching_offset' => $matching_offset
+                            ,'pending_orders_map' => $pending_orders_map
+                );
+            error_log("LOOK worklist result>>>".print_r($aResult,TRUE));
+            return $aResult;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**
@@ -552,7 +596,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             }
             $spid = $this->getSelectedPatientID();
             $is_authenticated = $this->isAuthenticated() ? 'YES' : 'NO';
-            $displayname = $this->m_displayname;
+            $displayname = $this->getSessionVariable('displayname');
             return 'EwdDao instance created at ' . $this->m_createdtimestamp
                     . ' isAuthenticated=[' . $is_authenticated . ']'
                     . ' selectedPatient=[' . $spid . ']'
@@ -571,17 +615,19 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function setPatientID($sPatientID)
     {
-        error_log("LOOK setting patient ID>>>".print_r($sPatientID,TRUE));
-        $this->m_selectedPatient = $sPatientID;
+        //error_log("LOOK setting patient ID>>>".print_r($sPatientID,TRUE));
+        //$this->m_selectedPatient = $sPatientID;
+        $this->setSessionVariable('selectedPatient',$sPatientID);
     }
 
     public function getEHRUserID($fail_if_missing = TRUE)
     {
-        if($this->m_userduz == NULL && $fail_if_missing)
+        $userduz = $this->getSessionVariable('userduz');
+        if($userduz == NULL && $fail_if_missing)
         {
-            throw new \Exception("No user is currently authenticated!");
+            throw new \Exception('No user is currently authenticated!');
         }
-        return $this->m_userduz;
+        return $userduz;
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
@@ -829,11 +875,21 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 	return $this->getServiceRelatedData($serviceName);
     }
 
+    public function invalidateCacheForEverything()
+    {
+        try
+        {
+            //TODO clear all the cache entries
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     public function invalidateCacheForOrder($tid)
     {
         try
         {
-            //TODO clear all the cache entries!
+            //TODO clear all the cache entries specific to the order!
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -843,7 +899,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
-            //TODO clear all the cache entries!
+            //TODO clear all the cache entries specific to the patient!
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -851,7 +907,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getSelectedPatientID()
     {
-        return $this->m_selectedPatient;
+        //return $this->m_selectedPatient;
+        return $this->getSessionVariable('selectedPatient');
     }
 
 }
