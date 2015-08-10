@@ -276,7 +276,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 // erroneous error message - re-try connect for configured # of re-tries
                 if (strpos($connectResult->fault->message, "XUS SIGNON SETUP is not registered to the option XUS SIGNON") || strpos($connectResult->fault->message, "XUS INTRO MSG is not registered to the option XUS SIGNON"))
                 {
-                    $this->setSessionVariable('error_count', errorCount + 1);
+                    $this->setSessionVariable('error_count', $error_count + 1);
                     // first sleep for a short configurable time...
                     usleep(MDWS_QUERY_RETRY_WAIT_INTERVAL_MS * 1000);
                     return $this->connectAndLogin($siteCode, $username, $password);

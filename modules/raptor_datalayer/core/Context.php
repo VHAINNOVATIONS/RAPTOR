@@ -231,8 +231,18 @@ class Context
     {
         try
         {
-            $rc = $_SESSION['REGENERATED_COUNT'];
-            $lct = $_SESSION['CREATED'];
+            if(isset($_SESSION['REGENERATED_COUNT']))
+            {
+                $rc = $_SESSION['REGENERATED_COUNT'];
+            } else {
+                $rc = "UNKNOWN";
+            }
+            if(isset($_SESSION['CREATED']))
+            {
+                $lct = $_SESSION['CREATED'];
+            } else {
+                $lct = "UNKNOWN";
+            }
             $ehr_dao = $this->getEhrDao(FALSE);
             return 'Context of user ['.$this->m_nUID.']'
                     . ' instance created=['.$this->m_nInstanceTimestamp . ']'
