@@ -560,7 +560,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     }
                 }
             }
-error_log("LOOK data format returned for '$function_name' is >>>".print_r($aResult,TRUE));            
             return $aResult;
         } catch (\Exception $ex) {
             throw new \Exception("Failed to getProtocolSupportingData because $ex", 99876, $ex);
