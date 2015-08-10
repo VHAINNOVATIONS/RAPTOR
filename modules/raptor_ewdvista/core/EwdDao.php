@@ -46,7 +46,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration";
+        return "EWD VISTA EHR Integration 20150810.1";
     }
 
     /**
@@ -609,6 +609,257 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getNotesDetailMap()
     {
+        /*
+         * [10-Aug-2015 14:59:54 America/New_York] LOOK data format returned for 'getNotesDetail' is >>>Array
+(
+    [0] => Array
+        (
+            [Type] => RAPTOR SAFETY CHECKLIST
+            [Date] => 07/16/2015 02:51 pm
+            [Snippet] => RAPTOR SAFETY CHECKLIST
+            [Details] => Array
+                (
+                    [Type of Note] => RAPTOR SAFETY CHECKLIST
+                    [Author] =>  
+                    [Note Text] =>  LOCAL TITLE: RAPTOR SAFETY CHECKLIST                            
+STANDARD TITLE: RADIOLOGY CONSULT                               
+DATE OF NOTE: JUL 16, 2015@14:51:50  ENTRY DATE: JUL 16, 2015@14:51:50      
+      AUTHOR: RADIOLOGIST,SEVEN    EXP COSIGNER:                           
+     URGENCY:                            STATUS: COMPLETED                     
+
+[Protocol Settings Approved Date] ::= 2015-07-15 11:39:25
+[Protocol Settings Approved By] ::= Demo Vehu
+[Protocol Primary Selection ID] ::= WAV022
+[Protocol Primary Selection NAME] ::= CT CERVICAL SPINE TRAUMA DETAILED
+Non-Contrast (helical)
+[Protocol Primary Selection MODALITY] ::= CT
+[Order CPRS Title] ::= CT ABDOMEN W/O CONT
+[Order CPRS Created Date/Time] ::= JUL 17, 2012@08:59
+[Order CPRS Embedded Due Date] ::= JUL 17, 2012
+[Tracking ID] ::= 500-2005
+[Checklist Type] ::= Safety Checklist
+[Completion Date] ::= 2015-07-15 11:50:49
+[Site ID] ::= 500
+[Ticket IEN] ::= 2005
+[Total Responses] ::= 5
+
+[Question Shortname] ::= GOT_PATIENT
+[Question Text] ::= Correct patient?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why the patient identity cannot be
+confirmed as appropriate for the procedure."
+[Question Comment Answer] ::= ""
+
+[Question Shortname] ::= GOT_IMG_SITE
+[Question Text] ::= Confirmed imaging site?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why the imaging site cannot be
+confirmed."
+[Question Comment Answer] ::= ""
+
+[Question Shortname] ::= SET_PAT_POSITION
+[Question Text] ::= Correct patient positioning?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why the correct positioning cannot be
+answered as Yes."
+[Question Comment Answer] ::= ""
+
+[Question Shortname] ::= GOT_IMG_PROTOCOL
+[Question Text] ::= Correct imaging protocol?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why the imaging protocol does not appear
+to be correct and what action you will take."
+[Question Comment Answer] ::= ""
+
+[Question Shortname] ::= SET_SCNR_PARAMS
+[Question Text] ::= Correct scanner parameters?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why you cannot confirm the scanner
+parameters are correct for this procedure."
+[Question Comment Answer] ::= ""
+
+[Total Authors] ::= 1
+ 
+/es/ SEVEN RADIOLOGIST
+
+Signed: 07/16/2015 14:51
+
+                    [Facility] =>  
+                )
+
+        )
+
+    [1] => Array
+        (
+            [Type] => RAPTOR NOTE
+            [Date] => 07/16/2015 02:51 pm
+            [Snippet] => RAPTOR NOTE
+            [Details] => Array
+                (
+                    [Type of Note] => RAPTOR NOTE
+                    [Author] =>  
+                    [Note Text] =>  LOCAL TITLE: RAPTOR NOTE                                        
+STANDARD TITLE: RADIOLOGY CONSULT                               
+DATE OF NOTE: JUL 16, 2015@14:51:50  ENTRY DATE: JUL 16, 2015@14:51:50      
+      AUTHOR: RADIOLOGIST,SEVEN    EXP COSIGNER:                           
+     URGENCY:                            STATUS: COMPLETED                     
+
+[Order CPRS Title] ::= CT ABDOMEN W/O CONT
+[Order CPRS Created Date/Time] ::= JUL 17, 2012@08:59
+[Order CPRS Embedded Due Date] ::= JUL 17, 2012
+[Tracking ID] ::= 500-2005
+
+
+[Protocol Settings Approved Date] ::= 2015-07-15 11:39:25
+[Protocol Settings Approved By] ::= Demo Vehu
+[Protocol Primary Selection ID] ::= WAV022
+[Protocol Primary Selection NAME] ::= CT CERVICAL SPINE TRAUMA DETAILED
+Non-Contrast (helical)
+[Protocol Primary Selection MODALITY] ::= CT
+[Protocol Note Oral Hydration] ::= 500cc H2O over 2hr pre-scan + post-scan
+[Protocol Note IV Contrast] ::= ProHance
+
+
+[Protocol General Note Date] ::= 2015-07-15 11:39:25
+[Protocol General Note Author] ::= Demo Vehu
+[Protocol General Note Text] ::= ipso default protocol notes facto
+[Protocol General Note Text END]
+
+[Contraindication Acknowledgement RISK_AGE] ::= acknowledged by Demo Vehu on
+2015-07-15 11:39:25
+[Contraindication Acknowledgement POTENTIAL_DUPLICATE_STUDY] ::= acknowledged by
+Demo Vehu on 2015-07-15 11:39:25
+[Contraindication Acknowledgement IMPAIRED_RENAL_REDUCED_CONTRAST] ::=
+acknowledged by Dr Seattle Radiologist on 2015-07-15 11:50:49
+[Contraindication Acknowledgement IMPAIRED_RENAL_PRE_POST_HYDRATION] ::=
+acknowledged by Dr Seattle Radiologist on 2015-07-15 11:50:49
+[Contraindication Acknowledgement IMPAIRED_RENAL_ALTERNATE_STUDY] ::=
+acknowledged by Dr Seattle Radiologist on 2015-07-15 11:50:49
+[Contraindication Acknowledgement DIAGNOSTIC_EXAM_RISK_MED] ::= acknowledged by
+Dr Seattle Radiologist on 2015-07-15 11:50:49
+
+
+[Exam Note Author] ::= Dr Seattle Radiologist
+[Exam Note Date] ::= 2015-07-16 14:31:31
+[Exam Note Oral Hydration] ::= 500cc H2O over 2hr pre-scan + post-scan
+[Exam Note IV Contrast] ::= ProHance
+[Exam Note Consent Received] ::= no
+[Exam Note DLP Radiation Exposure UoM] ::= mGycm
+[Exam Note DLP Radiation Exposure Data] ::= 2.2 mGycm(Estimated)
+
+[Exam General Note Date] ::= 2015-07-16 14:31:31
+[Exam General Note Author] ::= Dr Seattle Radiologist
+[Exam General Note Text] ::= ipso default exam notes facto
+[Exam General Note Text END]
+
+[Exam General Note Date] ::= 2015-07-16 14:31:10
+[Exam General Note Author] ::= Dr Seattle Radiologist
+[Exam General Note Text] ::= ipso default exam notes facto
+[Exam General Note Text END]
+
+[Exam General Note Date] ::= 2015-07-16 14:25:33
+[Exam General Note Author] ::= Dr Seattle Radiologist
+[Exam General Note Text] ::= ipso default exam notes facto
+[Exam General Note Text END]
+
+ 
+/es/ SEVEN RADIOLOGIST
+
+Signed: 07/16/2015 14:51
+
+                    [Facility] =>  
+                )
+
+        )
+
+    [2] => Array
+        (
+            [Type] => RAPTOR SAFETY CHECKLIST
+            [Date] => 07/16/2015 02:45 pm
+            [Snippet] => RAPTOR SAFETY CHECKLIST
+            [Details] => Array
+                (
+                    [Type of Note] => RAPTOR SAFETY CHECKLIST
+                    [Author] =>  
+                    [Note Text] =>  LOCAL TITLE: RAPTOR SAFETY CHECKLIST                            
+STANDARD TITLE: RADIOLOGY CONSULT                               
+DATE OF NOTE: JUL 16, 2015@14:45:27  ENTRY DATE: JUL 16, 2015@14:45:27      
+      AUTHOR: RADIOLOGIST,SEVEN    EXP COSIGNER:                           
+     URGENCY:                            STATUS: COMPLETED                     
+
+[Protocol Settings Approved Date] ::= 2015-07-15 11:39:25
+[Protocol Settings Approved By] ::= Demo Vehu
+[Protocol Primary Selection ID] ::= WAV022
+[Protocol Primary Selection NAME] ::= CT CERVICAL SPINE TRAUMA DETAILED
+Non-Contrast (helical)
+[Protocol Primary Selection MODALITY] ::= CT
+[Order CPRS Title] ::= CT ABDOMEN W/O CONT
+[Order CPRS Created Date/Time] ::= JUL 17, 2012@08:59
+[Order CPRS Embedded Due Date] ::= JUL 17, 2012
+[Tracking ID] ::= 500-2005
+[Checklist Type] ::= Safety Checklist
+[Completion Date] ::= 2015-07-15 11:50:49
+[Site ID] ::= 500
+[Ticket IEN] ::= 2005
+[Total Responses] ::= 5
+
+[Question Shortname] ::= GOT_PATIENT
+[Question Text] ::= Correct patient?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why the patient identity cannot be
+confirmed as appropriate for the procedure."
+[Question Comment Answer] ::= ""
+
+[Question Shortname] ::= GOT_IMG_SITE
+[Question Text] ::= Confirmed imaging site?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why the imaging site cannot be
+confirmed."
+[Question Comment Answer] ::= ""
+
+[Question Shortname] ::= SET_PAT_POSITION
+[Question Text] ::= Correct patient positioning?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why the correct positioning cannot be
+answered as Yes."
+[Question Comment Answer] ::= ""
+
+[Question Shortname] ::= GOT_IMG_PROTOCOL
+[Question Text] ::= Correct imaging protocol?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why the imaging protocol does not appear
+to be correct and what action you will take."
+[Question Comment Answer] ::= ""
+
+[Question Shortname] ::= SET_SCNR_PARAMS
+[Question Text] ::= Correct scanner parameters?
+[Question Answer] ::= "yes"
+[Question Answer Author] ::= Dr Seattle Radiologist
+[Question Comment Prompt] ::= "Explain why you cannot confirm the scanner
+parameters are correct for this procedure."
+[Question Comment Answer] ::= ""
+
+[Total Authors] ::= 1
+ 
+/es/ SEVEN RADIOLOGIST
+
+Signed: 07/16/2015 14:45
+
+                    [Facility] =>  
+                )
+
+        )
+
+         */
         $serviceName = $this->getCallingFunctionName();
         return $this->getServiceRelatedData($serviceName);
     }
@@ -653,6 +904,99 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getAllergiesDetailMap()
     {
+        /*
+         * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getAllergiesDetail' is >>>Array
+(
+    [0] => Array
+        (
+            [DateReported] => 12/17/2007
+            [Item] => CHOCOLATE
+            [CausativeAgent] => DRUG, FOOD
+            [SignsSymptoms] => Array
+                (
+                    [Snippet] => DIARRHEA
+                    [Details] => DIARRHEA
+                    [SnippetSameAsDetail] => 1
+                )
+
+            [DrugClasses] => Array
+                (
+                    [Snippet] => 
+                    [Details] => 
+                    [SnippetSameAsDetail] => 1
+                )
+
+            [Originator] =>  
+            [ObservedHistorical] => Array
+                (
+                    [Snippet] => 
+                    [Details] => 
+                    [SnippetSameAsDetail] => 1
+                )
+
+        )
+
+    [1] => Array
+        (
+            [DateReported] => 03/17/2005
+            [Item] => PENICILLIN
+            [CausativeAgent] => DRUG
+            [SignsSymptoms] => Array
+                (
+                    [Snippet] => ITCHING,WATERING EYES
+                    [Details] => ITCHING,WATERING EYES
+                    [SnippetSameAsDetail] => 1
+                )
+
+            [DrugClasses] => Array
+                (
+                    [Snippet] => 
+                    [Details] => 
+                    [SnippetSameAsDetail] => 1
+                )
+
+            [Originator] =>  
+            [ObservedHistorical] => Array
+                (
+                    [Snippet] => 
+                    [Details] => 
+                    [SnippetSameAsDetail] => 1
+                )
+
+        )
+
+    [2] => Array
+        (
+            [DateReported] => 12/31/1969
+            [Item] => ZOCOR
+            [CausativeAgent] => DRUG
+            [SignsSymptoms] => Array
+                (
+                    [Snippet] => HIVES
+                    [Details] => HIVES
+                    [SnippetSameAsDetail] => 1
+                )
+
+            [DrugClasses] => Array
+                (
+                    [Snippet] => 
+                    [Details] => 
+                    [SnippetSameAsDetail] => 1
+                )
+
+            [Originator] =>  
+            [ObservedHistorical] => Array
+                (
+                    [Snippet] => 
+                    [Details] => 
+                    [SnippetSameAsDetail] => 1
+                )
+
+        )
+
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
         return $this->getServiceRelatedData($serviceName);
     }
@@ -673,12 +1017,76 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getDiagnosticLabsDetailMap()
     {
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getDiagnosticLabsDetail' is >>>Array
+(
+    [0] => Array
+        (
+            [DiagDate] => 03/16/2010 10:23 am
+            [Creatinine] => 1.3 mg/dL
+            [eGFR] => 56  mL/min/1.73 m^2
+            [eGFR_Health] => warn
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+    [1] => Array
+        (
+            [DiagDate] => 03/16/2010 10:21 am
+            [Creatinine] => 1.1 mg/dL
+            [eGFR] => 68  mL/min/1.73 m^2
+            [eGFR_Health] => good
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+    [2] => Array
+        (
+            [DiagDate] => 03/16/2010 10:20 am
+            [Creatinine] => 1.3 mg/dL
+            [eGFR] => 56  mL/min/1.73 m^2
+            [eGFR_Health] => warn
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+    [3] => Array
+        (
+            [DiagDate] => 03/16/2010 10:18 am
+            [Creatinine] => <span class='medical-value-danger'>!! 1.5 mg/dL !!</span>
+            [eGFR] => 48  mL/min/1.73 m^2
+            [eGFR_Health] => warn
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+    [4] => Array
+        (
+            [DiagDate] => 03/16/2010 10:17 am
+            [Creatinine] => 1.2 mg/dL
+            [eGFR] => 62  mL/min/1.73 m^2
+            [eGFR_Health] => good
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
         return $this->getServiceRelatedData($serviceName);
     }
 
     public function getEGFRDetailMap()
     {
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getEGFRDetail' is >>>Array
+(
+    [LATEST_EGFR] => 56
+    [MIN_EGFR_10DAYS] => 
+    [MIN_EGFR_15DAYS] => 
+    [MIN_EGFR_30DAYS] => 
+    [MIN_EGFR_45DAYS] => 
+    [MIN_EGFR_60DAYS] => 
+    [MIN_EGFR_90DAYS] => 
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
         return $this->getServiceRelatedData($serviceName);
     }
@@ -709,12 +1117,45 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getMedicationsDetailMap($atriskmeds = NULL)
     {
+        /*
+         * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getMedicationsDetail' is >>>Array
+(
+    [details] => Array
+        (
+            [0] => Array
+                (
+                    [Med] => ASPIRIN TAB,EC
+                    [Status] => Active
+                    [AtRisk] => no
+                    [warn] => 
+                )
+
+        )
+
+    [atrisk_hits] => Array
+        (
+        )
+
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getOrderOverviewMap()
     {
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getOrderOverview' is >>>Array
+(
+    [RqstBy] => ZZLABTECH,FORTYEIGHT
+    [PCP] => Unknown
+    [AtP] => Unknown
+    [RqstStdy] => CT ABDOMEN W/O CONT
+    [RsnStdy] => TEST
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
@@ -739,12 +1180,153 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getPendingOrdersMap()
     {
+        /*
+         * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getPendingOrdersMap' is >>>Array
+(
+    [2005] => Array
+        (
+            [0] => 2005
+            [1] => CT
+            [2] => CT ABDOMEN W/O CONT
+        )
+
+    [2006] => Array
+        (
+            [0] => 2006
+            [1] => CT
+            [2] => CT ABDOMEN W/O CONT
+        )
+
+    [2009] => Array
+        (
+            [0] => 2009
+            [1] => CT
+            [2] => CT ABDOMEN W/O CONT
+        )
+
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getProblemsListDetailMap()
     {
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getProblemsListDetail' is >>>Array
+(
+    [0] => Array
+        (
+            [Title] => Meningitis, Listeria
+            [OnsetDate] => 06/07/2010 12:00 am
+            [Snippet] => Meningitis, Listeria
+            [Details] => Array
+                (
+                    [Type of Note] => Problem
+                    [Provider Narrative] => Meningitis, Listeria
+                    [Note Narrative] =>  
+                    [Status] => A
+                    [Observer] => PROVIDER,THIRTYTWO
+                    [Comment] =>  
+                    [Facility] => CAMP MASTER
+                )
+
+        )
+
+    [1] => Array
+        (
+            [Title] => Hypertension
+            [OnsetDate] => 04/07/2005 12:00 am
+            [Snippet] => Hypertension
+            [Details] => Array
+                (
+                    [Type of Note] => Problem
+                    [Provider Narrative] => Hypertension
+                    [Note Narrative] =>  
+                    [Status] => A
+                    [Observer] => ZZVEHU,ONEHUNDRED
+                    [Comment] =>  
+                    [Facility] => CAMP MASTER
+                )
+
+        )
+
+    [2] => Array
+        (
+            [Title] => Hyperlipidemia
+            [OnsetDate] => 04/07/2005 12:00 am
+            [Snippet] => Hyperlipidemia
+            [Details] => Array
+                (
+                    [Type of Note] => Problem
+                    [Provider Narrative] => Hyperlipidemia
+                    [Note Narrative] =>  
+                    [Status] => A
+                    [Observer] => ZZVEHU,ONEHUNDRED
+                    [Comment] =>  
+                    [Facility] => CAMP MASTER
+                )
+
+        )
+
+    [3] => Array
+        (
+            [Title] => Acute myocardial infarction, unspecified...
+            [OnsetDate] => 03/17/2005 12:00 am
+            [Snippet] => Acute myocardial infarction, unspecified...
+            [Details] => Array
+                (
+                    [Type of Note] => Problem
+                    [Provider Narrative] => Acute myocardial infarction, unspecified site, episode of care unspecified
+                    [Note Narrative] =>  
+                    [Status] => A
+                    [Observer] => DOCTOR,ONE
+                    [Comment] =>  
+                    [Facility] => CAMP MASTER
+                )
+
+        )
+
+    [4] => Array
+        (
+            [Title] => Chronic Systolic Heart failure
+            [OnsetDate] => 03/09/2004 12:00 am
+            [Snippet] => Chronic Systolic Heart failure
+            [Details] => Array
+                (
+                    [Type of Note] => Problem
+                    [Provider Narrative] => Chronic Systolic Heart failure
+                    [Note Narrative] =>  
+                    [Status] => A
+                    [Observer] => ZZLABTECH,SPECIAL
+                    [Comment] =>  
+                    [Facility] => CAMP MASTER
+                )
+
+        )
+
+    [5] => Array
+        (
+            [Title] => Diabetes Mellitus Type II or unspecified
+            [OnsetDate] => 02/08/2000 12:00 am
+            [Snippet] => Diabetes Mellitus Type II or unspecified
+            [Details] => Array
+                (
+                    [Type of Note] => Problem
+                    [Provider Narrative] => Diabetes Mellitus Type II or unspecified
+                    [Note Narrative] =>  
+                    [Status] => A
+                    [Observer] => DOCTOR,ONE
+                    [Comment] =>  
+                    [Facility] => CAMP MASTER
+                )
+
+        )
+
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
@@ -781,18 +1363,915 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getRadiologyReportsDetailMap()
     {
+        /*
+         * [10-Aug-2015 14:59:53 America/New_York] LOOK data format returned for 'getRadiologyReportsDetail' is >>>Array
+(
+    [0] => Array
+        (
+            [Title] => CT ABDOMEN W/O CONT
+            [ReportedDate] => 07/17/2012 10:22 am
+            [Snippet] => CT ABDOMEN W/O CONT...
+            [Details] => Array
+                (
+                    [Procedure Name] => CT ABDOMEN W/O CONT
+                    [Report Status] => No Report
+                    [CPT Code] =>  
+                    [Reason For Study] =>  
+                    [Clinical HX] => 
+                    [Impression] =>  
+                    [Report] => CT ABDOMEN W/O CONT<br />
+   <br />
+Exm Date: JUL 17, 2012@10:22<br />
+Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
+                                         Img Loc: CT SCAN<br />
+                                         Service: Unknown<br />
+<br />
+ <br />
+<br />
+(Case 48 WAITING )   CT ABDOMEN W/O CONT              (CT   Detailed) CPT:<br />
+     Reason for Study: TEST<br />
+<br />
+    Clinical History:<br />
+<br />
+    Report Status: No Report<br />
+   <br />
+
+                    [Facility] =>  
+                )
+
+            [AccessionNumber] => 071712-48
+            [CaseNumber] => 48
+            [ReportID] => 6879282.8977-1
+        )
+
+    [1] => Array
+        (
+            [Title] => CT ABDOMEN W/O CONT
+            [ReportedDate] => 07/17/2012 09:01 am
+            [Snippet] => CT ABDOMEN W/O CONT...
+            [Details] => Array
+                (
+                    [Procedure Name] => CT ABDOMEN W/O CONT
+                    [Report Status] => No Report
+                    [CPT Code] =>  
+                    [Reason For Study] =>  
+                    [Clinical HX] => 
+                    [Impression] =>  
+                    [Report] => CT ABDOMEN W/O CONT<br />
+   <br />
+Exm Date: JUL 17, 2012@09:01<br />
+Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
+                                         Img Loc: CT SCAN<br />
+                                         Service: Unknown<br />
+<br />
+ <br />
+<br />
+(Case 44 WAITING )   CT ABDOMEN W/O CONT              (CT   Detailed) CPT:<br />
+     Reason for Study: TESTING<br />
+<br />
+    Clinical History:<br />
+<br />
+    Report Status: No Report<br />
+   <br />
+
+                    [Facility] =>  
+                )
+
+            [AccessionNumber] => 071712-44
+            [CaseNumber] => 44
+            [ReportID] => 6879282.9098-1
+        )
+
+         */
+        
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getRawVitalSignsMap()
     {
+        /*
+         * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getRawVitalSigns' is >>>stdClass Object
+(
+    [getVitalSignsResult] => stdClass Object
+        (
+            [count] => 1
+            [arrays] => stdClass Object
+                (
+                    [TaggedVitalSignSetArray] => stdClass Object
+                        (
+                            [count] => 100
+                            [tag] => 500
+                            [sets] => stdClass Object
+                                (
+                                    [VitalSignSetTO] => Array
+                                        (
+                                            [0] => stdClass Object
+                                                (
+                                                    [timestamp] => 20100817.160300
+                                                    [facility] => stdClass Object
+                                                        (
+                                                            [tag] => 500
+                                                            [text] => CAMP MASTER
+                                                        )
+
+                                                    [vitalSigns] => stdClass Object
+                                                        (
+                                                            [VitalSignTO] => Array
+                                                                (
+                                                                    [0] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Temperature
+                                                                                )
+
+                                                                            [value1] => 99.5
+                                                                            [units] => F
+                                                                        )
+
+                                                                    [1] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse
+                                                                                )
+
+                                                                            [value1] => 61
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [2] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Respiration
+                                                                                )
+
+                                                                            [value1] => 22
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [3] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190/85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [4] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Systolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [5] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Diastolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [6] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse Oxymetry
+                                                                                )
+
+                                                                            [value1] => 96
+                                                                        )
+
+                                                                )
+
+                                                        )
+
+                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
+                                                    [qualifiers] => 
+                                                )
+
+                                            [1] => stdClass Object
+                                                (
+                                                    [timestamp] => 20100816.212900
+                                                    [facility] => stdClass Object
+                                                        (
+                                                            [tag] => 500
+                                                            [text] => CAMP MASTER
+                                                        )
+
+                                                    [vitalSigns] => stdClass Object
+                                                        (
+                                                            [VitalSignTO] => Array
+                                                                (
+                                                                    [0] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Temperature
+                                                                                )
+
+                                                                            [value1] => 99.5
+                                                                            [units] => F
+                                                                        )
+
+                                                                    [1] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse
+                                                                                )
+
+                                                                            [value1] => 61
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [2] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Respiration
+                                                                                )
+
+                                                                            [value1] => 22
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [3] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190/85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [4] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Systolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [5] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Diastolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [6] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse Oxymetry
+                                                                                )
+
+                                                                            [value1] => 96
+                                                                        )
+
+                                                                )
+
+                                                        )
+
+                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
+                                                    [qualifiers] => 
+                                                )
+
+                                            [2] => stdClass Object
+                                                (
+                                                    [timestamp] => 20100815.195100
+                                                    [facility] => stdClass Object
+                                                        (
+                                                            [tag] => 500
+                                                            [text] => CAMP MASTER
+                                                        )
+
+                                                    [vitalSigns] => stdClass Object
+                                                        (
+                                                            [VitalSignTO] => Array
+                                                                (
+                                                                    [0] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Temperature
+                                                                                )
+
+                                                                            [value1] => 99.5
+                                                                            [units] => F
+                                                                        )
+
+                                                                    [1] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse
+                                                                                )
+
+                                                                            [value1] => 61
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [2] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Respiration
+                                                                                )
+
+                                                                            [value1] => 22
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [3] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190/85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [4] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Systolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [5] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Diastolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [6] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse Oxymetry
+                                                                                )
+
+                                                                            [value1] => 96
+                                                                        )
+
+                                                                )
+
+                                                        )
+
+                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
+                                                    [qualifiers] => 
+                                                )
+
+                                            [3] => stdClass Object
+                                                (
+                                                    [timestamp] => 20100814.113700
+                                                    [facility] => stdClass Object
+                                                        (
+                                                            [tag] => 500
+                                                            [text] => CAMP MASTER
+                                                        )
+
+                                                    [vitalSigns] => stdClass Object
+                                                        (
+                                                            [VitalSignTO] => Array
+                                                                (
+                                                                    [0] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Temperature
+                                                                                )
+
+                                                                            [value1] => 99.5
+                                                                            [units] => F
+                                                                        )
+
+                                                                    [1] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse
+                                                                                )
+
+                                                                            [value1] => 61
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [2] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Respiration
+                                                                                )
+
+                                                                            [value1] => 22
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [3] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190/85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [4] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Systolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [5] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Diastolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [6] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse Oxymetry
+                                                                                )
+
+                                                                            [value1] => 96
+                                                                        )
+
+                                                                )
+
+                                                        )
+
+                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
+                                                    [qualifiers] => 
+                                                )
+
+                                            [4] => stdClass Object
+                                                (
+                                                    [timestamp] => 20100813.101100
+                                                    [facility] => stdClass Object
+                                                        (
+                                                            [tag] => 500
+                                                            [text] => CAMP MASTER
+                                                        )
+
+                                                    [vitalSigns] => stdClass Object
+                                                        (
+                                                            [VitalSignTO] => Array
+                                                                (
+                                                                    [0] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Temperature
+                                                                                )
+
+                                                                            [value1] => 99.5
+                                                                            [units] => F
+                                                                        )
+
+                                                                    [1] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse
+                                                                                )
+
+                                                                            [value1] => 61
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [2] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Respiration
+                                                                                )
+
+                                                                            [value1] => 22
+                                                                            [units] => /min
+                                                                        )
+
+                                                                    [3] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190/85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [4] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Systolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 190
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [5] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Diastolic Blood Pressure
+                                                                                )
+
+                                                                            [value1] => 85
+                                                                            [units] => mmHg
+                                                                        )
+
+                                                                    [6] => stdClass Object
+                                                                        (
+                                                                            [type] => stdClass Object
+                                                                                (
+                                                                                    [id] => 
+                                                                                    [category] => Vital Sign
+                                                                                    [name] => Pulse Oxymetry
+                                                                                )
+
+                                                                            [value1] => 96
+                                                                        )
+
+                                                                )
+
+                                                        )
+
+                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
+                                                    [qualifiers] => 
+                                                )
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getSurgeryReportsDetailMap()
     {
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getSurgeryReportsDetail' is >>>Array
+(
+    [0] => Array
+        (
+            [Title] => LEFT INGUINAL HERNIA REPAIR WITH MESH
+            [ReportDate] => 12/31/1969 07:00 pm
+            [Snippet] => LOCAL TITLE: OPERATION REPORT           ...
+            [Details] => LOCAL TITLE: OPERATION REPORT                                   <br />
+DATE OF NOTE: DEC 08, 2006@07:30     ENTRY DATE: DEC 08, 2006@14:01:19      <br />
+     SURGEON: PROVIDER,ONE            ATTENDING: TDPROVIDER,ONE               <br />
+     URGENCY:                            STATUS: COMPLETED                     <br />
+     SUBJECT: Case #: 10007                                                    <br />
+<br />
+SURGEON:                PROVIDER,ONE <br />
+ <br />
+ 1ST ASST:               PROVIDER,TWO <br />
+ <br />
+ ATTENDING:              TDPROVIDER,ONE <br />
+ <br />
+ PROCEDURE:            LEFT INGUINAL HERNIA REPAIR WITH MESH<br />
+ <br />
+ HISTORY:  Essentially patient  underwent  preop evaluation  for  left <br />
+ inguinal mass  noted  since  September 2004.    Recently  PT became  more <br />
+ symptomatic with  increased size and  tenderness.  Patient  denied any history<br />
+ of melena or bloody stools.   Denied a history of constipation or diarrhea. <br />
+ No recent fevers or chills.   He was admitted on December 7, 2006,<br />
+ for an elective left inguinal hernia repair. <br />
+ <br />
+ SUMMARY OF PROCEDURES:   After  consent was  obtained,  the  patient was <br />
+ prepped and  draped in  sterile fashion.   Lidocaine  1% was  used to <br />
+ anesthetize the  skin and a 5-cm incision was made in the left groin.  <br />
+ The skin and subcu was dissected down to the  external oblique fascia.  <br />
+ The fascia was incised to the external ring and the spermatic cord and<br />
+ all its contents were isolated  with a Penrose drain.  The  hernia sac<br />
+ was then dissected and reduced into the large direct inguinal defect.  <br />
+ Three large  mesh plugs  were secured  together and  used to  plug the<br />
+ direct  defect  and  secured  in place  with  2  interrupted  Prolene<br />
+ stitches.   An onlay patch was  then applied and secured  to the pubic<br />
+ tubercle  and secured to the fascial edges using a running 2-0 Prolene<br />
+ suture on  either side.  The external oblique was then closed over the<br />
+ repair, being cognizant  of the ilioinguinal  nerve.  All superficial<br />
+ bleeding was  controlled with electrocautery.   Copious irrigation was<br />
+ used  and additional 1% Lidocaine  was used to  anesthetize the subcu and<br />
+ fascia.  Scarpa  fascia was closed  using 4-0 Vicryl.   Additional 4-0  <br />
+ Vicryl was  used in  a subcuticular  fashion  to close  the skin.  <br />
+ Steri-Strips were applied and dressings.   The patient  was extubated and<br />
+ stable to recovery, tolerated the procedure well.   The attending<br />
+ physician, TDPROVDIER,ONE, was scrubbed during the entire case.<br />
+ <br />
+/es/ e9@sWkjz\(hy<br />
+Mg<br />
+Signed: 12/08/2006 18:19<br />
+ <br />
+/es/ e9@sf?BKFw\srt<br />
+Mg<br />
+Cosigned: 12/11/2006 08:45<br />
+=========================================================================<br />
+ LOCAL TITLE: NURSE INTRAOPERATIVE REPORT                        <br />
+DATE OF NOTE: DEC 08, 2006@07:30     ENTRY DATE: DEC 08, 2006@10:36:08      <br />
+      AUTHOR: ZZTDNURSE,ONE        EXP COSIGNER:                           <br />
+     URGENCY:                            STATUS: COMPLETED                     <br />
+     SUBJECT: Case #: 10007                                                    <br />
+<br />
+Operating Room:  OR4                    Surgical Priority: ELECTIVE<br />
+<br />
+Patient in Hold: DEC 08, 2006  07:00    Patient in OR:  DEC 08, 2006  07:30<br />
+Operation Begin: DEC 08, 2006  08:00    Operation End:  DEC 08, 2006  09:45<br />
+                                        Patient Out OR: DEC 08, 2006  10:00<br />
+<br />
+Major Operations Performed:<br />
+Primary: LEFT INGUINAL HERNIA REPAIR<br />
+<br />
+Wound Classification: CLEAN<br />
+Operation Disposition: PACU (RECOVERY ROOM)<br />
+Discharged Via: STRETCHER<br />
+<br />
+Surgeon: PROVIDER,ONE                   First Assist: PROVIDER,TWO<br />
+Attend Surg: TDPROVIDER,ONE             Second Assist: N/A<br />
+Anesthetist: PROVIDER,THREE             Assistant Anesth: N/A<br />
+<br />
+Other Scrubbed Assistants: N/A<br />
+<br />
+OR Support Personnel:<br />
+  Scrubbed                              Circulating<br />
+  NURSE,ONE ()                          TDNURSE,ONE ()<br />
+<br />
+Other Persons in OR: N/A<br />
+<br />
+Preop Mood:       RELAXED               Preop Consc:    ALERT-ORIENTED<br />
+Preop Skin Integ: INTACT                Preop Converse: N/A<br />
+<br />
+Valid Consent/ID Band Confirmed By: TDNURSE,ONE<br />
+Mark on Surgical Site Confirmed: YES<br />
+  Marked Site Comments: NO COMMENTS ENTERED<br />
+<br />
+Preoperative Imaging Confirmed:  YES<br />
+  Imaging Confirmed Comments: NO COMMENTS ENTERED<br />
+<br />
+Time Out Verification Completed: YES<br />
+  Time Out Verified Comments: NO COMMENTS ENTERED<br />
+<br />
+Skin Prep By: PROVIDER,TWO              Skin Prep Agent: BETADINE<br />
+Skin Prep By (2): N/A                   2nd Skin Prep Agent: N/A<br />
+<br />
+Preop Surgical Site Hair Removal by: PROVIDER,ONE<br />
+Surgical Site Hair Removal Method: DEPILATORY<br />
+  Hair Removal Comments: NO COMMENTS ENTERED<br />
+<br />
+Surgery Position(s): <br />
+  SUPINE                                Placed: N/A<br />
+<br />
+Restraints and Position Aids: <br />
+  SAFETY STRAP                      Applied By: N/A<br />
+  ARMBOARD                          Applied By: N/A<br />
+<br />
+Electrocautery Unit:       #4<br />
+ESU Coagulation Range:     30<br />
+ESU Cutting Range:         N/A<br />
+Electroground Position(s): RIGHT ANT THIGH<br />
+<br />
+Material Sent to Laboratory for Analysis: <br />
+Specimens: <br />
+  Left Inguinal Hernia Sac<br />
+Cultures:  N/A<br />
+<br />
+Anesthesia Technique(s):<br />
+  MONITORED ANESTHESIA CARE  (PRINCIPAL)<br />
+<br />
+Tubes and Drains: N/A<br />
+<br />
+Tourniquet: N/A<br />
+<br />
+Thermal Unit: N/A<br />
+<br />
+Prosthesis Installed: N/A<br />
+<br />
+Medications: <br />
+  BUPIVACAINE 0.5% 50ML INJ<br />
+    Time Administered: DEC 08, 2006  07:45<br />
+      Route: INFILTRATE                 Dosage: 15cc<br />
+      Ordered By: PROVIDER,ONE          Admin By: PROVIDER,ONE<br />
+      Comments: Used 1:1 with LIDOCAINE<br />
+  LIDOCAINE 1% 50ML MDV<br />
+    Time Administered: DEC 08, 2006  07:45<br />
+      Route: INFILTRATE                 Dosage: 15cc<br />
+      Ordered By: PROVIDER,ONE          Admin By: PROVIDER,ONE<br />
+      Comments: Used 1:1 with BUPIVACAINE<br />
+<br />
+Irrigation Solution(s): <br />
+  NORMAL SALINE<br />
+<br />
+Blood Replacement Fluids: N/A<br />
+<br />
+Sponge Count Correct:     YES<br />
+Sharps Count Correct:     YES<br />
+Instrument Count Correct: YES<br />
+Counter:                  NURSE,ONE<br />
+Counts Verified By:       TDNURSE,ONE<br />
+<br />
+Dressing: 4X4<br />
+Packing:  N/A<br />
+<br />
+Blood Loss: 9 ml                        Urine Output: <br />
+<br />
+Postoperative Mood:           RELAXED<br />
+Postoperative Consciousness:  ALERT-ORIENTED<br />
+Postoperative Skin Integrity: INTACT<br />
+Postoperative Skin Color:     N/A<br />
+<br />
+Laser Unit(s): N/A<br />
+<br />
+Sequential Compression Device: N/A<br />
+<br />
+Cell Saver(s): N/A<br />
+<br />
+Devices: N/A<br />
+<br />
+Nursing Care Comments: NO COMMENTS ENTERED<br />
+ <br />
+/es/ hbi&zHn)pf7<br />
+gb<br />
+Signed: 12/08/2006 17:49<br />
+=========================================================================<br />
+ LOCAL TITLE: ANESTHESIA REPORT                                  <br />
+DATE OF NOTE: DEC 08, 2006@07:30     ENTRY DATE: DEC 08, 2006@11:00:04      <br />
+      AUTHOR: PROVIDER,THREE          ATTENDING: TDPROVIDER,TWO               <br />
+     URGENCY:                            STATUS: COMPLETED                     <br />
+     SUBJECT: Case #: 10007                                                    <br />
+<br />
+Operating Room: OR4<br />
+<br />
+Anesthetist: PROVIDER,THREE             Relief Anesth: <br />
+Anesthesiologist: TDPROVIDER,TWO        Assist Anesth: <br />
+Attending Code: 4. STAFF ASSISTING RESIDENT<br />
+<br />
+Anes Begin:  DEC 08, 2006  07:00        Anes End:  DEC 08, 2006  10:00<br />
+<br />
+ASA Class: 1-NO DISTURB.<br />
+<br />
+Operation Disposition: PACU (RECOVERY ROOM)<br />
+<br />
+Anesthesia Technique(s): <br />
+MONITORED ANESTHESIA CARE  (PRINCIPAL)<br />
+  Agent:     PROPOFOL 10MG/ML INJ,EMULSION<br />
+  Intubated: NO<br />
+<br />
+Procedure(s) Performed:<br />
+Principal: LEFT INGUINAL HERNIA REPAIR<br />
+<br />
+Medications:<br />
+  BUPIVACAINE 0.5% 50ML INJ<br />
+    Time Administered: DEC 08, 2006  07:45<br />
+      Route: INFILTRATE                 Dosage: 15cc<br />
+      Ordered By: PROVIDER,ONE          Admin By: PROVIDER,ONE<br />
+      Comments: Used 1:1 with LIDOCAINE<br />
+  LIDOCAINE 1% 50ML MDV<br />
+    Time Administered: DEC 08, 2006  07:45<br />
+      Route: INFILTRATE                 Dosage: 15cc<br />
+      Ordered By: PROVIDER,ONE          Admin By: PROVIDER,ONE<br />
+      Comments: Used 1:1 with BUPIVACAINE<br />
+<br />
+Intraoperative Blood Loss: 9 ml         Urine Output: <br />
+PAC(U) Admit Score:                     PAC(U) Discharge Score: <br />
+<br />
+Postop Anesthesia Note Date/Time: <br />
+ <br />
+/es/ z5X`0I&Dq*MK]8<br />
+`5(D|v#OX<br />
+Signed: 12/08/2006 18:29<br />
+=========================================================================<br />
+        )
+
+    [1] => Array
+        (
+            [Title] => RIH
+            [ReportDate] => 12/31/1969 07:00 pm
+            [Snippet] => No reports are available for this case.<...
+            [Details] => No reports are available for this case.<br />
+        )
+
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
@@ -817,18 +2296,184 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getVitalsDetailMap()
     {
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getVitalsDetail' is >>>Array
+(
+    [0] => Array
+        (
+            [Date Taken] => 08/17/2010 04:03 pm
+            [Temp] => 99.5 F
+            [Height] =>  
+            [Weight] =>  
+            [BMI] =>  
+            [Blood Pressure] => 190/85 mmHg
+            [Pulse] => 61 /min
+            [Resp] => 22 /min
+            [Pain] =>  
+            [C/G] =>  
+            [Pox] => 96 %SpO2
+            [CVP] =>  
+            [Blood Glucose] =>  
+        )
+
+    [1] => Array
+        (
+            [Date Taken] => 08/16/2010 09:29 pm
+            [Temp] => 99.5 F
+            [Height] =>  
+            [Weight] =>  
+            [BMI] =>  
+            [Blood Pressure] => 190/85 mmHg
+            [Pulse] => 61 /min
+            [Resp] => 22 /min
+            [Pain] =>  
+            [C/G] =>  
+            [Pox] => 96 %SpO2
+            [CVP] =>  
+            [Blood Glucose] =>  
+        )
+
+    [2] => Array
+        (
+            [Date Taken] => 08/15/2010 07:51 pm
+            [Temp] => 99.5 F
+            [Height] =>  
+            [Weight] =>  
+            [BMI] =>  
+            [Blood Pressure] => 190/85 mmHg
+            [Pulse] => 61 /min
+            [Resp] => 22 /min
+            [Pain] =>  
+            [C/G] =>  
+            [Pox] => 96 %SpO2
+            [CVP] =>  
+            [Blood Glucose] =>  
+        )
+
+    [3] => Array
+        (
+            [Date Taken] => 08/14/2010 11:37 am
+            [Temp] => 99.5 F
+            [Height] =>  
+            [Weight] =>  
+            [BMI] =>  
+            [Blood Pressure] => 190/85 mmHg
+            [Pulse] => 61 /min
+            [Resp] => 22 /min
+            [Pain] =>  
+            [C/G] =>  
+            [Pox] => 96 %SpO2
+            [CVP] =>  
+            [Blood Glucose] =>  
+        )
+
+    [4] => Array
+        (
+            [Date Taken] => 08/13/2010 10:11 am
+            [Temp] => 99.5 F
+            [Height] =>  
+            [Weight] =>  
+            [BMI] =>  
+            [Blood Pressure] => 190/85 mmHg
+            [Pulse] => 61 /min
+            [Resp] => 22 /min
+            [Pain] =>  
+            [C/G] =>  
+            [Pox] => 96 %SpO2
+            [CVP] =>  
+            [Blood Glucose] =>  
+        )
+
+    [5] => Array
+        (
+            [Date Taken] => 08/12/2010 01:16 am
+            [Temp] => 99.5 F
+            [Height] =>  
+            [Weight] =>  
+            [BMI] =>  
+            [Blood Pressure] => 190/85 mmHg
+            [Pulse] => 61 /min
+            [Resp] => 22 /min
+            [Pain] =>  
+            [C/G] =>  
+            [Pox] => 96 %SpO2
+            [CVP] =>  
+            [Blood Glucose] =>  
+        )
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVitalsDetailOnlyLatestMap()
     {
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getVitalsDetailOnlyLatest' is >>>Array
+(
+    [Temp] => 99.5
+    [Height] => 71
+    [Weight] => 79.4
+    [BMI] => 24
+    [Blood Pressure] => 190/85
+    [Pulse] => 61
+    [Resp] => 22
+    [Pain] => 2
+    [C/G] => 
+    [Pox] => 96
+    [CVP] => 
+    [Blood Glucose] => 
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
 
     public function getVitalsSummaryMap()
     {
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getVitalsSummary' is >>>Array
+(
+    [Temperature] => Array
+        (
+            [Date of Measurement] => 08/17/2010 04:03 pm
+            [Measurement Value] => 99.5 F
+        )
+
+    [Heart Rate] => Array
+        (
+            [Date of Measurement] => 
+            [Measurement Value] => None Found
+        )
+
+    [Blood Pressure] => Array
+        (
+            [Date of Measurement] => 08/17/2010 04:03 pm
+            [Measurement Value] => 190/85 mmHg
+        )
+
+    [Height] => Array
+        (
+            [Date of Measurement] => 06/10/2010 08:11 am
+            [Measurement Value] => 71 in (180.3 cms)
+        )
+
+    [Weight] => Array
+        (
+            [Date of Measurement] => 06/10/2010 08:11 am
+            [Measurement Value] => 175 lb (79.4 kgs)
+        )
+
+    [Body Mass Index] => Array
+        (
+            [Date of Measurement] => 06/10/2010 08:11 am
+            [Measurement Value] => 24 
+        )
+
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
