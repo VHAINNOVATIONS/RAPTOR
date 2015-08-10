@@ -1110,7 +1110,9 @@ Signed: 07/16/2015 14:45
         }
         $namedparts = $this->getTrackingIDNamedParts($tid);
         $args['ien'] = $namedparts['ien'];
-        return $this->getServiceRelatedData($serviceName, $args);
+        $result = $this->getServiceRelatedData($serviceName, $args);
+        error_log("LOOK EWD DAO $serviceName result = ".print_r($result,TRUE));
+        return $result;
     }
     
     /**
@@ -1121,7 +1123,7 @@ Signed: 07/16/2015 14:45
     {
         $namedparts = array();
         $parts = split('-',trim($tid));
-        if(cont($parts) == 1)
+        if(count($parts) == 1)
         {
             $namedparts['site'] = NULL; //Not specified in tid
             $namedparts['ien'] = trim($tid);
