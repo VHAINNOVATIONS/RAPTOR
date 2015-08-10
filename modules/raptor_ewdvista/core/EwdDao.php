@@ -244,12 +244,12 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
 
-    private function getServiceRelatedData($serviceName)
+    private function getServiceRelatedData($serviceName,$args=NULL)
     {
         try
         {
             error_log("Starting EWD $serviceName at " . microtime(TRUE));
-            $url = $this->getURL($serviceName);
+            $url = $this->getURL($serviceName,$args);
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
             {
@@ -258,7 +258,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
-            error_log("LOOK JSON DATA for $serviceName: " . print_r($json_string, TRUE));
+            error_log("LOOK JSON DATA for $serviceName('" . print_r($args,TRUE) . ') has result = ' . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
             error_log("Finish EWD $serviceName at " . microtime(TRUE));
@@ -860,7 +860,7 @@ Signed: 07/16/2015 14:45
         )
 
          */
-        $serviceName = $this->getCallingFunctionName();
+        $serviceName = $this->getCallingFunctionName(); //TODO pass in the patient!!!!!
         return $this->getServiceRelatedData($serviceName);
     }
 
@@ -1007,12 +1007,129 @@ Signed: 07/16/2015 14:45
        return $this->getServiceRelatedData($serviceName);
     }
 
+    /**
+     * If override_tracking_id is provided, then return dashbaord for that order
+     * instead of the currently selected order.
+     */
     public function getDashboardDetailsMap($override_tracking_id = NULL)
     {
-        //TODO: we need to implement $override_tracking_id
-        error_log('TODO: we need to implement $override_tracking_id');
+        /*
+         * [10-Aug-2015 16:00:07 America/New_York] LOOK dash>>>Array
+(
+    [orderingPhysicianDuz] => 10000000020
+    [orderFileStatus] => HOLD
+    [canOrderBeDCd] => 
+    [orderActive] => 1
+    [Tracking ID] => 500-2007
+    [Procedure] => CT ABDOMEN W/O CONT
+    [Modality] => CT
+    [ExamCategory] => OUTPATIENT
+    [PatientLocation] => 
+    [RequestedBy] => ZZLABTECH,FORTYEIGHT
+    [RequestingLocation] => CARDIOLOGY
+    [SubmitToLocation] => 
+    [SchedInfo] => Array
+        (
+            [EventDT] => 
+            [LocationTx] => 
+            [ConfirmedDT] => 
+            [CanceledDT] => 
+            [ShowTx] => Unknown
+        )
+
+    [RequestedDate] => JUL 17, 2012@10:29
+    [DesiredDate] => JUL 17, 2012
+    [ScheduledDate] => 
+    [PatientCategory] => OUTPATIENT
+    [ReasonForStudy] => TEST
+    [NatureOfOrderActivity] => NOT ENTERED
+    [RequestingLocationIen] => 64
+    [ClinicalHistory] => 
+    [PatientID] => 205
+    [PatientSSN] => 666-00-0002
+    [Urgency] => ROUTINE
+    [Transport] => AMBULATORY
+    [PatientName] => TWO, PATIENT
+    [PatientAge] => 80
+    [PatientDOB] => 04/07/1935
+    [PatientEthnicity] => WHITE, NOT OF HISPANIC ORIGIN
+    [PatientGender] => M
+    [ImageType] => CT SCAN
+    [mpiPid] => 10102
+    [mpiChecksum] => 813496
+    [CountPendingOrders] => 4
+    [MapPendingOrders] => Array
+        (
+            [2007] => Array
+                (
+                    [0] => 2007
+                    [1] => CT
+                    [2] => CT ABDOMEN W/O CONT
+                )
+
+            [2936] => Array
+                (
+                    [0] => 2936
+                    [1] => CT
+                    [2] => CT HEAD W/O CONT
+                )
+
+            [2961] => Array
+                (
+                    [0] => 2961
+                    [1] => CT
+                    [2] => CT HEAD W/O CONT
+                )
+
+            [2962] => Array
+                (
+                    [0] => 2962
+                    [1] => CT
+                    [2] => CT HEAD W/O CONT
+                )
+
+        )
+
+    [OrderFileIen] => 33851
+    [RadiologyOrderStatus] => 3
+)
+
+         */
         $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
+        if ($override_tracking_id == NULL)
+        {
+            $oContext = \raptor\Context::getInstance();
+            $tid = $oContext->getSelectedTrackingID();
+        } else
+        {
+            $tid = trim($override_tracking_id);
+        }
+        if($tid == '')
+        {
+            throw new \Exception("Cannot get dashboard without a tracking ID!");
+        }
+        $namedparts = $this->getTrackingIDNamedParts($tid);
+        $args['ien'] = $namedparts['ien'];
+        return $this->getServiceRelatedData($serviceName, $args);
+    }
+    
+    /**
+     * A tracking ID can be an IEN or an SITE-IEN so
+     * use this function instead of coding everywhere.
+     */
+    private function getTrackingIDNamedParts($tid)
+    {
+        $namedparts = array();
+        $parts = split('-',trim($tid));
+        if(cont($parts) == 1)
+        {
+            $namedparts['site'] = NULL; //Not specified in tid
+            $namedparts['ien'] = trim($tid);
+        } else {
+            $namedparts['site'] = trim($parts[0]);
+            $namedparts['ien'] = trim($parts[1]);
+        }
+        return $namedparts;
     }
 
     public function getDiagnosticLabsDetailMap()
