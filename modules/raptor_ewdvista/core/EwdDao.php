@@ -268,8 +268,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
     
-    /*
-    http://stackoverflow.com/questions/190421/caller-function-in-php-5
+    /**
+    * http://stackoverflow.com/questions/190421/caller-function-in-php-5
     */
     private function getCallingFunctionName($completeTrace=FALSE)
     {
@@ -285,18 +285,39 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 //get log information    
                 $str .= " -- Called by {$caller['function']}";
                 if (isset($caller['class']))
+                {
                     $str .= " From Class {$caller['class']}";
+                }
             }
         }
         else
         {
-            $caller=$trace[2];
+            //$caller=$trace[2];  20150812 Not safe to hardcode key as 2; does not always work!
+            $breakatnext = FALSE;
+            foreach($trace as $key=>$caller)
+            {
+                $functionName = "".$caller['function'];
+                if($breakatnext)
+                {
+                    break;
+                } else
+                if($functionName == 'getCallingFunctionName')
+                {
+                    $breakatnext = TRUE;
+                }
+            }
+            if(!$breakatnext)
+            {
+                throw new \Exception("Failed to find the calling function name in ".print_r($trace,TRUE));
+            }
             $functionName = "".$caller['function'];
-            $str = "Called by {$caller['function']}";
+            $str = "Called by {$functionName}";
             if (isset($caller['class']))
+            {
                 $str .= " From Class {$caller['class']}";
+            }
         }
-        error_log("LOOK getCallingFunctionName: " . $str);
+        //error_log("LOOK getCallingFunctionName: " . $str);
         return $functionName;
     }
     
@@ -532,6 +553,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function getWorklistDetailsMap($max_rows_one_call = 500, $start_from_IEN=NULL)
     {
+error_log("LOOK starting worklist maxrows=$max_rows_one_call and start_from_IEN=$start_from_IEN");
         try
         {
             //$serviceName = 'getWorklistDetailsMap';
@@ -1114,32 +1136,37 @@ Signed: 07/16/2015 14:45
         $order_IEN = $namedparts['ien'];
         $onerow = NULL;
         $therow = array();
-        /*
         try
         {
-            $onerow = $this->getWorklistDetailsMap($order_IEN,11);
+            $onerow = $this->getWorklistDetailsMap(1,$order_IEN);
             if(!is_array($onerow) || !isset($onerow['DataRows']))
             {
-                throw new \Exception("Failed to get worklist row for $order_IEN >>>".print_r($onerow,TRUE));
+                throw new \Exception("Failed to get worklist row for $order_IEN >>>" . print_r($onerow,TRUE));
             }
         } catch (\Exception $ex) {
             throw new \Exception("Failed to get worklist row for $order_IEN because $ex",99876,$ex);
         }
         $datarows = $onerow['DataRows'];
-        if(count($datarows) != 1)
+        if(count($datarows) < 1)    //Do NOT check for exactly 1 because result returns ONE extra row sometimes! (Thats okay)
         {
-            throw new \Exception("Expected 1 data row for $order_IEN >>>".print_r($onerow,TRUE));
+            $rownum = 0;
+            $errmsg = "Expected 1 data row for $order_IEN (got ".count($datarows).")";
+            foreach($datarows as $onedatarow)
+            {
+                $rownum++;
+                $errmsg .= "\n\tData Row #$rownum) ".print_r($onedatarow,TRUE);
+            }
+            throw new \Exception($errmsg);
         }
-        foreach($datarows as $therow)
+        foreach($datarows as $key=>$therow)
         {
             break;  //Only want to get the row.
         }
-         * 
-         */
         $args = array();
         $args['ien'] = $order_IEN;
         $result = $this->getServiceRelatedData($serviceName, $args);
-        error_log("LOOK EWD DAO $serviceName result = ".print_r($result,TRUE)."\nLOOK TODO integrate the row>>>".print_r($therow,TRUE));
+        error_log("LOOK EWD DAO $serviceName result = " . print_r($result,TRUE) 
+                . "\n\tLOOK TODO integrate the row>>>".print_r($therow,TRUE));
         foreach($result as $key=>$order)
         {
             $dashboard = array();
@@ -1154,6 +1181,8 @@ Signed: 07/16/2015 14:45
             $dashboard['OrderFileIen'] = $order[7]['E'];    //NOT SURE
             break;  //We only wanted the first one.
         }
+        
+error_log("LOOK dashboard=".print_r($dashboard,TRUE));        
         return $dashboard;
     }
     
