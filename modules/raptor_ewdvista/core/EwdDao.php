@@ -46,7 +46,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration 20150811.2";
+        return "EWD VISTA EHR Integration 20150811.3";
     }
 
     /**
@@ -534,10 +534,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
+            $MAX_ROWS_ONE_CALL = 400;
+            
             //$serviceName = 'getWorklistDetailsMap';
             $serviceName = $this->getCallingFunctionName();
-            $rawdatarows = $this->getServiceRelatedData($serviceName);
-            error_log("LOOK raw worklist result from '$serviceName'>>>".print_r($rawdatarows,TRUE));
+            $args['from'] = NULL;   //TODO
+            $args['max'] = $MAX_ROWS_ONE_CALL;
+            $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+//            error_log("LOOK raw worklist result from '$serviceName'>>>".print_r($rawdatarows,TRUE));
             $matching_offset = NULL;    //TODO
             $pending_orders_map = NULL; //TODO
             $formated_datarows = $this->getFormatWorklistRows($rawdatarows);
@@ -549,7 +553,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
                 );
-            error_log("LOOK worklist result>>>".print_r($aResult,TRUE));
+            error_log("LOOK worklist maxrows=$MAX_ROWS_ONE_CALL result>>>".print_r($aResult,TRUE));
             return $aResult;
         } catch (\Exception $ex) {
             throw $ex;
