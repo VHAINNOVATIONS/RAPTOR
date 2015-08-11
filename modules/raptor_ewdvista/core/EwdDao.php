@@ -46,7 +46,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration 20150811.1";
+        return "EWD VISTA EHR Integration 20150811.2";
     }
 
     /**
@@ -1112,7 +1112,21 @@ Signed: 07/16/2015 14:45
         $args['ien'] = $namedparts['ien'];
         $result = $this->getServiceRelatedData($serviceName, $args);
         error_log("LOOK EWD DAO $serviceName result = ".print_r($result,TRUE));
-        return $result;
+        foreach($result as $key=>$order)
+        {
+            $dashboard = array();
+            $dashboard['Tracking ID'] = $tid;
+            $dashboard['Procedure'] = $order[2]['E'];
+            $dashboard['ImageType'] = $order[3]['E'];
+            $dashboard['PatientName'] = $order['.01']['E'];
+            $dashboard['RequestedBy'] = $order[14]['E'];
+            $dashboard['PatientCategory'] = $order[4]['E'];
+            $dashboard['Urgency'] = $order[6]['E'];
+            $dashboard['PatientID'] = $order[7]['E'];       //NOT SURE
+            $dashboard['OrderFileIen'] = $order[7]['E'];    //NOT SURE
+            break;  //We only wanted the first one.
+        }
+        return $dashboard;
     }
     
     /**
@@ -1122,7 +1136,7 @@ Signed: 07/16/2015 14:45
     private function getTrackingIDNamedParts($tid)
     {
         $namedparts = array();
-        $parts = split('-',trim($tid));
+        $parts = explode('-',trim($tid));
         if(count($parts) == 1)
         {
             $namedparts['site'] = NULL; //Not specified in tid
