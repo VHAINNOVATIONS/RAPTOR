@@ -530,16 +530,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Returns array of arrays the way RAPTOR expects it.
      */
-    public function getWorklistDetailsMap()
+    public function getWorklistDetailsMap($max_rows_one_call = 500, $start_from_IEN=NULL)
     {
         try
         {
-            $MAX_ROWS_ONE_CALL = 400;
-            
             //$serviceName = 'getWorklistDetailsMap';
             $serviceName = $this->getCallingFunctionName();
-            $args['from'] = NULL;   //TODO
-            $args['max'] = $MAX_ROWS_ONE_CALL;
+            $args['from'] = $start_from_IEN;
+            $args['max'] = $max_rows_one_call;
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
 //            error_log("LOOK raw worklist result from '$serviceName'>>>".print_r($rawdatarows,TRUE));
             $matching_offset = NULL;    //TODO
@@ -553,7 +551,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
                 );
-            error_log("LOOK worklist maxrows=$MAX_ROWS_ONE_CALL result>>>".print_r($aResult,TRUE));
+            error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
             return $aResult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1113,9 +1111,35 @@ Signed: 07/16/2015 14:45
             throw new \Exception("Cannot get dashboard without a tracking ID!");
         }
         $namedparts = $this->getTrackingIDNamedParts($tid);
-        $args['ien'] = $namedparts['ien'];
+        $order_IEN = $namedparts['ien'];
+        $onerow = NULL;
+        $therow = array();
+        /*
+        try
+        {
+            $onerow = $this->getWorklistDetailsMap($order_IEN,11);
+            if(!is_array($onerow) || !isset($onerow['DataRows']))
+            {
+                throw new \Exception("Failed to get worklist row for $order_IEN >>>".print_r($onerow,TRUE));
+            }
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed to get worklist row for $order_IEN because $ex",99876,$ex);
+        }
+        $datarows = $onerow['DataRows'];
+        if(count($datarows) != 1)
+        {
+            throw new \Exception("Expected 1 data row for $order_IEN >>>".print_r($onerow,TRUE));
+        }
+        foreach($datarows as $therow)
+        {
+            break;  //Only want to get the row.
+        }
+         * 
+         */
+        $args = array();
+        $args['ien'] = $order_IEN;
         $result = $this->getServiceRelatedData($serviceName, $args);
-        error_log("LOOK EWD DAO $serviceName result = ".print_r($result,TRUE));
+        error_log("LOOK EWD DAO $serviceName result = ".print_r($result,TRUE)."\nLOOK TODO integrate the row>>>".print_r($therow,TRUE));
         foreach($result as $key=>$order)
         {
             $dashboard = array();
