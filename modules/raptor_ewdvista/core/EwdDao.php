@@ -19,7 +19,7 @@ require_once 'WebServices.php';
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
 defined('REDAO_CACHE_NM_SUFFIX_DASHBOARD')
-    or define('REDAO_CACHE_NM_SUFFIX_DASHBOARD', '_getDashboardDetailsMapMDWS');
+    or define('REDAO_CACHE_NM_SUFFIX_DASHBOARD', '_getDashboardDetailsMapEWD');
 
 /**
  * This is the primary interface implementation to VistA using EWDJS
@@ -46,7 +46,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration 20150811.3";
+        return "EWD VISTA EHR Integration 20150812.1";
     }
 
     /**
@@ -2760,6 +2760,16 @@ Signed: 12/08/2006 18:29<br />
     {
         //return $this->m_selectedPatient;
         return $this->getSessionVariable('selectedPatient');
+    }
+
+    public function getPatientMap($sPatientID)
+    {
+        $serviceName = $this->getCallingFunctionName();
+        $args = array();
+        $args['dfn'] = $sPatientID;
+        $rawresult = $this->getServiceRelatedData($serviceName, $args);
+        //TODO --- format the raw content
+	return $rawresult;
     }
 
 }

@@ -55,6 +55,11 @@ interface IEhrDao
     public function getPatientIDFromTrackingID($sTrackingID);
 
     /**
+     * Get the patient information associated with their ID
+     */
+    public function getPatientMap($pid);
+    
+    /**
      * Declare the patient currently being processed
      */
     public function setPatientID($sPatientID);

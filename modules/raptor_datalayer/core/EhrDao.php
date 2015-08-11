@@ -372,4 +372,10 @@ class EhrDao implements \raptor\IEhrDao
     {
         return $this->m_implclass->invalidateCacheForPatient($pid);
     }
+
+    public function getPatientMap($pid)
+    {
+        return $this->m_implclass->getPatientMap($pid);
+    }
+
 }

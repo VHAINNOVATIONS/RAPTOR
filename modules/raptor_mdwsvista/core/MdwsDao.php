@@ -62,7 +62,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     public function getIntegrationInfo()
     {
-        return "MDWS VISTA EHR Integration 20150810.1";
+        return "MDWS VISTA EHR Integration 20150812.1";
     }
 
     /**
@@ -807,5 +807,13 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         } catch (\Exception $ex) {
             throw $ex;
         }
+    }
+
+    public function getPatientMap($sPatientID)
+    {
+        $oContext = \raptor\Context::getInstance();
+        $oWL = new \raptor_mdwsvista\WorklistData($oContext);
+        $aResult = $oWL->getPatient($sPatientID);
+        return $aResult;
     }
 }
