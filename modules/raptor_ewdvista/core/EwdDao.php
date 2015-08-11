@@ -46,7 +46,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration 20150810.1";
+        return "EWD VISTA EHR Integration 20150811.1";
     }
 
     /**
@@ -1294,7 +1294,23 @@ Signed: 07/16/2015 14:45
     public function getPatientIDFromTrackingID($sTrackingID)
     {
         $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+error_log("Look about to call service $serviceName($sTrackingID) ...");        
+        
+        $tid = trim($sTrackingID);
+        if($tid == '')
+        {
+            throw new \Exception("Cannot get patient ID without a tracking ID!");
+        }
+        $namedparts = $this->getTrackingIDNamedParts($tid);
+        $args['ien'] = $namedparts['ien'];
+        $result = $this->getServiceRelatedData($serviceName, $args);
+        error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
+        if(!isset($result['result']))
+        {
+            throw new \Exception("Missing patient ID result from tracking ID value $sTrackingID: ".print_r($result,TRUE));
+        }
+        $patientID = $result['result'];
+        return $patientID;
     }
 
     public function getPendingOrdersMap()
