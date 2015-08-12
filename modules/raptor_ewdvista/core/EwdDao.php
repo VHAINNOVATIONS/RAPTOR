@@ -2363,15 +2363,15 @@ value: {
         
         //TODO: this date logic is kind of heavy we need to make it elegant 
         $oneMonthAgo = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
-        $today = MdwsUtils::getVistaDate(0);
+        $today = EwdUtils::getVistaDate(0);
         $args['fromDate'] = EwdUtils::convertVistaDateToYYYYMMDD($oneMonthAgo);
-        $args['toDate'] = MdwsUtils::convertVistaDateToYYYYMMDD($today);
+        $args['toDate'] = EwdUtils::convertVistaDateToYYYYMMDD($today);
         
         $rawresult = $this->getServiceRelatedData($serviceName, $args);
         $visitAry = $rawresult['value'];
        
         foreach ($visitAry as $visit) {
-            $a = explode('^', $v);
+            $a = explode('^', $visit);
             $l = explode(';', $a[0]); //first field is an array "location name, visit timestamp, locationID"
             $aryItem = array(
                 'locationName' => $l[0],
