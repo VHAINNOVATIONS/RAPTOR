@@ -44,6 +44,7 @@ defined('EWDFED_BASE_URL')
 
 defined('EHR_INT_MODULE_NAME')
     or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
+    //or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
 
 //Disable the AGE scoring if using a test VISTA with VERY OLD orders.
 defined('DISABLE_TICKET_AGE1_SCORING')
