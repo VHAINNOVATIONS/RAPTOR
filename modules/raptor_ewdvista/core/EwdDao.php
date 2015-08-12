@@ -2321,10 +2321,6 @@ Signed: 12/08/2006 18:29<br />
     public function getVisits()
     {
         /*
-         * check the date time format 
-         * 1-1800 ???
-         * 2-1900
-         * 3-2000
          * http://54.243.40.32:8083/RaptorEwdVista/raptor/getVisits?patientId=69&fromDate=2500101&toDate=3150808
          */
         /* 
@@ -2378,13 +2374,21 @@ value: {
         $args['toDate'] = MdwsUtils::convertVistaDateToYYYYMMDD($today);
         
         $rawresult = $this->getServiceRelatedData($serviceName, $args);
-        
-        $a = explode('^', $rawresult['value']);
-        $result = array();
-        
+        $visitAry = $rawresult['value'];
        
-        
-	return $result;
+        foreach ($visitAry as $visit) {
+            $a = explode('^', $v);
+            $l = explode(';', $a[0]); //first field is an array "location name, visit timestamp, locationID"
+            $aryItem = array(
+                'locationName' => $l[0],
+                'locationId' => $l[2],
+                'visitTimestamp' => $a[1], //same as $l[1]
+                'visitTO' => $a[2]
+            );
+            $result[] = $aryItem;   //Already acending
+        }
+        $aSorted = array_reverse($result); //Now this is descrnding.
+        return $aSorted;
     }
 
     public function getVistaAccountKeyProblems()
