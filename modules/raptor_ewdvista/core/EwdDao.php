@@ -234,7 +234,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 $this->setSessionVariable('greeting',trim($json_array['greeting']));
             }
             else {
-                $errorMessage = "Unable to LOGIN " . print_r($json_array, TRUE);
+                $errorMessage = "Unable to LOGIN because missing DUZ in " . print_r($json_array, TRUE);
                 throw new \Exception($errorMessage);
             }
         } catch (\Exception $ex) {
