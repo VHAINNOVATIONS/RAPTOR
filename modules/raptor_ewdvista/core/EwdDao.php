@@ -46,7 +46,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration 20150812.1";
+        return "EWD VISTA EHR Integration 20150812.2";
     }
 
     /**
@@ -553,19 +553,16 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     public function getWorklistDetailsMap($max_rows_one_call = 500, $start_from_IEN=NULL)
     {
-error_log("LOOK starting worklist maxrows=$max_rows_one_call and start_from_IEN=$start_from_IEN");
         try
         {
-            //$serviceName = 'getWorklistDetailsMap';
+            $args = array();
             $serviceName = $this->getCallingFunctionName();
             $args['from'] = $start_from_IEN;
             $args['max'] = $max_rows_one_call;
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
-//            error_log("LOOK raw worklist result from '$serviceName'>>>".print_r($rawdatarows,TRUE));
             $matching_offset = NULL;    //TODO
             $pending_orders_map = NULL; //TODO
             $formated_datarows = $this->getFormatWorklistRows($rawdatarows);
-            //{"Pages":1,"Page":1,"RowsPerPage":9999,"DataRows":{"1":{"0":
             $aResult = array('Pages'=>1
                             ,'Page'=>1
                             ,'RowsPerPage'=>9999
@@ -922,8 +919,12 @@ Signed: 07/16/2015 14:45
 
     public function getAllHospitalLocationsMap()
     {
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
+        $serviceName = 'getHospitalLocationsMap';   //Only gets 44 at a time
+        $args = array();
+        $args['target'] = '';   //Start at the start
+        $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+        //TODO --- loop through until we get ALL the hospital locations
+        return $rawdatarows;
     }
 
     public function getAllergiesDetailMap()
