@@ -20,12 +20,12 @@ namespace raptor_ewdvista;
  */
 class DashboardHelper
 {
-    public function getFormatted($tid, $pid, $radiologyOrder, $orderFileRec, $therow, $oPatientData)
+    public function getFormatted($tid, $pid, $radiologyOrder, $orderFileRec, $therow, $aPatientData)
     {
 error_log("LOOK parts radiologyOrder=".print_r($radiologyOrder,TRUE));
 error_log("LOOK parts order=".print_r($orderFileRec,TRUE));
 error_log("LOOK parts therow=".print_r($therow,TRUE));
-error_log("LOOK parts oPatientData=".print_r($oPatientData,TRUE));
+error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
         
         try
         {
@@ -58,17 +58,17 @@ error_log("LOOK parts oPatientData=".print_r($oPatientData,TRUE));
             $dashboard['NatureOfOrderActivity'] = $therow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY];
             
             $t['PatientID']         = $pid;
-            $t['PatientSSN']        = self::formatSSN($oPatientData['ssn']);
+            $t['PatientSSN']        = self::formatSSN($aPatientData['ssn']);
             $t['Urgency']           = $therow[\raptor\WorklistColumnMap::WLIDX_URGENCY];
             $t['Transport']         = $therow[\raptor\WorklistColumnMap::WLIDX_TRANSPORT];
             $t['PatientName']       = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME];
-            $t['PatientAge']        = $oPatientData['age'];
-            $t['PatientDOB']        = $oPatientData['dob'];
-            $t['PatientEthnicity']  = $oPatientData['ethnicity'];
-            $t['PatientGender']     = $oPatientData['gender'];
+            $t['PatientAge']        = $aPatientData['age'];
+            $t['PatientDOB']        = $aPatientData['dob'];
+            $t['PatientEthnicity']  = $aPatientData['ethnicity'];
+            $t['PatientGender']     = $aPatientData['gender'];
             $t['ImageType']         = $therow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE];
-            $t['mpiPid']            = $oPatientData['mpiPid'];
-            $t['mpiChecksum']       = $oPatientData['mpiChecksum'];
+            $t['mpiPid']            = $aPatientData['mpiPid'];
+            $t['mpiChecksum']       = $aPatientData['mpiChecksum'];
             
             return $dashboard;
         } catch (\Exception $ex) {
