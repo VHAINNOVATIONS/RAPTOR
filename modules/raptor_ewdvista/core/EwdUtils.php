@@ -13,12 +13,26 @@
 
 namespace raptor_ewdvista;
 
-class EwdUtils {
+class EwdUtils 
+{
+    
+    public static function convertFromVistaSSN($digits)
+    {
+        if($digits != NULL && strlen($digits) == 9)
+        {
+            return $digits[0] . $digits[1] . $digits[2] 
+                    . '-' . $digits[3] . $digits[4] 
+                    . '-' . $digits[5] . $digits[6] . $digits[7] . $digits[8];
+        }
+        return $digits;
+    }
+    
     
     /**
      * Using the current system time (with an optional offset, get date in VistA format
      */
-    public static function getVistaDate($dateOffset) {
+    public static function getVistaDate($dateOffset) 
+    {
         $curDt = new \DateTime();
         
         if ($dateOffset < 0) {
