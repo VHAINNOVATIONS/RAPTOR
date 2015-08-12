@@ -35,13 +35,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $authenticationTimestamp;
     private $mdwsClient;
     private $currentFacade;
-    // these need to be cached for re-try purposes
+
     private $userSiteId;
-    //private $userAccessCode;
-    //private $userVerifyCode;
-    //private $duz;
-    //private $selectedPatient;
-    //private $isAuthenticated;
 
     private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
@@ -55,14 +50,13 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         module_load_include('php', 'raptor_datalayer', 'core/Context');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         $this->instanceTimestamp = microtime();
-        //error_log('LOOK Created MdwsDao instance ' . $this->instanceTimestamp);
         $this->setSessionVariable('error_count', 0);
         $this->initClient();
     }
 
     public function getIntegrationInfo()
     {
-        return "MDWS VISTA EHR Integration 20150812.1";
+        return "MDWS VISTA EHR Integration 20150812.2";
     }
 
     /**

@@ -15,6 +15,8 @@ namespace raptor_ewdvista;
 
 require_once 'IEwdDao.php';
 require_once 'WebServices.php';
+require_once 'WorklistHelper.php';
+require_once 'DashboardHelper.php';
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -41,6 +43,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         $this->m_createdtimestamp = microtime();        
         $this->m_oWebServices = new \raptor_ewdvista\WebServices();
+        $this->m_worklistHelper = new \raptor_ewdvista\WorklistHelper();
+        $this->m_dashboardHelper = new \raptor_ewdvista\DashboardHelper();
         $this->initClient();
     }
 
@@ -219,8 +223,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $url = $this->getURL($method) . "?credentials=" . $credentials;
             $header["Authorization"]=$authorization;
             
-            error_log("LOOK header>>>".print_r($header,TRUE));
-            error_log("LOOK url>>>".print_r($url,TRUE));
+            //error_log("LOOK header>>>".print_r($header,TRUE));
+            //error_log("LOOK url>>>".print_r($url,TRUE));
             
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
             $json_array = json_decode($json_string, TRUE);
@@ -322,233 +326,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     }
     
     /**
-     * Return the rows formatted the way RAPTOR expects to parse them.
-     */
-    private function getFormatWorklistRows($rawdatarows)
-    {
-        try
-        {
-            if(!is_array($rawdatarows))
-            {
-                throw new \Exception("Cannot parse worklist content from ".print_r($rawdatarows,TRUE));
-            }
-            if(!array_key_exists('data',$rawdatarows))
-            {
-                throw new \Exception("Missing the 'data' key in worklist result ".print_r($rawdatarows,TRUE));
-            }
-            
-            module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
-            module_load_include('php', 'raptor_formulas', 'core/MatchOrderToUser');
-            module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
-            $oTT = new \raptor\TicketTrackingData();
-            $ticketTrackingDict = $oTT->getConsolidatedWorklistTracking();
-            $ticketTrackingRslt = $ticketTrackingDict['raptor_ticket_tracking'];
-            $ticketCollabRslt = $ticketTrackingDict['raptor_ticket_collaboration'];
-            $scheduleTrackRslt = $ticketTrackingDict['raptor_schedule_track'];
-
-            $aPatientPendingOrderCount = array();
-            $aPatientPendingOrderMap = array();
-            $nOffsetMatchIEN = NULL;
-            
-            $oContext = \raptor\Context::getInstance();
-            $userinfo = $oContext->getUserInfo();
-
-            $match_order_to_user = new \raptor_formulas\MatchOrderToUser($userinfo);
-            $language_infer = new \raptor_formulas\LanguageInference();
-            $unformatted_datarows = $rawdatarows['data'];
-            //error_log("LOOK raw data for worklist>>>".print_r($unformatted_datarows,TRUE));
-            if(is_array($unformatted_datarows))
-            {
-                $rowcount = count($unformatted_datarows);
-            } else {
-                $rowcount = 0;
-            }
-            //error_log("LOOK TODO implement reformat of $rowcount raw data rows");
-            $formatted_datarows = array();
-            $rownum = 0;
-            foreach($unformatted_datarows as $onerow)
-            {
-                if(isset($onerow['PatientID']) && isset($onerow['Procedure']))
-                {
-                    $ienKey = $onerow['IEN'];
-                    $patientID = $onerow['PatientID'];
-                    $sqlTicketTrackRow = array_key_exists($ienKey, $ticketTrackingRslt) ? $ticketTrackingRslt[$ienKey] : NULL;
-                    $sqlTicketCollaborationRow = array_key_exists($ienKey, $ticketCollabRslt) ? $ticketCollabRslt[$ienKey] : NULL;
-                    $sqlScheduleTrackRow = array_key_exists($ienKey, $scheduleTrackRslt) ? $scheduleTrackRslt[$ienKey] : NULL;
-                    $workflowstatus = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : 'AC');
-                    $studyname = $onerow['Procedure'];
-                    $imagetype = $onerow['ImageType'];
-                    $modality = $language_infer->inferModalityFromPhrase($imagetype);
-                    if($modality == NULL)
-                    {
-                        $modality = $language_infer->inferModalityFromPhrase($studyname);
-                    }
-                    //Add the clean row to our collection of rows.
-                    if($modality > '')
-                    {
-                        //We have usable data for this one.
-                        $rownum++;
-                        $cleanrow = array();
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_TRACKINGID] = $ienKey;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTID] = $patientID;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME] = $onerow['PatientName'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED] = $onerow['DesiredDate'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_DATEORDERED] = $onerow['OrderedDate'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_MODALITY] = $modality;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_STUDY] = $studyname;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_URGENCY] = $onerow['Urgency'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = $onerow['Transport'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION ] = 'TODO_WLIDX_PATIENTCATEGORYLOCATION ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC] = 'TODO_WLIDX_ANATOMYIMAGESUBSPEC ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] = $workflowstatus;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERSTATUS] = 'TODO_WLIDX_ORDERSTATUS ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER] = 'TODO_WLIDX_EDITINGUSER ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = 'TODO_WLIDX_SCHEDINFO ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_CPRSCODE] = 'TODO_WLIDX_CPRSCODE ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE] = $imagetype;
-
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 123;    //TODO 
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = 20; 
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = 21;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = 22;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = 23;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = 24;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS] = 25;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATETIMEDESIRED] = 26;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATEORDERED] = 27;
-
-                        //Only show an assignment if ticket has not yet moved downstream in the workflow.
-                        if($workflowstatus == 'AC' 
-                            || $workflowstatus == 'CO' 
-                            || $workflowstatus == 'RV')
-                        {
-                            $aPatientPendingOrderMap[$patientID][$ienKey] 
-                                    = array($ienKey,$modality,$studyname);
-                            if(isset($aPatientPendingOrderCount[$patientID]))
-                            {
-                                $aPatientPendingOrderCount[$patientID] +=  1; 
-                            } else {
-                                $aPatientPendingOrderCount[$patientID] =  1; 
-                            }
-                            $cleanrow[\raptor\WorklistColumnMap::WLIDX_ASSIGNEDUSER] = (isset($sqlTicketCollaborationRow) ? array(
-                                                                      'uid'=>$sqlTicketCollaborationRow->collaborator_uid
-                                                                    , 'requester_notes_tx'=>$sqlTicketCollaborationRow->requester_notes_tx
-                                                                    , 'requested_dt'=>$sqlTicketCollaborationRow->requested_dt
-                                                                    , 'username'=>$sqlTicketCollaborationRow->username
-                                                                    , 'fullname'=>trim($sqlTicketCollaborationRow->usernametitle 
-                                                                            . ' ' .$sqlTicketCollaborationRow->firstname
-                                                                            . ' ' .$sqlTicketCollaborationRow->lastname. ' ' .$sqlTicketCollaborationRow->suffix )
-                                                                ) : NULL);    
-                        } else {
-                            $cleanrow[\raptor\WorklistColumnMap::WLIDX_ASSIGNEDUSER] = '';
-                        }
-
-                        // Pull schedule from raptor_schedule_track
-                        if($sqlScheduleTrackRow != null)
-                        {
-                            //If a record exists, then there is something to see.
-                            $showText = '';
-                            if(isset($sqlScheduleTrackRow->scheduled_dt))
-                            {
-                                $phpdate = strtotime( $sqlScheduleTrackRow->scheduled_dt );
-                                $sdt = date( 'Y-m-d H:i', $phpdate ); //Remove the seconds
-                                if(isset($sqlScheduleTrackRow->confirmed_by_patient_dt))
-                                {
-                                    if($showText > '')
-                                    {
-                                       $showText .= '<br>'; 
-                                    }
-                                    $showText .= 'Confirmed '.$sqlScheduleTrackRow->confirmed_by_patient_dt; 
-                                }
-                                if($showText > '')
-                                {
-                                   $showText .= '<br>'; 
-                                }
-                                $showText .= 'For '. $sdt ;//$sqlScheduleTrackRow->scheduled_dt; 
-                                if(isset($sqlScheduleTrackRow->location_tx))
-                                {
-                                    if($showText > '')
-                                    {
-                                       $showText .= '<br>'; 
-                                    }
-                                    $showText .= 'In ' . $sqlScheduleTrackRow->location_tx; 
-                                }
-                            }
-                            if(isset($sqlScheduleTrackRow->canceled_dt))
-                            {
-                                //If we are here, clear everything before.
-                                $showText = 'Cancel requested '.$sqlScheduleTrackRow->canceled_dt; 
-                            }
-                            if(trim($sqlScheduleTrackRow->notes_tx) > '')
-                            {
-                                if($showText > '')
-                                {
-                                   $showText .= '<br>'; 
-                                }
-                                $showText .= 'See Notes...'; 
-                            }
-                            if($showText == '')
-                            {
-                                //Indicate there is someting to see in the form.
-                                $showText = 'See details...';
-                            }
-                            $cleanrow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = array(
-                                'EventDT' => $sqlScheduleTrackRow->scheduled_dt,
-                                'LocationTx' => $sqlScheduleTrackRow->location_tx,
-                                'ConfirmedDT' => $sqlScheduleTrackRow->confirmed_by_patient_dt,
-                                'CanceledDT' => $sqlScheduleTrackRow->canceled_dt,
-                                'ShowTx' => $showText
-                            );
-                            print_r($sqlScheduleTrackRow, TRUE);
-                        } else {
-                            //No record exists yet.
-                            $cleanrow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = array(
-                                'EventDT' => NULL,
-                                'LocationTx' => NULL,
-                                'ConfirmedDT' => NULL,
-                                'CanceledDT' => NULL,
-                                'ShowTx' => 'Unknown'
-                            );
-                        }
-                        
-                        //Compute the score AFTER all the other columns are set.
-                        $rankscore = $match_order_to_user->getTicketRelevance($cleanrow);
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_RANKSCORE] = $rankscore;
-                        
-                        //Add the row to our collection
-                        $formatted_datarows[$rownum] = $cleanrow;
-                    }
-                }
-            }
-            //Now walk through all the clean rows to update the pending order reference information
-            for($i=0;$i<count($formatted_datarows);$i++)
-            {
-                $t = &$formatted_datarows[$i];
-                if(is_array($t))
-                {
-                    //Yes, this is a real row.
-                    $patientID = $t[\raptor\WorklistColumnMap::WLIDX_PATIENTID];
-                    if(isset($aPatientPendingOrderMap[$patientID]))
-                    {
-                        $t[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] 
-                                = $aPatientPendingOrderMap[$patientID];
-                        $t[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] 
-                                = $aPatientPendingOrderCount[$patientID];
-                    } else {
-                        //Found no pending orders for this IEN
-                        $t[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = array();;
-                        $t[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 0;
-                    }
-                }
-            }
-            
-            return $formatted_datarows;
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-    }
-    
-    /**
      * Returns array of arrays the way RAPTOR expects it.
      */
     public function getWorklistDetailsMap($max_rows_one_call = 500, $start_from_IEN=NULL)
@@ -562,7 +339,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
             $matching_offset = NULL;    //TODO
             $pending_orders_map = NULL; //TODO
-            $formated_datarows = $this->getFormatWorklistRows($rawdatarows);
+            $formated_datarows = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $aResult = array('Pages'=>1
                             ,'Page'=>1
                             ,'RowsPerPage'=>9999
@@ -1168,20 +945,42 @@ Signed: 07/16/2015 14:45
         $result = $this->getServiceRelatedData($serviceName, $args);
         error_log("LOOK EWD DAO $serviceName result = " . print_r($result,TRUE) 
                 . "\n\tLOOK TODO integrate the row>>>".print_r($therow,TRUE));
-        foreach($result as $key=>$order)
+        if(!is_array($result['radiologyOrder']))
         {
-            $dashboard = array();
-            $dashboard['Tracking ID'] = $tid;
-            $dashboard['Procedure'] = $order[2]['E'];
-            $dashboard['ImageType'] = $order[3]['E'];
-            $dashboard['PatientName'] = $order['.01']['E'];
-            $dashboard['RequestedBy'] = $order[14]['E'];
-            $dashboard['PatientCategory'] = $order[4]['E'];
-            $dashboard['Urgency'] = $order[6]['E'];
-            $dashboard['PatientID'] = $order[7]['E'];       //NOT SURE
-            $dashboard['OrderFileIen'] = $order[7]['E'];    //NOT SURE
-            break;  //We only wanted the first one.
+            throw new \Exception("Did not find array of radiologyOrder in ".print_r($result,TRUE));
         }
+        if(!is_array($result['order']))
+        {
+            throw new \Exception("Did not find array of order in ".print_r($result,TRUE));
+        }
+        $radiologyOrder = $result['radiologyOrder'];
+        $orderFileRec = $result['order'];
+        
+error_log("LOOK parts radiologyOrder=".print_r($radiologyOrder,TRUE));
+error_log("LOOK parts order=".print_r($orderFileRec,TRUE));
+        
+        $dashboard = array();
+        $dashboard['Tracking ID'] = $tid;
+        //$dashboard['Procedure'] = $radiologyOrder[2]['E'];
+        $dashboard['ImageType'] = $radiologyOrder[3]['E'];
+        $dashboard['PatientName'] = $radiologyOrder['.01']['E'];
+        //$dashboard['RequestedBy'] = $radiologyOrder[14]['E'];
+        $dashboard['PatientCategory'] = $radiologyOrder[4]['E'];
+        $dashboard['Urgency'] = $radiologyOrder[6]['E'];
+        $dashboard['PatientID'] = $radiologyOrder[7]['E'];       //NOT SURE
+        $dashboard['OrderFileIen'] = $radiologyOrder[7]['E'];    //NOT SURE
+        
+        $dashboard['orderFileStatus'] = $orderFileRec['5']['E'];
+        $dashboard['orderActive'] = !key_exists('63', $orderFileRec);
+        
+        //['orderingPhysicianDuz'] = $worklistItemDict['14']['I'];
+        
+        $dashboard['Procedure']         = $therow[\raptor\WorklistColumnMap::WLIDX_STUDY];
+        $dashboard['Modality']          = $therow[\raptor\WorklistColumnMap::WLIDX_MODALITY];
+        $t['ExamCategory']      = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION];
+        $t['PatientLocation']   = $therow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
+        $t['RequestedBy']       = $therow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN];
+
         
 error_log("LOOK dashboard=".print_r($dashboard,TRUE));        
         return $dashboard;
@@ -2767,7 +2566,7 @@ Signed: 12/08/2006 18:29<br />
     {
         $serviceName = $this->getCallingFunctionName();
         $args = array();
-        $args['dfn'] = $sPatientID;
+        $args['patientId'] = $sPatientID;
         $rawresult = $this->getServiceRelatedData($serviceName, $args);
         //TODO --- format the raw content
 	return $rawresult;
