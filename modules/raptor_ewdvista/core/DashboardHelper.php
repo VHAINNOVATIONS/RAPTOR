@@ -57,18 +57,30 @@ error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
             $dashboard['PatientCategory']       = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION];
             $dashboard['NatureOfOrderActivity'] = $therow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY];
             
-            $t['PatientID']         = $pid;
-            $t['PatientSSN']        = self::formatSSN($aPatientData['ssn']);
-            $t['Urgency']           = $therow[\raptor\WorklistColumnMap::WLIDX_URGENCY];
-            $t['Transport']         = $therow[\raptor\WorklistColumnMap::WLIDX_TRANSPORT];
-            $t['PatientName']       = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME];
-            $t['PatientAge']        = $aPatientData['age'];
-            $t['PatientDOB']        = $aPatientData['dob'];
-            $t['PatientEthnicity']  = $aPatientData['ethnicity'];
-            $t['PatientGender']     = $aPatientData['gender'];
-            $t['ImageType']         = $therow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE];
-            $t['mpiPid']            = $aPatientData['mpiPid'];
-            $t['mpiChecksum']       = $aPatientData['mpiChecksum'];
+            $dashboard['PatientID']         = $pid;
+            $dashboard['PatientSSN']        = self::formatSSN($aPatientData['ssn']);
+            $dashboard['Urgency']           = $therow[\raptor\WorklistColumnMap::WLIDX_URGENCY];
+            $dashboard['Transport']         = $therow[\raptor\WorklistColumnMap::WLIDX_TRANSPORT];
+            $dashboard['PatientName']       = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME];
+            $dashboard['PatientAge']        = $aPatientData['age'];
+            $dashboard['PatientDOB']        = $aPatientData['dob'];
+            $dashboard['PatientEthnicity']  = $aPatientData['ethnicity'];
+            $dashboard['PatientGender']     = $aPatientData['gender'];
+            $dashboard['ImageType']         = $therow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE];
+            $dashboard['mpiPid']            = $aPatientData['mpiPid'];
+            $dashboard['mpiChecksum']       = $aPatientData['mpiChecksum'];
+            
+            //$orderFileIen = $worklistItemDict['7']['I'];
+            
+            $dashboard['orderingPhysicianDuz'] = $radiologyOrder['14']['I']; // get internal value of ordering provider field
+            $dashboard['canOrderBeDCd'] = $worklistItemDict['5']['I'] == '5' || $radiologyOrder['5']['I'] == '11';
+            $dashboard['RequestingLocation']= trim((isset($radiologyOrder['22']['I']) ? $radiologyOrder['22']['I'] : '') );
+            $dashboard['SubmitToLocation']  = trim((isset($radiologyOrder['20']['I']) ? $radiologyOrder['20']['I'] : '') );
+            $dashboard['ReasonForStudy']    = trim((isset($radiologyOrder['1.1']['I']) ? $radiologyOrder['1.1']['I'] : '') );
+            $dashboard['RequestingLocation'] = trim((isset($radiologyOrder['22']['E']) ? $radiologyOrder['22']['E'] : '') );
+            $dashboard['RequestingLocationIen'] = trim((isset($radiologyOrder['22']['I']) ? $radiologyOrder['22']['I'] : '') );
+            $dashboard['ClinicalHistory']   = trim((isset($radiologyOrder['400']) ? $radiologyOrder['400'] : '') );
+            
             
             return $dashboard;
         } catch (\Exception $ex) {
