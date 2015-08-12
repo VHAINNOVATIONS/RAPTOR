@@ -106,10 +106,10 @@ class WorklistHelper
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_CPRSCODE] = 'TODO_WLIDX_CPRSCODE ';
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE] = $imagetype;
 
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 123;    //TODO 
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = 20; 
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = 21;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = 22;
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 'todo123';
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = 'todo20'; 
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = 'todo21';
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = 'todo22';
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = 23;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = 24;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS] = 25;
