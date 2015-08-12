@@ -1468,7 +1468,7 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
 	return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getRawVitalSignsMap($sPatientID)
+    public function getRawVitalSignsMap()
     {
         /*
          * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getRawVitalSigns' is >>>stdClass Object
@@ -2043,9 +2043,10 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
 
          */
        
+        $pid = $this->getSelectedPatientID();
         $serviceName = $this->getCallingFunctionName();
         $args = array();
-        $args['patientId'] = $sPatientID;
+        $args['patientId'] = $pid;
         $rawresult = $this->getServiceRelatedData($serviceName, $args);
         
         $a = explode('^', $rawresult['value']);
