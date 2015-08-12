@@ -465,6 +465,7 @@ class EhrDaoRuntimeMetrics
                     $oneitem = array();
                     $oneitem['start_ts'] = microtime(TRUE);
                     $oneitem['tracking_id'] = $tid;
+                    $oneitem['paramvalues'] = NULL; //Initialize now so the key exists.
                     $callresult = NULL;
                     try
                     {

@@ -336,9 +336,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         {
             $args = array();
             $serviceName = $this->getCallingFunctionName();
+            if($start_from_IEN == NULL)
+            {
+                $start_from_IEN = '';
+            }
             $args['from'] = $start_from_IEN;
             $args['max'] = $max_rows_one_call;
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK raw data rows for worklist>>>>".print_r($rawdatarows, TRUE));            
             $matching_offset = NULL;    //TODO
             $pending_orders_map = NULL; //TODO
             $formated_datarows = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
@@ -349,7 +354,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
                 );
-            error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
+//error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
             return $aResult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -702,8 +707,32 @@ Signed: 07/16/2015 14:45
         $args = array();
         $args['target'] = '';   //Start at the start
         $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE));        
+        $formatted = array();
         //TODO --- loop through until we get ALL the hospital locations
-        return $rawdatarows;
+        
+/*
+ *         $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
+        
+        if (!isset($soapResult) || 
+                !isset($soapResult->getHospitalLocationsResult) || 
+                isset($soapResult->getHospitalLocationsResult->fault)) {
+            throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
+        }
+
+        $locations = array();
+        $locationTOs = is_array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO) ? 
+                            $soapResult->getHospitalLocationsResult->locations->HospitalLocationTO :
+                            array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO); 
+
+        foreach ($locationTOs as $locTO) {
+            $locations[$locTO->id] = $locTO->name;
+        }
+        return $locations;
+ */        
+        
+        
+        return $formatted;
     }
 
     public function getAllergiesDetailMap()
