@@ -1438,7 +1438,7 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
 	return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getRawVitalSignsMap()
+    public function getRawVitalSignsMap($sPatientID)
     {
         /*
          * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getRawVitalSigns' is >>>stdClass Object
@@ -2012,8 +2012,17 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
                                                 )
 
          */
+       
         $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        $args = array();
+        $args['patientId'] = $sPatientID;
+        $rawresult = $this->getServiceRelatedData($serviceName, $args);
+        
+        $a = explode('^', $rawresult['value']);
+        $result = array();
+ 	$result['todo'] = $a[0];        
+
+        return $result;
     }
 
     public function getSurgeryReportsDetailMap()
@@ -2274,6 +2283,51 @@ Signed: 12/08/2006 18:29<br />
 
     public function getVisits()
     {
+        /*
+         * check the date time format 
+         * 1-1800 ???
+         * 2-1900
+         * 3-2000
+         * http://54.243.40.32:8083/RaptorEwdVista/raptor/getVisits?patientId=69&fromDate=2500101&toDate=3150808
+         * 
+{
+type: "ARRAY"
+value: {
+1: "V;3000425.113046;240^3000425.113046^20 MINUTE^ACTION REQUIRED"
+2: "V;3000521.100743;228^3000521.100743^DENTAL^ACTION REQUIRED"
+3: "V;3001018.160617;136^3001018.160617^BECKY'S CLINIC^CHECKED OUT"
+4: "V;3010409.132304;240^3010409.132304^20 MINUTE^CHECKED OUT"
+5: "A;3050523.08;23^3050523.08^PRIMARY CARE^ACTION REQUIRED"
+6: "A;3050524.08;23^3050524.08^PRIMARY CARE^ACTION REQUIRED"
+7: "A;3050525.08;23^3050525.08^PRIMARY CARE^ACTION REQUIRED"
+8: "A;3050526.08;23^3050526.08^PRIMARY CARE^ACTION REQUIRED"
+9: "A;3050527.08;23^3050527.08^PRIMARY CARE^ACTION REQUIRED"
+10: "A;3050823.09;423^3050823.09^VIST CLINIC^NON-COUNT"
+11: "A;3050824.1;423^3050824.1^VIST CLINIC^NON-COUNT"
+12: "A;3060821.08;23^3060821.08^PRIMARY CARE^ACTION REQUIRED"
+13: "A;3060822.08;23^3060822.08^PRIMARY CARE^ACTION REQUIRED"
+14: "A;3060823.08;23^3060823.08^PRIMARY CARE^ACTION REQUIRED"
+15: "A;3060824.08;23^3060824.08^PRIMARY CARE^ACTION REQUIRED"
+16: "A;3070820.09;23^3070820.09^PRIMARY CARE^ACTION REQUIRED"
+17: "A;3070821.09;23^3070821.09^PRIMARY CARE^ACTION REQUIRED"
+18: "A;3070822.09;23^3070822.09^PRIMARY CARE^ACTION REQUIRED"
+19: "A;3070823.09;23^3070823.09^PRIMARY CARE^ACTION REQUIRED"
+20: "A;3080714.08;23^3080714.08^PRIMARY CARE^ACTION REQUIRED"
+21: "A;3080715.08;23^3080715.08^PRIMARY CARE^ACTION REQUIRED"
+22: "A;3080716.08;23^3080716.08^PRIMARY CARE^ACTION REQUIRED"
+23: "A;3080717.08;23^3080717.08^PRIMARY CARE^ACTION REQUIRED"
+24: "A;3100809.08;23^3100809.08^PRIMARY CARE^ACTION REQUIRED"
+25: "A;3100810.08;23^3100810.08^PRIMARY CARE^ACTION REQUIRED"
+26: "A;3100811.08;23^3100811.08^PRIMARY CARE^ACTION REQUIRED"
+27: "A;3100812.08;23^3100812.08^PRIMARY CARE^ACTION REQUIRED"
+28: "A;3120730.08;23^3120730.08^PRIMARY CARE^ACTION REQUIRED"
+29: "A;3120731.08;23^3120731.08^PRIMARY CARE^ACTION REQUIRED"
+30: "A;3120801.08;23^3120801.08^PRIMARY CARE^ACTION REQUIRED"
+31: "A;3120802.08;23^3120802.08^PRIMARY CARE^ACTION REQUIRED"
+32: "A;3120803.08;23^3120803.08^PRIMARY CARE^ACTION REQUIRED"
+}-
+}
+         */
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
