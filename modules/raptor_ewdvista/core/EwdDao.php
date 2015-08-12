@@ -251,11 +251,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
 
+    /**
+     * Return the raw result from the restful service.
+     */
     private function getServiceRelatedData($serviceName,$args=NULL)
     {
         try
         {
-            error_log("Starting EWD $serviceName at " . microtime(TRUE));
+            //error_log("Starting EWD $serviceName at " . microtime(TRUE));
             $url = $this->getURL($serviceName,$args);
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
@@ -265,13 +268,13 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
-            error_log("LOOK JSON DATA for $serviceName('" . print_r($args,TRUE) . ') has result = ' . print_r($json_string, TRUE));
+            //error_log("LOOK JSON DATA for $serviceName('" . print_r($args,TRUE) . ') has result = ' . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
-            error_log("Finish EWD $serviceName at " . microtime(TRUE));
+            //error_log("Finish EWD $serviceName at " . microtime(TRUE));
             return $php_array;
         } catch (\Exception $ex) {
-            throw new \Exception("Trouble with $serviceName  because ".$ex,99876,$ex);;
+            throw new \Exception("Trouble with $serviceName($args) because $ex", 99876, $ex);;
         }
     }
     
@@ -2668,10 +2671,18 @@ value: {
         $a = explode('^', $rawresult['value']);
         $result = array();
         
+        if(isset($a[2]) && $a[2] > '')
+        {
+            $vista_dob = trim($a[2]);
+            $dob = \raptor_ewdvista\EwdUtils::convertVistaDateTimeToDate($vista_dob);
+        } else {
+            $dob = '';
+        }
+        
  	$result['patientName']  			= $a[0];
         $result['ssn']          			= $a[3];
         $result['gender']       			= $a[1];
-        $result['dob']          			= $a[2]; //TODO: string comes in some strange format that we need to handle some how, for instance "2350407" = 1935/Apr/07 which render this patient 80 years old in 2015
+        $result['dob']          			= $dob;
         $result['ethnicity']    			= "todo";
         $result['age']          			= $a[14];
         $result['maritalStatus']			= "todo";

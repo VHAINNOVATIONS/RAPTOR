@@ -320,7 +320,7 @@ class WorklistData
                     'CanceledDT' => $sqlScheduleTrackRow->canceled_dt,
                     'ShowTx' => $showText
                 );
-                print_r($sqlScheduleTrackRow, TRUE);
+                //print_r($sqlScheduleTrackRow, TRUE);
             } else {
                 //No record exists yet.
                 $t[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = array(

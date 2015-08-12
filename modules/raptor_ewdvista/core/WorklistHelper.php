@@ -20,6 +20,102 @@ namespace raptor_ewdvista;
  */
 class WorklistHelper
 {
+    
+    //Worklist EWD vista result value keys
+    const WLVFO_IEN             = 'IEN';                    // 0;
+    const WLVFO_PatientID             = 'PatientID';	                       // 1;
+    const WLVFO_PatientName           = 'PatientName';	                      // 2;
+    const WLVFO_ExamCategory          = 'ExamCategory';	                      // 3;
+    const WLVFO_RequestingPhysician   = 'RequestingPhysician';	             // 4;
+    const WLVFO_OrderedDate           = 'OrderedDate';	                     // 5;
+    const WLVFO_Procedure             = 'Procedure';	                           // 6;
+    const WLVFO_ImageType             = 'ImageType';	                           // 7;
+    const WLVFO_ExamLocation          = 'ExamLocation';	                           // 8;
+    const WLVFO_Urgency               = 'Urgency';	                               // 9;
+    const WLVFO_Nature                = 'Nature';	                               // 10;
+    const WLVFO_Transport             = 'Transport';	                           // 11;
+    const WLVFO_DesiredDate           = 'DesiredDate';	                          // 12;
+    const WLVFO_OrderFileIen          = 'OrderFileIen';	                          // 13;
+    const WLVFO_RadOrderStatus        = 'RadOrderStatus';                  // 14;
+    
+    
+    private function getScheduleMarkupArray($sqlScheduleTrackRow)
+    {
+        try
+        {
+            // Pull schedule from raptor_schedule_track
+            if($sqlScheduleTrackRow != NULL)
+            {
+                //If a record exists, then there is something to see.
+                $showText = '';
+                if(isset($sqlScheduleTrackRow->scheduled_dt))
+                {
+                    $phpdate = strtotime( $sqlScheduleTrackRow->scheduled_dt );
+                    $sdt = date( 'Y-m-d H:i', $phpdate ); //Remove the seconds
+                    if(isset($sqlScheduleTrackRow->confirmed_by_patient_dt))
+                    {
+                        if($showText > '')
+                        {
+                           $showText .= '<br>'; 
+                        }
+                        $showText .= 'Confirmed '.$sqlScheduleTrackRow->confirmed_by_patient_dt; 
+                    }
+                    if($showText > '')
+                    {
+                       $showText .= '<br>'; 
+                    }
+                    $showText .= 'For '. $sdt ;//$sqlScheduleTrackRow->scheduled_dt; 
+                    if(isset($sqlScheduleTrackRow->location_tx))
+                    {
+                        if($showText > '')
+                        {
+                           $showText .= '<br>'; 
+                        }
+                        $showText .= 'In ' . $sqlScheduleTrackRow->location_tx; 
+                    }
+                }
+                if(isset($sqlScheduleTrackRow->canceled_dt))
+                {
+                    //If we are here, clear everything before.
+                    $showText = 'Cancel requested '.$sqlScheduleTrackRow->canceled_dt; 
+                }
+                if(trim($sqlScheduleTrackRow->notes_tx) > '')
+                {
+                    if($showText > '')
+                    {
+                       $showText .= '<br>'; 
+                    }
+                    $showText .= 'See Notes...'; 
+                }
+                if($showText == '')
+                {
+                    //Indicate there is someting to see in the form.
+                    $showText = 'See details...';
+                }
+                $markup_ar = array(
+                    'EventDT' => $sqlScheduleTrackRow->scheduled_dt,
+                    'LocationTx' => $sqlScheduleTrackRow->location_tx,
+                    'ConfirmedDT' => $sqlScheduleTrackRow->confirmed_by_patient_dt,
+                    'CanceledDT' => $sqlScheduleTrackRow->canceled_dt,
+                    'ShowTx' => $showText
+                );
+                //print_r($sqlScheduleTrackRow, TRUE);
+            } else {
+                //No record exists yet.
+                $markup_ar = array(
+                    'EventDT' => NULL,
+                    'LocationTx' => NULL,
+                    'ConfirmedDT' => NULL,
+                    'CanceledDT' => NULL,
+                    'ShowTx' => 'Unknown'
+                );
+            }
+            return $markup_ar;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     /**
      * Return the rows formatted the way RAPTOR expects to parse them.
      */
@@ -35,7 +131,7 @@ class WorklistHelper
             {
                 throw new \Exception("Missing the 'data' key in worklist result ".print_r($rawdatarows,TRUE));
             }
-            
+
             module_load_include('php', 'raptor_formulas', 'core/LanguageInference');
             module_load_include('php', 'raptor_formulas', 'core/MatchOrderToUser');
             module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
@@ -69,7 +165,7 @@ class WorklistHelper
             {
                 if(isset($onerow['PatientID']) && isset($onerow['Procedure']))
                 {
-                    $ienKey = $onerow['IEN'];
+                    $ienKey = $onerow[self::WLVFO_IEN];
                     $patientID = $onerow['PatientID'];
                     $sqlTicketTrackRow = array_key_exists($ienKey, $ticketTrackingRslt) ? $ticketTrackingRslt[$ienKey] : NULL;
                     $sqlTicketCollaborationRow = array_key_exists($ienKey, $ticketCollabRslt) ? $ticketCollabRslt[$ienKey] : NULL;
@@ -90,31 +186,61 @@ class WorklistHelper
                         $cleanrow = array();
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_TRACKINGID] = $ienKey;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTID] = $patientID;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME] = $onerow['PatientName'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED] = $onerow['DesiredDate'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_DATEORDERED] = $onerow['OrderedDate'];
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME] = $onerow[self::WLVFO_PatientName];
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED] = $onerow[self::WLVFO_DesiredDate];
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_DATEORDERED] = $onerow[self::WLVFO_OrderedDate];
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_MODALITY] = $modality;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_STUDY] = $studyname;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_URGENCY] = $onerow['Urgency'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = $onerow['Transport'];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION ] = 'TODO_WLIDX_PATIENTCATEGORYLOCATION ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC] = 'TODO_WLIDX_ANATOMYIMAGESUBSPEC ';
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_URGENCY] = $onerow[self::WLVFO_Urgency];
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = $onerow[self::WLVFO_Transport];
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION ] = $onerow[self::WLVFO_ExamCategory];
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC] = 'TODO ANATOMY';   //Placeholder for anatomy keywords
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] = $workflowstatus;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERSTATUS] = 'TODO_WLIDX_ORDERSTATUS ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER] = 'TODO_WLIDX_EDITINGUSER ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = 'TODO_WLIDX_SCHEDINFO ';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_CPRSCODE] = 'TODO_WLIDX_CPRSCODE ';
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERSTATUS] = '?ORDER STATUS?';   //Placeholder for Order Status
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER]  = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_CPRSCODE] = '';   //Placeholder for the CPRS code associated with this ticket
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE] = $imagetype;
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = $this->getScheduleMarkupArray($sqlScheduleTrackRow);
 
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 'todo123';
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = 'todo20'; 
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = 'todo21';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = 'todo22';
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = $onerow[self::WLVFO_ExamLocation];
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = $onerow[self::WLVFO_RequestingPhysician];
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = 23;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = 24;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS] = 25;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATETIMEDESIRED] = 26;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATEORDERED] = 27;
+                        $rfs = trim($onerow[self::WLVFO_Nature]);
+                        switch ($rfs)
+                        {
+                            case 'w' :
+                                $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "WRITTEN";
+                                break;
+                            case 'v' :
+                                $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "VERBAL";
+                                break;
+                            case 'p' :
+                                $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "TELEPHONED";
+                                break;
+                            case 's' :
+                                $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "SERVICE CORRECTION";
+                                break;
+                            case 'i' :
+                                $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "POLICY";
+                                break;
+                            case 'e' :
+                                $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "PHYSICIAN ENTERED";
+                                break;
+                            default :
+                                if(strlen($rfs)==0)
+                                {
+                                    $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "NOT ENTERED";
+                                } else {
+                                    $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = $rfs;
+                                }
+                                break;
+                        }
 
                         //Only show an assignment if ticket has not yet moved downstream in the workflow.
                         if($workflowstatus == 'AC' 

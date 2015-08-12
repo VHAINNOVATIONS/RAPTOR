@@ -43,7 +43,7 @@ class EwdUtils
             $curDt->add(new \DateInterval('P'.$dateOffset.'D'));
         }
                
-        return EwdUtils::convertPhpDateTimeToVistaDate($curDt);
+        return self::convertPhpDateTimeToVistaDate($curDt);
     }
     
     /**
@@ -62,7 +62,7 @@ class EwdUtils
      * Convert VistA format: 3101231 -> 2010-12-31
      */
     public static function convertVistaDateTimeToDate($vistaDateTime) {
-        $datePart = EwdUtils::getVistaDateTimePart($vistaDateTime, "date");
+        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
         $year = 1700 + substr($datePart, 0, 3);
         $month = substr($datePart, 3, 2);
         $day = substr($datePart, 5, 2);
@@ -74,7 +74,7 @@ class EwdUtils
      * Convert VistA format: 3101231 -> 20101231
      */
     public static function convertVistaDateToYYYYMMDD($vistaDateTime) {
-        $datePart = EwdUtils::getVistaDateTimePart($vistaDateTime, "date");
+        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
         $year = 1700 + substr($datePart, 0, 3);
         $month = substr($datePart, 3, 2);
         $day = substr($datePart, 5, 2);
@@ -86,7 +86,7 @@ class EwdUtils
      * Convert 20100101 format -> 2010-01-01
      */
     public static function convertYYYYMMDDToDate($vistaDateTime) {
-        $datePart = EwdUtils::getVistaDateTimePart($vistaDateTime, "date");
+        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
         $year = substr($datePart, 0, 4);
         $month = substr($datePart, 4, 2);
         $day = substr($datePart, 6, 2);
@@ -98,8 +98,8 @@ class EwdUtils
      * Convert 20100101.083400 format -> 2010-01-01 083400
      */
     public static function convertYYYYMMDDToDatetime($vistaDateTime) {
-        $datePart = EwdUtils::getVistaDateTimePart($vistaDateTime, "date");
-        $timePart = EwdUtils::getVistaDateTimePart($vistaDateTime, "time");
+        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
+        $timePart = self::getVistaDateTimePart($vistaDateTime, "time");
         $year = substr($datePart, 0, 4);
         $month = substr($datePart, 4, 2);
         $day = substr($datePart, 6, 2);
