@@ -955,7 +955,16 @@ Signed: 07/16/2015 14:45
         }
         $radiologyOrder = $result['radiologyOrder'];
         $orderFileRec = $result['order'];
-        $dashboard = $this->m_dashboardHelper->getFormatted($tid, $radiologyOrder, $orderFileRec, $therow);
+        $pid = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTID];
+        $oPatientData = $this->getPatientMap($pid);
+        if($oPatientData == NULL)
+        {
+            $msg = 'Did not get patient data of pid='.$pid
+                    .' for trackingID=['.$tid.']';
+            error_log($msg.">>>instance details=".print_r($this, TRUE));
+            throw new \Exception($msg);
+        }
+        $dashboard = $this->m_dashboardHelper->getFormatted($tid, $pid, $radiologyOrder, $orderFileRec, $therow, $oPatientData);
         
 error_log("LOOK dashboard=".print_r($dashboard,TRUE));        
         return $dashboard;
