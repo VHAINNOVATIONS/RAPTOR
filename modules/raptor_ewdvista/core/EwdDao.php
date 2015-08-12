@@ -2558,9 +2558,9 @@ Signed: 12/08/2006 18:29<br />
  	$result['patientName']  			= $a[0];
         $result['ssn']          			= $a[3];
         $result['gender']       			= $a[1];
-        $result['dob']          			= "todo";
+        $result['dob']          			= $a[2]; //TODO: string comes in some strange format that we need to handle some how, for instance "2350407" = 1935/Apr/07 which render this patient 80 years old in 2015
         $result['ethnicity']    			= "todo";
-        $result['age']          			= "todo";
+        $result['age']          			= $a[14];
         $result['maritalStatus']			= "todo";
         $result['age']          			= "todo";
         $result['mpiPid']       			= "todo";
