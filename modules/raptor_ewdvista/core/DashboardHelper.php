@@ -57,7 +57,7 @@ error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
             
             $dashboard['MapPendingOrders']     = $therow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
             
-            $dashboard['RadiologyOrderStatus']     = $row[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS];
+            $dashboard['RadiologyOrderStatus']     = $therow[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS];
 
             $aSchedInfo                     = $therow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO];
             $dashboard['SchedInfo']         = $aSchedInfo;

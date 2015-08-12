@@ -343,7 +343,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['from'] = $start_from_IEN;
             $args['max'] = $max_rows_one_call;
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK raw data rows for worklist>>>>".print_r($rawdatarows, TRUE));            
+//error_log("LOOK raw data rows for worklist>>>>".print_r($rawdatarows, TRUE));            
             $matching_offset = NULL;    //TODO
             $pending_orders_map = NULL; //TODO
             $formated_datarows = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
