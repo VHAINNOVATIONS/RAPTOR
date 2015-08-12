@@ -955,7 +955,7 @@ Signed: 07/16/2015 14:45
         }
         $radiologyOrder = $result['radiologyOrder'];
         $orderFileRec = $result['order'];
-        $dashboard = $this->m_dashboardHelper->getFormatted($radiologyOrder,$orderFileRec,$therow);
+        $dashboard = $this->m_dashboardHelper->getFormatted($tid, $radiologyOrder, $orderFileRec, $therow);
         
 error_log("LOOK dashboard=".print_r($dashboard,TRUE));        
         return $dashboard;

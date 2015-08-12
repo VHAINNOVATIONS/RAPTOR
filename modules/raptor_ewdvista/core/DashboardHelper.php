@@ -20,7 +20,7 @@ namespace raptor_ewdvista;
  */
 class DashboardHelper
 {
-    public function getFormatted($radiologyOrder,$orderFileRec,$therow)
+    public function getFormatted($tid, $radiologyOrder,$orderFileRec,$therow)
     {
 error_log("LOOK parts radiologyOrder=".print_r($radiologyOrder,TRUE));
 error_log("LOOK parts order=".print_r($orderFileRec,TRUE));
@@ -50,6 +50,12 @@ error_log("LOOK parts therow=".print_r($therow,TRUE));
             $dashboard['PatientLocation']   = $therow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
             $dashboard['RequestedBy']       = $therow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN];
 
+            $dashboard['RequestedDate']     = $row[\raptor\WorklistColumnMap::WLIDX_DATEORDERED]; 
+            $dashboard['DesiredDate']       = $row[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED]; 
+
+            $dashboard['PatientCategory']   = $row[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION];
+            $dashboard['NatureOfOrderActivity'] = $row[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY];
+            
             return $dashboard;
         } catch (\Exception $ex) {
             throw $ex;
