@@ -20,5 +20,39 @@ namespace raptor_ewdvista;
  */
 class DashboardHelper
 {
-    //TODO
+    public function getFormatted($radiologyOrder,$orderFileRec,$therow)
+    {
+error_log("LOOK parts radiologyOrder=".print_r($radiologyOrder,TRUE));
+error_log("LOOK parts order=".print_r($orderFileRec,TRUE));
+error_log("LOOK parts therow=".print_r($therow,TRUE));
+        
+        try
+        {
+            $dashboard = array();
+            $dashboard['Tracking ID'] = $tid;
+            //$dashboard['Procedure'] = $radiologyOrder[2]['E'];
+            $dashboard['ImageType'] = $radiologyOrder[3]['E'];
+            $dashboard['PatientName'] = $radiologyOrder['.01']['E'];
+            //$dashboard['RequestedBy'] = $radiologyOrder[14]['E'];
+            $dashboard['PatientCategory'] = $radiologyOrder[4]['E'];
+            $dashboard['Urgency'] = $radiologyOrder[6]['E'];
+            $dashboard['PatientID'] = $radiologyOrder[7]['E'];       //NOT SURE
+            $dashboard['OrderFileIen'] = $radiologyOrder[7]['E'];    //NOT SURE
+
+            $dashboard['orderFileStatus'] = $orderFileRec['5']['E'];
+            $dashboard['orderActive'] = !key_exists('63', $orderFileRec);
+
+            //['orderingPhysicianDuz'] = $worklistItemDict['14']['I'];
+
+            $dashboard['Procedure']         = $therow[\raptor\WorklistColumnMap::WLIDX_STUDY];
+            $dashboard['Modality']          = $therow[\raptor\WorklistColumnMap::WLIDX_MODALITY];
+            $dashboard['ExamCategory']      = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION];
+            $dashboard['PatientLocation']   = $therow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
+            $dashboard['RequestedBy']       = $therow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN];
+
+            return $dashboard;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
 }
