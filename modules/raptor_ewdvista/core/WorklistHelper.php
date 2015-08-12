@@ -148,6 +148,7 @@ class WorklistHelper
             $oContext = \raptor\Context::getInstance();
             $userinfo = $oContext->getUserInfo();
 
+            
             $match_order_to_user = new \raptor_formulas\MatchOrderToUser($userinfo);
             $language_infer = new \raptor_formulas\LanguageInference();
             $unformatted_datarows = $rawdatarows['data'];
@@ -161,6 +162,7 @@ class WorklistHelper
             //error_log("LOOK TODO implement reformat of $rowcount raw data rows");
             $formatted_datarows = array();
             $rownum = 0;
+            $last_ien = NULL;
             foreach($unformatted_datarows as $onerow)
             {
                 if(isset($onerow['PatientID']) && isset($onerow['Procedure']))
@@ -349,6 +351,10 @@ class WorklistHelper
             for($i=0;$i<count($formatted_datarows);$i++)
             {
                 $t = &$formatted_datarows[$i];
+                if($i == 0 || $t[0] < $last_ien)    //Smallest is last
+                {
+                    $last_ien = $t[0];
+                }
                 if(is_array($t))
                 {
                     //Yes, this is a real row.
@@ -367,7 +373,13 @@ class WorklistHelper
                 }
             }
             
-            return $formatted_datarows;
+            //return $formatted_datarows;
+            $bundle = array( 'pending_orders_map'=>&$aPatientPendingOrderMap
+                            ,'matching_offset'=>$nOffsetMatchIEN
+                            ,'last_ien'=>$last_ien
+                            ,'all_rows'=>&$formatted_datarows);
+error_log("LOOK bundle >>>".print_r($bundle,TRUE));
+            return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
         }

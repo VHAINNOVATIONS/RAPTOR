@@ -268,7 +268,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
-            //error_log("LOOK JSON DATA for $serviceName('" . print_r($args,TRUE) . ') has result = ' . print_r($json_string, TRUE));
+            error_log("LOOK JSON DATA for $serviceName('" . print_r($args,TRUE) . ') has result = ' . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
             //error_log("Finish EWD $serviceName at " . microtime(TRUE));
@@ -348,23 +348,49 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 {
                     throw new \Exception("The starting IEN declaration must be numeric but instead we got ".print_r($start_with_IEN,TRUE));
                 }
-                $start_from_IEN = intval($start_with_IEN) - 1; //So we really start there
+                $start_from_IEN = intval($start_with_IEN) + 1; //So we really start there
             }
-            $args['from'] = $start_from_IEN;    //VistA starts from this value +1!!!!!
+            $maxpages=1;
+            $pages=0;
+            $matching_offset=NULL;
+            $getmorepages = TRUE;
+            $show_rows = array();
+            $pending_orders_map = array();
             $args['max'] = $max_rows_one_call;
-            $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+            $row_bundles = array();
+            while($getmorepages)
+            {
+                $pages++;
+                $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
+                $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
 //error_log("LOOK raw data rows for worklist>>>>".print_r($rawdatarows, TRUE));            
-            $matching_offset = NULL;    //TODO
-            $pending_orders_map = NULL; //TODO
-            $formated_datarows = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
-            $aResult = array('Pages'=>1
+                $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
+                $formated_datarows = $bundle['all_rows'];
+                $rowcount = count($formated_datarows);
+                if($rowcount == 0 || !isset($bundle['last_ien']))
+                {
+                    $getmorepages = FALSE;    
+                } else {
+                    $getmorepages = ($pages <= $maxpages);    
+                }
+                $start_from_IEN = $bundle['last_ien'];
+                if($bundle['matching_offset'] != NULL)
+                {
+                    $matching_offset = count($show_rows) + $bundle['matching_offset'];
+                }
+                $pending_orders_map = array_merge($pending_orders_map, $bundle['pending_orders_map']);
+                $row_bundles[] = $formated_datarows;
+//error_log("LOOK at page $pages getting more pages? ($getmorepages) >>>".print_r($row_bundles,TRUE));
+            }
+            $show_rows = $row_bundles[0];   //TODO FIX ARRAY MERGE!!!!! array_merge($row_bundles);
+            $aResult = array('Pages'=>$pages
                             ,'Page'=>1
-                            ,'RowsPerPage'=>9999
-                            ,'DataRows'=>$formated_datarows
+                            ,'RowsPerPage'=>$max_rows_one_call
+                            ,'DataRows'=>$show_rows
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
                 );
-//error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
+error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
             return $aResult;
         } catch (\Exception $ex) {
             throw $ex;
