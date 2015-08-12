@@ -2552,8 +2552,52 @@ Signed: 12/08/2006 18:29<br />
         $args = array();
         $args['patientId'] = $sPatientID;
         $rawresult = $this->getServiceRelatedData($serviceName, $args);
+        $a = explode('^', $rawresult['value']);
+        $result = array();
+        
+ 	$result['patientName']  			= $a[0];
+        $result['ssn']          			= $a[3];
+        $result['gender']       			= $a[1];
+        $result['dob']          			= $a[2]; //TODO: string comes in some strange format that we need to handle some how, for instance "2350407" = 1935/Apr/07 which render this patient 80 years old in 2015
+        $result['ethnicity']    			= "todo";
+        $result['age']          			= $a[14];
+        $result['maritalStatus']			= "todo";
+        $result['age']          			= "todo";
+        $result['mpiPid']       			= "todo";
+        $result['mpiChecksum']  			= "todo";
+        $result['localPid']     			= "todo";
+        $result['sitePids']     			= "todo";
+        $result['vendorPid']    			= "todo";
+        $result['location'] 				= "Room:todo / Bed:todo ";
+        $result['cwad'] 				= "todo";
+        $result['restricted'] 				= "todo";
+        $result['admitTimestamp'] 			= date("m/d/Y h:i a", strtotime("01/01/1950 01:01 a"));
+        $result['serviceConnected']                     = "todo";
+        $result['scPercent'] 				= "todo";
+        $result['inpatient'] 				= "todo";
+        $result['deceasedDate'] 			= "todo";
+        $result['confidentiality'] 			= "todo";
+        $result['needsMeansTest'] 			= "todo";
+        $result['patientFlags'] 			= "todo";
+        $result['cmorSiteId']	 			= "todo";
+        $result['activeInsurance'] 			= "todo";
+        $result['isTestPatient'] 			= "todo";
+        $result['currentMeansStatus']                   = "todo";
+        $result['hasInsurance'] 			= "todo";
+        $result['preferredFacility']                    = "todo";
+        $result['patientType'] 				= "todo";
+        $result['isVeteran'] 				= "todo";
+        $result['isLocallyAssignedMpiPid']              = "todo";
+        $result['sites'] 				= "todo";
+        $result['teamID'] 				= "todo";
+        $result['teamName'] 				= "todo-Unknown";
+        $result['teamPcpName'] 				= "todo-Unknown";
+        $result['teamAttendingName']                    = "todo-Unknown";
+        $result['mpiPid'] 				= "todo-Unknown";
+        $result['mpiChecksum'] 				= "todo-Unknown";
+      
         //TODO --- format the raw content
-	return $rawresult;
+	return $result;
     }
 
 }
