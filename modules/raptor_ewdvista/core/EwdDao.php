@@ -14,6 +14,7 @@
 namespace raptor_ewdvista;
 
 require_once 'IEwdDao.php';
+require_once 'EwdUtils.php';
 require_once 'WebServices.php';
 require_once 'WorklistHelper.php';
 require_once 'DashboardHelper.php';
@@ -2289,7 +2290,8 @@ Signed: 12/08/2006 18:29<br />
          * 2-1900
          * 3-2000
          * http://54.243.40.32:8083/RaptorEwdVista/raptor/getVisits?patientId=69&fromDate=2500101&toDate=3150808
-         * 
+         */
+        /* 
 {
 type: "ARRAY"
 value: {
@@ -2328,8 +2330,25 @@ value: {
 }-
 }
          */
+        
         $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        $args = array();
+        $args['patientId'] = $this->getSelectedPatientID();
+        
+        //TODO: this date logic is kind of heavy we need to make it elegant 
+        $oneMonthAgo = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
+        $today = MdwsUtils::getVistaDate(0);
+        $args['fromDate'] = EwdUtils::convertVistaDateToYYYYMMDD($oneMonthAgo);
+        $args['toDate'] = MdwsUtils::convertVistaDateToYYYYMMDD($today);
+        
+        $rawresult = $this->getServiceRelatedData($serviceName, $args);
+        
+        $a = explode('^', $rawresult['value']);
+        $result = array();
+        
+       
+        
+	return $result;
     }
 
     public function getVistaAccountKeyProblems()
