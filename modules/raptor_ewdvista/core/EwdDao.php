@@ -331,17 +331,23 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Returns array of arrays the way RAPTOR expects it.
      */
-    public function getWorklistDetailsMap($max_rows_one_call = 500, $start_from_IEN=NULL)
+    public function getWorklistDetailsMap($max_rows_one_call = 500, $start_with_IEN=NULL)
     {
         try
         {
             $args = array();
             $serviceName = $this->getCallingFunctionName();
-            if($start_from_IEN == NULL)
+            if($start_with_IEN == NULL)
             {
                 $start_from_IEN = '';
+            } else {
+                if(!is_numeric($start_with_IEN))
+                {
+                    throw new \Exception("The starting IEN declaration must be numeric but instead we got ".print_r($start_with_IEN,TRUE));
+                }
+                $start_from_IEN = intval($start_with_IEN) - 1; //So we really start there
             }
-            $args['from'] = $start_from_IEN;
+            $args['from'] = $start_from_IEN;    //VistA starts from this value +1!!!!!
             $args['max'] = $max_rows_one_call;
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
 //error_log("LOOK raw data rows for worklist>>>>".print_r($rawdatarows, TRUE));            
