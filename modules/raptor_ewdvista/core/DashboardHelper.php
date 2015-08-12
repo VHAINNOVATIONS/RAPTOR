@@ -13,6 +13,8 @@
 
 namespace raptor_ewdvista;
 
+require_once 'EwdUtils.php';
+
 /**
  * Helper for returning dashboard content
  *
@@ -63,7 +65,7 @@ error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
             $dashboard['SchedInfo']         = $aSchedInfo;
             $dashboard['ScheduledDate']     = $aSchedInfo['EventDT'];
             
-            $dashboard['PatientSSN']        = self::formatSSN($aPatientData['ssn']);
+            $dashboard['PatientSSN']        = \raptor_ewdvista\EwdUtils::convertFromVistaSSN($aPatientData['ssn']);
             $dashboard['PatientAge']        = $aPatientData['age'];
             $dashboard['PatientDOB']        = $aPatientData['dob'];
             $dashboard['PatientEthnicity']  = $aPatientData['ethnicity'];
@@ -84,16 +86,5 @@ error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
         } catch (\Exception $ex) {
             throw $ex;
         }
-    }
-    
-    public static function formatSSN($digits)
-    {
-        if($digits != NULL && strlen($digits) == 9)
-        {
-            return $digits[0] . $digits[1] . $digits[2] 
-                    . '-' . $digits[3] . $digits[4] 
-                    . '-' . $digits[5] . $digits[6] . $digits[7] . $digits[8];
-        }
-        return $digits;
     }
 }

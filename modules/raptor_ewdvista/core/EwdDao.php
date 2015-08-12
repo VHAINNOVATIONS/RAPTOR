@@ -53,7 +53,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration 20150812.2";
+        return "EWD VISTA EHR Integration 20150812.3";
     }
 
     /**
