@@ -742,36 +742,39 @@ Signed: 07/16/2015 14:45
 
     public function getAllHospitalLocationsMap()
     {
-        $serviceName = 'getHospitalLocationsMap';   //Only gets 44 at a time
-        $args = array();
-        $args['target'] = '';   //Start at the start
-        $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE));        
-        $formatted = array();
-        //TODO --- loop through until we get ALL the hospital locations
-        
-/*
- *         $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
-        
-        if (!isset($soapResult) || 
-                !isset($soapResult->getHospitalLocationsResult) || 
-                isset($soapResult->getHospitalLocationsResult->fault)) {
-            throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
-        }
+        try
+        {
+            $serviceName = 'getHospitalLocationsMap';   //Only gets 44 at a time
+            $args = array();
+            $args['target'] = '';   //Start at the start
+            $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+    error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE));        
+            $formatted = array();
+            //TODO --- loop through until we get ALL the hospital locations
 
-        $locations = array();
-        $locationTOs = is_array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO) ? 
-                            $soapResult->getHospitalLocationsResult->locations->HospitalLocationTO :
-                            array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO); 
+    /*
+     *         $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
 
-        foreach ($locationTOs as $locTO) {
-            $locations[$locTO->id] = $locTO->name;
+            if (!isset($soapResult) || 
+                    !isset($soapResult->getHospitalLocationsResult) || 
+                    isset($soapResult->getHospitalLocationsResult->fault)) {
+                throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
+            }
+
+            $locations = array();
+            $locationTOs = is_array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO) ? 
+                                $soapResult->getHospitalLocationsResult->locations->HospitalLocationTO :
+                                array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO); 
+
+            foreach ($locationTOs as $locTO) {
+                $locations[$locTO->id] = $locTO->name;
+            }
+            return $locations;
+     */        
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $locations;
- */        
-        
-        
-        return $formatted;
     }
 
     public function getAllergiesDetailMap()
@@ -2411,33 +2414,37 @@ value: {
 }-
 }
          */
-        
-        $serviceName = $this->getCallingFunctionName();
-        $args = array();
-        $args['patientId'] = $this->getSelectedPatientID();
-        
-        //TODO: this date logic is kind of heavy we need to make it elegant 
-        $oneMonthAgo = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
-        $today = MdwsUtils::getVistaDate(0);
-        $args['fromDate'] = EwdUtils::convertVistaDateToYYYYMMDD($oneMonthAgo);
-        $args['toDate'] = MdwsUtils::convertVistaDateToYYYYMMDD($today);
-        
-        $rawresult = $this->getServiceRelatedData($serviceName, $args);
-        $visitAry = $rawresult['value'];
-       
-        foreach ($visitAry as $visit) {
-            $a = explode('^', $v);
-            $l = explode(';', $a[0]); //first field is an array "location name, visit timestamp, locationID"
-            $aryItem = array(
-                'locationName' => $l[0],
-                'locationId' => $l[2],
-                'visitTimestamp' => $a[1], //same as $l[1]
-                'visitTO' => $a[2]
-            );
-            $result[] = $aryItem;   //Already acending
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $this->getSelectedPatientID();
+
+            //TODO: this date logic is kind of heavy we need to make it elegant 
+            $oneMonthAgo = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
+            $today = EwdUtils::getVistaDate(0);
+            $args['fromDate'] = EwdUtils::convertVistaDateToYYYYMMDD($oneMonthAgo);
+            $args['toDate'] = EwdUtils::convertVistaDateToYYYYMMDD($today);
+
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $visitAry = $rawresult['value'];
+
+            foreach ($visitAry as $visit) {
+                $a = explode('^', $v);
+                $l = explode(';', $a[0]); //first field is an array "location name, visit timestamp, locationID"
+                $aryItem = array(
+                    'locationName' => $l[0],
+                    'locationId' => $l[2],
+                    'visitTimestamp' => $a[1], //same as $l[1]
+                    'visitTO' => $a[2]
+                );
+                $result[] = $aryItem;   //Already acending
+            }
+            $aSorted = array_reverse($result); //Now this is descrnding.
+            return $aSorted;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $aSorted = array_reverse($result); //Now this is descrnding.
-        return $aSorted;
     }
 
     public function getVistaAccountKeyProblems()
