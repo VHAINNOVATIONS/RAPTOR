@@ -786,12 +786,17 @@ Signed: 07/16/2015 14:45
             $args = array();
             $args['target'] = '';   //Start at the start
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
-    error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE));        
+    error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE)); 
+    $rawdata = $rawresult['value'];
             $formatted = array();
-            foreach ($locationTOs as $locTO) 
+            foreach($rawdata as $key=>$onerow)
             {
-                $locations[$locTO->id] = $locTO->name;
+                $one_ar = explode('^',$onerow);
+                $newkey = $one_ar[0];
+                $formatted[$newkey] = $one_ar[1];
             }
+    error_log("LOOK formatted $serviceName result>>>>".print_r($formatted,TRUE)); 
+            return $formatted;
             //TODO --- loop through until we get ALL the hospital locations
 
     /*
