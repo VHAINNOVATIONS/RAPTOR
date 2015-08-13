@@ -777,47 +777,57 @@ Signed: 07/16/2015 14:45
             [27] => 194^CLINIC PATTERN SEVEN
             [28] => 224^CLINIC PATTERN SIXTY
             [29] => 189^CLINIC PATTERN THREE
-            [30] => 188^CLINIC PATTERN TWO
+            ....
 
          */
         try
         {
             $serviceName = 'getHospitalLocationsMap';   //Only gets 44 at a time
-            $args = array();
-            $args['target'] = '';   //Start at the start
-            $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
-    error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE)); 
-    $rawdata = $rawresult['value'];
+            $callservice = TRUE;
+            $callcount=0;
+            $maxcalls = 10;
+            $prevend = '';
             $formatted = array();
-            foreach($rawdata as $key=>$onerow)
+            while($callservice)
             {
-                $one_ar = explode('^',$onerow);
-                $newkey = $one_ar[0];
-                $formatted[$newkey] = $one_ar[1];
+                $callcount++;
+                $args = array();
+                $args['target'] = $prevend;   //Start at the start
+                $rawresult = $this->getServiceRelatedData($serviceName, $args);
+        error_log("LOOK callcount=$callcount raw $serviceName result>>>>".print_r($rawresult,TRUE)); 
+                if(!isset($rawresult['value']))
+                {
+                    $callservice = FALSE;
+                } else {
+                    $rawdatarows = $rawresult['value'];
+                    $lastrawitem = end($rawdatarows);
+                    $last_ar = explode('^',$lastrawitem);
+                    $lastitem = $last_ar[0];
+                    $moreformatted = array();
+                    foreach($rawdatarows as $key=>$onerow)
+                    {
+                        $one_ar = explode('^',$onerow);
+                        $newkey = $one_ar[0];
+                        $moreformatted[$newkey] = $one_ar[1];
+                    }
+            error_log("LOOK callcount=$callcount prev=[$prevend] last=[$lastitem] $serviceName moreformatted=result>>>>".print_r($moreformatted,TRUE)); 
+                    if((count($rawdatarows) > 43) && $prevend != $lastitem)
+                    {
+                        $prevend = $lastitem;
+                        $callservice = TRUE;
+                    } else {
+                        $callservice = FALSE;
+                    }
+                    $formatted = $formatted + $moreformatted;
+                }
+                if($callcount >= $maxcalls)
+                {
+                    error_log("WARNING: TOO MANY ITERATIONS(hit $callcount with item $lastitem and max is $maxcalls) in getAllHospitalLocationsMap");
+                    $formatted['GETMORE'] = "TOO MANY LOCATIONS";
+                    $callservice = FALSE;
+                }
             }
-    error_log("LOOK formatted $serviceName result>>>>".print_r($formatted,TRUE)); 
-            return $formatted;
-            //TODO --- loop through until we get ALL the hospital locations
-
-    /*
-     *         $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
-
-            if (!isset($soapResult) || 
-                    !isset($soapResult->getHospitalLocationsResult) || 
-                    isset($soapResult->getHospitalLocationsResult->fault)) {
-                throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
-            }
-
-            $locations = array();
-            $locationTOs = is_array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO) ? 
-                                $soapResult->getHospitalLocationsResult->locations->HospitalLocationTO :
-                                array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO); 
-
-            foreach ($locationTOs as $locTO) {
-                $locations[$locTO->id] = $locTO->name;
-            }
-            return $locations;
-     */        
+        error_log("LOOK done $serviceName iterated $callcount times formatted result>>>>".print_r($formatted,TRUE)); 
             return $formatted;
         } catch (\Exception $ex) {
             throw $ex;
