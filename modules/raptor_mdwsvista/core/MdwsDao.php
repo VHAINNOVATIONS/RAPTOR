@@ -756,11 +756,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return \raptor_mdwsvista\MdwsUtils::writeRaptorSafetyChecklist($this, $aChecklistData, $encounterString, $cosignerDUZ);
     }
 
-    public function getImplementationInstance()
-    {
-        return $this;
-    }
-    
     public function invalidateCacheForEverything()
     {
         try

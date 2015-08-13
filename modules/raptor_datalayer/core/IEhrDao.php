@@ -125,7 +125,6 @@ interface IEhrDao
     public function getEncounterStringFromVisit($vistitTo);
     public function getHospitalLocationsMap($startingitem);
     public function getImagingTypesMap();
-    public function getImplementationInstance();
     public function getMedicationsDetailMap($atriskmeds = NULL);
     public function getNotesDetailMap();
     public function getOrderOverviewMap();
