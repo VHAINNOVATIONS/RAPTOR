@@ -88,7 +88,7 @@ class Diagnostic
     {
         try
         {
-             $mydao->getVisits();
+             return $mydao->getVisits();
         } catch (Exception $ex) {
             throw $ex;
         }        

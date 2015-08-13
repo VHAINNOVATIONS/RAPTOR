@@ -167,8 +167,9 @@ class DiagnosticPage1
                 $mydao->setPatientID(237);
                 $patientId = $mydao->getSelectedPatientID();
                 drupal_set_message("(3) executing: $action for patientId: $patientId ");
-                $oDiagnostic->testGetVisits($mydao);
-                drupal_set_message("(3) if we gt here then nothing seems failed, but it is not all");
+                $result = $oDiagnostic->testGetVisits($mydao);
+                drupal_set_message("(4) result: ".print_r($result,TRUE));
+                drupal_set_message("(5) if we got here then nothing seems failed, but it is not all");
             }else {
                 drupal_set_message("No action parameter value was provided",'warn');
             }
