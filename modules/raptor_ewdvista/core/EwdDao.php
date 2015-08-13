@@ -935,8 +935,22 @@ Signed: 07/16/2015 14:45
 
     public function getChemHemLabs()
     {
-       $serviceName = $this->getCallingFunctionName();
-       return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $this->getSelectedPatientID();
+            $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
+            $args['toDate'] = EwdUtils::getVistaDate(0);
+
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            
+            $result = $rawresult;
+ 
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }     
     }
 
     /**

@@ -94,4 +94,13 @@ class Diagnostic
         }        
     }    
     
+    public function testGetChemHemLabs($mydao)
+    {
+        try
+        {
+             return $mydao->getChemHemLabs();
+        } catch (Exception $ex) {
+            throw $ex;
+        }        
+    }          
 }
