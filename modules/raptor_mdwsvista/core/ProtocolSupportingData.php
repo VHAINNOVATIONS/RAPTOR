@@ -320,13 +320,13 @@ class ProtocolSupportingData
        
         if(!isset($serviceResponse->getVitalSignsResult->arrays->TaggedVitalSignSetArray->count))
         {
-            return array($displayVitals, $allVitals);
+            return array($displayVitals, $allVitals, $aLatestValues);
         }
        
         $numTaggedVitals = $serviceResponse->getVitalSignsResult->arrays->TaggedVitalSignSetArray->count;
         if($numTaggedVitals == 0)
         {
-            return array($displayVitals, $allVitals);
+            return array($displayVitals, $allVitals, $aLatestValues);
         }
         
         //Initialize the latest values array.
@@ -362,24 +362,30 @@ class ProtocolSupportingData
         {
             // Check to see if any sets vitals were returned. If not, return
             if(!isset($serviceResponse->getVitalSignsResult->arrays->TaggedVitalSignSetArray->sets->VitalSignSetTO))
-                    return array($displayVitals, $allVitals);
+            {
+                    return array($displayVitals, $allVitals, $aLatestValues);
+            }
             
             // Check to see if the set of vitals is an object or an array
             $objType = gettype($serviceResponse->getVitalSignsResult->arrays->TaggedVitalSignSetArray->sets->VitalSignSetTO);
             //Finally get the set of vitals
             if ($objType == 'array')
+            {
                 $vitalsSetTO = $serviceResponse->getVitalSignsResult->arrays->TaggedVitalSignSetArray->sets->VitalSignSetTO[$i];
-            elseif ($objType == 'object')
+            } elseif ($objType == 'object') {
                 $vitalsSetTO = $serviceResponse->getVitalSignsResult->arrays->TaggedVitalSignSetArray->sets->VitalSignSetTO;
-            else
-                return array($displayVitals, $allVitals);
+            } else {
+                return array($displayVitals, $allVitals, $aLatestValues);
+            }
 
-//drupal_set_message("LOOK DEBUG RAW VITALS RESULT>>>".print_r($vitalsSetTO,TRUE));
+//error_log("LOOK DEBUG RAW VitalSignTO MDWS RESULT>>>".print_r($vitalsSetTO,TRUE));
             
             
             $numVitalsTO=count($vitalsSetTO->vitalSigns->VitalSignTO);
             if($numVitalsTO == 0)
+            {
                 return $displayVitals;
+            }
             
             // Initialize vitals to all blanks so we can be sure to return a value for each column
             $displayVitals[$i]['Date Taken'] = " ";
@@ -605,7 +611,10 @@ class ProtocolSupportingData
                 }
             }
         }
+        
         $aResult = array($displayVitals, $allVitals, $aLatestValues);
+//error_log("LOOK DEBUG FINAL raw vitals MDWS bundle>>>".print_r($aResult,TRUE));
+        
         $this->m_oRuntimeResultCache->addToCache($sThisResultName, $aResult);
         return $aResult;
     }

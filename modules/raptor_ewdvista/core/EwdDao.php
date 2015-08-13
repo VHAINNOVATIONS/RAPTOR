@@ -18,6 +18,7 @@ require_once 'EwdUtils.php';
 require_once 'WebServices.php';
 require_once 'WorklistHelper.php';
 require_once 'DashboardHelper.php';
+require_once 'VitalsHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
     or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150813.2');
@@ -1605,129 +1606,18 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
 
     public function getRawVitalSignsMap()
     {
-        /*
-         * 
-         * [13-Aug-2015 13:51:04 America/New_York] LOOK raw getRawVitalSignsMap result = Array
-(
-    [result] => Array
-        (
-            [WP] => Array
-                (
-                    [6899181.8397] => Array
-                        (
-                            [1] => 1^CAMP MASTER;500
-                            [2] => 2^08/17/2010 16:03
-                            [3] => 3^99.5
-                            [4] => 4^61
-                            [5] => 5^22
-                            [6] => 6^190/85
-                            [10] => 10^96
-                            [15] => Array
-                                (
-                                    [1] => 15^
-                                )
-
-                            [17] => Array
-                                (
-                                    [1] => 17^BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
-                                )
-
-                        )
-
-                    [6899182.7871] => Array
-                        (
-                            [1] => 1^CAMP MASTER;500
-                            [2] => 2^08/16/2010 21:29
-                            [3] => 3^99.5
-                            [4] => 4^61
-                            [5] => 5^22
-                            [6] => 6^190/85
-                            [10] => 10^96
-                            [15] => Array
-                                (
-                                    [1] => 15^
-                                )
-
-                            [17] => Array
-                                (
-                                    [1] => 17^BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
-                                )
-
-                        )
-
-         */
-
         try
         {
+            $myhelper = new \raptor_ewdvista\VitalsHelper();
             $mycollections = array();
             $serviceName = $this->getCallingFunctionName();
             $args = array();
             $args['patientId'] = $this->getSelectedPatientID();
 error_log("LOOK about to call $serviceName(".print_r($args, TRUE).')');                
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK raw $serviceName result = ".print_r($rawresult, TRUE));                
-            if(!isset($rawresult['result']))
-            {
-                throw new \Exception("Missing key result in ".print_r($rawresult,TRUE));
-            }
-            $rawdata = $rawresult['result'];
-            $formatted = array();
-            $chunkcount = 0;
-            foreach ($rawdata as $key=>$onechunk) 
-            {
-                $chunkcount++;
-    error_log("LOOK rawVitals (c=$chunkcount) chunk[$key] = ".print_r($onechunk, TRUE));
-                $rowcount = 0;
-                $onecollection = array();
-                $onecollection['tag'] = VISTA_SITE;
-                $setscontent = array();
-                foreach ($onechunk as $timestampkey=>$onerow) 
-                {
-                    $rowcount++;
-                    $cleanitem = array();
-                    $cleanitem['timestamp'] = $timestampkey;
-                    $cleanvitalsigns = array();
-    error_log("LOOK rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey]=".print_r($onerow, TRUE));  
-                    $facility = NULL;
-                    $units = NULL;
-                    $qualifiers = NULL;
-                    foreach($onerow as $itemkey=>$itemdetail)
-                    {
-                        switch($itemkey)
-                        {
-                            case 1:
-                                $expl1 = explode(';',$itemdetail);
-                                $facility = array('tag' => $expl1[1] , 'text' => $expl1[0]);
-                                break;
-                            case 17:
-                                $units = $itemdetail;
-                                break;
-                            default:
-                                if(is_array($itemdetail))
-                                {
-            error_log("LOOK STRANGE rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($itemdetail, TRUE));  
-                                } else {
-                                    $a = explode('^', $itemdetail);
-            error_log("LOOK nice rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($a, TRUE));  
-                                }
-                        }
-                    }
-                    $cleanitem['facility'] = $facility;
-                    $cleanitem['vitalSigns'] = $cleanvitalsigns;
-                    $cleanitem['units'] = $units;
-                    $cleanitem['qualifiers'] = $qualifiers;
-                    $setscontent[] = $cleanitem;
-                }
-                $onecollection['count'] = count($setscontent);
-                $sets = array();
-                $sets['VitalSignSetTO'] = $setscontent;
-                $onecollection['sets'] = $sets;
-                $mycollections[$key] = $onecollection;
-            }
-            $bundle = array();
-            $bundle['count'] = count($mycollections);
-            $bundle['arrays'] = $mycollections;
-            error_log("LOOK final bundle rawVitals ".print_r($bundle, TRUE));  
+error_log("LOOK raw $serviceName result = ".print_r($rawresult, TRUE));  
+            $bundle = $myhelper->getFormattedSuperset($rawresult);
+error_log("LOOK final bundle rawVitals ".print_r($bundle, TRUE));  
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
