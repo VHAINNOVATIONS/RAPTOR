@@ -172,7 +172,8 @@ class DiagnosticPage1
                 drupal_set_message("(5) if we got here then nothing seems failed, but it is not all");
             }
             else if($action == 'GETCHEMHEMLABS') {
-                drupal_set_message("(1) Try to login...");
+                $v = RAPTOR_CONFIG_ID;
+                drupal_set_message("(1) Try to login... CONFIG: $v");
                 $mydao = $oDiagnostic->testCreateDao();//$this->testcreate();
                 $username = $myvalues['username'];
                 $password = $myvalues['password'];
