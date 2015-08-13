@@ -935,8 +935,34 @@ Signed: 07/16/2015 14:45
 
     public function getChemHemLabs()
     {
-       $serviceName = $this->getCallingFunctionName();
-       return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $this->getSelectedPatientID();
+            $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
+            $args['toDate'] = EwdUtils::getVistaDate(0);
+
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $result = "TODO";//['value'];
+
+            /*foreach ($visitAry as $visit) {
+                $a = explode('^', $visit);
+                $l = explode(';', $a[0]); //first field is an array "location name;visit timestamp;locationID"
+                $aryItem = array(
+                    //'raw' => $visit,
+                    'locationName' => $l[0],
+                    'locationId' => $l[2],
+                    'visitTimestamp' => EwdUtils::convertVistaDateToYYYYMMDD($a[1]), //same as $l[1]
+                    'visitTO' => $a[2]
+                );
+                $result[] = $aryItem;   //Already acending
+            }*/
+            
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }     
     }
 
     /**
