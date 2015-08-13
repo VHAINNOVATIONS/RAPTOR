@@ -788,6 +788,10 @@ Signed: 07/16/2015 14:45
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
     error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE));        
             $formatted = array();
+            foreach ($locationTOs as $locTO) 
+            {
+                $locations[$locTO->id] = $locTO->name;
+            }
             //TODO --- loop through until we get ALL the hospital locations
 
     /*
@@ -1207,12 +1211,6 @@ error_log("LOOK dashboard=".print_r($dashboard,TRUE));
         } catch (\Exception $ex) {
             throw $ex;
         }
-    }
-
-    public function getImplementationInstance()
-    {
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getMedicationsDetailMap($atriskmeds = NULL)
