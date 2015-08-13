@@ -20,7 +20,7 @@ require_once 'WorklistHelper.php';
 require_once 'DashboardHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150813.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150813.2');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1298,7 +1298,7 @@ error_log("Look about to call service $serviceName($sTrackingID) ...");
         $namedparts = $this->getTrackingIDNamedParts($tid);
         $args['ien'] = $namedparts['ien'];
         $result = $this->getServiceRelatedData($serviceName, $args);
-        error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
+error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
         if(!isset($result['result']))
         {
             throw new \Exception("Missing patient ID result from tracking ID value $sTrackingID: ".print_r($result,TRUE));
@@ -2151,18 +2151,29 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
                                                 )
 
          */
-       
-        $pid = $this->getSelectedPatientID();
-        $serviceName = $this->getCallingFunctionName();
-        $args = array();
-        $args['patientId'] = $pid;
-        $rawresult = $this->getServiceRelatedData($serviceName, $args);
-        
-        $a = explode('^', $rawresult['value']);
-        $result = array();
- 	$result['todo'] = $a[0];        
 
-        return $result;
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $this->getSelectedPatientID();
+error_log("LOOK about to call $serviceName(".print_r($args,TRUE).')');                
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $rawdata = $rawresult['value'];
+            $formatted = array();
+            $rowcount = 0;
+            foreach ($rawdata as $onerow) 
+            {
+                $rowcount++;
+                $a = explode('^', $onerow);
+error_log("LOOK rawVitals one(# $rowcount) raw row=".print_r($onerow,TRUE));                
+            }
+            $aSorted = array_reverse($result); //Now this is descrnding.
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+        
     }
 
     public function getSurgeryReportsDetailMap()
