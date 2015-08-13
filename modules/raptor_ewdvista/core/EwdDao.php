@@ -20,7 +20,7 @@ require_once 'WorklistHelper.php';
 require_once 'DashboardHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150813.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150813.2');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1324,7 +1324,7 @@ error_log("Look about to call service $serviceName($sTrackingID) ...");
         $namedparts = $this->getTrackingIDNamedParts($tid);
         $args['ien'] = $namedparts['ien'];
         $result = $this->getServiceRelatedData($serviceName, $args);
-        error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
+error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
         if(!isset($result['result']))
         {
             throw new \Exception("Missing patient ID result from tracking ID value $sTrackingID: ".print_r($result,TRUE));
@@ -1606,6 +1606,59 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
     public function getRawVitalSignsMap()
     {
         /*
+         * 
+         * [13-Aug-2015 13:51:04 America/New_York] LOOK raw getRawVitalSignsMap result = Array
+(
+    [result] => Array
+        (
+            [WP] => Array
+                (
+                    [6899181.8397] => Array
+                        (
+                            [1] => 1^CAMP MASTER;500
+                            [2] => 2^08/17/2010 16:03
+                            [3] => 3^99.5
+                            [4] => 4^61
+                            [5] => 5^22
+                            [6] => 6^190/85
+                            [10] => 10^96
+                            [15] => Array
+                                (
+                                    [1] => 15^
+                                )
+
+                            [17] => Array
+                                (
+                                    [1] => 17^BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
+                                )
+
+                        )
+
+                    [6899182.7871] => Array
+                        (
+                            [1] => 1^CAMP MASTER;500
+                            [2] => 2^08/16/2010 21:29
+                            [3] => 3^99.5
+                            [4] => 4^61
+                            [5] => 5^22
+                            [6] => 6^190/85
+                            [10] => 10^96
+                            [15] => Array
+                                (
+                                    [1] => 15^
+                                )
+
+                            [17] => Array
+                                (
+                                    [1] => 17^BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
+                                )
+
+                        )
+
+         * 
+         * 
+         * 
+         * 
          * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getRawVitalSigns' is >>>stdClass Object
 (
     [getVitalSignsResult] => stdClass Object
@@ -2177,18 +2230,48 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
                                                 )
 
          */
-       
-        $pid = $this->getSelectedPatientID();
-        $serviceName = $this->getCallingFunctionName();
-        $args = array();
-        $args['patientId'] = $pid;
-        $rawresult = $this->getServiceRelatedData($serviceName, $args);
-        
-        $a = explode('^', $rawresult['value']);
-        $result = array();
- 	$result['todo'] = $a[0];        
 
-        return $result;
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $this->getSelectedPatientID();
+error_log("LOOK about to call $serviceName(".print_r($args,TRUE).')');                
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK raw $serviceName result = ".print_r($rawresult,TRUE));                
+            if(!isset($rawresult['result']))
+            {
+                throw new \Exception("Missing key result in ".print_r($rawresult,TRUE));
+            }
+            $rawdata = $rawresult['result'];
+            $formatted = array();
+            $chunkcount = 0;
+            foreach ($rawdata as $key=>$onechunk) 
+            {
+                $chunkcount++;
+    error_log("LOOK rawVitals (c=$chunkcount) chunk[$key] = ".print_r($onechunk,TRUE));                
+                $rowcount = 0;
+                foreach ($onechunk as $timestampkey=>$onerow) 
+                {
+                    $rowcount++;
+    error_log("LOOK rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey]=".print_r($onerow,TRUE));  
+                    foreach($onerow as $itemkey=>$itemdetail)
+                    {
+                        if(is_array($itemdetail))
+                        {
+    error_log("LOOK STRANGE rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($itemdetail,TRUE));  
+                        } else {
+                            $a = explode('^', $itemdetail);
+    error_log("LOOK nice rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($a,TRUE));  
+                        }
+                    }
+                }
+            }
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+        
     }
 
     public function getSurgeryReportsDetailMap()
