@@ -19,6 +19,9 @@ require_once 'WebServices.php';
 require_once 'WorklistHelper.php';
 require_once 'DashboardHelper.php';
 
+defined('VERSION_INFO_RAPTOR_EWDDAO')
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150813.1');
+
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
 defined('REDAO_CACHE_NM_SUFFIX_DASHBOARD')
@@ -53,7 +56,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration 20150812.3";
+        return VERSION_INFO_RAPTOR_EWDDAO;
     }
 
     /**
@@ -1144,8 +1147,25 @@ error_log("LOOK dashboard=".print_r($dashboard,TRUE));
 
     public function getImagingTypesMap()
     {
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
+        //Returns results like this...
+        //$result['37'] = 'ANGIO/NEURO/INTERVENTIONAL';
+        //$result['5'] = 'MRI';
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $rawresult = $this->getServiceRelatedData($serviceName);
+            $rawdata = $rawresult['value'];
+            $formatted = array();
+            foreach($rawdata as $key=>$onerow)
+            {
+                $one_ar = explode('^',$onerow);
+                $newkey = $one_ar[3];
+                $formatted[$newkey] = $one_ar[1];
+            }
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getImplementationInstance()
