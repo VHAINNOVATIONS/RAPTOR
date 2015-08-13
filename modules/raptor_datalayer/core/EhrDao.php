@@ -280,7 +280,9 @@ class EhrDao implements \raptor\IEhrDao
 
     public function getRawVitalSignsMap()
     {
-        return $this->m_implclass->getRawVitalSignsMap();
+        $result = $this->m_implclass->getRawVitalSignsMap();
+        //error_log("LOOK clean getRawVitalSignsMap result>>>".print_r($result,TRUE));
+        return $result;
     }
     
     public function getAllHospitalLocationsMap()

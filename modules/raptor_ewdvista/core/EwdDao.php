@@ -337,7 +337,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Returns array of arrays the way RAPTOR expects it.
      */
-    public function getWorklistDetailsMap($max_rows_one_call = 500, $start_with_IEN=NULL)
+    public function getWorklistDetailsMap($max_rows_one_call = 1500, $start_with_IEN=NULL)
     {
         try
         {
@@ -1629,590 +1629,17 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
 
                         )
 
-         * 
-         * 
-         * 
-         * 
-         * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getRawVitalSigns' is >>>stdClass Object
-(
-    [getVitalSignsResult] => stdClass Object
-        (
-            [count] => 1
-            [arrays] => stdClass Object
-                (
-                    [TaggedVitalSignSetArray] => stdClass Object
-                        (
-                            [count] => 100
-                            [tag] => 500
-                            [sets] => stdClass Object
-                                (
-                                    [VitalSignSetTO] => Array
-                                        (
-                                            [0] => stdClass Object
-                                                (
-                                                    [timestamp] => 20100817.160300
-                                                    [facility] => stdClass Object
-                                                        (
-                                                            [tag] => 500
-                                                            [text] => CAMP MASTER
-                                                        )
-
-                                                    [vitalSigns] => stdClass Object
-                                                        (
-                                                            [VitalSignTO] => Array
-                                                                (
-                                                                    [0] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Temperature
-                                                                                )
-
-                                                                            [value1] => 99.5
-                                                                            [units] => F
-                                                                        )
-
-                                                                    [1] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse
-                                                                                )
-
-                                                                            [value1] => 61
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [2] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Respiration
-                                                                                )
-
-                                                                            [value1] => 22
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [3] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190/85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [4] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Systolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [5] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Diastolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [6] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse Oxymetry
-                                                                                )
-
-                                                                            [value1] => 96
-                                                                        )
-
-                                                                )
-
-                                                        )
-
-                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
-                                                    [qualifiers] => 
-                                                )
-
-                                            [1] => stdClass Object
-                                                (
-                                                    [timestamp] => 20100816.212900
-                                                    [facility] => stdClass Object
-                                                        (
-                                                            [tag] => 500
-                                                            [text] => CAMP MASTER
-                                                        )
-
-                                                    [vitalSigns] => stdClass Object
-                                                        (
-                                                            [VitalSignTO] => Array
-                                                                (
-                                                                    [0] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Temperature
-                                                                                )
-
-                                                                            [value1] => 99.5
-                                                                            [units] => F
-                                                                        )
-
-                                                                    [1] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse
-                                                                                )
-
-                                                                            [value1] => 61
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [2] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Respiration
-                                                                                )
-
-                                                                            [value1] => 22
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [3] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190/85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [4] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Systolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [5] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Diastolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [6] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse Oxymetry
-                                                                                )
-
-                                                                            [value1] => 96
-                                                                        )
-
-                                                                )
-
-                                                        )
-
-                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
-                                                    [qualifiers] => 
-                                                )
-
-                                            [2] => stdClass Object
-                                                (
-                                                    [timestamp] => 20100815.195100
-                                                    [facility] => stdClass Object
-                                                        (
-                                                            [tag] => 500
-                                                            [text] => CAMP MASTER
-                                                        )
-
-                                                    [vitalSigns] => stdClass Object
-                                                        (
-                                                            [VitalSignTO] => Array
-                                                                (
-                                                                    [0] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Temperature
-                                                                                )
-
-                                                                            [value1] => 99.5
-                                                                            [units] => F
-                                                                        )
-
-                                                                    [1] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse
-                                                                                )
-
-                                                                            [value1] => 61
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [2] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Respiration
-                                                                                )
-
-                                                                            [value1] => 22
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [3] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190/85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [4] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Systolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [5] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Diastolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [6] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse Oxymetry
-                                                                                )
-
-                                                                            [value1] => 96
-                                                                        )
-
-                                                                )
-
-                                                        )
-
-                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
-                                                    [qualifiers] => 
-                                                )
-
-                                            [3] => stdClass Object
-                                                (
-                                                    [timestamp] => 20100814.113700
-                                                    [facility] => stdClass Object
-                                                        (
-                                                            [tag] => 500
-                                                            [text] => CAMP MASTER
-                                                        )
-
-                                                    [vitalSigns] => stdClass Object
-                                                        (
-                                                            [VitalSignTO] => Array
-                                                                (
-                                                                    [0] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Temperature
-                                                                                )
-
-                                                                            [value1] => 99.5
-                                                                            [units] => F
-                                                                        )
-
-                                                                    [1] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse
-                                                                                )
-
-                                                                            [value1] => 61
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [2] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Respiration
-                                                                                )
-
-                                                                            [value1] => 22
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [3] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190/85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [4] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Systolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [5] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Diastolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [6] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse Oxymetry
-                                                                                )
-
-                                                                            [value1] => 96
-                                                                        )
-
-                                                                )
-
-                                                        )
-
-                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
-                                                    [qualifiers] => 
-                                                )
-
-                                            [4] => stdClass Object
-                                                (
-                                                    [timestamp] => 20100813.101100
-                                                    [facility] => stdClass Object
-                                                        (
-                                                            [tag] => 500
-                                                            [text] => CAMP MASTER
-                                                        )
-
-                                                    [vitalSigns] => stdClass Object
-                                                        (
-                                                            [VitalSignTO] => Array
-                                                                (
-                                                                    [0] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Temperature
-                                                                                )
-
-                                                                            [value1] => 99.5
-                                                                            [units] => F
-                                                                        )
-
-                                                                    [1] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse
-                                                                                )
-
-                                                                            [value1] => 61
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [2] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Respiration
-                                                                                )
-
-                                                                            [value1] => 22
-                                                                            [units] => /min
-                                                                        )
-
-                                                                    [3] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190/85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [4] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Systolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 190
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [5] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Diastolic Blood Pressure
-                                                                                )
-
-                                                                            [value1] => 85
-                                                                            [units] => mmHg
-                                                                        )
-
-                                                                    [6] => stdClass Object
-                                                                        (
-                                                                            [type] => stdClass Object
-                                                                                (
-                                                                                    [id] => 
-                                                                                    [category] => Vital Sign
-                                                                                    [name] => Pulse Oxymetry
-                                                                                )
-
-                                                                            [value1] => 96
-                                                                        )
-
-                                                                )
-
-                                                        )
-
-                                                    [units] => BP:mmHg,PULSE:/min,POx:%SpO2,RESP: /min,TEMP:F
-                                                    [qualifiers] => 
-                                                )
-
          */
 
         try
         {
+            $mycollections = array();
             $serviceName = $this->getCallingFunctionName();
             $args = array();
             $args['patientId'] = $this->getSelectedPatientID();
-error_log("LOOK about to call $serviceName(".print_r($args,TRUE).')');                
+error_log("LOOK about to call $serviceName(".print_r($args, TRUE).')');                
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK raw $serviceName result = ".print_r($rawresult,TRUE));                
+error_log("LOOK raw $serviceName result = ".print_r($rawresult, TRUE));                
             if(!isset($rawresult['result']))
             {
                 throw new \Exception("Missing key result in ".print_r($rawresult,TRUE));
@@ -2223,25 +1650,59 @@ error_log("LOOK raw $serviceName result = ".print_r($rawresult,TRUE));
             foreach ($rawdata as $key=>$onechunk) 
             {
                 $chunkcount++;
-    error_log("LOOK rawVitals (c=$chunkcount) chunk[$key] = ".print_r($onechunk,TRUE));                
+    error_log("LOOK rawVitals (c=$chunkcount) chunk[$key] = ".print_r($onechunk, TRUE));
                 $rowcount = 0;
+                $onecollection = array();
+                $onecollection['tag'] = VISTA_SITE;
+                $setscontent = array();
                 foreach ($onechunk as $timestampkey=>$onerow) 
                 {
                     $rowcount++;
-    error_log("LOOK rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey]=".print_r($onerow,TRUE));  
+                    $cleanitem = array();
+                    $cleanitem['timestamp'] = $timestampkey;
+                    $cleanvitalsigns = array();
+    error_log("LOOK rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey]=".print_r($onerow, TRUE));  
+                    $facility = NULL;
+                    $units = NULL;
+                    $qualifiers = NULL;
                     foreach($onerow as $itemkey=>$itemdetail)
                     {
-                        if(is_array($itemdetail))
+                        switch($itemkey)
                         {
-    error_log("LOOK STRANGE rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($itemdetail,TRUE));  
-                        } else {
-                            $a = explode('^', $itemdetail);
-    error_log("LOOK nice rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($a,TRUE));  
+                            case 1:
+                                $expl1 = explode(';',$itemdetail);
+                                $facility = array('tag' => $expl1[1] , 'text' => $expl1[0]);
+                                break;
+                            case 17:
+                                $units = $itemdetail;
+                                break;
+                            default:
+                                if(is_array($itemdetail))
+                                {
+            error_log("LOOK STRANGE rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($itemdetail, TRUE));  
+                                } else {
+                                    $a = explode('^', $itemdetail);
+            error_log("LOOK nice rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($a, TRUE));  
+                                }
                         }
                     }
+                    $cleanitem['facility'] = $facility;
+                    $cleanitem['vitalSigns'] = $cleanvitalsigns;
+                    $cleanitem['units'] = $units;
+                    $cleanitem['qualifiers'] = $qualifiers;
+                    $setscontent[] = $cleanitem;
                 }
+                $onecollection['count'] = count($setscontent);
+                $sets = array();
+                $sets['VitalSignSetTO'] = $setscontent;
+                $onecollection['sets'] = $sets;
+                $mycollections[$key] = $onecollection;
             }
-            return $formatted;
+            $bundle = array();
+            $bundle['count'] = count($mycollections);
+            $bundle['arrays'] = $mycollections;
+            error_log("LOOK final bundle rawVitals ".print_r($bundle, TRUE));  
+            return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
         }

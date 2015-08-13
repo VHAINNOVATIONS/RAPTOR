@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_BUILD_ID')
-    or define('RAPTOR_BUILD_ID', 'Test Candidate 20150813.1');
+    or define('RAPTOR_BUILD_ID', 'Test Candidate 20150813.2');
 
 //If this is not empty, then username must be prefixed with this text
 defined('USERNAME_PREFIX_SALT')
