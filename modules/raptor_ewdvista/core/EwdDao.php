@@ -2465,28 +2465,26 @@ value: {
 }-
 }
          */
+
         try
         {
             $serviceName = $this->getCallingFunctionName();
             $args = array();
             $args['patientId'] = $this->getSelectedPatientID();
-
-            //TODO: this date logic is kind of heavy we need to make it elegant 
-            $oneMonthAgo = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
-            $today = EwdUtils::getVistaDate(0);
-            $args['fromDate'] = EwdUtils::convertVistaDateToYYYYMMDD($oneMonthAgo);
-            $args['toDate'] = EwdUtils::convertVistaDateToYYYYMMDD($today);
+            $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
+            $args['toDate'] = EwdUtils::getVistaDate(0);
 
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
             $visitAry = $rawresult['value'];
 
             foreach ($visitAry as $visit) {
-                $a = explode('^', $v);
-                $l = explode(';', $a[0]); //first field is an array "location name, visit timestamp, locationID"
+                $a = explode('^', $visit);
+                $l = explode(';', $a[0]); //first field is an array "location name;visit timestamp;locationID"
                 $aryItem = array(
+                    //'raw' => $visit,
                     'locationName' => $l[0],
                     'locationId' => $l[2],
-                    'visitTimestamp' => $a[1], //same as $l[1]
+                    'visitTimestamp' => EwdUtils::convertVistaDateToYYYYMMDD($a[1]), //same as $l[1]
                     'visitTO' => $a[2]
                 );
                 $result[] = $aryItem;   //Already acending

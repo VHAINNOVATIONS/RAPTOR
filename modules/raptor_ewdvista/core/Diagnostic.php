@@ -82,4 +82,16 @@ class Diagnostic
             throw $ex;
         }        
     }
+    
+    
+    public function testGetVisits($mydao)
+    {
+        try
+        {
+             return $mydao->getVisits();
+        } catch (Exception $ex) {
+            throw $ex;
+        }        
+    }    
+    
 }

@@ -36,7 +36,7 @@ class DiagnosticPage1
     {
         $myvalues['getfieldvalues_timestamp']=time();
         $myvalues['action'] = 'INIT';
-        $myvalues['valid_actions'] = strtoupper('CREATE,INIT,GETCREDENTIALS,LOGIN,GETWORKLIST,getNotesDetailMap');
+        $myvalues['valid_actions'] = strtoupper('CREATE,INIT,GETCREDENTIALS,LOGIN,GETWORKLIST,getNotesDetailMap,GETVISITS');
         return $myvalues;
     }
     
@@ -155,7 +155,22 @@ class DiagnosticPage1
                 drupal_set_message("Testing $action with callAPI($method, $url)");
                 $result = $oWebServices->callAPI($method, $url);
                 drupal_set_message("TODO $action".print_r($result,TRUE));
-            } else {
+            } 
+            else if($action == 'GETVISITS') {
+                drupal_set_message("(1) Try to login...");
+                $mydao = $oDiagnostic->testCreateDao();//$this->testcreate();
+                //$mydao->initClient();
+                $username = $myvalues['username'];
+                $password = $myvalues['password'];
+                drupal_set_message("(2) executing login for action: $action");
+                $oDiagnostic->testLogin($mydao,$username,$password);
+                $mydao->setPatientID(237);
+                $patientId = $mydao->getSelectedPatientID();
+                drupal_set_message("(3) executing: $action for patientId: $patientId ");
+                $result = $oDiagnostic->testGetVisits($mydao);
+                drupal_set_message("(4) result: ".print_r($result,TRUE));
+                drupal_set_message("(5) if we got here then nothing seems failed, but it is not all");
+            }else {
                 drupal_set_message("No action parameter value was provided",'warn');
             }
         } catch (\Exception $ex) {
