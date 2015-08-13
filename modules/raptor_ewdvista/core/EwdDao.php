@@ -19,6 +19,9 @@ require_once 'WebServices.php';
 require_once 'WorklistHelper.php';
 require_once 'DashboardHelper.php';
 
+defined('VERSION_INFO_RAPTOR_EWDDAO')
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150813.1');
+
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
 defined('REDAO_CACHE_NM_SUFFIX_DASHBOARD')
@@ -53,7 +56,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getIntegrationInfo()
     {
-        return "EWD VISTA EHR Integration 20150812.3";
+        return VERSION_INFO_RAPTOR_EWDDAO;
     }
 
     /**
@@ -251,11 +254,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
 
+    /**
+     * Return the raw result from the restful service.
+     */
     private function getServiceRelatedData($serviceName,$args=NULL)
     {
         try
         {
-            error_log("Starting EWD $serviceName at " . microtime(TRUE));
+            //error_log("Starting EWD $serviceName at " . microtime(TRUE));
             $url = $this->getURL($serviceName,$args);
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
@@ -268,10 +274,10 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             error_log("LOOK JSON DATA for $serviceName('" . print_r($args,TRUE) . ') has result = ' . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
-            error_log("Finish EWD $serviceName at " . microtime(TRUE));
+            //error_log("Finish EWD $serviceName at " . microtime(TRUE));
             return $php_array;
         } catch (\Exception $ex) {
-            throw new \Exception("Trouble with $serviceName  because ".$ex,99876,$ex);;
+            throw new \Exception("Trouble with $serviceName($args) because $ex", 99876, $ex);;
         }
     }
     
@@ -331,31 +337,63 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Returns array of arrays the way RAPTOR expects it.
      */
-    public function getWorklistDetailsMap($max_rows_one_call = 500, $start_from_IEN=NULL)
+    public function getWorklistDetailsMap($max_rows_one_call = 500, $start_with_IEN=NULL)
     {
         try
         {
             $args = array();
             $serviceName = $this->getCallingFunctionName();
-            if($start_from_IEN == NULL)
+            if($start_with_IEN == NULL)
             {
                 $start_from_IEN = '';
+            } else {
+                if(!is_numeric($start_with_IEN))
+                {
+                    throw new \Exception("The starting IEN declaration must be numeric but instead we got ".print_r($start_with_IEN,TRUE));
+                }
+                $start_from_IEN = intval($start_with_IEN) + 1; //So we really start there
             }
-            $args['from'] = $start_from_IEN;
+            $maxpages=1;
+            $pages=0;
+            $matching_offset=NULL;
+            $getmorepages = TRUE;
+            $show_rows = array();
+            $pending_orders_map = array();
             $args['max'] = $max_rows_one_call;
-            $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+            $row_bundles = array();
+            while($getmorepages)
+            {
+                $pages++;
+                $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
+                $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
 //error_log("LOOK raw data rows for worklist>>>>".print_r($rawdatarows, TRUE));            
-            $matching_offset = NULL;    //TODO
-            $pending_orders_map = NULL; //TODO
-            $formated_datarows = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
-            $aResult = array('Pages'=>1
+                $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
+                $formated_datarows = $bundle['all_rows'];
+                $rowcount = count($formated_datarows);
+                if($rowcount == 0 || !isset($bundle['last_ien']))
+                {
+                    $getmorepages = FALSE;    
+                } else {
+                    $getmorepages = ($pages <= $maxpages);    
+                }
+                $start_from_IEN = $bundle['last_ien'];
+                if($bundle['matching_offset'] != NULL)
+                {
+                    $matching_offset = count($show_rows) + $bundle['matching_offset'];
+                }
+                $pending_orders_map = array_merge($pending_orders_map, $bundle['pending_orders_map']);
+                $row_bundles[] = $formated_datarows;
+//error_log("LOOK at page $pages getting more pages? ($getmorepages) >>>".print_r($row_bundles,TRUE));
+            }
+            $show_rows = $row_bundles[0];   //TODO FIX ARRAY MERGE!!!!! array_merge($row_bundles);
+            $aResult = array('Pages'=>$pages
                             ,'Page'=>1
-                            ,'RowsPerPage'=>9999
-                            ,'DataRows'=>$formated_datarows
+                            ,'RowsPerPage'=>$max_rows_one_call
+                            ,'DataRows'=>$show_rows
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
                 );
-//error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
+error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
             return $aResult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -704,36 +742,77 @@ Signed: 07/16/2015 14:45
 
     public function getAllHospitalLocationsMap()
     {
-        $serviceName = 'getHospitalLocationsMap';   //Only gets 44 at a time
-        $args = array();
-        $args['target'] = '';   //Start at the start
-        $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE));        
-        $formatted = array();
-        //TODO --- loop through until we get ALL the hospital locations
-        
-/*
- *         $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
-        
-        if (!isset($soapResult) || 
-                !isset($soapResult->getHospitalLocationsResult) || 
-                isset($soapResult->getHospitalLocationsResult->fault)) {
-            throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
-        }
+        /*
+         * [13-Aug-2015 10:25:22 America/New_York] LOOK raw getHospitalLocationsMap result>>>>Array
+(
+    [type] => ARRAY
+    [value] => Array
+        (
+            [1] => 12^2-INTERMED
+            [2] => 240^20 MINUTE
+            [3] => 206^45 CLINIC PATTERN
+            [4] => 205^45 PATTERN
+            [5] => 101^4C A
+            [6] => 82^7A/I
+            [7] => 249^90 SECOND TIME
+            [8] => 29^ADMISSIONS
+            [9] => 55^ADP
+            [10] => 115^ALCOHOL
+            [11] => 291^BARBARA'S CLINIC
+            [12] => 136^BECKY'S CLINIC
+            [13] => 20^BLOOD BANK
+            [14] => 143^BON-HBHC SOCIAL WORK
+            [15] => 64^CARDIOLOGY
+            [16] => 294^CBOC
+            [17] => 273^CECELIA'S CLINIC
+            [18] => 48^CENTRAL OFFICE
+            [19] => 113^CHILLICOTHE
+            [20] => 119^CHKREBOOK
+            [21] => 223^CLINIC (45)
+            [22] => 222^CLINIC (PAT)
+            [23] => 187^CLINIC PATTERN
+            [24] => 235^CLINIC PATTERN (MAIN)
+            [25] => 204^CLINIC PATTERN 45
+            [26] => 199^CLINIC PATTERN NINE
+            [27] => 194^CLINIC PATTERN SEVEN
+            [28] => 224^CLINIC PATTERN SIXTY
+            [29] => 189^CLINIC PATTERN THREE
+            [30] => 188^CLINIC PATTERN TWO
 
-        $locations = array();
-        $locationTOs = is_array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO) ? 
-                            $soapResult->getHospitalLocationsResult->locations->HospitalLocationTO :
-                            array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO); 
+         */
+        try
+        {
+            $serviceName = 'getHospitalLocationsMap';   //Only gets 44 at a time
+            $args = array();
+            $args['target'] = '';   //Start at the start
+            $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+    error_log("LOOK raw $serviceName result>>>>".print_r($rawdatarows,TRUE));        
+            $formatted = array();
+            //TODO --- loop through until we get ALL the hospital locations
 
-        foreach ($locationTOs as $locTO) {
-            $locations[$locTO->id] = $locTO->name;
+    /*
+     *         $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
+
+            if (!isset($soapResult) || 
+                    !isset($soapResult->getHospitalLocationsResult) || 
+                    isset($soapResult->getHospitalLocationsResult->fault)) {
+                throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
+            }
+
+            $locations = array();
+            $locationTOs = is_array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO) ? 
+                                $soapResult->getHospitalLocationsResult->locations->HospitalLocationTO :
+                                array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO); 
+
+            foreach ($locationTOs as $locTO) {
+                $locations[$locTO->id] = $locTO->name;
+            }
+            return $locations;
+     */        
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $locations;
- */        
-        
-        
-        return $formatted;
     }
 
     public function getAllergiesDetailMap()
@@ -1109,8 +1188,25 @@ error_log("LOOK dashboard=".print_r($dashboard,TRUE));
 
     public function getImagingTypesMap()
     {
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
+        //Returns results like this...
+        //$result['37'] = 'ANGIO/NEURO/INTERVENTIONAL';
+        //$result['5'] = 'MRI';
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $rawresult = $this->getServiceRelatedData($serviceName);
+            $rawdata = $rawresult['value'];
+            $formatted = array();
+            foreach($rawdata as $key=>$onerow)
+            {
+                $one_ar = explode('^',$onerow);
+                $newkey = $one_ar[3];
+                $formatted[$newkey] = $one_ar[1];
+            }
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getImplementationInstance()
@@ -2356,6 +2452,7 @@ value: {
 }-
 }
          */
+<<<<<<< HEAD
         
         $serviceName = $this->getCallingFunctionName();
         $args = array();
@@ -2380,9 +2477,39 @@ value: {
                 'visitTO' => $a[2]
             );
             $result[] = $aryItem;   //Already acending
+=======
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $this->getSelectedPatientID();
+
+            //TODO: this date logic is kind of heavy we need to make it elegant 
+            $oneMonthAgo = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
+            $today = EwdUtils::getVistaDate(0);
+            $args['fromDate'] = EwdUtils::convertVistaDateToYYYYMMDD($oneMonthAgo);
+            $args['toDate'] = EwdUtils::convertVistaDateToYYYYMMDD($today);
+
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $visitAry = $rawresult['value'];
+
+            foreach ($visitAry as $visit) {
+                $a = explode('^', $v);
+                $l = explode(';', $a[0]); //first field is an array "location name, visit timestamp, locationID"
+                $aryItem = array(
+                    'locationName' => $l[0],
+                    'locationId' => $l[2],
+                    'visitTimestamp' => $a[1], //same as $l[1]
+                    'visitTO' => $a[2]
+                );
+                $result[] = $aryItem;   //Already acending
+            }
+            $aSorted = array_reverse($result); //Now this is descrnding.
+            return $aSorted;
+        } catch (\Exception $ex) {
+            throw $ex;
+>>>>>>> 998f1e525aef61cd23ea479cd95332f0ad52755f
         }
-        $aSorted = array_reverse($result); //Now this is descrnding.
-        return $aSorted;
     }
 
     public function getVistaAccountKeyProblems()
@@ -2662,10 +2789,18 @@ value: {
         $a = explode('^', $rawresult['value']);
         $result = array();
         
+        if(isset($a[2]) && $a[2] > '')
+        {
+            $vista_dob = trim($a[2]);
+            $dob = \raptor_ewdvista\EwdUtils::convertVistaDateTimeToDate($vista_dob);
+        } else {
+            $dob = '';
+        }
+        
  	$result['patientName']  			= $a[0];
         $result['ssn']          			= $a[3];
         $result['gender']       			= $a[1];
-        $result['dob']          			= $a[2]; //TODO: string comes in some strange format that we need to handle some how, for instance "2350407" = 1935/Apr/07 which render this patient 80 years old in 2015
+        $result['dob']          			= $dob;
         $result['ethnicity']    			= "todo";
         $result['age']          			= $a[14];
         $result['maritalStatus']			= "todo";
