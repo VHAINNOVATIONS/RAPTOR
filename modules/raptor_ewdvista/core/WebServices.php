@@ -32,7 +32,8 @@ class WebServices
         try
         {
             $curl = curl_init();
-
+            //error_log("LOOK (0000002) callAPI method: $method");
+            //error_log("LOOK (0000003) callAPI supplied headers: " . print_r($headers_ar,TRUE));
             switch ($method)
             {
                 case "POST":
@@ -65,11 +66,16 @@ class WebServices
             // Optional Authentication:
             curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
             curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
+            //TODO: Note at the next step curl_exec() migh return error message listed below, 
+            //      while the same API call through Advanced Rest Client works just fine. 
+            //      Here is the error message:
+            //      {"code":"RESTError","message":"An error occurred while executing raptor/parse: TypeError: Cannot call method 'substr' of undefined"}
             $result = curl_exec($curl);
+            //error_log("LOOK (0000004) callAPI result: " . print_r($result,TRUE));
+            //error_log("LOOK (0000005) callAPI executes following curl: " . print_r($curl,TRUE));
 
             curl_close($curl);
 

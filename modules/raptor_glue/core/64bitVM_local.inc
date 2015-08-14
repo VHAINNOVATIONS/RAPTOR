@@ -39,8 +39,8 @@ defined('LAB_EGFR_ALERT_BAD_END_LEVEL')
 
 //Base URL for the EWD Federator (only relevant if using raptor_ewdvista)
 defined('EWDFED_BASE_URL')
-    //or define('EWDFED_BASE_URL', "http://54.243.40.32:8085/RaptorEwdVista/raptor/");
-    or define('EWDFED_BASE_URL', "http://54.243.40.32:8083/RaptorEwdVista/raptor/");
+    or define('EWDFED_BASE_URL', "http://54.243.40.32:8085/RaptorEwdVista/raptor/");
+    //or define('EWDFED_BASE_URL', "http://54.243.40.32:8083/RaptorEwdVista/raptor/");
     //or define('EWDFED_BASE_URL', "http://54.243.40.32:8081/RaptorEwdVista/raptor/");
 
 defined('EHR_INT_MODULE_NAME')

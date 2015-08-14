@@ -273,7 +273,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
-            error_log("LOOK JSON DATA for GET $url has result = " . print_r($json_string, TRUE));
+        error_log("LOOK JSON DATA for GET@URL=$url has result = " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
             //error_log("Finish EWD $serviceName at " . microtime(TRUE));
@@ -742,52 +742,18 @@ Signed: 07/16/2015 14:45
         throw new \Exception("Not implemented $orderChecks, $args");
     }
 
+    /**
+     * TODO: Confirm with Joel and Rob that intermittent 'target' param issue is resolved.
+     *       See email threads from 8/14 on the topic.
+     */
     public function getAllHospitalLocationsMap()
     {
-        /*
-         * [13-Aug-2015 10:25:22 America/New_York] LOOK raw getHospitalLocationsMap result>>>>Array
-(
-    [type] => ARRAY
-    [value] => Array
-        (
-            [1] => 12^2-INTERMED
-            [2] => 240^20 MINUTE
-            [3] => 206^45 CLINIC PATTERN
-            [4] => 205^45 PATTERN
-            [5] => 101^4C A
-            [6] => 82^7A/I
-            [7] => 249^90 SECOND TIME
-            [8] => 29^ADMISSIONS
-            [9] => 55^ADP
-            [10] => 115^ALCOHOL
-            [11] => 291^BARBARA'S CLINIC
-            [12] => 136^BECKY'S CLINIC
-            [13] => 20^BLOOD BANK
-            [14] => 143^BON-HBHC SOCIAL WORK
-            [15] => 64^CARDIOLOGY
-            [16] => 294^CBOC
-            [17] => 273^CECELIA'S CLINIC
-            [18] => 48^CENTRAL OFFICE
-            [19] => 113^CHILLICOTHE
-            [20] => 119^CHKREBOOK
-            [21] => 223^CLINIC (45)
-            [22] => 222^CLINIC (PAT)
-            [23] => 187^CLINIC PATTERN
-            [24] => 235^CLINIC PATTERN (MAIN)
-            [25] => 204^CLINIC PATTERN 45
-            [26] => 199^CLINIC PATTERN NINE
-            [27] => 194^CLINIC PATTERN SEVEN
-            [28] => 224^CLINIC PATTERN SIXTY
-            [29] => 189^CLINIC PATTERN THREE
-            ....
-
-         */
         try
         {
             $serviceName = 'getHospitalLocationsMap';   //Only gets 44 at a time
             $callservice = TRUE;
             $callcount=0;
-            $maxcalls = 10;
+            $maxcalls = 50;
             $prevend = ' ';
             $formatted = array();
             while($callservice)
@@ -796,13 +762,9 @@ Signed: 07/16/2015 14:45
                 $args = array();
                 $args['target'] = $prevend;   //Start at the start
                 $rawresult = $this->getServiceRelatedData($serviceName, $args);
-        error_log("LOOK callcount=$callcount raw $serviceName("
-                . print_r($args,TRUE) 
-                . ") result>>>>"
-                . print_r($rawresult,TRUE)); 
                 if(!isset($rawresult['value']))
                 {
-            error_log("LOOK callcount=$callcount QUIT ON ERROR prev=[$prevend] last=[$lastitem] $serviceName !"); 
+                    error_log("WARNING callcount=$callcount QUIT $serviceName ITERATIONS because NON-ARRAY RESULT prev=[$prevend] last=[$lastitem]"); 
                     $callservice = FALSE;
                 } else {
                     $rawdatarows = $rawresult['value'];
@@ -816,15 +778,11 @@ Signed: 07/16/2015 14:45
                         $newkey = $one_ar[0];
                         $moreformatted[$newkey] = $one_ar[1];
                     }
-            error_log("LOOK callcount=$callcount prev=[$prevend] last=[$lastitem] $serviceName moreformatted=result>>>>" 
-                    . print_r($moreformatted,TRUE)); 
-                    if(is_array($rawdatarows) && count($rawdatarows) > 0 && $prevend != $lastitem)
+                    if(is_array($rawdatarows) && count($rawdatarows) > 0 && strcasecmp($prevend, $lastitem) < 0)
                     {
                         $prevend = $lastitem;
                         $callservice = TRUE;
                     } else {
-            error_log("LOOK callcount=$callcount QUIT prev=[$prevend] last=[$lastitem] $serviceName moreformatted=result>>>>" 
-                    . print_r($moreformatted,TRUE)); 
                         $callservice = FALSE;
                     }
                     $formatted = $formatted + $moreformatted;
@@ -836,8 +794,6 @@ Signed: 07/16/2015 14:45
                     $callservice = FALSE;
                 }
             }
-        error_log("LOOK callcount=$callcount FINAL FORMATTED $serviceName iterated $callcount times (prev=[$prevend] last=[$lastitem])"
-                . " formatted (rows=".count($formatted).") result>>>>".print_r($formatted,TRUE)); 
             return $formatted;
         } catch (\Exception $ex) {
             throw $ex;
