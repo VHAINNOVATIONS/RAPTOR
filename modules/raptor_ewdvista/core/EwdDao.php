@@ -110,7 +110,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 {
                     $argtext .= '&';
                 }
-                $argtext .= "$k=$v";
+                $encoded = urlencode($v);
+                $argtext .= "$k=$encoded";
             }
             return $base_ewdfed_url . "$servicename?{$argtext}";
         }
@@ -272,7 +273,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
-            error_log("LOOK JSON DATA for $serviceName('" . print_r($args,TRUE) . ') has result = ' . print_r($json_string, TRUE));
+            error_log("LOOK JSON DATA for GET $url has result = " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
             //error_log("Finish EWD $serviceName at " . microtime(TRUE));
@@ -787,7 +788,7 @@ Signed: 07/16/2015 14:45
             $callservice = TRUE;
             $callcount=0;
             $maxcalls = 10;
-            $prevend = '';
+            $prevend = ' ';
             $formatted = array();
             while($callservice)
             {
@@ -795,15 +796,19 @@ Signed: 07/16/2015 14:45
                 $args = array();
                 $args['target'] = $prevend;   //Start at the start
                 $rawresult = $this->getServiceRelatedData($serviceName, $args);
-        error_log("LOOK callcount=$callcount raw $serviceName result>>>>".print_r($rawresult,TRUE)); 
+        error_log("LOOK callcount=$callcount raw $serviceName("
+                . print_r($args,TRUE) 
+                . ") result>>>>"
+                . print_r($rawresult,TRUE)); 
                 if(!isset($rawresult['value']))
                 {
+            error_log("LOOK callcount=$callcount QUIT ON ERROR prev=[$prevend] last=[$lastitem] $serviceName !"); 
                     $callservice = FALSE;
                 } else {
                     $rawdatarows = $rawresult['value'];
                     $lastrawitem = end($rawdatarows);
                     $last_ar = explode('^',$lastrawitem);
-                    $lastitem = $last_ar[0];
+                    $lastitem = $last_ar[1];
                     $moreformatted = array();
                     foreach($rawdatarows as $key=>$onerow)
                     {
@@ -811,12 +816,15 @@ Signed: 07/16/2015 14:45
                         $newkey = $one_ar[0];
                         $moreformatted[$newkey] = $one_ar[1];
                     }
-            error_log("LOOK callcount=$callcount prev=[$prevend] last=[$lastitem] $serviceName moreformatted=result>>>>".print_r($moreformatted,TRUE)); 
-                    if((count($rawdatarows) > 43) && $prevend != $lastitem)
+            error_log("LOOK callcount=$callcount prev=[$prevend] last=[$lastitem] $serviceName moreformatted=result>>>>" 
+                    . print_r($moreformatted,TRUE)); 
+                    if(is_array($rawdatarows) && count($rawdatarows) > 0 && $prevend != $lastitem)
                     {
                         $prevend = $lastitem;
                         $callservice = TRUE;
                     } else {
+            error_log("LOOK callcount=$callcount QUIT prev=[$prevend] last=[$lastitem] $serviceName moreformatted=result>>>>" 
+                    . print_r($moreformatted,TRUE)); 
                         $callservice = FALSE;
                     }
                     $formatted = $formatted + $moreformatted;
@@ -828,7 +836,8 @@ Signed: 07/16/2015 14:45
                     $callservice = FALSE;
                 }
             }
-        error_log("LOOK done $serviceName iterated $callcount times formatted result>>>>".print_r($formatted,TRUE)); 
+        error_log("LOOK callcount=$callcount FINAL FORMATTED $serviceName iterated $callcount times (prev=[$prevend] last=[$lastitem])"
+                . " formatted (rows=".count($formatted).") result>>>>".print_r($formatted,TRUE)); 
             return $formatted;
         } catch (\Exception $ex) {
             throw $ex;
