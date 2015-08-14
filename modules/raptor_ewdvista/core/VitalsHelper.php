@@ -22,15 +22,91 @@ require_once 'EwdUtils.php';
  */
 class VitalsHelper
 {
+    //Declare the vitals name strings
+    public static $VNAME_TEMPERATURE = "Temperature";
+    public static $VNAME_PULSE = "Pulse";
+    public static $VNAME_RESPIRATION = "Respiration";
+    public static $VNAME_BLOOD_PRESSURE = "Blood Pressure";
+    public static $VNAME_HEIGHT = "Height";
+    public static $VNAME_WEIGHT = "Weight";
+    public static $VNAME_PAIN = "Pain";
+    public static $VNAME_PULSE_OXYMETRY = "Pulse Oxymetry";
+    public static $VNAME_CENTRAL_VENOUS_PRESSURE = "Central Venous Pressure";
+    public static $VNAME_CIRCUMFERENCE_GIRTH = "Circumference/Girth";
+    public static $VNAME_BODY_MASS_INDEX = "Body Mass Index";
+
+    //Declare the short labels
+    public static $VSL_TEMPERATURE = "Temp";
+    public static $VSL_PULSE = "Pulse";
+    public static $VSL_RESPIRATION = "Resp";
+    public static $VSL_BLOOD_PRESSURE = "Blood Pressure";
+    public static $VSL_HEIGHT = "Height";
+    public static $VSL_WEIGHT = "Weight";
+    public static $VSL_PAIN = "Pain";
+    public static $VSL_PULSE_OXYMETRY = "Pox";
+    public static $VSL_CENTRAL_VENOUS_PRESSURE = "CVP";
+    public static $VSL_CIRCUMFERENCE_GIRTH = "C/G";
+    public static $VSL_BODY_MASS_INDEX = "BMI";
+
+    //Declare the units mashup labels
+    public static $VUL_TEMPERATURE = "TEMP";
+    public static $VUL_PULSE = "PULSE";
+    public static $VUL_RESPIRATION = "RESP";
+    public static $VUL_BLOOD_PRESSURE = "BP";
+    public static $VUL_HEIGHT = "HT";
+    public static $VUL_WEIGHT = "WT";
+    public static $VUL_PAIN = "PAIN";
+    public static $VUL_PULSE_OXYMETRY = "POx";
+    public static $VUL_PULSE_OXYMETRY_ALT = "O2";
+    public static $VUL_CENTRAL_VENOUS_PRESSURE = "CVP";
+    public static $VUL_CIRCUMFERENCE_GIRTH = "CG";
+    public static $VUL_BODY_MASS_INDEX = "BMI";
     
-    private function getOneVitalNode($itemdetail,$typename,$unitparts,$unitsname)
+    //Declare the vitals field numbers
+    private static $VFLD_FACILITY = 1;
+    private static $VFLD_TIMESTAMP = 2;
+    private static $VFLD_TEMPERATURE = 3;
+    private static $VFLD_PULSE = 4;
+    private static $VFLD_RESPIRATION = 5;
+    private static $VFLD_BLOOD_PRESSURE = 6;
+    private static $VFLD_HEIGHT = 7;
+    private static $VFLD_WEIGHT = 8;
+    private static $VFLD_PAIN = 9;
+    private static $VFLD_PULSE_OXYMETRY = 10;
+    private static $VFLD_CENTRAL_VENOUS_PRESSURE = 11;
+    private static $VFLD_CIRCUMFERENCE_GIRTH = 12;
+    private static $VFLD_UKNOWN13 = 13;
+    private static $VFLD_UKNOWN14 = 14;
+    private static $VFLD_QUALIFIERS = 15;
+    private static $VFLD_BODY_MASS_INDEX = 16;
+    private static $VFLD_UNITSMASHUP = 17;
+    
+    private function getOneVitalFormattedFromParts($itemdetail,$datestr,$timestamp,$typenamestr,$unitparts,$unitsname)
     {
+        $onevital = array();
+        $onevital['date'] = $datestr;
+        $onevital['name'] = $typenamestr;
         $expl = explode('^',$itemdetail);
-        $onevital = $this->getOneVitalNodeFromParts($typename, $expl[1], $unitparts[$unitsname]);
+        $onevital['value'] = $expl[1];
+        if(isset($unitparts[$unitsname]))
+        {
+            $onevital['units'] = $unitparts[$unitsname];
+        } else {
+            $onevital['units'] = 'TODO'.print_r($unitparts,TRUE);
+        }
+        $onevital['rawTime'] = $timestamp;
         return $onevital;
     }
 
-    private function getOneVitalNodeFromParts($typename,$value,$units)
+    
+    private function XXX_getOneVitalNode($itemdetail,$typename,$unitparts,$unitsname)
+    {
+        $expl = explode('^',$itemdetail);
+        $onevital = $this->XXX_getOneVitalNodeFromParts($typename, $expl[1], $unitparts[$unitsname]);
+        return $onevital;
+    }
+
+    private function XXX_getOneVitalNodeFromParts($typename,$value,$units)
     {
         $onevital = array();
         $onevital['type'] = array('name'=>$typename);
@@ -42,14 +118,14 @@ class VitalsHelper
         return $onevital;
     }
 
-    private function getBPVitalNodes($itemdetail,$unitparts)
+    private function XXX_getBPVitalNodes($itemdetail,$unitparts)
     {
         $bundle = array();
-        $main = $this->getOneVitalNode($itemdetail, 'Blood Pressure', $unitparts, 'BP');
+        $main = $this->XXX_getOneVitalNode($itemdetail, 'Blood Pressure', $unitparts, 'BP');
         $valueparts = explode('/',$main['value1']);
         $myunits = isset($main['units']) ? $main['units'] : NULL;
-        $systolic = $this->getOneVitalNodeFromParts('Systolic Blood Pressure', $valueparts[0], $myunits);
-        $diastolic = $this->getOneVitalNodeFromParts('Diastolic Blood Pressure', $valueparts[1], $myunits);
+        $systolic = $this->XXX_getOneVitalNodeFromParts('Systolic Blood Pressure', $valueparts[0], $myunits);
+        $diastolic = $this->XXX_getOneVitalNodeFromParts('Diastolic Blood Pressure', $valueparts[1], $myunits);
         $bundle[] = $main;
         return array($main,$systolic,$diastolic);
     }
@@ -164,6 +240,7 @@ class VitalsHelper
             $displayVitals = array();
             $allVitals = array();
             $aLatestValues = array();
+            
             $aLatestValues['Temp'] = NULL;
             $aLatestValues['Height'] = NULL;
             $aLatestValues['Weight'] = NULL;
@@ -176,6 +253,20 @@ class VitalsHelper
             $aLatestValues['Pox'] = NULL;
             $aLatestValues['CVP'] = NULL;
             $aLatestValues['Blood Glucose'] = NULL;
+
+            //Create a structure where we can track the date of the latest value.
+            $aLatestValueDate['Temp'] = NULL;
+            $aLatestValueDate['Height'] = NULL;
+            $aLatestValueDate['Weight'] = NULL;
+            $aLatestValueDate['BMI'] = NULL;
+            $aLatestValueDate['Blood Pressure'] = NULL;
+            $aLatestValueDate['Pulse'] = NULL;
+            $aLatestValueDate['Resp'] = NULL;
+            $aLatestValueDate['Pain'] = NULL;
+            $aLatestValueDate['C/G'] = NULL;
+            $aLatestValueDate['Pox'] = NULL;
+            $aLatestValueDate['CVP'] = NULL;
+            $aLatestValueDate['Blood Glucose'] = NULL;
         
             $bundle = array();
             $mycollections = array();
@@ -190,12 +281,31 @@ class VitalsHelper
                 $chunkcount++;
     error_log("LOOK rawVitals (c=$chunkcount) chunk[$key] = ".print_r($onechunk, TRUE));
                 $rowcount = 0;
+                $disp_idx=-1;
+                $k=0;
                 $onecollection = array();
                 $onecollection['tag'] = VISTA_SITE;
                 $setscontent = array();
                 foreach ($onechunk as $timestampkey=>$onerow) 
                 {
                     $rowcount++;
+                    $disp_idx++;
+                    
+                    // Initialize vitals to all blanks so we can be sure to return a value for each column
+                    $displayVitals[$disp_idx]['Date Taken'] = " ";
+                    $displayVitals[$disp_idx]['Temp'] = " ";
+                    $displayVitals[$disp_idx]['Height'] = " ";
+                    $displayVitals[$disp_idx]['Weight'] = " ";
+                    $displayVitals[$disp_idx]['BMI'] = " ";
+                    $displayVitals[$disp_idx]['Blood Pressure'] = " ";
+                    $displayVitals[$disp_idx]['Pulse'] = " ";
+                    $displayVitals[$disp_idx]['Resp'] = " ";
+                    $displayVitals[$disp_idx]['Pain'] = " ";
+                    $displayVitals[$disp_idx]['C/G'] = " ";
+                    $displayVitals[$disp_idx]['Pox'] = " ";
+                    $displayVitals[$disp_idx]['CVP'] = " ";
+                    $displayVitals[$disp_idx]['Blood Glucose'] = " ";
+                    
                     $cleanitem = array();
                     $cleanitem['timestamp'] = $timestampkey;
                     $cleanvitalsigns = array();
@@ -217,8 +327,11 @@ class VitalsHelper
                             $unitparts[$name] = trim($pair[1]);
                         }
                     }
+                    $sDate = isset($timestampkey) ? date("m/d/Y h:i a", strtotime($timestampkey)) : " ";
+                    $displayVitals[$disp_idx]['Date Taken'] = $sDate;
                     foreach($onerow as $itemkey=>$itemdetail)
                     {
+                        $onecleanvitalsign = NULL;
                         switch($itemkey)
                         {
                             case 1:
@@ -226,24 +339,63 @@ class VitalsHelper
                                 $expl1parts = explode(';',$expl1[1]);
                                 $facility = array('tag' => $expl1parts[1] , 'text' => $expl1parts[0]);
                                 break;
-                            case 3:
-                                $cleanvitalsigns[] = $this->getOneVitalNode($itemdetail,'Temperature',$unitparts,'TEMP');
+                            case self::$VFLD_TEMPERATURE:
+                                $typenamestr = self::$VNAME_TEMPERATURE;
+                                $thiskey = self::$VSL_TEMPERATURE;
+                                $unitsname = self::$VNAME_TEMPERATURE;
+                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] . " " . $onecleanvitalsign['units'];
+                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                {
+                                    $aLatestValueDate[$thiskey] = $timestampkey;
+                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                }
                                 break;
-                            case 4:
-                                $cleanvitalsigns[] = $this->getOneVitalNode($itemdetail,'Pulse',$unitparts,'PULSE');
+                            case self::$VFLD_PULSE:
+                                $typenamestr = self::$VNAME_PULSE;
+                                $thiskey = self::$VSL_PULSE;
+                                $unitsname = self::$VNAME_PULSE;
+                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] . " " . $onecleanvitalsign['units'];
+                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                {
+                                    $aLatestValueDate[$thiskey] = $timestampkey;
+                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                }
                                 break;
-                            case 5:    
-                                $cleanvitalsigns[] = $this->getOneVitalNode($itemdetail,'Respiration',$unitparts,'RESP');
+                            case self::$VFLD_RESPIRATION:
+                                $typenamestr = self::$VNAME_RESPIRATION;
+                                $thiskey = self::$VSL_RESPIRATION;
+                                $unitsname = self::$VNAME_RESPIRATION;
+                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] . " " . $onecleanvitalsign['units'];
+                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                {
+                                    $aLatestValueDate[$thiskey] = $timestampkey;
+                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                }
+                                break;
+                            case self::$VFLD_BLOOD_PRESSURE;
+                                $typenamestr = self::$VNAME_BLOOD_PRESSURE;
+                                $thiskey = self::$VSL_BLOOD_PRESSURE;
+                                $unitsname = self::$VNAME_BLOOD_PRESSURE;
+                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] . " " . $onecleanvitalsign['units'];
+                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                {
+                                    $aLatestValueDate[$thiskey] = $timestampkey;
+                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                }
                                 break;
                             case 6:
-                                $bpnodes = $this->getBPVitalNodes($itemdetail,$unitparts);
+                                $bpnodes = $this->XXX_getBPVitalNodes($itemdetail,$unitparts);
                                 foreach($bpnodes as $onebpnode)
                                 {
                                     $cleanvitalsigns[] = $onebpnode;                                
                                 }
                                 break;
                             case 10:    
-                                $cleanvitalsigns[] = $this->getOneVitalNode($itemdetail,'Pulse Oxymetry',$unitparts,'POX');
+                                $cleanvitalsigns[] = $this->XXX_getOneVitalNode($itemdetail,'Pulse Oxymetry',$unitparts,'POX');
                                 break;
                             default:
                                 if(is_array($itemdetail))
@@ -254,6 +406,8 @@ class VitalsHelper
         error_log("LOOK nice rawVitals (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=".print_r($a, TRUE));  
                                 }
                         }
+if($onecleanvitalsign > NULL)
+    error_log("LOOK @$disp_idx onecleanvitalsign = ".print_r($onecleanvitalsign,TRUE));    
                     }
                     $cleanitem['facility'] = $facility;
                     $cleanitem['vitalSigns'] = $cleanvitalsigns;
@@ -269,6 +423,11 @@ class VitalsHelper
             }
             $bundle['count'] = count($mycollections);
             $bundle['arrays'] = $mycollections;
+            
+            $bundle = array(
+                $displayVitals,
+                $allVitals,
+                $aLatestValues);
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
