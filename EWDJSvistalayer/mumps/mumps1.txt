@@ -78,7 +78,7 @@ RPCEXECUTE(TMP,DT) ;
  S pRpc("division")=$G(@TMP@("division"))
  ; Set DUZ
  S DUZ=pRpc("duz")
- S DUZ(2)=pRpc("division")
+ S:'$D(DUZ(2)) DUZ(2)=pRpc("division")
  S:DUZ DUZ(0)=$P(^VA(200,DUZ,0),U,4)
  S DT=$G(@TMP@("dt"))
  ;
@@ -349,6 +349,12 @@ EVAL(arg) ;
  S X="S result="_arg
  X X
  QUIT result
+ ;
+KST(arg) ; Kill Symbol Table, $J temp global
+ I arg="password" K
+ I arg="password" K ^TMP($J)
+ I arg="password" K ^%zewdSession
+ Q "OK"
  ;
 EVALERR ;
  QUIT "error in "_arg
