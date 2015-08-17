@@ -20,6 +20,9 @@ libraries/*
 !VistAConfig
 !VistAConfig/*
 
+!OtherComponents
+!OtherComponents/*
+
 !themes/raptor_omega
 !themes/raptor_omega/*
 
