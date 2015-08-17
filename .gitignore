@@ -17,6 +17,9 @@ libraries/*
 !SharedDocs
 !SharedDocs/*
 
+!VistAConfig
+!VistAConfig/*
+
 !themes/raptor_omega
 !themes/raptor_omega/*
 
