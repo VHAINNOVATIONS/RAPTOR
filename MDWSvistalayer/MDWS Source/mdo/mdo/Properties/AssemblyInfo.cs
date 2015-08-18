@@ -31,8 +31,8 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("2.5.20.0")]
-[assembly: AssemblyFileVersion("2.5.20.0")]
+[assembly: AssemblyVersion("2.5.21.0")]
+[assembly: AssemblyFileVersion("2.5.21.0")]
 
 // This allows the test assembly to access internal and protected internal members
 // Reference: http://msdn2.microsoft.com/en-us/library/0tke9fxk.aspx

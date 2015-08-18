@@ -9,10 +9,10 @@
   <!-- MUST UPDATE THE VERSION NUMBER TO COINCIDE WITH ASSEMBLYINFO - Can't figure out how to make WiX read from AssemblyInfo -->
   <?define mdwsVersion = "2.5" ?>
 
-  <Product Id="{2530197A-C4C9-4A2D-8F0F-B9EB886D7163}" Name="MDWS" Language="1033"
-           Version="2.5.20"
+  <Product Id="{2B1EC245-D5D9-4654-9DD9-E4A7A0F71B79}" Name="MDWS" Language="1033"
+           Version="2.5.21"
            Manufacturer="Mewtation, LLC"
-           UpgradeCode="{0F9C9297-4DC5-42C4-822E-D5F28EE46D5E}">
+           UpgradeCode="{271DB88A-2A60-4F04-A8BC-79A7CDC6DE21}">
 
     <Package Id="*" InstallerVersion="200" Compressed="yes" Description="MDWS Installer" />
 

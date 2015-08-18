@@ -273,6 +273,38 @@ namespace gov.va.medora.mdo.dao.vista
         }
 
         /// <summary>
+        /// literal	7197376
+//literal	11:ORDER SUMMARY FOR A DATE RANGE~;;0;101
+//literal	
+//literal	180
+//literal	
+//literal	0
+//literal	0
+
+        public String getOrderSummaryForLast6Months()
+        {
+            MdoQuery request = buildGetOrderSummaryForDateRangeRequest();
+            string response = (string)cxn.query(request);
+            return response;
+        }
+        /// </summary>
+        /// <returns></returns>
+        internal MdoQuery buildGetOrderSummaryForDateRangeRequest()
+        {
+            VistaQuery vq = new VistaQuery("ORWRP REPORT TEXT");
+            vq.addParameter(vq.LITERAL, "22339");
+            vq.addParameter(vq.LITERAL, "11:ORDER SUMMARY FOR A DATE RANGE~;;0;101");
+            vq.addParameter(vq.LITERAL, "");
+            vq.addParameter(vq.LITERAL, "180");
+            vq.addParameter(vq.LITERAL, "");
+            vq.addParameter(vq.LITERAL, "0");
+            vq.addParameter(vq.LITERAL, "0");
+            return vq;
+        }
+
+
+
+        /// <summary>
         /// </summary>
         /// <remarks>
         /// Health Summaries are pulled by their IEN, so if we don't have one for a title we need to get it based on the display name.

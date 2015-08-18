@@ -2366,7 +2366,12 @@ namespace gov.va.medora.mdo.dao.vista
 
         private IList<OrderCheck> toRadiologyOrderChecksForAcceptOrder(string response)
         {
-            if (String.IsNullOrEmpty(response) || !response.StartsWith("NEW"))
+            if (String.IsNullOrEmpty(response))
+            {
+                return new List<OrderCheck>();
+            }
+
+            if (!response.StartsWith("NEW"))
             {
                 throw new Exception(String.Format("Unexpected imaging order check response: {0}", response));
             }
@@ -2524,6 +2529,20 @@ namespace gov.va.medora.mdo.dao.vista
             }
 
             return result;
+        }
+
+        public String getRadiologyProcedureMessage(String procedureId)
+        {
+            MdoQuery request = buildGetRadiologyProcMessageRequest(procedureId);
+            String response = (String)this.cxn.query(request);
+            return response;
+        }
+
+        internal MdoQuery buildGetRadiologyProcMessageRequest(String procedureId)
+        {
+            VistaQuery vq = new VistaQuery("ORWDRA32 PROCMSG");
+            vq.addParameter(vq.LITERAL, procedureId);
+            return vq;
         }
 
         #endregion

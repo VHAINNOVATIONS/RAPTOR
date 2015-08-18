@@ -404,6 +404,7 @@ namespace gov.va.medora.mdo.dao.vista
 
             if (propPieces.Length > 2 && !String.IsNullOrEmpty(propPieces[1]))
             {
+
                 if (propPieces[1].Contains("P") && !String.IsNullOrEmpty(propPieces[2]))
                 {
                     result.IsPointer = true;
@@ -466,6 +467,11 @@ namespace gov.va.medora.mdo.dao.vista
             }
 
             return result;
+        }
+
+        private VistaField setPropsForCodes(VistaField result, string p)
+        {
+            throw new NotImplementedException();
         }
 
         public Dictionary<string, CrossRef> getXRefs(VistaFile file)
