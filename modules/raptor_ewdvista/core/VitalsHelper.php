@@ -507,35 +507,14 @@ class VitalsHelper
     
     
     /**
-     * @return array with only one value per measure for most recent date available
-     */
-    function getVitalsDetailOnlyLatest()
-    {
-        if(isset($this->getVitalsData()[2]))    //20140806
-        {
-            return $this->getVitalsData()[2];
-        }
-        return array(); //Return an empty array
-    }
-    
-    /**
      * The labels are meant for display to to the user.  The values include units where units are appropriate.
      * @return type array of labels and their values
      */
-    function getVitalsSummary()
+    function getVitalsSummary($vitalsbundle)
     {
-        $sThisResultName = 'getVitalsSummary';
-        $aCachedResult = $this->m_oRuntimeResultCache->checkCache($sThisResultName);
-        if($aCachedResult !== NULL)
-        {
-            //Found it in the cache!
-            return $aCachedResult;
-        }
-
         $result = array();
-        $parsedVitals   = $this->getVitalsData();
-        $displayVitals  = $parsedVitals[0];
-        $allVitals      = $parsedVitals[1];
+        $displayVitals  = $vitalsbundle[0];
+        $allVitals      = $vitalsbundle[1];
 
         if(empty($displayVitals))
         {
@@ -561,7 +540,8 @@ class VitalsHelper
         // Iterate through, looking for the 1st occurance of Temp, HR, BP, Ht, Wt, BMI
         // Obtain a list of columns
         $sortedVitals = $allVitals;
-        foreach ($sortedVitals as $key => $row) {
+        foreach ($sortedVitals as $key => $row) 
+        {
             $date[$key] = $row['date'];
             $name[$key]  = $row['name'];
             $value[$key] = $row['value'];
@@ -577,7 +557,8 @@ class VitalsHelper
         
         $blank = array('date' => "", 'name' => "", 'value' => "None Found", 'units' => "");
         
-        foreach($sortedVitals as $vital){
+        foreach($sortedVitals as $vital)
+        {
             if($nTemp >= $nToFind && $nHR >= $nToFind 
                     && $nBP >= $nToFind && $nHT >= $nToFind 
                     && $nWT >= $nToFind && $nBMI >= $nToFind)
@@ -585,28 +566,32 @@ class VitalsHelper
                 break;
             }
             if(in_array(strtoupper($vital['name']), $tempLabels)){ // Temp
-                if ($nTemp++ < $nToFind){
+                if ($nTemp++ < $nToFind)
+                {
                    $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
                    $vital['score'] = "1";
                    $result[] = $vital;
                 }
             }
             elseif(in_array(strtoupper($vital['name']), $hrLabels)){ //HR)
-                if ($nHR++ < $nToFind){
+                if ($nHR++ < $nToFind)
+                {
                    $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
                    $vital['score'] = "2";
                    $result[] = $vital;
                 }
             }
             elseif (in_array(strtoupper($vital['name']), $bpLabels)) { //BP
-                if ($nBP++ < $nToFind){
+                if ($nBP++ < $nToFind)
+                {
                    $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
                    $vital['score'] = "3";
                    $result[] = $vital;
                 }
             }
             elseif (in_array(strtoupper($vital['name']), $htLabels)) { //HT
-                if ($nHT++ < $nToFind){
+                if ($nHT++ < $nToFind)
+                {
                    $cms = round($vital['value']*2.54, 1);
                    $vital['value'] .= isset($vital['units']) ? " ".$vital['units']." (".$cms." cms)" : "";
                    $vital['score'] = "4";
@@ -614,7 +599,8 @@ class VitalsHelper
                 }
             }
             elseif (in_array(strtoupper($vital['name']), $wtLabels)) { //WT
-                if ($nWT++ < $nToFind){
+                if ($nWT++ < $nToFind)
+                {
                    $kgs = round($vital['value']*0.45359237, 1);
                    $vital['value'] .= isset($vital['units']) ? " ".$vital['units']." (".$kgs." kgs)" : "";
                    $vital['score'] = "5";
@@ -622,7 +608,8 @@ class VitalsHelper
                 }
             }
             elseif (in_array(strtoupper($vital['name']), $bmiLabels)){ //BMI
-                if ($nBMI++ < $nToFind){
+                if ($nBMI++ < $nToFind)
+                {
                    $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
                    $vital['score'] = "6";
                    $result[] = $vital;
@@ -643,7 +630,8 @@ class VitalsHelper
         
         $score=array(); //FJF 20120319
         $sortedVitals = $result;
-        foreach ($sortedVitals as $key => $row) {
+        foreach ($sortedVitals as $key => $row) 
+        {
             $date[$key] = $row['date'];
             $name[$key]  = $row['name'];
             $value[$key] = $row['value'];
@@ -652,13 +640,16 @@ class VitalsHelper
             $score[$key] = $row['score'];
         }
         array_multisort($score, SORT_ASC, $sortedVitals);
-        $result = array("Temperature" => "", "Heart Rate" => ""
-            , "Blood Pressure" => "", "Height" => ""
-            , "Weight" => "", "Body Mass Index" => "");
+        $result = array('Temperature' => ''
+            , 'Heart Rate' => ''
+            , 'Blood Pressure' => ''
+            , 'Height' => ''
+            , 'Weight' => ''
+            , 'Body Mass Index' => '');
         foreach ($sortedVitals as $vital) 
         {
-            $result[$vital['name']] = array("Date of Measurement" => $vital['date']
-                    , "Measurement Value" => $vital['value']);
+            $result[$vital['name']] = array('Date of Measurement' => $vital['date']
+                    , 'Measurement Value' => $vital['value']);
         }
         
         // Add message for Vitals not found
@@ -681,7 +672,6 @@ class VitalsHelper
             $result[$bmiLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
         }
         
-        $this->m_oRuntimeResultCache->addToCache($sThisResultName, $result);
         return $result;
     }
     

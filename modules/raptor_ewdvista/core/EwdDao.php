@@ -1587,7 +1587,6 @@ error_log("LOOK final bundle rawVitals ".print_r($bundle, TRUE));
         } catch (\Exception $ex) {
             throw $ex;
         }
-        
     }
 
     public function getSurgeryReportsDetailMap()
@@ -1952,8 +1951,16 @@ Signed: 12/08/2006 18:29<br />
 )
 
          */
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $vitalsbundle = $this->getRawVitalSignsMap();
+            $myhelper = new \raptor_ewdvista\VitalsHelper();
+            $summary = $myhelper->getVitalsSummary($vitalsbundle);
+error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));  
+            return $summarybundle;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function isProvider()
