@@ -1,7 +1,7 @@
 <?php
 
-defined("UOM_VERSION_INFO")
-    or define("UOM_VERSION_INFO", 'Standard 20150611.1');
+defined('UOM_VERSION_INFO')
+    or define('UOM_VERSION_INFO', 'Standard 20150611.1');
 
 /*
  * These are Unit of Measure settings
