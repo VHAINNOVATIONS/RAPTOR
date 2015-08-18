@@ -130,6 +130,12 @@ class AddProtocolLibPage extends \raptor\ChildEditBasePage
             $original_file_upload_dt = $updated_dt;
             $original_file_upload_by_uid = $user->uid;
             $myvalues['upload_file_now'] = TRUE;
+            
+            //Did they really upload a file?
+            if($filename == NULL)
+            {
+                $filename = 'no-filename';  //Our flag value because not allowing null in db
+            }
 
             //Important that we add these into the myvalues array so they get into other handlers
             $myvalues['filetype'] = $filetype;

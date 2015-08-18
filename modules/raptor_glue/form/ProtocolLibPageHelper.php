@@ -71,7 +71,6 @@ class ProtocolLibPageHelper
             $myvalues['radioisotope_yn'] = 0;
             $myvalues['sedation_yn'] = 0;
             $myvalues['multievent_yn'] = 0;
-            //$myvalues['filename'] = NULL;   //DEPRECATED
             $myvalues['protocolfile'] = NULL;
             $myvalues['created_dt'] = NULL;
 
@@ -720,20 +719,27 @@ class ProtocolLibPageHelper
         {
             try
             {
-              db_insert('raptor_protocol_lib_uploads')
-                ->fields(array(
-                    'protocol_shortname' => $protocol_shortname,
-                    'version' => $myvalues['version'],    
-                    'filename' => $myvalues['filename'],
-                    'original_filename' => $myvalues['original_filename'],
-                    'filetype' => $myvalues['filetype'],
-                    'filesize' => $myvalues['filesize'],
-                    'file_blob' => $file_blob,
-                    'uploaded_by_uid' => $myvalues['original_file_upload_by_uid'],
-                    'comment_tx' => $myvalues['upload_comment_tx'],
-                    'uploaded_dt' => $myvalues['original_file_upload_dt'],
-                  ))
-                    ->execute(); 
+                if(isset($myvalues['filename']))
+                {
+                    $thefilename = $myvalues['filename'];
+                } else {
+                    error_log("Error in writeFileUploadDetails for '$protocol_shortname' because NO filename for file of size=".$myvalues['filesize']);
+                    throw new \Exception("Cannot upload a file if it has no name!");
+                }
+                db_insert('raptor_protocol_lib_uploads')
+                  ->fields(array(
+                      'protocol_shortname' => $protocol_shortname,
+                      'version' => $myvalues['version'],    
+                      'filename' => $thefilename,
+                      'original_filename' => $myvalues['original_filename'],
+                      'filetype' => $myvalues['filetype'],
+                      'filesize' => $myvalues['filesize'],
+                      'file_blob' => $file_blob,
+                      'uploaded_by_uid' => $myvalues['original_file_upload_by_uid'],
+                      'comment_tx' => $myvalues['upload_comment_tx'],
+                      'uploaded_dt' => $myvalues['original_file_upload_dt'],
+                    ))
+                      ->execute(); 
             } catch (\Exception $ex) {
                 throw $ex;
             }
@@ -1335,7 +1341,21 @@ class ProtocolLibPageHelper
             if ($file) 
             {
               $file = file_move($file, 'public://', FILE_EXISTS_REPLACE);
-              if ($file) {
+              if ($file) 
+              {
+                  /*
+                   * Format of file object...
+                        [uid] => 43
+                        [status] => 0
+                        [filename] => Penguins.jpg
+                        [uri] => public://Penguins.jpg
+                        [filemime] => image/jpeg
+                        [filesize] => 777835
+                        [source] => protocolfile
+                        [destination] => temporary://Penguins.jpg
+                        [timestamp] => 1439930433
+                        [fid] => 37
+                   */
                 $form_state['values']['protocolfile'] = $file;
               } else {
                 $bGood = FALSE;
@@ -1343,12 +1363,15 @@ class ProtocolLibPageHelper
                 form_set_error('protocolfile', t('Failed to write the uploaded file to the site\'s file folder.'));
               }
             } else {
+                $form_state['values']['protocolfile'] = NULL;
+                /** TESTING LOOK TODO!!!!!
                 if($formMode == 'A')
                 {
                     //Must at least have one file.
                     form_set_error('protocolfile', 'A file must be provided.');
                     $bGood = FALSE;
                 }
+                 */
             }
         } catch (\Exception $ex) {
             error_log('Failed on upload file because '.print_r($ex,TRUE));
@@ -1590,7 +1613,7 @@ class ProtocolLibPageHelper
                 . '</ul>'
                 );
         } else {
-            $uploadlabel = FormHelper::getTitleAsRequiredField('Scanned protocol document');
+            $uploadlabel = FormHelper::getTitleAsUnrequiredField('Scanned protocol document');  //20150818
         }
         if(!$disabled && ($formType == 'E' || $formType == 'A'))
         {
