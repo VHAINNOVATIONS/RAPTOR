@@ -444,7 +444,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
                     try {
-                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_LABS);
                     } catch (\Exception $ex) {
                         error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
                     }
@@ -548,7 +548,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
                     try {
-                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SITEVALUES);
+                        $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_LABS);
                     } catch (\Exception $ex) {
                         error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
                     }

@@ -27,6 +27,8 @@ defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
 defined('REDAO_CACHE_NM_SUFFIX_DASHBOARD')
     or define('REDAO_CACHE_NM_SUFFIX_DASHBOARD', '_getDashboardDetailsMapEWD');
+defined('REDAO_CACHE_NM_SUFFIX_VITALS')
+    or define('REDAO_CACHE_NM_SUFFIX_VITALS', '_getRawVitalSignsMapEWD');
 
 /**
  * This is the primary interface implementation to VistA using EWDJS
@@ -35,6 +37,7 @@ defined('REDAO_CACHE_NM_SUFFIX_DASHBOARD')
  */
 class EwdDao implements \raptor_ewdvista\IEwdDao
 {
+    private $m_groupname = 'EwdDaoGroup';
     private $m_createdtimestamp = NULL;
     private $m_oWebServices = NULL;
     private $m_worklistHelper = NULL;
@@ -1573,16 +1576,49 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
     {
         try
         {
+            $pid = $this->getSelectedPatientID();
+            if($pid == NULL)
+            {
+                throw new \Exception('Cannot return vitals when there is no selected patient!');
+            }
+            $oContext = \raptor\Context::getInstance();
+            if ($oContext != NULL)
+            {
+                //Utilize the cache.
+                $sThisResultName = "{$pid}" . REDAO_CACHE_NM_SUFFIX_VITALS;
+                $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+                if ($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
+                    if ($aCachedResult !== NULL)
+                    {
+                        //Found it in the cache!
+//error_log("LOOK final bundle getRawVitalSignsMap PULLED FROM CACHE >>> ".print_r($aCachedResult, TRUE));  
+                        return $aCachedResult;
+                    }
+                }
+            } else {
+                $oRuntimeResultFlexCacheHandler = NULL;
+            }
+            
             $myhelper = new \raptor_ewdvista\VitalsHelper();
-            $mycollections = array();
             $serviceName = $this->getCallingFunctionName();
             $args = array();
-            $args['patientId'] = $this->getSelectedPatientID();
-error_log("LOOK about to call $serviceName(".print_r($args, TRUE).')');                
+            $args['patientId'] = $pid;
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK raw $serviceName result = ".print_r($rawresult, TRUE));  
             $bundle = $myhelper->getFormattedSuperset($rawresult);
-error_log("LOOK final bundle rawVitals ".print_r($bundle, TRUE));  
+            
+//error_log("LOOK final bundle getRawVitalSignsMap ".print_r($bundle, TRUE));  
+            if ($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                try 
+                {
+//error_log("LOOK final bundle getRawVitalSignsMap WENT INTO CACHE!!!");  
+                    $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $bundle, CACHE_AGE_LABS);
+                } catch (\Exception $ex) {
+                    error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
+                }
+            }
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1957,7 +1993,7 @@ Signed: 12/08/2006 18:29<br />
             $myhelper = new \raptor_ewdvista\VitalsHelper();
             $summary = $myhelper->getVitalsSummary($vitalsbundle);
 error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));  
-            return $summarybundle;
+            return $summary;
         } catch (\Exception $ex) {
             throw $ex;
         }
