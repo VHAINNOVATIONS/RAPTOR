@@ -30,16 +30,21 @@ class LoadUtils
 
     public static function loadAboutBasedata()
     {
-        $created_dt = date("Y-m-d H:i:s", time());
-        $inserted = db_insert('raptor_about')
-           ->fields(array(
-            'category_nm' => 'DBSchemaVersion',
-            'info_tx' => 'Initial installation',
-            'major_ct' => 2015, //Convention is use year of change for this value
-            'minor_ct' => 7, //UPDATE THIS VALUE EVERYTIME THE SCHEMA CHANGES!!!!!!
-            'created_dt' => $created_dt,
-            ))
-           ->execute();
+        try
+        {
+            $created_dt = date("Y-m-d H:i:s", time());
+            db_insert('raptor_about')
+               ->fields(array(
+                'category_nm' => 'DBSchemaVersion',
+                'info_tx' => 'Initial installation',
+                'major_ct' => 2015, //Convention is use year of change for this value
+                'minor_ct' => 8, //UPDATE THIS VALUE EVERYTIME THE SCHEMA CHANGES!!!!!!
+                'created_dt' => $created_dt,
+                ))
+               ->execute();
+        } catch (\Exception $ex) {
+            throw new \Exception("Failed update of raptor_about because $ex",99876,$ex);
+        }
     }
     
     public static function loadUserBasedata($clearusers=FALSE)

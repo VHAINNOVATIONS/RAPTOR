@@ -278,6 +278,14 @@ class DBUserSchema
               'description' => 'If 1 then user can edit QA criteria',
             ),
               
+            'special_privs' => array(
+              'type' => 'varchar',
+              'length' => 100,
+              'not null' => FALSE,
+              'default' => '',
+              'description' => 'Custom strings for special user priviliges, use semicolon as delimiter',
+            ),
+              
             'updated_dt' => array(
               'type' => 'datetime',
               'mysql_type' => 'datetime',  
@@ -599,8 +607,6 @@ class DBUserSchema
           ),
           'primary key' => array('uid'),
         );
-        
-        
     }    
 }
     
