@@ -935,162 +935,115 @@ Signed: 07/16/2015 14:45
     }
 
     /**
-     * If override_tracking_id is provided, then return dashbaord for that order
+     * If override_tracking_id is provided, then return dashboard for that order
      * instead of the currently selected order.
      */
     public function getDashboardDetailsMap($override_tracking_id = NULL)
     {
-        /*
-         * [10-Aug-2015 16:00:07 America/New_York] LOOK dash>>>Array
-(
-    [orderingPhysicianDuz] => 10000000020
-    [orderFileStatus] => HOLD
-    [canOrderBeDCd] => 
-    [orderActive] => 1
-    [Tracking ID] => 500-2007
-    [Procedure] => CT ABDOMEN W/O CONT
-    [Modality] => CT
-    [ExamCategory] => OUTPATIENT
-    [PatientLocation] => 
-    [RequestedBy] => ZZLABTECH,FORTYEIGHT
-    [RequestingLocation] => CARDIOLOGY
-    [SubmitToLocation] => 
-    [SchedInfo] => Array
-        (
-            [EventDT] => 
-            [LocationTx] => 
-            [ConfirmedDT] => 
-            [CanceledDT] => 
-            [ShowTx] => Unknown
-        )
-
-    [RequestedDate] => JUL 17, 2012@10:29
-    [DesiredDate] => JUL 17, 2012
-    [ScheduledDate] => 
-    [PatientCategory] => OUTPATIENT
-    [ReasonForStudy] => TEST
-    [NatureOfOrderActivity] => NOT ENTERED
-    [RequestingLocationIen] => 64
-    [ClinicalHistory] => 
-    [PatientID] => 205
-    [PatientSSN] => 666-00-0002
-    [Urgency] => ROUTINE
-    [Transport] => AMBULATORY
-    [PatientName] => TWO, PATIENT
-    [PatientAge] => 80
-    [PatientDOB] => 04/07/1935
-    [PatientEthnicity] => WHITE, NOT OF HISPANIC ORIGIN
-    [PatientGender] => M
-    [ImageType] => CT SCAN
-    [mpiPid] => 10102
-    [mpiChecksum] => 813496
-    [CountPendingOrders] => 4
-    [MapPendingOrders] => Array
-        (
-            [2007] => Array
-                (
-                    [0] => 2007
-                    [1] => CT
-                    [2] => CT ABDOMEN W/O CONT
-                )
-
-            [2936] => Array
-                (
-                    [0] => 2936
-                    [1] => CT
-                    [2] => CT HEAD W/O CONT
-                )
-
-            [2961] => Array
-                (
-                    [0] => 2961
-                    [1] => CT
-                    [2] => CT HEAD W/O CONT
-                )
-
-            [2962] => Array
-                (
-                    [0] => 2962
-                    [1] => CT
-                    [2] => CT HEAD W/O CONT
-                )
-
-        )
-
-    [OrderFileIen] => 33851
-    [RadiologyOrderStatus] => 3
-)
-
-         */
-        $serviceName = $this->getCallingFunctionName();
-        if ($override_tracking_id == NULL)
-        {
-            $oContext = \raptor\Context::getInstance();
-            $tid = $oContext->getSelectedTrackingID();
-        } else
-        {
-            $tid = trim($override_tracking_id);
-        }
-        if($tid == '')
-        {
-            throw new \Exception("Cannot get dashboard without a tracking ID!");
-        }
-        $namedparts = $this->getTrackingIDNamedParts($tid);
-        $order_IEN = $namedparts['ien'];
-        $onerow = NULL;
-        $therow = array();
         try
         {
-            $onerow = $this->getWorklistDetailsMap(1,$order_IEN);
-            if(!is_array($onerow) || !isset($onerow['DataRows']))
+            $serviceName = $this->getCallingFunctionName();
+            $oContext = \raptor\Context::getInstance();
+            if ($override_tracking_id == NULL)
             {
-                throw new \Exception("Failed to get worklist row for $order_IEN >>>" . print_r($onerow,TRUE));
+                $tid = $oContext->getSelectedTrackingID();
+            } else {
+                $tid = trim($override_tracking_id);
             }
+            if($tid == '')
+            {
+                throw new \Exception('Cannot get dashboard without a tracking ID!');
+            }
+
+            if ($oContext != NULL)
+            {
+                //Utilize the cache.
+                $sThisResultName = "{$tid}" . REDAO_CACHE_NM_SUFFIX_DASHBOARD;
+                $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+                if($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    $aCachedResult = $oRuntimeResultFlexCacheHandler->checkCache($sThisResultName);
+                    if($aCachedResult !== NULL)
+                    {
+                        //Found it in the cache!
+    //error_log("LOOK final bundle getDashboardDetailsMap PULLED FROM CACHE >>> ".print_r($aCachedResult, TRUE));  
+                        return $aCachedResult;
+                    }
+                }
+            } else {
+                $oRuntimeResultFlexCacheHandler = NULL;
+            }
+
+            //Get the dashboard data from EWD services
+            $namedparts = $this->getTrackingIDNamedParts($tid);
+            $order_IEN = $namedparts['ien'];
+            $onerow = NULL; //We MUST declare it here, else not set after the try block
+            $therow = array();
+            try
+            {
+                $onerow = $this->getWorklistDetailsMap(1,$order_IEN);
+                if(!is_array($onerow) || !isset($onerow['DataRows']))
+                {
+                    throw new \Exception("Failed to get worklist row for $order_IEN >>>" . print_r($onerow,TRUE));
+                }
+            } catch (\Exception $ex) {
+                throw new \Exception("Failed to get worklist row for $order_IEN because $ex",99876,$ex);
+            }
+            $datarows = $onerow['DataRows'];
+            if(count($datarows) < 1)    //Do NOT check for exactly 1 because result returns ONE extra row sometimes! (Thats okay)
+            {
+                $rownum = 0;
+                $errmsg = "Expected 1 data row for $order_IEN (got ".count($datarows).")";
+                foreach($datarows as $onedatarow)
+                {
+                    $rownum++;
+                    $errmsg .= "\n\tData Row #$rownum) ".print_r($onedatarow,TRUE);
+                }
+                throw new \Exception($errmsg);
+            }
+            foreach($datarows as $key=>$therow)
+            {
+                break;  //Only want to get the first row.
+            }
+            $args = array();
+            $args['ien'] = $order_IEN;
+            $result = $this->getServiceRelatedData($serviceName, $args);
+            if(!is_array($result['radiologyOrder']))
+            {
+                throw new \Exception("Did not find array of radiologyOrder in ".print_r($result,TRUE));
+            }
+            if(!is_array($result['order']))
+            {
+                throw new \Exception("Did not find array of order in ".print_r($result,TRUE));
+            }
+            $radiologyOrder = $result['radiologyOrder'];
+            $orderFileRec = $result['order'];
+            $pid = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTID];
+            $oPatientData = $this->getPatientMap($pid);
+            if($oPatientData == NULL)
+            {
+                $msg = 'Did not get patient data of pid='.$pid
+                        .' for trackingID=['.$tid.']';
+                error_log($msg.">>>instance details=".print_r($this, TRUE));
+                throw new \Exception($msg);
+            }
+            $dashboard = $this->m_dashboardHelper->getFormatted($tid, $pid, $radiologyOrder, $orderFileRec, $therow, $oPatientData);
+
+            //Put it into the cache if we one
+            if ($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                try 
+                {
+    //error_log("LOOK getDashboardDetailsMap WENT INTO CACHE dashboard=".print_r($dashboard,TRUE));        
+                    $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $dashboard, CACHE_AGE_LABS);
+                } catch (\Exception $ex) {
+                    error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
+                }
+            }
+            return $dashboard;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed to get worklist row for $order_IEN because $ex",99876,$ex);
+            throw $ex;
         }
-        $datarows = $onerow['DataRows'];
-        if(count($datarows) < 1)    //Do NOT check for exactly 1 because result returns ONE extra row sometimes! (Thats okay)
-        {
-            $rownum = 0;
-            $errmsg = "Expected 1 data row for $order_IEN (got ".count($datarows).")";
-            foreach($datarows as $onedatarow)
-            {
-                $rownum++;
-                $errmsg .= "\n\tData Row #$rownum) ".print_r($onedatarow,TRUE);
-            }
-            throw new \Exception($errmsg);
-        }
-        foreach($datarows as $key=>$therow)
-        {
-            break;  //Only want to get the first row.
-        }
-        $args = array();
-        $args['ien'] = $order_IEN;
-        $result = $this->getServiceRelatedData($serviceName, $args);
-        if(!is_array($result['radiologyOrder']))
-        {
-            throw new \Exception("Did not find array of radiologyOrder in ".print_r($result,TRUE));
-        }
-        if(!is_array($result['order']))
-        {
-            throw new \Exception("Did not find array of order in ".print_r($result,TRUE));
-        }
-        $radiologyOrder = $result['radiologyOrder'];
-        $orderFileRec = $result['order'];
-        $pid = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTID];
-        $oPatientData = $this->getPatientMap($pid);
-        if($oPatientData == NULL)
-        {
-            $msg = 'Did not get patient data of pid='.$pid
-                    .' for trackingID=['.$tid.']';
-            error_log($msg.">>>instance details=".print_r($this, TRUE));
-            throw new \Exception($msg);
-        }
-        $dashboard = $this->m_dashboardHelper->getFormatted($tid, $pid, $radiologyOrder, $orderFileRec, $therow, $oPatientData);
-        
-error_log("LOOK dashboard=".print_r($dashboard,TRUE));        
-        return $dashboard;
     }
     
     /**
