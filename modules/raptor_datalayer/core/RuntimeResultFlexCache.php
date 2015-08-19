@@ -175,7 +175,9 @@ class RuntimeResultFlexCache
     
     private function getRaptorCacheDataInfo($item_name)
     {
-        $result = db_select('raptor_cache_data', 'u')
+        try
+        {
+            $result = db_select('raptor_cache_data', 'u')
                     ->fields('u')
                     ->condition('uid', $this->m_uid, '=')
                     ->condition('group_name', $this->m_sGroupName,'=')
@@ -199,6 +201,9 @@ class RuntimeResultFlexCache
                 return NULL;
             }
             return $foundinfo;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     /**
@@ -210,10 +215,10 @@ class RuntimeResultFlexCache
         {
             $oldestallowed_ts = time() - (86400 * $max_ageX24hr);
             $oldestallowed_dt = date("Y-m-d H:i:s", $oldestallowed_ts);
-            $result = db_delete('raptor_cache_data')
+            db_delete('raptor_cache_data')
                         ->condition('created_dt', $oldestallowed_dt, '<')
                         ->execute();
-            $result = db_delete('raptor_cache_flag')
+            db_delete('raptor_cache_flag')
                         ->condition('created_dt', $oldestallowed_dt, '<')
                         ->execute();
         } catch (\Exception $ex) {
@@ -229,7 +234,7 @@ class RuntimeResultFlexCache
     {
         try
         {
-            $query = db_delete('raptor_cache_flag')
+            db_delete('raptor_cache_flag')
                 ->condition('uid', $this->m_uid,'=')
                 ->condition('group_name', $this->m_sGroupName,'=')
                 ->condition('item_name', $item_name,'=')
@@ -248,7 +253,7 @@ class RuntimeResultFlexCache
     {
         try
         {
-            $query = db_delete('raptor_cache_data')
+            db_delete('raptor_cache_data')
                 ->condition('uid', $this->m_uid,'=')
                 ->condition('group_name', $this->m_sGroupName, '=')
                 ->condition('item_name', $item_name, '=')
