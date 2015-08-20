@@ -21,7 +21,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150813D'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150820A'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -58,7 +58,6 @@ class Context
     private $m_oVixDao = NULL;      //20140718 
 
     private $m_oEhrDao = NULL;      //20150714 
-    //private $m_mdwsClient=NULL;     //20140718
     
     private $m_sWorklistMode=NULL;  
 
@@ -1085,6 +1084,8 @@ class Context
         try {
             $this->serializeNow('Logging out of EHR',FALSE);
             $this->getEhrDao()->disconnect();
+            $_SESSION['CTX_EHRDAO_NEW_START'] = NULL;
+            $_SESSION['CTX_EHRDAO_NEW_DONE'] = NULL;
             return '';
         } catch (\Exception $ex) {
             //Log it and continue
@@ -1237,15 +1238,35 @@ class Context
      */
     public function getEhrDao($create_if_not_set=TRUE)
     {
+        $trycount = 0;
+        while(isset($_SESSION['CTX_EHRDAO_NEW_START']) != NULL && isset($_SESSION['CTX_EHRDAO_NEW_DONE']) == NULL)
+        {
+            //Wait for the singleton process to complete at least once.
+            $trycount++;
+            sleep(2);
+            if(isset($_SESSION['CTX_EHRDAO_NEW_DONE']))
+            {
+error_log("LOOK DAO waited $trycount times for other process to create the instance!");
+                break;
+            }
+            if($trycount > 3)
+            {
+                throw new \Exception("Did NOT get an EHRDAO after $trycount tries!");
+            }
+        }
         if (!isset($this->m_oEhrDao)) 
         {
             if(!$create_if_not_set)
             {
                 return NULL;
             }
+            $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
             $this->m_oEhrDao = new \raptor\EhrDao();
+            $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
         }
-        //error_log("LOOK DAO from context is >>>".$this->m_oEhrDao);
+        $duration = $_SESSION['CTX_EHRDAO_NEW_DONE'] - $_SESSION['CTX_EHRDAO_NEW_START'];
+error_log("LOOK DAO (tries=$trycount cdur=$duration) from context is >>>".$this->m_oEhrDao);
+        
         return $this->m_oEhrDao;
     }
     
