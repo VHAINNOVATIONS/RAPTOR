@@ -39,13 +39,13 @@ defined('LAB_EGFR_ALERT_BAD_END_LEVEL')
 
 //Base URL for the EWD Federator (only relevant if using raptor_ewdvista)
 defined('EWDFED_BASE_URL')
-    or define('EWDFED_BASE_URL', "http://54.243.40.32:8085/RaptorEwdVista/raptor/");
+    //or define('EWDFED_BASE_URL', "http://54.243.40.32:8085/RaptorEwdVista/raptor/");
     //or define('EWDFED_BASE_URL', "http://54.243.40.32:8083/RaptorEwdVista/raptor/");
-    //or define('EWDFED_BASE_URL', "http://54.243.40.32:8081/RaptorEwdVista/raptor/");
+    or define('EWDFED_BASE_URL', "http://54.243.40.32:8081/RaptorEwdVista/raptor/");
 
 defined('EHR_INT_MODULE_NAME')
-    or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
-    //or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
+    //or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
+    or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
 
 //Disable the AGE scoring if using a test VISTA with VERY OLD orders.
 defined('DISABLE_TICKET_AGE1_SCORING')

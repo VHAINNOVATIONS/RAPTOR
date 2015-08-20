@@ -21,7 +21,7 @@ require_once 'DashboardHelper.php';
 require_once 'VitalsHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150819.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150820.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -131,7 +131,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $this->disconnect();    //Clear all session variables
             $servicename = 'initiate';
             $url = $this->getURL($servicename);
-            $json_string = $this->m_oWebServices->callAPI($servicename, $url);
+            //$json_string = $this->m_oWebServices->callAPI($servicename, $url);
+            $json_string = $this->m_oWebServices->callAPI('GET', $url);
             $json_array = json_decode($json_string, TRUE);
             $this->setSessionVariable('authorization',trim($json_array["Authorization"]));
             $this->setSessionVariable('init_key',trim($json_array["key"]));
@@ -237,7 +238,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             //error_log("LOOK header>>>".print_r($header,TRUE));
             //error_log("LOOK url>>>".print_r($url,TRUE));
             
-            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
+            $json_string = $this->m_oWebServices->callAPI('GET', $url, FALSE, $header);            
             $json_array = json_decode($json_string, TRUE);
             
             if (array_key_exists("DUZ", $json_array))
@@ -275,7 +276,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             }
             $header["Authorization"]=$authorization;
             
-            $json_string = $this->m_oWebServices->callAPI("GET", $url, FALSE, $header);            
+            $json_string = $this->m_oWebServices->callAPI('GET', $url, FALSE, $header);            
         error_log("LOOK JSON DATA for GET@URL=$url has result = " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
@@ -1235,29 +1236,24 @@ Signed: 07/16/2015 14:45
 
     public function getPatientIDFromTrackingID($sTrackingID)
     {
-        try
+        $serviceName = $this->getCallingFunctionName();
+error_log("Look about to call service $serviceName($sTrackingID) ...");        
+        
+        $tid = trim($sTrackingID);
+        if($tid == '')
         {
-            $serviceName = $this->getCallingFunctionName();
-    error_log("Look about to call service $serviceName($sTrackingID) ...");        
-
-            $tid = trim($sTrackingID);
-            if($tid == '')
-            {
-                throw new \Exception("Cannot get patient ID without a tracking ID!");
-            }
-            $namedparts = $this->getTrackingIDNamedParts($tid);
-            $args['ien'] = $namedparts['ien'];
-            $result = $this->getServiceRelatedData($serviceName, $args);
-    error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
-            if(!isset($result['result']))
-            {
-                throw new \Exception("Missing patient ID result from tracking ID value $sTrackingID: ".print_r($result,TRUE));
-            }
-            $patientID = $result['result'];
-            return $patientID;
-        } catch (\Exception $ex) {
-            throw $ex;
+            throw new \Exception("Cannot get patient ID without a tracking ID!");
         }
+        $namedparts = $this->getTrackingIDNamedParts($tid);
+        $args['ien'] = $namedparts['ien'];
+        $result = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
+        if(!isset($result['result']))
+        {
+            throw new \Exception("Missing patient ID result from tracking ID value $sTrackingID: ".print_r($result,TRUE));
+        }
+        $patientID = $result['result'];
+        return $patientID;
     }
 
     public function getPendingOrdersMap()
@@ -2003,7 +1999,12 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
     {
         try
         {
-            //TODO clear all the cache entries
+            $oContext = \raptor\Context::getInstance();
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if ($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheAllDataAndFlags();
+            }
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -2013,7 +2014,13 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
     {
         try
         {
-            //TODO clear all the cache entries specific to the order!
+            $oContext = \raptor\Context::getInstance();
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if ($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData("{$tid}" . REDAO_CACHE_NM_SUFFIX_DASHBOARD);
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(REDAO_CACHE_NM_WORKLIST);
+            }
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -2023,7 +2030,14 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
     {
         try
         {
-            //TODO clear all the cache entries specific to the patient!
+            $sThisResultName = "{$pid}" . REDAO_CACHE_NM_SUFFIX_VITALS;
+            $oContext = \raptor\Context::getInstance();
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if ($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData($sThisResultName);
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(REDAO_CACHE_NM_WORKLIST);
+            }
         } catch (\Exception $ex) {
             throw $ex;
         }

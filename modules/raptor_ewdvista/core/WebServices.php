@@ -27,31 +27,33 @@ class WebServices
      * NOTE:  $data is an associative array (data[fieldname] = value) 
      *        which holds the data sent to the api method
      */
-    public function callAPI($method, $url, $data = FALSE, $headers_ar = FALSE)
+    public function callAPI($methodtype, $url, $data_ar = FALSE, $headers_ar = FALSE)
     {
         try
         {
             $curl = curl_init();
-            //error_log("LOOK (0000002) callAPI method: $method");
-            //error_log("LOOK (0000003) callAPI supplied headers: " . print_r($headers_ar,TRUE));
-            switch ($method)
+error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($headers_ar,TRUE));            
+            
+            switch ($methodtype)
             {
-                case "POST":
+                case 'POST':
                     curl_setopt($curl, CURLOPT_POST, 1);
-
-                    if ($data)
+                    if($data_ar)
                     {
-                        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                        curl_setopt($curl, CURLOPT_POSTFIELDS, $data_ar);
                     }
                     break;
-                case "PUT":
+                case 'PUT':
                     curl_setopt($curl, CURLOPT_PUT, 1);
                     break;
-                default:
-                    if ($data)
+                case 'GET':
+                    if($data_ar)
                     {
-                        $url = sprintf("%s?%s", $url, http_build_query($data));
+                        $url = sprintf("%s?%s", $url, http_build_query($data_ar));
                     }
+                    break;
+                default:
+                    throw new \Exception("No support for http method type by name of '$methodtype' for url=$url");
             }
             if($headers_ar !== FALSE)
             {
@@ -79,9 +81,11 @@ class WebServices
 
             curl_close($curl);
 
+error_log("LOOK callAPI result from $methodtype@$url is =".print_r($result,TRUE));            
+            
             return $result;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed callAPI($method, $url, $data) because ".$ex,99888,$ex);
+            throw new \Exception("Failed callAPI($methodtype, $url, $data_ar) because ".$ex,99888,$ex);
         }
     }
 }
