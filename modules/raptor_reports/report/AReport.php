@@ -239,48 +239,56 @@ abstract class AReport
                             return FALSE;
                         }
                     } else {
-                        //Special privileges are custom text
-                        if(!is_array($value))
+                        //Allow for case of NULL value on the key.
+                        if($value != NULL)
                         {
-                            throw new \Exception("The provided special privs declaration must be an array!  Instead got this>>>" . print_r($value,TRUE));
-                        }
-                        if(!isset($aCandidatePrivs['special_privs']) || !is_array($aCandidatePrivs['special_privs']))
-                        {
-                            //User does not have the required special privilege
-                            return FALSE;
-                        }
-                        $reqvalue = NULL;
-                        $candidate_special_privs = $aCandidatePrivs['special_privs'];   //What the user has
-                        foreach($value as $onereqpriv) //Check against each one required
-                        {
-                            $parts_req = explode('=',$onereqpriv);
-                            if(count($parts_req) == 1)
+                            //Special privileges are custom text
+                            if(!is_array($value))
                             {
-                                $reqvalue = NULL;
-                            } else {
-                                $reqvalue = trim($parts_req[1]);
+                                throw new \Exception("The provided special privs declaration must be an array!  Instead got this>>>" . print_r($value,TRUE));
                             }
-                            $okay = FALSE;
-                            foreach($candidate_special_privs as $onehaspriv)
+                            if(!isset($aCandidatePrivs['special_privs']) || !is_array($aCandidatePrivs['special_privs']))
                             {
-                                $parts_has = explode('=',$onehaspriv);
-                                if($parts_has[0] == $parts_req[0])
+                                //User does not have the required special privilege
+                                return FALSE;
+                            }
+                            $reqvalue = NULL;
+                            $candidate_special_privs = $aCandidatePrivs['special_privs'];   //What the user has
+                            foreach($value as $onereqpriv) //Check against each one required
+                            {
+                                //Allow for case of NULL checks
+                                if($onereqpriv != NULL)
                                 {
-                                    if($reqvalue == NULL)
+                                    $parts_req = explode('=',$onereqpriv);
+                                    if(count($parts_req) == 1)
                                     {
-                                        $okay = TRUE;
+                                        $reqvalue = NULL;
                                     } else {
-                                        if(count($parts_has) == 2 && $parts_has[1] == $reqvalue)
+                                        $reqvalue = trim($parts_req[1]);
+                                    }
+                                    $okay = FALSE;
+                                    foreach($candidate_special_privs as $onehaspriv)
+                                    {
+                                        $parts_has = explode('=',$onehaspriv);
+                                        if($parts_has[0] == $parts_req[0])
                                         {
-                                            $okay = TRUE;
+                                            if($reqvalue == NULL)
+                                            {
+                                                $okay = TRUE;
+                                            } else {
+                                                if(count($parts_has) == 2 && $parts_has[1] == $reqvalue)
+                                                {
+                                                    $okay = TRUE;
+                                                }
+                                            }
                                         }
                                     }
+                                    if(!$okay)
+                                    {
+                                        //Does NOT have the special priv needed.
+                                        return FALSE;
+                                    }
                                 }
-                            }
-                            if(!$okay)
-                            {
-                                //Does NOT have the special priv needed.
-                                return FALSE;
                             }
                         }
                     }

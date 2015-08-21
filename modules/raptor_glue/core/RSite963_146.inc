@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150803.1 963 for VA 146 AppServer1');
+    or define('RAPTOR_CONFIG_ID', '20150821.1 963 for VA 146 AppServer1');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -57,6 +57,7 @@ defined('DISABLE_TICKET_AGE2_SCORING')
 defined('DEFAULT_GET_VISIT_DAYS')
     or define('DEFAULT_GET_VISIT_DAYS', 30); //For PROD set this to 30 days!!!!!!
 
-//Control availability of resource intensive configuration features
-defined('ENABLE_RAPTOR_PERFORMANCE_TUNING')
-    or define('ENABLE_RAPTOR_PERFORMANCE_TUNING', TRUE);	
+//Control availability of resource intensive configuration features (NULL enables for everyone)
+defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')
+    //or define('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV', NULL);	
+    or define('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV', 'RUN_PERFORMANCE_CHECK=1');	

@@ -22,7 +22,7 @@ require_once 'AReport.php';
  */
 class ViewEhrDaoPerformance extends AReport
 {
-    private static $reqprivs = array('special_privs'=>array('RUN_PERFORMANCE_CHECK=1'));
+    private static $reqprivs = array('special_privs'=>array(ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV));
     private static $menukey = 'raptor/showehrdaoperformance';
     private static $reportname = 'Show EHR DAO Performance Details';
 
@@ -52,10 +52,6 @@ class ViewEhrDaoPerformance extends AReport
      */
     function getFieldValues($myvalues = NULL)
     {
-        if(!ENABLE_RAPTOR_PERFORMANCE_TUNING)
-        {
-            throw new \Exception("Cannot run because ENABLE_RAPTOR_PERFORMANCE_TUNING=FALSE");
-        }
         $getfieldvalues_starttime = microtime(TRUE);
         $myvalues['filename_insert'] = NULL;
         if($myvalues == NULL)
