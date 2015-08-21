@@ -121,7 +121,7 @@
             setTimeout(
                     function() {
                         if ($('.message').is(':visible')) {
-                            loop();
+                            //loop();
                         } else {
                             $('.ui-dialog-titlebar-close').click();
                         }

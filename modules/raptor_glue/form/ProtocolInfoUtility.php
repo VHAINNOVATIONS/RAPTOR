@@ -44,10 +44,7 @@ class ProtocolInfoUtility
             
             module_load_include('php', 'raptor_datalayer', 'config/Choices');
             module_load_include('php', 'raptor_datalayer', 'config/ListUtils');
-            //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-            //module_load_include('php', 'raptor_datalayer', 'core/data_dashboard');
             module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
-            //module_load_include('php', 'raptor_datalayer', 'core/data_protocolsupport');
 
             module_load_include('php', 'raptor_workflow', 'core/AllowedActions');
 
@@ -545,7 +542,7 @@ class ProtocolInfoUtility
                     , FALSE, FALSE);
 
             //Contrast
-            $shownow = $this->hasContrastValues($myvalues, $form_state);
+            $shownow_contrast = $this->hasContrastValues($myvalues, $form_state);
             $contrast_showResetButton = $myvalues['show_reset_button'];
             $contrastarea = $this->getOverallSectionCheckboxType($form_state
                     , 'contrast', 'Contrast'
@@ -553,48 +550,48 @@ class ProtocolInfoUtility
                     , $myvalues
                     , NULL
                     , TRUE
-                    , $shownow
-                    , $shownow
+                    , $shownow_contrast
+                    , $shownow_contrast
                     , $modality_filter
                     , $contrast_showResetButton); 
             $form['protocolinput'][] = $contrastarea;
 
-            //Consent Required
-            $shownow = !$disableChildInput;
+            //Consent Required (collapsable section)
+            $shownow_consent = !$disableChildInput;
             $consentarea = $this->getYesNoResetRadioTypeSection('consentreq', 'Consent Required'
                 , $disableChildInput
                 , $myvalues
                 , NULL
                 , TRUE
-                , $shownow
-                , $shownow);
+                , $shownow_consent
+                , $shownow_consent);
             $form['protocolinput'][] = $consentarea;
 
-            //Hydration
-            $shownow = $this->hasHydrationValues($myvalues);
+            //Hydration (collapsable section)
+            $shownow_hyd = $this->hasHydrationValues($myvalues);
             $hydrationarea = $this->getOverallSectionRadioType($form_state
                     , 'hydration', 'Hydration'
                     , $disableChildInput
                     , $myvalues
                     , NULL, TRUE
-                    , $shownow
-                    , $shownow
+                    , $shownow_hyd
+                    , $shownow_hyd
                     , $modality_filter); 
             $form['protocolinput'][] = $hydrationarea;
 
-            //Sedation
-            $shownow = $this->hasSedationValues($myvalues);
+            //Sedation (collapsable section)
+            $shownow_sed = $this->hasSedationValues($myvalues);
             $sedationarea = $this->getOverallSectionRadioType($form_state
                     , 'sedation', 'Sedation'
                     , $disableChildInput
                     , $myvalues
                     , NULL, TRUE
-                , $shownow
-                , $shownow);
+                    , $shownow_sed
+                    , $shownow_sed);
             $form['protocolinput'][] = $sedationarea;
 
-            //Radioisotope
-            $shownow = $this->hasRadioisotopeValues($myvalues);
+            //Radioisotope (collapsable section)
+            $shownow_rad = $this->hasRadioisotopeValues($myvalues);
             $radioisotope_showResetButton = $myvalues['show_reset_button'];
             $radioisotopearea = $this->getOverallSectionCheckboxType($form_state
                     , 'radioisotope'
@@ -603,8 +600,8 @@ class ProtocolInfoUtility
                     , $myvalues
                     , NULL
                     , TRUE
-                    , $shownow
-                    , $shownow
+                    , $shownow_rad
+                    , $shownow_rad
                     , $modality_filter
                     , $radioisotope_showResetButton); 
             $form['protocolinput'][] = $radioisotopearea;
