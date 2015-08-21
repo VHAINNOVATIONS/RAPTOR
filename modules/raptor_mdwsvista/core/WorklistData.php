@@ -436,7 +436,10 @@ class WorklistData
         $argument = "";
         foreach($requestedFields as $rf)
         {
-            if ($argument != "") $argument .= ";";
+            if ($argument != "") 
+            {
+                $argument .= ";";
+            }
             $argument .= $rf;
         }
         
