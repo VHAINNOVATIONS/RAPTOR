@@ -344,7 +344,7 @@ class WorklistData
             
             $t[\raptor\WorklistColumnMap::WLIDX_MODALITY] = 'Unknown';
             
-            if($modality != '')    //Do not return the row if we cannot determine the modality.  TODO --- Replace this approach!!!!
+            if($modality != '')    //Do not return the row if we cannot determine the modality.
             {
                 //Count this order as pending for the patient?
                 if($t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AC'
@@ -401,7 +401,7 @@ class WorklistData
                 }
             }
         }
-
+        //error_log("LOOK DUMP OF ALL PENDING INFO>>>>".print_r($aPatientPendingOrderMap,TRUE));
         //Populate the array of results
         $result = array('all_rows'=>&$worklist
                         ,'pending_orders_map'=>&$aPatientPendingOrderMap
