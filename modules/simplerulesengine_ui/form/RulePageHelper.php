@@ -424,7 +424,7 @@ class RulePageHelper
             } else
             if($key == 'AllFlagsNull')
             {
-                $describe = 'The '.$key.' subsection triggers only when all its flags evaluate as Null.  A Null value occurs when a key data value for a flag is unknown or provided to the rules engine.';
+                $describe = 'The '.$key.' subsection triggers only when all its flags evaluate as Null.  A Null value occurs when a key data value for a flag is unknown or is NOT provided to the rules engine.';
             } else {
                 $describe = '';    
             }
