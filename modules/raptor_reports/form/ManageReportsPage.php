@@ -78,14 +78,15 @@ class ManageReportsPage
 
         $oContext = \raptor\Context::getInstance();
         $userinfo = $oContext->getUserInfo();
-        $userprivs = $userinfo->getSystemPrivileges();
+        //$userprivs = $userinfo->getSystemPrivileges();
+        $alluserprivs = $userinfo->getAllPrivileges();
 
         $aReportClassNames  = self::getReportsList();
         $aReports = self::getReportInstances($aReportClassNames);
         
         //Construct a page with all the available reports for the user.
         $rows = "\n";
-        $showhiddenreports = isset($myvalues['showhiddenreports']) ? $myvalues['showhiddenreports'] : FALSE;
+        $showhiddenreports = TRUE;  //removing this feature isset($myvalues['showhiddenreports']) ? $myvalues['showhiddenreports'] : FALSE;
         global $base_url;
         foreach($aReports as $classname=>$oReport)
         {
@@ -93,7 +94,7 @@ class ManageReportsPage
             $hidefromlist = $oReport->hideFromList();
             if($showhiddenreports || !$hidefromlist)
             {
-                if($oReport->hasRequiredPrivileges($userprivs))
+                if($oReport->hasRequiredPrivileges($alluserprivs))
                 {
                     //Yes, make the report available.
                     $name = $oReport->getName(); // . '['.$base_url.']';

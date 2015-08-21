@@ -22,7 +22,7 @@ require_once 'AReport.php';
  */
 class ViewEhrDaoPerformance extends AReport
 {
-    private static $reqprivs = array();
+    private static $reqprivs = array('special_privs'=>array('RUN_PERFORMANCE_CHECK=1'));
     private static $menukey = 'raptor/showehrdaoperformance';
     private static $reportname = 'Show EHR DAO Performance Details';
 

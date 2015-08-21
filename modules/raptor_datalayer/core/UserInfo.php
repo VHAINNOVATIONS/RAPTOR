@@ -21,20 +21,21 @@ namespace raptor;
 class UserInfo 
 {
     
-    protected $m_nUID = null;
-    protected $m_oData = null;
-    protected $m_oPrivs = null;
-    protected $m_aPreferredModality = null;
-    protected $m_aPreferredModalityOverrides = null;
+    protected $m_nUID = NULL;
+    protected $m_oData = NULL;
+    protected $m_aPrivs = NULL;
+    protected $m_aSpecialPrivs = NULL;
+    protected $m_aPreferredModality = NULL;
+    protected $m_aPreferredModalityOverrides = NULL;
     protected $m_bFoundPreferredModalityOverrides = NULL;
-    protected $m_aSpecialistModality = null;
-    protected $m_aPreferredService = null;
-    protected $m_aSpecialistService = null;
-    protected $m_aPreferredAnatomy = null;
-    protected $m_aPreferredAnatomyOverrides = null;
+    protected $m_aSpecialistModality = NULL;
+    protected $m_aPreferredService = NULL;
+    protected $m_aSpecialistService = NULL;
+    protected $m_aPreferredAnatomy = NULL;
+    protected $m_aPreferredAnatomyOverrides = NULL;
     protected $m_bFoundPreferredAnatomyOverrides = NULL;
-    protected $m_aSpecialistAnatomy = null;
-    protected $m_aGroups = null;
+    protected $m_aSpecialistAnatomy = NULL;
+    protected $m_aGroups = NULL;
     
     protected $m_bFailIfNotFound = NULL;
     
@@ -154,7 +155,7 @@ class UserInfo
                 return FALSE;
             }
         } catch (\Exception $ex) {
-            error_log("Failed isReferenced because ".$ex->getMessage());
+            error_log("Failed isReferenced because $ex");
             throw $ex;
         }
     }
@@ -195,7 +196,6 @@ class UserInfo
     public function getFullName()
     {
         $this->readData();
-        //return trim($this->m_oData['usernametitle'] . ' ' . $this->m_oData['firstname'] . ' ' . $this->m_oData['lastname'] . ' ' . $this->m_oData['suffix']);
         return UserInfo::getComposedFullName($this->m_oData);
     }
 
@@ -302,13 +302,39 @@ class UserInfo
         $this->readKeywordData();
         return $this->m_aSpecialistModality;
     }
-    
+
+    /**
+     * The system privileges are the standard boolean items that a user
+     * can be assigned as either having or not having.
+     */
     public function getSystemPrivileges()
     {
         $this->readData();
-        return $this->m_oPrivs;
+        return $this->m_aPrivs;
     }
 
+    /**
+     * Special priviledges are returned as an array of strings
+     * The interpretation of the strings depends on the 
+     * context.
+     */
+    public function getDeclaredSpecialPrivileges()
+    {
+        $this->readData();
+        return $this->m_aSpecialPrivs;
+    }
+
+    /**
+     * Return an array of all the user's priviledges
+     */
+    public function getAllPrivileges()
+    {
+        $this->readData();
+        $bundle = $this->m_aPrivs;
+        $bundle['special_privs'] = $this->m_aSpecialPrivs;
+        return $bundle;
+    }
+    
     /**
      * Return a simple map where key is user Id
      */
@@ -393,20 +419,43 @@ class UserInfo
     public function getPrivilegeSetting($sPrivCode)
     {
         $this->readData();
-        return $this->m_oPrivs[$sPrivCode];
+        return $this->m_aPrivs[$sPrivCode];
     }
 
     /**
-     * All privileges have a code associated with them.
+     * All standard privileges have a code associated with them.
      * @param type $sPrivCode value such as 'PWI1'
      * @return boolean
      */
     public function hasPrivilege($sPrivCode)
     {
         $this->readData();
-        return $this->m_oPrivs[$sPrivCode] == 1;
+        return $this->m_aPrivs[$sPrivCode] == 1;
     }
-    
+
+    /**
+     * Return the value associated with the special priviledge code
+     */
+    public function getSpecialPrivilegeValue($sSpecialPrivCode,$sDelimeter='=',$sDefaultForExisting=1)
+    {
+        $this->readData();
+        $value = NULL;
+        foreach($this->m_aSpecialPrivs as $onepriv)
+        {
+            $parts = explode($sDelimeter,$onepriv);
+            if(strtoupper(trim($parts[0])) == strtoupper($sSpecialPrivCode))
+            {
+                if(count($parts) == 1)
+                {
+                    $value = $sDefaultForExisting;
+                } else {
+                    $value = trim($parts[1]);
+                }
+            }
+        }
+        return $value;
+    }
+   
     /**
      * Helper for lazy data loading
      */
@@ -749,29 +798,18 @@ class UserInfo
                         . ', `CE1`, `QA1`, `QA2`, `QA3`, `SP1`, `VREP1`, `VREP2`'
                         . ', `EBO1`, `UNP1`, `REP1`, `DRA1`, `ELCO1`, `ELHO1`'
                         . ', `ELSO1`, `ELSVO1`, `ELRO1`, `ECIR1`, `EECC1`'
-                        . ', `EERL1`, `EARM1`, `CUT1`, `updated_dt` '
+                        . ', `EERL1`, `EARM1`, `CUT1`, special_privs, `updated_dt` '
                         . ' FROM raptor_user_profile WHERE uid = :uid';
                 $filter = array(":uid" => $this->m_nUID);
                 $result = db_query($sSQL, $filter);
             } catch (\Exception $ex) {
-                error_log("Failed raptor_user_profile perhaps missing QA3?  Trying without QA3...");
-                $sSQL = 'SELECT '
-                        . ' `username`, `role_nm`, `worklist_cols`, `usernametitle`'
-                        . ', `firstname`, `lastname`, `suffix`, `prefemail`'
-                        . ', `prefphone`, `accountactive_yn`'
-                        . ', `CEUA1`, `LACE1`'
-                        . ', `SWI1`, `PWI1`, `APWI1`, `SUWI1`'
-                        . ', `CE1`, `QA1`, `QA2`, `SP1`, `VREP1`, `VREP2`'
-                        . ', `EBO1`, `UNP1`, `REP1`, `DRA1`, `ELCO1`, `ELHO1`'
-                        . ', `ELSO1`, `ELSVO1`, `ELRO1`, `ECIR1`, `EECC1`'
-                        . ', `EERL1`, `EARM1`, `CUT1`, `updated_dt` '
-                        . ' FROM raptor_user_profile WHERE uid = :uid';
-                $filter = array(":uid" => $this->m_nUID);
-                $result = db_query($sSQL, $filter);
+                error_log("Failed SQL=$sSQL with filter=$filter because $ex");
+                throw $ex;
             }
             
             $myvalues = array();
             $myprivs = array();
+            $myspecialprivs = array();
             if($result->rowCount()==0)
             {
                 $errmsg = 'Did NOT find RAPTOR user with uid=[' . $this->m_nUID .']';
@@ -836,11 +874,23 @@ class UserInfo
                 $myprivs['EERL1'] = $record->EERL1;
                 $myprivs['EARM1'] = $record->EARM1;
                 $myprivs['CUT1'] = $record->CUT1;
-
+                
+                //And grab the special privs too!
+                $rawspecialprivs = $record->special_privs;
+                if($rawspecialprivs != NULL)
+                {
+                    $rawtextparts = explode(';',$rawspecialprivs);
+                    foreach($rawtextparts as $onetextpart)
+                    {
+                        $myspecialprivs[] = trim($onetextpart);
+                    }
+                }
+                
                 $myvalues['updated_dt'] = $record->updated_dt;
             }
             $myprivs['SITEADMIN'] = ($myvalues['role_nm'] == 'Site Administrator' ? 1 : 0);
-            $this->m_oPrivs = $myprivs;
+            $this->m_aPrivs = $myprivs;
+            $this->m_aSpecialPrivs = $myspecialprivs;
             $this->m_oData = $myvalues;
         } catch (\Exception $ex) {
             //If we are here, this is not good.
