@@ -72,98 +72,108 @@ class ProtocolInfoUtility
      */
     public function getTextFromCustomList($rootname, $myvalues)
     {
-        $result_tx = NULL;
-        if($myvalues[$rootname . '_inputmode'] == 'list')
+        try
         {
-            $result_tx = $myvalues[$rootname . 'id'];
-        } else
-        if($myvalues[$rootname . '_inputmode'] == 'customtx')
-        {
-            $result_tx = $myvalues[$rootname . 'customtx'];
-        } else {
-            if(trim($myvalues[$rootname . 'id'])  > '')
+            $result_tx = NULL;
+            if($myvalues[$rootname . '_inputmode'] == 'list')
             {
                 $result_tx = $myvalues[$rootname . 'id'];
-            } else {
+            } else
+            if($myvalues[$rootname . '_inputmode'] == 'customtx')
+            {
                 $result_tx = $myvalues[$rootname . 'customtx'];
+            } else {
+                if(trim($myvalues[$rootname . 'id'])  > '')
+                {
+                    $result_tx = $myvalues[$rootname . 'id'];
+                } else {
+                    $result_tx = $myvalues[$rootname . 'customtx'];
+                }
             }
+            return $result_tx;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $result_tx;
     }
     
     function getCustomListBlockAnalysis($myvalues, $sr_type, $sr_name, $sr_empty_value, $textmap)
     {
-        $analysis = array();
-        $analysis['hasvalues'] = FALSE; //Initialize with this assumption
-        if(isset($myvalues[$sr_name]))
+        try
         {
-            //Just go by the section radio button
-            if($sr_type == 'R')
+            $analysis = array();
+            $analysis['hasvalues'] = FALSE; //Initialize with this assumption
+            if(isset($myvalues[$sr_name]))
             {
-                //Radio
-                $buttontypename = 'radio button';
-                $rvalue = $myvalues[$sr_name];
-                $analysis['none'] = array('flag'=>($rvalue === 'none' ? 1 : 0));
-                foreach($textmap as $typename=>$controlrootname)
+                //Just go by the section radio button
+                if($sr_type == 'R')
                 {
-                    $flagvalue = ($rvalue === $typename ? 1 : 0);
-                    $analysis[$typename] = array('flag'=>$flagvalue);
-                    $textvalue = $this->getTextFromCustomList($controlrootname, $myvalues);
-                    if(trim($textvalue) > '')
+                    //Radio
+                    $buttontypename = 'radio button';
+                    $rvalue = $myvalues[$sr_name];
+                    $analysis['none'] = array('flag'=>($rvalue === 'none' ? 1 : 0));
+                    foreach($textmap as $typename=>$controlrootname)
                     {
-                        if($flagvalue > 0)
+                        $flagvalue = ($rvalue === $typename ? 1 : 0);
+                        $analysis[$typename] = array('flag'=>$flagvalue);
+                        $textvalue = $this->getTextFromCustomList($controlrootname, $myvalues);
+                        if(trim($textvalue) > '')
                         {
-                            //This is a good value scenario
-                            $analysis['hasvalues'] = TRUE;
-                        } else {
-                            //This is a BAD value scenario
-                            $analysis['orphantext'] = $typename;
+                            if($flagvalue > 0)
+                            {
+                                //This is a good value scenario
+                                $analysis['hasvalues'] = TRUE;
+                            } else {
+                                //This is a BAD value scenario
+                                $analysis['orphantext'] = $typename;
+                            }
                         }
                     }
-                }
-            } else {
-                //Checkboxes
-                $buttontypename = 'checkbox';
-                $a = $myvalues[$sr_name];
-                $analysis['none'] = array('flag'=>($a['none'] === 'none' ? 1 : 0));
-                foreach($textmap as $typename=>$controlrootname)
-                {
-                    $flagvalue = $a[$typename] === $typename ? 1 : 0;
-                    $analysis[$typename] = array('flag'=>$flagvalue);
-                    $textvalue = $this->getTextFromCustomList($controlrootname, $myvalues);
-                    if(trim($textvalue) > '')
+                } else {
+                    //Checkboxes
+                    $buttontypename = 'checkbox';
+                    $a = $myvalues[$sr_name];
+                    $analysis['none'] = array('flag'=>($a['none'] === 'none' ? 1 : 0));
+                    foreach($textmap as $typename=>$controlrootname)
                     {
-                        if($flagvalue > 0)
+                        $flagvalue = $a[$typename] === $typename ? 1 : 0;
+                        $analysis[$typename] = array('flag'=>$flagvalue);
+                        $textvalue = $this->getTextFromCustomList($controlrootname, $myvalues);
+                        if(trim($textvalue) > '')
                         {
-                            //This is a good value scenario
-                            $analysis['hasvalues'] = TRUE;
-                        } else {
-                            //This is a BAD value scenario
-                            $analysis['orphantext'] = $typename;
+                            if($flagvalue > 0)
+                            {
+                                //This is a good value scenario
+                                $analysis['hasvalues'] = TRUE;
+                            } else {
+                                //This is a BAD value scenario
+                                $analysis['orphantext'] = $typename;
+                            }
                         }
                     }
                 }
             }
-        }
-        $analysis['badcombination'] = FALSE;
-        if(isset($analysis['none']))
-        {
-            if($analysis['none'] == 1)
+            $analysis['badcombination'] = FALSE;
+            if(isset($analysis['none']))
             {
-                if($analysis['hasvalues'])
+                if($analysis['none'] == 1)
                 {
-                    //Nothing should have been set
-                    $analysis['badcombination'] = TRUE;
-                }
-            } else {
-                if(!$analysis['hasvalues'])
-                {
-                    //Something needed to be set
-                    $analysis['badcombination'] = TRUE;
+                    if($analysis['hasvalues'])
+                    {
+                        //Nothing should have been set
+                        $analysis['badcombination'] = TRUE;
+                    }
+                } else {
+                    if(!$analysis['hasvalues'])
+                    {
+                        //Something needed to be set
+                        $analysis['badcombination'] = TRUE;
+                    }
                 }
             }
+            return $analysis;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $analysis;
     }
 
     
@@ -173,32 +183,35 @@ class ProtocolInfoUtility
      */
     public function getPreviousNotesMarkup($tablename,$nSiteID,$nIEN,$extraClassname='')
     {
-        
-        $prev_notes_tx = NULL;
-
-        //Get app existing notes
-        $query = db_select($tablename, 'n');
-        $query->join('raptor_user_profile', 'u', 'n.author_uid = u.uid');
-        $query->fields('n', array('created_dt', 'notes_tx'));
-        $query->fields('u', array('username','role_nm','usernametitle','firstname','lastname','suffix','prefemail','prefphone'))
-            ->condition('siteid', $nSiteID,'=')
-            ->condition('IEN', $nIEN,'=')
-            ->orderBy('created_dt', 'ASC');
-        $result = $query->execute();
-        while($record = $result->fetchAssoc())
+        try
         {
-            //Create the markup.
-            $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] . ' ' . $record['lastname'] . ' ' . $record['suffix']);
-            $prev_notes_tx .= '<div class="existing-note '.$extraClassname.'">'
-                    . '<span class="datetime">' . $record['created_dt'] . '</span> ' 
-                    . '<span class="author-name">' . $fullname  . '</span> ' 
-                    . '<span class="author-phone">' . $record['prefphone'] . '</span> ' 
-                    . '<span class="author-email">' . $record['prefemail'] . '</span> '  
-                    . '<div class="note-text">' . $record['notes_tx'] . '</div> '  
-                    . '</div>';
+            $prev_notes_tx = NULL;
+
+            //Get app existing notes
+            $query = db_select($tablename, 'n');
+            $query->join('raptor_user_profile', 'u', 'n.author_uid = u.uid');
+            $query->fields('n', array('created_dt', 'notes_tx'));
+            $query->fields('u', array('username','role_nm','usernametitle','firstname','lastname','suffix','prefemail','prefphone'))
+                ->condition('siteid', $nSiteID,'=')
+                ->condition('IEN', $nIEN,'=')
+                ->orderBy('created_dt', 'ASC');
+            $result = $query->execute();
+            while($record = $result->fetchAssoc())
+            {
+                //Create the markup.
+                $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] . ' ' . $record['lastname'] . ' ' . $record['suffix']);
+                $prev_notes_tx .= '<div class="existing-note '.$extraClassname.'">'
+                        . '<span class="datetime">' . $record['created_dt'] . '</span> ' 
+                        . '<span class="author-name">' . $fullname  . '</span> ' 
+                        . '<span class="author-phone">' . $record['prefphone'] . '</span> ' 
+                        . '<span class="author-email">' . $record['prefemail'] . '</span> '  
+                        . '<div class="note-text">' . $record['notes_tx'] . '</div> '  
+                        . '</div>';
+            }
+            return $prev_notes_tx;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        return $prev_notes_tx;
     }
     
     /**
@@ -207,196 +220,201 @@ class ProtocolInfoUtility
      */
     public function getPreviousQANotesMarkup($nSiteID,$nIEN,$extraClassname='')
     {
-        $sortable_result = array();
-        
-        $crit_tablename = 'raptor_qa_criteria';
-        $eval_tablename = 'raptor_ticket_qa_evaluation';
-        $notes_tablename = 'raptor_ticket_qa_notes';
-        
-        $prev_notes_tx = NULL;
+        try
+        {
+            $sortable_result = array();
 
-        $oUser = $this->m_oContext->getUserInfo();
-        $bCanSeeQA = $oUser->hasPrivilege('QA2');
-        
-        $evaldates = array();
-        
-        //Collect all the questions
-        $crit_lookup = array();
-        $crit_result = db_select($crit_tablename,'r')
-                ->fields('r')
-                ->execute();
-        while($record = $crit_result->fetchAssoc())
-        {
-            $shortname = $record['shortname'];
-            $crit_lookup[$shortname] = $record;
-        }
-            
-        //Collect all the general notes first
-        $note_query = db_select($notes_tablename, 'n');
-        $note_query->join('raptor_user_profile', 'u', 'n.author_uid = u.uid');
-        $note_query->fields('n', array('created_dt', 'notes_tx'));
-        $note_query->fields('u', array('username','role_nm','usernametitle','firstname','lastname','suffix','prefemail','prefphone'))
-            ->condition('siteid', $nSiteID,'=')
-            ->condition('IEN', $nIEN,'=')
-            ->orderBy('created_dt', 'ASC');
-        $result = $note_query->execute();
-        $general_notes = array();
-        while($record = $result->fetchAssoc())
-        {
-            $thedate = $record['created_dt'];
-            $evaldates[$thedate] = $record['username'];
-            $now_key = $thedate . '_' . $record['username'];
-            
-            $details = array();
-            $details['date'] = $record['created_dt'];
-            $details['fullname'] = trim($record['usernametitle'] . ' ' 
-                    . $record['firstname'] . ' ' 
-                    . $record['lastname'] . ' ' 
-                    . $record['suffix']);
-            $details['prefphone'] = $record['prefphone'];
-            $details['prefemail'] = $record['prefemail'];
-            $details['comment'] = $record['notes_tx'];
-            
-            $general_notes[$now_key] = $details;
-        }
-        $shown_notes = array();
-        
-        //Get app existing eval markup
-        $score_query = db_select($eval_tablename, 'n');
-        $score_query->join('raptor_user_profile', 'u', 'n.author_uid = u.uid');
-        $score_query->fields('n', array('evaluation_dt', 'comment', 'criteria_score', 'criteria_shortname'));
-        $score_query->fields('u', array('username','role_nm'
-            ,'usernametitle','firstname','lastname','suffix','prefemail','prefphone'))
-            ->condition('siteid', $nSiteID,'=')
-            ->condition('IEN', $nIEN,'=')
-            ->orderBy('evaluation_dt', 'ASC')
-            ->orderBy('author_uid', 'ASC');
-        $result = $score_query->execute();
-        $prev_key = '';
-        $mymarkup = '';
-        while($record = $result->fetchAssoc())
-        {
-            //Create the markup.
-            $thedate = $record['evaluation_dt'];
-            $evaldates[$thedate] = $record['username'];
-            $now_key = $thedate . '_' . $record['username'];
-            if($now_key != $prev_key)
+            $crit_tablename = 'raptor_qa_criteria';
+            $eval_tablename = 'raptor_ticket_qa_evaluation';
+            $notes_tablename = 'raptor_ticket_qa_notes';
+
+            $prev_notes_tx = NULL;
+
+            $oUser = $this->m_oContext->getUserInfo();
+            $bCanSeeQA = $oUser->hasPrivilege('QA2');
+
+            $evaldates = array();
+
+            //Collect all the questions
+            $crit_lookup = array();
+            $crit_result = db_select($crit_tablename,'r')
+                    ->fields('r')
+                    ->execute();
+            while($record = $crit_result->fetchAssoc())
             {
-                $fullname = trim($record['usernametitle'] . ' ' 
+                $shortname = $record['shortname'];
+                $crit_lookup[$shortname] = $record;
+            }
+
+            //Collect all the general notes first
+            $note_query = db_select($notes_tablename, 'n');
+            $note_query->join('raptor_user_profile', 'u', 'n.author_uid = u.uid');
+            $note_query->fields('n', array('created_dt', 'notes_tx'));
+            $note_query->fields('u', array('username','role_nm','usernametitle','firstname','lastname','suffix','prefemail','prefphone'))
+                ->condition('siteid', $nSiteID,'=')
+                ->condition('IEN', $nIEN,'=')
+                ->orderBy('created_dt', 'ASC');
+            $result = $note_query->execute();
+            $general_notes = array();
+            while($record = $result->fetchAssoc())
+            {
+                $thedate = $record['created_dt'];
+                $evaldates[$thedate] = $record['username'];
+                $now_key = $thedate . '_' . $record['username'];
+
+                $details = array();
+                $details['date'] = $record['created_dt'];
+                $details['fullname'] = trim($record['usernametitle'] . ' ' 
                         . $record['firstname'] . ' ' 
                         . $record['lastname'] . ' ' 
                         . $record['suffix']);
-                if($prev_key > '')
+                $details['prefphone'] = $record['prefphone'];
+                $details['prefemail'] = $record['prefemail'];
+                $details['comment'] = $record['notes_tx'];
+
+                $general_notes[$now_key] = $details;
+            }
+            $shown_notes = array();
+
+            //Get app existing eval markup
+            $score_query = db_select($eval_tablename, 'n');
+            $score_query->join('raptor_user_profile', 'u', 'n.author_uid = u.uid');
+            $score_query->fields('n', array('evaluation_dt', 'comment', 'criteria_score', 'criteria_shortname'));
+            $score_query->fields('u', array('username','role_nm'
+                ,'usernametitle','firstname','lastname','suffix','prefemail','prefphone'))
+                ->condition('siteid', $nSiteID,'=')
+                ->condition('IEN', $nIEN,'=')
+                ->orderBy('evaluation_dt', 'ASC')
+                ->orderBy('author_uid', 'ASC');
+            $result = $score_query->execute();
+            $prev_key = '';
+            $mymarkup = '';
+            while($record = $result->fetchAssoc())
+            {
+                //Create the markup.
+                $thedate = $record['evaluation_dt'];
+                $evaldates[$thedate] = $record['username'];
+                $now_key = $thedate . '_' . $record['username'];
+                if($now_key != $prev_key)
                 {
-                    //End the previous markup
-                    if(isset($general_notes[$prev_key]))
+                    $fullname = trim($record['usernametitle'] . ' ' 
+                            . $record['firstname'] . ' ' 
+                            . $record['lastname'] . ' ' 
+                            . $record['suffix']);
+                    if($prev_key > '')
                     {
-                        $details = $general_notes[$prev_key];
-                        $mymarkup .= '<div class="note-text">' 
-                                . 'Overall Comments: ' 
-                                . $details['comment']
-                                . '</div> ';
-                        $shown_notes[$prev_key] = $prev_key;
+                        //End the previous markup
+                        if(isset($general_notes[$prev_key]))
+                        {
+                            $details = $general_notes[$prev_key];
+                            $mymarkup .= '<div class="note-text">' 
+                                    . 'Overall Comments: ' 
+                                    . $details['comment']
+                                    . '</div> ';
+                            $shown_notes[$prev_key] = $prev_key;
+                        }
+                        $mymarkup .= '</div>';
+                        $always_unique = $prev_key . "_" . count($sortable_result);
+                        $sortable_result[$always_unique] = $mymarkup;
+                        $mymarkup = ''; //Start again
                     }
-                    $mymarkup .= '</div>';
-                    $always_unique = $prev_key . "_" . count($sortable_result);
-                    $sortable_result[$always_unique] = $mymarkup;
-                    $mymarkup = ''; //Start again
+                    //Start the markup
+                    $mymarkup .= '<div class="existing-note '.$extraClassname.'">'
+                            . '<span class="datetime">' . $record['evaluation_dt'] 
+                            . '</span> ' 
+                            . '<span class="author-name">' . $fullname  
+                            . '</span> ' 
+                            . '<span class="author-phone">' . $record['prefphone'] 
+                            . '</span> ' 
+                            . '<span class="author-email">' . $record['prefemail'] 
+                            . '</span> '  
+                            . '<span class="note-type">QA Evaluation</span> ';
                 }
-                //Start the markup
-                $mymarkup .= '<div class="existing-note '.$extraClassname.'">'
-                        . '<span class="datetime">' . $record['evaluation_dt'] 
-                        . '</span> ' 
-                        . '<span class="author-name">' . $fullname  
-                        . '</span> ' 
-                        . '<span class="author-phone">' . $record['prefphone'] 
-                        . '</span> ' 
-                        . '<span class="author-email">' . $record['prefemail'] 
-                        . '</span> '  
-                        . '<span class="note-type">QA Evaluation</span> ';
-            }
-            $shortname = $record['criteria_shortname'];
-            $clup = $crit_lookup[$shortname];
-            $score = $record['criteria_score'];
-            $scoretext = \raptor\TermMapping::getQAScoreLanguage($score);
-            $question = $clup['question']; 
-            $mymarkup .= '<div class="note-text">' 
-                    . $question 
-                    . ' = <strong>' . $scoretext . '</strong>' 
-                    . '</div> ';
-            if($record['comment'] > '')
-            {
+                $shortname = $record['criteria_shortname'];
+                $clup = $crit_lookup[$shortname];
+                $score = $record['criteria_score'];
+                $scoretext = \raptor\TermMapping::getQAScoreLanguage($score);
+                $question = $clup['question']; 
                 $mymarkup .= '<div class="note-text">' 
-                        . $record['comment'] 
+                        . $question 
+                        . ' = <strong>' . $scoretext . '</strong>' 
                         . '</div> ';
+                if($record['comment'] > '')
+                {
+                    $mymarkup .= '<div class="note-text">' 
+                            . $record['comment'] 
+                            . '</div> ';
+                }
+
+                $prev_key = $now_key;
             }
-            
-            $prev_key = $now_key;
-        }
-        if($prev_key > '')
-        {
-            if(isset($general_notes[$prev_key]))
+            if($prev_key > '')
             {
-                $details = $general_notes[$prev_key];
-                $mymarkup .= '<div class="note-text">' 
-                        . 'Overall Comments: ' 
-                        . $details['comment']
-                        . '</div> ';
-                $shown_notes[$prev_key] = $prev_key;
-            }
-            //End the previous markup
-            $mymarkup .= '</div>';
-            $always_unique = $prev_key . "_" . count($sortable_result);
-            $sortable_result[$always_unique] = $mymarkup;
-            $mymarkup = ''; //Start again
-        }
-        
-        //Now show general QA comments that did not have evaluation scores.
-        foreach($general_notes as $key=>$value)
-        {
-            if(!isset($shown_notes[$key]))
-            {
-                $details = $general_notes[$key];
-                $mymarkup = '<div class="existing-note '.$extraClassname.'">'
-                        . '<span class="datetime">' . $details['date'] . '</span> ' 
-                        . '<span class="author-name">' . $details['fullname']  . '</span> ' 
-                        . '<span class="author-phone">' . $details['prefphone'] . '</span> ' 
-                        . '<span class="author-email">' . $details['prefemail'] . '</span> '  
-                        . '<span class="note-type">QA Overall Comment (No scores)</span> ';
-                $mymarkup .= '<div class="note-text">' 
-                        . $details['comment']
-                        . '</div> ';
+                if(isset($general_notes[$prev_key]))
+                {
+                    $details = $general_notes[$prev_key];
+                    $mymarkup .= '<div class="note-text">' 
+                            . 'Overall Comments: ' 
+                            . $details['comment']
+                            . '</div> ';
+                    $shown_notes[$prev_key] = $prev_key;
+                }
+                //End the previous markup
                 $mymarkup .= '</div>';
                 $always_unique = $prev_key . "_" . count($sortable_result);
                 $sortable_result[$always_unique] = $mymarkup;
+                $mymarkup = ''; //Start again
             }
-        }
-        
-        //Compile the output.
-        $prev_notes_tx = NULL;
-        if(!$bCanSeeQA)
-        {
-            if(count($evaldates) > 0)
+
+            //Now show general QA comments that did not have evaluation scores.
+            foreach($general_notes as $key=>$value)
             {
-                $mymarkup = '<div class="existing-note '.$extraClassname.'">'
-                        . '<span class="note-type">QA Assements/Comments</span> ';
-                $mymarkup .= '<div class="note-text">' 
-                        . "Your account does not have access to the details of the assessments."
-                        . '</div> ';
-                $mymarkup .= '</div>';
-                $prev_notes_tx = $mymarkup;
+                if(!isset($shown_notes[$key]))
+                {
+                    $details = $general_notes[$key];
+                    $mymarkup = '<div class="existing-note '.$extraClassname.'">'
+                            . '<span class="datetime">' . $details['date'] . '</span> ' 
+                            . '<span class="author-name">' . $details['fullname']  . '</span> ' 
+                            . '<span class="author-phone">' . $details['prefphone'] . '</span> ' 
+                            . '<span class="author-email">' . $details['prefemail'] . '</span> '  
+                            . '<span class="note-type">QA Overall Comment (No scores)</span> ';
+                    $mymarkup .= '<div class="note-text">' 
+                            . $details['comment']
+                            . '</div> ';
+                    $mymarkup .= '</div>';
+                    $always_unique = $prev_key . "_" . count($sortable_result);
+                    $sortable_result[$always_unique] = $mymarkup;
+                }
             }
-        } else {
-            //Now sort all the markup by key.
-            ksort($sortable_result);
-            foreach($sortable_result as $key=>$value)
+
+            //Compile the output.
+            $prev_notes_tx = NULL;
+            if(!$bCanSeeQA)
             {
-                $prev_notes_tx .= $value;
+                if(count($evaldates) > 0)
+                {
+                    $mymarkup = '<div class="existing-note '.$extraClassname.'">'
+                            . '<span class="note-type">QA Assements/Comments</span> ';
+                    $mymarkup .= '<div class="note-text">' 
+                            . "Your account does not have access to the details of the assessments."
+                            . '</div> ';
+                    $mymarkup .= '</div>';
+                    $prev_notes_tx = $mymarkup;
+                }
+            } else {
+                //Now sort all the markup by key.
+                ksort($sortable_result);
+                foreach($sortable_result as $key=>$value)
+                {
+                    $prev_notes_tx .= $value;
+                }
             }
+
+            //Return all the markup
+            return $prev_notes_tx;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        //Return all the markup
-        return $prev_notes_tx;
     }
     
     
@@ -406,42 +424,46 @@ class ProtocolInfoUtility
      */
     public function getSchedulerNotesMarkup($nSiteID,$nIEN)
     {
-        
-        $scheduler_notes = NULL;
-
-        $query = db_select('raptor_schedule_track', 'n');
-        $query->fields('n');
-        $query->condition('siteid',$nSiteID,'=');
-        $query->condition('IEN',$nIEN,'=');
-        $query->orderBy('scheduled_dt');
-        $result = $query->execute();
-        while($record = $result->fetchAssoc())
+        try
         {
-            $scheduled_dt = $record['scheduled_dt'];
-            if(isset($scheduled_dt))
+            $scheduler_notes = NULL;
+
+            $query = db_select('raptor_schedule_track', 'n');
+            $query->fields('n');
+            $query->condition('siteid',$nSiteID,'=');
+            $query->condition('IEN',$nIEN,'=');
+            $query->orderBy('scheduled_dt');
+            $result = $query->execute();
+            while($record = $result->fetchAssoc())
             {
-                $dt = new \DateTime($scheduled_dt);
-                $event_date_tx = $dt->format('m/d/Y');
-                $event_starttime_tx = $dt->format('H:i');
-                $details = ' ('.$event_date_tx.'@'.$event_starttime_tx.')';
-            } else {
-                $details = '';
+                $scheduled_dt = $record['scheduled_dt'];
+                if(isset($scheduled_dt))
+                {
+                    $dt = new \DateTime($scheduled_dt);
+                    $event_date_tx = $dt->format('m/d/Y');
+                    $event_starttime_tx = $dt->format('H:i');
+                    $details = ' ('.$event_date_tx.'@'.$event_starttime_tx.')';
+                } else {
+                    $details = '';
+                }
+                $fullname = 'Scheduler';
+                $sClassText = 'existing-scheduler-note';
+                if($record['notes_critical_yn'] == 1)
+                {
+                    $sClassText .= ' critical-note';
+                }
+                $scheduler_notes .= "\n".'<div class="existing-note '.$sClassText.'">'
+                        . '<span class="datetime">' . $record['created_dt'] . '</span> ' 
+                        . '<span class="author-name">'.$fullname.'</span> ' 
+                        . '<span class="scheduled-time-details">'.$details.'</span> ' 
+                        . '<div class="note-text">' . $record['notes_tx'] . '</div> '  
+                        . '</div>';
             }
-            $fullname = 'Scheduler';
-            $sClassText = 'existing-scheduler-note';
-            if($record['notes_critical_yn'] == 1)
-            {
-                $sClassText .= ' critical-note';
-            }
-            $scheduler_notes .= "\n".'<div class="existing-note '.$sClassText.'">'
-                    . '<span class="datetime">' . $record['created_dt'] . '</span> ' 
-                    . '<span class="author-name">'.$fullname.'</span> ' 
-                    . '<span class="scheduled-time-details">'.$details.'</span> ' 
-                    . '<div class="note-text">' . $record['notes_tx'] . '</div> '  
-                    . '</div>';
+
+            return $scheduler_notes;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        return $scheduler_notes;
     }
     
     /**
@@ -450,34 +472,37 @@ class ProtocolInfoUtility
      */
     public function getCollaborationNotesMarkup($nSiteID,$nIEN)
     {
-        
-        $sNotesMarkup = NULL;
-
-        $query = db_select('raptor_ticket_collaboration', 'n');
-        $query->join('raptor_user_profile','u','n.requester_uid = u.uid');
-        $query->fields('n',array('requester_uid','requested_dt','requester_notes_tx','active_yn'));
-        $query->fields('u',array('username', 'usernametitle', 'firstname', 'lastname', 'suffix'));
-        $query->condition('n.siteid',$nSiteID,'=');
-        $query->condition('n.IEN',$nIEN,'=');
-        $query->orderBy('n.requested_dt');
-        $result = $query->execute();
-        while($record = $result->fetchAssoc())
+        try
         {
-            $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] . ' ' . $record['lastname'] . ' ' . $record['suffix']);
-            $sClassText = 'existing-collabrequest-note';
-            if($record['active_yn'] == 1)
+            $sNotesMarkup = NULL;
+
+            $query = db_select('raptor_ticket_collaboration', 'n');
+            $query->join('raptor_user_profile','u','n.requester_uid = u.uid');
+            $query->fields('n',array('requester_uid','requested_dt','requester_notes_tx','active_yn'));
+            $query->fields('u',array('username', 'usernametitle', 'firstname', 'lastname', 'suffix'));
+            $query->condition('n.siteid',$nSiteID,'=');
+            $query->condition('n.IEN',$nIEN,'=');
+            $query->orderBy('n.requested_dt');
+            $result = $query->execute();
+            while($record = $result->fetchAssoc())
             {
-                $sClassText .= ' active-note';
+                $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] . ' ' . $record['lastname'] . ' ' . $record['suffix']);
+                $sClassText = 'existing-collabrequest-note';
+                if($record['active_yn'] == 1)
+                {
+                    $sClassText .= ' active-note';
+                }
+                $sNotesMarkup .= '<div class="existing-note '.$sClassText.'">'
+                        . '<span class="datetime">' . $record['requested_dt'] . '</span> ' 
+                        . '<span class="context-indicator">Collaboration request from</span> ' 
+                        . '<span class="author-name">'.$fullname.'</span> ' 
+                        . '<div class="note-text">' . $record['requester_notes_tx'] . '</div> '  
+                        . '</div>';
             }
-            $sNotesMarkup .= '<div class="existing-note '.$sClassText.'">'
-                    . '<span class="datetime">' . $record['requested_dt'] . '</span> ' 
-                    . '<span class="context-indicator">Collaboration request from</span> ' 
-                    . '<span class="author-name">'.$fullname.'</span> ' 
-                    . '<div class="note-text">' . $record['requester_notes_tx'] . '</div> '  
-                    . '</div>';
+            return $sNotesMarkup;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        return $sNotesMarkup;
     }
 
     /**
@@ -488,252 +513,276 @@ class ProtocolInfoUtility
             , $template_json=NULL
             , $cluesmap=NULL)
     {
-        $disableAllInput = $disabled || (($sCWFS !== 'AC') && ($sCWFS !== 'RV') && ($sCWFS !== 'CO'));
-        $disableChildInput = $disableAllInput 
-                || (!isset($myvalues['protocol1_nm']) 
-                || trim($myvalues['protocol1_nm']) == '');
-        $form = array();
-        
-        //PROTOCOL 
-        $modality_filter = array();
-        
-        //Main protocol selection
-        $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
-                , $disableAllInput
-                , $myvalues
-                , TRUE
-                , 'protocol1'
-                , "A standard protocol from the hospital's radiology notebook."
-                , TRUE
-                , TRUE
-                , $cluesmap);
-        
-        //Secondary protocol selection
-        $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
-                , $disableChildInput
-                , $myvalues
-                , FALSE
-                , 'protocol2'
-                , "Select a second protocol only if more than one is needed for this study."
-                , FALSE, FALSE);
-        
-        //Contrast
-        $shownow = $this->hasContrastValues($myvalues, $form_state);
-        $contrast_showResetButton = $myvalues['show_reset_button'];
-        $contrastarea = $this->getOverallSectionCheckboxType($form_state
-                , 'contrast', 'Contrast'
+        try
+        {
+            $disableAllInput = $disabled || (($sCWFS !== 'AC') && ($sCWFS !== 'RV') && ($sCWFS !== 'CO'));
+            $disableChildInput = $disableAllInput 
+                    || (!isset($myvalues['protocol1_nm']) 
+                    || trim($myvalues['protocol1_nm']) == '');
+            $form = array();
+
+            //PROTOCOL 
+            $modality_filter = array();
+
+            //Main protocol selection
+            $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
+                    , $disableAllInput
+                    , $myvalues
+                    , TRUE
+                    , 'protocol1'
+                    , "A standard protocol from the hospital's radiology notebook."
+                    , TRUE
+                    , TRUE
+                    , $cluesmap);
+
+            //Secondary protocol selection
+            $form['protocolinput'][] = $this->getProtocolSelectionElement($form_state
+                    , $disableChildInput
+                    , $myvalues
+                    , FALSE
+                    , 'protocol2'
+                    , "Select a second protocol only if more than one is needed for this study."
+                    , FALSE, FALSE);
+
+            //Contrast
+            $shownow = $this->hasContrastValues($myvalues, $form_state);
+            $contrast_showResetButton = $myvalues['show_reset_button'];
+            $contrastarea = $this->getOverallSectionCheckboxType($form_state
+                    , 'contrast', 'Contrast'
+                    , $disableChildInput
+                    , $myvalues
+                    , NULL
+                    , TRUE
+                    , $shownow
+                    , $shownow
+                    , $modality_filter
+                    , $contrast_showResetButton); 
+            $form['protocolinput'][] = $contrastarea;
+
+            //Consent Required
+            $shownow = !$disableChildInput;
+            $consentarea = $this->getYesNoResetRadioTypeSection('consentreq', 'Consent Required'
                 , $disableChildInput
                 , $myvalues
                 , NULL
                 , TRUE
                 , $shownow
-                , $shownow
-                , $modality_filter
-                , $contrast_showResetButton); 
-        $form['protocolinput'][] = $contrastarea;
+                , $shownow);
+            $form['protocolinput'][] = $consentarea;
 
-        //Consent Required
-        $shownow = !$disableChildInput;
-        $consentarea = $this->getYesNoResetRadioTypeSection('consentreq', 'Consent Required'
-            , $disableChildInput
-            , $myvalues
-            , NULL
-            , TRUE
-            , $shownow
-            , $shownow);
-        $form['protocolinput'][] = $consentarea;
-                
-        //Hydration
-        $shownow = $this->hasHydrationValues($myvalues);
-        $hydrationarea = $this->getOverallSectionRadioType($form_state
-                , 'hydration', 'Hydration'
-                , $disableChildInput
-                , $myvalues
-                , NULL, TRUE
+            //Hydration
+            $shownow = $this->hasHydrationValues($myvalues);
+            $hydrationarea = $this->getOverallSectionRadioType($form_state
+                    , 'hydration', 'Hydration'
+                    , $disableChildInput
+                    , $myvalues
+                    , NULL, TRUE
+                    , $shownow
+                    , $shownow
+                    , $modality_filter); 
+            $form['protocolinput'][] = $hydrationarea;
+
+            //Sedation
+            $shownow = $this->hasSedationValues($myvalues);
+            $sedationarea = $this->getOverallSectionRadioType($form_state
+                    , 'sedation', 'Sedation'
+                    , $disableChildInput
+                    , $myvalues
+                    , NULL, TRUE
                 , $shownow
-                , $shownow
-                , $modality_filter); 
-        $form['protocolinput'][] = $hydrationarea;
-        
-        //Sedation
-        $shownow = $this->hasSedationValues($myvalues);
-        $sedationarea = $this->getOverallSectionRadioType($form_state
-                , 'sedation', 'Sedation'
-                , $disableChildInput
-                , $myvalues
-                , NULL, TRUE
-            , $shownow
-            , $shownow);
-        $form['protocolinput'][] = $sedationarea;
-        
-        //Radioisotope
-        $shownow = $this->hasRadioisotopeValues($myvalues);
-        $radioisotope_showResetButton = $myvalues['show_reset_button'];
-        $radioisotopearea = $this->getOverallSectionCheckboxType($form_state
-                , 'radioisotope'
-                , 'Radionuclide'
-                , $disableChildInput
-                , $myvalues
-                , NULL
-                , TRUE
-                , $shownow
-                , $shownow
-                , $modality_filter
-                , $radioisotope_showResetButton); 
-        $form['protocolinput'][] = $radioisotopearea;
-        
-        //Allergy
-        $allergyarea = $this->getYesNoRadioTypeSection('allergy', 'Allergy (patient has)'
+                , $shownow);
+            $form['protocolinput'][] = $sedationarea;
+
+            //Radioisotope
+            $shownow = $this->hasRadioisotopeValues($myvalues);
+            $radioisotope_showResetButton = $myvalues['show_reset_button'];
+            $radioisotopearea = $this->getOverallSectionCheckboxType($form_state
+                    , 'radioisotope'
+                    , 'Radionuclide'
                     , $disableChildInput
                     , $myvalues
                     , NULL
                     , TRUE
-                    , TRUE);
-        $form['protocolinput'][] = $allergyarea;
-        
-        //Claustrophobic
-        $claustrophobicarea = $this->getYesNoRadioTypeSection('claustrophobic', 'Claustrophobic (patient is)'
-                    , $disableChildInput
-                    , $myvalues
-                    , NULL
-                    , TRUE
-                    , TRUE);
-        $form['protocolinput'][] = $claustrophobicarea;
+                    , $shownow
+                    , $shownow
+                    , $modality_filter
+                    , $radioisotope_showResetButton); 
+            $form['protocolinput'][] = $radioisotopearea;
 
-        return $form;
+            //Allergy
+            $allergyarea = $this->getYesNoRadioTypeSection('allergy', 'Allergy (patient has)'
+                        , $disableChildInput
+                        , $myvalues
+                        , NULL
+                        , TRUE
+                        , TRUE);
+            $form['protocolinput'][] = $allergyarea;
+
+            //Claustrophobic
+            $claustrophobicarea = $this->getYesNoRadioTypeSection('claustrophobic', 'Claustrophobic (patient is)'
+                        , $disableChildInput
+                        , $myvalues
+                        , NULL
+                        , TRUE
+                        , TRUE);
+            $form['protocolinput'][] = $claustrophobicarea;
+
+            return $form;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     function getOverallProtocolDataEntryArea2($sCWFS, &$form_state, $disabled, $myvalues)
     {
-        $disableAllInput = $disabled || (($sCWFS !== 'AC') && ($sCWFS !== 'RV') && ($sCWFS !== 'CO'));
-        $disableChildInput = $disableAllInput 
-                || (!isset($myvalues['protocol1_nm']) || isset($myvalues['protocol1_nm']) == '');
-        
-        $root = array();
-        if(isset($myvalues['prev_protocolnotes_tx']))
+        try
         {
-            $root["PrevProtocolNotes"] = array(
-                '#prefix' => "\n<div class='prev-protocolnotes'>\n",
-                '#markup' => $myvalues['prev_protocolnotes_tx'],
-                '#suffix' => "\n</div>\n",
-            );
-        }
-        if(isset($myvalues['prev_suspend_notes_tx']))
-        {
-            $root["PrevSuspendNotes"] = array(
-                '#prefix' => "\n<div class='prev-suspend-notes'>\n",
-                '#markup' => $myvalues['prev_suspend_notes_tx'],
-                '#suffix' => "\n</div>\n",
-            );
-        }
+            $disableAllInput = $disabled || (($sCWFS !== 'AC') && ($sCWFS !== 'RV') && ($sCWFS !== 'CO'));
+            $disableChildInput = $disableAllInput 
+                    || (!isset($myvalues['protocol1_nm']) || isset($myvalues['protocol1_nm']) == '');
 
-        $root['ProtocolNotes'] 
-                = $this->getNotesSectionMarkup('protocolnotes', 'Protocol Notes'
-                , $disableChildInput, $myvalues);
+            $root = array();
+            if(isset($myvalues['prev_protocolnotes_tx']))
+            {
+                $root["PrevProtocolNotes"] = array(
+                    '#prefix' => "\n<div class='prev-protocolnotes'>\n",
+                    '#markup' => $myvalues['prev_protocolnotes_tx'],
+                    '#suffix' => "\n</div>\n",
+                );
+            }
+            if(isset($myvalues['prev_suspend_notes_tx']))
+            {
+                $root["PrevSuspendNotes"] = array(
+                    '#prefix' => "\n<div class='prev-suspend-notes'>\n",
+                    '#markup' => $myvalues['prev_suspend_notes_tx'],
+                    '#suffix' => "\n</div>\n",
+                );
+            }
 
-        return $root;
+            $root['ProtocolNotes'] 
+                    = $this->getNotesSectionMarkup('protocolnotes', 'Protocol Notes'
+                    , $disableChildInput, $myvalues);
+
+            return $root;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     function getOverallExamDataEntryArea($sCWFS
             , $protocolValues
             , &$form_state, $disabled, $myvalues)
     {
-        $root = array();
-        
-        $modality_abbr = $protocolValues['modality_abbr'];
-        $protocol_shortname = $protocolValues['protocol_shortname'];
-        $disableExamInput = $disabled || ($sCWFS !== 'PA');
+        try
+        {
+            $root = array();
 
-        if(!$disableExamInput)
-        {
-            //Always show previous notes first if input is NOT disabled.
-            if(isset($myvalues['prev_exam_notes_tx']))
-            {
-                $root['PrevExamNotes'] = array(
-                    '#prefix' => "\n<div class='prev-exam-notes'>\n",
-                    '#markup' => $myvalues['prev_exam_notes_tx'],
-                    '#suffix' => "\n</div>\n",
-                );
-            }
-        }
-        
-        if($sCWFS == 'AP')
-        {
-            //Show the safety checklist in edit mode.
-            $root['data_entry_area2']['page_checklist_area1'] 
-                    = $this->getPageChecklistArea($form_state, $disabled, $myvalues,'Safety Checklist','SC',$modality_abbr,$protocol_shortname);
-        } else if($sCWFS == 'PA' || $sCWFS == 'EC' || $sCWFS == 'QA') {
-            //Show the safety checklist in disabled mode.
-            $root['data_entry_area2']['page_checklist_area1'] 
-                    = $this->getPageChecklistArea($form_state, TRUE, $myvalues,'Safety Checklist','SC',$modality_abbr,$protocol_shortname);
-            $includeexamnotesinput = ($sCWFS == 'PA');
-            $root['exam_data_entry_area1'][]  
-                    = $this->getExamDataEntryFields($form_state
-                            , $disableExamInput
-                            , $myvalues, $protocolValues
-                            , $includeexamnotesinput);
-        }
+            $modality_abbr = $protocolValues['modality_abbr'];
+            $protocol_shortname = $protocolValues['protocol_shortname'];
+            $disableExamInput = $disabled || ($sCWFS !== 'PA');
 
-        if($disableExamInput)
-        {
-            //Always show previous notes LAST if input is disabled.
-            if(isset($myvalues['prev_exam_notes_tx']))
+            if(!$disableExamInput)
             {
-                $root['PrevExamNotes'] = array(
-                    '#prefix' => "\n<div class='prev-exam-notes'>\n",
-                    '#markup' => $myvalues['prev_exam_notes_tx'],
-                    '#suffix' => "\n</div>\n",
-                );
+                //Always show previous notes first if input is NOT disabled.
+                if(isset($myvalues['prev_exam_notes_tx']))
+                {
+                    $root['PrevExamNotes'] = array(
+                        '#prefix' => "\n<div class='prev-exam-notes'>\n",
+                        '#markup' => $myvalues['prev_exam_notes_tx'],
+                        '#suffix' => "\n</div>\n",
+                    );
+                }
             }
+
+            if($sCWFS == 'AP')
+            {
+                //Show the safety checklist in edit mode.
+                $root['data_entry_area2']['page_checklist_area1'] 
+                        = $this->getPageChecklistArea($form_state, $disabled, $myvalues,'Safety Checklist','SC',$modality_abbr,$protocol_shortname);
+            } else if($sCWFS == 'PA' || $sCWFS == 'EC' || $sCWFS == 'QA') {
+                //Show the safety checklist in disabled mode.
+                $root['data_entry_area2']['page_checklist_area1'] 
+                        = $this->getPageChecklistArea($form_state, TRUE, $myvalues,'Safety Checklist','SC',$modality_abbr,$protocol_shortname);
+                $includeexamnotesinput = ($sCWFS == 'PA');
+                $root['exam_data_entry_area1'][]  
+                        = $this->getExamDataEntryFields($form_state
+                                , $disableExamInput
+                                , $myvalues, $protocolValues
+                                , $includeexamnotesinput);
+            }
+
+            if($disableExamInput)
+            {
+                //Always show previous notes LAST if input is disabled.
+                if(isset($myvalues['prev_exam_notes_tx']))
+                {
+                    $root['PrevExamNotes'] = array(
+                        '#prefix' => "\n<div class='prev-exam-notes'>\n",
+                        '#markup' => $myvalues['prev_exam_notes_tx'],
+                        '#suffix' => "\n</div>\n",
+                    );
+                }
+            }
+            return $root;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        return $root;
     }
 
     function getOverallInterpretationDataEntryArea($sCWFS, &$form_state, $disabled, $myvalues)
     {
-        $root = array();
-        if(isset($myvalues['prev_interpret_notes_tx']))
+        try
         {
-            $root['PrevInterpretationNotes'] = array(
-                '#prefix' => "\n<div class='prev-interpretation-notes'>\n",
-                '#markup' => $myvalues['prev_interpret_notes_tx'],
-                '#suffix' => "\n</div>\n",
-            );
+            $root = array();
+            if(isset($myvalues['prev_interpret_notes_tx']))
+            {
+                $root['PrevInterpretationNotes'] = array(
+                    '#prefix' => "\n<div class='prev-interpretation-notes'>\n",
+                    '#markup' => $myvalues['prev_interpret_notes_tx'],
+                    '#suffix' => "\n</div>\n",
+                );
+            }
+
+            if($sCWFS == 'EC')
+            {
+                //Only show this when we are in EC mode.
+                $disableInput = $disabled || ($sCWFS != 'EC');
+                $root['interpretation_data_entry_area1']  = $this->getInterpretationDataEntryFields($form_state, $disableInput, $myvalues);
+            }
+            return $root;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        if($sCWFS == 'EC')
-        {
-            //Only show this when we are in EC mode.
-            $disableInput = $disabled || ($sCWFS != 'EC');
-            $root['interpretation_data_entry_area1']  = $this->getInterpretationDataEntryFields($form_state, $disableInput, $myvalues);
-        }
-        return $root;
     }
     
     function getOverallQADataEntryArea($sCWFS, &$form_state, $disabled, $myvalues)
     {
-        $root = array();
-        if(isset($myvalues['prev_qa_notes_tx']))
+        try
         {
-            $root['PrevQANotes'] = array(
-                '#prefix' => "\n<div class='prev-qa-notes'>\n",
-                '#markup' => $myvalues['prev_qa_notes_tx'],
-                '#suffix' => "\n</div>\n",
-            );
-        }
-        
-        $oUser = $this->m_oContext->getUserInfo();
-        $bCanEditQA = $oUser->hasPrivilege('QA1');
-        if($bCanEditQA)
-        {
-            if($sCWFS == 'QA' || $sCWFS == 'EC')
+            $root = array();
+            if(isset($myvalues['prev_qa_notes_tx']))
             {
-                $root['qa_data_entry_area1']  = $this->getQADataEntryFields($form_state, $disabled, $myvalues);
+                $root['PrevQANotes'] = array(
+                    '#prefix' => "\n<div class='prev-qa-notes'>\n",
+                    '#markup' => $myvalues['prev_qa_notes_tx'],
+                    '#suffix' => "\n</div>\n",
+                );
             }
-        }
 
-        return $root;
+            $oUser = $this->m_oContext->getUserInfo();
+            $bCanEditQA = $oUser->hasPrivilege('QA1');
+            if($bCanEditQA)
+            {
+                if($sCWFS == 'QA' || $sCWFS == 'EC')
+                {
+                    $root['qa_data_entry_area1']  = $this->getQADataEntryFields($form_state, $disabled, $myvalues);
+                }
+            }
+
+            return $root;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**
@@ -745,35 +794,40 @@ class ProtocolInfoUtility
      */
     function getDefaultValueSubSection($section_name, $disabled, $defaultvalues, $shownow)
     {
-        $root = array();
-        if(REQUIRE_ACKNOWLEDGE_DEFAULTS === FALSE)
+        try
         {
-            $root['default_values_grp_'.$section_name.'']['acknowledge_'.$section_name] = array(
-                '#type'  => 'hidden',
-                '#value' => 'no',
-            );
-        } else {
-            if($disabled)
+            $root = array();
+            if(REQUIRE_ACKNOWLEDGE_DEFAULTS === FALSE)
             {
-                //Do NOT show it if section is disabled.
-                $shownow = FALSE;
+                $root['default_values_grp_'.$section_name.'']['acknowledge_'.$section_name] = array(
+                    '#type'  => 'hidden',
+                    '#value' => 'no',
+                );
+            } else {
+                if($disabled)
+                {
+                    //Do NOT show it if section is disabled.
+                    $shownow = FALSE;
+                }
+                $root['default_values_grp_'.$section_name.''] = array(
+                    '#type' => 'container',
+                    '#attributes' => array(
+                            'class' => array('acknowledge-default-value'),
+                            'style' => array($shownow ? 'display:inline' : 'display:none' ),
+                        ),
+                );
+                $root['default_values_grp_'.$section_name.'']['acknowledge_'.$section_name] = array(
+                    '#type'    => 'checkbox',
+                    '#title' => FormHelper::getTitleAsUnrequiredField('Acknowledge Selected Values'),
+                    '#description' => t('You are being asked to acknowledge these values because they are currently the default values.'),
+                    '#disabled' => $disabled,
+                );
             }
-            $root['default_values_grp_'.$section_name.''] = array(
-                '#type' => 'container',
-                '#attributes' => array(
-                        'class' => array('acknowledge-default-value'),
-                        'style' => array($shownow ? 'display:inline' : 'display:none' ),
-                    ),
-            );
-            $root['default_values_grp_'.$section_name.'']['acknowledge_'.$section_name] = array(
-                '#type'    => 'checkbox',
-                '#title' => FormHelper::getTitleAsUnrequiredField('Acknowledge Selected Values'),
-                '#description' => t('You are being asked to acknowledge these values because they are currently the default values.'),
-                '#disabled' => $disabled,
-            );
-        }
 
-        return $root;
+            return $root;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     /**
@@ -783,27 +837,32 @@ class ProtocolInfoUtility
     function getDefaultValueControls($section_name, $disabled
             , $defaultvalues=NULL, $require_ack=FALSE)
     {
-        $root = array();
-        if(REQUIRE_ACKNOWLEDGE_DEFAULTS === FALSE)
+        try
         {
-            $root[]['require_acknowledgement_for_'.$section_name] = array(
-                '#type'  => 'hidden',
-                '#value' => 'no',
-            );
-        } else {
-            //Always create the markup, but show it only if there are default values.
-            $shownow = $require_ack;
-            $root[] = $this->getDefaultValueSubSection($section_name, $disabled, $defaultvalues, $shownow);
+            $root = array();
+            if(REQUIRE_ACKNOWLEDGE_DEFAULTS === FALSE)
+            {
+                $root[]['require_acknowledgement_for_'.$section_name] = array(
+                    '#type'  => 'hidden',
+                    '#value' => 'no',
+                );
+            } else {
+                //Always create the markup, but show it only if there are default values.
+                $shownow = $require_ack;
+                $root[] = $this->getDefaultValueSubSection($section_name, $disabled, $defaultvalues, $shownow);
 
-            //Create a hidden field with standard Drupal framework ID name so javascript can track required or not.
-            $root[]['require_acknowledgement_for_'.$section_name] = array(
-                '#type' => 'hidden', 
-                '#attributes' => array('id' 
-                    => 'edit-require-acknowledgement-for-'.$section_name ),
-                '#default_value' => ($require_ack ? 'yes' : 'no'),
-            );
+                //Create a hidden field with standard Drupal framework ID name so javascript can track required or not.
+                $root[]['require_acknowledgement_for_'.$section_name] = array(
+                    '#type' => 'hidden', 
+                    '#attributes' => array('id' 
+                        => 'edit-require-acknowledgement-for-'.$section_name ),
+                    '#default_value' => ($require_ack ? 'yes' : 'no'),
+                );
+            }
+            return $root;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $root;
     }
 
     /**
@@ -818,134 +877,139 @@ class ProtocolInfoUtility
     private function getOneChecklistQuestion($myvalues,$title
             ,$number,$aOneQuestion,$disabled,$bRequireValue=TRUE)
     {
-        if($title == NULL || trim($title) == '')
+        try
         {
-            $title = 'Question '.$number;   //Must have a title otherwise validation feedback breaks.
-        }
-        
-        $shortname = $aOneQuestion['question_shortname'];
-        $question_tx = $aOneQuestion['question_tx'];
-        $comment_prompt_tx = $aOneQuestion['comment_prompt_tx'];
-        
-        $ask_yes_yn = $aOneQuestion['ask_yes_yn'];
-        $ask_no_yn = $aOneQuestion['ask_no_yn'];
-        $ask_notsure_yn = $aOneQuestion['ask_notsure_yn'];
-        $ask_notapplicable_yn = $aOneQuestion['ask_notapplicable_yn'];
+            if($title == NULL || trim($title) == '')
+            {
+                $title = 'Question '.$number;   //Must have a title otherwise validation feedback breaks.
+            }
 
-        $trigger_comment_on_yes_yn = $aOneQuestion['trigger_comment_on_yes_yn'];
-        $trigger_comment_on_no_yn = $aOneQuestion['trigger_comment_on_no_yn'];
-        $trigger_comment_on_notsure_yn = $aOneQuestion['trigger_comment_on_notsure_yn'];
-        $trigger_comment_on_notapplicable_yn = $aOneQuestion['trigger_comment_on_notapplicable_yn'];
-        
-        //Look for values associated with currently logged in user.
-        $aQuestion = isset($myvalues['questions']['thisuser'][$shortname]) ? $myvalues['questions']['thisuser'][$shortname] : NULL;
-        if(!is_array($aQuestion))
-        {
-            $default_response = NULL;   //IMPORTANT THIS MUST BE NULL instead of empty string else DRUPAL ERRORS!
-            $default_comment = NULL;
-        } else {
-            $default_response = $aQuestion['response'];
-            $default_comment = $aQuestion['comment'];
-        }
-                       
-        $element = array();
-        $aRadios = array();
-        $aOptions = array();
-        $showOnValues = '';
-        //$showOnValues = '[no][notsure][notapplicable]';
-        if($ask_yes_yn == 1)
-        {
-            $aOptions['yes'] = t('Yes');
-            if($trigger_comment_on_yes_yn == 1)
+            $shortname = $aOneQuestion['question_shortname'];
+            $question_tx = $aOneQuestion['question_tx'];
+            $comment_prompt_tx = $aOneQuestion['comment_prompt_tx'];
+
+            $ask_yes_yn = $aOneQuestion['ask_yes_yn'];
+            $ask_no_yn = $aOneQuestion['ask_no_yn'];
+            $ask_notsure_yn = $aOneQuestion['ask_notsure_yn'];
+            $ask_notapplicable_yn = $aOneQuestion['ask_notapplicable_yn'];
+
+            $trigger_comment_on_yes_yn = $aOneQuestion['trigger_comment_on_yes_yn'];
+            $trigger_comment_on_no_yn = $aOneQuestion['trigger_comment_on_no_yn'];
+            $trigger_comment_on_notsure_yn = $aOneQuestion['trigger_comment_on_notsure_yn'];
+            $trigger_comment_on_notapplicable_yn = $aOneQuestion['trigger_comment_on_notapplicable_yn'];
+
+            //Look for values associated with currently logged in user.
+            $aQuestion = isset($myvalues['questions']['thisuser'][$shortname]) ? $myvalues['questions']['thisuser'][$shortname] : NULL;
+            if(!is_array($aQuestion))
             {
-                $showOnValues .= '[yes]';
-            }
-        }
-        if($ask_no_yn)
-        {
-            $aOptions['no'] = t('No');
-            if($trigger_comment_on_no_yn == 1)
-            {
-                $showOnValues .= '[no]';
-            }
-        }
-        if($ask_notsure_yn)
-        {
-            $aOptions['notsure'] = t('Not Sure');
-            if($trigger_comment_on_notsure_yn == 1)
-            {
-                $showOnValues .= '[notsure]';
-            }
-        }
-        if($ask_notapplicable_yn)
-        {
-            $aOptions['notapplicable'] = t('Not Applicable');
-            if($trigger_comment_on_notapplicable_yn == 1)
-            {
-                $showOnValues .= '[notapplicable]';
-            }
-        }
-        $hiddenshowcommentonvalues = 'showcommentonvalues';
-        $hiddenshortname = 'shortname';
-        $radiosDrupalName = 'response';//.$number;
-        $commentDrupalName = 'comment';//$radiosName.'_comment';
-        $commentHtmlTagName = 'questions[thisuser]['.$shortname.']['.$commentDrupalName.']'; //Because #tree structure!
-        $sTextareaHtmlwrapperId = $commentHtmlTagName.'-wrapper';
-        if($default_comment > '')
-        {
-            //We have comment text so show it.
-            $shownow = TRUE;
-        } else {
-            //Show the comment box only if the buttons say we should.
-            if(!isset($myvalues[$radiosDrupalName]))
-            {
-                $shownow = FALSE;
+                $default_response = NULL;   //IMPORTANT THIS MUST BE NULL instead of empty string else DRUPAL ERRORS!
+                $default_comment = NULL;
             } else {
-                $value = $myvalues[$radiosDrupalName];
-                if(strpos($showOnValues,'['.$value.']') !== FALSE)
+                $default_response = $aQuestion['response'];
+                $default_comment = $aQuestion['comment'];
+            }
+
+            $element = array();
+            $aRadios = array();
+            $aOptions = array();
+            $showOnValues = '';
+            //$showOnValues = '[no][notsure][notapplicable]';
+            if($ask_yes_yn == 1)
+            {
+                $aOptions['yes'] = t('Yes');
+                if($trigger_comment_on_yes_yn == 1)
                 {
-                    $shownow = TRUE;
-                } else {
-                    $shownow = FALSE;
+                    $showOnValues .= '[yes]';
                 }
             }
+            if($ask_no_yn)
+            {
+                $aOptions['no'] = t('No');
+                if($trigger_comment_on_no_yn == 1)
+                {
+                    $showOnValues .= '[no]';
+                }
+            }
+            if($ask_notsure_yn)
+            {
+                $aOptions['notsure'] = t('Not Sure');
+                if($trigger_comment_on_notsure_yn == 1)
+                {
+                    $showOnValues .= '[notsure]';
+                }
+            }
+            if($ask_notapplicable_yn)
+            {
+                $aOptions['notapplicable'] = t('Not Applicable');
+                if($trigger_comment_on_notapplicable_yn == 1)
+                {
+                    $showOnValues .= '[notapplicable]';
+                }
+            }
+            $hiddenshowcommentonvalues = 'showcommentonvalues';
+            $hiddenshortname = 'shortname';
+            $radiosDrupalName = 'response';//.$number;
+            $commentDrupalName = 'comment';//$radiosName.'_comment';
+            $commentHtmlTagName = 'questions[thisuser]['.$shortname.']['.$commentDrupalName.']'; //Because #tree structure!
+            $sTextareaHtmlwrapperId = $commentHtmlTagName.'-wrapper';
+            if($default_comment > '')
+            {
+                //We have comment text so show it.
+                $shownow = TRUE;
+            } else {
+                //Show the comment box only if the buttons say we should.
+                if(!isset($myvalues[$radiosDrupalName]))
+                {
+                    $shownow = FALSE;
+                } else {
+                    $value = $myvalues[$radiosDrupalName];
+                    if(strpos($showOnValues,'['.$value.']') !== FALSE)
+                    {
+                        $shownow = TRUE;
+                    } else {
+                        $shownow = FALSE;
+                    }
+                }
+            }
+            $aHiddenShowOnValues = array('#type'=>'hidden','#value'=>$showOnValues);
+            $aRadios = array(
+                '#type' => 'radios',
+                '#options' => $aOptions,
+                //'#required' => TRUE, //$bRequireValue,
+                '#disabled' => $disabled,
+                '#attributes' => array(
+                    'onclick' => 'manageChecklistQuestionCommentByName(this.value,"'.$showOnValues.'","'.$commentHtmlTagName.'");',
+                 ),
+                 '#title' => FormHelper::getTitleAsRequiredField($title, $disabled),   //Important to have title otherwise required symbol not shown! 
+                 '#default_value' => $default_response,
+            );
+            $aRadios['#attributes']['class'][] = 'question-options';
+            $aComment = array(
+                        '#type'          => 'textarea',
+                        '#prefix'        => "\n".'<div name="'.$sTextareaHtmlwrapperId.'" class="comment-wrapper"'
+                                            .' style="' . ($shownow ? 'display:inline' : 'display:none') . '" >',
+                        '#suffix'        => "\n".'</div> <!-- End of '.$sTextareaHtmlwrapperId.' -->',
+                        '#title'         => FormHelper::getTitleAsUnrequiredField($comment_prompt_tx),
+                        '#default_value' => $default_comment,
+                        '#disabled'      => $disabled,
+                        /*
+                        '#attributes' => array(
+                            'style' => array($shownow ? 'display:inline' : 'display:none' )
+                            ),
+                         */
+                    );
+
+            $element[] = array('#markup' => "\n".'<div class="question-block">');
+            $element[$hiddenshortname] = array('#type'=>'hidden','#value'=>$shortname);
+            $element[$hiddenshowcommentonvalues] = $aHiddenShowOnValues;
+            $element[$radiosDrupalName] = $aRadios;
+            $element['question-text'] = array('#markup' => "\n".'<div class="question">'.$question_tx.'</div>');
+            $element[$commentDrupalName] = $aComment;
+            $element[] = array('#markup' => "\n".'</div>');
+            return $element;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $aHiddenShowOnValues = array('#type'=>'hidden','#value'=>$showOnValues);
-        $aRadios = array(
-            '#type' => 'radios',
-            '#options' => $aOptions,
-            //'#required' => TRUE, //$bRequireValue,
-            '#disabled' => $disabled,
-            '#attributes' => array(
-                'onclick' => 'manageChecklistQuestionCommentByName(this.value,"'.$showOnValues.'","'.$commentHtmlTagName.'");',
-             ),
-             '#title' => FormHelper::getTitleAsRequiredField($title, $disabled),   //Important to have title otherwise required symbol not shown! 
-             '#default_value' => $default_response,
-        );
-        $aRadios['#attributes']['class'][] = 'question-options';
-        $aComment = array(
-                    '#type'          => 'textarea',
-                    '#prefix'        => "\n".'<div name="'.$sTextareaHtmlwrapperId.'" class="comment-wrapper"'
-                                        .' style="' . ($shownow ? 'display:inline' : 'display:none') . '" >',
-                    '#suffix'        => "\n".'</div> <!-- End of '.$sTextareaHtmlwrapperId.' -->',
-                    '#title'         => FormHelper::getTitleAsUnrequiredField($comment_prompt_tx),
-                    '#default_value' => $default_comment,
-                    '#disabled'      => $disabled,
-                    /*
-                    '#attributes' => array(
-                        'style' => array($shownow ? 'display:inline' : 'display:none' )
-                        ),
-                     */
-                );
-        
-        $element[] = array('#markup' => "\n".'<div class="question-block">');
-        $element[$hiddenshortname] = array('#type'=>'hidden','#value'=>$shortname);
-        $element[$hiddenshowcommentonvalues] = $aHiddenShowOnValues;
-        $element[$radiosDrupalName] = $aRadios;
-        $element['question-text'] = array('#markup' => "\n".'<div class="question">'.$question_tx.'</div>');
-        $element[$commentDrupalName] = $aComment;
-        $element[] = array('#markup' => "\n".'</div>');
-        return $element;
     }
     
     /**
@@ -957,165 +1021,167 @@ class ProtocolInfoUtility
      */
     function getAllQuestions($sChecklistType='SC',$modality_abbr='',$protocol_shortname='')
     {
-        $aQuestionRef = array();
-        $result = db_select('raptor_checklist_question','q')
-                ->fields('q')
-                ->orderBy('relative_position')
-                ->condition('q.type_cd',$sChecklistType,'=')
-                ->condition('modality_abbr','','=')
-                ->condition('protocol_shortname','','=')
-                ->execute();
-        while($record = $result->fetchAssoc())
+        try
         {
-            $shortname = $record['question_shortname'];
-            $aQuestionRef[$shortname] = $record;
-            $aQuestionRef[$shortname]['subtype'] = 'core';
-        }
-        if($modality_abbr > '')
-        {
-            //Now grab any questions specific to this modality.
+            $aQuestionRef = array();
             $result = db_select('raptor_checklist_question','q')
                     ->fields('q')
                     ->orderBy('relative_position')
                     ->condition('q.type_cd',$sChecklistType,'=')
-                    ->condition('modality_abbr',$modality_abbr,'=')
+                    ->condition('modality_abbr','','=')
                     ->condition('protocol_shortname','','=')
                     ->execute();
             while($record = $result->fetchAssoc())
             {
                 $shortname = $record['question_shortname'];
                 $aQuestionRef[$shortname] = $record;
-                $aQuestionRef[$shortname]['subtype'] = 'modality';
+                $aQuestionRef[$shortname]['subtype'] = 'core';
             }
-        }
-        if($protocol_shortname > '')
-        {
-            //Now grab any questions specific to this protocol.
-            $result = db_select('raptor_checklist_question','q')
-                    ->fields('q')
-                    ->orderBy('relative_position')
-                    ->condition('q.type_cd',$sChecklistType,'=')
-                    ->condition('modality_abbr','','=')
-                    ->condition('protocol_shortname',$protocol_shortname,'=')
-                    ->execute();
-            while($record = $result->fetchAssoc())
+            if($modality_abbr > '')
             {
-                $shortname = $record['question_shortname'];
-                $aQuestionRef[$shortname] = $record;
-                $aQuestionRef[$shortname]['subtype'] = 'protocol';
+                //Now grab any questions specific to this modality.
+                $result = db_select('raptor_checklist_question','q')
+                        ->fields('q')
+                        ->orderBy('relative_position')
+                        ->condition('q.type_cd',$sChecklistType,'=')
+                        ->condition('modality_abbr',$modality_abbr,'=')
+                        ->condition('protocol_shortname','','=')
+                        ->execute();
+                while($record = $result->fetchAssoc())
+                {
+                    $shortname = $record['question_shortname'];
+                    $aQuestionRef[$shortname] = $record;
+                    $aQuestionRef[$shortname]['subtype'] = 'modality';
+                }
             }
+            if($protocol_shortname > '')
+            {
+                //Now grab any questions specific to this protocol.
+                $result = db_select('raptor_checklist_question','q')
+                        ->fields('q')
+                        ->orderBy('relative_position')
+                        ->condition('q.type_cd',$sChecklistType,'=')
+                        ->condition('modality_abbr','','=')
+                        ->condition('protocol_shortname',$protocol_shortname,'=')
+                        ->execute();
+                while($record = $result->fetchAssoc())
+                {
+                    $shortname = $record['question_shortname'];
+                    $aQuestionRef[$shortname] = $record;
+                    $aQuestionRef[$shortname]['subtype'] = 'protocol';
+                }
+            }
+            return $aQuestionRef;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $aQuestionRef;
     }
     
     /**
      * The user has to respond to the checklist questions provided by this function.
-     * @param type $form_state
-     * @param type $disabled
-     * @param type $myvalues
-     * @param type $sSectionTitle
-     * @param type $sChecklistType
-     * @param type $modality_abbr
-     * @param type $protocol_shortname
      * @return element for a renderable form array
      */
     function getPageChecklistArea(&$form_state, $disabled, $myvalues
             , $sSectionTitle, $sChecklistType
             , $modality_abbr, $protocol_shortname)
     {
-
-        $root = array(
-            '#type'     => 'fieldset',
-            '#title'    => 
-                FormHelper::getTitleAsRequiredField($sSectionTitle, $disabled),
-            '#attributes' => array(
-                'class' => array(
-                    'checklist-dataentry-area'
-                )
-             ),
-            '#disabled' => $disabled,
-        );
-        $root[] = array('#markup' => '<div class="safety-checklist">');
-        
-        //Grab all the relevant questions.
-        $aQuestionRef = $this->getAllQuestions($sChecklistType,$modality_abbr,$protocol_shortname);
-        //First grab all the checklist questions already answered by other users.
-        if(isset($myvalues['questions']['otheruser']))
+        try
         {
-            $aAnsweredByOtherUsers = $myvalues['questions']['otheruser'];
-            $otherusersarea = array();
-            foreach($aAnsweredByOtherUsers as $nUID=>$aFromOneUser)
+            $root = array(
+                '#type'     => 'fieldset',
+                '#title'    => 
+                    FormHelper::getTitleAsRequiredField($sSectionTitle, $disabled),
+                '#attributes' => array(
+                    'class' => array(
+                        'checklist-dataentry-area'
+                    )
+                 ),
+                '#disabled' => $disabled,
+            );
+            $root[] = array('#markup' => '<div class="safety-checklist">');
+
+            //Grab all the relevant questions.
+            $aQuestionRef = $this->getAllQuestions($sChecklistType,$modality_abbr,$protocol_shortname);
+            //First grab all the checklist questions already answered by other users.
+            if(isset($myvalues['questions']['otheruser']))
             {
-                if(is_array($aFromOneUser))
+                $aAnsweredByOtherUsers = $myvalues['questions']['otheruser'];
+                $otherusersarea = array();
+                foreach($aAnsweredByOtherUsers as $nUID=>$aFromOneUser)
                 {
-                    //die('Look now>>>'.$nUID.'>>>'.print_r($aFromOneUser,TRUE));
-                    $oOtherUser = new \raptor\UserInfo($nUID,FALSE);
-                    $username = $oOtherUser->getFullName();
-                    $otherusersarea[$nUID] = array(
-                        '#type'     => 'fieldset',
-                        '#title'    => t('Answers from '. $username),
-                        '#attributes' => array(
-                            'class' => array(
-                                'otheruser-safety-checklist-answers-area'
-                            )
-                         ),
-                        '#disabled' => TRUE,
-                    );
-                    $element = array('#markup' => '<ol>' );
-                    $otherusersarea[$nUID][] = $element;
-                    $questionnumber = 0;
-                    foreach($aFromOneUser as $sShortName=>$aOneQuestionAnswer)
+                    if(is_array($aFromOneUser))
                     {
-                        $details = $aQuestionRef[$sShortName];
-                        $question_tx = $details['question_tx'];
-                        $comment_prompt_tx = $details['comment_prompt_tx'];
-                        $response = $aOneQuestionAnswer['response'];
-                        $comment = $aOneQuestionAnswer['comment'];
-                        $element = array('#markup' => '<li>'.$question_tx.'<p>'.$response.'</p>');
+                        //die('Look now>>>'.$nUID.'>>>'.print_r($aFromOneUser,TRUE));
+                        $oOtherUser = new \raptor\UserInfo($nUID,FALSE);
+                        $username = $oOtherUser->getFullName();
+                        $otherusersarea[$nUID] = array(
+                            '#type'     => 'fieldset',
+                            '#title'    => t('Answers from '. $username),
+                            '#attributes' => array(
+                                'class' => array(
+                                    'otheruser-safety-checklist-answers-area'
+                                )
+                             ),
+                            '#disabled' => TRUE,
+                        );
+                        $element = array('#markup' => '<ol>' );
                         $otherusersarea[$nUID][] = $element;
-                        if(trim($comment) > '')
+                        $questionnumber = 0;
+                        foreach($aFromOneUser as $sShortName=>$aOneQuestionAnswer)
                         {
-                            $element = array('#markup' => '<p class="comment-prompt">'.$comment_prompt_tx.'</p><p>'.$comment.'</p>');
+                            $details = $aQuestionRef[$sShortName];
+                            $question_tx = $details['question_tx'];
+                            $comment_prompt_tx = $details['comment_prompt_tx'];
+                            $response = $aOneQuestionAnswer['response'];
+                            $comment = $aOneQuestionAnswer['comment'];
+                            $element = array('#markup' => '<li>'.$question_tx.'<p>'.$response.'</p>');
                             $otherusersarea[$nUID][] = $element;
+                            if(trim($comment) > '')
+                            {
+                                $element = array('#markup' => '<p class="comment-prompt">'.$comment_prompt_tx.'</p><p>'.$comment.'</p>');
+                                $otherusersarea[$nUID][] = $element;
+                            }
                         }
+                        $element = array('#markup' => '</ol>' );
+                        $otherusersarea[$nUID][] = $element;
                     }
-                    $element = array('#markup' => '</ol>' );
-                    $otherusersarea[$nUID][] = $element;
                 }
+                $root['other_answers'] = &$otherusersarea;
             }
-            $root['other_answers'] = &$otherusersarea;
-        }
 
-        //Now show the content for this user.
-        if(!$disabled || (isset($myvalues['questions']['thisuser']) 
-                && is_array($myvalues['questions']['thisuser'])))
-        {
-            $questionnumber = 0;
-            foreach($aQuestionRef as $aOneQuestion)
+            //Now show the content for this user.
+            if(!$disabled || (isset($myvalues['questions']['thisuser']) 
+                    && is_array($myvalues['questions']['thisuser'])))
             {
-                $questionnumber++;
-                if($aOneQuestion['subtype'] == 'core')
+                $questionnumber = 0;
+                foreach($aQuestionRef as $aOneQuestion)
                 {
-                    $title = 'Core Question '.$questionnumber;
+                    $questionnumber++;
+                    if($aOneQuestion['subtype'] == 'core')
+                    {
+                        $title = 'Core Question '.$questionnumber;
+                    }
+                    if($aOneQuestion['subtype'] == 'modality')
+                    {
+                        $title = 'Modality Specific Question '.$questionnumber;
+                    }
+                    if($aOneQuestion['subtype'] == 'protocol')
+                    {
+                        $title = 'Protocol Specific Question '.$questionnumber;
+                    }
+                    $shortname = $aOneQuestion['question_shortname'];
+                    $element = $this->getOneChecklistQuestion($myvalues
+                            ,$title,$questionnumber,$aOneQuestion,$disabled);
+                    $root['questions']['thisuser'][$shortname] = $element;
                 }
-                if($aOneQuestion['subtype'] == 'modality')
-                {
-                    $title = 'Modality Specific Question '.$questionnumber;
-                }
-                if($aOneQuestion['subtype'] == 'protocol')
-                {
-                    $title = 'Protocol Specific Question '.$questionnumber;
-                }
-                $shortname = $aOneQuestion['question_shortname'];
-                $element = $this->getOneChecklistQuestion($myvalues
-                        ,$title,$questionnumber,$aOneQuestion,$disabled);
-                $root['questions']['thisuser'][$shortname] = $element;
+                $root['questions']['#tree'] = TRUE;
+                $root[] = array('#markup' => '</div><!-- end of safety checklist for modality=['.$modality_abbr.'] of protocol=['.$protocol_shortname.'] -->');
             }
-            $root['questions']['#tree'] = TRUE;
-            $root[] = array('#markup' => '</div><!-- end of safety checklist for modality=['.$modality_abbr.'] of protocol=['.$protocol_shortname.'] -->');
+
+            return $root;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        return $root;
     }    
     
     function getPageActionButtonsArea(&$form_state
@@ -1124,392 +1190,397 @@ class ProtocolInfoUtility
             , $has_uncommitted_data=FALSE
             , $commited_dt=NULL)
     {
-        $oContext = \raptor\Context::getInstance();
-        $userinfo = $oContext->getUserInfo();
-        $userprivs = $userinfo->getSystemPrivileges();
-        $nSiteID = $this->m_oContext->getSiteID();
-        $nIEN = $myvalues['tid'];
-        $sCWFS = $this->getCurrentWorkflowState($nSiteID, $nIEN);
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $sTrackingID = $this->m_oTT->getTrackingID($nSiteID, $nIEN);
-        $nUID = $userinfo->getUserID();
-        $datasaveactionbuttons = 0; //Count number of active buttons that can save changes.
-        
-        $configuredVistaCommit=TRUE;
-        $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_GENERAL;
-        $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_GENERAL;
-        if(!$ehrDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
+        try
         {
-            //Write to the log and continue.
-            error_log("WARNING VISTA at site " 
-                    . VISTA_SITE 
-                    . " is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
-            $configuredVistaCommit = FALSE;
-        }
-        $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_SAFETY_CKLST;
-        $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST;
-        if(!$ehrDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
-        {
-            //Write to the log and continue.
-            error_log("WARNING VISTA at site ".VISTA_SITE." is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
-            $configuredVistaCommit = FALSE;
-        }
-        
-        $acknowledgeTip = 'Acknowledge the presented protocol so the exam can begin.';
-        $unapproveTip = 'Save this order as unapproved so protocol items can be edited.';
-        $unacknowledgeTip = 'Unacknowledge the presented protocol so the exam cannot begin.  Warning: Unsaved entries, if any, will be discarded.';
-        $examcompletionTip = 'Save all current settings and mark the examination as completed.';
-        $interpretationTip = 'Save interpretation notes.';
-        $qaTip = 'Save QA notes.';
-        $saveSoFarTip = 'Save values of page so far and continue adding more values on this page';
-        if($oContext->hasPersonalBatchStack())
-        {
-            $sRequestApproveTip = 'Save this order as ready for review and continue with next available personal batch selection.';
-            $releaseTip = 'Release this order without saving changes and continue with next available personal batch selection.';
-            $reserveTip = 'Assign this order to yourself with current edits saved and continue with the next available personal batch selection.';
-            $collaborateTip = 'Assign this order a specialist with current edits saved and continue with the next available personal batch selection.';
-            $approveTip = 'Save this order as approved and continue with the next available personal batch selection.';
-            $suspendTip = 'Suspend this order without saving edits and continue with the next available personal batch selection.';
-            $cancelOrderTip = 'Cancel this order in VistA and continue with the next available personal batch selection.';
-            $sUnsuspendTip = 'Restore this order back to the worklist and continue with next available personal batch selection.';
-            $replaceOrderTip = 'Replace this order in VistA with a new order and continue with the next available personal batch selection';
-            $createNewOrderTip = 'Create a new order in VistA with continue with the next available personal batch selection';
-            $ackproAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
-            $examcompAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
-            $interpretationAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
-        } else {
-            $sRequestApproveTip = 'Save this order as ready for review and return to the worklist.';
-            $releaseTip = 'Release this order without saving changes and return to the worklist.';
-            $reserveTip = 'Assign this order to yourself with current edits saved and return to the worklist.';
-            $collaborateTip = 'Assign this order to a specialist with current edits saved and return to the worklist.';
-            $approveTip = 'Save this order as approved and return to the worklist.';
-            $cancelOrderTip = 'Cancel this order in VistA and return to the worklist.';
-            $suspendTip = 'Suspend this order without saving changes and return to the worklist.';
-            $sUnsuspendTip = 'Restore this order back to the worklist.';
-            $replaceOrderTip = 'Replace this order in VistA with a new order';
-            $createNewOrderTip = 'Create a new order in VistA';
-            $ackproAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
-            $examcompAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
-            $interpretationAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
-        }
-        if(!$configuredVistaCommit)
-        {
-            $ackproAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
-            $examcompAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
-            $interpretationAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
-        }
-        
-        $feedback = NULL;
-        
-        $form['page_action_buttons_area'] = array(
-            '#type' => 'container',
-            '#attributes' => array('class'=>array('form-action')),
-        );
+            $oContext = \raptor\Context::getInstance();
+            $userinfo = $oContext->getUserInfo();
+            $userprivs = $userinfo->getSystemPrivileges();
+            $nSiteID = $this->m_oContext->getSiteID();
+            $nIEN = $myvalues['tid'];
+            $sCWFS = $this->getCurrentWorkflowState($nSiteID, $nIEN);
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $sTrackingID = $this->m_oTT->getTrackingID($nSiteID, $nIEN);
+            $nUID = $userinfo->getUserID();
+            $datasaveactionbuttons = 0; //Count number of active buttons that can save changes.
 
-        //Leverage workflow dependences from special class
-        $oAA = new \raptor\AllowedActions();
-        
-        //Only show these buttons if not disabled.
-        if(!$disabled)
-        {
-            if($oAA->allowAcknowledgeProtocol($sCWFS))
+            $configuredVistaCommit=TRUE;
+            $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_GENERAL;
+            $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_GENERAL;
+            if(!$ehrDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
             {
-                if($userprivs['CE1'] == 1)
-                {
-                    $form['page_action_buttons_area']['acknowledge_button'] = array('#type' => 'submit'
-                        , '#value' => t('Acknowledge Protocol')
-                        , '#attributes' => array('title' => $acknowledgeTip
-                                    ,'class'=>array('state-completed')
-                                )
-                        );
-                    $datasaveactionbuttons++;
-                }
+                //Write to the log and continue.
+                error_log("WARNING VISTA at site " 
+                        . VISTA_SITE 
+                        . " is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
+                $configuredVistaCommit = FALSE;
             }
-            if($oAA->allowExamComplete($sCWFS))
+            $checkVistaNoteTitle=VISTA_NOTE_TITLE_RAPTOR_SAFETY_CKLST;
+            $checkVistaNoteIEN=VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST;
+            if(!$ehrDao->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle))
             {
-                if($userprivs['CE1'] == 1)
-                {
-                    $form['page_action_buttons_area']['examcompleted_button'] = array('#type' => 'submit'
-                        , '#value' => t('Exam Completed')
-                        , '#attributes' => array('title' => $examcompletionTip
-                                    ,'class'=>array('state-completed'))
-                        );
-                    $datasaveactionbuttons++;
-                }
+                //Write to the log and continue.
+                error_log("WARNING VISTA at site ".VISTA_SITE." is not configured for NOTE TITLE entry $checkVistaNoteIEN=$checkVistaNoteTitle!");
+                $configuredVistaCommit = FALSE;
             }
-            
-            if($oAA->allowCommitNotesToVista($sCWFS))
+
+            $acknowledgeTip = 'Acknowledge the presented protocol so the exam can begin.';
+            $unapproveTip = 'Save this order as unapproved so protocol items can be edited.';
+            $unacknowledgeTip = 'Unacknowledge the presented protocol so the exam cannot begin.  Warning: Unsaved entries, if any, will be discarded.';
+            $examcompletionTip = 'Save all current settings and mark the examination as completed.';
+            $interpretationTip = 'Save interpretation notes.';
+            $qaTip = 'Save QA notes.';
+            $saveSoFarTip = 'Save values of page so far and continue adding more values on this page';
+            if($oContext->hasPersonalBatchStack())
             {
-                //Check for special short circuit finish buttons
-                if($sCWFS == 'AP')
+                $sRequestApproveTip = 'Save this order as ready for review and continue with next available personal batch selection.';
+                $releaseTip = 'Release this order without saving changes and continue with next available personal batch selection.';
+                $reserveTip = 'Assign this order to yourself with current edits saved and continue with the next available personal batch selection.';
+                $collaborateTip = 'Assign this order a specialist with current edits saved and continue with the next available personal batch selection.';
+                $approveTip = 'Save this order as approved and continue with the next available personal batch selection.';
+                $suspendTip = 'Suspend this order without saving edits and continue with the next available personal batch selection.';
+                $cancelOrderTip = 'Cancel this order in VistA and continue with the next available personal batch selection.';
+                $sUnsuspendTip = 'Restore this order back to the worklist and continue with next available personal batch selection.';
+                $replaceOrderTip = 'Replace this order in VistA with a new order and continue with the next available personal batch selection';
+                $createNewOrderTip = 'Create a new order in VistA with continue with the next available personal batch selection';
+                $ackproAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
+                $examcompAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
+                $interpretationAndCommitTip = 'Mark workflow as finished and commit the details to Vista and continue with the next available personal batch selection';
+            } else {
+                $sRequestApproveTip = 'Save this order as ready for review and return to the worklist.';
+                $releaseTip = 'Release this order without saving changes and return to the worklist.';
+                $reserveTip = 'Assign this order to yourself with current edits saved and return to the worklist.';
+                $collaborateTip = 'Assign this order to a specialist with current edits saved and return to the worklist.';
+                $approveTip = 'Save this order as approved and return to the worklist.';
+                $cancelOrderTip = 'Cancel this order in VistA and return to the worklist.';
+                $suspendTip = 'Suspend this order without saving changes and return to the worklist.';
+                $sUnsuspendTip = 'Restore this order back to the worklist.';
+                $replaceOrderTip = 'Replace this order in VistA with a new order';
+                $createNewOrderTip = 'Create a new order in VistA';
+                $ackproAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
+                $examcompAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
+                $interpretationAndCommitTip = 'Mark workflow as finished and commit the details to VistA';
+            }
+            if(!$configuredVistaCommit)
+            {
+                $ackproAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
+                $examcompAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
+                $interpretationAndCommitTip = 'VistA is not configured to support RAPTOR Commit!  Contact system admin.';
+            }
+
+            $feedback = NULL;
+
+            $form['page_action_buttons_area'] = array(
+                '#type' => 'container',
+                '#attributes' => array('class'=>array('form-action')),
+            );
+
+            //Leverage workflow dependences from special class
+            $oAA = new \raptor\AllowedActions();
+
+            //Only show these buttons if not disabled.
+            if(!$disabled)
+            {
+                if($oAA->allowAcknowledgeProtocol($sCWFS))
                 {
                     if($userprivs['CE1'] == 1)
                     {
-                        $form['page_action_buttons_area']['finish_ap_button_and_commit'] = array('#type' => 'submit'
-                            , '#value' => t('Acknowledge Protocol and Commit Details to VistA')
-                            , '#attributes' => array('title' => $ackproAndCommitTip
-                                    ,'class'=>array('commit-to-vista'))
-                            , '#disabled' => !$configuredVistaCommit, 
-                            );
-                        $datasaveactionbuttons++;
-                    }
-                } else
-                if($sCWFS == 'PA')
-                {
-                    if($userprivs['CE1'] == 1)
-                    {
-                        $form['page_action_buttons_area']['finish_pa_button_and_commit'] = array('#type' => 'submit'
-                            , '#value' => t('Exam Completed and Commit Details to VistA')
-                            , '#attributes' => array('title' => $examcompAndCommitTip
-                                    ,'class'=>array('commit-to-vista'))
-                            , '#disabled' => !$configuredVistaCommit, 
+                        $form['page_action_buttons_area']['acknowledge_button'] = array('#type' => 'submit'
+                            , '#value' => t('Acknowledge Protocol')
+                            , '#attributes' => array('title' => $acknowledgeTip
+                                        ,'class'=>array('state-completed')
+                                    )
                             );
                         $datasaveactionbuttons++;
                     }
                 }
-            }
-            if($oAA->allowExamComplete($sCWFS))
-            {
-                if($userprivs['CE1'] == 1)
+                if($oAA->allowExamComplete($sCWFS))
                 {
-                    //Moved to the right of the commit.
-                    $form['page_action_buttons_area']['savesofar_button'] = array('#type' => 'submit'
-                        , '#value' => t('Save Exam Values')
-                        , '#attributes' => array('title' => $saveSoFarTip)
-                        );
-                    $datasaveactionbuttons++;
-                }
-            }
-            
-            if($oAA->allowInterpretationComplete($sCWFS))
-            {
-                if($userprivs['APWI1'] == 1) //If they can approve a protocol, they can interpret
-                {
-                    $form['page_action_buttons_area']['interpret_button'] = array('#type' => 'submit'
-                        , '#value' => t('Interpretation Complete')
-                        , '#attributes' => array('title' => $interpretationTip
-                                                ,'class'=>array('state-completed'))
-                        );
-                    $datasaveactionbuttons++;
-                    if($oAA->allowCommitNotesToVista($sCWFS))
+                    if($userprivs['CE1'] == 1)
                     {
-                        if($has_uncommitted_data)
+                        $form['page_action_buttons_area']['examcompleted_button'] = array('#type' => 'submit'
+                            , '#value' => t('Exam Completed')
+                            , '#attributes' => array('title' => $examcompletionTip
+                                        ,'class'=>array('state-completed'))
+                            );
+                        $datasaveactionbuttons++;
+                    }
+                }
+
+                if($oAA->allowCommitNotesToVista($sCWFS))
+                {
+                    //Check for special short circuit finish buttons
+                    if($sCWFS == 'AP')
+                    {
+                        if($userprivs['CE1'] == 1)
                         {
-                            $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
-                                , '#value' => t('Interpretation Complete and Commit Details to VistA')
-                                , '#attributes' => array('title' => $interpretationAndCommitTip
+                            $form['page_action_buttons_area']['finish_ap_button_and_commit'] = array('#type' => 'submit'
+                                , '#value' => t('Acknowledge Protocol and Commit Details to VistA')
+                                , '#attributes' => array('title' => $ackproAndCommitTip
                                         ,'class'=>array('commit-to-vista'))
-                                , '#disabled' => !$configuredVistaCommit,
+                                , '#disabled' => !$configuredVistaCommit, 
                                 );
                             $datasaveactionbuttons++;
-                        } else {
-                            $feedback = 'All procedure data has been committed to VistA';
-                            if($commited_dt != NULL)
+                        }
+                    } else
+                    if($sCWFS == 'PA')
+                    {
+                        if($userprivs['CE1'] == 1)
+                        {
+                            $form['page_action_buttons_area']['finish_pa_button_and_commit'] = array('#type' => 'submit'
+                                , '#value' => t('Exam Completed and Commit Details to VistA')
+                                , '#attributes' => array('title' => $examcompAndCommitTip
+                                        ,'class'=>array('commit-to-vista'))
+                                , '#disabled' => !$configuredVistaCommit, 
+                                );
+                            $datasaveactionbuttons++;
+                        }
+                    }
+                }
+                if($oAA->allowExamComplete($sCWFS))
+                {
+                    if($userprivs['CE1'] == 1)
+                    {
+                        //Moved to the right of the commit.
+                        $form['page_action_buttons_area']['savesofar_button'] = array('#type' => 'submit'
+                            , '#value' => t('Save Exam Values')
+                            , '#attributes' => array('title' => $saveSoFarTip)
+                            );
+                        $datasaveactionbuttons++;
+                    }
+                }
+
+                if($oAA->allowInterpretationComplete($sCWFS))
+                {
+                    if($userprivs['APWI1'] == 1) //If they can approve a protocol, they can interpret
+                    {
+                        $form['page_action_buttons_area']['interpret_button'] = array('#type' => 'submit'
+                            , '#value' => t('Interpretation Complete')
+                            , '#attributes' => array('title' => $interpretationTip
+                                                    ,'class'=>array('state-completed'))
+                            );
+                        $datasaveactionbuttons++;
+                        if($oAA->allowCommitNotesToVista($sCWFS))
+                        {
+                            if($has_uncommitted_data)
                             {
-                                $feedback .= ' as of ' . $commited_dt;
+                                $form['page_action_buttons_area']['interpret_button_and_commit'] = array('#type' => 'submit'
+                                    , '#value' => t('Interpretation Complete and Commit Details to VistA')
+                                    , '#attributes' => array('title' => $interpretationAndCommitTip
+                                            ,'class'=>array('commit-to-vista'))
+                                    , '#disabled' => !$configuredVistaCommit,
+                                    );
+                                $datasaveactionbuttons++;
+                            } else {
+                                $feedback = 'All procedure data has been committed to VistA';
+                                if($commited_dt != NULL)
+                                {
+                                    $feedback .= ' as of ' . $commited_dt;
+                                }
                             }
                         }
                     }
                 }
-            }
-            if($oAA->allowQAComplete($sCWFS))
-            {
-                if($userprivs['QA1'] == 1)
+                if($oAA->allowQAComplete($sCWFS))
                 {
-                    $form['page_action_buttons_area']['qa_button'] = array('#type' => 'submit'
-                        , '#value' => t('QA Complete')
-                        , '#attributes' => array('title' => $qaTip
-                                    ,'class'=>array('state-completed'))
-                        );
-                    $datasaveactionbuttons++;
-                    if($oAA->allowCommitNotesToVista($sCWFS))
+                    if($userprivs['QA1'] == 1)
                     {
-                        if($has_uncommitted_data)
+                        $form['page_action_buttons_area']['qa_button'] = array('#type' => 'submit'
+                            , '#value' => t('QA Complete')
+                            , '#attributes' => array('title' => $qaTip
+                                        ,'class'=>array('state-completed'))
+                            );
+                        $datasaveactionbuttons++;
+                        if($oAA->allowCommitNotesToVista($sCWFS))
                         {
-                            $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
-                                , '#value' => t('QA Complete and Commit Details to VistA')
-                                , '#attributes' => array('title' => $qaTip
-                                        ,'class'=>array('commit-to-vista'))
-                                , '#disabled' => !$configuredVistaCommit,  
-                                );
-                            $datasaveactionbuttons++;
-                        } else {
-                            $feedback = 'All procedure data has been committed to VistA';
-                            if($commited_dt != NULL)
+                            if($has_uncommitted_data)
                             {
-                                $feedback .= ' as of ' . $commited_dt;
+                                $form['page_action_buttons_area']['qa_button_and_commit'] = array('#type' => 'submit'
+                                    , '#value' => t('QA Complete and Commit Details to VistA')
+                                    , '#attributes' => array('title' => $qaTip
+                                            ,'class'=>array('commit-to-vista'))
+                                    , '#disabled' => !$configuredVistaCommit,  
+                                    );
+                                $datasaveactionbuttons++;
+                            } else {
+                                $feedback = 'All procedure data has been committed to VistA';
+                                if($commited_dt != NULL)
+                                {
+                                    $feedback .= ' as of ' . $commited_dt;
+                                }
                             }
                         }
+                    }
+                }
+
+                if($userprivs['PWI1'] == 1)
+                {
+                    if($userprivs['APWI1'] == 1)
+                    {
+                        //They can approve it themselves.
+                        if($oAA->allowApproveProtocol($sCWFS))
+                        {
+                            $form['page_action_buttons_area']['approve_button'] = array('#type' => 'submit'
+                                , '#value' => t('Approve')
+                                , '#attributes' => array('title' => $approveTip)
+                                );
+                            $datasaveactionbuttons++;
+                        }
+                    } else {
+                        //They can only request approval.
+                        if($oAA->allowRequestApproveProtocol($sCWFS))
+                        {
+                            $form['page_action_buttons_area']['request_approve_button'] = array('#type' => 'submit'
+                                , '#value' => t('Request Approval')
+                                , '#attributes' => array('title' => $sRequestApproveTip)
+                                );
+                            $datasaveactionbuttons++;
+                        }
+                    }
+                    if($oAA->allowCollaborateTicket($sCWFS))
+                    {
+                        $form['page_action_buttons_area']['collaborate_button'] 
+                                = array('#markup' 
+                                    => '<input id="raptor-protocol-collaborate"'
+                                    . ' type="button"'
+                                    . ' value="Collaborate" title="'.$collaborateTip.'">');
+                        $datasaveactionbuttons++;
                     }
                 }
             }
 
-            if($userprivs['PWI1'] == 1)
+            //Always show this button no matter what.
+            global $base_url;
+            $form['page_action_buttons_area']['release_button'] = array('#type' => 'button'
+                , '#value' => t('Release back to Worklist without Saving')
+                , '#attributes' 
+                  => array('onclick' 
+                     => 'javascript:window.onbeforeunload=null;window.location.href="'.$base_url.'/protocol?pbatch=CONTINUE&releasedticket=TRUE";return false;'
+                        ,'title' => $releaseTip)
+                //, '#submit' => array('raptor_datalayer_protocolinfo_form_builder_customsubmit')
+                );
+            $form['page_action_buttons_area']['release_button']['#attributes']['class'][] = 'action-button';
+
+            //Only show these buttons if not disabled.
+            if(!$disabled)
+            {
+                if($oAA->allowCollaborateTicket($sCWFS))
+                {
+                    //This ticket is already in collaboration mode?
+                    $query = db_select('raptor_ticket_collaboration', 'n');
+                    $query->join('raptor_user_profile','u','n.collaborator_uid = u.uid');
+                    $query->fields('n',array('collaborator_uid','requested_dt','requester_notes_tx','active_yn'));
+                    $query->fields('u',array('username', 'usernametitle', 'firstname', 'lastname', 'suffix'));
+                    $query->condition('n.siteid',$nSiteID,'=');
+                    $query->condition('n.IEN',$nIEN,'=');
+                    $query->condition('n.active_yn',1,'=');
+                    $result = $query->execute();
+                    $record = $result->fetchAssoc();
+                    if($record != NULL)
+                    {
+                        $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] 
+                                . ' ' . $record['lastname'] . ' ' . $record['suffix']);
+                        $assignmentBlurb = 'already assigned to '.$fullname;
+                        $form['page_action_buttons_area']['reserve_button'] = array('#type' => 'submit'
+                            , '#value' => t('Reserve ('.$assignmentBlurb.')')
+                            , '#attributes' => array('title' => $reserveTip)
+                            );
+                        $datasaveactionbuttons++;
+                    } else {
+                        //This ticket is not already in collaboration mode
+                        $form['page_action_buttons_area']['reserve_button'] = array('#type' => 'submit'
+                            , '#value' => t('Reserve')
+                            , '#attributes' => array('title' => $reserveTip)
+                            );
+                        $datasaveactionbuttons++;
+                    }
+                }
+
+                if($userprivs['SUWI1'] == 1)
+                {
+                    if($oAA->allowReplaceOrder($sCWFS))
+                    {
+                        //Replace order only if allowed to cancel an order
+                        $form['page_action_buttons_area']['replace_order_button'] 
+                                = array('#markup' 
+                                    => '<input id="raptor-protocol-replace-order-button"'
+                                    . ' type="button"'
+                                    . ' value="Replace Order" title="'.$replaceOrderTip.'">');
+                        $datasaveactionbuttons++;
+                    }
+                    if($oAA->allowCancelOrder($sCWFS))
+                    {
+                        //Cancel an order only if allowed to cancel an order
+                        $form['page_action_buttons_area']['cancelorder_button'] = array('#type' => 'submit'
+                            , '#value' => t('Cancel Order')
+                            , '#attributes' => array('title' => $cancelOrderTip)
+                            );
+                        $datasaveactionbuttons++;
+                    }
+                }
+            }
+
+            //Show special workflow override buttons at the end
+            if(!$disabled)
             {
                 if($userprivs['APWI1'] == 1)
                 {
-                    //They can approve it themselves.
-                    if($oAA->allowApproveProtocol($sCWFS))
+                    if($oAA->allowUnapproveProtocol($sCWFS))
                     {
-                        $form['page_action_buttons_area']['approve_button'] = array('#type' => 'submit'
-                            , '#value' => t('Approve')
-                            , '#attributes' => array('title' => $approveTip)
-                            );
-                        $datasaveactionbuttons++;
-                    }
-                } else {
-                    //They can only request approval.
-                    if($oAA->allowRequestApproveProtocol($sCWFS))
-                    {
-                        $form['page_action_buttons_area']['request_approve_button'] = array('#type' => 'submit'
-                            , '#value' => t('Request Approval')
-                            , '#attributes' => array('title' => $sRequestApproveTip)
+                        $form['page_action_buttons_area']['unapprove_button'] = array('#type' => 'submit'
+                            , '#value' => t('Unapprove')
+                            , '#attributes' => array('title' => $unapproveTip)
                             );
                         $datasaveactionbuttons++;
                     }
                 }
-                if($oAA->allowCollaborateTicket($sCWFS))
+                if($oAA->allowUnacknowledgeProtocol($sCWFS))
                 {
-                    $form['page_action_buttons_area']['collaborate_button'] 
-                            = array('#markup' 
-                                => '<input id="raptor-protocol-collaborate"'
-                                . ' type="button"'
-                                . ' value="Collaborate" title="'.$collaborateTip.'">');
-                    $datasaveactionbuttons++;
+                    if($userprivs['CE1'] == 1 || $userprivs['APWI1'] == 1)
+                    {
+                        $form['page_action_buttons_area']['unacknowledge_button'] = array('#type' => 'submit'
+                            , '#value' => t('Unacknowledge Protocol')
+                            , '#attributes' => array('title' => $unacknowledgeTip)
+                            );
+                        $datasaveactionbuttons++;
+                    }
                 }
             }
-        }
 
-        //Always show this button no matter what.
-        global $base_url;
-        $form['page_action_buttons_area']['release_button'] = array('#type' => 'button'
-            , '#value' => t('Release back to Worklist without Saving')
-            , '#attributes' 
-              => array('onclick' 
-                 => 'javascript:window.onbeforeunload=null;window.location.href="'.$base_url.'/protocol?pbatch=CONTINUE&releasedticket=TRUE";return false;'
-                    ,'title' => $releaseTip)
-            //, '#submit' => array('raptor_datalayer_protocolinfo_form_builder_customsubmit')
+            if($datasaveactionbuttons == 0)
+            {
+                //No data changing actions are possible for this ticket so RELEASE any lock that might be on it.
+                try
+                {
+                    $msg = 'No data changing actions are available.';
+                    if($feedback > '')
+                    {
+                        $feedback .= '<br>'. $msg;
+                    } else {
+                        $feedback = $msg;
+                    }
+                    $this->m_oTT->markTicketUnlocked($sTrackingID, $nUID);
+                } catch (\Exception $ex) {
+                    //Do NOT take any action, there are many valid reason for this exception.
+                    //For example, ticket was already locked by another user.
+                }
+            }
+
+            if($feedback != NULL)
+            {
+                $form['page_action_buttons_area']['feedback'] = array(
+                    '#markup' => ' <span class="action-area-feedback">'.t($feedback).'</span>'
+                    );
+            }
+
+
+            $form['page_action_buttons_area']['bottom_filler'] = array(
+                '#markup' => '<br><br><br><!-- Bottom gap -->',
             );
-        $form['page_action_buttons_area']['release_button']['#attributes']['class'][] = 'action-button';
-        
-        //Only show these buttons if not disabled.
-        if(!$disabled)
-        {
-            if($oAA->allowCollaborateTicket($sCWFS))
-            {
-                //This ticket is already in collaboration mode?
-                $query = db_select('raptor_ticket_collaboration', 'n');
-                $query->join('raptor_user_profile','u','n.collaborator_uid = u.uid');
-                $query->fields('n',array('collaborator_uid','requested_dt','requester_notes_tx','active_yn'));
-                $query->fields('u',array('username', 'usernametitle', 'firstname', 'lastname', 'suffix'));
-                $query->condition('n.siteid',$nSiteID,'=');
-                $query->condition('n.IEN',$nIEN,'=');
-                $query->condition('n.active_yn',1,'=');
-                $result = $query->execute();
-                $record = $result->fetchAssoc();
-                if($record != NULL)
-                {
-                    $fullname = trim($record['usernametitle'] . ' ' . $record['firstname'] 
-                            . ' ' . $record['lastname'] . ' ' . $record['suffix']);
-                    $assignmentBlurb = 'already assigned to '.$fullname;
-                    $form['page_action_buttons_area']['reserve_button'] = array('#type' => 'submit'
-                        , '#value' => t('Reserve ('.$assignmentBlurb.')')
-                        , '#attributes' => array('title' => $reserveTip)
-                        );
-                    $datasaveactionbuttons++;
-                } else {
-                    //This ticket is not already in collaboration mode
-                    $form['page_action_buttons_area']['reserve_button'] = array('#type' => 'submit'
-                        , '#value' => t('Reserve')
-                        , '#attributes' => array('title' => $reserveTip)
-                        );
-                    $datasaveactionbuttons++;
-                }
-            }
 
-            if($userprivs['SUWI1'] == 1)
-            {
-                if($oAA->allowReplaceOrder($sCWFS))
-                {
-                    //Replace order only if allowed to cancel an order
-                    $form['page_action_buttons_area']['replace_order_button'] 
-                            = array('#markup' 
-                                => '<input id="raptor-protocol-replace-order-button"'
-                                . ' type="button"'
-                                . ' value="Replace Order" title="'.$replaceOrderTip.'">');
-                    $datasaveactionbuttons++;
-                }
-                if($oAA->allowCancelOrder($sCWFS))
-                {
-                    //Cancel an order only if allowed to cancel an order
-                    $form['page_action_buttons_area']['cancelorder_button'] = array('#type' => 'submit'
-                        , '#value' => t('Cancel Order')
-                        , '#attributes' => array('title' => $cancelOrderTip)
-                        );
-                    $datasaveactionbuttons++;
-                }
-            }
+            return $form;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        //Show special workflow override buttons at the end
-        if(!$disabled)
-        {
-            if($userprivs['APWI1'] == 1)
-            {
-                if($oAA->allowUnapproveProtocol($sCWFS))
-                {
-                    $form['page_action_buttons_area']['unapprove_button'] = array('#type' => 'submit'
-                        , '#value' => t('Unapprove')
-                        , '#attributes' => array('title' => $unapproveTip)
-                        );
-                    $datasaveactionbuttons++;
-                }
-            }
-            if($oAA->allowUnacknowledgeProtocol($sCWFS))
-            {
-                if($userprivs['CE1'] == 1 || $userprivs['APWI1'] == 1)
-                {
-                    $form['page_action_buttons_area']['unacknowledge_button'] = array('#type' => 'submit'
-                        , '#value' => t('Unacknowledge Protocol')
-                        , '#attributes' => array('title' => $unacknowledgeTip)
-                        );
-                    $datasaveactionbuttons++;
-                }
-            }
-        }
-        
-        if($datasaveactionbuttons == 0)
-        {
-            //No data changing actions are possible for this ticket so RELEASE any lock that might be on it.
-            try
-            {
-                $msg = 'No data changing actions are available.';
-                if($feedback > '')
-                {
-                    $feedback .= '<br>'. $msg;
-                } else {
-                    $feedback = $msg;
-                }
-                $this->m_oTT->markTicketUnlocked($sTrackingID, $nUID);
-            } catch (\Exception $ex) {
-                //Do NOT take any action, there are many valid reason for this exception.
-                //For example, ticket was already locked by another user.
-            }
-        }
-        
-        if($feedback != NULL)
-        {
-            $form['page_action_buttons_area']['feedback'] = array(
-                '#markup' => ' <span class="action-area-feedback">'.t($feedback).'</span>'
-                );
-        }
-        
-
-        $form['page_action_buttons_area']['bottom_filler'] = array(
-            '#markup' => '<br><br><br><!-- Bottom gap -->',
-        );
-        
-        return $form;
     }
 
     /**
@@ -1542,24 +1613,29 @@ class ProtocolInfoUtility
      */
     public function getKeywordMap()
     {
-        $kwmap = array();
-        $kwres = db_select('raptor_protocol_keywords','p')
-            ->fields('p')
-            ->orderBy('protocol_shortname', 'ASC')
-            ->orderBy('weightgroup', 'ASC')
-            ->execute();
-        while($kwrec = $kwres->fetchAssoc()) 
+        try
         {
-            $psn = $kwrec['protocol_shortname'];
-            if(!isset($kwmap[$psn]))
+            $kwmap = array();
+            $kwres = db_select('raptor_protocol_keywords','p')
+                ->fields('p')
+                ->orderBy('protocol_shortname', 'ASC')
+                ->orderBy('weightgroup', 'ASC')
+                ->execute();
+            while($kwrec = $kwres->fetchAssoc()) 
             {
-                $kwmap[$psn] = array();
+                $psn = $kwrec['protocol_shortname'];
+                if(!isset($kwmap[$psn]))
+                {
+                    $kwmap[$psn] = array();
+                }
+                $kw = trim($kwrec['keyword']);
+                $wg = trim($kwrec['weightgroup']);
+                $kwmap[$psn][$wg][] = $kw;
             }
-            $kw = trim($kwrec['keyword']);
-            $wg = trim($kwrec['weightgroup']);
-            $kwmap[$psn][$wg][] = $kw;
+            return $kwmap;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $kwmap;
     }
     
     public function getAllProtocolCodeMap()
@@ -1615,202 +1691,213 @@ class ProtocolInfoUtility
             ,$sFirstElementText=''
             ,$cluesmap=NULL)
     {
-        
-        $kwmap = $this->getKeywordMap();
-        $protocol_code_map = $this->getAllProtocolCodeMap();
-
-        //Get all the protocols from the library
-        $result = db_select('raptor_protocol_lib','p')
-                ->fields('p')
-                ->condition('p.active_yn',1,'=')
-                ->orderBy('modality_abbr', 'ASC')
-                ->orderBy('name', 'ASC')
-                ->execute();
-        $shortcount = 0;
-        $scoretrack = array();
-        $aShortList = array();
-        $aCombinedList = array();
-        while($record = $result->fetchAssoc()) 
+        try
         {
-            $categoryname = trim($record['modality_abbr']).' List';
-            $longname = $record['name'];
-            $psn = $record['protocol_shortname'];
-            if($categoryname == ' List')
-            {
-                //Put it on the shortlist
-                $categoryname = 'Short List';
-            }
-            $oC = new \raptor\FormControlChoiceItem(
-                    $longname
-                    ,$psn
-                    ,$categoryname
-                    ,FALSE);
-            $aCombinedList[] = $oC;
+            $kwmap = $this->getKeywordMap();
+            $protocol_code_map = $this->getAllProtocolCodeMap();
 
-            if($categoryname != 'Short List')
+            //Get all the protocols from the library
+            $result = db_select('raptor_protocol_lib','p')
+                    ->fields('p')
+                    ->condition('p.active_yn',1,'=')
+                    ->orderBy('modality_abbr', 'ASC')
+                    ->orderBy('name', 'ASC')
+                    ->execute();
+            $shortcount = 0;
+            $scoretrack = array();
+            $aShortList = array();
+            $aCombinedList = array();
+            while($record = $result->fetchAssoc()) 
             {
-                //Does this also belong on the shortlist?
-                $modality_abbr = $record['modality_abbr'];
-                $contrast_yn = $record['contrast_yn'];
-                $scoredetails = $this->m_oMOP->getProtocolMatchScore($cluesmap
-                        , $psn
-                        , $longname
-                        , $modality_abbr
-                        , $contrast_yn
-                        , $kwmap
-                        , $protocol_code_map);                
-                $matchscore = $scoredetails['score'];
-                if($matchscore > 0)
+                $categoryname = trim($record['modality_abbr']).' List';
+                $longname = $record['name'];
+                $psn = $record['protocol_shortname'];
+                if($categoryname == ' List')
                 {
-                    //Good enough on contrast check
+                    //Put it on the shortlist
                     $categoryname = 'Short List';
-                    $oC = new \raptor\FormControlChoiceItem(
-                            $longname
-                            ,$psn
-                            ,$categoryname
-                            ,FALSE);
-                    $oC->nScore = $matchscore;
-                    $aShortList[$matchscore][] = $oC;
-                    if($matchscore > 1)
+                }
+                $oC = new \raptor\FormControlChoiceItem(
+                        $longname
+                        ,$psn
+                        ,$categoryname
+                        ,FALSE);
+                $aCombinedList[] = $oC;
+
+                if($categoryname != 'Short List')
+                {
+                    //Does this also belong on the shortlist?
+                    $modality_abbr = $record['modality_abbr'];
+                    $contrast_yn = $record['contrast_yn'];
+                    $scoredetails = $this->m_oMOP->getProtocolMatchScore($cluesmap
+                            , $psn
+                            , $longname
+                            , $modality_abbr
+                            , $contrast_yn
+                            , $kwmap
+                            , $protocol_code_map);                
+                    $matchscore = $scoredetails['score'];
+                    if($matchscore > 0)
                     {
-                        if(!isset($scoretrack[$matchscore]))
+                        //Good enough on contrast check
+                        $categoryname = 'Short List';
+                        $oC = new \raptor\FormControlChoiceItem(
+                                $longname
+                                ,$psn
+                                ,$categoryname
+                                ,FALSE);
+                        $oC->nScore = $matchscore;
+                        $aShortList[$matchscore][] = $oC;
+                        if($matchscore > 1)
                         {
-                            $scoretrack[$matchscore] = 1;
-                        } else {
-                            $scoretrack[$matchscore] = $scoretrack[$matchscore] + 1;
+                            if(!isset($scoretrack[$matchscore]))
+                            {
+                                $scoretrack[$matchscore] = 1;
+                            } else {
+                                $scoretrack[$matchscore] = $scoretrack[$matchscore] + 1;
+                            }
+                            $shortcount++;
                         }
-                        $shortcount++;
                     }
                 }
             }
-        }
-        $aFinalList = array();
-        $oC = new \raptor\FormControlChoiceItem(
-                $sFirstElementText
-                ,NULL
-                ,NULL
-                ,FALSE);
-        $aFinalList[] = $oC;
-        krsort($aShortList);
-        if($shortcount > 0)
-        {
-            krsort($scoretrack);
-//drupal_set_message('SCORE TRACK>>>'.print_r($scoretrack,TRUE));
-            $items = 0;
-            $minscore = 2;  //Default min score
-            foreach($scoretrack as $score=>$count)
-            {
-                $items += $count;
-                if($items >= PROTOCOL_SHORTLIST_MIN_SIZE)
-                {
-                    //Thats enough for our shortlist.
-                    $minscore = $score;
-                    break;
-                }
-            }
-//drupal_set_message('$minscore>>>'.$minscore);
-        } else {
-            //Put them all in.
-            $minscore = 0;
-        }
-        foreach($aShortList as $k=>$list)
-        {
-            foreach($list as $oC)
-            {
-                if($oC->nScore >= $minscore)
-                {
-                    $aFinalList[] = $oC;
-                }
-            }
-        }
-        foreach($aCombinedList as $oC)
-        {
+            $aFinalList = array();
+            $oC = new \raptor\FormControlChoiceItem(
+                    $sFirstElementText
+                    ,NULL
+                    ,NULL
+                    ,FALSE);
             $aFinalList[] = $oC;
-        }
+            krsort($aShortList);
+            if($shortcount > 0)
+            {
+                krsort($scoretrack);
+    //drupal_set_message('SCORE TRACK>>>'.print_r($scoretrack,TRUE));
+                $items = 0;
+                $minscore = 2;  //Default min score
+                foreach($scoretrack as $score=>$count)
+                {
+                    $items += $count;
+                    if($items >= PROTOCOL_SHORTLIST_MIN_SIZE)
+                    {
+                        //Thats enough for our shortlist.
+                        $minscore = $score;
+                        break;
+                    }
+                }
+    //drupal_set_message('$minscore>>>'.$minscore);
+            } else {
+                //Put them all in.
+                $minscore = 0;
+            }
+            foreach($aShortList as $k=>$list)
+            {
+                foreach($list as $oC)
+                {
+                    if($oC->nScore >= $minscore)
+                    {
+                        $aFinalList[] = $oC;
+                    }
+                }
+            }
+            foreach($aCombinedList as $oC)
+            {
+                $aFinalList[] = $oC;
+            }
 
-        return $aFinalList;
+            return $aFinalList;
+        } catch (\Exception $ex) {
+            error_log("FAILED in getProtocolChoices because $ex");
+            throw $ex;
+        }
     }
 
     /**
      * Get the the protocol selection section element
      */
     function getProtocolSelectionElement(&$form_state, $disabled
-            , $myvalues,$bFindMatch=TRUE
+            , $myvalues
+            , $bFindMatch=TRUE
             , $sBaseName='protocol1'
             , $sDescription=NULL
             , $bUseAjax=FALSE
             , $bRequireValue=FALSE
             , $cluesmap=NULL)
     {
-
-        $oPPU = new ProtocolPageUtils();
-        if($sBaseName == 'protocol1')
+        try
         {
-            $title = 'Protocol Name';
-        } else {
-            $title = 'Secondary Protocol Name';
-        }
-        if($bRequireValue)
-        {
-            $title = FormHelper::getTitleAsRequiredField($title, $disabled);
-        } else {
-            $title = FormHelper::getTitleAsUnrequiredField($title, $disabled);
-        }
-        $root = array(
-            '#type'     => 'fieldset',
-            '#title'    => $title,
-            '#attributes' => array(
-                'class' => array(
-                    'data-entry1-area'
-                )
-             ),
-            '#disabled' => $disabled,
-        );
-
-        if($bFindMatch)
-        {
-            $choices  = $this->getProtocolChoices($myvalues['procName'],"- Select -", $cluesmap);
-        } else {
-            $choices  = $this->getProtocolChoices("");
-        }
-        //drupal_set_message('>>>choices>>>'.print_r($choices,TRUE));
-        $element  = array(
-            '#type'        => 'select',
-            '#description' => $sDescription,
-            '#attributes' => array(
-                'class' => array(
-                    'select2'
-                )
-             ),
-            '#select2' => array(),
-            );
-        if (isset($myvalues[$sBaseName.'_nm']))
-        {
-            if ($disabled)
+            $oPPU = new ProtocolPageUtils();
+            if($sBaseName == 'protocol1')
             {
-                $element['#value']         = $myvalues[$sBaseName.'_nm'];
+                $title = 'Protocol Name';
+            } else {
+                $title = 'Secondary Protocol Name';
             }
-            else
+            if($bRequireValue)
             {
-                $element['#default_value'] = $myvalues[$sBaseName.'_nm'];
-                //$element['#required']      = $bRequireValue;
+                $title = FormHelper::getTitleAsRequiredField($title, $disabled);
+            } else {
+                $title = FormHelper::getTitleAsUnrequiredField($title, $disabled);
             }
-        }
-        
-        $element = $oPPU->getFAPI_select_options($element, $choices);
-        if($bUseAjax)
-        {
-            $element['#ajax'] = array(
-                'callback' => 'raptor_fetch_protocol_defaults',
-                //'wrapper' => 'protocol-template-data',    //Using other commands in the callback instead
-                //'method' => 'replace'
+            $root = array(
+                '#type'     => 'fieldset',
+                '#title'    => $title,
+                '#attributes' => array(
+                    'class' => array(
+                        'data-entry1-area'
+                    )
+                 ),
+                '#disabled' => $disabled,
             );
+
+            if($bFindMatch)
+            {
+                $choices  = $this->getProtocolChoices($myvalues['procName'],"- Select -", $cluesmap);
+            } else {
+                $choices  = $this->getProtocolChoices("");
+            }
+            //drupal_set_message('>>>choices>>>'.print_r($choices,TRUE));
+            $element  = array(
+                '#type'        => 'select',
+                '#description' => $sDescription,
+                '#attributes' => array(
+                    'class' => array(
+                        'select2'
+                    )
+                 ),
+                '#select2' => array(),
+                );
+            if (isset($myvalues[$sBaseName.'_nm']))
+            {
+                if ($disabled)
+                {
+                    $element['#value']         = $myvalues[$sBaseName.'_nm'];
+                }
+                else
+                {
+                    $element['#default_value'] = $myvalues[$sBaseName.'_nm'];
+                    //$element['#required']      = $bRequireValue;
+                }
+            }
+
+            $element = $oPPU->getFAPI_select_options($element, $choices);
+            if($bUseAjax)
+            {
+                $element['#ajax'] = array(
+                    'callback' => 'raptor_fetch_protocol_defaults',
+                    //'wrapper' => 'protocol-template-data',    //Using other commands in the callback instead
+                    //'method' => 'replace'
+                );
+            }
+
+            $root[$sBaseName.'_nm']                             = $element;
+            $form['main_fieldset_left'][$sBaseName.'_fieldset'] = &$root;
+
+            return $form;
+        } catch (\Exception $ex) {
+            error_log("Failed getProtocolSelectionElement for base name = $sBaseName because $ex");
+            throw $ex;
         }
-
-        $root[$sBaseName.'_nm']                             = $element;
-        $form['main_fieldset_left'][$sBaseName.'_fieldset'] = &$root;
-
-        return $form;
     }
     
     /**
@@ -1818,30 +1905,35 @@ class ProtocolInfoUtility
      */
     function getVectorBasedSubSectionMarkup(&$root,$vector,$myvalues,$section_name,$bShowCustom,$aChoices,$disabled)
     {
-        $sListRootName = $section_name . '_'.$vector.'_';
-        //$sListboxName  = $sListRootName.'id';
-        $value_itemname = $sListRootName.'customtx';
-        $aStatesEntry = NULL;
-        $sInlineName = 'inline_'.$vector;
-        $root[$section_name.'_fieldset_col1'][$sListRootName . '_inputmode'] = array(
-            '#type'  => 'hidden',   //Needed at database update time to know what control to read!
-        );
-        $root[$section_name.'_fieldset_col2'][$sInlineName] = array(
-            '#type'       => 'fieldset',
-            '#attributes' => array('class' => array('container-inline')),
-            '#disabled' => $disabled,
-        );
-        if(!isset($myvalues[$value_itemname]))
+        try
         {
-            $mydefault_value = NULL;
-        } else {
-            $mydefault_value = $myvalues[$value_itemname];
+            $sListRootName = $section_name . '_'.$vector.'_';
+            //$sListboxName  = $sListRootName.'id';
+            $value_itemname = $sListRootName.'customtx';
+            $aStatesEntry = NULL;
+            $sInlineName = 'inline_'.$vector;
+            $root[$section_name.'_fieldset_col1'][$sListRootName . '_inputmode'] = array(
+                '#type'  => 'hidden',   //Needed at database update time to know what control to read!
+            );
+            $root[$section_name.'_fieldset_col2'][$sInlineName] = array(
+                '#type'       => 'fieldset',
+                '#attributes' => array('class' => array('container-inline')),
+                '#disabled' => $disabled,
+            );
+            if(!isset($myvalues[$value_itemname]))
+            {
+                $mydefault_value = NULL;
+            } else {
+                $mydefault_value = $myvalues[$value_itemname];
+            }
+            $element = FormHelper::createCustomSelectPanel($section_name, $sListRootName, $aChoices, $disabled
+                            , $aStatesEntry
+                            , $myvalues
+                            , $bShowCustom, $mydefault_value);
+            $root[$section_name.'_fieldset_col2'][$sInlineName]['panel'] =  $element;     
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $element = FormHelper::createCustomSelectPanel($section_name, $sListRootName, $aChoices, $disabled
-                        , $aStatesEntry
-                        , $myvalues
-                        , $bShowCustom, $mydefault_value);
-        $root[$section_name.'_fieldset_col2'][$sInlineName]['panel'] =  $element;     
     }
     
     /**

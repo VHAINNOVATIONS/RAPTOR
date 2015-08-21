@@ -31,7 +31,7 @@ class Diagnostic
         {
             $mydao = new \raptor_ewdvista\EwdDao();
             return $mydao;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }
@@ -45,7 +45,7 @@ class Diagnostic
         try
         {
             //TODO
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }
@@ -67,7 +67,7 @@ class Diagnostic
         {
             $siteCode = "TODOSITECODE";
             $mydao->connectAndLogin($siteCode, $username, $password);
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }        
     }
@@ -78,7 +78,7 @@ class Diagnostic
         try
         {
              $mydao->getNotesDetailMap();
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }        
     }
@@ -89,7 +89,7 @@ class Diagnostic
         try
         {
              return $mydao->getVisits();
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }        
     }    
@@ -99,7 +99,7 @@ class Diagnostic
         try
         {
              return $mydao->getChemHemLabs();
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }        
     }          

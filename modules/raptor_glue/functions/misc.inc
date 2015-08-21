@@ -398,7 +398,7 @@ function raptor_glue_cancelorder_form_builder_submit($form, &$form_state)
         $form_state['redirect'] = array(
             'worklist',
           );
-    } catch (Exception $ex) {
+    } catch (\Exception $ex) {
         throw $ex;
     }
 }

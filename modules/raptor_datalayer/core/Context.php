@@ -1265,7 +1265,7 @@ error_log("LOOK DAO waited $trycount times for other process to create the insta
             $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
         }
         $duration = $_SESSION['CTX_EHRDAO_NEW_DONE'] - $_SESSION['CTX_EHRDAO_NEW_START'];
-error_log("LOOK DAO (tries=$trycount cdur=$duration) from context is >>>".$this->m_oEhrDao);
+//error_log("LOOK DAO (tries=$trycount cdur=$duration) from context is >>>".$this->m_oEhrDao);
         
         return $this->m_oEhrDao;
     }
