@@ -111,22 +111,27 @@
 
     'use strict';
     // this function is strict...
-    
-    $(document).ready(function(){
-        var $protocolName = $('select[name=protocol1_nm]');
+
+    //
+    //
+    //
+    $(document).on('click', '.select-protocol', function () {
+        Drupal.behaviors.raptorShowSpinner("Please wait, loading selected template...");
+        function checkAjaxLoadStatus() {
+            setTimeout(
+                    function() {
+                        if ($('.message').is(':visible')) {
+                            //loop();
+                            $('.ui-dialog-titlebar-close').click(); //20150822 temporary fix
+                        } else {
+                            $('.ui-dialog-titlebar-close').click();
+                        }
+                    }, 5000
+            );
+        }
+        checkAjaxLoadStatus();
     });
-    $(document).on('click', $('select[name=protocol1_nm]'), function(){
-            $('select[name=protocol1_nm]').change(function(){
-                Drupal.behaviors.raptorShowSpinner("Please wait, loading selected template...");
-                setTimeout(function(){
-                    if($('.throbber').length === 0 ){
-                        $('.ui-icon-closethick').click();
-                    }
-                    $('.ui-icon-closethick').click();
-                }, 5 * 1000);
-            });
-        });
-    
+
     // This content will be loaded by Ajax so we attach the click event to the document
     // which is always available.
     $(document)
