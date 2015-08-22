@@ -112,26 +112,24 @@
     'use strict';
     // this function is strict...
 
-    //
-    //
-    //
-    $(document).on('click', '.select-protocol', function () {
-        Drupal.behaviors.raptorShowSpinner("Please wait, loading selected template...");
-        function checkAjaxLoadStatus() {
-            setTimeout(
-                    function() {
-                        if ($('.message').is(':visible')) {
-                            //loop();
-                            $('.ui-dialog-titlebar-close').click(); //20150822 temporary fix
-                        } else {
-                            $('.ui-dialog-titlebar-close').click();
-                        }
-                    }, 5000
-            );
-        }
-        checkAjaxLoadStatus();
+    //when the user selects a protocol from a Library tab, a loading screen is shown for 7 seconds
+    //if the protocol is loaded in less than 7 seconds, the loading dialog will close and the page
+    //will scroll up to the protocol name area. If it's not done loading in 7 seconds, the dialog
+    //box will close anyway and scroll up to the protocol name area, while it finishes loading.
+    $(document).on('click', '#tab11', function () {
+        $('.select-protocol').on('click', function () {
+            Drupal.behaviors.raptorShowSpinner("Please wait, loading selected template...");
+            setTimeout(function () {
+                if ($('.throbber').length === 0) {
+                    console.log('time to close');
+                    $('.ui-icon-closethick').click();
+                }
+                $("html, body").animate({scrollTop: "150px"}, 1000);
+                $('.ui-icon-closethick').click();
+            }, 7 * 1000);
+        });
     });
-
+    
     // This content will be loaded by Ajax so we attach the click event to the document
     // which is always available.
     $(document)
