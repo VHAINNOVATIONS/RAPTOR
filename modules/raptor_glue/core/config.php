@@ -23,8 +23,8 @@ defined('USERNAME_PREFIX_SALT')
 //require_once 'RSite500_64bitVM_184.inc';
 //require_once 'RSite500_64bitVM_54-193.inc';
 //require_once 'RSite500_64bitVM_54-252-102.inc';
-//require_once 'RSite500_64bitVM_54-92-244.inc';
-require_once 'RSite500_64bitVM_Local.inc';
+require_once 'RSite500_64bitVM_54-92-244.inc';
+//require_once 'RSite500_64bitVM_Local.inc';
 
 /*
  * We require all of the following.
