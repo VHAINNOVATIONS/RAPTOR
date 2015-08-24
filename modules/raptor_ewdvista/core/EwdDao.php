@@ -21,7 +21,7 @@ require_once 'DashboardHelper.php';
 require_once 'VitalsHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150820.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150824.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -710,8 +710,46 @@ Signed: 07/16/2015 14:45
         )
 
          */
-        $serviceName = $this->getCallingFunctionName(); //TODO pass in the patient!!!!!
-        return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $pid = $this->getSelectedPatientID();
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get notes detail without a patient ID!');
+            }
+
+            //Get the notes data from EWD services
+            $args = array();
+            $args['patientId'] = $pid;
+            $result = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK $serviceName >>>".print_r($result, TRUE));
+            if(!is_array($result))
+            {
+                $errmsg = "Expected an array for $serviceName result but instead got $result";
+                error_log("$errmsg >>>".print_r($result, TRUE));
+                throw new \Exception($errmsg);
+            }
+            
+            $notesdetail = array();
+            $notesdetail[] = array(
+                'Type' => 'RAPTOR SAFETY CHECKLIST',
+                'Date' => '07/16/2015 02:51 pm',
+                'Snippet' => 'RAPTOR SAFETY CHECKLIST',
+                'Details' => array
+                    (
+                        'Type of Note' => 'RAPTOR SAFETY CHECKLIST',
+                        'Author' => NULL,
+                        'Note Text' =>  'demo LOCAL TITLE: RAPTOR SAFETY CHECKLIST yadayada',
+                    )
+                );
+            
+            //$notesdetail = $this->m_dashboardHelper->getFormatted($tid, $pid, $radiologyOrder, $orderFileRec, $therow, $oPatientData);
+
+            return $notesdetail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function setPatientID($sPatientID)
