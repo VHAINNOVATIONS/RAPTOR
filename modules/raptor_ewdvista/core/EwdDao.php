@@ -934,7 +934,7 @@ Signed: 07/16/2015 14:45
                                             'value'     => $labResult_value,
                                             'units'     => $labTest_units,
                                             'refRange'  => $labTest_refRange,
-                                            'rawTime'   => $specimen_rawTime
+                                            'rawTime'   => $specimen_time//$specimen_rawTime //??? is that the place that should be fixed
                                             );
                     }
                 }    
