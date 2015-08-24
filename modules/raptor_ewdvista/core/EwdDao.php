@@ -460,257 +460,6 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
 
     public function getNotesDetailMap()
     {
-        /*
-         * [10-Aug-2015 14:59:54 America/New_York] LOOK data format returned for 'getNotesDetail' is >>>Array
-(
-    [0] => Array
-        (
-            [Type] => RAPTOR SAFETY CHECKLIST
-            [Date] => 07/16/2015 02:51 pm
-            [Snippet] => RAPTOR SAFETY CHECKLIST
-            [Details] => Array
-                (
-                    [Type of Note] => RAPTOR SAFETY CHECKLIST
-                    [Author] =>  
-                    [Note Text] =>  LOCAL TITLE: RAPTOR SAFETY CHECKLIST                            
-STANDARD TITLE: RADIOLOGY CONSULT                               
-DATE OF NOTE: JUL 16, 2015@14:51:50  ENTRY DATE: JUL 16, 2015@14:51:50      
-      AUTHOR: RADIOLOGIST,SEVEN    EXP COSIGNER:                           
-     URGENCY:                            STATUS: COMPLETED                     
-
-[Protocol Settings Approved Date] ::= 2015-07-15 11:39:25
-[Protocol Settings Approved By] ::= Demo Vehu
-[Protocol Primary Selection ID] ::= WAV022
-[Protocol Primary Selection NAME] ::= CT CERVICAL SPINE TRAUMA DETAILED
-Non-Contrast (helical)
-[Protocol Primary Selection MODALITY] ::= CT
-[Order CPRS Title] ::= CT ABDOMEN W/O CONT
-[Order CPRS Created Date/Time] ::= JUL 17, 2012@08:59
-[Order CPRS Embedded Due Date] ::= JUL 17, 2012
-[Tracking ID] ::= 500-2005
-[Checklist Type] ::= Safety Checklist
-[Completion Date] ::= 2015-07-15 11:50:49
-[Site ID] ::= 500
-[Ticket IEN] ::= 2005
-[Total Responses] ::= 5
-
-[Question Shortname] ::= GOT_PATIENT
-[Question Text] ::= Correct patient?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why the patient identity cannot be
-confirmed as appropriate for the procedure."
-[Question Comment Answer] ::= ""
-
-[Question Shortname] ::= GOT_IMG_SITE
-[Question Text] ::= Confirmed imaging site?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why the imaging site cannot be
-confirmed."
-[Question Comment Answer] ::= ""
-
-[Question Shortname] ::= SET_PAT_POSITION
-[Question Text] ::= Correct patient positioning?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why the correct positioning cannot be
-answered as Yes."
-[Question Comment Answer] ::= ""
-
-[Question Shortname] ::= GOT_IMG_PROTOCOL
-[Question Text] ::= Correct imaging protocol?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why the imaging protocol does not appear
-to be correct and what action you will take."
-[Question Comment Answer] ::= ""
-
-[Question Shortname] ::= SET_SCNR_PARAMS
-[Question Text] ::= Correct scanner parameters?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why you cannot confirm the scanner
-parameters are correct for this procedure."
-[Question Comment Answer] ::= ""
-
-[Total Authors] ::= 1
- 
-/es/ SEVEN RADIOLOGIST
-
-Signed: 07/16/2015 14:51
-
-                    [Facility] =>  
-                )
-
-        )
-
-    [1] => Array
-        (
-            [Type] => RAPTOR NOTE
-            [Date] => 07/16/2015 02:51 pm
-            [Snippet] => RAPTOR NOTE
-            [Details] => Array
-                (
-                    [Type of Note] => RAPTOR NOTE
-                    [Author] =>  
-                    [Note Text] =>  LOCAL TITLE: RAPTOR NOTE                                        
-STANDARD TITLE: RADIOLOGY CONSULT                               
-DATE OF NOTE: JUL 16, 2015@14:51:50  ENTRY DATE: JUL 16, 2015@14:51:50      
-      AUTHOR: RADIOLOGIST,SEVEN    EXP COSIGNER:                           
-     URGENCY:                            STATUS: COMPLETED                     
-
-[Order CPRS Title] ::= CT ABDOMEN W/O CONT
-[Order CPRS Created Date/Time] ::= JUL 17, 2012@08:59
-[Order CPRS Embedded Due Date] ::= JUL 17, 2012
-[Tracking ID] ::= 500-2005
-
-
-[Protocol Settings Approved Date] ::= 2015-07-15 11:39:25
-[Protocol Settings Approved By] ::= Demo Vehu
-[Protocol Primary Selection ID] ::= WAV022
-[Protocol Primary Selection NAME] ::= CT CERVICAL SPINE TRAUMA DETAILED
-Non-Contrast (helical)
-[Protocol Primary Selection MODALITY] ::= CT
-[Protocol Note Oral Hydration] ::= 500cc H2O over 2hr pre-scan + post-scan
-[Protocol Note IV Contrast] ::= ProHance
-
-
-[Protocol General Note Date] ::= 2015-07-15 11:39:25
-[Protocol General Note Author] ::= Demo Vehu
-[Protocol General Note Text] ::= ipso default protocol notes facto
-[Protocol General Note Text END]
-
-[Contraindication Acknowledgement RISK_AGE] ::= acknowledged by Demo Vehu on
-2015-07-15 11:39:25
-[Contraindication Acknowledgement POTENTIAL_DUPLICATE_STUDY] ::= acknowledged by
-Demo Vehu on 2015-07-15 11:39:25
-[Contraindication Acknowledgement IMPAIRED_RENAL_REDUCED_CONTRAST] ::=
-acknowledged by Dr Seattle Radiologist on 2015-07-15 11:50:49
-[Contraindication Acknowledgement IMPAIRED_RENAL_PRE_POST_HYDRATION] ::=
-acknowledged by Dr Seattle Radiologist on 2015-07-15 11:50:49
-[Contraindication Acknowledgement IMPAIRED_RENAL_ALTERNATE_STUDY] ::=
-acknowledged by Dr Seattle Radiologist on 2015-07-15 11:50:49
-[Contraindication Acknowledgement DIAGNOSTIC_EXAM_RISK_MED] ::= acknowledged by
-Dr Seattle Radiologist on 2015-07-15 11:50:49
-
-
-[Exam Note Author] ::= Dr Seattle Radiologist
-[Exam Note Date] ::= 2015-07-16 14:31:31
-[Exam Note Oral Hydration] ::= 500cc H2O over 2hr pre-scan + post-scan
-[Exam Note IV Contrast] ::= ProHance
-[Exam Note Consent Received] ::= no
-[Exam Note DLP Radiation Exposure UoM] ::= mGycm
-[Exam Note DLP Radiation Exposure Data] ::= 2.2 mGycm(Estimated)
-
-[Exam General Note Date] ::= 2015-07-16 14:31:31
-[Exam General Note Author] ::= Dr Seattle Radiologist
-[Exam General Note Text] ::= ipso default exam notes facto
-[Exam General Note Text END]
-
-[Exam General Note Date] ::= 2015-07-16 14:31:10
-[Exam General Note Author] ::= Dr Seattle Radiologist
-[Exam General Note Text] ::= ipso default exam notes facto
-[Exam General Note Text END]
-
-[Exam General Note Date] ::= 2015-07-16 14:25:33
-[Exam General Note Author] ::= Dr Seattle Radiologist
-[Exam General Note Text] ::= ipso default exam notes facto
-[Exam General Note Text END]
-
- 
-/es/ SEVEN RADIOLOGIST
-
-Signed: 07/16/2015 14:51
-
-                    [Facility] =>  
-                )
-
-        )
-
-    [2] => Array
-        (
-            [Type] => RAPTOR SAFETY CHECKLIST
-            [Date] => 07/16/2015 02:45 pm
-            [Snippet] => RAPTOR SAFETY CHECKLIST
-            [Details] => Array
-                (
-                    [Type of Note] => RAPTOR SAFETY CHECKLIST
-                    [Author] =>  
-                    [Note Text] =>  LOCAL TITLE: RAPTOR SAFETY CHECKLIST                            
-STANDARD TITLE: RADIOLOGY CONSULT                               
-DATE OF NOTE: JUL 16, 2015@14:45:27  ENTRY DATE: JUL 16, 2015@14:45:27      
-      AUTHOR: RADIOLOGIST,SEVEN    EXP COSIGNER:                           
-     URGENCY:                            STATUS: COMPLETED                     
-
-[Protocol Settings Approved Date] ::= 2015-07-15 11:39:25
-[Protocol Settings Approved By] ::= Demo Vehu
-[Protocol Primary Selection ID] ::= WAV022
-[Protocol Primary Selection NAME] ::= CT CERVICAL SPINE TRAUMA DETAILED
-Non-Contrast (helical)
-[Protocol Primary Selection MODALITY] ::= CT
-[Order CPRS Title] ::= CT ABDOMEN W/O CONT
-[Order CPRS Created Date/Time] ::= JUL 17, 2012@08:59
-[Order CPRS Embedded Due Date] ::= JUL 17, 2012
-[Tracking ID] ::= 500-2005
-[Checklist Type] ::= Safety Checklist
-[Completion Date] ::= 2015-07-15 11:50:49
-[Site ID] ::= 500
-[Ticket IEN] ::= 2005
-[Total Responses] ::= 5
-
-[Question Shortname] ::= GOT_PATIENT
-[Question Text] ::= Correct patient?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why the patient identity cannot be
-confirmed as appropriate for the procedure."
-[Question Comment Answer] ::= ""
-
-[Question Shortname] ::= GOT_IMG_SITE
-[Question Text] ::= Confirmed imaging site?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why the imaging site cannot be
-confirmed."
-[Question Comment Answer] ::= ""
-
-[Question Shortname] ::= SET_PAT_POSITION
-[Question Text] ::= Correct patient positioning?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why the correct positioning cannot be
-answered as Yes."
-[Question Comment Answer] ::= ""
-
-[Question Shortname] ::= GOT_IMG_PROTOCOL
-[Question Text] ::= Correct imaging protocol?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why the imaging protocol does not appear
-to be correct and what action you will take."
-[Question Comment Answer] ::= ""
-
-[Question Shortname] ::= SET_SCNR_PARAMS
-[Question Text] ::= Correct scanner parameters?
-[Question Answer] ::= "yes"
-[Question Answer Author] ::= Dr Seattle Radiologist
-[Question Comment Prompt] ::= "Explain why you cannot confirm the scanner
-parameters are correct for this procedure."
-[Question Comment Answer] ::= ""
-
-[Total Authors] ::= 1
- 
-/es/ SEVEN RADIOLOGIST
-
-Signed: 07/16/2015 14:45
-
-                    [Facility] =>  
-                )
-
-        )
-
-         */
         try
         {
             $myhelper = new \raptor_ewdvista\NotesHelper();
@@ -734,19 +483,27 @@ Signed: 07/16/2015 14:45
 
     public function setPatientID($sPatientID)
     {
-        //error_log("LOOK setting patient ID>>>".print_r($sPatientID,TRUE));
-        //$this->m_selectedPatient = $sPatientID;
-        $this->setSessionVariable('selectedPatient',$sPatientID);
+        try
+        {
+            $this->setSessionVariable('selectedPatient',$sPatientID);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getEHRUserID($fail_if_missing = TRUE)
     {
-        $userduz = $this->getSessionVariable('userduz');
-        if($userduz == NULL && $fail_if_missing)
+        try
         {
-            throw new \Exception('No user is currently authenticated!');
+            $userduz = $this->getSessionVariable('userduz');
+            if($userduz == NULL && $fail_if_missing)
+            {
+                throw new \Exception('No user is currently authenticated!');
+            }
+            return $userduz;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $userduz;
     }
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)

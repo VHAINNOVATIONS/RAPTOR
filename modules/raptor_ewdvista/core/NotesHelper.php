@@ -45,7 +45,7 @@ class NotesHelper
     {
         try
         {
-error_log("LOOK notes stuff raw >>>".print_r($rawresult, TRUE));
+//error_log("LOOK notes stuff raw >>>".print_r($rawresult, TRUE));
             if(!is_array($rawresult))
             {
                 $errmsg = "Expected an array for notes result but instead got $rawresult";
@@ -55,13 +55,13 @@ error_log("LOOK notes stuff raw >>>".print_r($rawresult, TRUE));
             $formatted = array();
             foreach($rawresult as $onegroup)
             {
-error_log("LOOK notes one group stuff >>>".print_r($onegroup, TRUE));
+//error_log("LOOK notes one group stuff >>>".print_r($onegroup, TRUE));
                 foreach($onegroup as $blocks)
                 {
-error_log("LOOK notes blocks >>>".print_r($blocks, TRUE));
+//error_log("LOOK notes blocks >>>".print_r($blocks, TRUE));
                     foreach($blocks as $onenoteitem)
                     {
-    error_log("LOOK notes one item >>>".print_r($onenoteitem, TRUE));
+    //error_log("LOOK notes one item >>>".print_r($onenoteitem, TRUE));
 
                         $localTitle = $this->getFieldTextData($onenoteitem[self::$FLD_TITLE]);
                         $datetimestr = $this->getFieldTextData($onenoteitem[self::$FLD_DATETIMESTR]);
