@@ -18,6 +18,7 @@ var params = {
   poolSize: 2,
   httpPort: 8082,
   traceLevel: 3,
+  name: 'EWD.js CPM Server',
   database: {
     type: 'cache',
     //path:"/opt/cache/mgr",
@@ -28,7 +29,7 @@ var params = {
     namespace: "CPM"
   },
   management: {
-    password: 'keepThisSecret!'
+    password: 'keepThisSecret!15'
   }
 };
 
