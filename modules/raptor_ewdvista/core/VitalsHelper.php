@@ -244,249 +244,255 @@ class VitalsHelper
                 throw new \Exception("Missing key result in ".print_r($rawresult,TRUE));
             }
             $rawdata = $rawresult['result'];
+//error_log("LOOK vitalshelper thing rawdata>>>".print_r($rawdata,TRUE));                
             $chunkcount = 0;
             foreach ($rawdata as $onechunk) 
             {
                 $chunkcount++;
                 $rowcount = 0;
                 $disp_idx=-1;
-                foreach($onechunk as $timestampkey=>$onerow) 
+//error_log("LOOK vitalshelper thing onecheck>>>".print_r($onechunk,TRUE)); 
+                foreach($onechunk as $blocks)
                 {
-                    $rowcount++;
-                    $disp_idx++;
-                    
-                    // Initialize vitals to all blanks so we can be sure to return a value for each column
-                    $displayVitals[$disp_idx][self::$VSL_DATE_TAKEN] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_TEMPERATURE] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_HEIGHT] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_WEIGHT] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_BODY_MASS_INDEX] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_BLOOD_PRESSURE] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_PULSE] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_RESPIRATION] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_PAIN] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_CIRCUMFERENCE_GIRTH] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_PULSE_OXYMETRY] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_CENTRAL_VENOUS_PRESSURE] = " ";
-                    $displayVitals[$disp_idx][self::$VSL_BLOOD_GLUCOSE] = " ";
-                    
-                    $cleanvitalsigns = array();
-                    $facility = NULL;
-                    $qualifiers = NULL;
-                    $unitsmashup = NULL;
-                    $unitparts = array();
-                    if(isset($onerow[self::$VFLD_UNITSMASHUP]))
+//error_log("LOOK vitalshelper thing blocks>>>".print_r($blocks,TRUE)); 
+                    foreach($blocks as $timestampkey=>$onerow) 
                     {
-                        $unitsarray = $onerow[self::$VFLD_UNITSMASHUP];
-                        $expl = explode('^',$unitsarray[1]);
-                        $unitsmashup = $expl[1];
-                        $explparts = explode(',',$unitsmashup);
-                        foreach($explparts as $onepart)
+                        $rowcount++;
+                        $disp_idx++;
+
+                        // Initialize vitals to all blanks so we can be sure to return a value for each column
+                        $displayVitals[$disp_idx][self::$VSL_DATE_TAKEN] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_TEMPERATURE] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_HEIGHT] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_WEIGHT] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_BODY_MASS_INDEX] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_BLOOD_PRESSURE] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_PULSE] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_RESPIRATION] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_PAIN] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_CIRCUMFERENCE_GIRTH] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_PULSE_OXYMETRY] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_CENTRAL_VENOUS_PRESSURE] = " ";
+                        $displayVitals[$disp_idx][self::$VSL_BLOOD_GLUCOSE] = " ";
+
+                        $cleanvitalsigns = array();
+                        $facility = NULL;
+                        $qualifiers = NULL;
+                        $unitsmashup = NULL;
+                        $unitparts = array();
+                        if(isset($onerow[self::$VFLD_UNITSMASHUP]))
                         {
-                            $pair = explode(':',$onepart);
-                            $name = strtoupper(trim($pair[0]));
-                            $unitparts[$name] = trim($pair[1]);
+                            $unitsarray = $onerow[self::$VFLD_UNITSMASHUP];
+                            $expl = explode('^',$unitsarray[1]);
+                            $unitsmashup = $expl[1];
+                            $explparts = explode(',',$unitsmashup);
+                            foreach($explparts as $onepart)
+                            {
+                                $pair = explode(':',$onepart);
+                                $name = strtoupper(trim($pair[0]));
+                                $unitparts[$name] = trim($pair[1]);
+                            }
                         }
-                    }
-                    if(isset($onerow[self::$VFLD_DATE_TAKEN]))
-                    {
-                        $rawstr = $onerow[self::$VFLD_DATE_TAKEN];
-                        $expl = explode('^',$rawstr);
-                        $sDate = $expl[1];  // . " (rawstr=$rawstr)";
-                    } else {
-                        $sDate = isset($timestampkey) ? date("m/d/Y h:i a", strtotime($timestampkey)) : " ";
-                    }
-                    $displayVitals[$disp_idx]['Date Taken'] = $sDate;
-                    foreach($onerow as $itemkey=>$itemdetail)
-                    {
-                        $onecleanvitalsign = NULL;
-                        switch($itemkey)
+                        if(isset($onerow[self::$VFLD_DATE_TAKEN]))
                         {
-                            case self::$VFLD_FACILITY:
-                                $expl1 = explode('^',$itemdetail);
-                                $expl1parts = explode(';',$expl1[1]);
-                                $facility = array('tag' => $expl1parts[1] , 'text' => $expl1parts[0]);
-                                break;
-                            case self::$VFLD_TEMPERATURE:
-                                $typenamestr = self::$VNAME_TEMPERATURE;
-                                $thiskey = self::$VSL_TEMPERATURE;
-                                $unitsname = self::$VUL_TEMPERATURE;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_PULSE:
-                                $typenamestr = self::$VNAME_PULSE;
-                                $thiskey = self::$VSL_PULSE;
-                                $unitsname = self::$VUL_PULSE;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_RESPIRATION:
-                                $typenamestr = self::$VNAME_RESPIRATION;
-                                $thiskey = self::$VSL_RESPIRATION;
-                                $unitsname = self::$VUL_RESPIRATION;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_BLOOD_PRESSURE;
-                                $typenamestr = self::$VNAME_BLOOD_PRESSURE;
-                                $thiskey = self::$VSL_BLOOD_PRESSURE;
-                                $unitsname = self::$VUL_BLOOD_PRESSURE;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_HEIGHT;
-                                $typenamestr = self::$VNAME_HEIGHT;
-                                $thiskey = self::$VSL_HEIGHT;
-                                $unitsname = self::$VUL_HEIGHT;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_WEIGHT;
-                                $typenamestr = self::$VNAME_WEIGHT;
-                                $thiskey = self::$VSL_WEIGHT;
-                                $unitsname = self::$VUL_WEIGHT;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_PAIN;
-                                $typenamestr = self::$VNAME_PAIN;
-                                $thiskey = self::$VSL_PAIN;
-                                $unitsname = self::$VUL_PAIN;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_PULSE_OXYMETRY;
-                                $typenamestr = self::$VNAME_PULSE_OXYMETRY;
-                                $thiskey = self::$VSL_PULSE_OXYMETRY;
-                                $unitsname = self::$VUL_PULSE_OXYMETRY;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_CENTRAL_VENOUS_PRESSURE;
-                                $typenamestr = self::$VNAME_CENTRAL_VENOUS_PRESSURE;
-                                $thiskey = self::$VSL_CENTRAL_VENOUS_PRESSURE;
-                                $unitsname = self::$VUL_CENTRAL_VENOUS_PRESSURE;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_CIRCUMFERENCE_GIRTH;
-                                $typenamestr = self::$VNAME_CIRCUMFERENCE_GIRTH;
-                                $thiskey = self::$VSL_CIRCUMFERENCE_GIRTH;
-                                $unitsname = self::$VUL_CIRCUMFERENCE_GIRTH;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_BODY_MASS_INDEX;
-                                $typenamestr = self::$VNAME_BODY_MASS_INDEX;
-                                $thiskey = self::$VSL_BODY_MASS_INDEX;
-                                $unitsname = self::$VUL_BODY_MASS_INDEX;
-                                $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
-                                $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
-                                        . " " 
-                                        . $onecleanvitalsign['units'];
-                                if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
-                                {
-                                    $aLatestValueDate[$thiskey] = $timestampkey;
-                                    $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
-                                }
-                                break;
-                            case self::$VFLD_UKNOWN13;
-                                //Log it on the off chance we can determine what this is later
-                                error_log("WARNING Found instance of VFLD_UKNOWN13 rawVitals"
-                                        . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
-                                        . print_r($itemdetail, TRUE));  
-                                break;
-                            case self::$VFLD_UKNOWN14;
-                                //Log it on the off chance we can determine what this is later
-                                error_log("WARNING Found instance of VFLD_UKNOWN14 rawVitals"
-                                        . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
-                                        . print_r($itemdetail, TRUE));  
-                                break;
-                            case self::$VFLD_QUALIFIERS;
-                                //Log it on the off chance we can determine what this has in it later
-                                error_log("WARNING Found instance of VFLD_QUALIFIERS rawVitals"
-                                        . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
-                                        . print_r($itemdetail, TRUE));  
-                                break;
-                            default:
-                                //Unmapped item to simply ignore
-                                $onecleanvitalsign = NULL;
+                            $rawstr = $onerow[self::$VFLD_DATE_TAKEN];
+                            $expl = explode('^',$rawstr);
+                            $sDate = $expl[1];  // . " (rawstr=$rawstr)";
+                        } else {
+                            $sDate = isset($timestampkey) ? date("m/d/Y h:i a", strtotime($timestampkey)) : " ";
                         }
-                        if($onecleanvitalsign > NULL)
+                        $displayVitals[$disp_idx]['Date Taken'] = $sDate;
+                        foreach($onerow as $itemkey=>$itemdetail)
                         {
-                            $allVitals[] = $onecleanvitalsign;
-                            //error_log("LOOK @$disp_idx onecleanvitalsign = ".print_r($onecleanvitalsign,TRUE));    
+                            $onecleanvitalsign = NULL;
+                            switch($itemkey)
+                            {
+                                case self::$VFLD_FACILITY:
+                                    $expl1 = explode('^',$itemdetail);
+                                    $expl1parts = explode(';',$expl1[1]);
+                                    $facility = array('tag' => $expl1parts[1] , 'text' => $expl1parts[0]);
+                                    break;
+                                case self::$VFLD_TEMPERATURE:
+                                    $typenamestr = self::$VNAME_TEMPERATURE;
+                                    $thiskey = self::$VSL_TEMPERATURE;
+                                    $unitsname = self::$VUL_TEMPERATURE;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_PULSE:
+                                    $typenamestr = self::$VNAME_PULSE;
+                                    $thiskey = self::$VSL_PULSE;
+                                    $unitsname = self::$VUL_PULSE;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_RESPIRATION:
+                                    $typenamestr = self::$VNAME_RESPIRATION;
+                                    $thiskey = self::$VSL_RESPIRATION;
+                                    $unitsname = self::$VUL_RESPIRATION;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_BLOOD_PRESSURE;
+                                    $typenamestr = self::$VNAME_BLOOD_PRESSURE;
+                                    $thiskey = self::$VSL_BLOOD_PRESSURE;
+                                    $unitsname = self::$VUL_BLOOD_PRESSURE;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_HEIGHT;
+                                    $typenamestr = self::$VNAME_HEIGHT;
+                                    $thiskey = self::$VSL_HEIGHT;
+                                    $unitsname = self::$VUL_HEIGHT;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_WEIGHT;
+                                    $typenamestr = self::$VNAME_WEIGHT;
+                                    $thiskey = self::$VSL_WEIGHT;
+                                    $unitsname = self::$VUL_WEIGHT;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_PAIN;
+                                    $typenamestr = self::$VNAME_PAIN;
+                                    $thiskey = self::$VSL_PAIN;
+                                    $unitsname = self::$VUL_PAIN;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_PULSE_OXYMETRY;
+                                    $typenamestr = self::$VNAME_PULSE_OXYMETRY;
+                                    $thiskey = self::$VSL_PULSE_OXYMETRY;
+                                    $unitsname = self::$VUL_PULSE_OXYMETRY;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_CENTRAL_VENOUS_PRESSURE;
+                                    $typenamestr = self::$VNAME_CENTRAL_VENOUS_PRESSURE;
+                                    $thiskey = self::$VSL_CENTRAL_VENOUS_PRESSURE;
+                                    $unitsname = self::$VUL_CENTRAL_VENOUS_PRESSURE;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_CIRCUMFERENCE_GIRTH;
+                                    $typenamestr = self::$VNAME_CIRCUMFERENCE_GIRTH;
+                                    $thiskey = self::$VSL_CIRCUMFERENCE_GIRTH;
+                                    $unitsname = self::$VUL_CIRCUMFERENCE_GIRTH;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_BODY_MASS_INDEX;
+                                    $typenamestr = self::$VNAME_BODY_MASS_INDEX;
+                                    $thiskey = self::$VSL_BODY_MASS_INDEX;
+                                    $unitsname = self::$VUL_BODY_MASS_INDEX;
+                                    $onecleanvitalsign = $this->getOneVitalFormattedFromParts($itemdetail,$sDate,$timestampkey,$typenamestr,$unitparts,$unitsname);                    
+                                    $displayVitals[$disp_idx][$thiskey] = $onecleanvitalsign['value'] 
+                                            . " " 
+                                            . $onecleanvitalsign['units'];
+                                    if(($aLatestValueDate[$thiskey]==NULL || $timestampkey > $aLatestValueDate[$thiskey]))
+                                    {
+                                        $aLatestValueDate[$thiskey] = $timestampkey;
+                                        $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
+                                    }
+                                    break;
+                                case self::$VFLD_UKNOWN13;
+                                    //Log it on the off chance we can determine what this is later
+                                    error_log("WARNING Found instance of VFLD_UKNOWN13 rawVitals"
+                                            . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
+                                            . print_r($itemdetail, TRUE));  
+                                    break;
+                                case self::$VFLD_UKNOWN14;
+                                    //Log it on the off chance we can determine what this is later
+                                    error_log("WARNING Found instance of VFLD_UKNOWN14 rawVitals"
+                                            . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
+                                            . print_r($itemdetail, TRUE));  
+                                    break;
+                                case self::$VFLD_QUALIFIERS;
+                                    //Log it on the off chance we can determine what this has in it later
+                                    error_log("WARNING Found instance of VFLD_QUALIFIERS rawVitals"
+                                            . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
+                                            . print_r($itemdetail, TRUE));  
+                                    break;
+                                default:
+                                    //Unmapped item to simply ignore
+                                    $onecleanvitalsign = NULL;
+                            }
+                            if($onecleanvitalsign > NULL)
+                            {
+                                $allVitals[] = $onecleanvitalsign;
+                                //error_log("LOOK @$disp_idx onecleanvitalsign = ".print_r($onecleanvitalsign,TRUE));    
+                            }
                         }
                     }
                 }
