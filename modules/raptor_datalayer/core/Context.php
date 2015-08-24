@@ -21,7 +21,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150820A'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150824A'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -1243,15 +1243,18 @@ class Context
         {
             //Wait for the singleton process to complete at least once.
             $trycount++;
+error_log("LOOK DAO waited $trycount times for other process started at ".$_SESSION['CTX_EHRDAO_NEW_START']." to create the instance; will sleep and try again.");
             sleep(2);
             if(isset($_SESSION['CTX_EHRDAO_NEW_DONE']))
             {
 error_log("LOOK DAO waited $trycount times for other process to create the instance!");
                 break;
             }
-            if($trycount > 3)
+            if($trycount > 15)
             {
-                throw new \Exception("Did NOT get an EHRDAO after $trycount tries!");
+                $startedinfo = $_SESSION['CTX_EHRDAO_NEW_START'];
+                $_SESSION['CTX_EHRDAO_NEW_START'] = NULL;   //Clear it for next time.
+                throw new \Exception("Did NOT get an EHRDAO that started at $startedinfo after $trycount tries!");
             }
         }
         if (!isset($this->m_oEhrDao)) 
