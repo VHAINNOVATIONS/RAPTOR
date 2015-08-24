@@ -1559,7 +1559,8 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
             $serviceName = $this->getCallingFunctionName();
             $args = array();
             $args['patientId'] = $pid;
-            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $rawresult = array();
+            $rawresult['result'] = $this->getServiceRelatedData($serviceName, $args);
             $bundle = $myhelper->getFormattedSuperset($rawresult);
             
 //error_log("LOOK final bundle getRawVitalSignsMap ".print_r($bundle, TRUE));  
