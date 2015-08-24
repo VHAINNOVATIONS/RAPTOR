@@ -957,8 +957,8 @@ error_log("LOOK $serviceName >>>".print_r($result, TRUE));
             $labsResults = array();
             foreach ($specimensArray as $specimen){
                 $specimen_rawTime = $specimen['timestamp'];
-                $specimen_date = EwdUtils::convertYYYYMMDDToDate($specimen_rawTime);
-                $specimen_time = EwdUtils::convertYYYYMMDDToDatetime($specimen_rawTime);
+                $specimen_date = EwdUtils::convertYYYYMMDDToDate(EwdUtils::convertVistaDateToYYYYMMDD($specimen_rawTime));
+                $specimen_time = EwdUtils::getVistaDateTimePart($specimen_rawTime, 'time');
                 foreach($specimen['labResults'] as $labResult){
                     $labResult_value = $labResult['value'];
                     $labTest = $labResult['labTest'];
