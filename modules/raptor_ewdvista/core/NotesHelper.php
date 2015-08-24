@@ -31,6 +31,15 @@ class NotesHelper
     private static $FLD_AUTHOR = 5;
     private static $FLD_DETAILS = 6;
     
+    private function getFieldTextData($rawfield,$delminiter='^')
+    {
+        $strpos = strpos($rawfield,$delminiter);
+        if($strpos == FALSE)
+        {
+            return NULL;
+        }
+        return trim(substr($rawfield,$strpos+1));
+    }
     
     public function getFormattedNotes($rawresult)
     {
@@ -54,17 +63,23 @@ error_log("LOOK notes blocks >>>".print_r($blocks, TRUE));
                     {
     error_log("LOOK notes one item >>>".print_r($onenoteitem, TRUE));
 
-                        $localTitle = $onenoteitem[self::$FLD_TITLE];
-                        $datetimestr = $onenoteitem[self::$FLD_DATETIMESTR];
+                        $localTitle = $this->getFieldTextData($onenoteitem[self::$FLD_TITLE]);
+                        $datetimestr = $this->getFieldTextData($onenoteitem[self::$FLD_DATETIMESTR]);
                         if(strlen($localTitle) > RAPTOR_DEFAULT_SNIPPET_LEN)
                         {
                             $snippetText = substr($localTitle, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
                         } else {
                             $snippetText = $localTitle;
                         }
-                        $authorName = $onenoteitem[self::$FLD_AUTHOR];
-                        $facility = $onenoteitem[self::$FLD_FACILITY];
-                        $notetext = $onenoteitem[self::$FLD_DETAILS];
+                        $authorName = $this->getFieldTextData($onenoteitem[self::$FLD_AUTHOR]);
+                        $facility = $this->getFieldTextData($onenoteitem[self::$FLD_FACILITY]);
+                        $raw_notetext_ar = $onenoteitem[self::$FLD_DETAILS];
+                        $clean_notetext_ar = array();
+                        foreach($raw_notetext_ar as $onerawnotetextrow)
+                        {
+                            $clean_notetext_ar[] = $this->getFieldTextData($onerawnotetextrow);
+                        }
+                        $notetext = implode("\n",$clean_notetext_ar);
                         $formatted[] = array(
                                             "Type"=>$localTitle, 
                                             "Date"=>$datetimestr,
