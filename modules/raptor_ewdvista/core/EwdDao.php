@@ -919,8 +919,8 @@ Signed: 07/16/2015 14:45
             $labsResults = array();
             foreach ($specimensArray as $specimen){
                 $specimen_rawTime = $specimen['timestamp'];
-                $specimen_date = EwdUtils::convertYYYYMMDDToDate(EwdUtils::convertVistaDateToYYYYMMDD($specimen_rawTime));
-                $specimen_time = EwdUtils::getVistaDateTimePart($specimen_rawTime, 'time');
+                $specimen_date = EwdUtils::convertVistaDateTimeToDate($specimen_rawTime);
+                $specimen_time = EwdUtils::convertVistaDateTimeToDatetime($specimen_rawTime);//getVistaDateTimePart($specimen_rawTime, 'time');
                 foreach($specimen['labResults'] as $labResult){
                     $labResult_value = $labResult['value'];
                     $labTest = $labResult['labTest'];
