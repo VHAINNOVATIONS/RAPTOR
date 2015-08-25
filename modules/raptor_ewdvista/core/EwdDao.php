@@ -723,7 +723,7 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
                                             'value'     => $labResult_value,
                                             'units'     => $labTest_units,
                                             'refRange'  => $labTest_refRange,
-                                            'rawTime'   => $specimen_time//$specimen_rawTime //??? is that the place that should be fixed
+                                            'rawTime'   => EwdUtils::convertVistaDateToYYYYMMDDtttt($specimen_rawTime)//$specimen_time//$specimen_rawTime //??? is that the place that should be fixed
                                             );
                     }
                 }    

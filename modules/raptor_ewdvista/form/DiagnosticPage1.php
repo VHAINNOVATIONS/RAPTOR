@@ -174,15 +174,20 @@ class DiagnosticPage1
             else if($action == 'GETCHEMHEMLABS') {
                 $v = RAPTOR_CONFIG_ID;
                 drupal_set_message("(1) Try to login... CONFIG: $v");
-                $mydao = $oDiagnostic->testCreateDao();//$this->testcreate();
                 $username = $myvalues['username'];
                 $password = $myvalues['password'];
                 drupal_set_message("(2) executing login for action: $action");
+                
+                $mydao = $oDiagnostic->testCreateDao();//$this->testcreate();
+                
                 $oDiagnostic->testLogin($mydao,$username,$password);
+                
                 $mydao->setPatientID(237);
                 $patientId = $mydao->getSelectedPatientID();
                 drupal_set_message("(3) executing: $action for patientId: $patientId ");
+                
                 $result = $oDiagnostic->testGetChemHemLabs($mydao);
+                
                 drupal_set_message("(4) result: ".print_r($result,TRUE));
                 drupal_set_message("(5) if we got here then nothing seems failed, but it is not all");
             }

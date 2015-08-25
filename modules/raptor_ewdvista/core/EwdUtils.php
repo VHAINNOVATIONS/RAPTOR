@@ -110,6 +110,18 @@ class EwdUtils
     }
 
     /**
+     * Convert VistA format: 3101231.150020 -> 20101231.150020
+     */
+    public static function convertVistaDateToYYYYMMDDtttt($vistaDateTime) {
+        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
+        $timePart = self::getVistaDateTimePart($vistaDateTime, "time");
+        $year = 1700 + substr($datePart, 0, 3);
+        $month = substr($datePart, 3, 2);
+        $day = substr($datePart, 5, 2);
+        
+        return $year.$month.$day.".".$timePart;
+    }    
+    /**
      * Convert 20100101 format -> 2010-01-01
      */
     public static function convertYYYYMMDDToDate($vistaDateTime) {
