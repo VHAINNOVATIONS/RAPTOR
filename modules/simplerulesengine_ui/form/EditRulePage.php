@@ -85,8 +85,7 @@ class EditRulePage
      */
     function updateDatabase($form, $myvalues)
     {
-        $aConsolidation = $this->m_oPageHelper
-                ->getConsolidatedExpression($myvalues);
+        $aConsolidation = $this->m_oPageHelper->getConsolidatedExpression($myvalues);
         $sExpression = $aConsolidation['expression'];
 
         $tablename = $this->m_oSREContext->getRuleTablename();

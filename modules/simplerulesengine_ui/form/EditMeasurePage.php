@@ -80,47 +80,48 @@ class EditMeasurePage
      */
     function updateDatabase($form, $myvalues)
     {
-        $aConsolidation = $this->m_oPageHelper->getConsolidatedExpression($myvalues);
-        $sExpression = $aConsolidation['expression'];
-
-        $tablename = $this->m_oSREContext->getMeasureTablename();
-        
-        $updated_dt = date("Y-m-d H:i", time());
         try
         {
-            if(!isset($myvalues['readonly_yn']))
+            $tablename = $this->m_oSREContext->getMeasureTablename();
+            $updated_dt = date("Y-m-d H:i", time());
+            try
             {
-                $myvalues['readonly_yn'] = 0;
+                if(!isset($myvalues['readonly_yn']))
+                {
+                    $myvalues['readonly_yn'] = 0;
+                }
+                $nUpdated = db_update($tablename)->fields(array(
+                      'measure_nm' => strtoupper($myvalues['measure_nm']),
+                      'category_nm' => $myvalues['category_nm'],
+                      'version' => $myvalues['version'],
+                      'active_yn' => $myvalues['active_yn'],
+                      'purpose_tx' => $myvalues['purpose_tx'],
+                      'return_type' => $myvalues['return_type'],
+                      'readonly_yn' => $myvalues['readonly_yn'],
+                      'criteria_tx' => trim($myvalues['criteria_tx']),
+                      'created_dt' => $updated_dt,
+                      'updated_dt' => $updated_dt,
+                    ))
+                        ->condition('measure_nm', $myvalues['measure_nm'],'=')
+                        ->execute(); 
+            } catch (\Exception $ex) {
+                  error_log("Failed to add measure into database!\n" . print_r($myvalues, TRUE) . '>>>'. print_r($ex, TRUE));
+                  drupal_set_message(t('Failed to save edited measure because ' . $ex->getMessage()));
+                  return 0;
             }
-            $nUpdated = db_update($tablename)->fields(array(
-                  'measure_nm' => strtoupper($myvalues['measure_nm']),
-                  'category_nm' => $myvalues['category_nm'],
-                  'version' => $myvalues['version'],
-                  'active_yn' => $myvalues['active_yn'],
-                  'purpose_tx' => $myvalues['purpose_tx'],
-                  'return_type' => $myvalues['return_type'],
-                  'readonly_yn' => $myvalues['readonly_yn'],
-                  'criteria_tx' => trim($myvalues['criteria_tx']),
-                  'created_dt' => $updated_dt,
-                  'updated_dt' => $updated_dt,
-                ))
-                    ->condition('measure_nm', $myvalues['measure_nm'],'=')
-                    ->execute(); 
+            if ($nUpdated !== 1) 
+            {
+                error_log("Failed to edit user back to database!\n" . var_dump($myvalues));
+                drupal_set_message(t('Updated ' . $nUpdated . ' records instead of 1!'));
+                return 0;
+            }
+
+            //Returns 1 if everything was okay.
+            drupal_set_message(t('Saved update for ' . $myvalues['measure_nm']));
+            return $nUpdated;
         } catch (\Exception $ex) {
-              error_log("Failed to add measure into database!\n" . print_r($myvalues, TRUE) . '>>>'. print_r($ex, TRUE));
-              drupal_set_message(t('Failed to save edited measure because ' . $ex->getMessage()));
-              return 0;
+            throw $ex;
         }
-        if ($nUpdated !== 1) 
-        {
-            error_log("Failed to edit user back to database!\n" . var_dump($myvalues));
-            drupal_set_message(t('Updated ' . $nUpdated . ' records instead of 1!'));
-            return 0;
-        }
-        
-        //Returns 1 if everything was okay.
-        drupal_set_message(t('Saved update for ' . $myvalues['measure_nm']));
-        return $nUpdated;
     }
     
     /**

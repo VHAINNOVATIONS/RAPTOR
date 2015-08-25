@@ -88,47 +88,50 @@ class AddMeasurePage
      */
     function updateDatabase($form, $myvalues)
     {
-
-        $updated_dt = date("Y-m-d H:i", time());
-        $measure_tablename = $this->m_oSREContext->getMeasureTablename();
         try
         {
-            if(!isset($myvalues['readonly_yn']))
+            $updated_dt = date("Y-m-d H:i", time());
+            $measure_tablename = $this->m_oSREContext->getMeasureTablename();
+            try
             {
-              $myvalues['readonly_yn'] = 0;
+                if(!isset($myvalues['readonly_yn']))
+                {
+                  $myvalues['readonly_yn'] = 0;
+                }
+                db_insert($measure_tablename)
+                ->fields(array(
+                      'measure_nm' => strtoupper($myvalues['measure_nm']),
+                      'category_nm' => $myvalues['category_nm'],
+                      'version' => $myvalues['version'],
+                      'active_yn' => $myvalues['active_yn'],
+                      'purpose_tx' => $myvalues['purpose_tx'],
+                      'return_type' => $myvalues['return_type'],
+                      'readonly_yn' => $myvalues['readonly_yn'],
+                      'criteria_tx' => trim($myvalues['criteria_tx']),
+                      'created_dt' => $updated_dt,
+                      'updated_dt' => $updated_dt,
+                  ))
+                    ->execute(); 
             }
-            db_insert($measure_tablename)
-            ->fields(array(
-                  'measure_nm' => strtoupper($myvalues['measure_nm']),
-                  'category_nm' => $myvalues['category_nm'],
-                  'version' => $myvalues['version'],
-                  'active_yn' => $myvalues['active_yn'],
-                  'purpose_tx' => $myvalues['purpose_tx'],
-                  'return_type' => $myvalues['return_type'],
-                  'readonly_yn' => $myvalues['readonly_yn'],
-                  'criteria_tx' => trim($myvalues['criteria_tx']),
-                  'created_dt' => $updated_dt,
-                  'updated_dt' => $updated_dt,
-              ))
-                ->execute(); 
-        }
-        catch(\Exception $ex)
-        {
-              error_log("Failed to add measure into database!\n" . print_r($myvalues, TRUE) . '>>>'. print_r($ex, TRUE));
-              drupal_set_message(t('Failed to add the new measure because ' . $ex->getMessage()),'error');
-              return 0;
-        }
-      
-        //If we are here then we had success.
-        if($this->m_sMeasureclassname !== NULL)
-        {
-            $msg = 'Added '.$this->m_sMeasureclassname.' ' . $myvalues['measure_nm'];
-        } else {
-            $msg = 'Added ' . $myvalues['measure_nm'];
-        }
-        drupal_set_message($msg);
-        return 1;
+            catch(\Exception $ex)
+            {
+                  error_log("Failed to add measure into database!\n" . print_r($myvalues, TRUE) . '>>>'. print_r($ex, TRUE));
+                  drupal_set_message(t('Failed to add the new measure because ' . $ex->getMessage()),'error');
+                  return 0;
+            }
 
+            //If we are here then we had success.
+            if($this->m_sMeasureclassname !== NULL)
+            {
+                $msg = 'Added '.$this->m_sMeasureclassname.' ' . $myvalues['measure_nm'];
+            } else {
+                $msg = 'Added ' . $myvalues['measure_nm'];
+            }
+            drupal_set_message($msg);
+            return 1;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**

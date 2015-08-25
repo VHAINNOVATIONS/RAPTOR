@@ -93,9 +93,9 @@ abstract class ManageMeasuresPage
             global $base_url;
             $measure_tablename = $this->m_oSREContext->getMeasureTablename();        
             $sSQL = "SELECT"
-                    . " `category_nm`, `measure_nm`, `version`, `purpose_tx`, `return_type`, "
-                    . " `active_yn`, `criteria_tx`, `readonly_yn`, `updated_dt` "
-                    . " FROM `$measure_tablename` ORDER BY measure_nm";
+                    . " category_nm, measure_nm, version, purpose_tx, return_type, "
+                    . " active_yn, criteria_tx, readonly_yn, updated_dt "
+                    . " FROM $measure_tablename ORDER BY measure_nm";
             $result = db_query($sSQL);
             foreach($result as $item) 
             {

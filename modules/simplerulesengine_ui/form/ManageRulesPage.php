@@ -93,12 +93,12 @@ abstract class ManageRulesPage
             global $base_url;
             $rule_tablename = $this->m_oSREContext->getRuleTablename();        
             $sSQL = "SELECT"
-                    . " `category_nm`, `rule_nm`, `version`"
-                    . ", `explanation`, `summary_msg_tx`, `msg_tx`"
-                    . ", `req_ack_yn`"
-                    . ", `active_yn`, `trigger_crit`"
-                    . ", `readonly_yn`, `updated_dt` "
-                    . " FROM `$rule_tablename` ORDER BY rule_nm";
+                    . " category_nm, rule_nm, version"
+                    . ", explanation, summary_msg_tx, msg_tx"
+                    . ", req_ack_yn"
+                    . ", active_yn, trigger_crit"
+                    . ", readonly_yn, updated_dt "
+                    . " FROM $rule_tablename ORDER BY rule_nm";
             $result = db_query($sSQL);
             foreach($result as $item) 
             {
