@@ -7,13 +7,13 @@
  * In collaboration with Andrew Casertano (acasertano@sanbusinessconsultants.com)
  * Open source enhancements to this module are welcome!  Contact SAN to share updates.
  *
- * Copyright 2014 SAN Business Consultants, a Maryland USA company (sanbusinessconsultants.com)
- *  
- * Licensed under the GNU General Public License, Version 2 (the "License");
+ * Copyright 2015 SAN Business Consultants, a Maryland USA company (sanbusinessconsultants.com)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  * 
- *     http://www.gnu.org/copyleft/gpl.html
+ *     http://www.apache.org/licenses/LICENSE-2.0
  * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
