@@ -89,7 +89,7 @@ class DBSimpleRulesEngineSchema
             ),
             'trigger_crit' => array(
               'type' => 'varchar',
-              'length' => 4096,
+              'length' => 4000,
               'not null' => TRUE,
               'description' => 'The criteria that triggers the rule',
             ),
@@ -157,7 +157,7 @@ class DBSimpleRulesEngineSchema
             ),
             'criteria_tx' => array(
               'type' => 'varchar',
-              'length' => 4096,
+              'length' => 4000,
               'not null' => FALSE,
               'description' => 'The measure formula or INPUT if no formula',
             ),
