@@ -65,7 +65,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Evaluate Rules on Data'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoEvaluatePage.php',
-      'file path' => SIMPLERULESENGINE_DEMO_MODULE_PATH . '/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     
     //Manage Rules
@@ -77,7 +77,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Manage Rules Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoManageRulesPage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     $items['simplerulesengine_demo/addrule'] = array(
       'title' => t('Add Rule'),
@@ -87,7 +87,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Add Rule Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoAddRulePage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     $items['simplerulesengine_demo/viewrule'] = array(
       'title' => t('View Rule'),
@@ -97,7 +97,7 @@ function simplerulesengine_demo_menu()
       'description' => t('View Rule Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoViewRulePage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     $items['simplerulesengine_demo/editrule'] = array(
       'title' => t('Edit Rule'),
@@ -107,7 +107,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Edit Rule Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoEditRulePage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     $items['simplerulesengine_demo/deleterule'] = array(
       'title' => t('Delete Rule'),
@@ -117,7 +117,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Delete Rule Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoDeleteRulePage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
 
     //Manage Measures
@@ -129,7 +129,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Manage Measures Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoManageMeasuresPage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     $items['simplerulesengine_demo/addmeasure'] = array(
       'title' => t('Add Measure'),
@@ -139,7 +139,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Add Measure Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoAddMeasurePage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     $items['simplerulesengine_demo/viewmeasure'] = array(
       'title' => t('View Measure'),
@@ -149,7 +149,7 @@ function simplerulesengine_demo_menu()
       'description' => t('View Measure Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoViewMeasurePage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     $items['simplerulesengine_demo/editmeasure'] = array(
       'title' => t('Edit Measure'),
@@ -159,7 +159,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Edit Measure Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoEditMeasurePage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     $items['simplerulesengine_demo/deletemeasure'] = array(
       'title' => t('Delete Measure'),
@@ -169,7 +169,7 @@ function simplerulesengine_demo_menu()
       'description' => t('Delete Measure Form'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoDeleteMeasurePage.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     
     //Reports
@@ -181,7 +181,7 @@ function simplerulesengine_demo_menu()
       'description' => t('View Inputs Report'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoReportInputs.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
     
     $items['simplerulesengine_demo/reportrules'] = array(
@@ -192,7 +192,7 @@ function simplerulesengine_demo_menu()
       'description' => t('View Rules Report'),
       'type' => MENU_CALLBACK,
       'file' => 'DemoReportRules.php',
-      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
     );
 
     $items['simplerulesengine_demo/exportxml'] = array(

@@ -154,7 +154,7 @@ abstract class ManageRulesPage
         $form["data_entry_area1"]['table_container']['ci'] = 
                 array('#type' => 'item',
                  '#markup' 
-                    => '<table id="my-raptor-dialog-table" class="dataTable">'
+                    => '<table id="my-dialog-table" class="dataTable">'
                             . '<thead><tr>'
                             . '<th title="Unique name for the rule">'
                                 .t('Rule Name').'</th>'
