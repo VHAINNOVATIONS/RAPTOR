@@ -50,5 +50,4 @@ class DemoManageRulesPage extends \simplerulesengine\ManageRulesPage
                         , 'return'=>'simplerulesengine_demo/evaluate')
                 );
     }
-    
  }

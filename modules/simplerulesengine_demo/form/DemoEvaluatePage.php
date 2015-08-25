@@ -286,11 +286,12 @@ class DemoEvaluatePage
         );
         
        global $base_url;
+       /*
        $form['data_entry_area1']['action_buttons']['viewinputs'] = array('#type' => 'item'
                 , '#markup' => '<a href="'.$base_url.'/simplerulesengine_demo/viewinputs" >See All Measures</a>');
        $form['data_entry_area1']['action_buttons']['reportrules'] = array('#type' => 'item'
                 , '#markup' => '<a href="'.$base_url.'/simplerulesengine_demo/reportrules" >See All Rules</a>');
-       
+       */
        $form['data_entry_area1']['action_buttons']['downloadxmlrulebase'] = array('#type' => 'item'
                 , '#markup' => '<a href="'.$base_url.'/simplerulesengine_demo/exportxml" >Download Rulebase as XML</a>');
        

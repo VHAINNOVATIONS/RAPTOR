@@ -55,161 +55,165 @@ abstract class ManageRulesPage
      */
     function getForm($form, &$form_state, $disabled, $myvalues, $html_classname_overrides=NULL)
     {
-        if($html_classname_overrides == NULL)
+        try
         {
-            $html_classname_overrides = array();
-        }
-        if(!isset($html_classname_overrides['data-entry-area1']))
-        {
-            $html_classname_overrides['data-entry-area1'] = 'data-entry-area1';
-        }
-        if(!isset($html_classname_overrides['table-container']))
-        {
-            $html_classname_overrides['table-container'] = 'table-container';
-        }
-        if(!isset($html_classname_overrides['action-buttons']))
-        {
-            $html_classname_overrides['action-buttons'] = 'action-buttons';
-        }
-        if(!isset($html_classname_overrides['action-button']))
-        {
-            $html_classname_overrides['action-button'] = 'action-button';
-        }
-        $form["data_entry_area1"] = array(
-            '#prefix' => "\n<section class='{$html_classname_overrides['data-entry-area1']}'>\n",
-            '#suffix' => "\n</section>\n",
-        );
-
-        $form["data_entry_area1"]['table_container'] = array(
-            '#type' => 'item', 
-            '#prefix' => '<div class="'.$html_classname_overrides['table-container'].'">',
-            '#suffix' => '</div>', 
-            '#tree' => TRUE,
-        );
-
-        $rows = "\n";
-        global $base_url;
-        $rule_tablename = $this->m_oSREContext->getRuleTablename();        
-        $sSQL = "SELECT"
-                . " `category_nm`, `rule_nm`, `version`"
-                . ", `explanation`, `summary_msg_tx`, `msg_tx`"
-                . ", `req_ack_yn`"
-                . ", `active_yn`, `trigger_crit`"
-                . ", `readonly_yn`, `updated_dt` "
-                . " FROM `$rule_tablename` ORDER BY rule_nm";
-        $result = db_query($sSQL);
-        foreach($result as $item) 
-        {
-            $activeyesno = ($item->active_yn == 1 ? 'Yes' : 'No');
-            $readonlyyesno = ($item->readonly_yn == 1 ? 'Yes' : 'No');
-            $reqackyesno = ($item->req_ack_yn == 1 ? 'Yes' : 'No');
-            $trigger_crit = $item->trigger_crit;
-            if(strlen($trigger_crit) > 40)
+            if($html_classname_overrides == NULL)
             {
-                $trigger_crit = substr($trigger_crit, 0,40) . '...';
+                $html_classname_overrides = array();
             }
-            if(strpos($this->m_aUserRights,'V') === FALSE 
-                    || !isset($this->m_urls_arr['view']))
+            if(!isset($html_classname_overrides['data-entry-area1']))
             {
-                $sViewMarkup = '';
-            } else {
-                $sViewMarkup = '<a href="'.$base_url.'/' 
-                        .$this->m_urls_arr['view'] 
-                        .'?rn='.$item->rule_nm.'">View</a>';
+                $html_classname_overrides['data-entry-area1'] = 'data-entry-area1';
             }
-            if(strpos($this->m_aUserRights,'E') === FALSE 
-                    || $item->readonly_yn == 1 
-                    || !isset($this->m_urls_arr['edit']))
+            if(!isset($html_classname_overrides['table-container']))
             {
-                $sEditMarkup = '';
-            } else {
-                $sEditMarkup = '<a href="'.$base_url 
-                        .'/'.$this->m_urls_arr['edit'] 
-                        .'?rn='.$item->rule_nm.'">Edit</a>';
+                $html_classname_overrides['table-container'] = 'table-container';
             }
-            if(strpos($this->m_aUserRights,'D') === FALSE 
-                    || $item->readonly_yn == 1 
-                    || !isset($this->m_urls_arr['delete']))
+            if(!isset($html_classname_overrides['action-buttons']))
             {
-                $sDeleteMarkup = '';
-            } else {
-                $sDeleteMarkup = '<a href="'.$base_url 
-                        .'/'.$this->m_urls_arr['delete'] 
-                        .'?rn='.$item->rule_nm.'">Delete</a>';
+                $html_classname_overrides['action-buttons'] = 'action-buttons';
             }
-            $rows   .= "\n".'<tr><td>'
-                    .$item->rule_nm.'</td><td>'
-                    .$item->category_nm.'</td><td>'
-                    .$activeyesno.'</td><td>'
-                    .$readonlyyesno.'</td><td>'
-                    .$reqackyesno.'</td><td>'
-                    .$trigger_crit.'</td><td>'
-                    .$item->updated_dt.'</td>'
-                    .'<td>'.$sViewMarkup.'</td>'
-                    .'<td>'.$sEditMarkup.'</td>'
-                    .'<td>'.$sDeleteMarkup.'</td>'
-                    .'</tr>';
-        }
+            if(!isset($html_classname_overrides['action-button']))
+            {
+                $html_classname_overrides['action-button'] = 'action-button';
+            }
+            $form["data_entry_area1"] = array(
+                '#prefix' => "\n<section class='{$html_classname_overrides['data-entry-area1']}'>\n",
+                '#suffix' => "\n</section>\n",
+            );
 
-        $form["data_entry_area1"]['table_container']['ci'] = 
-                array('#type' => 'item',
-                 '#markup' 
-                    => '<table id="my-dialog-table" class="dataTable">'
-                            . '<thead><tr>'
-                            . '<th title="Unique name for the rule">'
-                                .t('Rule Name').'</th>'
-                            . '<th title="Simple grouping terms">'
-                                .t('Category').'</th>'
-                            . '<th title="Rule is active in the system">'
-                                .t('Active').'</th>'
-                            . '<th title="Rule cannot be edited">'
-                                .t('Readonly').'</th>'
-                            . '<th title="Requires user acknowledgement">'
-                                .t('Req Ack').'</th>'
-                            . '<th title='
-                                . '"Initial portion of the trigger criteria"'
-                                . '>'
-                                .t('Trigger Criteria').'</th>'
-                            . '<th title="When this was last edited">'
-                                .t('Updated').'</th>'
-                            . '<th>'.t('View').'</th>'
-                            . '<th>'.t('Edit').'</th>'
-                            . '<th>'.t('Delete').'</th>'
-                            . '</tr>'
-                            . '</thead>'
-                            . '<tbody>'
-                            . $rows
-                            .  '</tbody>'
-                            . '</table>');
-        
-        
-        $form["data_entry_area1"]['action_buttons'] = array(
-             '#type' => 'item', 
-             '#prefix' => '<div class="'.$html_classname_overrides['action-buttons'].'">',
-             '#suffix' => '</div>', 
-             '#tree' => TRUE,
-        );
+            $form["data_entry_area1"]['table_container'] = array(
+                '#type' => 'item', 
+                '#prefix' => '<div class="'.$html_classname_overrides['table-container'].'">',
+                '#suffix' => '</div>', 
+                '#tree' => TRUE,
+            );
 
-        if(isset($this->m_urls_arr['add']))
-        {
-            if(strpos($this->m_aUserRights,'A') !== FALSE)
+            $rows = "\n";
+            global $base_url;
+            $rule_tablename = $this->m_oSREContext->getRuleTablename();        
+            $sSQL = "SELECT"
+                    . " `category_nm`, `rule_nm`, `version`"
+                    . ", `explanation`, `summary_msg_tx`, `msg_tx`"
+                    . ", `req_ack_yn`"
+                    . ", `active_yn`, `trigger_crit`"
+                    . ", `readonly_yn`, `updated_dt` "
+                    . " FROM `$rule_tablename` ORDER BY rule_nm";
+            $result = db_query($sSQL);
+            foreach($result as $item) 
             {
-                $form['data_entry_area1']['action_buttons']['addrule'] 
-                        = array('#type' => 'item'
-                         , '#markup' => '<a href="'.$base_url.'/' 
-                            .$this->m_urls_arr['add'].'" >' 
-                            .t('Add Rule').'</a>');
+                $activeyesno = ($item->active_yn == 1 ? 'Yes' : 'No');
+                $readonlyyesno = ($item->readonly_yn == 1 ? 'Yes' : 'No');
+                $reqackyesno = ($item->req_ack_yn == 1 ? 'Yes' : 'No');
+                $trigger_crit = $item->trigger_crit;
+                if(strlen($trigger_crit) > 40)
+                {
+                    $trigger_crit = substr($trigger_crit, 0,40) . '...';
+                }
+                if(strpos($this->m_aUserRights,'V') === FALSE 
+                        || !isset($this->m_urls_arr['view']))
+                {
+                    $sViewMarkup = '';
+                } else {
+                    $sViewMarkup = '<a href="'.$base_url.'/' 
+                            .$this->m_urls_arr['view'] 
+                            .'?rn='.$item->rule_nm.'">View</a>';
+                }
+                if(strpos($this->m_aUserRights,'E') === FALSE 
+                        || $item->readonly_yn == 1 
+                        || !isset($this->m_urls_arr['edit']))
+                {
+                    $sEditMarkup = '';
+                } else {
+                    $sEditMarkup = '<a href="'.$base_url 
+                            .'/'.$this->m_urls_arr['edit'] 
+                            .'?rn='.$item->rule_nm.'">Edit</a>';
+                }
+                if(strpos($this->m_aUserRights,'D') === FALSE 
+                        || $item->readonly_yn == 1 
+                        || !isset($this->m_urls_arr['delete']))
+                {
+                    $sDeleteMarkup = '';
+                } else {
+                    $sDeleteMarkup = '<a href="'.$base_url 
+                            .'/'.$this->m_urls_arr['delete'] 
+                            .'?rn='.$item->rule_nm.'">Delete</a>';
+                }
+                $rows   .= "\n".'<tr><td>'
+                        .$item->rule_nm.'</td><td>'
+                        .$item->category_nm.'</td><td>'
+                        .$activeyesno.'</td><td>'
+                        .$readonlyyesno.'</td><td>'
+                        .$reqackyesno.'</td><td>'
+                        .$trigger_crit.'</td><td>'
+                        .$item->updated_dt.'</td>'
+                        .'<td>'.$sViewMarkup.'</td>'
+                        .'<td>'.$sEditMarkup.'</td>'
+                        .'<td>'.$sDeleteMarkup.'</td>'
+                        .'</tr>';
             }
-        }
-       
-        if(isset($this->m_urls_arr['return']))
-        {
-            $form['data_entry_area1']['action_buttons']['return'] = array('#type' => 'item'
-                    , '#markup' => '<a href="'.$base_url.'/' 
-                        .$this->m_urls_arr['return'].'" >' 
-                        .t('Exit').'</a>');
-        }
 
-        return $form;
+            $form["data_entry_area1"]['table_container']['ci'] = 
+                    array('#type' => 'item',
+                     '#markup' 
+                        => '<table id="my-dialog-table" class="dataTable">'
+                                . '<thead><tr>'
+                                . '<th title="Unique name for the rule">'
+                                    .t('Rule Name').'</th>'
+                                . '<th title="Simple grouping terms">'
+                                    .t('Category').'</th>'
+                                . '<th title="Rule is active in the system">'
+                                    .t('Active').'</th>'
+                                . '<th title="Rule cannot be edited">'
+                                    .t('Readonly').'</th>'
+                                . '<th title="Requires user acknowledgement">'
+                                    .t('Req Ack').'</th>'
+                                . '<th title='
+                                    . '"Initial portion of the trigger criteria"'
+                                    . '>'
+                                    .t('Trigger Criteria').'</th>'
+                                . '<th title="When this was last edited">'
+                                    .t('Updated').'</th>'
+                                . '<th>'.t('View').'</th>'
+                                . '<th>'.t('Edit').'</th>'
+                                . '<th>'.t('Delete').'</th>'
+                                . '</tr>'
+                                . '</thead>'
+                                . '<tbody>'
+                                . $rows
+                                .  '</tbody>'
+                                . '</table>');
+
+
+            $form["data_entry_area1"]['action_buttons'] = array(
+                 '#type' => 'item', 
+                 '#prefix' => '<div class="'.$html_classname_overrides['action-buttons'].'">',
+                 '#suffix' => '</div>', 
+                 '#tree' => TRUE,
+            );
+
+            if(isset($this->m_urls_arr['add']))
+            {
+                if(strpos($this->m_aUserRights,'A') !== FALSE)
+                {
+                    $form['data_entry_area1']['action_buttons']['addrule'] 
+                            = array('#type' => 'item'
+                             , '#markup' => '<a href="'.$base_url.'/' 
+                                .$this->m_urls_arr['add'].'" >' 
+                                .t('Add Rule').'</a>');
+                }
+            }
+
+            if(isset($this->m_urls_arr['return']))
+            {
+                $form['data_entry_area1']['action_buttons']['return'] = array('#type' => 'item'
+                        , '#markup' => '<a href="'.$base_url.'/' 
+                            .$this->m_urls_arr['return'].'" >' 
+                            .t('Exit').'</a>');
+            }
+            return $form;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 }
