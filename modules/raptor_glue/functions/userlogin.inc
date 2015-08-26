@@ -35,6 +35,8 @@ function raptor_glue_user_logout($account)
         drupal_set_message(t('Logout completed.'));
     } catch (\Exception $ex) {
         error_log("Failed raptor_glue_user_logout because ".$ex->getMessage());
+        //Kill the entire session now to avoid perpetual fail in a corrupted session
+        \raptor\Context::forceClearUserSession();
         throw $ex;
     }
 }
@@ -70,7 +72,8 @@ function raptor_glue_login_validate( $form, &$form_state )
         $havepassword = (trim($password) != '' ? 'Yes' : 'No!');
         error_log("login validating username=[$username] password was provided=[$havepassword]");
         $fatalerrmsg = null;
-        $isvalid = raptor_glue_check_user( $username, $password, $fatalerrmsg );
+        $encrypted_password = raptor_glue_simple_encrypt($password);   //Just avoid automatic logging if call fails
+        $isvalid = raptor_glue_check_user( $username, $encrypted_password, $fatalerrmsg );
         if ($isvalid === TRUE )
         {
             error_log("login validated username=[$username] Is valid user");
@@ -106,11 +109,72 @@ function raptor_glue_login_validate( $form, &$form_state )
     // else drop through to the end and return nothing - Drupal will handle the rejection for us   
 }
 
+function raptor_glue_simple_encrypt($cleartext)
+{
+    $key = hex2bin('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f');    
+    return raptor_glue_encrypt($cleartext,$key);
+}
+
+function raptor_glue_simple_decrypt($encryptedtext)
+{
+    $key = hex2bin('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'); 
+    return raptor_glue_decrypt($encryptedtext,$key);
+}
+
+function raptor_glue_encrypt($message, $key, $encode = FALSE)
+{
+    $METHOD = 'aes-256-cbc';
+    $ivSize = openssl_cipher_iv_length($METHOD);
+    $iv = openssl_random_pseudo_bytes($ivSize);
+
+    $ciphertext = openssl_encrypt(
+        $message,
+        $METHOD,
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv
+    );
+
+    // Now let's pack the IV and the ciphertext together
+    // Naively, we can just concatenate
+    if ($encode) {
+        return base64_encode($iv.$ciphertext);
+    }
+    return $iv.$ciphertext;
+}
+
+function raptor_glue_decrypt($message, $key, $encoded = FALSE)
+{
+    $METHOD = 'aes-256-cbc';
+    
+    if ($encoded) {
+        $message = base64_decode($message, TRUE);
+        if ($message === FALSE) {
+            throw new Exception('Encryption failure');
+        }
+    }
+
+    $ivSize = openssl_cipher_iv_length($METHOD);
+    $iv = mb_substr($message, 0, $ivSize, '8bit');
+    $ciphertext = mb_substr($message, $ivSize, NULL, '8bit');
+
+    $plaintext = openssl_decrypt(
+        $ciphertext,
+        $METHOD,
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv
+    );
+
+    return $plaintext;
+}
+
 /**
  * Checks the user by trying to log in.  Do NOT call this to check on 'other' users.
  */
-function raptor_glue_check_user($username, $password, &$fatalerrmsg)
+function raptor_glue_check_user($username, $encrypted_password, &$fatalerrmsg)
 {
+    $password = raptor_glue_simple_decrypt($encrypted_password); //20150826
     $username = trim($username);    //20140620
     $isvalid = TRUE;  //Assume valid user unless we reject it in following code.
     if(trim($username) == '' || trim($password) == '')
