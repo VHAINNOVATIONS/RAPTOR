@@ -94,8 +94,14 @@ error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($h
             //error_log("LOOK (0000005) callAPI executes following curl: " . print_r($curl,TRUE));
 
             curl_close($curl);
-
-error_log("LOOK callAPI result from $methodtype@$url is =".print_r($result,TRUE));            
+$debug_result_text = print_r($result,TRUE);
+$debug_rawlen_result_text = strlen($debug_result_text);
+if($debug_rawlen_result_text > 4000)
+{
+    $debug_result_text = substr($debug_result_text,0,4000) 
+            . " ... NOT LOGGING THE REST (Original size $debug_rawlen_result_text chars)";
+}
+error_log("LOOK callAPI result from $methodtype@$url is =".$debug_result_text);            
             
             return $result;
         } catch (\Exception $ex) {
