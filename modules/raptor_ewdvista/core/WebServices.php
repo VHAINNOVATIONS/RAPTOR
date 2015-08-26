@@ -96,10 +96,11 @@ error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($h
             curl_close($curl);
 $debug_result_text = print_r($result,TRUE);
 $debug_rawlen_result_text = strlen($debug_result_text);
-if($debug_rawlen_result_text > 4000)
+$debug_maxtolog = 4000;
+if($debug_rawlen_result_text > $debug_maxtolog)
 {
-    $debug_result_text = substr($debug_result_text,0,4000) 
-            . " ... NOT LOGGING THE REST (Original size $debug_rawlen_result_text chars)";
+    $debug_result_text = substr($debug_result_text,0,$debug_maxtolog) 
+            . " ... ONLY LOGGED $debug_maxtolog chars (Original size $debug_rawlen_result_text chars)";
 }
 error_log("LOOK callAPI result from $methodtype@$url is =".$debug_result_text);            
             

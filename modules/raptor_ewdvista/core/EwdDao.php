@@ -34,6 +34,7 @@ require_once 'WorklistHelper.php';
 require_once 'DashboardHelper.php';
 require_once 'NotesHelper.php';
 require_once 'VitalsHelper.php';
+require_once 'MedicationHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
     or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150826.1');
@@ -985,30 +986,25 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
 
     public function getMedicationsDetailMap($atriskmeds = NULL)
     {
-        /*
-         * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getMedicationsDetail' is >>>Array
-(
-    [details] => Array
-        (
-            [0] => Array
-                (
-                    [Med] => ASPIRIN TAB,EC
-                    [Status] => Active
-                    [AtRisk] => no
-                    [warn] => 
-                )
+        try
+        {
+            $myhelper = new \raptor_ewdvista\MedicationHelper();
+            $serviceName = $this->getCallingFunctionName();
+            $pid = $this->getSelectedPatientID();
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get medication detail without a patient ID!');
+            }
 
-        )
-
-    [atrisk_hits] => Array
-        (
-        )
-
-)
-
-         */
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+            //Get the notes data from EWD services
+            $args = array();
+            $args['patientId'] = $pid;
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $notesdetail = $myhelper->getFormattedMedicationsDetail($rawresult, $atriskmeds);
+            return $notesdetail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getOrderOverviewMap()

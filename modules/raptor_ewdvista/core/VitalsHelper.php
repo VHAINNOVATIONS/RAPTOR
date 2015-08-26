@@ -266,10 +266,10 @@ class VitalsHelper
                 $rowcount = 0;
                 $disp_idx=-1;
 //error_log("LOOK vitalshelper thing onecheck>>>".print_r($onechunk,TRUE)); 
-                foreach($onechunk as $blocks)
+                foreach($onechunk as $timestampkey=>$onerow)
                 {
 //error_log("LOOK vitalshelper thing blocks>>>".print_r($blocks,TRUE)); 
-                    foreach($blocks as $timestampkey=>$onerow) 
+                    //foreach($blocks as $timestampkey=>$onerow) 
                     {
                         $rowcount++;
                         $disp_idx++;
@@ -311,6 +311,10 @@ class VitalsHelper
                         {
                             $rawstr = $onerow[self::$VFLD_DATE_TAKEN];
                             $expl = explode('^',$rawstr);
+                            if(count($expl) != 2)
+                            {
+                                throw new \Exception("Expected 2 parts in rawstr '$rawstr' for field ".self::$VFLD_DATE_TAKEN." of ".print_r($onerow,TRUE));
+                            }
                             $sDate = $expl[1];  // . " (rawstr=$rawstr)";
                         } else {
                             $sDate = isset($timestampkey) ? date("m/d/Y h:i a", strtotime($timestampkey)) : " ";
@@ -324,7 +328,11 @@ class VitalsHelper
                                 case self::$VFLD_FACILITY:
                                     $expl1 = explode('^',$itemdetail);
                                     $expl1parts = explode(';',$expl1[1]);
-                                    $facility = array('tag' => $expl1parts[1] , 'text' => $expl1parts[0]);
+                                    if(count($expl1parts) !== 2)
+                                    {
+                                        throw new \Exception("Expected 2 parts in second part of '$itemdetail'(parts=".print_r($expl1,TRUE).") for field ".self::$VFLD_FACILITY." of ".print_r($onerow,TRUE));
+                                    }
+                                    $facility = ['tag' => $expl1parts[1] , 'text' => $expl1parts[0]];
                                     break;
                                 case self::$VFLD_TEMPERATURE:
                                     $typenamestr = self::$VNAME_TEMPERATURE;
@@ -521,7 +529,9 @@ class VitalsHelper
             return $bundle;
             
         } catch (\Exception $ex) {
-            throw $ex;
+            $fatalmsg = "Failed to process INPUT in getFormattedSuperset because $ex";
+            error_log($fatalmsg . "\n...FAILED INPUT=".print_r($rawresult,TRUE));
+            throw new \Exception($fatalmsg,99876,$ex);
         }
     }
     
