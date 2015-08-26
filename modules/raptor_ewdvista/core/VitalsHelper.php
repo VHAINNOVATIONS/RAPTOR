@@ -114,109 +114,6 @@ class VitalsHelper
         return $onevital;
     }
 
-    
-    /**
-     * Look at ProtocolSupportingData.php>>>getVitalsData()
-     * 
-     *      $displayVitals = array();
-            $allVitals = array();
-            $aLatestValues = array();
-     * 
-     * TODO --- Make the output look like these 3 parts.......
-     * 
-     *     [0] => Array
-        (
-            [0] => Array
-                (
-                    [Date Taken] => 08/17/2010 04:03 pm
-                    [Temp] => 99.5 F
-                    [Height] =>  
-                    [Weight] =>  
-                    [BMI] =>  
-                    [Blood Pressure] => 190/85 mmHg
-                    [Pulse] => 61 /min
-                    [Resp] => 22 /min
-                    [Pain] =>  
-                    [C/G] =>  
-                    [Pox] => 96 %SpO2
-                    [CVP] =>  
-                    [Blood Glucose] =>  
-                )
-
-            [1] => Array
-                (
-                    [Date Taken] => 08/16/2010 09:29 pm
-                    [Temp] => 99.5 F
-                    [Height] =>  
-                    [Weight] =>  
-                    [BMI] =>  
-                    [Blood Pressure] => 190/85 mmHg
-                    [Pulse] => 61 /min
-                    [Resp] => 22 /min
-                    [Pain] =>  
-                    [C/G] =>  
-                    [Pox] => 96 %SpO2
-                    [CVP] =>  
-                    [Blood Glucose] =>  
-                )
-     * ....
-     *     [1] => Array
-        (
-            [0] => Array
-                (
-                    [date] => 08/17/2010 04:03 pm
-                    [name] => Temperature
-                    [value] => 99.5
-                    [units] => F
-                    [rawTime] => 20100817.160300
-                )
-
-            [1] => Array
-                (
-                    [date] => 08/17/2010 04:03 pm
-                    [name] => Pulse
-                    [value] => 61
-                    [units] => /min
-                    [rawTime] => 20100817.160300
-                )
-
-            [2] => Array
-                (
-                    [date] => 08/17/2010 04:03 pm
-                    [name] => Respiration
-                    [value] => 22
-                    [units] => /min
-                    [rawTime] => 20100817.160300
-                )
-
-            [3] => Array
-                (
-                    [date] => 08/17/2010 04:03 pm
-                    [name] => Blood Pressure
-                    [value] => 190/85
-                    [units] => mmHg
-                    [rawTime] => 20100817.160300
-                )
-     *....
-     *     [2] => Array
-        (
-            [Temp] => 99.5
-            [Height] => 71
-            [Weight] => 79.4
-            [BMI] => 24
-            [Blood Pressure] => 190/85
-            [Pulse] => 61
-            [Resp] => 22
-            [Pain] => 2
-            [C/G] => 
-            [Pox] => 96
-            [CVP] => 
-            [Blood Glucose] => 
-        )
-
-
-     * 
-     */
     public function getFormattedSuperset($rawresult)
     {
         try
@@ -704,6 +601,4 @@ class VitalsHelper
         
         return $result;
     }
-    
-    
 }
