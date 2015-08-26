@@ -490,7 +490,7 @@ class EhrDaoRuntimeMetrics
                         $call_only_if = $details['call_only_if'];
                         if($call_only_if != NULL)
                         {
-                           $test_this_method = eval("return ".$call_only_if." ;");
+                           $test_this_method = eval("return ".$call_only_if." ;");  
                         } else {
                             $test_this_method = TRUE;
                         }
@@ -524,7 +524,7 @@ class EhrDaoRuntimeMetrics
                             //Just assume a NULL result
                             $implclass = NULL;
                             $callresult = NULL;
-                            $oneitem['skipped_info'] = "FALSE from $call_only_if";
+                            $oneitem['skipped_info'] = "FALSE from ".print_r($call_only_if,TRUE);   //20150826
                             $oneitem['paramvalues'] = $paramvalues;
                         } else {
                             //Actually test the method

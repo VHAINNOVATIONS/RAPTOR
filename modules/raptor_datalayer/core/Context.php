@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150824A'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150826A'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -325,6 +325,19 @@ class Context
     }
     
     /**
+     * Only for extreeme situations where you need to clear the session contents
+     */
+    public static function forceClearUserSession()
+    {
+        global $user;
+        $uid = $user->uid;
+        error_log("About to clear session via forceClearUserSession for user $uid");
+        unset($_SESSION['CREATED']);  
+        unset($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
+        error_log("Cleared session via forceClearUserSession for user $uid");
+    }
+    
+    /**
      * Factory implements session singleton.
      * @return \raptor\Context 
      */
@@ -364,7 +377,7 @@ class Context
         if(isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]) && !$bSessionResetFlagDetected)
         {
             //We will return this instance unless ...
-            $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
+            $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]); //TODO change logic
             $ehr_dao = $candidate->getEhrDao(FALSE);
             if($ehr_dao != NULL)
             {
@@ -554,7 +567,7 @@ class Context
             $candidate = new \raptor\Context($tempUID);
             if(isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]))
             {
-                //Preserve existing credientials.
+                //Preserve existing credentials.
                 $current=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
                 $ehr_dao = $current->getEhrDao(FALSE);
                 if($ehr_dao != NULL)

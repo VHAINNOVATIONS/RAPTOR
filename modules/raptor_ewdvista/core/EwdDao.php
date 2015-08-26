@@ -36,7 +36,7 @@ require_once 'NotesHelper.php';
 require_once 'VitalsHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150824.2');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150826.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -154,12 +154,20 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == '')
             {
-                throw new \Exception("Missing authorization value in result! [URL: $url]\n >>> result=".print_r($json_array,TRUE));
+                throw new \Exception("Missing authorization value in result! [URL: $url]"
+                        . "\n >>> array result=".print_r($json_array,TRUE) 
+                        . "\n >>> raw JSON=".print_r($json_string,TRUE)
+                        . "\n >>> urlencoded JSON=".  urlencode($json_string)
+                        . "\n");    //So that the rest of the exception is not blanded into this line!
             }
             $init_key = $this->getSessionVariable('init_key');
             if($init_key == '')
             {
-                throw new \Exception("Missing init key value in result! [URL: $url]\n >>> result=".print_r($json_array,TRUE));
+                throw new \Exception("Missing init key value in result! [URL: $url]"
+                        . "\n >>> array result=".print_r($json_array,TRUE) 
+                        . "\n >>> raw JSON=".print_r($json_string,TRUE)
+                        . "\n >>> urlencoded JSON=".  urlencode($json_string)
+                        . "\n");    //So that the rest of the exception is not blanded into this line!
             }
             error_log('EWD initClient is DONE at ' . microtime(TRUE));
         } catch (\Exception $ex) {
