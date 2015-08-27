@@ -133,7 +133,7 @@ interface IEhrDao
     public function getAllHospitalLocationsMap();
     public function getAllergiesDetailMap();
     public function getChemHemLabs();
-    public function getDiagnosticLabsDetailMap();
+    public function getDiagnosticLabsDetailMap($override_patientId = NULL);
     public function getEGFRDetailMap();
     public function getEncounterStringFromVisit($vistitTo);
     public function getHospitalLocationsMap($startingitem);
@@ -145,13 +145,13 @@ interface IEhrDao
     public function getPathologyReportsDetailMap();
     public function getPendingOrdersMap();
     public function getProblemsListDetailMap();
-    public function getProcedureLabsDetailMap();
+    public function getProcedureLabsDetailMap($override_patientId = NULL);
 
     public function getRadiologyCancellationReasons();
     public function getRadiologyOrderChecks($args);
     public function getRadiologyOrderDialog($imagingTypeId, $patientId);
     public function getRadiologyReportsDetailMap();
-    public function getRawVitalSignsMap();
+    public function getRawVitalSignsMap($override_patientId = NULL);
     public function getSurgeryReportsDetailMap();
     public function getUserSecurityKeys();
     public function getVisits();

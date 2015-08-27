@@ -447,6 +447,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     if ($aCachedResult !== NULL)
                     {
                         //Found it in the cache!
+error_log("LOOK Found it in the $sThisResultName cache!");                        
                         return $aCachedResult;
                     }
                 }
@@ -599,13 +600,21 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $this->getProtocolSupportingData('getVitalsDetail');
     }
 
-    public function getProcedureLabsDetailMap()
+    public function getProcedureLabsDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            throw new \Exception("Override not implemented yet!");
+        }
         return $this->getProtocolSupportingData('getProcedureLabsDetail');
     }
 
-    public function getDiagnosticLabsDetailMap()
+    public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            throw new \Exception("Override not implemented yet!");
+        }
         return $this->getProtocolSupportingData('getDiagnosticLabsDetail');
     }
 
@@ -655,8 +664,12 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $this->getProtocolSupportingData('getPendingOrdersMap');
     }
 
-    public function getRawVitalSignsMap()
+    public function getRawVitalSignsMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            throw new \Exception("Feature not yet implemented for patientId override!");
+        }
         return $this->getProtocolSupportingData('getRawVitalSigns');
     }
 

@@ -292,10 +292,9 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getEGFRDetailMap();
     }
 
-    public function getRawVitalSignsMap()
+    public function getRawVitalSignsMap($override_patientId = NULL)
     {
-        $result = $this->m_implclass->getRawVitalSignsMap();
-        //error_log("LOOK clean getRawVitalSignsMap result>>>".print_r($result,TRUE));
+        $result = $this->m_implclass->getRawVitalSignsMap($override_patientId);
         return $result;
     }
     
@@ -324,12 +323,12 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getVitalsDetailMap();
     }
 
-    public function getProcedureLabsDetailMap()
+    public function getProcedureLabsDetailMap($override_patientId = NULL)
     {
         return $this->m_implclass->getProcedureLabsDetailMap();
     }
 
-    public function getDiagnosticLabsDetailMap()
+    public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
         return $this->m_implclass->getDiagnosticLabsDetailMap();
     }

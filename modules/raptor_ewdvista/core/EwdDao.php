@@ -873,8 +873,12 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
         return $namedparts;
     }
 
-    public function getDiagnosticLabsDetailMap()
+    public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            throw new \Exception("Override not implemented yet!");
+        }
         /*
          * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getDiagnosticLabsDetail' is >>>Array
 (
@@ -996,12 +1000,12 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
                 throw new \Exception('Cannot get medication detail without a patient ID!');
             }
 
-            //Get the notes data from EWD services
+            //Get the medication data from EWD services
             $args = array();
             $args['patientId'] = $pid;
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-            $notesdetail = $myhelper->getFormattedMedicationsDetail($rawresult, $atriskmeds);
-            return $notesdetail;
+            $formatted_detail = $myhelper->getFormattedMedicationsDetail($rawresult, $atriskmeds);
+            return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -1211,8 +1215,12 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
 	return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getProcedureLabsDetailMap()
+    public function getProcedureLabsDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            throw new \Exception("Override not implemented yet!");
+        }
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }
@@ -1328,8 +1336,12 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
 	return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getRawVitalSignsMap()
+    public function getRawVitalSignsMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            throw new \Exception("Feature not yet implemented for patientId override!");
+        }
         try
         {
             $pid = $this->getSelectedPatientID();

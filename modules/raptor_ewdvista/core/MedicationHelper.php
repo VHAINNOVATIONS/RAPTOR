@@ -55,7 +55,10 @@ class MedicationHelper
         return trim(substr($rawfield,$strpos+1));
     }
     
-    public function getFormattedMedicationsDetail($rawresult, $atriskmeds)
+    /**
+     * If atriskmeds is not null, it should be an array of medication names
+     */
+    public function getFormattedMedicationsDetail($rawresult, $atriskmeds=NULL)
     {
         try
         {
@@ -63,79 +66,15 @@ class MedicationHelper
             error_log("LOOK getFormattedMedicationDetail rawresult input>>>".print_r($rawresult,TRUE));
             error_log("LOOK getFormattedMedicationDetail atriskmeds input>>>".print_r($atriskmeds,TRUE));
             
-            /*
+            if(!is_array($atriskmeds))
+            {
+                $atriskmeds = array();
+            }
             
-//error_log("LOOK notes stuff raw >>>".print_r($rawresult, TRUE));
-            if(!is_array($rawresult))
-            {
-                $errmsg = "Expected an array for notes result but instead got $rawresult";
-                error_log("$errmsg >>>".print_r($rawresult, TRUE));
-                throw new \Exception($errmsg);
-            }
-            $formatted = array();
-            foreach($rawresult as $onegroup)
-            {
-//error_log("LOOK notes one group stuff >>>".print_r($onegroup, TRUE));
-                foreach($onegroup as $blocks)
-                {
-//error_log("LOOK notes blocks >>>".print_r($blocks, TRUE));
-                    foreach($blocks as $onenoteitem)
-                    {
-    //error_log("LOOK notes one item >>>".print_r($onenoteitem, TRUE));
-
-                        $localTitle = $this->getFieldTextData($onenoteitem[self::$FLD_TITLE]);
-                        $datetimestr = $this->getFieldTextData($onenoteitem[self::$FLD_DATETIMESTR]);
-                        if(strlen($localTitle) > RAPTOR_DEFAULT_SNIPPET_LEN)
-                        {
-                            $snippetText = substr($localTitle, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
-                        } else {
-                            $snippetText = $localTitle;
-                        }
-                        $authorName = $this->getFieldTextData($onenoteitem[self::$FLD_AUTHOR]);
-                        $facility = $this->getFieldTextData($onenoteitem[self::$FLD_FACILITY]);
-                        $raw_notetext_ar = $onenoteitem[self::$FLD_DETAILS];
-                        $clean_notetext_ar = array();
-                        foreach($raw_notetext_ar as $onerawnotetextrow)
-                        {
-                            $clean_notetext_ar[] = $this->getFieldTextData($onerawnotetextrow);
-                        }
-                        $notetext = implode("\n",$clean_notetext_ar);
-                        $formatted[] = array(
-                                            "Type"=>$localTitle, 
-                                            "Date"=>$datetimestr,
-                                            "Snippet" => $snippetText,
-                                            "Details" => array('Type of Note'=>$localTitle, 
-                                                            'Author'=>$authorName, 
-                                                            'Note Text'=>$notetext, 
-                                                            'Facility'=>$facility,
-                                                )
-                            );
-                    }
-                }
-            }
-             * 
-             *     [details] => Array
-        (
-            [0] => Array
-                (
-                    [Med] => ASPIRIN TAB,EC
-                    [Status] => Active
-                    [AtRisk] => no
-                    [warn] => 
-                )
-
-        )
-
-    [atrisk_hits] => Array
-        (
-        )
-
-             * 
- */
             $formatted = array();
             $formatted['details'] = array();
             $formatted['details'][] = array(
-                    'Med' => 'ASPIRIN TAB,EC',
+                    'Med' => 'DATA STUB SAMPLE',
                     'Status' => 'Active',
                     'AtRisk' => 'no',
                     'warn' => NULL
