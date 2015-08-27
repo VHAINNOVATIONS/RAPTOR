@@ -1,7 +1,7 @@
 <?php
     
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150821.2 Config for DEV 64bit localhost');
+    or define('RAPTOR_CONFIG_ID', '20150827.1 Config for DEV 64bit localhost');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -44,8 +44,8 @@ defined('EWDFED_BASE_URL')
     or define('EWDFED_BASE_URL', "http://54.243.40.32:8081/RaptorEwdVista/raptor/");
 
 defined('EHR_INT_MODULE_NAME')
-    //or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
-    or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
+    or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
+    //or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
 
 //Disable the AGE scoring if using a test VISTA with VERY OLD orders.
 defined('DISABLE_TICKET_AGE1_SCORING')
@@ -56,6 +56,10 @@ defined('DISABLE_TICKET_AGE2_SCORING')
 //Set DAYS very high if using a test VISTA with VERY OLD orders.
 defined('DEFAULT_GET_VISIT_DAYS')
     or define('DEFAULT_GET_VISIT_DAYS', 9999); //For PROD set this to 30 days!!!!!!
+
+//Set default number of days for which to get labs
+defined('DEFAULT_GET_LABS_DAYS')
+    or define('DEFAULT_GET_LABS_DAYS', 20);
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')

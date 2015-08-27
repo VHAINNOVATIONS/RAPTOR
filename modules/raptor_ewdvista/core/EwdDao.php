@@ -728,49 +728,32 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
     {
         try
         {
+            $oContext = \raptor\Context::getInstance();
             if($override_patientId != NULL)
             {
                 $pid = $override_patientId;
             } else {
                 $pid = $this->getSelectedPatientID();
             }
+            $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
             $serviceName = $this->getCallingFunctionName();
+            $pid = $this->getSelectedPatientID();
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get chem labs detail without a patient ID!');
+            }
             $args = array();
             $args['patientId'] = $pid;
-            $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
+            $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_LABS_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
             
             //$rawresult = $this->getServiceRelatedData($serviceName, $args);
-            $specimensArray = $this->getServiceRelatedData($serviceName, $args);;
-            
-            $labsResults = array();
-            foreach ($specimensArray as $specimen)
-            {
-                $specimen_rawTime = $specimen['timestamp'];
-                $specimen_date = EwdUtils::convertVistaDateTimeToDate($specimen_rawTime);
-                $specimen_time = EwdUtils::convertVistaDateTimeToDatetime($specimen_rawTime);//getVistaDateTimePart($specimen_rawTime, 'time');
-                foreach($specimen['labResults'] as $labResult)
-                {
-                    $labResult_value = $labResult['value'];
-                    $labTest = $labResult['labTest'];
-                    $labTest_name = $labTest['name'];
-                    $labTest_units = $labTest['units'];
-                    $labTest_refRange = $labTest['refRange'];
-                    $labsResults[] = array(
-                                            'name'      => $labTest_name,
-                                            'date'      => $specimen_date,
-                                            'datetime'  => $specimen_time,
-                                            'value'     => $labResult_value,
-                                            'units'     => $labTest_units,
-                                            'refRange'  => $labTest_refRange,
-                                            'rawTime'   => EwdUtils::convertVistaDateToYYYYMMDDtttt($specimen_rawTime)//$specimen_time//$specimen_rawTime //??? is that the place that should be fixed
-                                            );
-                    }
-                }    
-            return $labsResults;
+            $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);;
+            $formatted_detail = $myhelper->getFormattedChemHemLabsDetail($rawresult_ar);
+            return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
-        }     
+        }
     }
 
     /**

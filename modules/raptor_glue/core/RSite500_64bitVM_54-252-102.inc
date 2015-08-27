@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150821.1 Config for DEV 54.235.252.102');
+    or define('RAPTOR_CONFIG_ID', '20150827.1 Config for DEV 54.235.252.102');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -53,6 +53,10 @@ defined('DISABLE_TICKET_AGE2_SCORING')
 //Set DAYS very high if using a test VISTA with VERY OLD orders.
 defined('DEFAULT_GET_VISIT_DAYS')
     or define('DEFAULT_GET_VISIT_DAYS', 9999); //For PROD set this to 30 days!!!!!!
+
+//Set default number of days for which to get labs
+defined('DEFAULT_GET_LABS_DAYS')
+    or define('DEFAULT_GET_LABS_DAYS', 20);
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')

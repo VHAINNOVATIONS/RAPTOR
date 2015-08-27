@@ -1,7 +1,7 @@
 <?php
 
 defined('GENERAL_DEFS_VERSION_INFO')
-    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150713.1');
+    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150827.1');
 
 /*
  * These are General Purpose settings

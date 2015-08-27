@@ -54,6 +54,45 @@ class LabsHelper
         $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('ProtocolSupportingData');
     }
     
+    public function getFormattedChemHemLabsDetail($rawresult_ar)
+    {
+        if(!is_array($rawresult_ar))
+        {
+            throw new \Exception("Cannot format non-array of data in getFormattedChemHemLabsDetail!");
+        }
+        try
+        {
+            $labsResults = array();
+            foreach ($rawresult_ar as $specimen)
+            {
+                $specimen_rawTime = $specimen['timestamp'];
+                $specimen_date = EwdUtils::convertVistaDateTimeToDate($specimen_rawTime);
+                $specimen_time = EwdUtils::convertVistaDateTimeToDatetime($specimen_rawTime);//getVistaDateTimePart($specimen_rawTime, 'time');
+                foreach($specimen['labResults'] as $labResult)
+                {
+                    $labResult_value = $labResult['value'];
+                    $labTest = $labResult['labTest'];
+                    $labTest_name = $labTest['name'];
+                    $labTest_units = $labTest['units'];
+                    $labTest_refRange = $labTest['refRange'];
+                    $labsResults[] = array(
+                        'name'      => $labTest_name,
+                        'date'      => $specimen_date,
+                        'datetime'  => $specimen_time,
+                        'value'     => $labResult_value,
+                        'units'     => $labTest_units,
+                        'refRange'  => $labTest_refRange,
+                        'rawTime'   => EwdUtils::convertVistaDateToYYYYMMDDtttt($specimen_rawTime)//$specimen_time//$specimen_rawTime //??? is that the place that should be fixed
+                        );
+                }
+            }
+error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResults,TRUE));
+            return $labsResults;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }     
+    }
+    
     /**
      * Display labs array
      */
