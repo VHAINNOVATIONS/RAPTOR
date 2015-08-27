@@ -432,18 +432,18 @@
          DataTable().columns(x).data()[0][40]. We can work from this starting value to cache the first 
          5 records whenever we jump form page to page in a Data Table. 
          */
-        var cacheFirstFiveTIDS = function (starting_index) {
+        var cacheSomeTIDS = function (starting_index) {
             //even if we don't have 5 records on the current page, this will work, slice stops at the last known good value and does not pad with nulls or undefined(s)
-            var records_to_cache = $worklistTable.columns(1).data()[0].slice(starting_index, starting_index + 5);
+            var records_to_cache = $worklistTable.columns(1).data()[0].slice(starting_index, starting_index + 10);  //Changed to 10 20150827
             //console.log(records_to_cache);
             //console.log(Drupal.pageData.baseURL + '/raptor/loadcache?tids=' + records_to_cache.join(','));
             $.get(Drupal.pageData.baseURL + '/raptor/loadcache?tids=' + records_to_cache.join(','));
         };
-        cacheFirstFiveTIDS(0);//calling the function for the first time since the page has loaded.
+        cacheSomeTIDS(0);//calling the function for the first time since the page has loaded.
         $('#worklistTable_paginate').on('click', function () {
             var page_info = $worklistTable.page.info();
             //console.log("Worklist Page Number: "+page_info.page+" Index of the top-most record currently displayed: "+ page_info.start);
-            cacheFirstFiveTIDS(page_info.start);
+            cacheSomeTIDS(page_info.start);
         }); //calling the function each time we navigate to a different page
     }); // end $(document).ready()
 
