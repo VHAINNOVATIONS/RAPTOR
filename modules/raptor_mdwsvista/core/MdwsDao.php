@@ -677,8 +677,12 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
         return $this->getProtocolSupportingData('getVitalsDetailOnlyLatest');
     }
 
-    public function getEGFRDetailMap()
+    public function getEGFRDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            return FALSE;
+        }
         return $this->getProtocolSupportingData('getEGFRDetail');
     }
 

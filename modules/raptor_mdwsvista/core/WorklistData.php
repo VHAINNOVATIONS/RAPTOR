@@ -799,7 +799,6 @@ error_log("LOOK in getDashboardMap($override_match_this_IEN)...");
             $result['ethnicity'] = isset($RptTO->ethnicity) ? $RptTO->ethnicity : " ";
             $result['age'] = isset($RptTO->age) ? $RptTO->age : " ";
             $result['maritalStatus'] = isset($RptTO->maritalStatus) ? $RptTO->maritalStatus : " ";
-            $result['age'] = isset($RptTO->age) ? $RptTO->age : " ";
             $result['mpiPid'] = isset($RptTO->mpiPid) ? $RptTO->mpiPid : " ";
             $result['mpiChecksum'] = isset($RptTO->mpiChecksum) ? $RptTO->mpiChecksum : " ";
             $result['localPid'] = isset($RptTO->localPid) ? $RptTO->localPid : " ";

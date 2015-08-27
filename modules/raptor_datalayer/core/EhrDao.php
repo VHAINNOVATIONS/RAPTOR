@@ -309,9 +309,9 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getVitalsDetailOnlyLatestMap();
     }
     
-    public function getEGFRDetailMap()
+    public function getEGFRDetailMap($override_patientId = NULL)
     {
-        return $this->m_implclass->getEGFRDetailMap();
+        return $this->m_implclass->getEGFRDetailMap($override_patientId);
     }
 
     /**

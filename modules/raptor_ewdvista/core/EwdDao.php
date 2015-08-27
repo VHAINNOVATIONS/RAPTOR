@@ -737,7 +737,6 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
             }
             $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
             $serviceName = $this->getCallingFunctionName();
-            $pid = $this->getSelectedPatientID();
             if($pid == '')
             {
                 throw new \Exception('Cannot get chem labs detail without a patient ID!');
@@ -889,10 +888,22 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
 
     public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
-        if($override_patientId != NULL)
+        return array();
+        
+        try
         {
-            error_log("LOOK TODO --- build in support for optional param in getDiagnosticLabsDetailMap!");
-            return FALSE;   //Optional param support is NOT yet implemented
+            $oContext = \raptor\Context::getInstance();
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
+            $alldata = $myhelper->getLabsDetailData($pid);
+            return $alldata[0];
+        } catch (\Exception $ex) {
+            throw $ex;
         }
         /*
          * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getDiagnosticLabsDetail' is >>>Array
@@ -949,8 +960,27 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
         return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getEGFRDetailMap()
+    public function getEGFRDetailMap($override_patientId = NULL)
     {
+error_log("LOOK starting getEGFRDetailMap($override_patientId)");        
+        try
+        {
+            $oContext = \raptor\Context::getInstance();
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
+            $alldata = $myhelper->getLabsDetailData($pid);
+            $clean_result = $alldata[1];
+error_log("LOOK done getEGFRDetailMap($pid)>>>".print_r($clean_result,TRUE));        
+            return $clean_result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+
         /*
          * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getEGFRDetail' is >>>Array
 (
@@ -964,8 +994,6 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
 )
 
          */
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
     }
 
     public function getEncounterStringFromVisit($vistitTo)
@@ -1877,70 +1905,78 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
 
     public function getSelectedPatientID()
     {
-        //return $this->m_selectedPatient;
         return $this->getSessionVariable('selectedPatient');
     }
 
     public function getPatientMap($sPatientID)
     {
-        $serviceName = $this->getCallingFunctionName();
-        $args = array();
-        $args['patientId'] = $sPatientID;
-        $rawresult = $this->getServiceRelatedData($serviceName, $args);
-        $a = explode('^', $rawresult['value']);
-        $result = array();
-        
-        if(isset($a[2]) && $a[2] > '')
+        try
         {
-            $vista_dob = trim($a[2]);
-            $dob = \raptor_ewdvista\EwdUtils::convertVistaDateTimeToDate($vista_dob);
-        } else {
-            $dob = '';
-        }
-        
- 	$result['patientName']  			= $a[0];
-        $result['ssn']          			= $a[3];
-        $result['gender']       			= $a[1];
-        $result['dob']          			= $dob;
-        $result['ethnicity']    			= "todo";
-        $result['age']          			= $a[14];
-        $result['maritalStatus']			= "todo";
-        $result['age']          			= "todo";
-        $result['mpiPid']       			= "todo";
-        $result['mpiChecksum']  			= "todo";
-        $result['localPid']     			= "todo";
-        $result['sitePids']     			= "todo";
-        $result['vendorPid']    			= "todo";
-        $result['location'] 				= "Room:todo / Bed:todo ";
-        $result['cwad'] 				= "todo";
-        $result['restricted'] 				= "todo";
-        $result['admitTimestamp'] 			= date("m/d/Y h:i a", strtotime("01/01/1950 01:01 a"));
-        $result['serviceConnected']                     = "todo";
-        $result['scPercent'] 				= "todo";
-        $result['inpatient'] 				= "todo";
-        $result['deceasedDate'] 			= "todo";
-        $result['confidentiality'] 			= "todo";
-        $result['needsMeansTest'] 			= "todo";
-        $result['patientFlags'] 			= "todo";
-        $result['cmorSiteId']	 			= "todo";
-        $result['activeInsurance'] 			= "todo";
-        $result['isTestPatient'] 			= "todo";
-        $result['currentMeansStatus']                   = "todo";
-        $result['hasInsurance'] 			= "todo";
-        $result['preferredFacility']                    = "todo";
-        $result['patientType'] 				= "todo";
-        $result['isVeteran'] 				= "todo";
-        $result['isLocallyAssignedMpiPid']              = "todo";
-        $result['sites'] 				= "todo";
-        $result['teamID'] 				= "todo";
-        $result['teamName'] 				= "todo-Unknown";
-        $result['teamPcpName'] 				= "todo-Unknown";
-        $result['teamAttendingName']                    = "todo-Unknown";
-        $result['mpiPid'] 				= "todo-Unknown";
-        $result['mpiChecksum'] 				= "todo-Unknown";
-      
-        //TODO --- format the raw content
-	return $result;
-    }
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $sPatientID;
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $a = explode('^', $rawresult['value']);
+//error_log("LOOK raw getPatientMap in>>>>".print_r($a,TRUE));
 
+            $result = array();
+            if(isset($a[2]) && $a[2] > '')
+            {
+                $vista_dob = trim($a[2]);
+                $dob = \raptor_ewdvista\EwdUtils::convertVistaDateTimeToDate($vista_dob);
+            } else {
+                $dob = '';
+            }
+            if(isset($a[14]))
+            {
+                $age = intval($a[14]);
+            } else {
+                //TODO --- compute from today - dob;
+                $age = 0;
+            }
+            $result['patientName']  			= $a[0];
+            $result['ssn']          			= $a[3];
+            $result['gender']       			= $a[1];
+            $result['dob']          			= $dob;
+            $result['ethnicity']    			= "todo";
+            $result['age']          			= $age;
+            $result['maritalStatus']			= "todo";
+            $result['mpiPid']       			= "todo";
+            $result['mpiChecksum']  			= "todo";
+            $result['localPid']     			= "todo";
+            $result['sitePids']     			= "todo";
+            $result['vendorPid']    			= "todo";
+            $result['location'] 			= "Room:todo / Bed:todo ";
+            $result['cwad'] 				= "todo";
+            $result['restricted'] 			= "todo";
+            $result['admitTimestamp'] 			= date("m/d/Y h:i a", strtotime("01/01/1950 01:01 a")); //TODO
+            $result['serviceConnected']                 = "todo";
+            $result['scPercent'] 			= "todo";
+            $result['inpatient'] 			= "todo";
+            $result['deceasedDate'] 			= "todo";
+            $result['confidentiality'] 			= "todo";
+            $result['needsMeansTest'] 			= "todo";
+            $result['patientFlags'] 			= "todo";
+            $result['cmorSiteId']	 		= "todo";
+            $result['activeInsurance'] 			= "todo";
+            $result['isTestPatient'] 			= "todo";
+            $result['currentMeansStatus']               = "todo";
+            $result['hasInsurance'] 			= "todo";
+            $result['preferredFacility']                = "todo";
+            $result['patientType'] 			= "todo";
+            $result['isVeteran'] 			= "todo";
+            $result['isLocallyAssignedMpiPid']          = "todo";
+            $result['sites'] 				= "todo";
+            $result['teamID'] 				= "todo";
+            $result['teamName'] 			= "todo-Unknown";
+            $result['teamPcpName'] 			= "todo-Unknown";
+            $result['teamAttendingName']                = "todo-Unknown";
+            $result['mpiPid'] 				= "todo-Unknown";
+            $result['mpiChecksum'] 			= "todo-Unknown";
+//error_log("LOOK raw getPatientMap out>>>>".print_r($result,TRUE));
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
 }

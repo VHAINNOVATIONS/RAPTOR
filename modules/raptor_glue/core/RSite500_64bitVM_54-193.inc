@@ -56,7 +56,7 @@ defined('DEFAULT_GET_VISIT_DAYS')
 
 //Set default number of days for which to get labs
 defined('DEFAULT_GET_LABS_DAYS')
-    or define('DEFAULT_GET_LABS_DAYS', 20);
+    or define('DEFAULT_GET_LABS_DAYS', 8000);
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')

@@ -30,23 +30,14 @@ namespace raptor_ewdvista;
 require_once 'EwdUtils.php';
 
 /**
- * Helper for returning medication content
+ * Helper for returning labs content
  *
  * @author Frank Font of SAN Business Consultants
  */
 class LabsHelper
 {
-    
-    //Declare the field numbers
-    private static $FLDNM_MEDNAME = 'name';
-    private static $FLDNM_STATUS = 'status';
-    private static $FLDNM_STARTDT = 'startDate';
-    private static $FLDNM_DOCDT = 'dateDocumented';
-    private static $FLDNM_COMMENT = 'comment';
-
     private $m_oContext;
     private $m_oRuntimeResultFlexCache = NULL;
-    
     
     function __construct($oContext, $override_patientId=NULL)
     {
@@ -94,98 +85,37 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
     }
     
     /**
-     * Display labs array
+     * This returns an arraty of arrays with following offset content:
+     *  0. The ChemHem labs array
+     *  1. Just the eGFR array
+     * @return array of arrays
      */
-    public function getDisplayLabs($override_patientId=NULL)
+    public function getLabsDetailData($override_patientId=NULL)
     {
+        module_load_include('php', 'raptor_formulas', 'core/Labs');
+        $myDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
         if($override_patientId == NULL)
         {
             $tid = $this->m_oContext->getSelectedTrackingID();
-            $myDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
             $pid = $myDao->getPatientIDFromTrackingID($tid);
         } else {
             $pid = $override_patientId;
         }
-        $sThisResultName = $pid . '_getDisplayLabsEWD'; //patient specific
-        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
-        if($aCachedResult !== null)
-        {
-            //Found it in the cache!
-            return $aCachedResult;
-        }
-        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
-
-        $displayLabsResult = array();
         
-        $today = getDate();
-        $toDate = "".($today['year']+1)."0101";
-        $fromDate = "".($today['year'] - 20)."0101";
-
-        //$serviceResponse = $this->m_oContext->getEMRService()->getChemHemReports(array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
-        $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
-        //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getChemHemReports", array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
-        $serviceResponse = $mdwsDao->makeQuery("getChemHemReports", array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
-        
-        $blank = " ";
-        if(!isset($serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->count))
-        {
-            $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
-            return $displayLabsResult;
-        }
-        $numTaggedRpts = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->count;
-        if($numTaggedRpts == 0)
-        {
-            $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
-            return $displayLabsResult;
-        }
-        
-        for($i=0; $i<$numTaggedRpts; $i++)
-        { //ChemHemRpts
-            // Check to see if the set of rpts is an object or an array
-            if (is_array($serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt)){
-                $rpt = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt[$i];
-            }
-            else {
-                $rpt = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt;
-            }
-
-            $specimen = $rpt->specimen;
-            $nResults = is_array($rpt->results->LabResultTO) ? count($rpt->results->LabResultTO) : 1;
-            for($j = 0; $j< $nResults; $j++)
-            {
-                $result = is_array($rpt->results->LabResultTO) ? $rpt->results->LabResultTO[$j] : $rpt->results->LabResultTO;
-                $test = $result->test;
-                $displayLabsResult[] = array(
-                    'name' => isset($test->name) ? $test->name : " ",
-                    'date' => isset($rpt->timestamp) ? date("m/d/Y h:i a", strtotime($rpt->timestamp)) : " ",
-                    'value' => isset($result->value) ? $result->value : " ",
-                    'units' =>isset($test->units) ? $test->units : " ",
-                    'refRange' => isset($test->refRange) ? $test->refRange : " ",
-                    'rawTime' => isset($rpt->timestamp) ? $rpt->timestamp : " ");
-            }
-        }
-            
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $displayLabsResult, CACHE_AGE_LABS);
-        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
-        return $displayLabsResult;
-    }
-    
-    /**
-     * 1. Diagnostic labs detail array
-     * 2. Just eGFR array
-     * @return array of arrays
-     */
-    private function getLabsDetailData()
-    {
-        $sThisResultName = $this->m_oContext->getSelectedTrackingID() . '_getLabsDetailData'; //patient specific
+        $sThisResultName = $pid . '_getLabsDetailDataEWD'; //patient specific
         $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
         if($aCachedResult !== NULL)
         {
             //Found it in the cache!
             return $aCachedResult;
         }
+        
+        //Did NOT find it in the cache.  Build it now.
+        $allLabs = $myDao->getChemHemLabs($pid);
         $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
-
+        $patient_data_ar = $myDao->getPatientMap($pid);
+error_log("LOOK patient_data_ar for $pid=".print_r($patient_data_ar,TRUE));        
+error_log("LOOK allLabs for $pid=".print_r($allLabs,TRUE));        
         $labs_formulas = new \raptor_formulas\Labs();
         $aDiagLabs = array();
         $aJustEGFR = array();
@@ -208,13 +138,10 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
         $aJustEGFRDate['MIN_EGFR_60DAYS'] = NULL;
         $aJustEGFRDate['MIN_EGFR_90DAYS'] = NULL;
         
-        $isProc = true;     //$oContext->getProcedure()->isProcedure();
-        $patientInfo = $this->m_aPatientInfo;
-
-        //$patientInfo = $this->m_oContext->getPatient();
-        $ethnicity = $patientInfo['ethnicity'];
-        $gender = strtoupper(trim($patientInfo['gender']));
-        $age = $patientInfo['age'];
+        $isProc = TRUE;
+        $ethnicity = $patient_data_ar['ethnicity'];
+        $gender = strtoupper(trim($patient_data_ar['gender']));
+        $age = $patient_data_ar['age'];
         $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
                              (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
         $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
@@ -226,7 +153,6 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
         }
 
         $filteredLabs = array();
-        $allLabs = $this->getDisplayLabs();
         $foundCreatinine = FALSE;
         $foundEGFR = FALSE;
         $foundPLT = FALSE;
@@ -255,6 +181,7 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
         foreach($sortedLabs as $key => $lab)
         {
             $name = $lab['name'];
+error_log("LOOK one lab for $pid >>> ".print_r($lab,TRUE));        
             $foundCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
             $foundHCT = strpos('HCT', strtoupper($lab['name'])) !== FALSE;
             $foundINR = strpos('INR', strtoupper($lab['name'])) !== FALSE;
@@ -268,13 +195,15 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
 
             $alert = FALSE;
             if(isset($lowerLimit) && isset($upperLimit))
+            {
                 $alert = ($lab['value'] < $lowerLimit) || ($lab['value'] > $upperLimit);
-            elseif(isset($lowerLimit)&& !isset($upperLimit))
+            } elseif(isset($lowerLimit)&& !isset($upperLimit)) {
                 $alert = $lab['value'] < $lowerLimit;
-            elseif(!isset($lowerLimit) && isset($upperLimit))
+            } elseif(!isset($lowerLimit) && isset($upperLimit)) {
                 $alert = $lab['value'] > $upperLimit;
-            else
+            } else {
                 $alert = FALSE;
+            }
             $value = $alert ? "<span class='medical-value-danger'>!! "
                     .$lab['value']." ".$lab['units']
                     ." !!</span>" : $lab['value']." ".$lab['units'];
@@ -286,6 +215,7 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
 
             if($foundCreatinine)
             {
+error_log("LOOK ... one lab for $pid foundCreatinine!");        
                 $creatinineRefRange = $lab['refRange'];
                 $foundEGFR = FALSE;
                 $checkDate = $lab['date'];
@@ -306,6 +236,7 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
                 }
                 if(!$foundEGFR)
                 {
+error_log("LOOK ... one lab for $pid NOT found EGFR!");        
                     if(is_numeric($rawValue))
                     {
                         $eGFRSource = " (eGFR calculated)";
@@ -319,7 +250,9 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
                 {
                     $eGFRUnits = " mL/min/1.73 m^2";
                     $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
+error_log("LOOK ... one lab for $pid SET EGFR = '$eGFR' from source=$eGFRSource !");        
                 } else {
+error_log("LOOK ... one lab for $pid BLANK EGFR!");        
                     $eGFRUnits = '';
                     $eGFR_Health = '';
                 }
@@ -403,10 +336,12 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
             }
         }
         
-        $aResult = array($aDiagLabs, $aJustEGFR);
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $aResult, CACHE_AGE_LABS);
+        //Build the bundle and store it in the cache.
+        $bundle = array($aDiagLabs, $aJustEGFR);
+        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $bundle, CACHE_AGE_LABS);
         $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
         
-        return $aResult;
+        //Share this with the caller.
+        return $bundle;
     }    
 }

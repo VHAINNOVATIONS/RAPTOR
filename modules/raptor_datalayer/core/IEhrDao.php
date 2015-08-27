@@ -159,7 +159,21 @@ interface IEhrDao
      */
     public function getDiagnosticLabsDetailMap($override_patientId = NULL);
     
-    public function getEGFRDetailMap();
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
+    public function getEGFRDetailMap($override_patientId = NULL);
+    
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
+    public function getProcedureLabsDetailMap($override_patientId = NULL);
+
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
+    public function getRawVitalSignsMap($override_patientId = NULL);
+    
     public function getEncounterStringFromVisit($vistitTo);
     public function getHospitalLocationsMap($startingitem);
     public function getImagingTypesMap();
@@ -171,20 +185,10 @@ interface IEhrDao
     public function getPendingOrdersMap();
     public function getProblemsListDetailMap();
     
-    /**
-     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
-     */
-    public function getProcedureLabsDetailMap($override_patientId = NULL);
-
     public function getRadiologyCancellationReasons();
     public function getRadiologyOrderChecks($args);
     public function getRadiologyOrderDialog($imagingTypeId, $patientId);
     public function getRadiologyReportsDetailMap();
-    
-    /**
-     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
-     */
-    public function getRawVitalSignsMap($override_patientId = NULL);
     
     public function getSurgeryReportsDetailMap();
     public function getUserSecurityKeys();
