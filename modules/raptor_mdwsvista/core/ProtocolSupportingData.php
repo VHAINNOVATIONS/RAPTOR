@@ -46,7 +46,7 @@ class ProtocolSupportingData
     private $m_oRuntimeResultCache;    //Cache results.
     private $m_oRuntimeResultFlexCache;    //Cache results.
    
-    function __construct($oContext,$override_patientId=NULL)
+    function __construct($oContext, $override_patientId=NULL)
     {
         $this->m_oContext = $oContext;
         $this->m_oRuntimeResultCache = \raptor\RuntimeResultCache::getInstance($this->m_oContext,'ProtocolSupportingData');
