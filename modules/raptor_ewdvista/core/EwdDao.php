@@ -35,6 +35,7 @@ require_once 'DashboardHelper.php';
 require_once 'NotesHelper.php';
 require_once 'VitalsHelper.php';
 require_once 'MedicationHelper.php';
+require_once 'LabsHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
     or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150826.1');
@@ -723,13 +724,19 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
         return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getChemHemLabs()
+    public function getChemHemLabs($override_patientId = NULL)
     {
         try
         {
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
             $serviceName = $this->getCallingFunctionName();
             $args = array();
-            $args['patientId'] = $this->getSelectedPatientID();
+            $args['patientId'] = $pid;
             $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
             
@@ -737,11 +744,13 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
             $specimensArray = $this->getServiceRelatedData($serviceName, $args);;
             
             $labsResults = array();
-            foreach ($specimensArray as $specimen){
+            foreach ($specimensArray as $specimen)
+            {
                 $specimen_rawTime = $specimen['timestamp'];
                 $specimen_date = EwdUtils::convertVistaDateTimeToDate($specimen_rawTime);
                 $specimen_time = EwdUtils::convertVistaDateTimeToDatetime($specimen_rawTime);//getVistaDateTimePart($specimen_rawTime, 'time');
-                foreach($specimen['labResults'] as $labResult){
+                foreach($specimen['labResults'] as $labResult)
+                {
                     $labResult_value = $labResult['value'];
                     $labTest = $labResult['labTest'];
                     $labTest_name = $labTest['name'];

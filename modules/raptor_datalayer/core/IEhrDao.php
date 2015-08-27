@@ -148,7 +148,11 @@ interface IEhrDao
     public function createUnsignedRadiologyOrder($orderChecks, $args);
     public function getAllHospitalLocationsMap();
     public function getAllergiesDetailMap();
-    public function getChemHemLabs();
+    
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
+    public function getChemHemLabs($override_patientId = NULL);
     
     /**
      * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.

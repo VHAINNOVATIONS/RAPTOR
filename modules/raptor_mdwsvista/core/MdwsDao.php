@@ -754,8 +754,12 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
         return \raptor_mdwsvista\MdwsUtils::cancelRadiologyOrder($this, $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
-    public function getChemHemLabs()
+    public function getChemHemLabs($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            return FALSE;   //Indicate this feature is NOT supported!
+        }
         return \raptor_mdwsvista\MdwsUtils::getChemHemLabs($this);
     }
 

@@ -244,9 +244,9 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig);
     }
 
-    public function getChemHemLabs()
+    public function getChemHemLabs($override_patientId = NULL)
     {
-        return $this->m_implclass->getChemHemLabs();
+        return $this->m_implclass->getChemHemLabs($override_patientId);
     }
 
     public function getEncounterStringFromVisit($vistitTo)
