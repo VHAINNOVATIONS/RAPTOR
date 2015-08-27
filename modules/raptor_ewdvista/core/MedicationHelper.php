@@ -38,12 +38,11 @@ class MedicationHelper
 {
     
     //Declare the field numbers
-    private static $FLD_FACILITY = 1;
-    private static $FLD_UNKNOWN2 = 2;
-    private static $FLD_DATETIMESTR = 3;
-    private static $FLD_TITLE = 4;
-    private static $FLD_AUTHOR = 5;
-    private static $FLD_DETAILS = 6;
+    private static $FLDNM_MEDNAME = 'name';
+    private static $FLDNM_STATUS = 'status';
+    private static $FLDNM_STARTDT = 'startDate';
+    private static $FLDNM_DOCDT = 'dateDocumented';
+    private static $FLDNM_COMMENT = 'comment';
     
     private function getFieldTextData($rawfield,$delminiter='^')
     {
@@ -55,33 +54,91 @@ class MedicationHelper
         return trim(substr($rawfield,$strpos+1));
     }
     
-    /**
-     * If atriskmeds is not null, it should be an array of medication names
-     */
-    public function getFormattedMedicationsDetail($rawresult, $atriskmeds=NULL)
+    private static function findSubstringMatchInArray($needle, $haystackarray)
     {
         try
         {
-            
-            error_log("LOOK getFormattedMedicationDetail rawresult input>>>".print_r($rawresult,TRUE));
-            error_log("LOOK getFormattedMedicationDetail atriskmeds input>>>".print_r($atriskmeds,TRUE));
-            
-            if(!is_array($atriskmeds))
+            $cleanneedle = strtoupper(trim($needle));
+            foreach($haystackarray as $check)
             {
-                $atriskmeds = array();
+                $cleancheck = strtoupper(trim($check));
+                if(FALSE !== strpos($cleancheck,$cleanneedle))
+                {
+                    return $check;
+                }
+                if(FALSE !== strpos($cleanneedle,$cleancheck))
+                {
+                    return $check;
+                }
             }
-            
-            $formatted = array();
-            $formatted['details'] = array();
-            $formatted['details'][] = array(
-                    'Med' => 'DATA STUB SAMPLE',
-                    'Status' => 'Active',
-                    'AtRisk' => 'no',
-                    'warn' => NULL
-                );
-            $formatted['atrisk_hits'] = array();
-            
-            return $formatted;
+            return FALSE;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    /**
+     * If atriskmeds is not null, it should be an array of medication names
+     */
+    public function getFormattedMedicationsDetail($rawresult_ar, $atriskmeds_ar=NULL)
+    {
+        try
+        {
+            if(!is_array($rawresult_ar))
+            {
+                throw new \Exception("Cannot format a non-array of data!");
+            }
+            if(!is_array($atriskmeds_ar))
+            {
+                $atriskmeds_ar = array();
+                $checkatrisk = FALSE;
+            } else {
+                $checkatrisk = TRUE;
+            }
+            $displayMeds = array();
+            $displayMedsLast=array();
+            $atriskhits = array();
+            foreach($rawresult_ar as $onemed)
+            {
+                if(is_array($onemed))
+                {
+                    $tempMeds = array();
+                    $medname = $onemed[self::$FLDNM_MEDNAME];
+                    $status = trim($onemed[self::$FLDNM_STATUS]);
+                    $startdt = trim($onemed[self::$FLDNM_STARTDT]);
+                    $docdt = trim($onemed[self::$FLDNM_DOCDT]);
+                    $comment = trim($onemed[self::$FLDNM_COMMENT]);
+                    $cleanstatus = strtoupper(trim($status));
+                    $tempMeds['Med'] = $medname;
+                    $tempMeds['Status'] = $status;
+                    $tempMeds['StartDate'] = $startdt;
+                    $tempMeds['DocDate'] = $docdt;
+                    $tempMeds['Comment'] = $comment;
+                    if(!$checkatrisk)
+                    {
+                        $tempMeds['AtRisk'] = '';
+                        $tempMeds['warn'] = FALSE;
+                        $displayMeds[] = $tempMeds;
+                    } else {
+                        $atriskmatchtext = self::findSubstringMatchInArray($medname, $atriskmeds_ar);
+                        $atrisk = $atriskmatchtext !== FALSE;
+                        $tempMeds['AtRisk'] = ($atrisk ? 'YES' : 'no');
+                        $tempMeds['warn'] = ($atrisk && ($cleanstatus == '' 
+                                || $cleanstatus == 'ACTIVE' 
+                                || $cleanstatus == 'PENDING')); 
+                        if($atrisk)
+                        {
+                            $atriskhits[$atriskmatchtext] = $atriskmatchtext;   //Set the key and value the same!
+                            $displayMeds[] = $tempMeds;
+                        } else {
+                            $displayMedsLast[] = $tempMeds;
+                        }
+                    }
+                }
+            }
+            $mergedMeds = array_merge($displayMeds, $displayMedsLast);
+            $bundle = array('details' => $mergedMeds, 'atrisk_hits'=>$atriskhits);
+            return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
         }
