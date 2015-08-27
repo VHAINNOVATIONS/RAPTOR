@@ -48,6 +48,22 @@ interface IEhrDao
     public function getCustomInfoMessage();
     
     /**
+     * We can only pre-cache orders if the DAO implementation is not statefully
+     * remembering the last selected order as the current order.
+     * 
+     * Returns TRUE if critical functions support tracking ID override for precache purposes.
+     */
+    public function getSupportsPreCacheOrderData();
+    
+    /**
+     * We can only pre-cache patient data if the DAO implementation is not statefully
+     * remembering the last selected order as the current order.
+     * 
+     * Returns TRUE if critical functions support patientId override for precache purposes.
+     */
+    public function getSupportsPreCachePatientData();
+           
+    /**
      * Connect and login to the EHR
      */
     public function connectAndLogin($siteCode, $username, $password);
@@ -133,7 +149,12 @@ interface IEhrDao
     public function getAllHospitalLocationsMap();
     public function getAllergiesDetailMap();
     public function getChemHemLabs();
+    
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
     public function getDiagnosticLabsDetailMap($override_patientId = NULL);
+    
     public function getEGFRDetailMap();
     public function getEncounterStringFromVisit($vistitTo);
     public function getHospitalLocationsMap($startingitem);
@@ -145,13 +166,22 @@ interface IEhrDao
     public function getPathologyReportsDetailMap();
     public function getPendingOrdersMap();
     public function getProblemsListDetailMap();
+    
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
     public function getProcedureLabsDetailMap($override_patientId = NULL);
 
     public function getRadiologyCancellationReasons();
     public function getRadiologyOrderChecks($args);
     public function getRadiologyOrderDialog($imagingTypeId, $patientId);
     public function getRadiologyReportsDetailMap();
+    
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
     public function getRawVitalSignsMap($override_patientId = NULL);
+    
     public function getSurgeryReportsDetailMap();
     public function getUserSecurityKeys();
     public function getVisits();

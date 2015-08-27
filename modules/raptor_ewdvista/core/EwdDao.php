@@ -95,6 +95,28 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         return $this->m_info_message;
     }
     
+    /**
+     * We can only pre-cache order data if the DAO implementation is not statefully
+     * remembering the last selected order as the current order.
+     * 
+     * Returns TRUE if critical functions support tracking ID override for precache purposes.
+     */
+    public function getSupportsPreCacheOrderData()
+    {
+        return TRUE;    //We have implemented an override for the tracking ID
+    }
+    
+    /**
+     * We can only pre-cache patient data if the DAO implementation is not statefully
+     * remembering the last selected order as the current order.
+     * 
+     * Returns TRUE if critical functions support patientId override for precache purposes.
+     */
+    public function getSupportsPreCachePatientData()
+    {
+        return TRUE;    //We are implementing an override for the patientId
+    }
+    
     
     private function endsWith($string, $test) 
     {
@@ -877,7 +899,8 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
     {
         if($override_patientId != NULL)
         {
-            throw new \Exception("Override not implemented yet!");
+            error_log("LOOK TODO --- build in support for optional param in getDiagnosticLabsDetailMap!");
+            return FALSE;   //Optional param support is NOT yet implemented
         }
         /*
          * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getDiagnosticLabsDetail' is >>>Array
@@ -1219,7 +1242,8 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
     {
         if($override_patientId != NULL)
         {
-            throw new \Exception("Override not implemented yet!");
+            error_log("LOOK TODO --- build in support for optional param in getProcedureLabsDetailMap!");
+            return FALSE;   //Optional param support is NOT yet implemented
         }
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
@@ -1340,7 +1364,8 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
     {
         if($override_patientId != NULL)
         {
-            throw new \Exception("Feature not yet implemented for patientId override!");
+            error_log("LOOK TODO --- build in support for optional param in getRawVitalSignsMap!");
+            return FALSE;   //Optional param support is NOT yet implemented
         }
         try
         {

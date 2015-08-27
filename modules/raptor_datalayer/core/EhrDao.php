@@ -123,7 +123,29 @@ class EhrDao implements \raptor\IEhrDao
     
     public function getCustomInfoMessage()
     {
-        return $this->getCustomInfoMessage;
+        return $this->m_implclass->getCustomInfoMessage();
+    }
+    
+    /**
+     * We can only pre-cache orders if the DAO implementation is not statefully
+     * remembering the last selected order as the current order.
+     * 
+     * Returns TRUE if critical functions support tracking ID override for precache purposes.
+     */
+    public function getSupportsPreCacheOrderData()
+    {
+        return $this->m_implclass->getSupportsPreCacheOrderData();
+    }
+    
+    /**
+     * We can only pre-cache patient data if the DAO implementation is not statefully
+     * remembering the last selected order as the current order.
+     * 
+     * Returns TRUE if critical functions support patientId override for precache purposes.
+     */
+    public function getSupportsPreCachePatientData()
+    {
+        return $this->m_implclass->getSupportsPreCachePatientData();
     }
     
     public function connectAndLogin($siteCode, $username, $password) 
@@ -292,6 +314,9 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getEGFRDetailMap();
     }
 
+    /**
+     * Returns FALSE if optional param is not NULL and feature is not supported.
+     */
     public function getRawVitalSignsMap($override_patientId = NULL)
     {
         $result = $this->m_implclass->getRawVitalSignsMap($override_patientId);
@@ -323,11 +348,17 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getVitalsDetailMap();
     }
 
+    /**
+     * Returns FALSE if optional param is not NULL and feature is not supported.
+     */
     public function getProcedureLabsDetailMap($override_patientId = NULL)
     {
         return $this->m_implclass->getProcedureLabsDetailMap();
     }
 
+    /**
+     * Returns FALSE if optional param is not NULL and feature is not supported.
+     */
     public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
         return $this->m_implclass->getDiagnosticLabsDetailMap();

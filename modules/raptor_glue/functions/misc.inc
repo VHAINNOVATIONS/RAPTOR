@@ -986,19 +986,37 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
         {
             //module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
             $tids = trim($_GET['tids']);
+error_log("LOOK called precache with tids=$tids");            
             $tids_ar=explode(',',$tids);
             $cachedcount=0;
-            foreach($tids_ar as $onetid)
+            foreach($tids_ar as $raw_onetid)
             {
-                if($cachedcount >= PRE_CACHE_SIZE)
+                $onetid = trim($raw_onetid);
+                if($onetid > '')
                 {
-                    //We have cached enough, time to stop
-                    break;
+                    if($cachedcount >= PRE_CACHE_SIZE)
+                    {
+                        //We have cached enough, time to stop
+                        break;
+                    }
+                    $oContext = \raptor\Context::getInstance();
+                    $oEhrDao = $oContext->getEhrDao();
+                    if(!$oEhrDao->getSupportsPreCacheOrderData())
+                    {
+                        //Pre-caching is NOT supported by this DAO!
+                        break;
+                    }
+error_log("LOOK processing precache with onetid=$onetid");            
+                    $oEhrDao->getDashboardDetailsMap($onetid);  //Let the DAO use its own cache
+                    if($oEhrDao->getSupportsPreCachePatientData())
+                    {
+                        $pid = $oEhrDao->getPatientIDFromTrackingID($onetid);
+                        $oEhrDao->getRawVitalSignsMap($pid);            //Cache this one
+                        $oEhrDao->getProcedureLabsDetailMap($pid);      //Cache this one
+                        $oEhrDao->getDiagnosticLabsDetailMap($pid);     //Cache this one
+                    }
+                    $cachedcount++;
                 }
-                $oContext = \raptor\Context::getInstance();
-                $oEhrDao = $oContext->getEhrDao();
-                $oEhrDao->getDashboardDetailsMap($onetid);  //Let the DAO use its own cache
-                $cachedcount++;
             }
             return array('feedback' => 
                 array('#type'=>'item'
@@ -1006,6 +1024,7 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
                 );
         }
     } catch (\Exception $ex) {
+        error_log("Failed pre-cache action because $ex");
         throw $ex;
     }
 }

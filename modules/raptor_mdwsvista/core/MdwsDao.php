@@ -89,6 +89,28 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     }
     
     /**
+     * We can only pre-cache orders if the DAO implementation is not statefully
+     * remembering the last selected order as the current order.
+     * 
+     * Returns TRUE if critical functions support tracking ID override for precache purposes.
+     */
+    public function getSupportsPreCacheOrderData()
+    {
+        return TRUE;    //We have implemented an override for the tracking ID
+    }
+    
+    /**
+     * We can only pre-cache patient data if the DAO implementation is not statefully
+     * remembering the last selected order as the current order.
+     * 
+     * Returns TRUE if critical functions support patientId override for precache purposes.
+     */
+    public function getSupportsPreCachePatientData()
+    {
+        return FALSE;   //The MDWS layer stores the patient ID statefully
+    }
+    
+    /**
      * Make it simpler to output details about this instance.
      * @return text
      */
@@ -427,7 +449,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         try
         {
-            //error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
+error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
             $aResult = array();
             $oContext = \raptor\Context::getInstance();
             if ($oContext != NULL)
@@ -454,6 +476,7 @@ error_log("LOOK Found it in the $sThisResultName cache!");
 
                 //Create it now and add it to the cache
                 $oWL = new \raptor_mdwsvista\WorklistData($oContext);
+error_log("LOOK make call now getDashboardDetailsMap($tid)...");
                 $aResult = $oWL->getDashboardMap($tid); //20150724
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
@@ -510,12 +533,12 @@ error_log("LOOK Found it in the $sThisResultName cache!");
         }
     }
 
-    private function getProtocolSupportingDataNoCache($oContext, $function_name, $args = NULL)
+    private function getProtocolSupportingDataNoCache($oContext, $function_name, $args = NULL, $override_patientId = NULL)
     {
         $aResult = array();
         if ($this->m_oPS == NULL)
         {
-            $this->m_oPS = new \raptor_mdwsvista\ProtocolSupportingData($oContext);
+            $this->m_oPS = new \raptor_mdwsvista\ProtocolSupportingData($oContext, $override_patientId);
         }
         if ($args != NULL)
         {
@@ -529,7 +552,7 @@ error_log("LOOK Found it in the $sThisResultName cache!");
     /**
      * If a cache name is provided, then cache will be checked and updated using long age value
      */
-    private function getProtocolSupportingData($function_name, $args = NULL, $cache_item_name=NULL)
+    private function getProtocolSupportingData($function_name, $args = NULL, $cache_item_name=NULL, $override_patientId = NULL)
     {
         try 
         {
@@ -542,7 +565,7 @@ error_log("LOOK Found it in the $sThisResultName cache!");
             if($cache_item_name == NULL)
             {
                 //Simply call it, no cache.
-                $aResult = $this->getProtocolSupportingDataNoCache($oContext, $function_name, $args);
+                $aResult = $this->getProtocolSupportingDataNoCache($oContext, $function_name, $args, $override_patientId);
             } else {
                 //Utilize the cache.
                 $sThisResultName = $cache_item_name;
@@ -605,18 +628,18 @@ error_log("LOOK Found it in the $sThisResultName cache!");
     {
         if($override_patientId != NULL)
         {
-            throw new \Exception("Override not implemented yet!");
+            return FALSE;   //Indicate this feature is NOT supported!
         }
-        return $this->getProtocolSupportingData('getProcedureLabsDetail');
+        return $this->getProtocolSupportingData('getProcedureLabsDetail',NULL,NULL,$override_patientId);
     }
 
     public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
         if($override_patientId != NULL)
         {
-            throw new \Exception("Override not implemented yet!");
+            return FALSE;   //Indicate this feature is NOT supported!
         }
-        return $this->getProtocolSupportingData('getDiagnosticLabsDetail');
+        return $this->getProtocolSupportingData('getDiagnosticLabsDetail',NULL,NULL,$override_patientId);
     }
 
     public function getPathologyReportsDetailMap()
@@ -669,9 +692,9 @@ error_log("LOOK Found it in the $sThisResultName cache!");
     {
         if($override_patientId != NULL)
         {
-            throw new \Exception("Feature not yet implemented for patientId override!");
+            return FALSE;   //Indicate this feature is NOT supported!
         }
-        return $this->getProtocolSupportingData('getRawVitalSigns');
+        return $this->getProtocolSupportingData('getRawVitalSigns',NULL,NULL,$override_patientId);
     }
 
     public function getImagingTypesMap()

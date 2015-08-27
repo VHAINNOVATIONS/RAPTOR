@@ -617,6 +617,7 @@ class WorklistData
      */
     public function getDashboardMap($override_match_this_IEN=NULL)
     {
+error_log("LOOK in getDashboardMap($override_match_this_IEN)...");
         try
         {
             if($override_match_this_IEN != NULL)
