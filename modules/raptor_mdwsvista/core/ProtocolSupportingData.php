@@ -306,7 +306,6 @@ class ProtocolSupportingData
         return $soapResult;
     }
     
-    
     /**
      * Create the following three arrays of data and group them into one returned array.
      * 1 DisplayVitals -- All available vitals formatted for display

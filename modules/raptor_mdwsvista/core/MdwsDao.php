@@ -576,8 +576,9 @@ error_log("LOOK Found it in the $sThisResultName cache!");
 
     public function getAllHospitalLocationsMap()
     {
-        $args = array($this);
-        return $this->getProtocolSupportingData('getAllHospitalLocations', $args);
+        return $this->getProtocolSupportingData('getAllHospitalLocations');
+        //$args = array($this);
+        //return $this->getProtocolSupportingData('getAllHospitalLocations', $args);
     }
 
     public function getAllergiesDetailMap()
