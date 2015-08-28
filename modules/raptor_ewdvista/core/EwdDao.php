@@ -38,7 +38,7 @@ require_once 'MedicationHelper.php';
 require_once 'LabsHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150826.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150828.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -755,6 +755,113 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
         }
     }
 
+    public function getEGFRDetailMap($override_patientId = NULL)
+    {
+error_log("LOOK starting getEGFRDetailMap($override_patientId)");        
+        try
+        {
+            $oContext = \raptor\Context::getInstance();
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
+            $alldata = $myhelper->getLabsDetailData($pid);
+            $clean_result = $alldata[1];
+error_log("LOOK done getEGFRDetailMap($pid)>>>".print_r($clean_result,TRUE));        
+            return $clean_result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    public function getDiagnosticLabsDetailMap($override_patientId = NULL)
+    {
+        return array();
+        
+        try
+        {
+            $oContext = \raptor\Context::getInstance();
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
+            $alldata = $myhelper->getLabsDetailData($pid);
+            $clean_result = $alldata[0];
+error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_result,TRUE));
+            return $clean_result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+        /*
+         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getDiagnosticLabsDetail' is >>>Array
+(
+    [0] => Array
+        (
+            [DiagDate] => 03/16/2010 10:23 am
+            [Creatinine] => 1.3 mg/dL
+            [eGFR] => 56  mL/min/1.73 m^2
+            [eGFR_Health] => warn
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+    [1] => Array
+        (
+            [DiagDate] => 03/16/2010 10:21 am
+            [Creatinine] => 1.1 mg/dL
+            [eGFR] => 68  mL/min/1.73 m^2
+            [eGFR_Health] => good
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+    [2] => Array
+        (
+            [DiagDate] => 03/16/2010 10:20 am
+            [Creatinine] => 1.3 mg/dL
+            [eGFR] => 56  mL/min/1.73 m^2
+            [eGFR_Health] => warn
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+    [3] => Array
+        (
+            [DiagDate] => 03/16/2010 10:18 am
+            [Creatinine] => <span class='medical-value-danger'>!! 1.5 mg/dL !!</span>
+            [eGFR] => 48  mL/min/1.73 m^2
+            [eGFR_Health] => warn
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+    [4] => Array
+        (
+            [DiagDate] => 03/16/2010 10:17 am
+            [Creatinine] => 1.2 mg/dL
+            [eGFR] => 62  mL/min/1.73 m^2
+            [eGFR_Health] => good
+            [Ref] => (eGFR calculated) .9 - 1.4
+        )
+
+)
+
+         */
+    }
+
+    public function getProcedureLabsDetailMap($override_patientId = NULL)
+    {
+        if($override_patientId != NULL)
+        {
+            error_log("LOOK TODO --- build in support for optional param in getProcedureLabsDetailMap!");
+            return FALSE;   //Optional param support is NOT yet implemented
+        }
+        $serviceName = $this->getCallingFunctionName();
+	return $this->getServiceRelatedData($serviceName);
+    }
+    
     /**
      * If override_tracking_id is provided, then return dashboard for that order
      * instead of the currently selected order.
@@ -884,116 +991,6 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
             $namedparts['ien'] = trim($parts[1]);
         }
         return $namedparts;
-    }
-
-    public function getDiagnosticLabsDetailMap($override_patientId = NULL)
-    {
-        return array();
-        
-        try
-        {
-            $oContext = \raptor\Context::getInstance();
-            if($override_patientId != NULL)
-            {
-                $pid = $override_patientId;
-            } else {
-                $pid = $this->getSelectedPatientID();
-            }
-            $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
-            $alldata = $myhelper->getLabsDetailData($pid);
-            return $alldata[0];
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-        /*
-         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getDiagnosticLabsDetail' is >>>Array
-(
-    [0] => Array
-        (
-            [DiagDate] => 03/16/2010 10:23 am
-            [Creatinine] => 1.3 mg/dL
-            [eGFR] => 56  mL/min/1.73 m^2
-            [eGFR_Health] => warn
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-    [1] => Array
-        (
-            [DiagDate] => 03/16/2010 10:21 am
-            [Creatinine] => 1.1 mg/dL
-            [eGFR] => 68  mL/min/1.73 m^2
-            [eGFR_Health] => good
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-    [2] => Array
-        (
-            [DiagDate] => 03/16/2010 10:20 am
-            [Creatinine] => 1.3 mg/dL
-            [eGFR] => 56  mL/min/1.73 m^2
-            [eGFR_Health] => warn
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-    [3] => Array
-        (
-            [DiagDate] => 03/16/2010 10:18 am
-            [Creatinine] => <span class='medical-value-danger'>!! 1.5 mg/dL !!</span>
-            [eGFR] => 48  mL/min/1.73 m^2
-            [eGFR_Health] => warn
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-    [4] => Array
-        (
-            [DiagDate] => 03/16/2010 10:17 am
-            [Creatinine] => 1.2 mg/dL
-            [eGFR] => 62  mL/min/1.73 m^2
-            [eGFR_Health] => good
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-)
-
-         */
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
-    }
-
-    public function getEGFRDetailMap($override_patientId = NULL)
-    {
-error_log("LOOK starting getEGFRDetailMap($override_patientId)");        
-        try
-        {
-            $oContext = \raptor\Context::getInstance();
-            if($override_patientId != NULL)
-            {
-                $pid = $override_patientId;
-            } else {
-                $pid = $this->getSelectedPatientID();
-            }
-            $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
-            $alldata = $myhelper->getLabsDetailData($pid);
-            $clean_result = $alldata[1];
-error_log("LOOK done getEGFRDetailMap($pid)>>>".print_r($clean_result,TRUE));        
-            return $clean_result;
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-
-        /*
-         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getEGFRDetail' is >>>Array
-(
-    [LATEST_EGFR] => 56
-    [MIN_EGFR_10DAYS] => 
-    [MIN_EGFR_15DAYS] => 
-    [MIN_EGFR_30DAYS] => 
-    [MIN_EGFR_45DAYS] => 
-    [MIN_EGFR_60DAYS] => 
-    [MIN_EGFR_90DAYS] => 
-)
-
-         */
     }
 
     public function getEncounterStringFromVisit($vistitTo)
@@ -1254,17 +1251,6 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
 )
 
          */
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
-    }
-
-    public function getProcedureLabsDetailMap($override_patientId = NULL)
-    {
-        if($override_patientId != NULL)
-        {
-            error_log("LOOK TODO --- build in support for optional param in getProcedureLabsDetailMap!");
-            return FALSE;   //Optional param support is NOT yet implemented
-        }
         $serviceName = $this->getCallingFunctionName();
 	return $this->getServiceRelatedData($serviceName);
     }

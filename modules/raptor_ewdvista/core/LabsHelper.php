@@ -92,6 +92,8 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
      */
     public function getLabsDetailData($override_patientId=NULL)
     {
+        //TODO --- CACHE THIS HERE
+        
         module_load_include('php', 'raptor_formulas', 'core/Labs');
         $myDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
         if($override_patientId == NULL)
@@ -215,11 +217,11 @@ error_log("LOOK one lab for $pid >>> ".print_r($lab,TRUE));
 
             if($foundCreatinine)
             {
-error_log("LOOK ... one lab for $pid foundCreatinine!");        
                 $creatinineRefRange = $lab['refRange'];
                 $foundEGFR = FALSE;
                 $checkDate = $lab['date'];
                 $dDate = strtotime($checkDate);
+error_log("LOOK ... one lab for $pid foundCreatinine!  (rawdate= $checkDate ; converted date = $dDate)");        
                 foreach($sortedLabs as $checkLab)
                 {
                     if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
@@ -274,10 +276,12 @@ error_log("LOOK ... one lab for $pid BLANK EGFR!");
                         $aJustEGFR['LATEST_EGFR'] = $eGFR;
                         $aJustEGFRDate['LATEST_EGFR'] = $dDate;
                     }
+error_log("LOOK ... one lab for $pid got some EGFR=$eGFR for date=$dDate!");        
                     //Now process the day cubbies
                     $dToday = strtotime(date('Y-m-d'));
                     $nSeconds = $dToday - $dDate;
                     $nDays = $nSeconds / 86400;
+error_log("LOOK ... one lab for $pid got some EGFR=$eGFR for date=$dDate!  (days= $nDays )");        
                     if($nDays <= 10)
                     {
                         $thiskey = 'MIN_EGFR_10DAYS';
