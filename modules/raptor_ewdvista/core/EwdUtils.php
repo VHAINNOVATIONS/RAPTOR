@@ -102,11 +102,17 @@ class EwdUtils
      */
     public static function convertVistaDateToYYYYMMDD($vistaDateTime) {
         $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
-        $year = 1700 + substr($datePart, 0, 3);
-        $month = substr($datePart, 3, 2);
-        $day = substr($datePart, 5, 2);
-        
-        return $year.$month.$day;
+        if($datePart > '')
+        {
+            $year = 1700 + substr($datePart, 0, 3);
+            $month = substr($datePart, 3, 2);
+            $day = substr($datePart, 5, 2);
+
+            $converted = $year.$month.$day;
+        } else {
+            $converted = NULL;  //Nothing to convert
+        }
+        return $converted;
     }
 
     /**

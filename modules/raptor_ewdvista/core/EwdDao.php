@@ -38,9 +38,10 @@ require_once 'MedicationHelper.php';
 require_once 'LabsHelper.php';
 require_once 'AllergyHelper.php';
 require_once 'SurgeryReportHelper.php';
+require_once 'ProblemsListHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150901.2');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150901.3');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1062,122 +1063,25 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
 
     public function getProblemsListDetailMap()
     {
-        /*
-         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getProblemsListDetail' is >>>Array
-(
-    [0] => Array
-        (
-            [Title] => Meningitis, Listeria
-            [OnsetDate] => 06/07/2010 12:00 am
-            [Snippet] => Meningitis, Listeria
-            [Details] => Array
-                (
-                    [Type of Note] => Problem
-                    [Provider Narrative] => Meningitis, Listeria
-                    [Note Narrative] =>  
-                    [Status] => A
-                    [Observer] => PROVIDER,THIRTYTWO
-                    [Comment] =>  
-                    [Facility] => CAMP MASTER
-                )
+        try
+        {
+            $myhelper = new \raptor_ewdvista\ProblemsListHelper();
+            $serviceName = $this->getCallingFunctionName();
+            $pid = $this->getSelectedPatientID();
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get problems detail without a patient ID!');
+            }
 
-        )
-
-    [1] => Array
-        (
-            [Title] => Hypertension
-            [OnsetDate] => 04/07/2005 12:00 am
-            [Snippet] => Hypertension
-            [Details] => Array
-                (
-                    [Type of Note] => Problem
-                    [Provider Narrative] => Hypertension
-                    [Note Narrative] =>  
-                    [Status] => A
-                    [Observer] => ZZVEHU,ONEHUNDRED
-                    [Comment] =>  
-                    [Facility] => CAMP MASTER
-                )
-
-        )
-
-    [2] => Array
-        (
-            [Title] => Hyperlipidemia
-            [OnsetDate] => 04/07/2005 12:00 am
-            [Snippet] => Hyperlipidemia
-            [Details] => Array
-                (
-                    [Type of Note] => Problem
-                    [Provider Narrative] => Hyperlipidemia
-                    [Note Narrative] =>  
-                    [Status] => A
-                    [Observer] => ZZVEHU,ONEHUNDRED
-                    [Comment] =>  
-                    [Facility] => CAMP MASTER
-                )
-
-        )
-
-    [3] => Array
-        (
-            [Title] => Acute myocardial infarction, unspecified...
-            [OnsetDate] => 03/17/2005 12:00 am
-            [Snippet] => Acute myocardial infarction, unspecified...
-            [Details] => Array
-                (
-                    [Type of Note] => Problem
-                    [Provider Narrative] => Acute myocardial infarction, unspecified site, episode of care unspecified
-                    [Note Narrative] =>  
-                    [Status] => A
-                    [Observer] => DOCTOR,ONE
-                    [Comment] =>  
-                    [Facility] => CAMP MASTER
-                )
-
-        )
-
-    [4] => Array
-        (
-            [Title] => Chronic Systolic Heart failure
-            [OnsetDate] => 03/09/2004 12:00 am
-            [Snippet] => Chronic Systolic Heart failure
-            [Details] => Array
-                (
-                    [Type of Note] => Problem
-                    [Provider Narrative] => Chronic Systolic Heart failure
-                    [Note Narrative] =>  
-                    [Status] => A
-                    [Observer] => ZZLABTECH,SPECIAL
-                    [Comment] =>  
-                    [Facility] => CAMP MASTER
-                )
-
-        )
-
-    [5] => Array
-        (
-            [Title] => Diabetes Mellitus Type II or unspecified
-            [OnsetDate] => 02/08/2000 12:00 am
-            [Snippet] => Diabetes Mellitus Type II or unspecified
-            [Details] => Array
-                (
-                    [Type of Note] => Problem
-                    [Provider Narrative] => Diabetes Mellitus Type II or unspecified
-                    [Note Narrative] =>  
-                    [Status] => A
-                    [Observer] => DOCTOR,ONE
-                    [Comment] =>  
-                    [Facility] => CAMP MASTER
-                )
-
-        )
-
-)
-
-         */
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+            //Get the medication data from EWD services
+            $args = array();
+            $args['patientId'] = $pid;
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $formatted_detail = $myhelper->getFormattedProblemsDetail($rawresult);
+            return $formatted_detail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getProviders($neworderprovider_name)
@@ -1352,250 +1256,6 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
 
     public function getSurgeryReportsDetailMap()
     {
-        /*
-         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getSurgeryReportsDetail' is >>>Array
-(
-    [0] => Array
-        (
-            [Title] => LEFT INGUINAL HERNIA REPAIR WITH MESH
-            [ReportDate] => 12/31/1969 07:00 pm
-            [Snippet] => LOCAL TITLE: OPERATION REPORT           ...
-            [Details] => LOCAL TITLE: OPERATION REPORT                                   <br />
-DATE OF NOTE: DEC 08, 2006@07:30     ENTRY DATE: DEC 08, 2006@14:01:19      <br />
-     SURGEON: PROVIDER,ONE            ATTENDING: TDPROVIDER,ONE               <br />
-     URGENCY:                            STATUS: COMPLETED                     <br />
-     SUBJECT: Case #: 10007                                                    <br />
-<br />
-SURGEON:                PROVIDER,ONE <br />
- <br />
- 1ST ASST:               PROVIDER,TWO <br />
- <br />
- ATTENDING:              TDPROVIDER,ONE <br />
- <br />
- PROCEDURE:            LEFT INGUINAL HERNIA REPAIR WITH MESH<br />
- <br />
- HISTORY:  Essentially patient  underwent  preop evaluation  for  left <br />
- inguinal mass  noted  since  September 2004.    Recently  PT became  more <br />
- symptomatic with  increased size and  tenderness.  Patient  denied any history<br />
- of melena or bloody stools.   Denied a history of constipation or diarrhea. <br />
- No recent fevers or chills.   He was admitted on December 7, 2006,<br />
- for an elective left inguinal hernia repair. <br />
- <br />
- SUMMARY OF PROCEDURES:   After  consent was  obtained,  the  patient was <br />
- prepped and  draped in  sterile fashion.   Lidocaine  1% was  used to <br />
- anesthetize the  skin and a 5-cm incision was made in the left groin.  <br />
- The skin and subcu was dissected down to the  external oblique fascia.  <br />
- The fascia was incised to the external ring and the spermatic cord and<br />
- all its contents were isolated  with a Penrose drain.  The  hernia sac<br />
- was then dissected and reduced into the large direct inguinal defect.  <br />
- Three large  mesh plugs  were secured  together and  used to  plug the<br />
- direct  defect  and  secured  in place  with  2  interrupted  Prolene<br />
- stitches.   An onlay patch was  then applied and secured  to the pubic<br />
- tubercle  and secured to the fascial edges using a running 2-0 Prolene<br />
- suture on  either side.  The external oblique was then closed over the<br />
- repair, being cognizant  of the ilioinguinal  nerve.  All superficial<br />
- bleeding was  controlled with electrocautery.   Copious irrigation was<br />
- used  and additional 1% Lidocaine  was used to  anesthetize the subcu and<br />
- fascia.  Scarpa  fascia was closed  using 4-0 Vicryl.   Additional 4-0  <br />
- Vicryl was  used in  a subcuticular  fashion  to close  the skin.  <br />
- Steri-Strips were applied and dressings.   The patient  was extubated and<br />
- stable to recovery, tolerated the procedure well.   The attending<br />
- physician, TDPROVDIER,ONE, was scrubbed during the entire case.<br />
- <br />
-/es/ e9@sWkjz\(hy<br />
-Mg<br />
-Signed: 12/08/2006 18:19<br />
- <br />
-/es/ e9@sf?BKFw\srt<br />
-Mg<br />
-Cosigned: 12/11/2006 08:45<br />
-=========================================================================<br />
- LOCAL TITLE: NURSE INTRAOPERATIVE REPORT                        <br />
-DATE OF NOTE: DEC 08, 2006@07:30     ENTRY DATE: DEC 08, 2006@10:36:08      <br />
-      AUTHOR: ZZTDNURSE,ONE        EXP COSIGNER:                           <br />
-     URGENCY:                            STATUS: COMPLETED                     <br />
-     SUBJECT: Case #: 10007                                                    <br />
-<br />
-Operating Room:  OR4                    Surgical Priority: ELECTIVE<br />
-<br />
-Patient in Hold: DEC 08, 2006  07:00    Patient in OR:  DEC 08, 2006  07:30<br />
-Operation Begin: DEC 08, 2006  08:00    Operation End:  DEC 08, 2006  09:45<br />
-                                        Patient Out OR: DEC 08, 2006  10:00<br />
-<br />
-Major Operations Performed:<br />
-Primary: LEFT INGUINAL HERNIA REPAIR<br />
-<br />
-Wound Classification: CLEAN<br />
-Operation Disposition: PACU (RECOVERY ROOM)<br />
-Discharged Via: STRETCHER<br />
-<br />
-Surgeon: PROVIDER,ONE                   First Assist: PROVIDER,TWO<br />
-Attend Surg: TDPROVIDER,ONE             Second Assist: N/A<br />
-Anesthetist: PROVIDER,THREE             Assistant Anesth: N/A<br />
-<br />
-Other Scrubbed Assistants: N/A<br />
-<br />
-OR Support Personnel:<br />
-  Scrubbed                              Circulating<br />
-  NURSE,ONE ()                          TDNURSE,ONE ()<br />
-<br />
-Other Persons in OR: N/A<br />
-<br />
-Preop Mood:       RELAXED               Preop Consc:    ALERT-ORIENTED<br />
-Preop Skin Integ: INTACT                Preop Converse: N/A<br />
-<br />
-Valid Consent/ID Band Confirmed By: TDNURSE,ONE<br />
-Mark on Surgical Site Confirmed: YES<br />
-  Marked Site Comments: NO COMMENTS ENTERED<br />
-<br />
-Preoperative Imaging Confirmed:  YES<br />
-  Imaging Confirmed Comments: NO COMMENTS ENTERED<br />
-<br />
-Time Out Verification Completed: YES<br />
-  Time Out Verified Comments: NO COMMENTS ENTERED<br />
-<br />
-Skin Prep By: PROVIDER,TWO              Skin Prep Agent: BETADINE<br />
-Skin Prep By (2): N/A                   2nd Skin Prep Agent: N/A<br />
-<br />
-Preop Surgical Site Hair Removal by: PROVIDER,ONE<br />
-Surgical Site Hair Removal Method: DEPILATORY<br />
-  Hair Removal Comments: NO COMMENTS ENTERED<br />
-<br />
-Surgery Position(s): <br />
-  SUPINE                                Placed: N/A<br />
-<br />
-Restraints and Position Aids: <br />
-  SAFETY STRAP                      Applied By: N/A<br />
-  ARMBOARD                          Applied By: N/A<br />
-<br />
-Electrocautery Unit:       #4<br />
-ESU Coagulation Range:     30<br />
-ESU Cutting Range:         N/A<br />
-Electroground Position(s): RIGHT ANT THIGH<br />
-<br />
-Material Sent to Laboratory for Analysis: <br />
-Specimens: <br />
-  Left Inguinal Hernia Sac<br />
-Cultures:  N/A<br />
-<br />
-Anesthesia Technique(s):<br />
-  MONITORED ANESTHESIA CARE  (PRINCIPAL)<br />
-<br />
-Tubes and Drains: N/A<br />
-<br />
-Tourniquet: N/A<br />
-<br />
-Thermal Unit: N/A<br />
-<br />
-Prosthesis Installed: N/A<br />
-<br />
-Medications: <br />
-  BUPIVACAINE 0.5% 50ML INJ<br />
-    Time Administered: DEC 08, 2006  07:45<br />
-      Route: INFILTRATE                 Dosage: 15cc<br />
-      Ordered By: PROVIDER,ONE          Admin By: PROVIDER,ONE<br />
-      Comments: Used 1:1 with LIDOCAINE<br />
-  LIDOCAINE 1% 50ML MDV<br />
-    Time Administered: DEC 08, 2006  07:45<br />
-      Route: INFILTRATE                 Dosage: 15cc<br />
-      Ordered By: PROVIDER,ONE          Admin By: PROVIDER,ONE<br />
-      Comments: Used 1:1 with BUPIVACAINE<br />
-<br />
-Irrigation Solution(s): <br />
-  NORMAL SALINE<br />
-<br />
-Blood Replacement Fluids: N/A<br />
-<br />
-Sponge Count Correct:     YES<br />
-Sharps Count Correct:     YES<br />
-Instrument Count Correct: YES<br />
-Counter:                  NURSE,ONE<br />
-Counts Verified By:       TDNURSE,ONE<br />
-<br />
-Dressing: 4X4<br />
-Packing:  N/A<br />
-<br />
-Blood Loss: 9 ml                        Urine Output: <br />
-<br />
-Postoperative Mood:           RELAXED<br />
-Postoperative Consciousness:  ALERT-ORIENTED<br />
-Postoperative Skin Integrity: INTACT<br />
-Postoperative Skin Color:     N/A<br />
-<br />
-Laser Unit(s): N/A<br />
-<br />
-Sequential Compression Device: N/A<br />
-<br />
-Cell Saver(s): N/A<br />
-<br />
-Devices: N/A<br />
-<br />
-Nursing Care Comments: NO COMMENTS ENTERED<br />
- <br />
-/es/ hbi&zHn)pf7<br />
-gb<br />
-Signed: 12/08/2006 17:49<br />
-=========================================================================<br />
- LOCAL TITLE: ANESTHESIA REPORT                                  <br />
-DATE OF NOTE: DEC 08, 2006@07:30     ENTRY DATE: DEC 08, 2006@11:00:04      <br />
-      AUTHOR: PROVIDER,THREE          ATTENDING: TDPROVIDER,TWO               <br />
-     URGENCY:                            STATUS: COMPLETED                     <br />
-     SUBJECT: Case #: 10007                                                    <br />
-<br />
-Operating Room: OR4<br />
-<br />
-Anesthetist: PROVIDER,THREE             Relief Anesth: <br />
-Anesthesiologist: TDPROVIDER,TWO        Assist Anesth: <br />
-Attending Code: 4. STAFF ASSISTING RESIDENT<br />
-<br />
-Anes Begin:  DEC 08, 2006  07:00        Anes End:  DEC 08, 2006  10:00<br />
-<br />
-ASA Class: 1-NO DISTURB.<br />
-<br />
-Operation Disposition: PACU (RECOVERY ROOM)<br />
-<br />
-Anesthesia Technique(s): <br />
-MONITORED ANESTHESIA CARE  (PRINCIPAL)<br />
-  Agent:     PROPOFOL 10MG/ML INJ,EMULSION<br />
-  Intubated: NO<br />
-<br />
-Procedure(s) Performed:<br />
-Principal: LEFT INGUINAL HERNIA REPAIR<br />
-<br />
-Medications:<br />
-  BUPIVACAINE 0.5% 50ML INJ<br />
-    Time Administered: DEC 08, 2006  07:45<br />
-      Route: INFILTRATE                 Dosage: 15cc<br />
-      Ordered By: PROVIDER,ONE          Admin By: PROVIDER,ONE<br />
-      Comments: Used 1:1 with LIDOCAINE<br />
-  LIDOCAINE 1% 50ML MDV<br />
-    Time Administered: DEC 08, 2006  07:45<br />
-      Route: INFILTRATE                 Dosage: 15cc<br />
-      Ordered By: PROVIDER,ONE          Admin By: PROVIDER,ONE<br />
-      Comments: Used 1:1 with BUPIVACAINE<br />
-<br />
-Intraoperative Blood Loss: 9 ml         Urine Output: <br />
-PAC(U) Admit Score:                     PAC(U) Discharge Score: <br />
-<br />
-Postop Anesthesia Note Date/Time: <br />
- <br />
-/es/ z5X`0I&Dq*MK]8<br />
-`5(D|v#OX<br />
-Signed: 12/08/2006 18:29<br />
-=========================================================================<br />
-        )
-
-    [1] => Array
-        (
-            [Title] => RIH
-            [ReportDate] => 12/31/1969 07:00 pm
-            [Snippet] => No reports are available for this case.<...
-            [Details] => No reports are available for this case.<br />
-        )
-
-)
-
-         */
         try
         {
             $myhelper = new \raptor_ewdvista\SurgeryReportHelper();

@@ -1632,6 +1632,7 @@ class ProtocolSupportingData
             //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getProblemList", array('type'=>'active'));
             $result = array();       
             $numNotes = 0;
+//error_log("LOOK ABOUT TO PROCESS getProblemsListDetail >>>" . print_r($serviceResponse->getProblemListResult,TRUE));
             if(!isset($serviceResponse->getProblemListResult->arrays->TaggedProblemArray->count)) return $result;
             $numTaggedNotes = $serviceResponse->getProblemListResult->arrays->TaggedProblemArray->count;
             if($numTaggedNotes > 0){
@@ -1647,7 +1648,15 @@ class ProtocolSupportingData
                     elseif ($objType == 'object')
                         $RptTO = $serviceResponse->getProblemListResult->arrays->TaggedProblemArray->problems->ProblemTO;
                     else
+                    {
+                        /*
+                        error_log("LOOK ABOUT TO BAIL getProblemsListDetail because objtype=$objType RAW1>>>" 
+                                . print_r($serviceResponse->getProblemListResult->arrays->TaggedProblemArray->problems->ProblemTO,TRUE));
+                        error_log("LOOK ABOUT TO BAIL getProblemsListDetail because objtype=$objType RAW2>>>" 
+                                . print_r($serviceResponse->getProblemListResult->arrays->TaggedProblemArray,TRUE));
+                         */
                         return $result;
+                    }
 
                     $tempRpt = array(); 
     //                $guid = com_create_guid();
