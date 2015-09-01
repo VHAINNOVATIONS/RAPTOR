@@ -41,6 +41,8 @@ class AllergyHelper
     private static $FLDNM_FACILITY = 'facility';
     private static $FLDNM_FAC_NAME = 'name';
     private static $FLDNM_FAC_ID = 'id';
+    private static $FLDNM_DRUGCLASES = 'drugClasses';
+    private static $FLDNM_DRU_NAME = 'name';
     private static $FLDNM_ALLERGEN_NAME = 'allergenName';
     private static $FLDNM_ALLERGEN_TYPE = 'allergenType';
     private static $FLDNM_REPORTED_TS = 'timestamp';
@@ -87,48 +89,53 @@ class AllergyHelper
     {
         try
         {
-            $onetype = $rawitem[$containerfieldname];
-            if($sublevels==1)
+            if(!isset($rawitem[$containerfieldname]))
             {
-                if(!isset($onetype[$valuefieldname]))
-                {
-                    $rawvalue = NULL;
-                } else {
-                    $rawvalue = $onetype[$valuefieldname];
-                }
+                $final_ar = array();
             } else {
-                if(!is_array($onetype))
+                $onetype = $rawitem[$containerfieldname];
+                if($sublevels==1)
                 {
-                    $rawvalue = NULL;
-                } else {
-                    $raw_ar = array();
-                    foreach($onetype as $oneitem)
+                    if(!isset($onetype[$valuefieldname]))
                     {
-                        $raw_ar[] = $oneitem[$valuefieldname];
+                        $rawvalue = NULL;
+                    } else {
+                        $rawvalue = $onetype[$valuefieldname];
                     }
-                    $rawvalue = implode(', ', $raw_ar);
-                }
-            }
-            if($rawvalue != NULL)
-            {
-                $det = $rawvalue;
-                if(strlen($det) > 100)
-                {
-                    $snip = substr($det,0,100);
-                    $same = FALSE;
                 } else {
-                    $snip = $det;
+                    if(!is_array($onetype))
+                    {
+                        $rawvalue = NULL;
+                    } else {
+                        $raw_ar = array();
+                        foreach($onetype as $oneitem)
+                        {
+                            $raw_ar[] = $oneitem[$valuefieldname];
+                        }
+                        $rawvalue = implode(', ', $raw_ar);
+                    }
+                }
+                if($rawvalue != NULL)
+                {
+                    $det = $rawvalue;
+                    if(strlen($det) > 100)
+                    {
+                        $snip = substr($det,0,100);
+                        $same = FALSE;
+                    } else {
+                        $snip = $det;
+                        $same = TRUE;
+                    }
+                } else {
+                    $det = NULL;
+                    $snip = NULL;
                     $same = TRUE;
                 }
-            } else {
-                $det = NULL;
-                $snip = NULL;
-                $same = TRUE;
+                $final_ar = [
+                          'Snippet'=>$snip
+                        , 'Details'=>$det
+                        , 'SnippetSameAsDetail'=>$same];
             }
-            $final_ar = [
-                      'Snippet'=>$snip
-                    , 'Details'=>$det
-                    , 'SnippetSameAsDetail'=>$same];
             return $final_ar;
         } catch (\Exception $ex) {
             throw $ex;
@@ -153,6 +160,7 @@ class AllergyHelper
                 $tsreported = trim($rawitem[self::$FLDNM_REPORTED_TS]);
                 $tsparts = explode(' ',$tsreported);
                 $datereported = $tsparts[0];
+                $drugclasses_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_DRUGCLASES, self::$FLDNM_DRU_NAME, 2);
                 $reactions_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_REACTIONS, self::$FLDNM_REA_NAME, 2);
                 $historical_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_TYPE, self::$FLDNM_TYP_NAME);
                 $cleanitem = array(
@@ -160,7 +168,7 @@ class AllergyHelper
                     'Item' => $rawitem[self::$FLDNM_ALLERGEN_NAME],
                     'CausativeAgent' => $rawitem[self::$FLDNM_ALLERGEN_TYPE],
                     'SignsSymptoms' => $reactions_ar,
-                    'DrugClasses' => array(),   //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    'DrugClasses' => $drugclasses_ar,
                     'ObservedHistorical' => $historical_ar,
                 );
                 $bundle[] = $cleanitem;
