@@ -37,9 +37,10 @@ require_once 'VitalsHelper.php';
 require_once 'MedicationHelper.php';
 require_once 'LabsHelper.php';
 require_once 'AllergyHelper.php';
+require_once 'SurgeryReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150901.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150901.2');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -118,7 +119,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         return TRUE;    //We are implementing an override for the patientId
     }
-    
     
     private function endsWith($string, $test) 
     {
@@ -1596,8 +1596,25 @@ Signed: 12/08/2006 18:29<br />
 )
 
          */
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $myhelper = new \raptor_ewdvista\SurgeryReportHelper();
+            $serviceName = $this->getCallingFunctionName();
+            $pid = $this->getSelectedPatientID();
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get surgery detail without a patient ID!');
+            }
+
+            //Get the medication data from EWD services
+            $args = array();
+            $args['patientId'] = $pid;
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $formatted_detail = $myhelper->getFormattedSurgeryReportDetail($rawresult);
+            return $formatted_detail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getUserSecurityKeys()

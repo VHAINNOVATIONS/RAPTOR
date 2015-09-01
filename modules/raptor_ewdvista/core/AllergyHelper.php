@@ -38,9 +38,9 @@ class AllergyHelper
 {
     
     //Declare the field numbers
-    private static $FLDNM_FACILITY = 'facility';
-    private static $FLDNM_FAC_NAME = 'name';
-    private static $FLDNM_FAC_ID = 'id';
+    //private static $FLDNM_FACILITY = 'facility';
+    //private static $FLDNM_FAC_NAME = 'name';
+    //private static $FLDNM_FAC_ID = 'id';
     private static $FLDNM_DRUGCLASES = 'drugClasses';
     private static $FLDNM_DRU_NAME = 'name';
     private static $FLDNM_ALLERGEN_NAME = 'allergenName';
@@ -48,43 +48,10 @@ class AllergyHelper
     private static $FLDNM_REPORTED_TS = 'timestamp';
     private static $FLDNM_TYPE = 'type';
     private static $FLDNM_TYP_NAME = 'name';
-    private static $FLDNM_TYP_CATEGORY = 'category';
+    //private static $FLDNM_TYP_CATEGORY = 'category';
     private static $FLDNM_REACTIONS = 'reactions';
     private static $FLDNM_REA_NAME = 'name';
     
-    private function getFieldTextData($rawfield,$delminiter='^')
-    {
-        $strpos = strpos($rawfield,$delminiter);
-        if($strpos == FALSE)
-        {
-            return NULL;
-        }
-        return trim(substr($rawfield,$strpos+1));
-    }
-    
-    private static function findSubstringMatchInArray($needle, $haystackarray)
-    {
-        try
-        {
-            $cleanneedle = strtoupper(trim($needle));
-            foreach($haystackarray as $check)
-            {
-                $cleancheck = strtoupper(trim($check));
-                if(FALSE !== strpos($cleancheck,$cleanneedle))
-                {
-                    return $check;
-                }
-                if(FALSE !== strpos($cleanneedle,$cleancheck))
-                {
-                    return $check;
-                }
-            }
-            return FALSE;
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-    }
-
     private function getSnipDetailArray($rawitem, $containerfieldname, $valuefieldname, $sublevels=1)
     {
         try
@@ -118,9 +85,9 @@ class AllergyHelper
                 if($rawvalue != NULL)
                 {
                     $det = $rawvalue;
-                    if(strlen($det) > 100)
+                    if(strlen($det) > RAPTOR_DEFAULT_SNIPPET_LEN)
                     {
-                        $snip = substr($det,0,100);
+                        $snip = substr($det,0,RAPTOR_DEFAULT_SNIPPET_LEN);
                         $same = FALSE;
                     } else {
                         $snip = $det;
@@ -173,9 +140,6 @@ class AllergyHelper
                 );
                 $bundle[] = $cleanitem;
             }
-            
-error_log("LOOK getFormattedAllergyDetail raw input>>>" . print_r($rawresult_ar,TRUE));            
-error_log("LOOK getFormattedAllergyDetail clean output>>>" . print_r($bundle,TRUE));            
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
