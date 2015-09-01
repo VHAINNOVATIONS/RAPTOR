@@ -30,19 +30,25 @@ namespace raptor_ewdvista;
 require_once 'EwdUtils.php';
 
 /**
- * Helper for returning medication content
+ * Helper for returning allergy content
  *
  * @author Frank Font of SAN Business Consultants
  */
-class MedicationHelper
+class AllergyHelper
 {
     
     //Declare the field numbers
-    private static $FLDNM_MEDNAME = 'name';
-    private static $FLDNM_STATUS = 'status';
-    private static $FLDNM_STARTDT = 'startDate';
-    private static $FLDNM_DOCDT = 'dateDocumented';
-    private static $FLDNM_COMMENT = 'comment';
+    private static $FLDNM_FACILITY = 'facility';
+    private static $FLDNM_FAC_NAME = 'name';
+    private static $FLDNM_FAC_ID = 'id';
+    private static $FLDNM_ALLERGEN_NAME = 'allergenName';
+    private static $FLDNM_ALLERGEN_TYPE = 'allergenType';
+    private static $FLDNM_REPORTED_TS = 'timestamp';
+    private static $FLDNM_TYPE = 'type';
+    private static $FLDNM_TYP_NAME = 'name';
+    private static $FLDNM_TYP_CATEGORY = 'category';
+    private static $FLDNM_REACTIONS = 'reactions';
+    private static $FLDNM_REA_NAME = 'name';
     
     private function getFieldTextData($rawfield,$delminiter='^')
     {
@@ -76,11 +82,63 @@ class MedicationHelper
             throw $ex;
         }
     }
+
+    private function getSnipDetailArray($rawitem, $containerfieldname, $valuefieldname, $sublevels=1)
+    {
+        try
+        {
+            $onetype = $rawitem[$containerfieldname];
+            if($sublevels==1)
+            {
+                if(!isset($onetype[$valuefieldname]))
+                {
+                    $rawvalue = NULL;
+                } else {
+                    $rawvalue = $onetype[$valuefieldname];
+                }
+            } else {
+                if(!is_array($onetype))
+                {
+                    $rawvalue = NULL;
+                } else {
+                    $raw_ar = array();
+                    foreach($onetype as $oneitem)
+                    {
+                        $raw_ar[] = $oneitem[$valuefieldname];
+                    }
+                    $rawvalue = implode(', ', $raw_ar);
+                }
+            }
+            if($rawvalue != NULL)
+            {
+                $det = $rawvalue;
+                if(strlen($det) > 100)
+                {
+                    $snip = substr($det,0,100);
+                    $same = FALSE;
+                } else {
+                    $snip = $det;
+                    $same = TRUE;
+                }
+            } else {
+                $det = NULL;
+                $snip = NULL;
+                $same = TRUE;
+            }
+            $final_ar = [
+                      'Snippet'=>$snip
+                    , 'Details'=>$det
+                    , 'SnippetSameAsDetail'=>$same];
+            return $final_ar;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
     
     /**
      * If atriskmeds is not null, it should be an array of medication names
      */
-    public function getFormattedMedicationsDetail($rawresult_ar, $atriskmeds_ar=NULL)
+    public function getFormattedAllergyDetail($rawresult_ar)
     {
         try
         {
@@ -88,56 +146,28 @@ class MedicationHelper
             {
                 throw new \Exception("Cannot format a non-array of data!");
             }
-            if(!is_array($atriskmeds_ar))
+            
+            $bundle = array();
+            foreach($rawresult_ar as $rawitem)
             {
-                $atriskmeds_ar = array();
-                $checkatrisk = FALSE;
-            } else {
-                $checkatrisk = TRUE;
+                $tsreported = trim($rawitem[self::$FLDNM_REPORTED_TS]);
+                $tsparts = explode(' ',$tsreported);
+                $datereported = $tsparts[0];
+                $reactions_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_REACTIONS, self::$FLDNM_REA_NAME, 2);
+                $historical_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_TYPE, self::$FLDNM_TYP_NAME);
+                $cleanitem = array(
+                    'DateReported' => $datereported,
+                    'Item' => $rawitem[self::$FLDNM_ALLERGEN_NAME],
+                    'CausativeAgent' => $rawitem[self::$FLDNM_ALLERGEN_TYPE],
+                    'SignsSymptoms' => $reactions_ar,
+                    'DrugClasses' => array(),   //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    'ObservedHistorical' => $historical_ar,
+                );
+                $bundle[] = $cleanitem;
             }
-            $displayMeds = array();
-            $displayMedsLast=array();
-            $atriskhits = array();
-            foreach($rawresult_ar as $onemed)
-            {
-                if(is_array($onemed))
-                {
-                    $tempMeds = array();
-                    $medname = $onemed[self::$FLDNM_MEDNAME];
-                    $status = trim($onemed[self::$FLDNM_STATUS]);
-                    $startdt = trim($onemed[self::$FLDNM_STARTDT]);
-                    $docdt = trim($onemed[self::$FLDNM_DOCDT]);
-                    $comment = trim($onemed[self::$FLDNM_COMMENT]);
-                    $cleanstatus = strtoupper(trim($status));
-                    $tempMeds['Med'] = $medname;
-                    $tempMeds['Status'] = $status;
-                    $tempMeds['StartDate'] = $startdt;
-                    $tempMeds['DocDate'] = $docdt;
-                    $tempMeds['Comment'] = $comment;
-                    if(!$checkatrisk)
-                    {
-                        $tempMeds['AtRisk'] = '';
-                        $tempMeds['warn'] = FALSE;
-                        $displayMeds[] = $tempMeds;
-                    } else {
-                        $atriskmatchtext = self::findSubstringMatchInArray($medname, $atriskmeds_ar);
-                        $atrisk = $atriskmatchtext !== FALSE;
-                        $tempMeds['AtRisk'] = ($atrisk ? 'YES' : 'no');
-                        $tempMeds['warn'] = ($atrisk && ($cleanstatus == '' 
-                                || $cleanstatus == 'ACTIVE' 
-                                || $cleanstatus == 'PENDING')); 
-                        if($atrisk)
-                        {
-                            $atriskhits[$atriskmatchtext] = $atriskmatchtext;   //Set the key and value the same!
-                            $displayMeds[] = $tempMeds;
-                        } else {
-                            $displayMedsLast[] = $tempMeds;
-                        }
-                    }
-                }
-            }
-            $mergedMeds = array_merge($displayMeds, $displayMedsLast);
-            $bundle = array('details' => $mergedMeds, 'atrisk_hits'=>$atriskhits);
+            
+error_log("LOOK getFormattedAllergyDetail raw input>>>" . print_r($rawresult_ar,TRUE));            
+error_log("LOOK getFormattedAllergyDetail clean output>>>" . print_r($bundle,TRUE));            
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;

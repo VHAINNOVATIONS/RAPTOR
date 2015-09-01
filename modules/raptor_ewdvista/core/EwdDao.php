@@ -36,9 +36,10 @@ require_once 'NotesHelper.php';
 require_once 'VitalsHelper.php';
 require_once 'MedicationHelper.php';
 require_once 'LabsHelper.php';
+require_once 'AllergyHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150828.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150901.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -627,101 +628,25 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
 
     public function getAllergiesDetailMap()
     {
-        /*
-         * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getAllergiesDetail' is >>>Array
-(
-    [0] => Array
-        (
-            [DateReported] => 12/17/2007
-            [Item] => CHOCOLATE
-            [CausativeAgent] => DRUG, FOOD
-            [SignsSymptoms] => Array
-                (
-                    [Snippet] => DIARRHEA
-                    [Details] => DIARRHEA
-                    [SnippetSameAsDetail] => 1
-                )
+        try
+        {
+            $myhelper = new \raptor_ewdvista\AllergyHelper();
+            $serviceName = $this->getCallingFunctionName();
+            $pid = $this->getSelectedPatientID();
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get allergy detail without a patient ID!');
+            }
 
-            [DrugClasses] => Array
-                (
-                    [Snippet] => 
-                    [Details] => 
-                    [SnippetSameAsDetail] => 1
-                )
-
-            [Originator] =>  
-            [ObservedHistorical] => Array
-                (
-                    [Snippet] => 
-                    [Details] => 
-                    [SnippetSameAsDetail] => 1
-                )
-
-        )
-
-    [1] => Array
-        (
-            [DateReported] => 03/17/2005
-            [Item] => PENICILLIN
-            [CausativeAgent] => DRUG
-            [SignsSymptoms] => Array
-                (
-                    [Snippet] => ITCHING,WATERING EYES
-                    [Details] => ITCHING,WATERING EYES
-                    [SnippetSameAsDetail] => 1
-                )
-
-            [DrugClasses] => Array
-                (
-                    [Snippet] => 
-                    [Details] => 
-                    [SnippetSameAsDetail] => 1
-                )
-
-            [Originator] =>  
-            [ObservedHistorical] => Array
-                (
-                    [Snippet] => 
-                    [Details] => 
-                    [SnippetSameAsDetail] => 1
-                )
-
-        )
-
-    [2] => Array
-        (
-            [DateReported] => 12/31/1969
-            [Item] => ZOCOR
-            [CausativeAgent] => DRUG
-            [SignsSymptoms] => Array
-                (
-                    [Snippet] => HIVES
-                    [Details] => HIVES
-                    [SnippetSameAsDetail] => 1
-                )
-
-            [DrugClasses] => Array
-                (
-                    [Snippet] => 
-                    [Details] => 
-                    [SnippetSameAsDetail] => 1
-                )
-
-            [Originator] =>  
-            [ObservedHistorical] => Array
-                (
-                    [Snippet] => 
-                    [Details] => 
-                    [SnippetSameAsDetail] => 1
-                )
-
-        )
-
-)
-
-         */
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
+            //Get the medication data from EWD services
+            $args = array();
+            $args['patientId'] = $pid;
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $formatted_detail = $myhelper->getFormattedAllergyDetail($rawresult);
+            return $formatted_detail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getChemHemLabs($override_patientId = NULL)
