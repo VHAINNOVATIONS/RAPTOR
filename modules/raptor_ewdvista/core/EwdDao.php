@@ -240,6 +240,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         $this->setSessionVariable('displayname', NULL);
         $this->setSessionVariable('fullname', NULL);
         $this->setSessionVariable('greeting', NULL);
+        $this->setSessionVariable('securitykeys', NULL);
         $this->setPatientID(NULL);
     }
 
@@ -292,11 +293,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             
             if (array_key_exists("DUZ", $json_array))
             {
+                $userduz = trim($json_array['DUZ']);
                 $this->setSessionVariable('dt',trim($json_array['DT']));
-                $this->setSessionVariable('userduz',trim($json_array['DUZ']));
+                $this->setSessionVariable('userduz',$userduz);
                 $this->setSessionVariable('displayname',trim($json_array['displayName']));
                 $this->setSessionVariable('fullname',trim($json_array['username']));
                 $this->setSessionVariable('greeting',trim($json_array['greeting']));
+                $securitykeys = $this->getSecurityKeysForUser($userduz);
+                $this->setSessionVariable('securitykeys',$securitykeys);
             }
             else {
                 $errorMessage = "Unable to LOGIN because missing DUZ in " . print_r($json_array, TRUE);
@@ -1278,10 +1282,51 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
         }
     }
 
+    private function getSecurityKeysForUser($userduz)
+    {
+        try
+        {
+            $serviceName = 'getUserSecurityKeys';
+            $args = array();
+            $args['uid'] = $userduz;
+            $formatted_detail = array();
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+//error_log("LOOK raw security thing>>>>" . print_r($rawresult,TRUE));
+            $warnings = array();
+            if(is_array($rawresult))
+            {
+                foreach($rawresult as $oneblock)
+                {
+                    $id = $oneblock['permissionId'];
+                    $name = trim($oneblock['name']);
+                    if($name > '')
+                    {
+                        $formatted_detail[$id] = $name;
+                    } else {
+                        $warnings[] = $id;
+                    }
+                }
+            }
+            if(count($warnings) > 0)
+            {
+                error_log("WARNING: For user DUZ=$userduz we did NOT find a security key name for the following IDs:" . implode(", ",$warnings));
+            }
+//error_log("LOOK formatted security thing>>>>" . print_r($formatted_detail,TRUE));            
+            return $formatted_detail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     public function getUserSecurityKeys()
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $securitykeys = $this->getSessionVariable('securitykeys');
+            return $securitykeys;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getVisits()
@@ -1297,7 +1342,8 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
             $visitAry = $rawresult['value'];
 
-            foreach ($visitAry as $visit) {
+            foreach ($visitAry as $visit) 
+            {
                 $a = explode('^', $visit);
                 $l = explode(';', $a[0]); //first field is an array "location name;visit timestamp;locationID"
                 $aryItem = array(
@@ -1404,8 +1450,13 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
 
     public function isProvider()
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $securitykeys = $this->getSessionVariable('securitykeys');
+            return in_array('PROVIDER', $securitykeys);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function signNote($newNoteIen, $eSig)
@@ -1416,8 +1467,13 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
 
     public function userHasKeyOREMAS()
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $securitykeys = $this->getSessionVariable('securitykeys');
+            return in_array('OREMAS', $securitykeys);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function validateEsig($eSig)

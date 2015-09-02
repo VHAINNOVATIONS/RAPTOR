@@ -386,22 +386,37 @@ class VitalsHelper
                                     }
                                     break;
                                 case self::$VFLD_UKNOWN13;
-                                    //Log it on the off chance we can determine what this is later
-                                    error_log("WARNING Found instance of VFLD_UKNOWN13 rawVitals"
-                                            . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
-                                            . print_r($itemdetail, TRUE));  
+                                    //Empty?
+                                    if(count($itemdetail) > 0)
+                                    {
+                                        //Log it on the off chance we can determine what this is later
+                                        error_log("WARNING Found instance of VFLD_UKNOWN13 rawVitals"
+                                                . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
+                                                . print_r($itemdetail, TRUE));  
+                                    }
                                     break;
                                 case self::$VFLD_UKNOWN14;
-                                    //Log it on the off chance we can determine what this is later
-                                    error_log("WARNING Found instance of VFLD_UKNOWN14 rawVitals"
-                                            . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
-                                            . print_r($itemdetail, TRUE));  
+                                    //Empty?
+                                    if(count($itemdetail) > 0)
+                                    {
+                                        //Log it on the off chance we can determine what this is later
+                                        error_log("WARNING Found instance of VFLD_UKNOWN14 rawVitals"
+                                                . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
+                                                . print_r($itemdetail, TRUE));  
+                                    }
                                     break;
                                 case self::$VFLD_QUALIFIERS;
-                                    //Log it on the off chance we can determine what this has in it later
-                                    error_log("WARNING Found instance of VFLD_QUALIFIERS rawVitals"
-                                            . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
-                                            . print_r($itemdetail, TRUE));  
+                                    foreach($itemdetail as $k=>$v)
+                                    {
+                                        //Empty value?
+                                        if(strlen($v>3))
+                                        {
+                                            //Log it on the off chance we can determine what this has in it later
+                                            error_log("WARNING Found instance of VFLD_QUALIFIERS rawVitals"
+                                                    . " (c=$chunkcount r=$rowcount) row[$timestampkey][ik=$itemkey]=" 
+                                                    . print_r($itemdetail, TRUE));  
+                                        }
+                                    }
                                     break;
                                 default:
                                     //Unmapped item to simply ignore
