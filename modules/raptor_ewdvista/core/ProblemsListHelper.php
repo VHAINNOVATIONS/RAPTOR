@@ -38,54 +38,56 @@ class ProblemsListHelper
 {
     
     //Declare the field numbers
-    private static $FLD_ID = 0;
-    private static $FLD_STATUS = 1;
-    private static $FLD_PROVIDERNAR = 2;
+    private static $FLD_FACILITY = 1;
+    private static $FLD_STATUS = 2;
+    private static $FLD_PROVIDERNAR = 3;
     private static $FLD_ONSET_DT = 4;
     private static $FLD_MOD_DT = 5;
-    private static $FLD_NOTE_NAR = 6;
-    private static $FLD_OBSERVER = 11;  //5;
-    private static $FLD_EXPOSE = 7;
+    private static $FLD_OBSERVER = 6;
+    private static $FLD_NOTE_NAR = 7;
+    private static $FLD_EXPOSE = 8;
     
-    public function getFormattedProblemsDetail($rawresult)
+    private function getUserDataFromArray($myarray,$offset)
+    {
+        if(!isset($myarray[$offset]))
+        {
+            return '';
+        }
+        
+        //Get the field and return just the user data part
+        $rawline = $myarray[$offset];
+        return substr($rawline,2);  //Assume first two things are #^
+    }
+    
+    public function getFormattedProblemsDetail($value_ar)
     {
         try
         {
-error_log("LOOK problems input stuff raw >>>".print_r($rawresult, TRUE));
-            if(!is_array($rawresult) || !isset($rawresult['value']))
+            if(!is_array($value_ar))
             {
-                $errmsg = "Expected an array with key 'value' for problems list but instead got $rawresult";
-                error_log("$errmsg >>>".print_r($rawresult, TRUE));
+                $errmsg = "Expected an array with key 'value' for problems list but instead got $value_ar";
+                error_log("$errmsg >>>".print_r($value_ar, TRUE));
                 throw new \Exception($errmsg);
             }
             $formatted = array();
-            $value_ar = $rawresult['value'];
-            $input_raw_rowcount = count($value_ar);
-            if($input_raw_rowcount>0)
+            foreach($value_ar as $oneblock)
             {
-                $actualdatarowcount = $input_raw_rowcount-1;
-                $expecteddatacount = intval($value_ar[0]);  //Declaration is in the array
-                if($expecteddatacount != $actualdatarowcount)
+                foreach($oneblock as $key=>$onerow_ar)
                 {
-                    $errmsg = "Did NOT get expected number of problem rows: Expected $expecteddatacount but got {$actualdatarowcount}";
-                    error_log("ERROR >>> $errmsg Input data =>>>".print_r($value_ar, TRUE));
-                    throw new \Exception($errmsg);
-                }
-                for($i=1;$i<$input_raw_rowcount;$i++)
-                {
-                    $onerawrow = $value_ar[$i];
-                    $onerow_ar = explode('^', $onerawrow);
-                    $providernar = $onerow_ar[self::$FLD_PROVIDERNAR];
-                    $notenar = trim($onerow_ar[self::$FLD_NOTE_NAR]);
-                    $onsetdate = EwdUtils::convertVistaDateToYYYYMMDD($onerow_ar[self::$FLD_ONSET_DT]);
-                    $observerraw = $onerow_ar[self::$FLD_OBSERVER];
-                    $observerparts = explode(';',$observerraw);
-                    if(count($observerparts) == 2)
+                    if($key != 'WP')
                     {
-                        $observername = $observerparts[1];
-                    } else {
-                        $observername = 'None found';
+                        //Log this and continue
+                        error_log("WARNING expected key for problem list to be WP but instead got $key >>>" 
+                                . print_r($oneblock,TRUE));
                     }
+
+                    $facility = $this->getUserDataFromArray($onerow_ar, self::$FLD_FACILITY);
+                    $status = $this->getUserDataFromArray($onerow_ar, self::$FLD_STATUS);
+                    $providernar = $this->getUserDataFromArray($onerow_ar, self::$FLD_PROVIDERNAR);
+                    $notenar = trim($this->getUserDataFromArray($onerow_ar, self::$FLD_NOTE_NAR));
+                    $onsetdate = $this->getUserDataFromArray($onerow_ar, self::$FLD_ONSET_DT);
+                    $observername = $this->getUserDataFromArray($onerow_ar, self::$FLD_OBSERVER);
+                    $exposures = $this->getUserDataFromArray($onerow_ar, self::$FLD_EXPOSE);
                             
                     if($notenar > '')
                     {
@@ -108,10 +110,10 @@ error_log("LOOK problems input stuff raw >>>".print_r($rawresult, TRUE));
                                 'Type of Note' => 'Problem',
                                 'Provider Narrative'=>$providernar, 
                                 'Note Narrative'=>$notenar,
-                                'Status'=>$onerow_ar[self::$FLD_STATUS], 
+                                'Status'=>$status,
                                 'Observer'=>$observername, 
-                                'Comment'=>'',  //MISSING??????????? 
-                                'Facility'=>'', //MISSING???????????
+                                'Comment'=>$exposures,
+                                'Facility'=>$facility,
                             )
                         );
                 }

@@ -41,7 +41,7 @@ require_once 'SurgeryReportHelper.php';
 require_once 'ProblemsListHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150901.3');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150902.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1076,6 +1076,7 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
             //Get the medication data from EWD services
             $args = array();
             $args['patientId'] = $pid;
+            $args['type'] = 'A';    //Only return the active ones
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
             $formatted_detail = $myhelper->getFormattedProblemsDetail($rawresult);
             return $formatted_detail;

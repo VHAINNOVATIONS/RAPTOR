@@ -41,8 +41,8 @@ class AllergyHelper
     //private static $FLDNM_FACILITY = 'facility';
     //private static $FLDNM_FAC_NAME = 'name';
     //private static $FLDNM_FAC_ID = 'id';
-    private static $FLDNM_DRUGCLASES = 'drugClasses';
-    private static $FLDNM_DRU_NAME = 'name';
+    //private static $FLDNM_DRUGCLASES = 'drugClasses'; NOT returned by EWD!
+    //private static $FLDNM_DRU_NAME = 'name';
     private static $FLDNM_ALLERGEN_NAME = 'allergenName';
     private static $FLDNM_ALLERGEN_TYPE = 'allergenType';
     private static $FLDNM_REPORTED_TS = 'timestamp';
@@ -127,7 +127,7 @@ class AllergyHelper
                 $tsreported = trim($rawitem[self::$FLDNM_REPORTED_TS]);
                 $tsparts = explode(' ',$tsreported);
                 $datereported = $tsparts[0];
-                $drugclasses_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_DRUGCLASES, self::$FLDNM_DRU_NAME, 2);
+                //$drugclasses_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_DRUGCLASES, self::$FLDNM_DRU_NAME, 2);
                 $reactions_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_REACTIONS, self::$FLDNM_REA_NAME, 2);
                 $historical_ar = $this->getSnipDetailArray($rawitem, self::$FLDNM_TYPE, self::$FLDNM_TYP_NAME);
                 $cleanitem = array(
@@ -135,7 +135,7 @@ class AllergyHelper
                     'Item' => $rawitem[self::$FLDNM_ALLERGEN_NAME],
                     'CausativeAgent' => $rawitem[self::$FLDNM_ALLERGEN_TYPE],
                     'SignsSymptoms' => $reactions_ar,
-                    'DrugClasses' => $drugclasses_ar,
+                    //'DrugClasses' => $drugclasses_ar,
                     'ObservedHistorical' => $historical_ar,
                 );
                 $bundle[] = $cleanitem;
