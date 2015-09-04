@@ -103,16 +103,14 @@ class RadiologyReportHelper
                     $status = $this->getUserDataFromArray($onereport, self::$FLD_STATUS);
                     $reportid = $this->getUserDataFromArray($onereport, self::$FLD_REPORT_ID);
                     $casenum = $this->getUserDataFromArray($onereport, self::$FLD_CASE_NUM);
+                    $detail_tx = trim($this->getUserDataFromArrayOfArray2($onereport, self::$FLD_EXAM));
+                    $snippet = substr($title, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
 
                     $accession = '';    //TODO $this->getUserDataFromArray($onereport, self::$FLD_SPECIMEN_ASCESSION_NUM);
                     $cptcode = '';  //TODO
                     $clinicalHx = '';    //TODO
                     $reasonforstudy = '';   //TODO
                     $impression = '';   //TODO
-                    
-                    
-                    $detail_tx = trim($this->getUserDataFromArrayOfArray2($onereport, self::$FLD_EXAM));
-                    $snippet = substr($title, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
 
                     $onereport = 
                             array( 
