@@ -1426,9 +1426,6 @@ error_log("LOOK RAW getRadiologyReportsDetailMap>>>" . print_r($rawresult_ar, TR
 
     public function getVitalsDetailMap()
     {
-        
-        $this->getVistaAccountKeyProblems();    //TODO REMOVE THIS FROM HERE!!!!!!!!!!!!
-        
         $vitalsbundle = $this->getRawVitalSignsMap();
         if(isset($vitalsbundle[0]))
         {
