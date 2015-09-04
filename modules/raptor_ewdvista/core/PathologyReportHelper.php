@@ -36,6 +36,44 @@ require_once 'EwdUtils.php';
  */
 class PathologyReportHelper
 {
+    //Declare the field numbers
+    private static $FLD_FACILITY = 1;
+    private static $FLD_REPORTDATE = 2;
+    private static $FLD_SPECIMENS = 3;
+    private static $FLD_SPECIMEN_ASCESSION_NUM = 4;
+    private static $FLD_EXAM = 5;
+    
+    private function getUserDataFromArray($myarray,$offset)
+    {
+        if(!isset($myarray[$offset]))
+        {
+            return '';
+        }
+        
+        //Get the field and return just the user data part
+        $rawline = $myarray[$offset];
+        return substr($rawline,2);  //Assume first two things are #^
+    }
+
+    private function getUserDataFromArrayOfArray($myarray,$offset,$delimiter="<br />")
+    {
+        if(!isset($myarray[$offset]))
+        {
+            return '';
+        }
+        $rows = $myarray[$offset];
+        if(!is_array($rows))
+        {
+            return '';
+        }
+        $cleanrows = array();
+        foreach($rows as $rawline)
+        {
+            $cleanrows[] = substr($rawline,2);  //Assume first two things are #^
+        }
+        return implode($delimiter, $cleanrows);
+    }
+    
     public function getFormattedPathologyReportHelperDetail($rawresult_ar)
     {
         try
@@ -46,41 +84,29 @@ class PathologyReportHelper
             }
             
             $bundle = array();
-            foreach($rawresult_ar as $onereport)
+            foreach($rawresult_ar as $oneWP)
             {
-                if(isset($onereport['title']) && trim($onereport['title']) > '')
+                foreach($oneWP as $onereport)
                 {
-                    $title = trim($onereport['title']);
-                } else {
-                    $title = "NO TITLE FOUND!";
+                    $facility = $this->getUserDataFromArray($onereport, self::$FLD_FACILITY);
+                    $reportdate = $this->getUserDataFromArray($onereport, self::$FLD_REPORTDATE);
+                    $accession = $this->getUserDataFromArray($onereport, self::$FLD_SPECIMEN_ASCESSION_NUM);
+                    $detail_tx = trim($this->getUserDataFromArrayOfArray($onereport, self::$FLD_EXAM));
+                    $specimenName = $this->getUserDataFromArrayOfArray($onereport, self::$FLD_SPECIMENS, ',');
+                    $snippet = $specimenName . '...';
+
+                    $onereport = array(
+                            'Title' => 'Surgical Pathology Report',
+                            'ReportDate' => $reportdate,
+                            'Snippet' => $snippet,
+                            'Details' => $detail_tx,
+                            'Accession' => $accession,
+                            'Exam' => $detail_tx,  //REDUNDANT WITH DETAIL
+                            'Facility' => $facility,
+                        );
+
+                    $bundle[] = $onereport;
                 }
-                $timestamp = $onereport['timestamp'];
-                $reportdate = EwdUtils::convertVistaDateTimeToDatetime($timestamp);
-                $raw_text = $onereport['text'];
-                if(strlen($raw_text) < RAPTOR_DEFAULT_SNIPPET_LEN)
-                {
-                    $snip = trim($raw_text);
-                } else {
-                    $snip = substr(trim($raw_text),0,RAPTOR_DEFAULT_SNIPPET_LEN) . '...';
-                }
-                if($snip == '')
-                {
-                    //This can happen if there was NO report text
-                    $detail = 'No reports available for this case!';
-                    $snip = $detail;
-                } else {
-                    $detail = str_replace("\n",'<br />',$raw_text);
-                }
-                $onereport = array(
-                        'Title' => $title,
-                        'ReportDate' => $reportdate,
-                        'Snippet' => $snip,
-                        'Details' => $detail,
-                        'Accession' => $detail,
-                        'Exam' => $detail,
-                        'Facility' => $facility,
-                    );
-                $bundle[] = $onereport;
             }
 
             return $bundle;

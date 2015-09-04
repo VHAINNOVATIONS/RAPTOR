@@ -1026,11 +1026,7 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_LABS_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
             $args['nRpts'] = 1000;
-
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
- 
-error_log("LOOK raw getPathologyReportsDetailMap >>>" . print_r($rawresult_ar,TRUE));            
-            
             $formatted_detail = $myhelper->getFormattedPathologyReportHelperDetail($rawresult_ar);
             return $formatted_detail;
         } catch (\Exception $ex) {
