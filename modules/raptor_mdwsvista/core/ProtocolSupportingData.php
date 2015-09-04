@@ -1495,7 +1495,7 @@ class ProtocolSupportingData
 
                     $tempRpt['specimenID'] = isset($RptTO->specimen->id) ? $RptTO->specimen->id : " ";
                     $tempRpt['specimenName'] = isset($RptTO->specimen->name) ? $RptTO->specimen->name : " ";
-                    $sDateThing = (string) (isset($RptTO->specimen->collectionDate) && $RptTO->specimen->collectionDate > '') ? print_r($RptTO->specimen->collectionDate,TRUE) : 'No Date';;
+                    $sDateThing = (string) (isset($RptTO->specimen->collectionDate) && $RptTO->specimen->collectionDate > '') ? print_r($RptTO->specimen->collectionDate,TRUE) : 'No Date';
                     if(trim($sDateThing) == '')
                     {
                         $sDateThing = 'Date Error';
@@ -1519,16 +1519,27 @@ class ProtocolSupportingData
                     $tempRpt['comment'] = isset($RptTO->comment) ? $RptTO->comment : " ";
                     $tempRpt['comment'] = nl2br($tempRpt['comment']);
 
-                    $aTemp = $this->getSnippetDetailPair($tempRpt['specimenName']);
+                    $detail_tx = trim($tempRpt['exam']);
+                    $specimenName = $tempRpt['specimenName'];
+                    $diagnosis = trim($tempRpt['diagnosis']);
+                    if($diagnosis > '')
+                    {
+                        $snippet = $specimenName . ' / ' . substr($diagnosis,0,RAPTOR_DEFAULT_SNIPPET_LEN) . '...';
+                    } else {
+                        $snippet = $specimenName . '...';
+                    }
+                    
+//error_log("LOOK MDWS raw 1 from pathology>>>" . print_r($tempRpt,TRUE));            
                     $result[] = array("Title"=>$tempRpt['title']
                             , 'ReportDate' => $tempRpt['specimenCollectionDate']
-                            , 'Snippet' => $aTemp['Snippet']
-                            , 'Details' => $aTemp['Details']
+                            , 'Snippet' => $snippet
+                            , 'Details' => $detail_tx
                             , 'Accession' => $tempRpt['specimenAccessionNum']
-                            , 'Exam'=>$tempRpt['exam'], 'Facility'=>$tempRpt['facilityTag']);
+                            , 'Exam'=>$tempRpt['exam']  //REDUNDANT WITH DETAIL
+                            , 'Facility'=>$tempRpt['facilityTag']);
                 }
             }
-error_log("LOOK MDWS result from pathology>>>" . print_r($result,TRUE));            
+//error_log("LOOK MDWS final result from pathology>>>" . print_r($result,TRUE));            
             return $result;
         } catch (\Exception $ex) {
             error_log("Failed getPathologyReportsDetail($max_reports) because ".$ex->getMessage());
