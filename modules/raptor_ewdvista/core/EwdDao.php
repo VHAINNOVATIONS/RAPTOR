@@ -1115,8 +1115,31 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
 
     public function getProviders($neworderprovider_name)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $args['target'] = $neworderprovider_name;
+            $raw_result = $this->getServiceRelatedData($serviceName, $args);
+            if(!$raw_result['value'])
+            {
+                error_log("Missing the expected value key in this>>>>" . print_r($raw_result,TRUE));
+                throw new \Exception('Missing the expected value key!');
+            }
+            $values = $raw_result['value'];
+            $formatted_ar = array();
+            foreach($values as $oneprovider_raw)
+            {
+                $parts = explode('^', $oneprovider_raw);
+                if(count($parts) > 1)
+                {
+                    $key = $parts[0];
+                    $formatted_ar[$key] = $parts[1];
+                }
+            }
+            return $formatted_ar;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getRadiologyCancellationReasons()

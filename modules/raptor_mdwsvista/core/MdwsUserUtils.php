@@ -163,7 +163,6 @@ class MdwsUserUtils {
                 $userName = $cprsUserTOs[$i]->name;
                 $result[$userDuz] = $userName;
             }
-
             return $result;
         } catch (\Exception $ex) {
             throw new \Exception("Failed getProviders on target ".print_r($target,TRUE),99876,$ex);
