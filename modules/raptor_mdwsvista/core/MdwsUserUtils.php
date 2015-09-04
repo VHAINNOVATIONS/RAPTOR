@@ -124,7 +124,7 @@ class MdwsUserUtils {
             $keystext = implode(', ',$missingkeys);
             $missingkeycount = count($missingkeys);
             $errormsg = "The VistA user account does not have access to: $keystext!";
-            error_log("The VistA account for is missing $missingkeycount menu options ".print_r($userDuz,TRUE));
+            error_log("The VistA account for the user is missing $missingkeycount menu options ".print_r($userDuz,TRUE));
         }
         return $errormsg;
     }

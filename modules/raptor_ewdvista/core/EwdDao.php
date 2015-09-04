@@ -1388,14 +1388,47 @@ error_log("LOOK RAW getRadiologyReportsDetailMap>>>" . print_r($rawresult_ar, TR
         }
     }
 
+    /**
+     * Return NULL if no problems.
+     */
     public function getVistaAccountKeyProblems()
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $missingkeys = array();
+            $mykeys = $this->getSessionVariable('securitykeys');
+            $has_superkey = in_array('XUPROGMODE', $mykeys);
+            if(!$has_superkey)
+            {
+                $minSecondaryOptions = array('DVBA CAPRI GUI'); //'OR CPRS GUI CHART'
+                foreach($minSecondaryOptions as $keyName)
+                {
+                    $haskey = in_array($keyName, $mykeys);
+                    if(!$haskey)
+                    {
+                        $missingkeys[] = $keyName;
+                    }
+                }
+            }
+            $errormsg = NULL;
+            if(count($missingkeys) > 0)
+            {
+               $keystext = implode(', ',$missingkeys);
+               $missingkeycount = count($missingkeys);
+               $errormsg = "The VistA user account does not have access to ($missingkeycount keys): $keystext!";
+               error_log("PRIVILEGES WARNING: " . $errormsg . ' >>> ' . $this);
+            }
+            return $errormsg;            
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getVitalsDetailMap()
     {
+        
+        $this->getVistaAccountKeyProblems();    //TODO REMOVE THIS FROM HERE!!!!!!!!!!!!
+        
         $vitalsbundle = $this->getRawVitalSignsMap();
         if(isset($vitalsbundle[0]))
         {

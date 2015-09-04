@@ -435,6 +435,9 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         return $pid;
     }
 
+    /**
+     * Return NULL if no problems.
+     */
     public function getVistaAccountKeyProblems()
     {
         $userDuz = $this->getDUZ();
