@@ -364,11 +364,17 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getDiagnosticLabsDetailMap();
     }
 
+    /**
+     * Returns FALSE if optional param is not NULL and feature is not supported.
+     */
     public function getPathologyReportsDetailMap($override_patientId = NULL)
     {
         return $this->m_implclass->getPathologyReportsDetailMap($override_patientId);
     }
 
+    /**
+     * Returns FALSE if optional param is not NULL and feature is not supported.
+     */
     public function getSurgeryReportsDetailMap($override_patientId = NULL)
     {
         return $this->m_implclass->getSurgeryReportsDetailMap($override_patientId);
@@ -379,9 +385,12 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getProblemsListDetailMap();
     }
 
-    public function getRadiologyReportsDetailMap()
+    /**
+     * Returns FALSE if optional param is not NULL and feature is not supported.
+     */
+    public function getRadiologyReportsDetailMap($override_patientId = NULL)
     {
-        return $this->m_implclass->getRadiologyReportsDetailMap();
+        return $this->m_implclass->getRadiologyReportsDetailMap($override_patientId);
     }
 
     public function getMedicationsDetailMap($atriskmeds = NULL)

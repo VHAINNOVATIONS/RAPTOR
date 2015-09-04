@@ -40,9 +40,10 @@ require_once 'AllergyHelper.php';
 require_once 'SurgeryReportHelper.php';
 require_once 'ProblemsListHelper.php';
 require_once 'PathologyReportHelper.php';
+require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150904.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150904.2');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1160,91 +1161,37 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
 	return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getRadiologyReportsDetailMap()
+    public function getRadiologyReportsDetailMap($override_patientId = NULL)
     {
-        /*
-         * [10-Aug-2015 14:59:53 America/New_York] LOOK data format returned for 'getRadiologyReportsDetail' is >>>Array
-(
-    [0] => Array
-        (
-            [Title] => CT ABDOMEN W/O CONT
-            [ReportedDate] => 07/17/2012 10:22 am
-            [Snippet] => CT ABDOMEN W/O CONT...
-            [Details] => Array
-                (
-                    [Procedure Name] => CT ABDOMEN W/O CONT
-                    [Report Status] => No Report
-                    [CPT Code] =>  
-                    [Reason For Study] =>  
-                    [Clinical HX] => 
-                    [Impression] =>  
-                    [Report] => CT ABDOMEN W/O CONT<br />
-   <br />
-Exm Date: JUL 17, 2012@10:22<br />
-Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
-                                         Img Loc: CT SCAN<br />
-                                         Service: Unknown<br />
-<br />
- <br />
-<br />
-(Case 48 WAITING )   CT ABDOMEN W/O CONT              (CT   Detailed) CPT:<br />
-     Reason for Study: TEST<br />
-<br />
-    Clinical History:<br />
-<br />
-    Report Status: No Report<br />
-   <br />
-
-                    [Facility] =>  
-                )
-
-            [AccessionNumber] => 071712-48
-            [CaseNumber] => 48
-            [ReportID] => 6879282.8977-1
-        )
-
-    [1] => Array
-        (
-            [Title] => CT ABDOMEN W/O CONT
-            [ReportedDate] => 07/17/2012 09:01 am
-            [Snippet] => CT ABDOMEN W/O CONT...
-            [Details] => Array
-                (
-                    [Procedure Name] => CT ABDOMEN W/O CONT
-                    [Report Status] => No Report
-                    [CPT Code] =>  
-                    [Reason For Study] =>  
-                    [Clinical HX] => 
-                    [Impression] =>  
-                    [Report] => CT ABDOMEN W/O CONT<br />
-   <br />
-Exm Date: JUL 17, 2012@09:01<br />
-Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
-                                         Img Loc: CT SCAN<br />
-                                         Service: Unknown<br />
-<br />
- <br />
-<br />
-(Case 44 WAITING )   CT ABDOMEN W/O CONT              (CT   Detailed) CPT:<br />
-     Reason for Study: TESTING<br />
-<br />
-    Clinical History:<br />
-<br />
-    Report Status: No Report<br />
-   <br />
-
-                    [Facility] =>  
-                )
-
-            [AccessionNumber] => 071712-44
-            [CaseNumber] => 44
-            [ReportID] => 6879282.9098-1
-        )
-
-         */
-        
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get Radiology Reports detail without a patient ID!');
+            }
+            $myhelper = new \raptor_ewdvista\RadiologyReportHelper();
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $pid;
+            $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_LABS_DAYS);
+            $args['toDate'] = EwdUtils::getVistaDate(0);
+            $args['nRpts'] = 1000;
+            $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
+            
+error_log("LOOK RAW getRadiologyReportsDetailMap args>>>" . print_r($args, TRUE));            
+error_log("LOOK RAW getRadiologyReportsDetailMap>>>" . print_r($rawresult_ar, TRUE));            
+            
+            $formatted_detail = $myhelper->getFormattedRadiologyReportHelperDetail($rawresult_ar);
+            return $formatted_detail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getRawVitalSignsMap($override_patientId = NULL)

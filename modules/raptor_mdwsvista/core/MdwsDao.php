@@ -664,8 +664,12 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
         return $this->getProtocolSupportingData('getProblemsListDetail');
     }
 
-    public function getRadiologyReportsDetailMap()
+    public function getRadiologyReportsDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            return FALSE;   //Indicate this feature is NOT supported!
+        }
         return $this->getProtocolSupportingData('getRadiologyReportsDetail');
     }
 

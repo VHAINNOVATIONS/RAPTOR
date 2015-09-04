@@ -192,7 +192,11 @@ interface IEhrDao
     public function getRadiologyCancellationReasons();
     public function getRadiologyOrderChecks($args);
     public function getRadiologyOrderDialog($imagingTypeId, $patientId);
-    public function getRadiologyReportsDetailMap();
+    
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
+    public function getRadiologyReportsDetailMap($override_patientId = NULL);
     
     /**
      * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
