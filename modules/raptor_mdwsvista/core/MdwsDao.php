@@ -641,13 +641,21 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
         return $this->getProtocolSupportingData('getDiagnosticLabsDetail',NULL,NULL,$override_patientId);
     }
 
-    public function getPathologyReportsDetailMap()
+    public function getPathologyReportsDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            return FALSE;   //Indicate this feature is NOT supported!
+        }
         return $this->getProtocolSupportingData('getPathologyReportsDetail');
     }
 
-    public function getSurgeryReportsDetailMap()
+    public function getSurgeryReportsDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            return FALSE;   //Indicate this feature is NOT supported!
+        }
         return $this->getProtocolSupportingData('getSurgeryReportsDetail');
     }
 

@@ -1004,10 +1004,38 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
 	return $this->getServiceRelatedData($serviceName);
     }
 
-    public function getPathologyReportsDetailMap()
+    public function getPathologyReportsDetailMap($override_patientId = NULL)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get chem labs detail without a patient ID!');
+            }
+            //$myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $pid;
+            $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_LABS_DAYS);
+            $args['toDate'] = EwdUtils::getVistaDate(0);
+            $args['nRpts'] = 1000;
+            
+            //$rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
+ 
+error_log("LOOK raw getPathologyReportsDetailMap >>>" . print_r($rawresult_ar,TRUE));            
+            
+            //$formatted_detail = $myhelper->getFormattedChemHemLabsDetail($rawresult_ar);
+            //return $formatted_detail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getPatientIDFromTrackingID($sTrackingID)
@@ -1259,17 +1287,22 @@ Req Phys: ZZLABTECH,FORTYEIGHT           Pat Loc: CARDIOLOGY (Req'g Loc)<br />
         }
     }
 
-    public function getSurgeryReportsDetailMap()
+    public function getSurgeryReportsDetailMap($override_patientId = NULL)
     {
         try
         {
-            $myhelper = new \raptor_ewdvista\SurgeryReportHelper();
-            $serviceName = $this->getCallingFunctionName();
-            $pid = $this->getSelectedPatientID();
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
             if($pid == '')
             {
                 throw new \Exception('Cannot get surgery detail without a patient ID!');
             }
+            $myhelper = new \raptor_ewdvista\SurgeryReportHelper();
+            $serviceName = $this->getCallingFunctionName();
 
             //Get the medication data from EWD services
             $args = array();

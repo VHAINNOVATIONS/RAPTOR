@@ -364,14 +364,14 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getDiagnosticLabsDetailMap();
     }
 
-    public function getPathologyReportsDetailMap()
+    public function getPathologyReportsDetailMap($override_patientId = NULL)
     {
-        return $this->m_implclass->getPathologyReportsDetailMap();
+        return $this->m_implclass->getPathologyReportsDetailMap($override_patientId);
     }
 
-    public function getSurgeryReportsDetailMap()
+    public function getSurgeryReportsDetailMap($override_patientId = NULL)
     {
-        return $this->m_implclass->getSurgeryReportsDetailMap();
+        return $this->m_implclass->getSurgeryReportsDetailMap($override_patientId);
     }
 
     public function getProblemsListDetailMap()
