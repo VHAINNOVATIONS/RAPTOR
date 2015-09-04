@@ -77,12 +77,12 @@ abstract class ManageRulesPage
             {
                 $html_classname_overrides['action-button'] = 'action-button';
             }
-            $form["data_entry_area1"] = array(
+            $form['data_entry_area1'] = array(
                 '#prefix' => "\n<section class='{$html_classname_overrides['data-entry-area1']}'>\n",
                 '#suffix' => "\n</section>\n",
             );
 
-            $form["data_entry_area1"]['table_container'] = array(
+            $form['data_entry_area1']['table_container'] = array(
                 '#type' => 'item', 
                 '#prefix' => '<div class="'.$html_classname_overrides['table-container'].'">',
                 '#suffix' => '</div>', 
@@ -153,7 +153,12 @@ abstract class ManageRulesPage
                         .'</tr>';
             }
 
-            $form["data_entry_area1"]['table_container']['ci'] = 
+            $form['data_entry_area1']['table_container']['above_table'] = 
+                    array('#type' => 'item',
+                     '#markup' 
+                         => '<div id="sre-above-table"></div>');
+            
+            $form['data_entry_area1']['table_container']['ci'] = 
                     array('#type' => 'item',
                      '#markup' 
                         => '<table id="my-dialog-table" class="dataTable">'
@@ -184,8 +189,12 @@ abstract class ManageRulesPage
                                 .  '</tbody>'
                                 . '</table>');
 
+            $form['data_entry_area1']['table_container']['below_table'] = 
+                    array('#type' => 'item',
+                     '#markup' 
+                         => '<div id="sre-below-table"></div>');
 
-            $form["data_entry_area1"]['action_buttons'] = array(
+            $form['data_entry_area1']['action_buttons'] = array(
                  '#type' => 'item', 
                  '#prefix' => '<div class="'.$html_classname_overrides['action-buttons'].'">',
                  '#suffix' => '</div>', 
