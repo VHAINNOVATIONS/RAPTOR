@@ -39,9 +39,10 @@ require_once 'LabsHelper.php';
 require_once 'AllergyHelper.php';
 require_once 'SurgeryReportHelper.php';
 require_once 'ProblemsListHelper.php';
+require_once 'PathologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150902.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150904.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1018,21 +1019,20 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             {
                 throw new \Exception('Cannot get chem labs detail without a patient ID!');
             }
-            //$myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
+            $myhelper = new \raptor_ewdvista\PathologyReportHelper();
             $serviceName = $this->getCallingFunctionName();
             $args = array();
             $args['patientId'] = $pid;
             $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_LABS_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
             $args['nRpts'] = 1000;
-            
-            //$rawresult = $this->getServiceRelatedData($serviceName, $args);
+
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
  
 error_log("LOOK raw getPathologyReportsDetailMap >>>" . print_r($rawresult_ar,TRUE));            
             
-            //$formatted_detail = $myhelper->getFormattedChemHemLabsDetail($rawresult_ar);
-            //return $formatted_detail;
+            $formatted_detail = $myhelper->getFormattedPathologyReportHelperDetail($rawresult_ar);
+            return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
         }

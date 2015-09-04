@@ -1528,6 +1528,7 @@ class ProtocolSupportingData
                             , 'Exam'=>$tempRpt['exam'], 'Facility'=>$tempRpt['facilityTag']);
                 }
             }
+error_log("LOOK MDWS result from pathology>>>" . print_r($result,TRUE));            
             return $result;
         } catch (\Exception $ex) {
             error_log("Failed getPathologyReportsDetail($max_reports) because ".$ex->getMessage());
