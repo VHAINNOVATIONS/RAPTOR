@@ -466,7 +466,6 @@ class MdwsUtils {
             isset($soapResult->getRadiologyCancellationReasonsResult->fault)) {
             throw new \Exception('Invalid getRadiologyCancellationReasons result -> '.print_r($soapResult, TRUE));
         }
-        
         $resultAry = array();
         $cancelReasonTOs = is_array($soapResult->getRadiologyCancellationReasonsResult->reasons->RadiologyCancellationReasonTO) ? 
                             $soapResult->getRadiologyCancellationReasonsResult->reasons->RadiologyCancellationReasonTO :

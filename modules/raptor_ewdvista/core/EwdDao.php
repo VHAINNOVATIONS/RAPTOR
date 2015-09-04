@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150904.2');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150904.3');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1145,8 +1145,35 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
 
     public function getRadiologyCancellationReasons()
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $raw_result = $this->getServiceRelatedData($serviceName);
+            if(!is_array($raw_result) || !isset($raw_result['value']))
+            {
+                error_log("Failed to get cancellation reasons in correct format; got this>>>>" . print_r($raw_result,TRUE));
+                throw new \Exception("Did NOT get cancellation reasons in expected format!");
+            }
+            $value_ar = $raw_result['value'];
+            $formatted = array();
+            foreach($value_ar as $rawrow)
+            {
+                $parts = explode('^',$rawrow);
+                if(count($parts) > 1)
+                {
+                    $rawkey = $parts[0];
+                    if($rawkey[0] != 'i')
+                    {
+                        throw new \Exception("Expected i prefix on raw key but instead got row like this '$rawrow'");
+                    }
+                    $key = substr($rawkey,1);   //Skip the i prefix
+                    $formatted[$key] = $parts[1];
+                }
+            }
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getRadiologyOrderChecks($args)
