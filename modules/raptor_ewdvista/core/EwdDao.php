@@ -633,23 +633,31 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
         }
     }
 
-    public function getAllergiesDetailMap()
+    public function getAllergiesDetailMap($override_patientId = NULL)
     {
         try
         {
-            $myhelper = new \raptor_ewdvista\AllergyHelper();
-            $serviceName = $this->getCallingFunctionName();
-            $pid = $this->getSelectedPatientID();
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
             if($pid == '')
             {
                 throw new \Exception('Cannot get allergy detail without a patient ID!');
             }
+            $myhelper = new \raptor_ewdvista\AllergyHelper();
+            $serviceName = $this->getCallingFunctionName();
 
             //Get the medication data from EWD services
             $args = array();
             $args['patientId'] = $pid;
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
+//error_log("LOOK getAllergiesDetailMap args>>>".print_r($args,TRUE));            
+//error_log("LOOK getAllergiesDetailMap raw result>>>".print_r($rawresult,TRUE));            
             $formatted_detail = $myhelper->getFormattedAllergyDetail($rawresult);
+//error_log("LOOK getAllergiesDetailMap formatted result>>>".print_r($formatted_detail,TRUE));            
             return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
@@ -679,8 +687,11 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
             $args['toDate'] = EwdUtils::getVistaDate(0);
             
             //$rawresult = $this->getServiceRelatedData($serviceName, $args);
+//error_log("LOOK getChemHemLabs args>>>" . print_r($args,TRUE));        
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);;
+//error_log("LOOK getChemHemLabs raw result>>>" . print_r($rawresult_ar,TRUE));        
             $formatted_detail = $myhelper->getFormattedChemHemLabsDetail($rawresult_ar);
+//error_log("LOOK getChemHemLabs formatted result>>>" . print_r($formatted_detail,TRUE));        
             return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;

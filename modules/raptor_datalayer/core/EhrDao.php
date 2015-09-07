@@ -328,9 +328,12 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getAllHospitalLocationsMap();
     }
 
-    public function getAllergiesDetailMap()
+    /**
+     * Returns FALSE if optional param is not NULL and feature is not supported.
+     */
+    public function getAllergiesDetailMap($override_patientId = NULL)
     {
-        return $this->m_implclass->getAllergiesDetailMap();
+        return $this->m_implclass->getAllergiesDetailMap($override_patientId);
     }
 
     public function getOrderOverviewMap()
