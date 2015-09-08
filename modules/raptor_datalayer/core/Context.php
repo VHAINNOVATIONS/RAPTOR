@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908E2'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908F'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -59,8 +59,8 @@ class Context
     private $m_oRuntimeResultFlexCacheHandler = array();    //20150715
     
     //REPLACED private $m_sCurrentTicketID = NULL;
-    private $m_aPersonalBatchStack = NULL;
-    private $m_sPersonalBatchStackMessage = NULL;
+    //REPLACED private $m_aPersonalBatchStack = NULL;
+    //REPLACED private $m_sPersonalBatchStackMessage = NULL;
     
     //REPLACED private $m_nUID = NULL;
     //REPLACED private $m_sVistaUserID = NULL;
@@ -73,7 +73,7 @@ class Context
 
     private $m_oEhrDao = NULL;      //20150714 
     
-    private $m_sWorklistMode=NULL;  
+    //REPLACED private $m_sWorklistMode=NULL;  
 
     private $m_aLocalCache = array();
     
@@ -849,11 +849,13 @@ class Context
     
     public function getWorklistMode()
     {
-        if ($this->m_sWorklistMode == NULL)
+        $sWLM = self::getSessionValue('WorklistMode', NULL);
+        if ($sWLM == NULL)
         {
-            $this->setWorklistMode('P');
+            $sWLM = 'P';     //Default worklist mode
+            self::saveSessionValue('WorklistMode', $sWLM);
         }
-        return $this->m_sWorklistMode;
+        return $sWLM;
     } 
     
     /**
@@ -868,13 +870,14 @@ class Context
     {
         $nLastUpdateTimestamp = microtime(TRUE);
         self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
-        if($this->m_sWorklistMode != $sWMODE)
+        $current_wlm = $this->getWorklistMode();
+        if($current_wlm != $sWMODE)
         {
             if(!in_array($sWMODE, array('P', 'E', 'I', 'Q', 'S')))
             {
-                die("Invalid WorklistMode='$sWMODE'!!!");
+                throw new \Exception("Invalid WorklistMode='$sWMODE'!");
             }
-            $this->m_sWorklistMode = $sWMODE;
+            self::saveSessionValue('WorklistMode', $sWMODE);
             $this->serializeNow();        
         }
     }
@@ -906,23 +909,26 @@ class Context
     public function getSelectedTrackingID()
     {
         $candidate = Context::getInstance();    //Important that we ALWAYS pull it from persistence layer here!
-        $candidate->m_sPersonalBatchStackMessage = NULL;
+        self::saveSessionValue('PersonalBatchStackMessage', NULL);
         $sCurrentTicketID = self::getSessionValue('CurrentTicketID',NULL);
         if($sCurrentTicketID == NULL) //!isset($candidate->m_sCurrentTicketID) || $candidate->m_sCurrentTicketID == NULL)
         {
             //If there is anything in the personal batch stack, grab it now.
             $sCurrentTicketID = $candidate->popPersonalBatchStack(FALSE);
+            self::saveSessionValue('CurrentTicketID', $sCurrentTicketID);
             if($sCurrentTicketID !== NULL)
             {
                 $pbsize = $candidate->getPersonalBatchStackSize();
                 if($pbsize === 1)
                 {
-                    $candidate->m_sPersonalBatchStackMessage = 'You have 1 remaining personal batch selection.';
+                    $sPersonalBatchStackMessage = 'You have 1 remaining personal batch selection.';
+                    self::saveSessionValue('PersonalBatchStackMessage', $sPersonalBatchStackMessage);
                 } else if($pbsize > 1){
-                    $candidate->m_sPersonalBatchStackMessage = 'You have ' . $pbsize . ' remaining personal batch selections.';
+                    $sPersonalBatchStackMessage = 'You have ' . $pbsize . ' remaining personal batch selections.';
+                    self::saveSessionValue('PersonalBatchStackMessage', $sPersonalBatchStackMessage);
                 }
             }
-            $candidate->serializeNow();        
+            $candidate->serializeNow();           
         }
         return $sCurrentTicketID;
     }
@@ -988,10 +994,11 @@ class Context
      */
     function setPersonalBatchStack($aPBatch)
     {
-        $nLastUpdateTimestamp = microtime(TRUE);
-        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
-        $this->m_sPersonalBatchStackMessage = NULL;
-        $this->m_aPersonalBatchStack = $aPBatch;
+        self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
+        //$this->m_sPersonalBatchStackMessage = NULL;
+        //$this->m_aPersonalBatchStack = $aPBatch;
+        self::saveSessionValue('PersonalBatchStackMessage', NULL);
+        self::saveSessionValue('PersonalBatchStack', $aPBatch);
         //$this->m_sCurrentTicketID = NULL;   //Clear it so we pop from the stack on request
         self::saveSessionValue('CurrentTicketID', NULL);
         $this->serializeNow();        
@@ -1003,9 +1010,9 @@ class Context
     function clearPersonalBatchStack()
     {
         Context::debugDrupalMsg('<h1>called clearPersonalBatchStack</h1>');
-        $this->m_aPersonalBatchStack = NULL;
-        $nLastUpdateTimestamp = microtime(TRUE);
-        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
+        //$this->m_aPersonalBatchStack = NULL;
+        self::saveSessionValue('PersonalBatchStack', NULL);
+        self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
         $this->serializeNow();        
     }
 
@@ -1014,12 +1021,16 @@ class Context
      */
     function hasPersonalBatchStack()
     {
-        return (isset($this->m_aPersonalBatchStack) && is_array($this->m_aPersonalBatchStack));
+        $pbs = self::getSessionValue('PersonalBatchStack');
+        return is_array($pbs);
+        //return (isset($this->m_aPersonalBatchStack) && is_array($this->m_aPersonalBatchStack));
     }
 
     function debugPersonalBatchStack()
     {
-        return print_r($this->m_aPersonalBatchStack, true);
+        $pbs = self::getSessionValue('PersonalBatchStack');
+        return print_r($pbs, TRUE);
+        //return print_r($this->m_aPersonalBatchStack, true);
     }
 
     /**
@@ -1027,18 +1038,25 @@ class Context
      */
     function popPersonalBatchStack($serializeNow=TRUE)
     {
-        if(!$this->hasPersonalBatchStack())
+        try
         {
-            Context::debugDrupalMsg("<h1>Popped nothing off the stack </h1>");
-            return null;
+            if(!$this->hasPersonalBatchStack())
+            {
+                Context::debugDrupalMsg("<h1>Popped nothing off the stack </h1>");
+                return NULL;
+            }
+            $pbs = self::getSessionValue('PersonalBatchStack');
+            $nTID = array_pop($pbs);
+            self::saveSessionValue('PersonalBatchStack', $pbs);
+            Context::debugDrupalMsg("<h1>Popped $nTID off the stack ". print_r($pbs, TRUE)  ."</h1>");
+            if($serializeNow)
+            {
+                $this->serializeNow();        
+            }
+            return $nTID;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $nTID = array_pop($this->m_aPersonalBatchStack);
-        Context::debugDrupalMsg("<h1>Popped $nTID off the stack ". print_r($this->m_aPersonalBatchStack,TRUE)  ."</h1>");
-        if($serializeNow)
-        {
-            $this->serializeNow();        
-        }
-        return $nTID;
     }
     
     function getPersonalBatchStackSize()
@@ -1047,7 +1065,8 @@ class Context
         {
             return 0;
         }
-        return count($this->m_aPersonalBatchStack);
+        $pbs = self::getSessionValue('PersonalBatchStack');
+        return count($pbs);
     }
     
     /**
@@ -1056,7 +1075,8 @@ class Context
      */
     function getPersonalBatchStackMessage()
     {
-        return $this->m_sPersonalBatchStackMessage;
+        $pbsmsg = self::getSessionValue('PersonalBatchStackMessage');
+        return $pbsmsg;
     }
 
     /**
@@ -1160,19 +1180,18 @@ class Context
         //$this->m_nInstanceClearedTimestamp = microtime(TRUE);
         //$this->m_nInstanceTimestamp = null;
         //$this->m_sCurrentTicketID = null;
-        $this->m_aPersonalBatchStack = null;
+        //$this->m_aPersonalBatchStack = null;
         //$this->m_nUID = 0;
         //$this->m_sVistaUserID = null;
         //$this->m_sVAPassword = null;
 
-        $nInstanceClearedTimestamp = microtime(TRUE);
-        self::saveSessionValue('InstanceClearedTimestamp', $nInstanceClearedTimestamp);
+        self::saveSessionValue('InstanceClearedTimestamp', microtime(TRUE));
         self::saveSessionValue('UID', 0);        
         self::saveSessionValue('VistaUserID', NULL);        
         self::saveSessionValue('VAPassword', NULL);        
         self::saveSessionValue('CurrentTicketID', NULL);        
-        $nLastUpdateTimestamp = microtime(TRUE);
-        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);        
+        self::saveSessionValue('PersonalBatchStack', NULL);        
+        self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));        
         $all_literalnames = self::getAllSessionValueNames();
         foreach($all_literalnames as $onename)
         {
