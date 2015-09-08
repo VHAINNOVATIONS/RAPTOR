@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150907B'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908A'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -50,8 +50,8 @@ defined('DISABLE_CONTEXT_DEBUG')
  */
 class Context
 {
-    private $m_nInstanceTimestamp = NULL;           //Gets set when context is instantiated.
-    private $m_nLastUpdateTimestamp = NULL;         //Changes when the context changes.
+    //REPLACED private $m_nInstanceTimestamp = NULL;           //Gets set when context is instantiated.
+    //REPLACED private $m_nLastUpdateTimestamp = NULL;         //Changes when the context changes.
     private $m_nInstanceClearedTimestamp = NULL;
     private $m_nInstanceUserActionTimestamp = NULL;     //Periodically update to check for timeout
     private $m_nInstanceSystemActionTimestamp = NULL;   //Periodically update for internal tuning
@@ -109,6 +109,61 @@ class Context
                     . $myarray." and error ".$ex->getMessage());
             return "SAFE ARRAY DUMP with exception>>>".print_r($myarray,TRUE);
         }
+    }
+
+    /**
+     * Put value into session with special variable names
+     */
+    public static function saveSessionValue($name, $value)
+    {
+        $fullname = CONST_NM_RAPTOR_CONTEXT.'_'.$name;
+        $_SESSION[$fullname] = $value;
+        $allnamesname = CONST_NM_RAPTOR_CONTEXT.'_allnames';
+        if(!isset($_SESSION[$allnamesname]) || !is_array($_SESSION[$allnamesname]))
+        {
+            $_SESSION[$allnamesname] = array($allnamesname);
+        }
+        if($value != NULL)
+        {
+            $_SESSION[$allnamesname][$fullname] = $value;
+        } else {
+            unset($_SESSION[$allnamesname][$fullname]);
+        }
+    }
+    
+    /**
+     * Get the names of all the specially named session values
+     */
+    public static function getAllSessionValueNames()
+    {
+        $allnamesname = CONST_NM_RAPTOR_CONTEXT.'_allnames';
+        if(!isset($_SESSION[$allnamesname]) || !is_array($_SESSION[$allnamesname]))
+        {
+            $_SESSION[$allnamesname] = array();
+        }
+        return $_SESSION[$allnamesname];
+    }
+
+    /**
+     * Get value from session with special variable names
+     */
+    public static function getSessionValue($name, $value_if_missing=NULL)
+    {
+        $fullname = CONST_NM_RAPTOR_CONTEXT.'_'.$name;
+        if(isset($_SESSION[$fullname]))
+        {
+            return $_SESSION[$fullname];
+        }
+        return $value_if_missing;
+    }
+
+    /**
+     * Check value from session with special variable names
+     */
+    public static function hasSessionValue($name)
+    {
+        $fullname = CONST_NM_RAPTOR_CONTEXT.'_'.$name;
+        return isset($_SESSION[$fullname]);
     }
     
     /**
@@ -217,20 +272,22 @@ class Context
     
     private function __construct($nUID)
     {
-        error_log('WORKFLOW Called constructor for Context'
-                . "\tInstance ts     = ".$this->m_nInstanceTimestamp
-                . "\tUserAction ts   = ".$this->m_nInstanceUserActionTimestamp
-                . "\tSystemAction ts = ".$this->m_nInstanceSystemActionTimestamp);
         if(!is_numeric($nUID))
         {
             throw new \Exception('The UID passed into contructor of Context must be numeric, but instead got "'.$nUID.'"');
         }
 
         $this->m_nUID = $nUID;
-        $this->m_nInstanceTimestamp = microtime(TRUE);  //Capture the time this instance was created.
-        $this->m_nLastUpdateTimestamp = microtime(TRUE);  
+        //$this->m_nInstanceTimestamp = microtime(TRUE);  //Capture the time this instance was created.
+        //$this->m_nLastUpdateTimestamp = microtime(TRUE);  
         $this->m_nInstanceUserActionTimestamp = time();
         $this->m_nInstanceSystemActionTimestamp = time();
+        
+        self::saveSessionValue('UID', $nUID);
+        self::saveSessionValue('InstanceTimestamp', microtime(TRUE));
+        self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
+        self::saveSessionValue('InstanceUserActionTimestamp', $this->m_nInstanceUserActionTimestamp);
+        self::saveSessionValue('InstanceSystemActionTimestamp', $this->m_nInstanceSystemActionTimestamp);
         
         //Purge old cache contents now.
         RuntimeResultFlexCache::purgeOldItems();
@@ -244,6 +301,7 @@ class Context
     {
         try
         {
+            /*
             if(isset($_SESSION['REGENERATED_COUNT']))
             {
                 $rc = $_SESSION['REGENERATED_COUNT'];
@@ -256,13 +314,30 @@ class Context
             } else {
                 $lct = "UNKNOWN";
             }
+             */
+            $nUID = self::getSessionValue('UID','NONE');
+            $rc = self::getSessionValue('REGENERATED_COUNT','UNKNOWN');
+            $lct = self::getSessionValue('CREATED', 'UNKNOWN');
+            $its = self::getSessionValue('InstanceTimestamp', 'UNKNOWN');
+            $luts = self::getSessionValue('LastUpdateTimestamp', 'UNKNOWN');
+            $ctid = self::getSessionValue('CurrentTicketID', 'UNKNOWN');
             $ehr_dao = $this->getEhrDao(FALSE);
+            $info = 'Context of user ['.$nUID.']'
+                    . ' instance created=['.$its . ']'
+                    . ' last updated=['.$luts . ']'
+                    . ' current tid=['.$ctid.']'
+                    . " session regenerated $rc times last created $lct"
+                    . "\n\tDAO=$ehr_dao";
+            return $info;
+            /*
             return 'Context of user ['.$this->m_nUID.']'
                     . ' instance created=['.$this->m_nInstanceTimestamp . ']'
                     . ' last updated=['.$this->m_nLastUpdateTimestamp . ']'
                     . ' current tid=['.$this->m_sCurrentTicketID.']'
                     . " session regenerated $rc times last created $lct"
                     . "\n\tDAO=$ehr_dao";
+             * 
+             */
         } catch (\Exception $ex) {
             return 'Cannot get toString of Context because '.$ex;
         }
@@ -270,12 +345,14 @@ class Context
     
     public function getInstanceTimestamp()
     {
-        return $this->m_nInstanceTimestamp;
+        return self::getSessionValue('InstanceTimestamp');
+        //return $this->m_nInstanceTimestamp;
     }
     
     public function getLastUpdateTimestamp()
     {
-        return $this->m_nLastUpdateTimestamp;
+        return self::getSessionValue('LastUpdateTimestamp');
+        //return $this->m_nLastUpdateTimestamp;
     }
     
     /**
@@ -283,7 +360,8 @@ class Context
      */
     public function getInstanceUserActionTimestamp()
     {
-        return $this->m_nInstanceUserActionTimestamp;
+        return self::getSessionValue('InstanceUserActionTimestamp');
+        //return $this->m_nInstanceUserActionTimestamp;
     }
 
     /**
@@ -291,7 +369,9 @@ class Context
      */
     public function getUserIdleSeconds()
     {
-        return time() - $this->m_nInstanceUserActionTimestamp;
+        $luts = $this->getInstanceUserActionTimestamp();
+        return time() - $luts;
+        //return time() - $this->m_nInstanceUserActionTimestamp;
     }
     
     /**
@@ -334,6 +414,12 @@ class Context
         error_log("About to clear session via forceClearUserSession for user $uid");
         unset($_SESSION['CREATED']);  
         unset($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
+
+        $all_literalnames = self::getAllSessionValueNames();
+        foreach($all_literalnames as $onename)
+        {
+            unset($_SESSION[$onename]);
+        }
         error_log("Cleared session via forceClearUserSession for user $uid");
     }
     
@@ -354,12 +440,15 @@ class Context
             drupal_session_started(TRUE);       //If we dont do this we risk warning messages elsewhere.
         }        
         
-        if(!isset($_SESSION['CREATED'])) 
+        //if(!isset($_SESSION['CREATED'])) 
+        if(self::hasSessionValue('CREATED')) 
         { 
             $startedtime = time();
             error_log('CONTEXTgetInstance::Setting CREATED value of session to '.$startedtime);
             $_SESSION['CREATED'] = $startedtime;
             $_SESSION['REGENERATED_COUNT'] = 0;
+            self::saveSessionValue('CREATED', $startedtime);
+            self::saveSessionValue('REGENERATED_COUNT', 0);
         } 
         
         global $user;
@@ -438,7 +527,7 @@ class Context
                 //Update user action tracking in datatabase.
                 if($candidate !== NULL)
                 {
-                    $nElapsedSeconds = time() - $candidate->m_nInstanceUserActionTimestamp;
+                    $nElapsedSeconds = time() - $candidate->getInstanceTimestamp(); // m_nInstanceUserActionTimestamp;
                 } else {
                     $nElapsedSeconds = 0;
                 }
@@ -587,10 +676,14 @@ class Context
             {
                 $ehr_dao->setCustomInfoMessage('unserialized@'.microtime(TRUE));
             }
-//error_log("LOOK unserialized 2 for reset $candidate");                
-            Context::debugDrupalMsg('Created new context at ' + $candidate->m_nInstanceTimestamp);
+//error_log("LOOK unserialized 2 for reset $candidate");      
+            $its = $candidate->getSessionValue('InstanceTimestamp');
+            Context::debugDrupalMsg('Created new context at ' + $its); //$candidate->m_nInstanceTimestamp);
         } else {
-            Context::debugDrupalMsg('[' . $candidate->m_nInstanceTimestamp . '] Got context from cache! UID='.$candidate->getUID());
+            $its = $candidate->getSessionValue('InstanceTimestamp');
+            $candidateUID = $candidate->getSessionValue('UID');
+            Context::debugDrupalMsg('[' . $its . '] Got context from cache! UID='.$candidateUID);
+            //Context::debugDrupalMsg('[' . $candidate->m_nInstanceTimestamp . '] Got context from cache! UID='.$candidate->getUID());
         }
 
         if($user->uid > 0)
@@ -670,11 +763,12 @@ class Context
             } else {
                 if(!isset($candidate->m_nUID) || $candidate->m_nUID < 1)
                 {
+                    $its = self::getSessionValue('InstanceTimestamp');
                     error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has NO existing Vista connection for ' 
                             . $candidate->m_sVistaUserID . ' from ' 
                             . $_SERVER['REMOTE_ADDR'] 
                             . ' in ' 
-                            . $candidate->m_nInstanceTimestamp);
+                            . $its);
                 }
             }
         }
@@ -766,7 +860,8 @@ class Context
      */
     public function setWorklistMode($sWMODE)
     {
-        $this->m_nLastUpdateTimestamp = microtime(TRUE);
+        $nLastUpdateTimestamp = microtime(TRUE);
+        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
         if($this->m_sWorklistMode != $sWMODE)
         {
             if(!in_array($sWMODE, array('P', 'E', 'I', 'Q', 'S')))
@@ -782,7 +877,8 @@ class Context
     {
         Context::debugDrupalMsg('called clearSelectedTrackingID');
         $this->m_sCurrentTicketID = NULL;
-        $this->m_nLastUpdateTimestamp = microtime(TRUE);
+        $nLastUpdateTimestamp = microtime(TRUE);
+        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
         if($bSaveSession)
         {
             $this->serializeNow();        
@@ -838,13 +934,14 @@ class Context
     {
         try
         {
-            $prevtime = $this->m_nLastUpdateTimestamp;
+            $prevtime = self::getSessionValue('LastUpdateTimestamp'); //$this->m_nLastUpdateTimestamp;
             $prevtid = $this->m_sCurrentTicketID;
             if($bClearPersonalBatchStack)   //20140619
             {
                 $this->clearPersonalBatchStack();
             }
-            $this->m_nLastUpdateTimestamp = microtime(TRUE);
+            $nLastUpdateTimestamp = microtime(TRUE);
+            self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
             $aParts = explode('-',$sTrackingID);    //Allow for older type ticket tracking format
             if(count($aParts) == 1)
             {
@@ -881,7 +978,8 @@ class Context
      */
     function setPersonalBatchStack($aPBatch)
     {
-        $this->m_nLastUpdateTimestamp = microtime(TRUE);
+        $nLastUpdateTimestamp = microtime(TRUE);
+        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
         $this->m_sPersonalBatchStackMessage = NULL;
         $this->m_aPersonalBatchStack = $aPBatch;
         $this->m_sCurrentTicketID = NULL;   //Clear it so we pop from the stack on request
@@ -895,7 +993,8 @@ class Context
     {
         Context::debugDrupalMsg('<h1>called clearPersonalBatchStack</h1>');
         $this->m_aPersonalBatchStack = NULL;
-        $this->m_nLastUpdateTimestamp = microtime(TRUE);
+        $nLastUpdateTimestamp = microtime(TRUE);
+        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
         $this->serializeNow();        
     }
 
@@ -1006,11 +1105,13 @@ class Context
     
     private function authenticateEhrSubsystem($sVistaUserID, $sVAPassword) 
     {
-        error_log('WORKFLOWDEBUG>>>Called authenticateEhrSubsystem for ' 
-                . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR']  
-                . ' in ' . $this->m_nInstanceTimestamp);
         try 
         {
+            $its = self::getSessionValue('InstanceTimestamp');
+            error_log('WORKFLOWDEBUG>>>Called authenticateEhrSubsystem for ' 
+                    . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR']  
+                    . ' in ' . $its);
+            
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
             $oEhrDao = $this->getEhrDao();
             //error_log("LOOK before login $oEhrDao");
@@ -1038,15 +1139,22 @@ class Context
     private function clearAllContext()
     {
         $this->logoutEhrSubsystem();
-        $this->m_nLastUpdateTimestamp = microtime(TRUE);
         $this->m_nInstanceClearedTimestamp = microtime(TRUE);
-        $this->m_nInstanceTimestamp = null;
+        //$this->m_nInstanceTimestamp = null;
         $this->m_sCurrentTicketID = null;
         $this->m_aPersonalBatchStack = null;
         $this->m_nUID = 0;
         $this->m_sVistaUserID = null;
         $this->m_sVAPassword = null;
-        Context::debugDrupalMsg('cleared all context of instance [' . $this->m_nInstanceTimestamp . '] at [' . microtime(TRUE) . ']');
+
+        $nLastUpdateTimestamp = microtime(TRUE);
+        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);        
+        $all_literalnames = self::getAllSessionValueNames();
+        foreach($all_literalnames as $onename)
+        {
+            error_log("LOOK unset of $onename");
+            unset($_SESSION[$onename]);
+        }
         return '';
     }
     
@@ -1144,27 +1252,34 @@ class Context
     
     /**
      * We call this whenever we change something significant in the instance.
+     * REMOVE THIS DO NOT USE SERIALIZE APPROACH!!!!!!!!!!
+     * @deprecated 20150908!!!!!!!!!!!!!!
      */
     private function serializeNow($logMsg = NULL
             , $bSystemDrivenAction=TRUE
             , $nSessionRefreshDelayOverride=NULL
             , $checkSessionTimeout=TRUE)
     {
+        error_log("LOOK REMOVE THE serializeNow STUFF!!! ($logMsg)");
+        //return;
         if($logMsg != NULL)
         {
             error_log('@serializeNow: '.$logMsg);
         }
         if($bSystemDrivenAction)
         {
-            $this->m_nInstanceSystemActionTimestamp = time(); //Capture the time whenever we serialize.
+            self::saveSessionValue('InstanceSystemActionTimestamp', time());
+            //$this->m_nInstanceSystemActionTimestamp = time(); //Capture the time whenever we serialize.
         } else {
-            $this->m_nInstanceUserActionTimestamp = time(); //Capture the time whenever we serialize.
+            self::saveSessionValue('InstanceUserActionTimestamp', time());
+            //$this->m_nInstanceUserActionTimestamp = time(); //Capture the time whenever we serialize.
         }
         $this->bNeedsSave=FALSE;    //Because we are saving it now.
-        if(!isset($this->m_nInstanceTimestamp))
-        {
-            $this->m_nInstanceTimestamp = microtime(TRUE);
-        }
+        //if(!isset($this->m_nInstanceTimestamp))
+        //{
+            self::saveSessionValue('InstanceTimestamp', time());
+            //$this->m_nInstanceTimestamp = microtime(TRUE);
+        //}
         if($nSessionRefreshDelayOverride !== NULL)
         {
             $SESSION_REFRESH_DELAY = $nSessionRefreshDelayOverride;
