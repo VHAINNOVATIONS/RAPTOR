@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908D'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908E2'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -63,8 +63,8 @@ class Context
     private $m_sPersonalBatchStackMessage = NULL;
     
     //REPLACED private $m_nUID = NULL;
-    private $m_sVistaUserID = NULL;
-    private $m_sVAPassword = NULL;
+    //REPLACED private $m_sVistaUserID = NULL;
+    //REPLACED private $m_sVAPassword = NULL;
 
     private $m_aForceLogoutReason = NULL;   //If not NULL, then we should force a logout.
 
@@ -457,7 +457,7 @@ class Context
         } 
         
         global $user;
-        $bLocalReset = FALSE;
+        $bLocalReset = FALSE;   //DEPRECATE USE OF THIS VARIABLE -- JUST FAIL IF WE NEED TO FAIL
         $bAccountConflictDetected = FALSE;      //Set to true if something funny is going on.
         $bContextDetectIdleTooLong = FALSE;
         if(user_is_logged_in())
@@ -493,9 +493,16 @@ class Context
                 $errmsg = 'Must reset because candidate UID['.$candidate->getUID().'] != current UID['.$tempUID.']';
                 //drupal_set_message($errmsg, 'error');
                 error_log('CONTEXTgetInstance::'.$errmsg . "\nCANDIDATE at time of reset=".print_r($candidate,TRUE));
+                
+                //UGLY ABORT NOW
+                $candidate->clearAllContext();
+                throw new \Exception("Conflict current user session vs existing session detected!");
+                
+                
                 $bLocalReset=TRUE;
                 $candidate=NULL;
                 $wmodeParam='P';    //Hardcode assumption for now.
+                
             } else {
                 $bLocalReset=FALSE;
                 if(!self::hasSessionValue('UID'))
@@ -531,178 +538,147 @@ class Context
         
         if($candidate==NULL)    // $nElapsedSeconds > MAXINACTIVITYSECONDS 
         {
+            //Create an instance because one does not already exist
             $bLocalReset=TRUE;
+            $candidate = new \raptor\Context($tempUID);
+        }
+        
+        if($bSystemDrivenAction)
+        {
+            //Update the session info.
+            //$candidate->m_nInstanceSystemActionTimestamp = time();
+            $candidate->saveSessionValue('InstanceSystemActionTimestamp', time());
+            $candidate->serializeNow(); //Store this now!!!
         } else {
-            if($bSystemDrivenAction)
+            //Update user action tracking in datatabase.
+            if($candidate !== NULL)
             {
-                //Update the session info.
-                //$candidate->m_nInstanceSystemActionTimestamp = time();
-                $candidate->saveSessionValue('InstanceSystemActionTimestamp', time());
-                $candidate->serializeNow(); //Store this now!!!
+                $nElapsedSeconds = time() - $candidate->getInstanceUserActionTimestamp(); // m_nInstanceUserActionTimestamp;
             } else {
-                //Update user action tracking in datatabase.
-                if($candidate !== NULL)
+                $nElapsedSeconds = 0;
+            }
+            if(isset($tempUID) 
+                    && $tempUID !== 0 && ($nElapsedSeconds > 10))
+            {
+                try
                 {
-                    $nElapsedSeconds = time() - $candidate->getInstanceUserActionTimestamp(); // m_nInstanceUserActionTimestamp;
-                } else {
-                    $nElapsedSeconds = 0;
-                }
-                if(isset($tempUID) 
-                        && $tempUID !== 0 && ($nElapsedSeconds > 10))
-                {
-                    try
+                    //First make sure no one else is logged in as same UID
+                    $mysessionid = session_id();
+                    $other_or = db_or();
+                    $other_or->condition('ipaddress', $_SERVER['REMOTE_ADDR'],'<>');
+                    $other_or->condition('sessionid', $mysessionid ,'<>');
+                    $resultOther = db_select('raptor_user_recent_activity_tracking','u')
+                            ->fields('u')
+                            ->condition('uid',$tempUID,'=')
+                            ->condition($other_or)
+                            ->orderBy('most_recent_action_dt','DESC')
+                            ->execute();
+                    if($resultOther->rowCount() > 0)
                     {
-                        //First make sure no one else is logged in as same UID
-                        $mysessionid = session_id();
-                        $other_or = db_or();
-                        $other_or->condition('ipaddress', $_SERVER['REMOTE_ADDR'],'<>');
-                        $other_or->condition('sessionid', $mysessionid ,'<>');
-                        $resultOther = db_select('raptor_user_recent_activity_tracking','u')
+                        //There is always only one record in raptor_user_recent_activity_tracking
+                        $resultMe = db_select('raptor_user_activity_tracking','u')
                                 ->fields('u')
                                 ->condition('uid',$tempUID,'=')
-                                ->condition($other_or)
-                                ->orderBy('most_recent_action_dt','DESC')
+                                ->condition('ipaddress',$_SERVER['REMOTE_ADDR'],'=')
+                                ->condition('sessionid', $mysessionid ,'=')
+                                ->orderBy('updated_dt','DESC')
                                 ->execute();
-                        if($resultOther->rowCount() > 0)
+                        if($resultMe->rowCount() > 0)
                         {
-                            //There is always only one record in raptor_user_recent_activity_tracking
-                            $resultMe = db_select('raptor_user_activity_tracking','u')
-                                    ->fields('u')
-                                    ->condition('uid',$tempUID,'=')
-                                    ->condition('ipaddress',$_SERVER['REMOTE_ADDR'],'=')
-                                    ->condition('sessionid', $mysessionid ,'=')
-                                    ->orderBy('updated_dt','DESC')
-                                    ->execute();
-                            if($resultMe->rowCount() > 0)
+                            $other = $resultOther->fetchAssoc();
+                            $me = $resultMe->fetchAssoc();
+                            $conflict_logic_info=array();
+                            if($other['ipaddress'] == $me['ipaddress'])
                             {
-                                $other = $resultOther->fetchAssoc();
-                                $me = $resultMe->fetchAssoc();
-                                $conflict_logic_info=array();
-                                if($other['ipaddress'] == $me['ipaddress'])
+                                //This is on same machine.
+                                $nSesElapsedSeconds = (time() - $_SESSION['CREATED']);
+                                $conflict_logic_info['same-machine-elapsed-seconds'] 
+                                        = $nSesElapsedSeconds;
+                                if (!isset($_SESSION['CREATED']) 
+                                        || $nSesElapsedSeconds < CONFLICT_CHECK_DELAY_SECONDS)
                                 {
-                                    //This is on same machine.
-                                    $nSesElapsedSeconds = (time() - $_SESSION['CREATED']);
-                                    $conflict_logic_info['same-machine-elapsed-seconds'] 
-                                            = $nSesElapsedSeconds;
-                                    if (!isset($_SESSION['CREATED']) 
-                                            || $nSesElapsedSeconds < CONFLICT_CHECK_DELAY_SECONDS)
-                                    {
-                                        //Allow for possibility that the session ID has changed for a single user
-                                        $bAccountConflictDetected = FALSE;
-                                    } else {
-                                        //Possible the user has two browsers open with same account.
-                                        $bAccountConflictDetected 
-                                            = $other['most_recent_action_dt'] >= $me['updated_dt'];
-                                    }
+                                    //Allow for possibility that the session ID has changed for a single user
+                                    $bAccountConflictDetected = FALSE;
                                 } else {
-                                    //Simple check
+                                    //Possible the user has two browsers open with same account.
                                     $bAccountConflictDetected 
-                                            = $other['most_recent_action_dt'] >= $me['updated_dt'];
-                                    $conflict_logic_info['simple date check'] = $bAccountConflictDetected;
+                                        = $other['most_recent_action_dt'] >= $me['updated_dt'];
                                 }
-                                if($bAccountConflictDetected)
-                                {
-                                    error_log('CONTEXTgetInstance::Account conflict has '
-                                            . 'been detected at '.$_SERVER['REMOTE_ADDR']
-                                            . ' for UID=['.$tempUID.']'
-                                            . ' this user at '.$me['ipaddress']
-                                            . ' other user at '.$other['ipaddress'] 
-                                            . ' user sessionid ['.$mysessionid.']'
-                                            . ' other sessionid ['.$other['sessionid'].']' 
-                                            . '>>> TIMES = other[' 
-                                            . $other['most_recent_action_dt'] 
-                                            . '] vs this['
-                                            . $me['updated_dt'] 
-                                            . '] logicinfo='
-                                            .print_r($conflict_logic_info,TRUE));
-                                } else {
-                                    error_log('CONTEXTgetInstance::No account conflict detected '
-                                            . 'on check (es='.$nElapsedSeconds.') for UID=['.$tempUID.'] '
-                                            . 'this user at '.$_SERVER['REMOTE_ADDR']
-                                            . ' other user at '.$other['ipaddress'] 
-                                            . '>>> TIMES = other[' 
-                                            . $other['most_recent_action_dt'] 
-                                            . '] vs this['
-                                            . $me['updated_dt'] . ']');
-                                }
-                            }                    
-                        }
-                        if(!$forceReset)
-                        {
-                            //Log our activity.
-                            $updated_dt = date("Y-m-d H:i:s", time());
-                            db_insert('raptor_user_activity_tracking')
-                            ->fields(array(
-                                    'uid'=>$tempUID,
-                                    'action_cd' => UATC_GENERAL,
-                                    'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                                    'sessionid' => session_id(),
-                                    'updated_dt'=>$updated_dt,
-                                ))
-                                ->execute();
-                            $updated_dt = date("Y-m-d H:i:s", time());
-
-                            //Write the recent activity to the single record that tracks it too.
-                            db_merge('raptor_user_recent_activity_tracking')
-                            ->key(array('uid'=>$tempUID,
-                                ))
-                            ->fields(array(
-                                    'uid'=>$tempUID,
-                                    'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                                    'sessionid' => session_id(),
-                                    'most_recent_action_dt'=>$updated_dt,
-                                    'most_recent_action_cd' => UATC_GENERAL,
-                                ))
-                                ->execute();
-                        }
-                        //Update the session info.
-                        //$candidate->m_nInstanceUserActionTimestamp = time();
-                        $candidate->saveSessionValue('InstanceUserActionTimestamp', time());
-                        $candidate->serializeNow(); //Store this now!!!
-                    } catch (\Exception $ex) {
-                        //Log this but keep going.
-                        error_log('CONTEXTgetInstance::Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
+                            } else {
+                                //Simple check
+                                $bAccountConflictDetected 
+                                        = $other['most_recent_action_dt'] >= $me['updated_dt'];
+                                $conflict_logic_info['simple date check'] = $bAccountConflictDetected;
+                            }
+                            if($bAccountConflictDetected)
+                            {
+                                error_log('CONTEXTgetInstance::Account conflict has '
+                                        . 'been detected at '.$_SERVER['REMOTE_ADDR']
+                                        . ' for UID=['.$tempUID.']'
+                                        . ' this user at '.$me['ipaddress']
+                                        . ' other user at '.$other['ipaddress'] 
+                                        . ' user sessionid ['.$mysessionid.']'
+                                        . ' other sessionid ['.$other['sessionid'].']' 
+                                        . '>>> TIMES = other[' 
+                                        . $other['most_recent_action_dt'] 
+                                        . '] vs this['
+                                        . $me['updated_dt'] 
+                                        . '] logicinfo='
+                                        .print_r($conflict_logic_info,TRUE));
+                            } else {
+                                error_log('CONTEXTgetInstance::No account conflict detected '
+                                        . 'on check (es='.$nElapsedSeconds.') for UID=['.$tempUID.'] '
+                                        . 'this user at '.$_SERVER['REMOTE_ADDR']
+                                        . ' other user at '.$other['ipaddress'] 
+                                        . '>>> TIMES = other[' 
+                                        . $other['most_recent_action_dt'] 
+                                        . '] vs this['
+                                        . $me['updated_dt'] . ']');
+                            }
+                        }                    
                     }
+                    if(!$forceReset)
+                    {
+                        //Log our activity.
+                        $updated_dt = date("Y-m-d H:i:s", time());
+                        db_insert('raptor_user_activity_tracking')
+                        ->fields(array(
+                                'uid'=>$tempUID,
+                                'action_cd' => UATC_GENERAL,
+                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                                'sessionid' => session_id(),
+                                'updated_dt'=>$updated_dt,
+                            ))
+                            ->execute();
+                        $updated_dt = date("Y-m-d H:i:s", time());
+
+                        //Write the recent activity to the single record that tracks it too.
+                        db_merge('raptor_user_recent_activity_tracking')
+                        ->key(array('uid'=>$tempUID,
+                            ))
+                        ->fields(array(
+                                'uid'=>$tempUID,
+                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                                'sessionid' => session_id(),
+                                'most_recent_action_dt'=>$updated_dt,
+                                'most_recent_action_cd' => UATC_GENERAL,
+                            ))
+                            ->execute();
+                    }
+                    //Update the session info.
+                    //$candidate->m_nInstanceUserActionTimestamp = time();
+                    $candidate->saveSessionValue('InstanceUserActionTimestamp', time());
+                    $candidate->serializeNow(); //Store this now!!!
+                } catch (\Exception $ex) {
+                    //Log this but keep going.
+                    error_log('CONTEXTgetInstance::Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
                 }
             }
         }
         
-        if ($bLocalReset) {
-            //Clear existing context except for any user login info.
-            $tempUID = $user->uid;
-            $candidate = new \raptor\Context($tempUID);
-            if(isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]))
-            {
-                //Preserve existing credentials.
-                $current=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
-                $ehr_dao = $current->getEhrDao(FALSE);
-                if($ehr_dao != NULL)
-                {
-                    $ehr_dao->setCustomInfoMessage('unserialized@'.microtime(TRUE));
-                }
-//error_log("LOOK unserialized 1 for reset $current");                
-                error_log('CONTEXTgetInstance::Clearing cache except login credentials for '
-                        . 'EHR User ID=' . $current->m_sVistaUserID);
-                $candidate->m_sVistaUserID = $current->m_sVistaUserID;  //20140609
-                $candidate->m_sVAPassword = $current->m_sVAPassword;    //20140609
-            }
-            $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate);
-            $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
-            $ehr_dao = $candidate->getEhrDao(FALSE);
-            if($ehr_dao != NULL)
-            {
-                $ehr_dao->setCustomInfoMessage('unserialized@'.microtime(TRUE));
-            }
-//error_log("LOOK unserialized 2 for reset $candidate");      
-            $its = $candidate->getSessionValue('InstanceTimestamp');
-            Context::debugDrupalMsg('Created new context at ' + $its); //$candidate->m_nInstanceTimestamp);
-        } else {
-            $its = $candidate->getSessionValue('InstanceTimestamp');
-            $candidateUID = $candidate->getSessionValue('UID');
-            Context::debugDrupalMsg('[' . $its . '] Got context from cache! UID='.$candidateUID);
-            //Context::debugDrupalMsg('[' . $candidate->m_nInstanceTimestamp . '] Got context from cache! UID='.$candidate->getUID());
-        }
-
+        $its = $candidate->getSessionValue('InstanceTimestamp');
+        $candidateUID = $candidate->getSessionValue('UID');
+        Context::debugDrupalMsg('[' . $its . '] Got context from cache! UID='.$candidateUID);
         if($user->uid > 0)
         {
             $useridleseconds = intval($candidate->getUserIdleSeconds());
@@ -717,6 +693,7 @@ class Context
         }
         
         //Now trigger logout if account conflict was detected.
+        $candidateVistaUserID = $candidate->getVistaUserID();
         if($bAccountConflictDetected || $bContextDetectIdleTooLong)
         {
             //Don't kick out an administrator in a protected URL
@@ -724,7 +701,7 @@ class Context
             if(!$is_protected_adminuser)
             {
                 //Don't get stuck in an infinite loop.
-                if(substr($candidate->m_sVistaUserID,0,8) !== 'kickout_')
+                if(substr($candidateVistaUserID,0,8) !== 'kickout_')
                 {
                     //Prevent duplicate user messages.
                     if(!isset($candidate->m_aForceLogoutReason))
@@ -738,12 +715,12 @@ class Context
                             $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
                             $kickoutlabel = 'TIMEOUT';
                         } else {
-                            if($candidate->m_sVistaUserID > '')
+                            if($candidateVistaUserID > '')
                             {
                                 $usermsg = 'You are kicked out because another workstation has'
                                         . ' logged in as the same'
                                         . ' RAPTOR user account "'
-                                        . $candidate->m_sVistaUserID.'"';
+                                        . $candidateVistaUserID.'"';
                                 $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
                                 $kickoutlabel = 'ACCOUNT CONFLICT';
                             } else {
@@ -757,13 +734,16 @@ class Context
                         $candidate->m_aForceLogoutReason = array();
                         $candidate->m_aForceLogoutReason['code'] = $errorcode;
                         $candidate->m_aForceLogoutReason['text'] = $usermsg;
-                        $candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
-                        $candidate->m_sVAPassword = NULL;
+                        
+                        //$candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
+                        //$candidate->m_sVAPassword = NULL;
+                        self::saveSessionValue('VistaUserID', 'kickout_' . $candidateVistaUserID);
+                        self::saveSessionValue('VAPassword', NULL);
                     }
 
                     $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
                     error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
-                            . $candidate->m_sVistaUserID . '] >>> ' 
+                            . $candidateVistaUserID . '] >>> ' 
                             . time() 
                             . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
 
@@ -779,11 +759,13 @@ class Context
                 error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has candidate instance from '. $_SERVER['REMOTE_ADDR']);
             } else {
                 $candidateUID = $candidate->getUID();
+                $candidateVistaUserID = $candidate->getVistaUserID();
                 if($candidateUID == NULL || $candidateUID < 1)
                 {
                     $its = self::getSessionValue('InstanceTimestamp');
                     error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has NO existing Vista connection for ' 
-                            . $candidate->m_sVistaUserID . ' from ' 
+                            . $candidateVistaUserID 
+                            . ' from ' 
                             . $_SERVER['REMOTE_ADDR'] 
                             . ' in ' 
                             . $its);
@@ -834,7 +816,8 @@ class Context
     
     function getVistaUserID()
     {
-        return $this->m_sVistaUserID;
+        $sVUID = self::getSessionValue('VistaUserID',NULL);
+        return $sVUID;
     }
 
     function getVixDao()
@@ -842,7 +825,9 @@ class Context
         module_load_include('php', 'raptor_imageviewing', 'core/VixDao');
         if($this->m_oVixDao == NULL)
         {
-            $this->m_oVixDao = new \raptor\VixDao($this->m_sVistaUserID,$this->m_sVAPassword);
+            $sVistaUserID = self::getSessionValue('VistaUserID',NULL);
+            $sVAPassword = self::getSessionValue('VAPassword',NULL);
+            $this->m_oVixDao = new \raptor\VixDao($sVistaUserID, $sVAPassword);
         }
         return $this->m_oVixDao;
     }
@@ -1077,56 +1062,63 @@ class Context
     /**
      * Returns empty string if authenticated OK, else associative array with following keys: ERRNUM, ERRSUMMARY, ERRDETAIL 
      */
-    public function authenticateSubsystems($sVistaUserID, $sVAPassword) {
-        
-        $this->m_sVistaUserID = $sVistaUserID;  //Cache this for later re-authentications.
-        $this->m_sVAPassword = $sVAPassword;    //Cache this for later re-authentications.
-        $this->serializeNow();        
-        $result = $this->authenticateEhrSubsystem($sVistaUserID, $sVAPassword);
-        $updated_dt = date("Y-m-d H:i:s", time());
-        global $user;
-        $tempUID = $user->uid;  
-        if($tempUID != NULL && $tempUID != 0)
+    public function authenticateSubsystems($sVistaUserID, $sVAPassword) 
+    {
+        try
         {
-            try
+            //$this->m_sVistaUserID = $sVistaUserID;  //Cache this for later re-authentications.
+            //$this->m_sVAPassword = $sVAPassword;    //Cache this for later re-authentications.
+            self::saveSessionValue('VistaUserID', $sVistaUserID);
+            self::saveSessionValue('VAPassword', $sVAPassword);
+            $this->serializeNow();        
+            $result = $this->authenticateEhrSubsystem($sVistaUserID, $sVAPassword);
+            $updated_dt = date("Y-m-d H:i:s", time());
+            global $user;
+            $tempUID = $user->uid;  
+            if($tempUID != NULL && $tempUID != 0)
             {
-                db_insert('raptor_user_activity_tracking')
-                ->fields(array(
-                        'uid'=>$tempUID,
-                        'action_cd' => UATC_LOGIN,
-                        'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                        'sessionid' => session_id(),
-                        'updated_dt'=>$updated_dt,
-                    ))
-                    ->execute();
-                    //Write the recent activity to the single record that tracks it too.
-                    db_merge('raptor_user_recent_activity_tracking')
-                    ->key(array('uid'=>$tempUID,
-                        ))
+                try
+                {
+                    db_insert('raptor_user_activity_tracking')
                     ->fields(array(
                             'uid'=>$tempUID,
+                            'action_cd' => UATC_LOGIN,
                             'ipaddress' => $_SERVER['REMOTE_ADDR'],
                             'sessionid' => session_id(),
-                            'most_recent_login_dt'=>$updated_dt,
-                            'most_recent_action_dt'=>$updated_dt,
-                            'most_recent_action_cd' => UATC_LOGIN,
+                            'updated_dt'=>$updated_dt,
                         ))
                         ->execute();
-            } catch (\Exception $ex) {
-                error_log('Trouble updating raptor_user_activity_tracking>>>'
-                        .print_r($ex,TRUE));
-                db_insert('raptor_user_activity_tracking')
-                ->fields(array(
-                        'uid'=>$tempUID,
-                        'action_cd' => ERRORCODE_AUTHENTICATION,
-                        'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                        'sessionid' => session_id(),
-                        'updated_dt'=>$updated_dt,
-                    ))
-                    ->execute();
+                        //Write the recent activity to the single record that tracks it too.
+                        db_merge('raptor_user_recent_activity_tracking')
+                        ->key(array('uid'=>$tempUID,
+                            ))
+                        ->fields(array(
+                                'uid'=>$tempUID,
+                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                                'sessionid' => session_id(),
+                                'most_recent_login_dt'=>$updated_dt,
+                                'most_recent_action_dt'=>$updated_dt,
+                                'most_recent_action_cd' => UATC_LOGIN,
+                            ))
+                            ->execute();
+                } catch (\Exception $ex) {
+                    error_log('Trouble updating raptor_user_activity_tracking>>>'
+                            .print_r($ex,TRUE));
+                    db_insert('raptor_user_activity_tracking')
+                    ->fields(array(
+                            'uid'=>$tempUID,
+                            'action_cd' => ERRORCODE_AUTHENTICATION,
+                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
+                            'sessionid' => session_id(),
+                            'updated_dt'=>$updated_dt,
+                        ))
+                        ->execute();
+                }
             }
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $result;
     }
     
     private function authenticateEhrSubsystem($sVistaUserID, $sVAPassword) 
@@ -1135,7 +1127,7 @@ class Context
         {
             $its = self::getSessionValue('InstanceTimestamp');
             error_log('WORKFLOWDEBUG>>>Called authenticateEhrSubsystem for ' 
-                    . $this->m_sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR']  
+                    . $sVistaUserID . ' from '. $_SERVER['REMOTE_ADDR']  
                     . ' in ' . $its);
             
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
@@ -1170,12 +1162,14 @@ class Context
         //$this->m_sCurrentTicketID = null;
         $this->m_aPersonalBatchStack = null;
         //$this->m_nUID = 0;
-        $this->m_sVistaUserID = null;
-        $this->m_sVAPassword = null;
+        //$this->m_sVistaUserID = null;
+        //$this->m_sVAPassword = null;
 
         $nInstanceClearedTimestamp = microtime(TRUE);
         self::saveSessionValue('InstanceClearedTimestamp', $nInstanceClearedTimestamp);
         self::saveSessionValue('UID', 0);        
+        self::saveSessionValue('VistaUserID', NULL);        
+        self::saveSessionValue('VAPassword', NULL);        
         self::saveSessionValue('CurrentTicketID', NULL);        
         $nLastUpdateTimestamp = microtime(TRUE);
         self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);        
@@ -1357,8 +1351,13 @@ class Context
         $candidate->m_aForceLogoutReason['text'] = $reason;
         error_log('CONTEXT KICKOUT ACCOUNT AT ' . time() . "\n\tSESSION>>>>" 
                 . print_r($_SESSION,TRUE));
-        $candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
-        $candidate->m_sVAPassword = NULL;
+        $sVistaUserID = self::getAllSessionValueNames('sVistaUserID',NULL);
+        //$candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
+        //$candidate->m_sVAPassword = NULL;
+        
+        $newVUIDvalue = 'kickout_' . $sVistaUserID;
+        self::saveSessionValue('VistaUserID', $newVUIDvalue);
+        self::saveSessionValue('VAPassword', NULL);
         
         //Store this now!!!
         $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate);
