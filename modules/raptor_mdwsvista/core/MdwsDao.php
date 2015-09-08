@@ -601,13 +601,55 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
 
     public function getAllHospitalLocationsMap()
     {
-        return $this->getProtocolSupportingData('getAllHospitalLocations');
-        //$args = array($this);
-        //return $this->getProtocolSupportingData('getAllHospitalLocations', $args);
+        try
+        {
+            $maxqueries = 120;
+            $queries = 0;
+            $startingitem = '';
+            $locations = \raptor_mdwsvista\MdwsUtils::getHospitalLocationsMap($this, $startingitem);
+//error_log("LOOK got FIRST the locations>>>" . print_r($locations,TRUE));            
+            $prevend = end($locations);
+            while(is_array($locations) && end($locations) > '' && $queries < $maxqueries)
+            {
+                $queries++;
+//error_log("LOOK got q=$queries the locations>>>" . print_r($locations,TRUE));            
+                $morelocations = \raptor_mdwsvista\MdwsUtils::getHospitalLocationsMap($this, $prevend);
+                $lastitem = end($morelocations);
+                if($prevend >= $lastitem)
+                {
+                    foreach($morelocations as $k=>$v)
+                    {
+                        if($v <= $prevend)
+                        {
+                            //Wraps starting here.
+                            break;
+                        }
+                        $locations[$k] = $v;
+                    }
+                    //We are done
+                    break;
+                }
+                $locations = $locations + $morelocations;   //DO NOT USE array_merge function!!!!
+                $prevend = $lastitem;
+            }
+            if($queries >= $maxqueries)
+            {
+                error_log("WARNING in getAllHospitalLocations stopped queries after $queries executed!!!");
+                $locations['getmore'] = '* Get More Locations *';
+            }
+//error_log("LOOK got all the locations>>>" . print_r($locations,TRUE));            
+            return $locations;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
-    public function getAllergiesDetailMap()
+    public function getAllergiesDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            return FALSE;   //Indicate this feature is NOT supported!
+        }
         return $this->getProtocolSupportingData('getAllergiesDetail');
     }
 

@@ -796,13 +796,19 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
 
     public function getProcedureLabsDetailMap($override_patientId = NULL)
     {
-        if($override_patientId != NULL)
+        try
         {
-            error_log("LOOK TODO --- build in support for optional param in getProcedureLabsDetailMap!");
-            return FALSE;   //Optional param support is NOT yet implemented
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            //TODO!!!!! Do NOT call EWD for this one
+            return array();
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
     }
     
     /**
@@ -1013,8 +1019,18 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
 
     public function getOrderableItems($imagingTypeId)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $args = array();
+            $args['dialogId'] = $imagingTypeId;
+            $serviceName = $this->getCallingFunctionName();
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK getOrderableItems($imagingTypeId) raw result>>>".print_r($rawresult,TRUE));
+            //$formatted_detail = $myhelper->getFormattedMedicationsDetail($rawresult, $atriskmeds);
+            return array(); //TODO
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getPathologyReportsDetailMap($override_patientId = NULL)

@@ -391,25 +391,34 @@ class MdwsUtils {
         return $newNoteIen;
     }
     
+    /**
+     * Make SOAP call to get some hospital locations starting with the target
+     */
     public static function getHospitalLocationsMap($mdwsDao,$target = '') 
     {
-        $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
-        
-        if (!isset($soapResult) || 
-                !isset($soapResult->getHospitalLocationsResult) || 
-                isset($soapResult->getHospitalLocationsResult->fault)) {
-            throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
-        }
+        try
+        {
+error_log("LOOK mdwsutils.getHospitalLocationsMap($mdwsDao,$target) start");
+            $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
+error_log("LOOK mdwsutils.getHospitalLocationsMap($mdwsDao,$target) raw soap result>>>" . print_r($soapResult,TRUE));
+            if (!isset($soapResult) || 
+                    !isset($soapResult->getHospitalLocationsResult) || 
+                    isset($soapResult->getHospitalLocationsResult->fault)) {
+                throw new \Exception('Unable to get locations -> '.print_r($soapResult, TRUE));
+            }
 
-        $locations = array();
-        $locationTOs = is_array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO) ? 
-                            $soapResult->getHospitalLocationsResult->locations->HospitalLocationTO :
-                            array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO); 
+            $locations = array();
+            $locationTOs = is_array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO) ? 
+                                $soapResult->getHospitalLocationsResult->locations->HospitalLocationTO :
+                                array($soapResult->getHospitalLocationsResult->locations->HospitalLocationTO); 
 
-        foreach ($locationTOs as $locTO) {
-            $locations[$locTO->id] = $locTO->name;
+            foreach ($locationTOs as $locTO) {
+                $locations[$locTO->id] = $locTO->name;
+            }
+            return $locations;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $locations;
     }
 
     /**

@@ -229,61 +229,69 @@ class ProtocolSupportingData
             throw $ex;
         }
     }
-    
+
+    /*DEPREACATED 20150907
     public function getAllHospitalLocations($mdwsDao,$maxqueries=120,$startingitem='',$prependlist=NULL)
     {
-        $sThisResultName = 'getAllHospitalLocations';   //Not patient specific
-        if($prependlist == NULL)
+        try
         {
-            $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
-            if($aCachedResult !== NULL)
+            $sThisResultName = 'getAllHospitalLocations';   //Not patient specific
+            if($prependlist == NULL)
             {
-                //Found it in the cache!
-                return $aCachedResult;
-            }
-        }
-        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
-        $queries = 1;
-        //$locations = \raptor_mdwsvista\MdwsUtils::getHospitalLocations($mdwsDao, $startingitem);   
-        $locations = $mdwsDao->getHospitalLocationsMap($startingitem);   
-        $prevend = end($locations);
-        $lastitem = $prevend;
-        while(is_array($locations) && end($locations) > '' && $queries < $maxqueries)
-        {
-            $queries++;
-            //$morelocations = \raptor_mdwsvista\MdwsUtils::getHospitalLocations($mdwsDao, $lastitem);
-            $morelocations = $mdwsDao->getHospitalLocationsMap($lastitem);
-            $lastitem = end($morelocations);
-            if($prevend >= $lastitem)
-            {
-                foreach($morelocations as $k=>$v)
+                $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
+                if($aCachedResult !== NULL)
                 {
-                    if($v <= $prevend)
-                    {
-                        //Wraps starting here.
-                        break;
-                    }
-                    $locations[$k] = $v;
+                    //Found it in the cache!
+                    return $aCachedResult;
                 }
-                //We are done
-                break;
             }
-            $locations = $locations + $morelocations;   //DO NOT USE array_merge function!!!!
-            $prevend = $lastitem;
+            $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
+            $queries = 1;
+            $locations = \raptor_mdwsvista\MdwsUtils::getHospitalLocationsMap($mdwsDao, $startingitem);   
+            return $locations;//    TODO FIX 20150907 broken!!!!!!!!!!!!
+            $locations = $mdwsDao->getHospitalLocationsMap($startingitem);   
+            $prevend = end($locations);
+            $lastitem = $prevend;
+            while(is_array($locations) && end($locations) > '' && $queries < $maxqueries)
+            {
+                $queries++;
+                //$morelocations = \raptor_mdwsvista\MdwsUtils::getHospitalLocations($mdwsDao, $lastitem);
+                $morelocations = $mdwsDao->getHospitalLocationsMap($lastitem);
+                $lastitem = end($morelocations);
+                if($prevend >= $lastitem)
+                {
+                    foreach($morelocations as $k=>$v)
+                    {
+                        if($v <= $prevend)
+                        {
+                            //Wraps starting here.
+                            break;
+                        }
+                        $locations[$k] = $v;
+                    }
+                    //We are done
+                    break;
+                }
+                $locations = $locations + $morelocations;   //DO NOT USE array_merge function!!!!
+                $prevend = $lastitem;
+            }
+            if($queries >= $maxqueries)
+            {
+                error_log("WARNING in getAllHospitalLocations stopped queries after $queries executed!!!");
+                $locations['getmore'] = '* Get More Locations *';
+            }
+            if($prependlist !== NULL)
+            {
+                $locations = array_merge($prependlist, $locations);
+            }
+            $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations, CACHE_AGE_SITEVALUES);
+            $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
+            return $locations;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        if($queries >= $maxqueries)
-        {
-            error_log("WARNING in getAllHospitalLocations stopped queries after $queries executed!!!");
-            $locations['getmore'] = '* Get More Locations *';
-        }
-        if($prependlist !== NULL)
-        {
-            $locations = array_merge($prependlist, $locations);
-        }
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $locations, CACHE_AGE_SITEVALUES);
-        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
-        return $locations;
     }
+    */
     
     /**
      * Leverage caching so only one call is made.

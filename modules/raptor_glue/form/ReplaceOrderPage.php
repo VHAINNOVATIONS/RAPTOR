@@ -55,76 +55,81 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
      */
     function getInitialFieldValues()
     {
-        $tid = $this->m_oContext->getSelectedTrackingID();
-        if($tid == NULL || trim($tid) == '' || trim($tid) == 0)
+        try
         {
-            throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
-        }
-        //$oWL = new \raptor\WorklistData($this->m_oContext);
-        //$aOneRow = $oWL->getDashboardMap();
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $aOneRow = $ehrDao->getDashboardDetailsMap();
-        $nUID = $this->m_oContext->getUID();
-        $imagetypes = $ehrDao->getImagingTypesMap($ehrDao);
-        
-        $myvalues = array();
-        $myvalues['formhost'] = 'fulltab';  //If form is embedded into another form, make this different value
-        $myvalues['imagetypes'] = $imagetypes;
-        $myvalues['currentstep'] = 1;
-        $myvalues['tid'] = $tid;
-        $myvalues['uid'] = $nUID;
-        $myvalues['procName'] = $aOneRow['Procedure'];
-        $myvalues['OriginalRequester'] = $aOneRow['RequestedBy'];
-        $myvalues['RequestingLocation'] = $aOneRow['RequestingLocation'];
-        $myvalues['canOrderBeDCd'] = $aOneRow['canOrderBeDCd'];
-        $myvalues['originalOrderProviderDuz'] = $aOneRow['orderingPhysicianDuz'];
-        $myvalues['OrderFileIen'] = $aOneRow['OrderFileIen'];
-        $myvalues['PatientID'] = $aOneRow['PatientID'];
-        $myvalues['orderitems_options'] = NULL;
-        $myvalues['canCreateNewOrder'] = NULL;
-        $myvalues['canReallyCancel'] = NULL;
-        $myvalues['requestingProviderDuz'] = NULL;  //Who is requesting the new order
-        $myvalues['neworderprovider_name'] = NULL;
-        $myvalues['newordermodifiers'] = NULL;
-        $myvalues['reason'] = '';
-        $myvalues['notes_tx'] = '';
-        $myvalues['esig'] = '';
-        $myvalues['require_esig'] = '';
-        $myvalues['cancommitorder'] = NULL; //If 'yes' then user can commit a new order
-        $myvalues['cancelreason'] = NULL;
-        $myvalues['orderCheckOverrideReason'] = NULL;
-        $myvalues['neworderlocation'] = NULL;
-        $myvalues['neworderimagetype'] = NULL;
-        $myvalues['neworderlocation'] = NULL;
-        $myvalues['neworderitem'] = NULL;
-        $myvalues['contractSharingIen'] = NULL;
-        $myvalues['neworderurgency'] = NULL;
-        $myvalues['modecode'] = NULL;
-        $myvalues['category'] = NULL;
-        $myvalues['submitto'] = NULL;
-        $myvalues['isolation'] = 3; //Default to UNKNOWN
-        $myvalues['pregnant'] = NULL;
-        $myvalues['reasonforstudy'] = NULL;
-        $myvalues['clinhist'] = NULL;
-        
-        $ddtxt = $aOneRow['DesiredDate'];
-        $ddtxtparts = explode('@',$ddtxt);
-        $ddtime = strtotime($ddtxtparts[0]);
-        if($ddtime > time())
-        {
-            $formatteddd = date('m/d/Y',$ddtime);
-        } else {
-            $formatteddd = '';  //Already passed!
-        }
-        
-        $myvalues['datedesired_dateonly'] = $formatteddd;   //Format it
-        $myvalues['preopdate_dateonly'] = NULL;
-        $myvalues['datedesired_timeonly'] = NULL;
-        $myvalues['preopdate_timeonly'] = NULL;
+            $tid = $this->m_oContext->getSelectedTrackingID();
+            if($tid == NULL || trim($tid) == '' || trim($tid) == 0)
+            {
+                throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
+            }
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOneRow = $oWL->getDashboardMap();
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $aOneRow = $ehrDao->getDashboardDetailsMap();
+            $nUID = $this->m_oContext->getUID();
+            $imagetypes = $ehrDao->getImagingTypesMap($ehrDao);
 
-        //error_log("Got initial field values for replace order DD=[".$aOneRow['DesiredDate']."]>>>".print_r($myvalues,TRUE));
-        
-        return $myvalues;
+            $myvalues = array();
+            $myvalues['formhost'] = 'fulltab';  //If form is embedded into another form, make this different value
+            $myvalues['imagetypes'] = $imagetypes;
+            $myvalues['currentstep'] = 1;
+            $myvalues['tid'] = $tid;
+            $myvalues['uid'] = $nUID;
+            $myvalues['procName'] = $aOneRow['Procedure'];
+            $myvalues['OriginalRequester'] = $aOneRow['RequestedBy'];
+            $myvalues['RequestingLocation'] = $aOneRow['RequestingLocation'];
+            $myvalues['canOrderBeDCd'] = $aOneRow['canOrderBeDCd'];
+            $myvalues['originalOrderProviderDuz'] = $aOneRow['orderingPhysicianDuz'];
+            $myvalues['OrderFileIen'] = $aOneRow['OrderFileIen'];
+            $myvalues['PatientID'] = $aOneRow['PatientID'];
+            $myvalues['orderitems_options'] = NULL;
+            $myvalues['canCreateNewOrder'] = NULL;
+            $myvalues['canReallyCancel'] = NULL;
+            $myvalues['requestingProviderDuz'] = NULL;  //Who is requesting the new order
+            $myvalues['neworderprovider_name'] = NULL;
+            $myvalues['newordermodifiers'] = NULL;
+            $myvalues['reason'] = '';
+            $myvalues['notes_tx'] = '';
+            $myvalues['esig'] = '';
+            $myvalues['require_esig'] = '';
+            $myvalues['cancommitorder'] = NULL; //If 'yes' then user can commit a new order
+            $myvalues['cancelreason'] = NULL;
+            $myvalues['orderCheckOverrideReason'] = NULL;
+            $myvalues['neworderlocation'] = NULL;
+            $myvalues['neworderimagetype'] = NULL;
+            $myvalues['neworderlocation'] = NULL;
+            $myvalues['neworderitem'] = NULL;
+            $myvalues['contractSharingIen'] = NULL;
+            $myvalues['neworderurgency'] = NULL;
+            $myvalues['modecode'] = NULL;
+            $myvalues['category'] = NULL;
+            $myvalues['submitto'] = NULL;
+            $myvalues['isolation'] = 3; //Default to UNKNOWN
+            $myvalues['pregnant'] = NULL;
+            $myvalues['reasonforstudy'] = NULL;
+            $myvalues['clinhist'] = NULL;
+
+            $ddtxt = $aOneRow['DesiredDate'];
+            $ddtxtparts = explode('@',$ddtxt);
+            $ddtime = strtotime($ddtxtparts[0]);
+            if($ddtime > time())
+            {
+                $formatteddd = date('m/d/Y',$ddtime);
+            } else {
+                $formatteddd = '';  //Already passed!
+            }
+
+            $myvalues['datedesired_dateonly'] = $formatteddd;   //Format it
+            $myvalues['preopdate_dateonly'] = NULL;
+            $myvalues['datedesired_timeonly'] = NULL;
+            $myvalues['preopdate_timeonly'] = NULL;
+
+            //error_log("Got initial field values for replace order DD=[".$aOneRow['DesiredDate']."]>>>".print_r($myvalues,TRUE));
+
+            return $myvalues;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**
