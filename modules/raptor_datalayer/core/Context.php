@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908A'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908B'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -52,9 +52,9 @@ class Context
 {
     //REPLACED private $m_nInstanceTimestamp = NULL;           //Gets set when context is instantiated.
     //REPLACED private $m_nLastUpdateTimestamp = NULL;         //Changes when the context changes.
-    private $m_nInstanceClearedTimestamp = NULL;
-    private $m_nInstanceUserActionTimestamp = NULL;     //Periodically update to check for timeout
-    private $m_nInstanceSystemActionTimestamp = NULL;   //Periodically update for internal tuning
+    //REPLACED private $m_nInstanceClearedTimestamp = NULL;
+    //REPLACED private $m_nInstanceUserActionTimestamp = NULL;     //Periodically update to check for timeout
+    //REPLACED private $m_nInstanceSystemActionTimestamp = NULL;   //Periodically update for internal tuning
 
     private $m_oRuntimeResultFlexCacheHandler = array();    //20150715
     
@@ -280,14 +280,14 @@ class Context
         $this->m_nUID = $nUID;
         //$this->m_nInstanceTimestamp = microtime(TRUE);  //Capture the time this instance was created.
         //$this->m_nLastUpdateTimestamp = microtime(TRUE);  
-        $this->m_nInstanceUserActionTimestamp = time();
-        $this->m_nInstanceSystemActionTimestamp = time();
+        //$this->m_nInstanceUserActionTimestamp = time();
+        //$this->m_nInstanceSystemActionTimestamp = time();
         
         self::saveSessionValue('UID', $nUID);
         self::saveSessionValue('InstanceTimestamp', microtime(TRUE));
         self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
-        self::saveSessionValue('InstanceUserActionTimestamp', $this->m_nInstanceUserActionTimestamp);
-        self::saveSessionValue('InstanceSystemActionTimestamp', $this->m_nInstanceSystemActionTimestamp);
+        self::saveSessionValue('InstanceUserActionTimestamp', time());
+        self::saveSessionValue('InstanceSystemActionTimestamp', time());
         
         //Purge old cache contents now.
         RuntimeResultFlexCache::purgeOldItems();
@@ -521,13 +521,14 @@ class Context
             if($bSystemDrivenAction)
             {
                 //Update the session info.
-                $candidate->m_nInstanceSystemActionTimestamp = time();
+                //$candidate->m_nInstanceSystemActionTimestamp = time();
+                $candidate->saveSessionValue('InstanceSystemActionTimestamp', time());
                 $candidate->serializeNow(); //Store this now!!!
             } else {
                 //Update user action tracking in datatabase.
                 if($candidate !== NULL)
                 {
-                    $nElapsedSeconds = time() - $candidate->getInstanceTimestamp(); // m_nInstanceUserActionTimestamp;
+                    $nElapsedSeconds = time() - $candidate->getInstanceUserActionTimestamp(); // m_nInstanceUserActionTimestamp;
                 } else {
                     $nElapsedSeconds = 0;
                 }
@@ -640,7 +641,8 @@ class Context
                                 ->execute();
                         }
                         //Update the session info.
-                        $candidate->m_nInstanceUserActionTimestamp = time();
+                        //$candidate->m_nInstanceUserActionTimestamp = time();
+                        $candidate->saveSessionValue('InstanceUserActionTimestamp', time());
                         $candidate->serializeNow(); //Store this now!!!
                     } catch (\Exception $ex) {
                         //Log this but keep going.
@@ -1139,7 +1141,7 @@ class Context
     private function clearAllContext()
     {
         $this->logoutEhrSubsystem();
-        $this->m_nInstanceClearedTimestamp = microtime(TRUE);
+        //$this->m_nInstanceClearedTimestamp = microtime(TRUE);
         //$this->m_nInstanceTimestamp = null;
         $this->m_sCurrentTicketID = null;
         $this->m_aPersonalBatchStack = null;
@@ -1147,6 +1149,8 @@ class Context
         $this->m_sVistaUserID = null;
         $this->m_sVAPassword = null;
 
+        $nInstanceClearedTimestamp = microtime(TRUE);
+        self::saveSessionValue('InstanceClearedTimestamp', $nInstanceClearedTimestamp);        
         $nLastUpdateTimestamp = microtime(TRUE);
         self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);        
         $all_literalnames = self::getAllSessionValueNames();
