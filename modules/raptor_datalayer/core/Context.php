@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908F'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908F1'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -46,7 +46,7 @@ defined('DISABLE_CONTEXT_DEBUG')
  * 
  * NOTE: static members of an object are not serialized.
  *
- * @author SAN
+ * @author Frank Font of SAN Business Consultants
  */
 class Context
 {
@@ -66,7 +66,7 @@ class Context
     //REPLACED private $m_sVistaUserID = NULL;
     //REPLACED private $m_sVAPassword = NULL;
 
-    private $m_aForceLogoutReason = NULL;   //If not NULL, then we should force a logout.
+    //REPLACED private $m_aForceLogoutReason = NULL;   //If not NULL, then we should force a logout.
 
     
     private $m_oVixDao = NULL;      //20140718 
@@ -704,7 +704,8 @@ class Context
                 if(substr($candidateVistaUserID,0,8) !== 'kickout_')
                 {
                     //Prevent duplicate user messages.
-                    if(!isset($candidate->m_aForceLogoutReason))
+                    $aForceLogoutReason = self::getSessionValue('ForceLogoutReason',NULL);
+                    if($aForceLogoutReason == NULL)
                     {
                         //Not already set, so set it now.
                         if($bContextDetectIdleTooLong)
@@ -731,12 +732,10 @@ class Context
                             }
                         }
                         drupal_set_message($usermsg, 'error');
-                        $candidate->m_aForceLogoutReason = array();
-                        $candidate->m_aForceLogoutReason['code'] = $errorcode;
-                        $candidate->m_aForceLogoutReason['text'] = $usermsg;
-                        
-                        //$candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
-                        //$candidate->m_sVAPassword = NULL;
+                        $aForceLogoutReason = array();
+                        $aForceLogoutReason['code'] = $errorcode;
+                        $aForceLogoutReason['text'] = $usermsg;
+                        self::saveSessionValue('ForceLogoutReason', $aForceLogoutReason);
                         self::saveSessionValue('VistaUserID', 'kickout_' . $candidateVistaUserID);
                         self::saveSessionValue('VAPassword', NULL);
                     }
@@ -779,17 +778,19 @@ class Context
     
     public function hasForceLogoutReason()
     {
-        return ($this->m_aForceLogoutReason !== NULL);
+        $aForceLogoutReason = $this->getForceLogoutReason();
+        return ($aForceLogoutReason !== NULL);
     }
     
     public function getForceLogoutReason()
     {
-        return $this->m_aForceLogoutReason;
+        return self::getSessionValue('ForceLogoutReason', NULL);
     }
     
     public function clearForceLogoutReason()
     {
-        $this->m_sForceLogoutReason = NULL;
+        self::saveSessionValue('ForceLogoutReason', NULL);
+        //$this->m_sForceLogoutReason = NULL;
         $this->serializeNow(); //Store this now!!!
     }
     
@@ -1365,9 +1366,10 @@ class Context
         } else {
             $showusermsgmarkup = "<h2>".$reason."</h2>";
         }
-        $candidate->m_aForceLogoutReason = array();
-        $candidate->m_aForceLogoutReason['code'] = $reasoncode;
-        $candidate->m_aForceLogoutReason['text'] = $reason;
+        $aForceLogoutReason = array();
+        $aForceLogoutReason['code'] = $reasoncode;
+        $aForceLogoutReason['text'] = $reason;
+        self::saveSessionValue('ForceLogoutReason', $aForceLogoutReason);
         error_log('CONTEXT KICKOUT ACCOUNT AT ' . time() . "\n\tSESSION>>>>" 
                 . print_r($_SESSION,TRUE));
         $sVistaUserID = self::getAllSessionValueNames('sVistaUserID',NULL);
