@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908B'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908C'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -58,7 +58,7 @@ class Context
 
     private $m_oRuntimeResultFlexCacheHandler = array();    //20150715
     
-    private $m_sCurrentTicketID = NULL;
+    //REPLACED private $m_sCurrentTicketID = NULL;
     private $m_aPersonalBatchStack = NULL;
     private $m_sPersonalBatchStackMessage = NULL;
     
@@ -878,7 +878,8 @@ class Context
     public function clearSelectedTrackingID($bSaveSession=TRUE)
     {
         Context::debugDrupalMsg('called clearSelectedTrackingID');
-        $this->m_sCurrentTicketID = NULL;
+        //$this->m_sCurrentTicketID = NULL;
+        self::saveSessionValue('CurrentTicketID', NULL);
         $nLastUpdateTimestamp = microtime(TRUE);
         self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
         if($bSaveSession)
@@ -902,11 +903,12 @@ class Context
     {
         $candidate = Context::getInstance();    //Important that we ALWAYS pull it from persistence layer here!
         $candidate->m_sPersonalBatchStackMessage = NULL;
-        if(!isset($candidate->m_sCurrentTicketID) || $candidate->m_sCurrentTicketID == NULL)
+        $sCurrentTicketID = self::getSessionValue('CurrentTicketID',NULL);
+        if($sCurrentTicketID == NULL) //!isset($candidate->m_sCurrentTicketID) || $candidate->m_sCurrentTicketID == NULL)
         {
             //If there is anything in the personal batch stack, grab it now.
-            $candidate->m_sCurrentTicketID = $candidate->popPersonalBatchStack(FALSE);
-            if($candidate->m_sCurrentTicketID !== NULL)
+            $sCurrentTicketID = $candidate->popPersonalBatchStack(FALSE);
+            if($sCurrentTicketID !== NULL)
             {
                 $pbsize = $candidate->getPersonalBatchStackSize();
                 if($pbsize === 1)
@@ -918,7 +920,7 @@ class Context
             }
             $candidate->serializeNow();        
         }
-        return $candidate->m_sCurrentTicketID;
+        return $sCurrentTicketID;
     }
     
     /**
@@ -937,7 +939,8 @@ class Context
         try
         {
             $prevtime = self::getSessionValue('LastUpdateTimestamp'); //$this->m_nLastUpdateTimestamp;
-            $prevtid = $this->m_sCurrentTicketID;
+            $prevtid = self::getSessionValue('CurrentTicketID',NULL); //$this->m_nLastUpdateTimestamp;
+            //$prevtid = $this->m_sCurrentTicketID;
             if($bClearPersonalBatchStack)   //20140619
             {
                 $this->clearPersonalBatchStack();
@@ -953,7 +956,8 @@ class Context
                 //Site-IEN
                 $nIEN = $aParts[1];
             }
-            $this->m_sCurrentTicketID = $sTrackingID;
+            //$this->m_sCurrentTicketID = $sTrackingID;
+            self::saveSessionValue('CurrentTicketID', $sTrackingID);
 
             $oMC = $this->getEhrDao();
             $sPatientID = $this->checkLocalCache($sTrackingID);
@@ -984,7 +988,8 @@ class Context
         self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
         $this->m_sPersonalBatchStackMessage = NULL;
         $this->m_aPersonalBatchStack = $aPBatch;
-        $this->m_sCurrentTicketID = NULL;   //Clear it so we pop from the stack on request
+        //$this->m_sCurrentTicketID = NULL;   //Clear it so we pop from the stack on request
+        self::saveSessionValue('CurrentTicketID', NULL);
         $this->serializeNow();        
     }
 
@@ -1143,14 +1148,15 @@ class Context
         $this->logoutEhrSubsystem();
         //$this->m_nInstanceClearedTimestamp = microtime(TRUE);
         //$this->m_nInstanceTimestamp = null;
-        $this->m_sCurrentTicketID = null;
+        //$this->m_sCurrentTicketID = null;
         $this->m_aPersonalBatchStack = null;
         $this->m_nUID = 0;
         $this->m_sVistaUserID = null;
         $this->m_sVAPassword = null;
 
         $nInstanceClearedTimestamp = microtime(TRUE);
-        self::saveSessionValue('InstanceClearedTimestamp', $nInstanceClearedTimestamp);        
+        self::saveSessionValue('InstanceClearedTimestamp', $nInstanceClearedTimestamp);
+        self::saveSessionValue('CurrentTicketID', NULL);        
         $nLastUpdateTimestamp = microtime(TRUE);
         self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);        
         $all_literalnames = self::getAllSessionValueNames();
