@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908C'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908D'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -62,7 +62,7 @@ class Context
     private $m_aPersonalBatchStack = NULL;
     private $m_sPersonalBatchStackMessage = NULL;
     
-    private $m_nUID = NULL;
+    //REPLACED private $m_nUID = NULL;
     private $m_sVistaUserID = NULL;
     private $m_sVAPassword = NULL;
 
@@ -160,10 +160,15 @@ class Context
     /**
      * Check value from session with special variable names
      */
-    public static function hasSessionValue($name)
+    public static function hasSessionValue($name, $null_is_sameasmissing = TRUE)
     {
         $fullname = CONST_NM_RAPTOR_CONTEXT.'_'.$name;
-        return isset($_SESSION[$fullname]);
+        if($null_is_sameasmissing)
+        {
+            return isset($_SESSION[$fullname]) && $_SESSION[$fullname] !== NULL;
+        } else {
+            return isset($_SESSION[$fullname]);
+        }
     }
     
     /**
@@ -277,7 +282,7 @@ class Context
             throw new \Exception('The UID passed into contructor of Context must be numeric, but instead got "'.$nUID.'"');
         }
 
-        $this->m_nUID = $nUID;
+       //$this->m_nUID = $nUID;
         //$this->m_nInstanceTimestamp = microtime(TRUE);  //Capture the time this instance was created.
         //$this->m_nLastUpdateTimestamp = microtime(TRUE);  
         //$this->m_nInstanceUserActionTimestamp = time();
@@ -478,10 +483,11 @@ class Context
             if($candidateUID == 0 && $tempUID != 0 && !$candidate->hasForceLogoutReason())
             {
                 //Convert this session instance into instance for the UID, normal occurrence to do this after a login.
-                $candidate->m_nUID = $tempUID;
+                //$candidate->m_nUID = $tempUID;
+                self::saveSessionValue('UID', $tempUID);
                 $candidate->serializeForNewLogin('Set the uid to the user->uid');
             } else 
-            if($candidate->m_nUID > -1 && $candidate->getUID() !== $tempUID)
+            if($candidateUID > -1 && $candidateUID !== $tempUID)
             {
                 //This can happen if a user left without proper logout.
                 $errmsg = 'Must reset because candidate UID['.$candidate->getUID().'] != current UID['.$tempUID.']';
@@ -492,6 +498,14 @@ class Context
                 $wmodeParam='P';    //Hardcode assumption for now.
             } else {
                 $bLocalReset=FALSE;
+                if(!self::hasSessionValue('UID'))
+                {
+                   //Log something and continue
+                   error_log("WARNING: Did NOT find a RAPTOR USER in existing session!"
+                           . "\n\tUSER OBJ=".print_r($user,TRUE)  
+                           . "\n\tCANDIDATE=".print_r($candidate,TRUE));
+                }
+                /*
                 if(!isset($candidate->m_nUID)) // !isset($candidate->m_sVistaUserID))         
                 {
                    //Log something and continue
@@ -499,6 +513,7 @@ class Context
                            . "\n\tUSER OBJ=".print_r($user,TRUE)  
                            . "\n\tCANDIDATE=".print_r($candidate,TRUE));
                 }
+                 */
             }
             
         } else {
@@ -763,7 +778,8 @@ class Context
             {
                 error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has candidate instance from '. $_SERVER['REMOTE_ADDR']);
             } else {
-                if(!isset($candidate->m_nUID) || $candidate->m_nUID < 1)
+                $candidateUID = $candidate->getUID();
+                if($candidateUID == NULL || $candidateUID < 1)
                 {
                     $its = self::getSessionValue('InstanceTimestamp');
                     error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has NO existing Vista connection for ' 
@@ -811,7 +827,9 @@ class Context
     
     function getUID()
     {
-        return $this->m_nUID;
+        $nUID = self::getSessionValue('UID',NULL);
+        return $nUID;
+        //return $this->m_nUID;
     }
     
     function getVistaUserID()
@@ -831,7 +849,8 @@ class Context
 
     function getUserInfo($bFailIfNoUser=TRUE)
     {
-        if($bFailIfNoUser && ($this->m_nUID == '' || $this->m_nUID < 1))
+        $nUID = self::getSessionValue('UID',NULL);
+        if($bFailIfNoUser && ($nUID == NULL || $nUID < 1))
         {
             error_log('Did NOT find a valid UID!!!');
             global $base_url;
@@ -839,7 +858,7 @@ class Context
                     . '<p>Did NOT find a valid user instance!<p>'
                     . '<p>TIP: <a href="'.$base_url.'/user/login">login</a></p>');
         }
-        $oUserInfo = new \raptor\UserInfo($this->m_nUID);
+        $oUserInfo = new \raptor\UserInfo($nUID);
         return $oUserInfo;
     }
     
@@ -1150,12 +1169,13 @@ class Context
         //$this->m_nInstanceTimestamp = null;
         //$this->m_sCurrentTicketID = null;
         $this->m_aPersonalBatchStack = null;
-        $this->m_nUID = 0;
+        //$this->m_nUID = 0;
         $this->m_sVistaUserID = null;
         $this->m_sVAPassword = null;
 
         $nInstanceClearedTimestamp = microtime(TRUE);
         self::saveSessionValue('InstanceClearedTimestamp', $nInstanceClearedTimestamp);
+        self::saveSessionValue('UID', 0);        
         self::saveSessionValue('CurrentTicketID', NULL);        
         $nLastUpdateTimestamp = microtime(TRUE);
         self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);        
@@ -1173,14 +1193,15 @@ class Context
      */
     public function logoutSubsystems() 
     {
-        if($this->m_nUID != NULL && $this->m_nUID > 0)
+        $nUID = self::getSessionValue('UID',NULL);
+        if($nUID != NULL && $nUID > 0)
         {
             try
             {
                 $updated_dt = date("Y-m-d H:i:s", time());
                 db_insert('raptor_user_activity_tracking')
                 ->fields(array(
-                        'uid'=>$this->m_nUID,
+                        'uid'=>$nUID,
                         'action_cd' => UATC_LOGOUT,
                         'ipaddress' => $_SERVER['REMOTE_ADDR'],
                         'sessionid' => session_id(),
@@ -1205,9 +1226,9 @@ class Context
                         ->execute();
                  */
                 db_merge('raptor_user_recent_activity_tracking')
-                    ->key(array('uid'=>$this->m_nUID))
+                    ->key(array('uid'=>$nUID))
                     ->fields(array(
-                            'uid'=>$this->m_nUID,
+                            'uid'=>$nUID,
                             'ipaddress' => $_SERVER['REMOTE_ADDR'],
                             'sessionid' => session_id(),
                             'most_recent_logout_dt'=>$updated_dt,
@@ -1216,7 +1237,7 @@ class Context
                         ))
                         ->execute();
             } catch (\Exception $ex) {
-                error_log('Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
+                error_log('Trouble updating raptor_user_activity_tracking>>>' . print_r($ex,TRUE));
             }
         }
         $this->clearAllContext();
