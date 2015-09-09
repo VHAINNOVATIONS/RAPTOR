@@ -1026,8 +1026,26 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
 error_log("LOOK getOrderableItems($imagingTypeId) raw result>>>".print_r($rawresult,TRUE));
-            //$formatted_detail = $myhelper->getFormattedMedicationsDetail($rawresult, $atriskmeds);
-            return array(); //TODO
+            $value_ar = $rawresult['value'];
+            $formatted_detail = array();
+            foreach($value_ar as $onerawrow)
+            {
+                $parts = explode('^',$onerawrow);
+                if(count($parts)>1)
+                {
+                    $id = $parts[0];
+                    $name = $parts[1];
+                    if(count($parts)>3)
+                    {
+                        $requiresApproval = $parts[3];
+                    } else {
+                        $requiresApproval = '';
+                    }
+                    $formatted_detail[$id] = array('name'=>$name, 'requiresApproval'=>$requiresApproval);
+                }
+            }
+error_log("LOOK getOrderableItems($imagingTypeId) final result>>>".print_r($formatted_detail,TRUE));
+            return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
         }
