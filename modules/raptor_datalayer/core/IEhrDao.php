@@ -216,6 +216,7 @@ interface IEhrDao
     public function userHasKeyOREMAS();
     public function validateEsig($eSig);
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);
+    public function getNoteTitles($startingitem);
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ);
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ);
    

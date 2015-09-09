@@ -279,6 +279,14 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->validateEsig($eSig);
     }
 
+    /**
+     * Returns array of arrays IEN is key of top array, member array is collection of TITLES
+     */
+    public function getNoteTitles($startingitem)
+    {
+        return $this->m_implclass->getNoteTitles($startingitem);
+    }
+    
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
     {
         return $this->m_implclass->verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle);

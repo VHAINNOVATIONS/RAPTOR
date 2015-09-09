@@ -1567,10 +1567,34 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
 
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        $titlemap = $this->getNoteTitles($checkVistaNoteTitle);
+        if(is_array($titlemap) && isset($titlemap[$checkVistaNoteIEN]))
+        {
+            foreach($titlemap[$checkVistaNoteIEN] as $onetitle)
+            {
+                if($checkVistaNoteTitle == $onetitle)
+                {
+                    return TRUE;
+                }
+            }
+        }
+        return FALSE;
     }
 
+    public function getNoteTitles($startingitem)
+    {
+        try
+        {
+            $args = array();
+            $args['target'] = $startingitem;
+            $serviceName = $this->getCallingFunctionName();
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            return $rawresult;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
     {
         $serviceName = $this->getCallingFunctionName();

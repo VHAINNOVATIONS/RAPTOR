@@ -398,9 +398,9 @@ class MdwsUtils {
     {
         try
         {
-error_log("LOOK mdwsutils.getHospitalLocationsMap($mdwsDao,$target) start");
+//error_log("LOOK mdwsutils.getHospitalLocationsMap($mdwsDao,$target) start");
             $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
-error_log("LOOK mdwsutils.getHospitalLocationsMap($mdwsDao,$target) raw soap result>>>" . print_r($soapResult,TRUE));
+//error_log("LOOK mdwsutils.getHospitalLocationsMap($mdwsDao,$target) raw soap result>>>" . print_r($soapResult,TRUE));
             if (!isset($soapResult) || 
                     !isset($soapResult->getHospitalLocationsResult) || 
                     isset($soapResult->getHospitalLocationsResult->fault)) {

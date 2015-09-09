@@ -859,6 +859,12 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
     {
         return \raptor_mdwsvista\MdwsUtils::verifyNoteTitleMapping($this, $checkVistaNoteIEN, $checkVistaNoteTitle);
     }
+    
+    public function getNoteTitles($startingitem)
+    {
+        //TODO 20150909
+        throw new \Exception("The public getNoteTitles method is NOT implemented in the MDWS DAO at this time");
+    }
 
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
     {

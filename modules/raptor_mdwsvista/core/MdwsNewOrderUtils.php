@@ -102,7 +102,7 @@ class MdwsNewOrderUtils {
             $requiresApproval = $orderableItems[$i]->requiresApproval;
             $result[$id] = array('name'=>$name, 'requiresApproval'=>$requiresApproval);
         }
-error_log("LOOK getOrderableItems($imagingTypeId) clean result>>> " . print_r($result,TRUE));        
+//error_log("LOOK getOrderableItems($imagingTypeId) clean result>>> " . print_r($result,TRUE));        
         return $result;
     }
     

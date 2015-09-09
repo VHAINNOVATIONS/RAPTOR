@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908F1'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908F1a1'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -55,27 +55,20 @@ class Context
     //REPLACED private $m_nInstanceClearedTimestamp = NULL;
     //REPLACED private $m_nInstanceUserActionTimestamp = NULL;     //Periodically update to check for timeout
     //REPLACED private $m_nInstanceSystemActionTimestamp = NULL;   //Periodically update for internal tuning
-
-    private $m_oRuntimeResultFlexCacheHandler = array();    //20150715
-    
     //REPLACED private $m_sCurrentTicketID = NULL;
     //REPLACED private $m_aPersonalBatchStack = NULL;
     //REPLACED private $m_sPersonalBatchStackMessage = NULL;
-    
     //REPLACED private $m_nUID = NULL;
     //REPLACED private $m_sVistaUserID = NULL;
     //REPLACED private $m_sVAPassword = NULL;
-
     //REPLACED private $m_aForceLogoutReason = NULL;   //If not NULL, then we should force a logout.
-
-    
-    private $m_oVixDao = NULL;      //20140718 
-
-    private $m_oEhrDao = NULL;      //20150714 
-    
     //REPLACED private $m_sWorklistMode=NULL;  
 
+    
+    private $m_oRuntimeResultFlexCacheHandler = array();    //20150715
     private $m_aLocalCache = array();
+    private $m_oVixDao = NULL;      //20140718 
+    private $m_oEhrDao = NULL;      //20150714 
     
     /**
      * Return user readable dump that hides passwords.
@@ -282,12 +275,6 @@ class Context
             throw new \Exception('The UID passed into contructor of Context must be numeric, but instead got "'.$nUID.'"');
         }
 
-       //$this->m_nUID = $nUID;
-        //$this->m_nInstanceTimestamp = microtime(TRUE);  //Capture the time this instance was created.
-        //$this->m_nLastUpdateTimestamp = microtime(TRUE);  
-        //$this->m_nInstanceUserActionTimestamp = time();
-        //$this->m_nInstanceSystemActionTimestamp = time();
-        
         self::saveSessionValue('UID', $nUID);
         self::saveSessionValue('InstanceTimestamp', microtime(TRUE));
         self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
@@ -421,7 +408,7 @@ class Context
         unset($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
 
         $all_literalnames = self::getAllSessionValueNames();
-        foreach($all_literalnames as $onename)
+        foreach($all_literalnames as $onename=>$onevalue)
         {
             unset($_SESSION[$onename]);
         }
