@@ -106,84 +106,89 @@ class MdwsNewOrderUtils {
         return $result;
     }
     
-    public static function getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId) {       
-        $soapResult = $mdwsDao->makeQuery('getRadiologyOrderDialog', array('patientId'=>$patientId, 'dialogId' => $imagingTypeId));
-        
-        if (isset($soapResult->getRadiologyOrderDialogResult->fault)) {
-            throw new \Exception($soapResult->getRadiologyOrderDialogResult->fault->message);
-        }
-        
-        $result = array();
-        
-        $dialog = $soapResult->getRadiologyOrderDialogResult;
-        
-        $result['contractOptions'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->contractOptions);
-        $result['sharingOptions'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->sharingOptions);
-        $result['researchOptions'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->researchOptions);
-        $result['categories'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->categories);
-        $result['modifiers'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->modifiers);
-        $result['urgencies'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->urgencies);
-        $result['transports'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->transports);
-        $result['submitTo'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->submitTo);
-        
-        // common procedures for dialog
-        $result['commonProcedures'] = array();
-        if (isset($dialog->commonProcedures) 
-                && isset($dialog->commonProcedures->ClinicalProcedureTO)
-                && count($dialog->commonProcedures->ClinicalProcedureTO) > 0) {
-            if (!is_array($dialog->commonProcedures->ClinicalProcedureTO)) {
-                //20150525
-                $dialog->commonProcedures->ClinicalProcedureTO = array($dialog->commonProcedures->ClinicalProcedureTO);
-            }            
-            $commonProcs = array();
-            $commonProcCount = count($dialog->commonProcedures->ClinicalProcedureTO);
-            for ($i = 0; $i < $commonProcCount; $i++) {
-                $procId = $dialog->commonProcedures->ClinicalProcedureTO[$i]->id;
-                $procName = $dialog->commonProcedures->ClinicalProcedureTO[$i]->name;
-                $commonProcs[$procId] = $procName;
-            }
-            $result['commonProcedures'] = $commonProcs;
-        }
-        
-        // short list of procedures for dialog
-        $result['shortList'] = array();
-        if (isset($dialog->shortList) 
-                && isset($dialog->shortList->ClinicalProcedureTO)
-                && count($dialog->shortList->ClinicalProcedureTO) > 0) {
-            $shortList = array();
-            if (!is_array($dialog->shortList->ClinicalProcedureTO)) {
-                //20150525
-                $dialog->shortList->ClinicalProcedureTO = array($dialog->shortList->ClinicalProcedureTO);
-            }            
-            $shortListCount = count($dialog->shortList->ClinicalProcedureTO);
-            for ($i = 0; $i < $shortListCount; $i++) {
-                $procId = $dialog->shortList->ClinicalProcedureTO[$i]->id;
-                $procName = $dialog->shortList->ClinicalProcedureTO[$i]->name;
-                $shortList[$procId] = $procName;
-            }
-            $result['shortList'] = $shortList;
-        }
+    public static function getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId) {    
+        try
+        {
+            $soapResult = $mdwsDao->makeQuery('getRadiologyOrderDialog', array('patientId'=>$patientId, 'dialogId' => $imagingTypeId));
 
-        // last 7 days of exams for patient
-        $result['last7DaysExams'] = array();
-        if (isset($dialog->lastSevenDaysExams) 
-                && isset($dialog->lastSevenDaysExams->ImagingExamTO)
-                && count($dialog->lastSevenDaysExams->ImagingExamTO) > 0) {
-            $exams = array();
-            if (!is_array($dialog->lastSevenDaysExams->ImagingExamTO)) {
-                //20150525
-                $dialog->lastSevenDaysExams->ImagingExamTO = array($dialog->lastSevenDaysExams->ImagingExamTO);
-            }            
-            $examsCount = count($dialog->lastSevenDaysExams->ImagingExamTO);
-            for ($i = 0; $i < $examsCount; $i++) {
-                $examId = $dialog->lastSevenDaysExams->ImagingExamTO[$i]->id;
-                $examName = $dialog->lastSevenDaysExams->ImagingExamTO[$i]->name;
-                $exams[$procId] = $examName;
+            if (isset($soapResult->getRadiologyOrderDialogResult->fault)) {
+                throw new \Exception($soapResult->getRadiologyOrderDialogResult->fault->message);
             }
-            $result['last7DaysExams'] = $exams;
+
+            $result = array();
+
+            $dialog = $soapResult->getRadiologyOrderDialogResult;
+
+            $result['contractOptions'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->contractOptions);
+            $result['sharingOptions'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->sharingOptions);
+            $result['researchOptions'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->researchOptions);
+            $result['categories'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->categories);
+            $result['modifiers'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->modifiers);
+            $result['urgencies'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->urgencies);
+            $result['transports'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->transports);
+            $result['submitTo'] = MdwsNewOrderUtils::getKeyValuePairsFromTaggedTextArray($dialog->submitTo);
+
+            // common procedures for dialog
+            $result['commonProcedures'] = array();
+            if (isset($dialog->commonProcedures) 
+                    && isset($dialog->commonProcedures->ClinicalProcedureTO)
+                    && count($dialog->commonProcedures->ClinicalProcedureTO) > 0) {
+                if (!is_array($dialog->commonProcedures->ClinicalProcedureTO)) {
+                    //20150525
+                    $dialog->commonProcedures->ClinicalProcedureTO = array($dialog->commonProcedures->ClinicalProcedureTO);
+                }            
+                $commonProcs = array();
+                $commonProcCount = count($dialog->commonProcedures->ClinicalProcedureTO);
+                for ($i = 0; $i < $commonProcCount; $i++) {
+                    $procId = $dialog->commonProcedures->ClinicalProcedureTO[$i]->id;
+                    $procName = $dialog->commonProcedures->ClinicalProcedureTO[$i]->name;
+                    $commonProcs[$procId] = $procName;
+                }
+                $result['commonProcedures'] = $commonProcs;
+            }
+
+            // short list of procedures for dialog
+            $result['shortList'] = array();
+            if (isset($dialog->shortList) 
+                    && isset($dialog->shortList->ClinicalProcedureTO)
+                    && count($dialog->shortList->ClinicalProcedureTO) > 0) {
+                $shortList = array();
+                if (!is_array($dialog->shortList->ClinicalProcedureTO)) {
+                    //20150525
+                    $dialog->shortList->ClinicalProcedureTO = array($dialog->shortList->ClinicalProcedureTO);
+                }            
+                $shortListCount = count($dialog->shortList->ClinicalProcedureTO);
+                for ($i = 0; $i < $shortListCount; $i++) {
+                    $procId = $dialog->shortList->ClinicalProcedureTO[$i]->id;
+                    $procName = $dialog->shortList->ClinicalProcedureTO[$i]->name;
+                    $shortList[$procId] = $procName;
+                }
+                $result['shortList'] = $shortList;
+            }
+
+            // last 7 days of exams for patient
+            $result['last7DaysExams'] = array();
+            if (isset($dialog->lastSevenDaysExams) 
+                    && isset($dialog->lastSevenDaysExams->ImagingExamTO)
+                    && count($dialog->lastSevenDaysExams->ImagingExamTO) > 0) {
+                $exams = array();
+                if (!is_array($dialog->lastSevenDaysExams->ImagingExamTO)) {
+                    //20150525
+                    $dialog->lastSevenDaysExams->ImagingExamTO = array($dialog->lastSevenDaysExams->ImagingExamTO);
+                }            
+                $examsCount = count($dialog->lastSevenDaysExams->ImagingExamTO);
+                for ($i = 0; $i < $examsCount; $i++) {
+                    $examId = $dialog->lastSevenDaysExams->ImagingExamTO[$i]->id;
+                    $examName = $dialog->lastSevenDaysExams->ImagingExamTO[$i]->name;
+                    $exams[$procId] = $examName;
+                }
+                $result['last7DaysExams'] = $exams;
+            }
+error_log("LOOK MDWS getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId) >>> " . print_r($result,TRUE));
+            return $result;
+        } catch (Exception $ex) {
+            throw $ex;
         }
-                
-        return $result;
     }
 
     public static function getKeyValuePairsFromTaggedTextArray($taggedTextArray) {

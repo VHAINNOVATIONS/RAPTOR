@@ -1025,7 +1025,6 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             $args['dialogId'] = $imagingTypeId;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK getOrderableItems($imagingTypeId) raw result>>>".print_r($rawresult,TRUE));
             $value_ar = $rawresult['value'];
             $formatted_detail = array();
             foreach($value_ar as $onerawrow)
@@ -1044,7 +1043,6 @@ error_log("LOOK getOrderableItems($imagingTypeId) raw result>>>".print_r($rawres
                     $formatted_detail[$id] = array('name'=>$name, 'requiresApproval'=>$requiresApproval);
                 }
             }
-error_log("LOOK getOrderableItems($imagingTypeId) final result>>>".print_r($formatted_detail,TRUE));
             return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1229,8 +1227,50 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
 
     public function getRadiologyOrderDialog($imagingTypeId, $patientId)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $args = array();
+            $args['patientId'] = $patientId;
+            $args['dialogId'] = $imagingTypeId;
+            $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
+            error_log("LOOK getRadiologyOrderDialog raw >>>>".print_r($rawresult_ar, TRUE)); 
+
+            $raw_commonProcedures = $rawresult_ar['commonProcedures'];
+            $clean_commonProcedures = array();
+            foreach($raw_commonProcedures as $onerawset)
+            {
+                $id = $onerawset['id'];
+                $name = $onerawset['name'];
+                $clean_commonProcedures[$id] = $name;
+            }
+            $rawresult_ar['commonProcedures'] = $clean_commonProcedures;
+            
+            $raw_contractOptions = $rawresult_ar['contractOptions'];
+            $clean_contractOptions = array();
+            foreach($raw_contractOptions as $onerawset)
+            {
+                $key = $onerawset['key'];
+                $value = $onerawset['value'];
+                $clean_contractOptions[$key] = $value;
+            }
+            $rawresult_ar['contractOptions'] = $clean_contractOptions;
+            
+            $raw_sharingOptions = $rawresult_ar['sharingOptions'];
+            $clean_sharingOptions = array();
+            foreach($raw_sharingOptions as $onerawset)
+            {
+                $key = $onerawset['key'];
+                $value = $onerawset['value'];
+                $clean_sharingOptions[$key] = $value;
+            }
+            $rawresult_ar['sharingOptions'] = $clean_sharingOptions;
+            
+            error_log("LOOK getRadiologyOrderDialog clean >>>>".print_r($rawresult_ar, TRUE)); 
+            return $rawresult_ar;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getRadiologyReportsDetailMap($override_patientId = NULL)
