@@ -1726,64 +1726,104 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
             $args = array();
             $args['patientId'] = $sPatientID;
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-            $a = explode('^', $rawresult['value']);
-//error_log("LOOK raw getPatientMap in>>>>".print_r($a,TRUE));
-
-            $result = array();
-            if(isset($a[2]) && $a[2] > '')
+error_log("LOOK raw getPatientMap in>>>>".print_r($rawresult,TRUE));
+            $vista_dob = $rawresult['dob'];
+            if($vista_dob > '')
             {
-                $vista_dob = trim($a[2]);
                 $dob = \raptor_ewdvista\EwdUtils::convertVistaDateTimeToDate($vista_dob);
             } else {
                 $dob = '';
             }
-            if(isset($a[14]))
+            if(isset($rawresult['admitTimestamp']) && trim($rawresult['admitTimestamp']) > '')
             {
-                $age = intval($a[14]);
+                $admitTimestamp = date("m/d/Y h:i a", strtotime($rawresult['admitTimestamp']));
             } else {
-                //TODO --- compute from today - dob;
-                $age = 0;
+                $admitTimestamp = ' ';
             }
-            $result['patientName']  			= $a[0];
-            $result['ssn']          			= $a[3];
-            $result['gender']       			= $a[1];
+            if(!isset($rawresult['location']) || !is_array($rawresult['location']))
+            {
+                $location_tx = '';
+            } else {
+                $raw_location = $rawresult['location'];
+                $parts = array();
+                if(isset($raw_location['room']))
+                {
+                    $parts[] = 'Room:' . $raw_location['room'];
+                }
+                if(isset($raw_location['bed']))
+                {
+                    $parts[] = 'Bed:' . $raw_location['bed'];
+                }
+                $location_tx = implode(' / ', $parts);
+            }
+            if(!isset($rawresult['team']) || !is_array($rawresult['team']))
+            {
+                $teamName = ' ';
+                $teamPcpName = ' ';
+                $teamAttendingName = ' ';
+            } else {
+                $raw_team = $rawresult['team'];
+                $teamName = isset($raw_team['name']) ? $raw_team['name'] : ' ';;
+                $teamPcpName = isset($raw_team['pcpName']) ? $raw_team['pcpName'] : ' ';;
+                $teamAttendingName = isset($raw_team['attendingName']) ? $raw_team['attendingName'] : ' ';;
+            }
+            if(!isset($rawresult['siteIds']) || !is_array($rawresult['siteIds']))
+            {
+                $sites =  ' ';
+                $sitePids =  ' ';
+            } else {
+                $sites = $rawresult['siteIds'];
+                $sitePids = array();    //Build this from the other structure
+                foreach($sites as $key=>$detail)
+                {
+                    if(is_array($detail))
+                    {
+                        $sitePids[] = array(
+                            $detail['id'],
+                            $detail['name'],
+                        );
+                    }
+                }
+            }
+            $result['patientName']  			= isset($rawresult['name']) ? $rawresult['name'] : ' ';
+            $result['ssn']          			= isset($rawresult['ssn']) ? $rawresult['ssn'] : ' ';
+            $result['gender']       			= isset($rawresult['gender']) ? $rawresult['gender'] : ' ';
             $result['dob']          			= $dob;
-            $result['ethnicity']    			= "todo";
-            $result['age']          			= $age;
-            $result['maritalStatus']			= "todo";
-            $result['mpiPid']       			= "todo";
-            $result['mpiChecksum']  			= "todo";
-            $result['localPid']     			= "todo";
-            $result['sitePids']     			= "todo";
-            $result['vendorPid']    			= "todo";
-            $result['location'] 			= "Room:todo / Bed:todo ";
-            $result['cwad'] 				= "todo";
-            $result['restricted'] 			= "todo";
-            $result['admitTimestamp'] 			= date("m/d/Y h:i a", strtotime("01/01/1950 01:01 a")); //TODO
-            $result['serviceConnected']                 = "todo";
-            $result['scPercent'] 			= "todo";
-            $result['inpatient'] 			= "todo";
-            $result['deceasedDate'] 			= "todo";
-            $result['confidentiality'] 			= "todo";
-            $result['needsMeansTest'] 			= "todo";
-            $result['patientFlags'] 			= "todo";
-            $result['cmorSiteId']	 		= "todo";
-            $result['activeInsurance'] 			= "todo";
-            $result['isTestPatient'] 			= "todo";
-            $result['currentMeansStatus']               = "todo";
-            $result['hasInsurance'] 			= "todo";
-            $result['preferredFacility']                = "todo";
-            $result['patientType'] 			= "todo";
-            $result['isVeteran'] 			= "todo";
-            $result['isLocallyAssignedMpiPid']          = "todo";
-            $result['sites'] 				= "todo";
-            $result['teamID'] 				= "todo";
-            $result['teamName'] 			= "todo-Unknown";
-            $result['teamPcpName'] 			= "todo-Unknown";
-            $result['teamAttendingName']                = "todo-Unknown";
-            $result['mpiPid'] 				= "todo-Unknown";
-            $result['mpiChecksum'] 			= "todo-Unknown";
-//error_log("LOOK raw getPatientMap out>>>>".print_r($result,TRUE));
+            $result['ethnicity']    			= isset($rawresult['ethnicity']) ? $rawresult['ethnicity'] : ' ';
+            $result['age']          			= isset($rawresult['age']) ? $rawresult['age'] : ' ';
+            $result['maritalStatus']			= isset($rawresult['maritalStatus']) ? $rawresult['maritalStatus'] : ' ';
+            $result['mpiPid']       			= isset($rawresult['mpiPid']) ? $rawresult['mpiPid'] : ' ';
+            $result['mpiChecksum']  			= isset($rawresult['mpiChecksum']) ? $rawresult['mpiChecksum'] : ' ';
+            $result['cwad'] 				= isset($rawresult['cwad']) ? $rawresult['cwad'] : ' ';
+            $result['restricted'] 			= isset($rawresult['isRestricted']) ? $rawresult['isRestricted'] : ' ';
+            $result['serviceConnected']                 = isset($rawresult['isServiceConnected']) ? $rawresult['isServiceConnected'] : ' ';
+            $result['scPercent'] 			= isset($rawresult['scPercent']) ? $rawresult['scPercent'] : ' ';
+            $result['confidentiality'] 			= isset($rawresult['confidentiality']) ? $rawresult['confidentiality'] : ' ';
+            $result['patientFlags'] 			= isset($rawresult['flags']) ? $rawresult['flags'] : ' ';
+            $result['cmorSiteId']	 		= isset($rawresult['cmorSiteId']) ? $rawresult['cmorSiteId'] : ' ';
+            $result['needsMeansTest'] 			= isset($rawresult['needsMeansTest']) ? $rawresult['needsMeansTest'] : ' ';
+            $result['currentMeansStatus']               = isset($rawresult['meansTestStatus']) ? $rawresult['meansTestStatus'] : ' ';
+            $result['patientType'] 			= isset($rawresult['type']) ? $rawresult['type'] : ' ';
+            $result['isVeteran'] 			= isset($rawresult['isVeteran']) ? $rawresult['isVeteran'] : ' ';
+            $result['mpiChecksum'] 			= isset($rawresult['mpiChecksum']) ? $rawresult['mpiChecksum'] : ' ';
+            $result['admitTimestamp'] 			= $admitTimestamp;
+            $result['location'] 			= $location_tx;
+            $result['inpatient'] 			= isset($rawresult['isInpatient']) ? $rawresult['isInpatient'] : ' ';
+            $result['deceasedDate'] 			= isset($rawresult['deceased']) ? $rawresult['deceased'] : ' ';
+            $result['isTestPatient'] 			= isset($rawresult['isTestPatient']) ? $rawresult['isTestPatient'] : ' ';
+            $result['isLocallyAssignedMpiPid']          = isset($rawresult['isLocallyAssignedMpiPid']) ? $rawresult['isLocallyAssignedMpiPid'] : ' ';
+            $result['teamName'] 			= $teamName;
+            $result['teamPcpName'] 			= $teamPcpName;
+            $result['teamAttendingName']                = $teamAttendingName;
+            $result['sites'] 				= $sites;
+            $result['sitePids']     			= $sitePids;
+            //deprecated 20150911 $result['localPid']     			= 'missing';
+            //deprecated 20150911 $result['vendorPid']    			= 'missing';
+            //deprecated 20150911 $result['preferredFacility']                = 'missing';
+            //deprecated 20150911 $result['teamID'] 				= 'missing'; //Did not find id as part of returned structure but looks like javascript has impl.
+            //deprecated 20150911 $result['activeInsurance'] 			= 'missing expected text'; //isset($rawresult['activeInsurance']) ? $rawresult['activeInsurance'] : ' ';
+            //deprecated 20150911 $result['hasInsurance'] 			= 'missing'; //expecting boolean
+error_log("LOOK raw getPatientMap out>>>>".print_r($result,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;

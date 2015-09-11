@@ -5,13 +5,14 @@
         <group>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/EWDJSvistalayer/ewdjs/node_modules/raptor.js</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/MdwsDao.php</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_ewdvista/core/AllergyHelper.php</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/MdwsUserUtils.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/form/ProtocolInfoUtility.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_datalayer/core/EhrDao.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/MdwsUtils.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/MdwsNewOrderUtils.php</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/core/config.php</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/core/RSite500_64bitVM_Local.inc</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_ewdvista/core/EwdDao.php</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/ProtocolSupportingData.php</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_ewdvista/core/VitalsHelper.php</file>
         </group>
     </open-files>
 </project-private>

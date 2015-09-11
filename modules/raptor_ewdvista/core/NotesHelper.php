@@ -77,21 +77,49 @@ class NotesHelper
                     {
     //error_log("LOOK notes one item >>>".print_r($onenoteitem, TRUE));
 
-                        $localTitle = $this->getFieldTextData($onenoteitem[self::$FLD_TITLE]);
-                        $datetimestr = $this->getFieldTextData($onenoteitem[self::$FLD_DATETIMESTR]);
+                        if(!isset($onenoteitem[self::$FLD_TITLE]))
+                        {
+                            $localTitle = NULL;
+                        } else {
+                            $localTitle = $this->getFieldTextData($onenoteitem[self::$FLD_TITLE]);
+                        }
+                        if(!isset($onenoteitem[self::$FLD_DATETIMESTR]))
+                        {
+                            $datetimestr = NULL;
+                        } else {
+                            $datetimestr = $this->getFieldTextData($onenoteitem[self::$FLD_DATETIMESTR]);
+                        }
                         if(strlen($localTitle) > RAPTOR_DEFAULT_SNIPPET_LEN)
                         {
                             $snippetText = substr($localTitle, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
                         } else {
                             $snippetText = $localTitle;
                         }
-                        $authorName = $this->getFieldTextData($onenoteitem[self::$FLD_AUTHOR]);
-                        $facility = $this->getFieldTextData($onenoteitem[self::$FLD_FACILITY]);
-                        $raw_notetext_ar = $onenoteitem[self::$FLD_DETAILS];
-                        $clean_notetext_ar = array();
-                        foreach($raw_notetext_ar as $onerawnotetextrow)
+                        if(!isset($onenoteitem[self::$FLD_AUTHOR]))
                         {
-                            $clean_notetext_ar[] = $this->getFieldTextData($onerawnotetextrow);
+                            $authorName = NULL;
+                        } else {
+                            $authorName = $this->getFieldTextData($onenoteitem[self::$FLD_AUTHOR]);
+                        }
+                        if(!isset($onenoteitem[self::$FLD_FACILITY]))
+                        {
+                            $facility = NULL;
+                        } else {
+                            $facility = $this->getFieldTextData($onenoteitem[self::$FLD_FACILITY]);
+                        }
+                        if(!isset($onenoteitem[self::$FLD_DETAILS]))
+                        {
+                            $raw_notetext_ar = NULL;
+                        } else {
+                            $raw_notetext_ar = $onenoteitem[self::$FLD_DETAILS];
+                        }
+                        $clean_notetext_ar = array();
+                        if(is_array($raw_notetext_ar))
+                        {
+                            foreach($raw_notetext_ar as $onerawnotetextrow)
+                            {
+                                $clean_notetext_ar[] = $this->getFieldTextData($onerawnotetextrow);
+                            }
                         }
                         $notetext = implode("\n",$clean_notetext_ar);
                         $formatted[] = array(

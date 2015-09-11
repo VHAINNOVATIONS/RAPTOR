@@ -94,7 +94,7 @@ error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
             $dashboard['ReasonForStudy']        = trim((isset($radiologyOrder['1.1']['I']) ? $radiologyOrder['1.1']['I'] : '') );
             $dashboard['RequestingLocation']    = trim((isset($radiologyOrder['22']['E']) ? $radiologyOrder['22']['E'] : '') );
             $dashboard['RequestingLocationIen'] = trim((isset($radiologyOrder['22']['I']) ? $radiologyOrder['22']['I'] : '') );
-            $dashboard['ClinicalHistory']       = trim((isset($radiologyOrder['400']) ? $radiologyOrder['400'] : '') );
+            $dashboard['ClinicalHistory']       = (isset($radiologyOrder['400']) ? $radiologyOrder['400'] : '');
             
             return $dashboard;
         } catch (\Exception $ex) {
