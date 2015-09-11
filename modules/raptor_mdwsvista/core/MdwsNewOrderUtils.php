@@ -187,7 +187,6 @@ class MdwsNewOrderUtils {
                 $result['last7DaysExams'] = $exams;
             }
             */
-error_log("LOOK MDWS getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId) >>> " . print_r($result,TRUE));
             return $result;
         } catch (Exception $ex) {
             throw $ex;
