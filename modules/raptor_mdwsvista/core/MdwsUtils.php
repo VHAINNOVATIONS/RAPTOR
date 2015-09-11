@@ -227,79 +227,7 @@ class MdwsUtils {
         }
     }
     
-    /**
-     * NOT USED SO MARKING DEPRECATED 20150601
-     * @deprecated since 20150601
-     */
-    public static  function getPatientFromSelectResult($serviceResponse) {
-        error_log("WARNING using deprecated getPatientFromSelectResult");
-        $result = array();
-        
-        if(!isset($serviceResponse->selectResult)) {
-            return $result;
-        }
-        
-        $RptTO = $serviceResponse->selectResult;
-        if(isset($RptTO->fault)) { 
-            return $result;
-        }
-        
-        $result['patientName'] = isset($RptTO->name) ? $RptTO->name : " ";
-        $result['ssn'] = isset($RptTO->ssn) ? $RptTO->ssn : " ";
-        $result['gender'] = isset($RptTO->gender) ? $RptTO->gender : " ";
-        $result['dob'] = isset($RptTO->dob) ? date("m/d/Y", strtotime($RptTO->dob)) : " ";
-        $result['ethnicity'] = isset($RptTO->ethnicity) ? $RptTO->ethnicity : " ";
-        $result['age'] = isset($RptTO->age) ? $RptTO->age : " ";
-        $result['maritalStatus'] = isset($RptTO->maritalStatus) ? $RptTO->maritalStatus : " ";
-        $result['age'] = isset($RptTO->age) ? $RptTO->age : " ";
-        $result['mpiPid'] = isset($RptTO->mpiPid) ? $RptTO->mpiPid : " ";
-        $result['mpiChecksum'] = isset($RptTO->mpiChecksum) ? $RptTO->mpiChecksum : " ";
-        $result['localPid'] = isset($RptTO->localPid) ? $RptTO->localPid : " ";
-        $result['sitePids'] = isset($RptTO->sitePids) ? $RptTO->sitePids : " ";
-        $result['vendorPid'] = isset($RptTO->vendorPid) ? $RptTO->vendorPid : " ";
-        if(isset($RptTO->location))
-        {
-            $aLocation = $RptTO->location;
-            $room = "Room: ";
-            $room .=isset($aLocation->room)? $aLocation->room : " ";
-            $bed =  "Bed: ";
-            $bed .= (isset($aLocation->bed) ? $aLocation->bed : " " );
-            $result['location'] = $room." / ".$bed;
-        }
-        else
-        {
-            $result['location'] = "Room:? / Bed:? ";
-        }
-        $result['cwad'] = isset($RptTO->cwad) ? $RptTO->cwad : " ";
-        $result['restricted'] = isset($RptTO->restricted) ? $RptTO->restricted : " ";
-        
-        $result['admitTimestamp'] = isset($RptTO->admitTimestamp) ? date("m/d/Y h:i a", strtotime($RptTO->admitTimestamp)) : " ";
-        
-        $result['serviceConnected'] = isset($RptTO->serviceConnected) ? $RptTO->serviceConnected : " ";
-        $result['scPercent'] = isset($RptTO->scPercent) ? $RptTO->scPercent : " ";
-        $result['inpatient'] = isset($RptTO->inpatient) ? $RptTO->inpatient : " ";
-        $result['deceasedDate'] = isset($RptTO->deceasedDate) ? $RptTO->deceasedDate : " ";
-        $result['confidentiality'] = isset($RptTO->confidentiality) ? $RptTO->confidentiality : " ";
-        $result['needsMeansTest'] = isset($RptTO->needsMeansTest) ? $RptTO->needsMeansTest : " ";
-        $result['patientFlags'] = isset($RptTO->patientFlags) ? $RptTO->patientFlags : " ";
-        $result['cmorSiteId'] = isset($RptTO->cmorSiteId) ? $RptTO->cmorSiteId : " ";
-        $result['activeInsurance'] = isset($RptTO->activeInsurance) ? $RptTO->activeInsurance : " ";
-        $result['isTestPatient'] = isset($RptTO->isTestPatient) ? $RptTO->isTestPatient : " ";
-        $result['currentMeansStatus'] = isset($RptTO->currentMeansStatus) ? $RptTO->currentMeansStatus : " ";
-        $result['hasInsurance'] = isset($RptTO->hasInsurance) ? $RptTO->hasInsurance : " ";
-        $result['preferredFacility'] = isset($RptTO->preferredFacility) ? $RptTO->preferredFacility : " ";
-        $result['patientType'] = isset($RptTO->patientType) ? $RptTO->patientType : " ";
-        $result['isVeteran'] = isset($RptTO->isVeteran) ? $RptTO->isVeteran : " ";
-        $result['isLocallyAssignedMpiPid'] = isset($RptTO->isLocallyAssignedMpiPid) ? $RptTO->isLocallyAssignedMpiPid : " ";
-        $result['sites'] = isset($RptTO->sites) ? $RptTO->sites : " ";
-        $result['teamID'] = isset($RptTO->team) ? $RptTO->team->id : " ";
-        $result['teamName'] = isset($RptTO->team) ? $RptTO->team->name : "Unknown";
-        $result['teamPcpName'] = isset($RptTO->team) ? $RptTO->team->pcpName : "Unknown";
-        $result['teamAttendingName'] = isset($RptTO->team) ? $RptTO->team->attendingName : "Unknown";
-
-        return $result;
-    }
-    
+   
     public static function getChemHemLabs($mdwsDao)
     {
         $displayLabsResult = array();
@@ -398,9 +326,7 @@ class MdwsUtils {
     {
         try
         {
-//error_log("LOOK mdwsutils.getHospitalLocationsMap($mdwsDao,$target) start");
             $soapResult = $mdwsDao->makeQuery('getHospitalLocations', array('target'=>$target, 'direction'=>''));
-//error_log("LOOK mdwsutils.getHospitalLocationsMap($mdwsDao,$target) raw soap result>>>" . print_r($soapResult,TRUE));
             if (!isset($soapResult) || 
                     !isset($soapResult->getHospitalLocationsResult) || 
                     isset($soapResult->getHospitalLocationsResult->fault)) {
@@ -423,7 +349,6 @@ class MdwsUtils {
 
     /**
      * Cancel one radiology order
-     * @throws \Exception
      */
     public static function cancelRadiologyOrder($mdwsDao,$patientIen,$orderIen,$providerDuz,$locationIen,$reasonCode,$eSig) {
         error_log('In cancelRadiologyOrder with params reasoncode=['.$reasonCode.'] and IEN=['.$orderIen.']');
@@ -713,36 +638,6 @@ class MdwsUtils {
 
         return $result;
     }
-
-    /**
-     * JOEL RECOMMENDS DELETING THIS AND USING RESULT FROM data_worklist::getDashboardMap
-     * @DEPRECATED
-    public static function getOrderDetails($mdwsDao, $radiologyOrderIen)
-    {
-        error_log("WARNING using deprecated getOrderDetails");
-        $ddrResult = MdwsUtils::parseDdrGetsEntryInternalAndExternal
-            ($mdwsDao->makeQuery("ddrGetsEntry", array(
-                'file'=>'75.1', 
-                'iens'=>($radiologyOrderIen.','),
-                'flds'=>'*', 
-                'flags'=>'IEN'
-            )));
-        $orderFileRec = MdwsUtils::parseDdrGetsEntryInternalAndExternal
-            ($mdwsDao->makeQuery("ddrGetsEntry", array(
-                'file'=>'100', 
-                'iens'=>($ddrResult['7']['I'].','),
-                'flds'=>'*', 
-                'flags'=>'IEN'
-            )));
-
-        $details = array();
-        $details['orderingPhysicianDuz'] = $ddrResult['14']['I']; // get internal value of ordering provider field
-        $details['orderFileStatus'] = $orderFileRec['5']['E'];
-        // may be more to return here in the future
-        return $details;
-    }
-     */
-      
 }
 
 
