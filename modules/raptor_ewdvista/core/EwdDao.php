@@ -512,13 +512,18 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
         }
     }
 
-    public function getNotesDetailMap()
+    public function getNotesDetailMap($override_patientId = NULL)
     {
         try
         {
             $myhelper = new \raptor_ewdvista\NotesHelper();
             $serviceName = $this->getCallingFunctionName();
-            $pid = $this->getSelectedPatientID();
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
             if($pid == '')
             {
                 throw new \Exception('Cannot get notes detail without a patient ID!');
@@ -793,7 +798,6 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
                     if($aCachedResult !== NULL)
                     {
                         //Found it in the cache!
-    //error_log("LOOK final bundle getDashboardDetailsMap PULLED FROM CACHE >>> ".print_r($aCachedResult, TRUE));  
                         return $aCachedResult;
                     }
                 }
@@ -861,7 +865,6 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             {
                 try 
                 {
-    //error_log("LOOK getDashboardDetailsMap WENT INTO CACHE dashboard=".print_r($dashboard,TRUE));        
                     $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $dashboard, CACHE_AGE_LABS);
                 } catch (\Exception $ex) {
                     error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
@@ -1031,7 +1034,7 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
     public function getPatientIDFromTrackingID($sTrackingID)
     {
         $serviceName = $this->getCallingFunctionName();
-error_log("Look about to call service $serviceName($sTrackingID) ...");        
+//error_log("Look about to call service $serviceName($sTrackingID) ...");        
         
         $tid = trim($sTrackingID);
         if($tid == '')
@@ -1041,7 +1044,7 @@ error_log("Look about to call service $serviceName($sTrackingID) ...");
         $namedparts = $this->getTrackingIDNamedParts($tid);
         $args['ien'] = $namedparts['ien'];
         $result = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
+//error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
         if(!isset($result['result']))
         {
             throw new \Exception("Missing patient ID result from tracking ID value $sTrackingID: ".print_r($result,TRUE));
@@ -1050,37 +1053,17 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
         return $patientID;
     }
 
-    public function getPendingOrdersMap()
+    public function getPendingOrdersMap($override_tracking_id = NULL)
     {
-        /*
-         * [10-Aug-2015 14:59:48 America/New_York] LOOK data format returned for 'getPendingOrdersMap' is >>>Array
-(
-    [2005] => Array
-        (
-            [0] => 2005
-            [1] => CT
-            [2] => CT ABDOMEN W/O CONT
-        )
-
-    [2006] => Array
-        (
-            [0] => 2006
-            [1] => CT
-            [2] => CT ABDOMEN W/O CONT
-        )
-
-    [2009] => Array
-        (
-            [0] => 2009
-            [1] => CT
-            [2] => CT ABDOMEN W/O CONT
-        )
-
-)
-
-         */
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            //TODO ---- MUST QUERY MORE THAN ONE ROW!!!!!!  Remove from dashbaord?
+            $dashboard = $this->getDashboardDetailsMap($override_tracking_id);
+error_log("LOOK pending thing>>>" . print_r($dashboard['MapPendingOrders'],TRUE));            
+            return $dashboard['MapPendingOrders'];
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getProblemsListDetailMap()

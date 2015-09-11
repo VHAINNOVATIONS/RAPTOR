@@ -38,11 +38,12 @@ class DashboardHelper
 {
     public function getFormatted($tid, $pid, $radiologyOrder, $orderFileRec, $therow, $aPatientData)
     {
+/*
 error_log("LOOK parts radiologyOrder=".print_r($radiologyOrder,TRUE));
 error_log("LOOK parts order=".print_r($orderFileRec,TRUE));
 error_log("LOOK parts therow=".print_r($therow,TRUE));
 error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
-        
+*/        
         try
         {
             $dashboard = array();
@@ -94,7 +95,7 @@ error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
             $dashboard['ReasonForStudy']        = trim((isset($radiologyOrder['1.1']['I']) ? $radiologyOrder['1.1']['I'] : '') );
             $dashboard['RequestingLocation']    = trim((isset($radiologyOrder['22']['E']) ? $radiologyOrder['22']['E'] : '') );
             $dashboard['RequestingLocationIen'] = trim((isset($radiologyOrder['22']['I']) ? $radiologyOrder['22']['I'] : '') );
-            $dashboard['ClinicalHistory']       = (isset($radiologyOrder['400']) ? $radiologyOrder['400'] : '');
+            $dashboard['ClinicalHistory']       = isset($radiologyOrder['400']) ? $radiologyOrder['400'] : '';
             
             return $dashboard;
         } catch (\Exception $ex) {

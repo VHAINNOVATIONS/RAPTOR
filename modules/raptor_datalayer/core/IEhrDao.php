@@ -183,7 +183,12 @@ interface IEhrDao
     public function getHospitalLocationsMap($startingitem);
     public function getImagingTypesMap();
     public function getMedicationsDetailMap($atriskmeds = NULL);
-    public function getNotesDetailMap();
+    
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
+    public function getNotesDetailMap($override_patientId = NULL);
+    
     public function getOrderOverviewMap();
     public function getOrderableItems($imagingTypeId);
 
@@ -191,7 +196,11 @@ interface IEhrDao
      * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
      */
     public function getPathologyReportsDetailMap($override_patientId = NULL);
-    public function getPendingOrdersMap();
+    
+    /**
+     * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
+     */
+    public function getPendingOrdersMap($override_patientId = NULL);
     public function getProblemsListDetailMap();
     
     public function getRadiologyCancellationReasons();

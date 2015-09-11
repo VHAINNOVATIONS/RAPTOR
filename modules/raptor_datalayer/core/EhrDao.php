@@ -410,14 +410,14 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getMedicationsDetailMap($atriskmeds);
     }
     
-    public function getNotesDetailMap()
+    public function getNotesDetailMap($override_patientId = NULL)
     {
-        return $this->m_implclass->getNotesDetailMap();
+        return $this->m_implclass->getNotesDetailMap($override_patientId);
     }
 
-    public function getPendingOrdersMap()
+    public function getPendingOrdersMap($override_patientId = NULL)
     {
-        return $this->m_implclass->getPendingOrdersMap();
+        return $this->m_implclass->getPendingOrdersMap($override_patientId);
     }
 
     public function getImagingTypesMap()

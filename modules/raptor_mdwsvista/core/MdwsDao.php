@@ -747,8 +747,12 @@ error_log("LOOK MDWS getDiagnosticLabsDetail >>> " . print_r($result,TRUE));
         return $this->getProtocolSupportingData('getMedicationsDetail', $args);
     }
 
-    public function getNotesDetailMap()
+    public function getNotesDetailMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            return FALSE;
+        }
         return $this->getProtocolSupportingData('getNotesDetail');
     }
 
@@ -766,8 +770,12 @@ error_log("LOOK MDWS getDiagnosticLabsDetail >>> " . print_r($result,TRUE));
         return $this->getProtocolSupportingData('getEGFRDetail');
     }
 
-    public function getPendingOrdersMap()
+    public function getPendingOrdersMap($override_patientId = NULL)
     {
+        if($override_patientId != NULL)
+        {
+            return FALSE;
+        }
         return $this->getProtocolSupportingData('getPendingOrdersMap');
     }
 
