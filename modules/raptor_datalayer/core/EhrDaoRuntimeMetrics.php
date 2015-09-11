@@ -232,7 +232,7 @@ class EhrDaoRuntimeMetrics
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPathologyReportsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getPendingOrdersMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProblemsListDetailMap');
-        $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProcedureLabsDetailMap');
+        //deprecated 20150911 $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getProcedureLabsDetailMap');
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyCancellationReasons');
 
         $callfunctions[] = $this->getOneCallFunctionDefForEhrDao('getRadiologyReportsDetailMap');

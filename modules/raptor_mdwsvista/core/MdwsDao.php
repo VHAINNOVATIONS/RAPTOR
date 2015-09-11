@@ -68,7 +68,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     public function getIntegrationInfo()
     {
-        return "MDWS VISTA EHR Integration 20150812.2";
+        return "MDWS VISTA EHR Integration 20150911.1";
     }
 
     /**
@@ -668,22 +668,45 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
         return $this->getProtocolSupportingData('getVitalsDetail');
     }
 
+    /*
+     * @deprecated 20150911
     public function getProcedureLabsDetailMap($override_patientId = NULL)
     {
         if($override_patientId != NULL)
         {
+            error_log("FAILED getProcedureLabsDetailMap because received override_patientId=$override_patientId");
             return FALSE;   //Indicate this feature is NOT supported!
         }
-        return $this->getProtocolSupportingData('getProcedureLabsDetail',NULL,NULL,$override_patientId);
+        try
+        {
+            $result = $this->getProtocolSupportingData('getProcedureLabsDetail',NULL,NULL,$override_patientId);
+error_log("LOOK MDWS getProcedureLabsDetailMap >>> " . print_r($result,TRUE));
+if(count($result) > 0)
+{
+    error_log("LOOK MDWS getProcedureLabsDetailMap HAS DATA!!!!! $this >>> " . print_r($result,TRUE));
+}
+            return $result;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
+     */
 
     public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
         if($override_patientId != NULL)
         {
+            error_log("FAILED getDiagnosticLabsDetailMap because received override_patientId=$override_patientId");
             return FALSE;   //Indicate this feature is NOT supported!
         }
-        return $this->getProtocolSupportingData('getDiagnosticLabsDetail',NULL,NULL,$override_patientId);
+        try
+        {
+            $result = $this->getProtocolSupportingData('getDiagnosticLabsDetail',NULL,NULL,$override_patientId);
+error_log("LOOK MDWS getDiagnosticLabsDetail >>> " . print_r($result,TRUE));
+            return $result;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getPathologyReportsDetailMap($override_patientId = NULL)

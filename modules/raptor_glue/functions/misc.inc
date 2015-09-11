@@ -1012,7 +1012,7 @@ error_log("LOOK processing precache with onetid=$onetid");
                     {
                         $pid = $oEhrDao->getPatientIDFromTrackingID($onetid);
                         $oEhrDao->getRawVitalSignsMap($pid);            //Cache this one
-                        $oEhrDao->getProcedureLabsDetailMap($pid);      //Cache this one
+                        //deprecated 20150911 $oEhrDao->getProcedureLabsDetailMap($pid);      //Cache this one
                         $oEhrDao->getDiagnosticLabsDetailMap($pid);     //Cache this one
                     }
                     $cachedcount++;

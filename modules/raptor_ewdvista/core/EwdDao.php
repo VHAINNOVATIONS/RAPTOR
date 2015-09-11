@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150911.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150911.2');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -654,10 +654,7 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
             $args = array();
             $args['patientId'] = $pid;
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-//error_log("LOOK getAllergiesDetailMap args>>>".print_r($args,TRUE));            
-//error_log("LOOK getAllergiesDetailMap raw result>>>".print_r($rawresult,TRUE));            
             $formatted_detail = $myhelper->getFormattedAllergyDetail($rawresult);
-//error_log("LOOK getAllergiesDetailMap formatted result>>>".print_r($formatted_detail,TRUE));            
             return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
@@ -681,12 +678,12 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
             {
                 throw new \Exception('Cannot get chem labs detail without a patient ID!');
             }
+            
             $args = array();
             $args['patientId'] = $pid;
             $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_LABS_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
             
-            //$rawresult = $this->getServiceRelatedData($serviceName, $args);
 //error_log("LOOK getChemHemLabs args>>>" . print_r($args,TRUE));        
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);;
 //error_log("LOOK getChemHemLabs raw result>>>" . print_r($rawresult_ar,TRUE));        
@@ -722,8 +719,6 @@ error_log("LOOK done getEGFRDetailMap($pid)>>>".print_r($clean_result,TRUE));
 
     public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
-        return array();
-        
         try
         {
             $oContext = \raptor\Context::getInstance();
@@ -733,67 +728,21 @@ error_log("LOOK done getEGFRDetailMap($pid)>>>".print_r($clean_result,TRUE));
             } else {
                 $pid = $this->getSelectedPatientID();
             }
+error_log("LOOK 1 starting getDiagnosticLabsDetailMap($pid)...");
             $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
+error_log("LOOK 2 starting getDiagnosticLabsDetailMap($pid)...");
             $alldata = $myhelper->getLabsDetailData($pid);
+error_log("LOOK 3 starting getDiagnosticLabsDetailMap($pid)...");
             $clean_result = $alldata[0];
 error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_result,TRUE));
             return $clean_result;
         } catch (\Exception $ex) {
             throw $ex;
         }
-        /*
-         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getDiagnosticLabsDetail' is >>>Array
-(
-    [0] => Array
-        (
-            [DiagDate] => 03/16/2010 10:23 am
-            [Creatinine] => 1.3 mg/dL
-            [eGFR] => 56  mL/min/1.73 m^2
-            [eGFR_Health] => warn
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-    [1] => Array
-        (
-            [DiagDate] => 03/16/2010 10:21 am
-            [Creatinine] => 1.1 mg/dL
-            [eGFR] => 68  mL/min/1.73 m^2
-            [eGFR_Health] => good
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-    [2] => Array
-        (
-            [DiagDate] => 03/16/2010 10:20 am
-            [Creatinine] => 1.3 mg/dL
-            [eGFR] => 56  mL/min/1.73 m^2
-            [eGFR_Health] => warn
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-    [3] => Array
-        (
-            [DiagDate] => 03/16/2010 10:18 am
-            [Creatinine] => <span class='medical-value-danger'>!! 1.5 mg/dL !!</span>
-            [eGFR] => 48  mL/min/1.73 m^2
-            [eGFR_Health] => warn
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-    [4] => Array
-        (
-            [DiagDate] => 03/16/2010 10:17 am
-            [Creatinine] => 1.2 mg/dL
-            [eGFR] => 62  mL/min/1.73 m^2
-            [eGFR_Health] => good
-            [Ref] => (eGFR calculated) .9 - 1.4
-        )
-
-)
-
-         */
     }
 
+    /*
+     * @deprecated 20150911
     public function getProcedureLabsDetailMap($override_patientId = NULL)
     {
         try
@@ -810,6 +759,7 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             throw $ex;
         }
     }
+     */
     
     /**
      * If override_tracking_id is provided, then return dashboard for that order

@@ -54,9 +54,11 @@ class LabsHelper
         try
         {
             $labsResults = array();
+//error_log("LOOK debug raw result >>>>" . print_r($rawresult_ar,TRUE));
             foreach ($rawresult_ar as $specimen)
             {
                 $specimen_rawTime = $specimen['timestamp'];
+//error_log("LOOK debug one item of raw result ($specimen_rawTime) >>>>" . print_r($specimen,TRUE));
                 $specimen_date = EwdUtils::convertVistaDateTimeToDate($specimen_rawTime);
                 $specimen_time = EwdUtils::convertVistaDateTimeToDatetime($specimen_rawTime);//getVistaDateTimePart($specimen_rawTime, 'time');
                 foreach($specimen['labResults'] as $labResult)
@@ -77,7 +79,7 @@ class LabsHelper
                         );
                 }
             }
-error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResults,TRUE));
+//error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResults,TRUE));
             return $labsResults;
         } catch (\Exception $ex) {
             throw $ex;
@@ -93,259 +95,263 @@ error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResu
     public function getLabsDetailData($override_patientId=NULL)
     {
         //TODO --- CACHE THIS HERE
-        
-        module_load_include('php', 'raptor_formulas', 'core/Labs');
-        $myDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
-        if($override_patientId == NULL)
+        try
         {
-            $tid = $this->m_oContext->getSelectedTrackingID();
-            $pid = $myDao->getPatientIDFromTrackingID($tid);
-        } else {
-            $pid = $override_patientId;
-        }
-        
-        $sThisResultName = $pid . '_getLabsDetailDataEWD'; //patient specific
-        $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
-        if($aCachedResult !== NULL)
-        {
-            //Found it in the cache!
-            return $aCachedResult;
-        }
-        
-        //Did NOT find it in the cache.  Build it now.
-        $allLabs = $myDao->getChemHemLabs($pid);
-        $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
-        $patient_data_ar = $myDao->getPatientMap($pid);
-error_log("LOOK patient_data_ar for $pid=".print_r($patient_data_ar,TRUE));        
-error_log("LOOK allLabs for $pid=".print_r($allLabs,TRUE));        
-        $labs_formulas = new \raptor_formulas\Labs();
-        $aDiagLabs = array();
-        $aJustEGFR = array();
-        
-        //Create placeholders for the values we will return.
-        $aJustEGFR['LATEST_EGFR'] = NULL;
-        $aJustEGFR['MIN_EGFR_10DAYS'] = NULL;
-        $aJustEGFR['MIN_EGFR_15DAYS'] = NULL;
-        $aJustEGFR['MIN_EGFR_30DAYS'] = NULL;
-        $aJustEGFR['MIN_EGFR_45DAYS'] = NULL;
-        $aJustEGFR['MIN_EGFR_60DAYS'] = NULL;
-        $aJustEGFR['MIN_EGFR_90DAYS'] = NULL;
-
-        //Create a structure where we can track the dates.
-        $aJustEGFRDate['LATEST_EGFR'] = NULL;
-        $aJustEGFRDate['MIN_EGFR_10DAYS'] = NULL;
-        $aJustEGFRDate['MIN_EGFR_15DAYS'] = NULL;
-        $aJustEGFRDate['MIN_EGFR_30DAYS'] = NULL;
-        $aJustEGFRDate['MIN_EGFR_45DAYS'] = NULL;
-        $aJustEGFRDate['MIN_EGFR_60DAYS'] = NULL;
-        $aJustEGFRDate['MIN_EGFR_90DAYS'] = NULL;
-        
-        $isProc = TRUE;
-        $ethnicity = $patient_data_ar['ethnicity'];
-        $gender = strtoupper(trim($patient_data_ar['gender']));
-        $age = $patient_data_ar['age'];
-        $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
-                             (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
-        $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
-        if(!$isMale)
-        {
-            $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
-        } else {
-            $isFemale = FALSE;
-        }
-
-        $filteredLabs = array();
-        $foundCreatinine = FALSE;
-        $foundEGFR = FALSE;
-        $foundPLT = FALSE;
-        $foundPT = FALSE;
-        $foundINR = FALSE;
-        $foundPTT = FALSE;
-        $foundHCT = FALSE;
-
-        $sortedLabs = $allLabs;
-        // Obtain a list of columns
-        foreach ($sortedLabs as $key => $row) 
-        {
-            $name[$key]  = $row['name'];
-            $date[$key] = $row['date'];
-            $value[$key] = $row['value'];
-            $units[$key] = $row['units'];
-            $refRange[$key] = $row['refRange'];
-            $rawTime[$key] = $row['rawTime'];
-        }
-        
-        if(isset($name) && is_array($name)) //20140603
-        {
-            array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedLabs);
-        }
-
-        foreach($sortedLabs as $key => $lab)
-        {
-            $name = $lab['name'];
-error_log("LOOK one lab for $pid >>> ".print_r($lab,TRUE));        
-            $foundCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
-            $foundHCT = strpos('HCT', strtoupper($lab['name'])) !== FALSE;
-            $foundINR = strpos('INR', strtoupper($lab['name'])) !== FALSE;
-            $foundPT = strpos('PT', strtoupper($lab['name'])) !== FALSE;
-            $foundPLT = strpos('PLT', strtoupper($lab['name'])) !== FALSE;
-            $foundPTT = strpos('PTT', strtoupper($lab['name'])) !== FALSE;
-
-            $limits = explode(" - ", $lab['refRange']);
-            $lowerLimit = isset($limits[0]) ? $limits[0] : NULL;
-            $upperLimit = isset($limits[1]) ? $limits[1] : NULL;
-
-            $alert = FALSE;
-            if(isset($lowerLimit) && isset($upperLimit))
+            module_load_include('php', 'raptor_formulas', 'core/Labs');
+            $myDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
+            if($override_patientId == NULL)
             {
-                $alert = ($lab['value'] < $lowerLimit) || ($lab['value'] > $upperLimit);
-            } elseif(isset($lowerLimit)&& !isset($upperLimit)) {
-                $alert = $lab['value'] < $lowerLimit;
-            } elseif(!isset($lowerLimit) && isset($upperLimit)) {
-                $alert = $lab['value'] > $upperLimit;
+                $tid = $this->m_oContext->getSelectedTrackingID();
+                $pid = $myDao->getPatientIDFromTrackingID($tid);
             } else {
-                $alert = FALSE;
+                $pid = $override_patientId;
             }
-            $value = $alert ? "<span class='medical-value-danger'>!! "
-                    .$lab['value']." ".$lab['units']
-                    ." !!</span>" : $lab['value']." ".$lab['units'];
 
-            $rawValue = $lab['value'];
-            $units = $lab['units'];
-            $creatinineRefRange = '';
-            $eGFRRefRange = '';
-
-            if($foundCreatinine)
+            $sThisResultName = $pid . '_getLabsDetailDataEWD'; //patient specific
+            $aCachedResult = $this->m_oRuntimeResultFlexCache->checkCache($sThisResultName);
+            if($aCachedResult !== NULL)
             {
-                $creatinineRefRange = $lab['refRange'];
-                $foundEGFR = FALSE;
-                $checkDate = $lab['date'];
-                $dDate = strtotime($checkDate);
-error_log("LOOK ... one lab for $pid foundCreatinine!  (rawdate= $checkDate ; converted date = $dDate)");        
-                foreach($sortedLabs as $checkLab)
-                {
-                    if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
-                    {
-                        if($checkDate == $checkLab['date'])
-                        {
-                            $foundEGFR = TRUE;
-                            $eGFR = $checkLab['value'];
-                            $eGFRRefRange = $checkLab['refRange'];
-                            $eGFRSource = " (eGFR from VistA)";
-                            break;
-                        }
-                    }
-                }
-                if(!$foundEGFR)
-                {
-error_log("LOOK ... one lab for $pid NOT found EGFR!");        
-                    if(is_numeric($rawValue))
-                    {
-                        $eGFRSource = " (eGFR calculated)";
-                        $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican); //20150604
-                    } else {
-                        $eGFRSource = '';
-                        $eGFR = '';
-                    }
-                }
-                if($eGFR > '')
-                {
-                    $eGFRUnits = " mL/min/1.73 m^2";
-                    $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
-error_log("LOOK ... one lab for $pid SET EGFR = '$eGFR' from source=$eGFRSource !");        
-                } else {
-error_log("LOOK ... one lab for $pid BLANK EGFR!");        
-                    $eGFRUnits = '';
-                    $eGFR_Health = '';
-                }
-
-               //$renalLabs[] = array('date'=>$lab['date'], 'creatinineLabel'=>$creatinineLabel, 'creatinineValue'=>$value, 'eGFRDisplayValue'=>$eGFR." ".$eGFRUnits, 'eGFRValue'=>$eGFR, 'eGRRSource'=>$eGFRSource);
-               $aDiagLabs[] = array('DiagDate'=>$lab['date']
-                       , 'Creatinine'=>$value
-                       , 'eGFR'=>"$eGFR $eGFRUnits"
-                       , 'eGFR_Health'=>$eGFR_Health
-                       , 'Ref'=>trim("$eGFRSource $creatinineRefRange $eGFRRefRange")
-                   );
-
-               //Assign to the EGFR array.
-               if($eGFR > '')
-               {
-                    //First make sure we are set with the latest.
-                    if($aJustEGFR['LATEST_EGFR'] == NULL || $aJustEGFRDate['LATEST_EGFR'] < $dDate)
-                    {
-                        $aJustEGFR['LATEST_EGFR'] = $eGFR;
-                        $aJustEGFRDate['LATEST_EGFR'] = $dDate;
-                    }
-error_log("LOOK ... one lab for $pid got some EGFR=$eGFR for date=$dDate!");        
-                    //Now process the day cubbies
-                    $dToday = strtotime(date('Y-m-d'));
-                    $nSeconds = $dToday - $dDate;
-                    $nDays = $nSeconds / 86400;
-error_log("LOOK ... one lab for $pid got some EGFR=$eGFR for date=$dDate!  (days= $nDays )");        
-                    if($nDays <= 10)
-                    {
-                        $thiskey = 'MIN_EGFR_10DAYS';
-                        if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
-                        {
-                             $aJustEGFR[$thiskey] = $eGFR;
-                             $aJustEGFRDate[$thiskey] = $dDate;
-                        }
-                    } 
-                    if($nDays <= 15)
-                    {
-                        $thiskey = 'MIN_EGFR_15DAYS';
-                        if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
-                        {
-                             $aJustEGFR[$thiskey] = $eGFR;
-                             $aJustEGFRDate[$thiskey] = $dDate;
-                        }
-                    } 
-                    if($nDays <= 30)
-                    {
-                        $thiskey = 'MIN_EGFR_30DAYS';
-                        if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
-                        {
-                             $aJustEGFR[$thiskey] = $eGFR;
-                             $aJustEGFRDate[$thiskey] = $dDate;
-                        }
-                    } 
-                    if($nDays <= 45)
-                    {
-                        $thiskey = 'MIN_EGFR_45DAYS';
-                        if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
-                        {
-                             $aJustEGFR[$thiskey] = $eGFR;
-                             $aJustEGFRDate[$thiskey] = $dDate;
-                        }
-                    } 
-                    if($nDays <= 60)
-                    {
-                        $thiskey = 'MIN_EGFR_60DAYS';
-                        if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
-                        {
-                             $aJustEGFR[$thiskey] = $eGFR;
-                             $aJustEGFRDate[$thiskey] = $dDate;
-                        }
-                    } 
-                    if($nDays <= 90)
-                    {
-                        $thiskey = 'MIN_EGFR_90DAYS';
-                        if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
-                        {
-                             $aJustEGFR[$thiskey] = $eGFR;
-                             $aJustEGFRDate[$thiskey] = $dDate;
-                        }
-                    }
-               }
+                //Found it in the cache!
+                return $aCachedResult;
             }
+
+            //Did NOT find it in the cache.  Build it now.
+            $allLabs = $myDao->getChemHemLabs($pid);
+            $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
+            $patient_data_ar = $myDao->getPatientMap($pid);
+    error_log("LOOK patient_data_ar for $pid=".print_r($patient_data_ar,TRUE));        
+    error_log("LOOK allLabs for $pid=".print_r($allLabs,TRUE));        
+            $labs_formulas = new \raptor_formulas\Labs();
+            $aDiagLabs = array();
+            $aJustEGFR = array();
+
+            //Create placeholders for the values we will return.
+            $aJustEGFR['LATEST_EGFR'] = NULL;
+            $aJustEGFR['MIN_EGFR_10DAYS'] = NULL;
+            $aJustEGFR['MIN_EGFR_15DAYS'] = NULL;
+            $aJustEGFR['MIN_EGFR_30DAYS'] = NULL;
+            $aJustEGFR['MIN_EGFR_45DAYS'] = NULL;
+            $aJustEGFR['MIN_EGFR_60DAYS'] = NULL;
+            $aJustEGFR['MIN_EGFR_90DAYS'] = NULL;
+
+            //Create a structure where we can track the dates.
+            $aJustEGFRDate['LATEST_EGFR'] = NULL;
+            $aJustEGFRDate['MIN_EGFR_10DAYS'] = NULL;
+            $aJustEGFRDate['MIN_EGFR_15DAYS'] = NULL;
+            $aJustEGFRDate['MIN_EGFR_30DAYS'] = NULL;
+            $aJustEGFRDate['MIN_EGFR_45DAYS'] = NULL;
+            $aJustEGFRDate['MIN_EGFR_60DAYS'] = NULL;
+            $aJustEGFRDate['MIN_EGFR_90DAYS'] = NULL;
+
+            $isProc = TRUE;
+            $ethnicity = $patient_data_ar['ethnicity'];
+            $gender = strtoupper(trim($patient_data_ar['gender']));
+            $age = $patient_data_ar['age'];
+            $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
+                                 (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
+            $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
+            if(!$isMale)
+            {
+                $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
+            } else {
+                $isFemale = FALSE;
+            }
+
+            $filteredLabs = array();
+            $foundCreatinine = FALSE;
+            $foundEGFR = FALSE;
+            $foundPLT = FALSE;
+            $foundPT = FALSE;
+            $foundINR = FALSE;
+            $foundPTT = FALSE;
+            $foundHCT = FALSE;
+
+            $sortedLabs = $allLabs;
+            // Obtain a list of columns
+            foreach ($sortedLabs as $key => $row) 
+            {
+                $name[$key]  = $row['name'];
+                $date[$key] = $row['date'];
+                $value[$key] = $row['value'];
+                $units[$key] = $row['units'];
+                $refRange[$key] = $row['refRange'];
+                $rawTime[$key] = $row['rawTime'];
+            }
+
+            if(isset($name) && is_array($name)) //20140603
+            {
+                array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedLabs);
+            }
+
+            foreach($sortedLabs as $key => $lab)
+            {
+                $name = $lab['name'];
+    error_log("LOOK one lab for $pid >>> ".print_r($lab,TRUE));        
+                $foundCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
+                $foundHCT = strpos('HCT', strtoupper($lab['name'])) !== FALSE;
+                $foundINR = strpos('INR', strtoupper($lab['name'])) !== FALSE;
+                $foundPT = strpos('PT', strtoupper($lab['name'])) !== FALSE;
+                $foundPLT = strpos('PLT', strtoupper($lab['name'])) !== FALSE;
+                $foundPTT = strpos('PTT', strtoupper($lab['name'])) !== FALSE;
+
+                $limits = explode(" - ", $lab['refRange']);
+                $lowerLimit = isset($limits[0]) ? $limits[0] : NULL;
+                $upperLimit = isset($limits[1]) ? $limits[1] : NULL;
+
+                $alert = FALSE;
+                if(isset($lowerLimit) && isset($upperLimit))
+                {
+                    $alert = ($lab['value'] < $lowerLimit) || ($lab['value'] > $upperLimit);
+                } elseif(isset($lowerLimit)&& !isset($upperLimit)) {
+                    $alert = $lab['value'] < $lowerLimit;
+                } elseif(!isset($lowerLimit) && isset($upperLimit)) {
+                    $alert = $lab['value'] > $upperLimit;
+                } else {
+                    $alert = FALSE;
+                }
+                $value = $alert ? "<span class='medical-value-danger'>!! "
+                        .$lab['value']." ".$lab['units']
+                        ." !!</span>" : $lab['value']." ".$lab['units'];
+
+                $rawValue = $lab['value'];
+                $units = $lab['units'];
+                $creatinineRefRange = '';
+                $eGFRRefRange = '';
+
+                if($foundCreatinine)
+                {
+                    $creatinineRefRange = $lab['refRange'];
+                    $foundEGFR = FALSE;
+                    $checkDate = $lab['date'];
+                    $dDate = strtotime($checkDate);
+    error_log("LOOK ... one lab for $pid foundCreatinine!  (rawdate= $checkDate ; converted date = $dDate)");        
+                    foreach($sortedLabs as $checkLab)
+                    {
+                        if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
+                        {
+                            if($checkDate == $checkLab['date'])
+                            {
+                                $foundEGFR = TRUE;
+                                $eGFR = $checkLab['value'];
+                                $eGFRRefRange = $checkLab['refRange'];
+                                $eGFRSource = " (eGFR from VistA)";
+                                break;
+                            }
+                        }
+                    }
+                    if(!$foundEGFR)
+                    {
+    error_log("LOOK ... one lab for $pid NOT found EGFR!");        
+                        if(is_numeric($rawValue))
+                        {
+                            $eGFRSource = " (eGFR calculated)";
+                            $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican); //20150604
+                        } else {
+                            $eGFRSource = '';
+                            $eGFR = '';
+                        }
+                    }
+                    if($eGFR > '')
+                    {
+                        $eGFRUnits = " mL/min/1.73 m^2";
+                        $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
+    error_log("LOOK ... one lab for $pid SET EGFR = '$eGFR' from source=$eGFRSource !");        
+                    } else {
+    error_log("LOOK ... one lab for $pid BLANK EGFR!");        
+                        $eGFRUnits = '';
+                        $eGFR_Health = '';
+                    }
+
+                   //$renalLabs[] = array('date'=>$lab['date'], 'creatinineLabel'=>$creatinineLabel, 'creatinineValue'=>$value, 'eGFRDisplayValue'=>$eGFR." ".$eGFRUnits, 'eGFRValue'=>$eGFR, 'eGRRSource'=>$eGFRSource);
+                   $aDiagLabs[] = array('DiagDate'=>$lab['date']
+                           , 'Creatinine'=>$value
+                           , 'eGFR'=>"$eGFR $eGFRUnits"
+                           , 'eGFR_Health'=>$eGFR_Health
+                           , 'Ref'=>trim("$eGFRSource $creatinineRefRange $eGFRRefRange")
+                       );
+
+                   //Assign to the EGFR array.
+                   if($eGFR > '')
+                   {
+                        //First make sure we are set with the latest.
+                        if($aJustEGFR['LATEST_EGFR'] == NULL || $aJustEGFRDate['LATEST_EGFR'] < $dDate)
+                        {
+                            $aJustEGFR['LATEST_EGFR'] = $eGFR;
+                            $aJustEGFRDate['LATEST_EGFR'] = $dDate;
+                        }
+    error_log("LOOK ... one lab for $pid got some EGFR=$eGFR for date=$dDate!");        
+                        //Now process the day cubbies
+                        $dToday = strtotime(date('Y-m-d'));
+                        $nSeconds = $dToday - $dDate;
+                        $nDays = $nSeconds / 86400;
+    error_log("LOOK ... one lab for $pid got some EGFR=$eGFR for date=$dDate!  (days= $nDays )");        
+                        if($nDays <= 10)
+                        {
+                            $thiskey = 'MIN_EGFR_10DAYS';
+                            if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
+                            {
+                                 $aJustEGFR[$thiskey] = $eGFR;
+                                 $aJustEGFRDate[$thiskey] = $dDate;
+                            }
+                        } 
+                        if($nDays <= 15)
+                        {
+                            $thiskey = 'MIN_EGFR_15DAYS';
+                            if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
+                            {
+                                 $aJustEGFR[$thiskey] = $eGFR;
+                                 $aJustEGFRDate[$thiskey] = $dDate;
+                            }
+                        } 
+                        if($nDays <= 30)
+                        {
+                            $thiskey = 'MIN_EGFR_30DAYS';
+                            if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
+                            {
+                                 $aJustEGFR[$thiskey] = $eGFR;
+                                 $aJustEGFRDate[$thiskey] = $dDate;
+                            }
+                        } 
+                        if($nDays <= 45)
+                        {
+                            $thiskey = 'MIN_EGFR_45DAYS';
+                            if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
+                            {
+                                 $aJustEGFR[$thiskey] = $eGFR;
+                                 $aJustEGFRDate[$thiskey] = $dDate;
+                            }
+                        } 
+                        if($nDays <= 60)
+                        {
+                            $thiskey = 'MIN_EGFR_60DAYS';
+                            if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
+                            {
+                                 $aJustEGFR[$thiskey] = $eGFR;
+                                 $aJustEGFRDate[$thiskey] = $dDate;
+                            }
+                        } 
+                        if($nDays <= 90)
+                        {
+                            $thiskey = 'MIN_EGFR_90DAYS';
+                            if($aJustEGFR[$thiskey] == NULL || $aJustEGFRDate[$thiskey] < $dDate)
+                            {
+                                 $aJustEGFR[$thiskey] = $eGFR;
+                                 $aJustEGFRDate[$thiskey] = $dDate;
+                            }
+                        }
+                   }
+                }
+            }
+
+            //Build the bundle and store it in the cache.
+            $bundle = array($aDiagLabs, $aJustEGFR);
+            $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $bundle, CACHE_AGE_LABS);
+            $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
+
+            //Share this with the caller.
+            return $bundle;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        //Build the bundle and store it in the cache.
-        $bundle = array($aDiagLabs, $aJustEGFR);
-        $this->m_oRuntimeResultFlexCache->addToCache($sThisResultName, $bundle, CACHE_AGE_LABS);
-        $this->m_oRuntimeResultFlexCache->clearCacheBuilding($sThisResultName);
-        
-        //Share this with the caller.
-        return $bundle;
     }    
 }

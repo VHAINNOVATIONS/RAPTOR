@@ -170,8 +170,9 @@ interface IEhrDao
     
     /**
      * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
-     */
+     * @deprecated 20150911
     public function getProcedureLabsDetailMap($override_patientId = NULL);
+     */
 
     /**
      * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.

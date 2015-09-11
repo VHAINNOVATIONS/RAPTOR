@@ -3288,7 +3288,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $raptor_protocol_content['Reference']['VitalsSummary'] = $ehrDao->getVitalsSummaryMap();
         $raptor_protocol_content['Reference']['VitalsDetail'] = $ehrDao->getVitalsDetailMap();
         $raptor_protocol_content['Reference']['AllergiesDetail'] = $ehrDao->getAllergiesDetailMap();
-        $raptor_protocol_content['Reference']['ProcedureLabsDetail'] = $ehrDao->getProcedureLabsDetailMap();
+        //deprecated 20150911 $raptor_protocol_content['Reference']['ProcedureLabsDetail'] = $ehrDao->getProcedureLabsDetailMap();
         $raptor_protocol_content['Reference']['DiagnosticLabsDetail'] = $ehrDao->getDiagnosticLabsDetailMap();
         $raptor_protocol_content['Reference']['PathologyReportsDetail'] = $ehrDao->getPathologyReportsDetailMap();
         $raptor_protocol_content['Reference']['SurgeryReportsDetail'] = $ehrDao->getSurgeryReportsDetailMap();
