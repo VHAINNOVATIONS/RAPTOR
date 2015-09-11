@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150904.3');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150911.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1234,7 +1234,6 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
             $args['patientId'] = $patientId;
             $args['dialogId'] = $imagingTypeId;
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
-            error_log("LOOK getRadiologyOrderDialog raw >>>>".print_r($rawresult_ar, TRUE)); 
 
             $raw_commonProcedures = $rawresult_ar['commonProcedures'];
             $clean_commonProcedures = array();
@@ -1266,7 +1265,16 @@ error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TR
             }
             $rawresult_ar['sharingOptions'] = $clean_sharingOptions;
             
-            error_log("LOOK getRadiologyOrderDialog clean >>>>".print_r($rawresult_ar, TRUE)); 
+            $raw_researchOptions = $rawresult_ar['researchOptions'];
+            $clean_researchOptions = array();
+            foreach($raw_researchOptions as $onerawset)
+            {
+                $key = $onerawset['key'];
+                $value = $onerawset['value'];
+                $clean_researchOptions[$key] = $value;
+            }
+            $rawresult_ar['researchOptions'] = $clean_researchOptions;  
+            
             return $rawresult_ar;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1726,7 +1734,6 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
             $args = array();
             $args['patientId'] = $sPatientID;
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK raw getPatientMap in>>>>".print_r($rawresult,TRUE));
             $vista_dob = $rawresult['dob'];
             if($vista_dob > '')
             {
@@ -1763,9 +1770,9 @@ error_log("LOOK raw getPatientMap in>>>>".print_r($rawresult,TRUE));
                 $teamAttendingName = ' ';
             } else {
                 $raw_team = $rawresult['team'];
-                $teamName = isset($raw_team['name']) ? $raw_team['name'] : ' ';;
-                $teamPcpName = isset($raw_team['pcpName']) ? $raw_team['pcpName'] : ' ';;
-                $teamAttendingName = isset($raw_team['attendingName']) ? $raw_team['attendingName'] : ' ';;
+                $teamName = isset($raw_team['name']) ? $raw_team['name'] : ' ';
+                $teamPcpName = isset($raw_team['pcpName']) ? $raw_team['pcpName'] : ' ';
+                $teamAttendingName = isset($raw_team['attendingName']) ? $raw_team['attendingName'] : ' ';
             }
             if(!isset($rawresult['siteIds']) || !is_array($rawresult['siteIds']))
             {
@@ -1819,11 +1826,10 @@ error_log("LOOK raw getPatientMap in>>>>".print_r($rawresult,TRUE));
             $result['sitePids']     			= $sitePids;
             //deprecated 20150911 $result['localPid']     			= 'missing';
             //deprecated 20150911 $result['vendorPid']    			= 'missing';
-            //deprecated 20150911 $result['preferredFacility']                = 'missing';
+            //deprecated 20150911 $result['preferredFacility']                  = 'missing';
             //deprecated 20150911 $result['teamID'] 				= 'missing'; //Did not find id as part of returned structure but looks like javascript has impl.
             //deprecated 20150911 $result['activeInsurance'] 			= 'missing expected text'; //isset($rawresult['activeInsurance']) ? $rawresult['activeInsurance'] : ' ';
             //deprecated 20150911 $result['hasInsurance'] 			= 'missing'; //expecting boolean
-error_log("LOOK raw getPatientMap out>>>>".print_r($result,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;

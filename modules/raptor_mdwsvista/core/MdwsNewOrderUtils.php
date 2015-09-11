@@ -166,6 +166,8 @@ class MdwsNewOrderUtils {
                 $result['shortList'] = $shortList;
             }
 
+            /* 
+             * Deprecated last7DaysExams on 20150911 because not in use by RAPTOR
             // last 7 days of exams for patient
             $result['last7DaysExams'] = array();
             if (isset($dialog->lastSevenDaysExams) 
@@ -184,6 +186,7 @@ class MdwsNewOrderUtils {
                 }
                 $result['last7DaysExams'] = $exams;
             }
+            */
 error_log("LOOK MDWS getRadiologyOrderDialog($mdwsDao, $imagingTypeId, $patientId) >>> " . print_r($result,TRUE));
             return $result;
         } catch (Exception $ex) {
