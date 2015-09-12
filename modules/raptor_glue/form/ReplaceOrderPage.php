@@ -1281,6 +1281,8 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 
                 $args['locationIEN'] = $myvalues['neworderlocation'];
                 $args['orderableItemId'] = $myvalues['neworderitem'];
+                
+error_log("LOOK MDWS getRadiologyOrderChecks args $ehrDao >>>"  .  print_r($args,TRUE));                
                 $rawchecks = $ehrDao->getRadiologyOrderChecks($args);
                 $form_state['orderchecks_result'] = $rawchecks;
                 
