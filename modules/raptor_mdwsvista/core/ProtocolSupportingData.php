@@ -72,11 +72,13 @@ class ProtocolSupportingData
         return $this->m_aDashboardMap;
     }
     
-    
+    /**
+     * TODO --- REMOVE THIS SO THAT WE PULL FROM FULL WORKLIST SCAN INSTEAD!!!!!
+     */
     function getPendingOrdersMap()
     {
         //CONSIDER CALLING FROM WORKLIST INSTEAD!!!!
-        return $this->m_aDashboardMap['MapPendingOrders'];  //CANNOT TRUST THIS VALUE IN THE DASHBOARD!!!! GET FROM WORKLIST INSTEAD!!!!
+        return $this->m_aDashboardMap['DEPRECATE_MapPendingOrders'];  //CANNOT TRUST THIS VALUE IN THE DASHBOARD!!!! GET FROM WORKLIST INSTEAD!!!!
     }
          
     /**

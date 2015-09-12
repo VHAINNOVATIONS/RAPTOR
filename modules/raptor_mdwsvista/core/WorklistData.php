@@ -617,7 +617,7 @@ class WorklistData
      */
     public function getDashboardMap($override_match_this_IEN=NULL)
     {
-error_log("LOOK in getDashboardMap($override_match_this_IEN)...");
+//error_log("LOOK in getDashboardMap($override_match_this_IEN)...");
         try
         {
             if($override_match_this_IEN != NULL)
@@ -751,7 +751,7 @@ error_log("LOOK in getDashboardMap($override_match_this_IEN)...");
             $t['mpiPid']            = $oPatientData['mpiPid'];
             $t['mpiChecksum']       = $oPatientData['mpiChecksum'];
             $t['CountPendingOrders']   = $row[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT];
-            $t['MapPendingOrders']     = $row[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
+            $t['DEPRECATE_MapPendingOrders']     = $row[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
             $t['OrderFileIen']          = $row[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN];
             $t['RadiologyOrderStatus']  = $row[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS];
             return $t;

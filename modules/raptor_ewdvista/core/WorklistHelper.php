@@ -210,18 +210,19 @@ class WorklistHelper
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_URGENCY] = $onerow[self::WLVFO_Urgency];
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = $onerow[self::WLVFO_Transport];
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION ] = $onerow[self::WLVFO_ExamCategory];
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC] = 'TODO ANATOMY';   //Placeholder for anatomy keywords
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] = $workflowstatus;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERSTATUS] = '?ORDER STATUS?';   //Placeholder for Order Status
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER]  = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_CPRSCODE] = '';   //Placeholder for the CPRS code associated with this ticket
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE] = $imagetype;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = $this->getScheduleMarkupArray($sqlScheduleTrackRow);
 
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 'todo123';
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = 'todo20'; 
+                        //set elsewhere $cleanrow[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 'todo123';
+                        //set elsewhere $cleanrow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = 'todo20'; 
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = $onerow[self::WLVFO_ExamLocation];
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = $onerow[self::WLVFO_RequestingPhysician];
+                        
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC] = 'TODO ANATOMY';   //Placeholder for anatomy keywords
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERSTATUS] = '?ORDER STATUS?';   //Placeholder for Order Status
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER]  = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_CPRSCODE] = '';   //Placeholder for the CPRS code associated with this ticket
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = 23;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = 24;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS] = 25;

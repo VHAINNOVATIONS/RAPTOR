@@ -38,12 +38,6 @@ class DashboardHelper
 {
     public function getFormatted($tid, $pid, $radiologyOrder, $orderFileRec, $therow, $aPatientData)
     {
-/*
-error_log("LOOK parts radiologyOrder=".print_r($radiologyOrder,TRUE));
-error_log("LOOK parts order=".print_r($orderFileRec,TRUE));
-error_log("LOOK parts therow=".print_r($therow,TRUE));
-error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
-*/        
         try
         {
             $dashboard = array();
@@ -72,7 +66,7 @@ error_log("LOOK parts oPatientData=".print_r($aPatientData,TRUE));
             $dashboard['PatientName']       = $therow[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME];
             $dashboard['ImageType']         = $therow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE];
             
-            $dashboard['MapPendingOrders']     = $therow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
+            //deprecated 20150912 $dashboard['MapPendingOrders']     = $therow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
             
             $dashboard['RadiologyOrderStatus']     = $therow[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS];
 
