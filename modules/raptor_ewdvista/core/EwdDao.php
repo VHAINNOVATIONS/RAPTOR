@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150912.2');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150912.3');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -953,14 +953,16 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
 
     public function getImagingTypesMap()
     {
-        //Returns results like this...
-        //$result['37'] = 'ANGIO/NEURO/INTERVENTIONAL';
-        //$result['5'] = 'MRI';
         try
         {
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName);
             $rawdata = $rawresult['value'];
+            if(!is_array($rawdata))
+            {
+                //Should only happen if site is not configured right.
+                throw new \Exception("This site is not properly configured with image types!");
+            }
             $formatted = array();
             foreach($rawdata as $key=>$onerow)
             {
@@ -999,19 +1001,23 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
 
     public function getOrderOverviewMap()
     {
-        /*
-         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getOrderOverview' is >>>Array
-(
-    [RqstBy] => ZZLABTECH,FORTYEIGHT
-    [PCP] => Unknown
-    [AtP] => Unknown
-    [RqstStdy] => CT ABDOMEN W/O CONT
-    [RsnStdy] => TEST
-)
-
-         */
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $dashboard_map = $this->getDashboardDetailsMap();
+            $pid = $this->getSelectedPatientID();
+            $patient_map = $this->getPatientMap($pid);
+            $formatted_detail = array(
+                     'RqstBy'=>$dashboard_map['RequestedBy'],
+                     'RqstStdy'=>$dashboard_map['Procedure'],
+                     'RsnStdy'=>$dashboard_map['ReasonForStudy'],
+                     'PCP'=>$patient_map['teamPcpName'],
+                     'AtP'=>$patient_map['teamAttendingName'],
+                    );
+error_log("LOOK EWD getOrderOverviewMap $this >>>" . print_r($formatted_detail,TRUE));
+            return $formatted_detail;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getOrderableItems($imagingTypeId)
@@ -1023,6 +1029,11 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
             $value_ar = $rawresult['value'];
+            if(!is_array($value_ar))
+            {
+                error_log("ERROR DETECTED: Check full result of $this >>> " . print_r($rawresult,TRUE));
+                throw new \Exception("Expected to find at least one orderable item for this site but found none!");
+            }
             $formatted_detail = array();
             foreach($value_ar as $onerawrow)
             {
@@ -1169,7 +1180,7 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             $serviceName = $this->getCallingFunctionName();
             $args['target'] = $neworderprovider_name;
             $raw_result = $this->getServiceRelatedData($serviceName, $args);
-            if(!$raw_result['value'])
+            if(!isset($raw_result['value']))
             {
                 error_log("Missing the expected value key in this>>>>" . print_r($raw_result,TRUE));
                 throw new \Exception('Missing the expected value key!');
@@ -1462,24 +1473,29 @@ error_log("LOOK RAW getRadiologyReportsDetailMap>>>" . print_r($rawresult_ar, TR
             $args['patientId'] = $this->getSelectedPatientID();
             $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
-
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-            $visitAry = $rawresult['value'];
-
-            foreach ($visitAry as $visit) 
-            {
-                $a = explode('^', $visit);
-                $l = explode(';', $a[0]); //first field is an array "location name;visit timestamp;locationID"
-                $aryItem = array(
-                    //'raw' => $visit,
-                    'locationName' => $l[0],
-                    'locationId' => $l[2],
-                    'visitTimestamp' => EwdUtils::convertVistaDateToYYYYMMDD($a[1]), //same as $l[1]
-                    'visitTO' => $a[2]
-                );
-                $result[] = $aryItem;   //Already acending
+            if(!isset($rawresult['value']))
+            { 
+                //There are no visits.
+                $aSorted = array();
+            } else {
+                //We have visits.
+                $visitAry = $rawresult['value'];
+                foreach ($visitAry as $visit) 
+                {
+                    $a = explode('^', $visit);
+                    $l = explode(';', $a[0]); //first field is an array "location name;visit timestamp;locationID"
+                    $aryItem = array(
+                        //'raw' => $visit,
+                        'locationName' => $l[0],
+                        'locationId' => $l[2],
+                        'visitTimestamp' => EwdUtils::convertVistaDateToYYYYMMDD($a[1]), //same as $l[1]
+                        'visitTO' => $a[2]
+                    );
+                    $result[] = $aryItem;   //Already acending
+                }
+                $aSorted = array_reverse($result); //Now this is descrnding.
             }
-            $aSorted = array_reverse($result); //Now this is descrnding.
             return $aSorted;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1737,6 +1753,10 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
     {
         try
         {
+            if($sPatientID == NULL)
+            {
+                throw new \Exception("Cannot get patient map without a patient ID!");
+            }
             $serviceName = $this->getCallingFunctionName();
             $args = array();
             $args['patientId'] = $sPatientID;
