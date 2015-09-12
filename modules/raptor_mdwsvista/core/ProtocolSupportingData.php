@@ -1305,7 +1305,7 @@ class ProtocolSupportingData
                 $alert = $lab['value'] > $upperLimit;
             else
                 $alert = FALSE;
-            $value = $alert ? "<span class='medical-value-danger'>!! "
+                $value = $alert ? "<span class='medical-value-danger'>!! "
                     .$lab['value']." ".$lab['units']
                     ." !!</span>" : $lab['value']." ".$lab['units'];
 

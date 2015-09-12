@@ -87,14 +87,12 @@ class LabsHelper
     }
     
     /**
-     * This returns an arraty of arrays with following offset content:
+     * This returns an array of arrays with following offset content:
      *  0. The ChemHem labs array
      *  1. Just the eGFR array
-     * @return array of arrays
      */
     public function getLabsDetailData($override_patientId=NULL)
     {
-        //TODO --- CACHE THIS HERE
         try
         {
             module_load_include('php', 'raptor_formulas', 'core/Labs');
@@ -119,8 +117,6 @@ class LabsHelper
             $allLabs = $myDao->getChemHemLabs($pid);
             $this->m_oRuntimeResultFlexCache->markCacheBuilding($sThisResultName);
             $patient_data_ar = $myDao->getPatientMap($pid);
-    error_log("LOOK patient_data_ar for $pid=".print_r($patient_data_ar,TRUE));        
-    error_log("LOOK allLabs for $pid=".print_r($allLabs,TRUE));        
             $labs_formulas = new \raptor_formulas\Labs();
             $aDiagLabs = array();
             $aJustEGFR = array();
@@ -143,7 +139,6 @@ class LabsHelper
             $aJustEGFRDate['MIN_EGFR_60DAYS'] = NULL;
             $aJustEGFRDate['MIN_EGFR_90DAYS'] = NULL;
 
-            $isProc = TRUE;
             $ethnicity = $patient_data_ar['ethnicity'];
             $gender = strtoupper(trim($patient_data_ar['gender']));
             $age = $patient_data_ar['age'];
@@ -186,7 +181,6 @@ class LabsHelper
             foreach($sortedLabs as $key => $lab)
             {
                 $name = $lab['name'];
-    error_log("LOOK one lab for $pid >>> ".print_r($lab,TRUE));        
                 $foundCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
                 $foundHCT = strpos('HCT', strtoupper($lab['name'])) !== FALSE;
                 $foundINR = strpos('INR', strtoupper($lab['name'])) !== FALSE;
@@ -224,7 +218,6 @@ class LabsHelper
                     $foundEGFR = FALSE;
                     $checkDate = $lab['date'];
                     $dDate = strtotime($checkDate);
-    error_log("LOOK ... one lab for $pid foundCreatinine!  (rawdate= $checkDate ; converted date = $dDate)");        
                     foreach($sortedLabs as $checkLab)
                     {
                         if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
@@ -241,7 +234,6 @@ class LabsHelper
                     }
                     if(!$foundEGFR)
                     {
-    error_log("LOOK ... one lab for $pid NOT found EGFR!");        
                         if(is_numeric($rawValue))
                         {
                             $eGFRSource = " (eGFR calculated)";
@@ -255,9 +247,7 @@ class LabsHelper
                     {
                         $eGFRUnits = " mL/min/1.73 m^2";
                         $eGFR_Health = $labs_formulas->get_eGFR_Health($eGFR);
-    error_log("LOOK ... one lab for $pid SET EGFR = '$eGFR' from source=$eGFRSource !");        
                     } else {
-    error_log("LOOK ... one lab for $pid BLANK EGFR!");        
                         $eGFRUnits = '';
                         $eGFR_Health = '';
                     }
@@ -279,12 +269,10 @@ class LabsHelper
                             $aJustEGFR['LATEST_EGFR'] = $eGFR;
                             $aJustEGFRDate['LATEST_EGFR'] = $dDate;
                         }
-    error_log("LOOK ... one lab for $pid got some EGFR=$eGFR for date=$dDate!");        
                         //Now process the day cubbies
                         $dToday = strtotime(date('Y-m-d'));
                         $nSeconds = $dToday - $dDate;
                         $nDays = $nSeconds / 86400;
-    error_log("LOOK ... one lab for $pid got some EGFR=$eGFR for date=$dDate!  (days= $nDays )");        
                         if($nDays <= 10)
                         {
                             $thiskey = 'MIN_EGFR_10DAYS';
