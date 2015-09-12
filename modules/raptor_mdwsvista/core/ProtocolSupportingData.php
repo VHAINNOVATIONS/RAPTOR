@@ -1851,7 +1851,7 @@ class ProtocolSupportingData
                         return false;
 
                     $tempRpt = array(); 
-                    $tempRpt['accessionNumber'] = isset($RptTO->accessionNumber) ? $RptTO->accessionNumber : " ";
+                    //deprecated 20150912 $tempRpt['accessionNumber'] = isset($RptTO->accessionNumber) ? $RptTO->accessionNumber : " ";
                     $tempRpt['caseNumber'] = isset($RptTO->caseNumber) ? $RptTO->caseNumber : " ";
                     $tempRpt['id'] = isset($RptTO->id) ? $RptTO->id : " ";
                     $tempRpt['title'] = isset($RptTO->title) ? $RptTO->title : " ";
@@ -1870,30 +1870,30 @@ class ProtocolSupportingData
                     $tempRpt['facilityTagResults'] = isset($RptTO->facility->facilityTagResults) ? $RptTO->facility->facilityTagResults : " ";
 
                     $tempRpt['status'] = isset($RptTO->status) ? $RptTO->status : " ";
-                    $tempRpt['cptCode'] = isset($RptTO->cptCode) ? $RptTO->cptCode : " ";
-                    $tempRpt['clinicalHx'] = isset($RptTO->clinicalHx) ? $RptTO->clinicalHx : "";
-                    $tempRpt['clinicalHx'] = nl2br($tempRpt['clinicalHx']);
-                    $tempRpt['impression'] = isset($RptTO->impression) ? $RptTO->impression : " ";
-                    $tempRpt['impression'] = nl2br($tempRpt['impression']);
+                    //deprecated 20150912 $tempRpt['cptCode'] = isset($RptTO->cptCode) ? $RptTO->cptCode : " ";
+                    //deprecated 20150912 $tempRpt['clinicalHx'] = isset($RptTO->clinicalHx) ? $RptTO->clinicalHx : "";
+                    //deprecated 20150912 $tempRpt['clinicalHx'] = nl2br($tempRpt['clinicalHx']);
+                    //deprecated 20150912 $tempRpt['impression'] = isset($RptTO->impression) ? $RptTO->impression : " ";
+                    //deprecated 20150912 $tempRpt['impression'] = nl2br($tempRpt['impression']);
 
                     $result[] = 
-                            array(//"guid" => $tempRpt['guid'], 
-                                "Title"  => $tempRpt['title'],
-                                "ReportedDate" => $tempRpt['timestamp'],
-                                "Snippet" => substr($tempRpt['title'], 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...',
-                                "Details" => array(
-                                    "Procedure Name" => $tempRpt['title'],
-                                    "Report Status"  => $tempRpt['status'],
-                                    "CPT Code"       => $tempRpt['cptCode'],
-                                    "Reason For Study" => " ",
-                                    "Clinical HX"    => $tempRpt['clinicalHx'],
-                                    "Impression"     => $tempRpt['impression'],
-                                    "Report"         => $tempRpt['text'],
-                                    "Facility"       => $tempRpt['facilityTag'],
+                            array(
+                                'Title'  => $tempRpt['title'],
+                                'ReportedDate' => $tempRpt['timestamp'],
+                                'Snippet' => substr($tempRpt['title'], 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...',
+                                'Details' => array(
+                                    'Procedure Name' => $tempRpt['title'],
+                                    'Report Status'  => $tempRpt['status'],
+                                    //deprecated 20150912 "CPT Code"       => $tempRpt['cptCode'],
+                                    //deprecated 20150912 "Reason For Study" => " ",
+                                    //deprecated 20150912 "Clinical HX"    => $tempRpt['clinicalHx'],
+                                    //deprecated 20150912 "Impression"     => $tempRpt['impression'],
+                                    'Report'         => $tempRpt['text'],
+                                    'Facility'       => $tempRpt['facilityTag'],
                                         ),
-                                "AccessionNumber" => $tempRpt['accessionNumber'],
-                                "CaseNumber" => $tempRpt['caseNumber'],
-                                "ReportID" =>$tempRpt['id'],
+                                //deprecated 20150912 "AccessionNumber" => $tempRpt['accessionNumber'],
+                                'CaseNumber' => $tempRpt['caseNumber'],
+                                'ReportID' =>$tempRpt['id'],
                             );
                 }
             }

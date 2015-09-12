@@ -41,7 +41,6 @@ class RadiologyReportHelper
     private static $FLD_REPORTDATE = 2;
     private static $FLD_TITLE = 3;
     private static $FLD_STATUS = 4;
-    //private static $FLD_ACCESSION_NUM = 0;
     private static $FLD_CASE_NUM = 5;
     private static $FLD_EXAM = 6;
     private static $FLD_REPORT_ID = 9;
@@ -106,11 +105,12 @@ class RadiologyReportHelper
                     $detail_tx = trim($this->getUserDataFromArrayOfArray2($onereport, self::$FLD_EXAM));
                     $snippet = substr($title, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
 
-                    $accession = '';    //TODO $this->getUserDataFromArray($onereport, self::$FLD_SPECIMEN_ASCESSION_NUM);
-                    $cptcode = '';  //TODO
-                    $clinicalHx = '';    //TODO
-                    $reasonforstudy = '';   //TODO
-                    $impression = '';   //TODO
+                    /** These will never be filled .... */
+                    //deprecated 20150912 $accession = '';
+                    //deprecated 20150912 $cptcode = '';
+                    //deprecated 20150912 $clinicalHx = '';
+                    //deprecated 20150912 $reasonforstudy = '';
+                    //deprecated 20150912 $impression = '';
 
                     $onereport = 
                             array( 
@@ -120,14 +120,14 @@ class RadiologyReportHelper
                                 'Details' => array(
                                     'Procedure Name' =>$title,
                                     'Report Status' => $status,
-                                    'CPT Code' => $cptcode,
-                                    'Reason For Study' => $reasonforstudy,
-                                    'Clinical HX' => $clinicalHx,
-                                    'Impression' => $impression,
+                                    //deprecated 20150912 'CPT Code' => $cptcode,
+                                    //deprecated 20150912 'Reason For Study' => $reasonforstudy,
+                                    //deprecated 20150912 'Clinical HX' => $clinicalHx,
+                                    //deprecated 20150912 'Impression' => $impression,
                                     'Report' => $detail_tx,
                                     'Facility' => $facility,
                                         ),
-                                'AccessionNumber' => $accession,
+                                //deprecated 20150912 'AccessionNumber' => $accession,
                                 'CaseNumber' => $casenum,
                                 'ReportID' =>$reportid,
                             );                    
