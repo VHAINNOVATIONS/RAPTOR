@@ -415,6 +415,9 @@ class EhrDao implements \raptor\IEhrDao
         return $this->m_implclass->getNotesDetailMap($override_patientId);
     }
 
+    /**
+     * Return the set of orders that exist for one patient
+     */
     public function getPendingOrdersMap($override_patientId = NULL)
     {
         return $this->m_implclass->getPendingOrdersMap($override_patientId);

@@ -47,6 +47,8 @@ defined('VERSION_INFO_RAPTOR_EWDDAO')
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
+defined('REDAO_CACHE_NM_PENDINGORDERS')
+    or define('REDAO_CACHE_NM_PENDINGORDERS', 'getPendingOrdersMapEWD');
 defined('REDAO_CACHE_NM_SUFFIX_DASHBOARD')
     or define('REDAO_CACHE_NM_SUFFIX_DASHBOARD', '_getDashboardDetailsMapEWD');
 defined('REDAO_CACHE_NM_SUFFIX_VITALS')
@@ -442,11 +444,50 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 {
                     $matching_offset = count($show_rows) + $bundle['matching_offset'];
                 }
-                $pending_orders_map = array_merge($pending_orders_map, $bundle['pending_orders_map']);
+error_log("LOOK pending_orders_map 1 >>>" . print_r($bundle['pending_orders_map'],TRUE));
+                foreach($bundle['pending_orders_map'] as $patientId=>$patientOrders)
+                {
+                    if(!isset($pending_orders_map[$patientId]))
+                    {
+                        //Just insert it
+                        $pending_orders_map[$patientId] = $patientOrders;
+error_log("LOOK pending_orders_map just adding for $patientId");
+                    } else {
+                        //Merge it (Do this ourselves instead because PHP array_merge is buggy!)
+error_log("LOOK pending_orders_map merging for $patientId");
+                        foreach($patientOrders as $onepatientordertid=>$onepatientorderdetail)
+                        {
+                            $pending_orders_map[$patientId][$onepatientordertid] = $onepatientorderdetail;
+                        }
+                    }
+                    
+                }
+                //$pending_orders_map = array_merge($pending_orders_map, $bundle['pending_orders_map']);
                 $row_bundles[] = $formated_datarows;
 //error_log("LOOK at page $pages getting more pages? ($getmorepages) >>>".print_r($row_bundles,TRUE));
             }
-            $show_rows = $row_bundles[0];   //TODO FIX ARRAY MERGE!!!!! array_merge($row_bundles);
+error_log("LOOK pending_orders_map 2 ($max_rows_one_call rows scanned) >>>" . print_r($pending_orders_map,TRUE));
+            $show_rows = $row_bundles[0];
+            
+            //Scanned enough to populate the pending orders?
+            if($max_rows_one_call < 1000)
+            {
+                $pending_orders_map = "NOT COMPUTED (only scanned $max_rows_one_call orders)";
+            } else {
+                //Put pending orders map into a cache
+                $sThisPendingOrdersResultName = REDAO_CACHE_NM_PENDINGORDERS;
+                $oContext = \raptor\Context::getInstance();
+                $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+                if ($oRuntimeResultFlexCacheHandler != NULL)
+                {
+                    try 
+                    {
+                        $oRuntimeResultFlexCacheHandler->addToCache($sThisPendingOrdersResultName, $pending_orders_map, CACHE_AGE_LABS);
+                    } catch (\Exception $ex) {
+                        error_log("Failed to cache $sThisPendingOrdersResultName result because " . $ex->getMessage());
+                    }
+                }
+            }
             $aResult = array('Pages'=>$pages
                             ,'Page'=>1
                             ,'RowsPerPage'=>$max_rows_one_call
@@ -454,7 +495,10 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
                 );
+
 error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
+
+            //Done!
             return $aResult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1053,14 +1097,42 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
         return $patientID;
     }
 
-    public function getPendingOrdersMap($override_tracking_id = NULL)
+    /**
+     * Return the set of orders that exist for one patient
+     */
+    public function getPendingOrdersMap($override_patientId = NULL)
     {
         try
         {
-            //TODO ---- MUST QUERY MORE THAN ONE ROW!!!!!!  Remove from dashbaord?
-            $dashboard = $this->getDashboardDetailsMap($override_tracking_id);
-error_log("LOOK pending thing>>>" . print_r($dashboard['MapPendingOrders'],TRUE));            
-            return $dashboard['MapPendingOrders'];
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get chem labs detail without a patient ID!');
+            }
+            
+            $sThisPendingOrdersResultName = REDAO_CACHE_NM_PENDINGORDERS;
+            $oContext = \raptor\Context::getInstance();
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                //Note: This item is cached by the worklist function!
+                $pending_orders_map = $oRuntimeResultFlexCacheHandler->checkCache($sThisPendingOrdersResultName);
+            } else {
+                $entire_worklist_bundle = $this->getWorklistDetailsMap();
+                $pending_orders_map = $entire_worklist_bundle['pending_orders_map'];
+            }
+            if(!is_array($pending_orders_map) || !isset($pending_orders_map[$pid]))
+            {
+                $themapping = array();
+            } else {
+                $themapping = $pending_orders_map[$pid];
+            }
+            return $themapping;
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -1631,6 +1703,7 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
             {
                 $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData("{$tid}" . REDAO_CACHE_NM_SUFFIX_DASHBOARD);
                 $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(REDAO_CACHE_NM_WORKLIST);
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(REDAO_CACHE_NM_PENDINGORDERS);
             }
         } catch (\Exception $ex) {
             throw $ex;
@@ -1648,6 +1721,7 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
             {
                 $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData($sThisResultName);
                 $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(REDAO_CACHE_NM_WORKLIST);
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(REDAO_CACHE_NM_PENDINGORDERS);
             }
         } catch (\Exception $ex) {
             throw $ex;

@@ -198,9 +198,11 @@ interface IEhrDao
     public function getPathologyReportsDetailMap($override_patientId = NULL);
     
     /**
+     * Return the set of orders that exist for one patient
      * IMPORTANT: Return FALSE if the optional $override_patientId is not NULL and not supported.
      */
     public function getPendingOrdersMap($override_patientId = NULL);
+    
     public function getProblemsListDetailMap();
     
     public function getRadiologyCancellationReasons();

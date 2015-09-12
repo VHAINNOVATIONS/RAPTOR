@@ -75,7 +75,8 @@ class ProtocolSupportingData
     
     function getPendingOrdersMap()
     {
-        return $this->m_aDashboardMap['MapPendingOrders'];
+        //CONSIDER CALLING FROM WORKLIST INSTEAD!!!!
+        return $this->m_aDashboardMap['MapPendingOrders'];  //CANNOT TRUST THIS VALUE IN THE DASHBOARD!!!! GET FROM WORKLIST INSTEAD!!!!
     }
          
     /**
