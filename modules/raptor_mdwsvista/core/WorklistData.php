@@ -615,14 +615,14 @@ class WorklistData
      * Gets dashboard details for the one ticket
      * Defaults to current session ticket if none is specified
      */
-    public function getDashboardMap($override_match_this_IEN=NULL)
+    public function getDashboardMap($override_match_this_ticket_IEN=NULL)
     {
 //error_log("LOOK in getDashboardMap($override_match_this_IEN)...");
         try
         {
-            if($override_match_this_IEN != NULL)
+            if($override_match_this_ticket_IEN != NULL)
             {
-                $match_this_IEN = $override_match_this_IEN;
+                $match_this_IEN = $override_match_this_ticket_IEN;
             } else {
                 $match_this_IEN = $this->m_oContext->getSelectedTrackingID();
             }
@@ -718,10 +718,8 @@ class WorklistData
             $t['PatientLocation']   = $row[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION]; //DEPRECATED 1/29/2015      
             $t['RequestedBy']       = $row[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN];
 
-            // ATTENTION FRANK: new indices for requesting location and submit to location
             $t['RequestingLocation']= trim((isset($worklistItemDict['22']['I']) ? $worklistItemDict['22']['I'] : '') );
             $t['SubmitToLocation']  = trim((isset($worklistItemDict['20']['I']) ? $worklistItemDict['20']['I'] : '') );
-            // END ATTN FRANK
 
             $aSchedInfo = $row[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO];
             $t['SchedInfo']         = $aSchedInfo;
@@ -730,6 +728,7 @@ class WorklistData
             $t['ScheduledDate']     = $aSchedInfo['EventDT'];
 
             $t['PatientCategory']   = $row[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION];
+            
             // changed reason for study to real RFS, added 'NatureOfOrderActivity' key 
             $t['ReasonForStudy']    = trim((isset($worklistItemDict['1.1']['I']) ? $worklistItemDict['1.1']['I'] : '') );
             $t['NatureOfOrderActivity'] = $row[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY];
@@ -754,6 +753,8 @@ class WorklistData
             $t['DEPRECATE_MapPendingOrders']     = $row[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
             $t['OrderFileIen']          = $row[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN];
             $t['RadiologyOrderStatus']  = $row[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS];
+
+error_log("LOOK MDWS dashboard thing to return>>>" . print_r($t,TRUE));            
             return $t;
             
         } catch (\Exception $ex) {

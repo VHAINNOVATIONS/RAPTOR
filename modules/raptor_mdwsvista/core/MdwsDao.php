@@ -471,7 +471,7 @@ error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
                     if ($aCachedResult !== NULL)
                     {
                         //Found it in the cache!
-error_log("LOOK Found it in the $sThisResultName cache!");                        
+error_log("LOOK Found it in the $sThisResultName cache!  $this");                        
                         return $aCachedResult;
                     }
                 }
@@ -655,7 +655,9 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
 
     public function getOrderOverviewMap()
     {
-        return $this->getProtocolSupportingData('getOrderOverview');
+        $result = $this->getProtocolSupportingData('getOrderOverview');
+error_log("LOOK MDWS getOrderOverviewMap $this >>>" . print_r($result,TRUE));
+        return $result;
     }
 
     public function getVitalsSummaryMap()

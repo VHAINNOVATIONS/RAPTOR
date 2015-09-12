@@ -52,7 +52,12 @@ class ProtocolSupportingData
         $this->m_oRuntimeResultCache = \raptor\RuntimeResultCache::getInstance($this->m_oContext,'ProtocolSupportingData');
         $this->m_oRuntimeResultFlexCache = \raptor\RuntimeResultFlexCache::getInstance('ProtocolSupportingData');
         $wl = new \raptor_mdwsvista\WorklistData($this->m_oContext);
-        $this->m_aDashboardMap = $wl->getDashboardMap($override_patientId);   // getWorklistForProtocolSupport();
+        if($override_patientId != NULL)
+        {
+            //20150912 -- this value was not being properly handled in this class; throw an exception for now.
+            throw new \Exception("HANDLING NOT IMPLEMENTD FOR PATIENT ID OVERRIDE");
+        }
+        $this->m_aDashboardMap = $wl->getDashboardMap();    //20150912 $override_patientId);   // getWorklistForProtocolSupport();
         $this->m_aPatientInfo = $wl->getPatient($this->m_aDashboardMap["PatientID"]);
         if($this->m_aPatientInfo == NULL)
         {
