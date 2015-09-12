@@ -68,7 +68,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     public function getIntegrationInfo()
     {
-        return "MDWS VISTA EHR Integration 20150911.1";
+        return "MDWS VISTA EHR Integration 20150912.1";
     }
 
     /**
