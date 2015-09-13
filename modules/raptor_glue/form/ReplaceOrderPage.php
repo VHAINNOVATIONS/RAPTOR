@@ -26,7 +26,6 @@
 
 namespace raptor;
 
-//module_load_include('inc', 'raptor_glue', 'functions/replace_order_ajax');
 require_once 'FormHelper.php';
 require_once 'ProtocolPageUtils.inc';
 
@@ -137,100 +136,105 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
      */
     function looksValidFromFormState($form, $form_state)
     {
-        $myvalues = $form_state['values'];
-        $goodtrack = array();
-        $currentstep = $this->getSubmittedStepNumber($form_state);
+        try
+        {
+            $myvalues = $form_state['values'];
+            $goodtrack = array();
+            $currentstep = $this->getSubmittedStepNumber($form_state);
 
-        if($currentstep == 1)
-        {
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'cancelreason', 'Replacement Reason');
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'neworderimagetype', 'Image Type');
-            $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'neworderprovider_name', 'New Order Provider Name');
-        } else
-        if($currentstep == 2)
-        {
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'neworderlocation', 'Location');
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'neworderitem', 'Order Item');
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'neworderurgency', 'Urgency');
-            
-            $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'modecode', 'Transport');
-            $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'category', 'Category');
-
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'submitto', 'Submit To');
-            
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'isolation', 'Isolation');
-            $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'pregnant', 'Pregnant');  
-            
-            $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'reasonforstudy', 'Reason for Study');
-            
-            $goodtrack[] = FormHelper::validate_date_field_not_empty($myvalues, 'datedesired_dateonly', 'Desired Date');
-            $goodtrack[] = FormHelper::validate_time_field_not_empty($myvalues, 'datedesired_timeonly', 'Desired Time');
-            
-            //$goodtrack[] = FormHelper::validate_date_field_not_empty($myvalues, 'preopdate_dateonly', 'Preop Date');
-            //$goodtrack[] = FormHelper::validate_time_field_not_empty($myvalues, 'preopdate_timeonly', 'Preop Time');
-            
-            //Make sure we know what kind of modality this order applies to.
-            $language_infer = new \raptor_formulas\LanguageInference();
-            $imagetype_map = $myvalues['imagetypes'];
-            $it_key = $myvalues['neworderimagetype'];
-            $imagetype_txt = $imagetype_map[$it_key];
-            $modality = $language_infer->inferModalityFromPhrase($imagetype_txt);
-            if($modality == NULL)
+            if($currentstep == 1)
             {
-                $oi_options = $myvalues['orderitems_options'];
-                $oi_key = $myvalues['neworderitem'];
-                $oi_txt = $oi_options[$oi_key];
-                $modality = $language_infer->inferModalityFromPhrase($oi_txt);
-            }
-            if($modality == NULL)
-            {
-                //Just highlite the selected order.
-                $modalityprefixes = trim($language_infer->getSupportedModalityCodes());
-                form_set_error('neworderitem'
-                        ,'Cannot determine a RAPTOR supported modality from the order text.'
-                        . '  (Prefer text with one of the following prefixes: '.$modalityprefixes.')');
-                $goodtrack[] = FALSE;
-            }
-            
-        } else
-        if($currentstep == 3)
-        {
-            $otherlabel = NULL;
-            if($myvalues['category'] == 'C')
-            {
-                $otherlabel = "Contract Source";
+                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'cancelreason', 'Replacement Reason');
+                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'neworderimagetype', 'Image Type');
+                $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'neworderprovider_name', 'New Order Provider Name');
             } else
-            if($myvalues['category'] == 'S')
+            if($currentstep == 2)
             {
-                $otherlabel = "Sharing Source";
-            } else
-            if($myvalues['category'] == 'R')
-            {
-                $otherlabel = "Research Source";
-            }
-            if($otherlabel != NULL)
-            {
-                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'contractSharingIen', $otherlabel);
-            }
-            if($myvalues['require_esig'] == 'yes')
-            {
-                //They MUST provide an esig!.
-                $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'esig', 'Electronic Signature');
-            }
-        }
+                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'neworderlocation', 'Location');
+                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'neworderitem', 'Order Item');
+                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'neworderurgency', 'Urgency');
 
-        //Check for trouble
-        foreach($goodtrack as $value)
-        {
-            if($value === FALSE)
+                $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'modecode', 'Transport');
+                $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'category', 'Category');
+
+                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'submitto', 'Submit To');
+
+                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'isolation', 'Isolation');
+                $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'pregnant', 'Pregnant');  
+
+                $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'reasonforstudy', 'Reason for Study');
+
+                $goodtrack[] = FormHelper::validate_date_field_not_empty($myvalues, 'datedesired_dateonly', 'Desired Date');
+                $goodtrack[] = FormHelper::validate_time_field_not_empty($myvalues, 'datedesired_timeonly', 'Desired Time');
+
+                //$goodtrack[] = FormHelper::validate_date_field_not_empty($myvalues, 'preopdate_dateonly', 'Preop Date');
+                //$goodtrack[] = FormHelper::validate_time_field_not_empty($myvalues, 'preopdate_timeonly', 'Preop Time');
+
+                //Make sure we know what kind of modality this order applies to.
+                $language_infer = new \raptor_formulas\LanguageInference();
+                $imagetype_map = $myvalues['imagetypes'];
+                $it_key = $myvalues['neworderimagetype'];
+                $imagetype_txt = $imagetype_map[$it_key];
+                $modality = $language_infer->inferModalityFromPhrase($imagetype_txt);
+                if($modality == NULL)
+                {
+                    $oi_options = $myvalues['orderitems_options'];
+                    $oi_key = $myvalues['neworderitem'];
+                    $oi_txt = $oi_options[$oi_key];
+                    $modality = $language_infer->inferModalityFromPhrase($oi_txt);
+                }
+                if(FALSE && $modality == NULL)  //TODO LOOK RESTORE THIS!!!!!!!!!!!!!!!!!
+                {
+                    //Just highlite the selected order.
+                    $modalityprefixes = trim($language_infer->getSupportedModalityCodes());
+                    form_set_error('neworderitem'
+                            , 'Cannot determine a RAPTOR supported modality from the order text.'
+                            . '  (Prefer text with one of the following prefixes: '.$modalityprefixes.')');
+                    $goodtrack[] = FALSE;
+                }
+
+            } else
+            if($currentstep == 3)
             {
-                //There was trouble.
-                return FALSE;
+                $otherlabel = NULL;
+                if($myvalues['category'] == 'C')
+                {
+                    $otherlabel = "Contract Source";
+                } else
+                if($myvalues['category'] == 'S')
+                {
+                    $otherlabel = "Sharing Source";
+                } else
+                if($myvalues['category'] == 'R')
+                {
+                    $otherlabel = "Research Source";
+                }
+                if($otherlabel != NULL)
+                {
+                    $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'contractSharingIen', $otherlabel);
+                }
+                if($myvalues['require_esig'] == 'yes')
+                {
+                    //They MUST provide an esig!.
+                    $goodtrack[] = FormHelper::validate_text_field_not_empty($myvalues, 'esig', 'Electronic Signature');
+                }
             }
+
+            //Check for trouble
+            foreach($goodtrack as $value)
+            {
+                if($value === FALSE)
+                {
+                    //There was trouble.
+                    return FALSE;
+                }
+            }
+
+            //There was no trouble, yay!
+            return TRUE;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        //There was no trouble, yay!
-        return TRUE;
     }
     
     /**
@@ -969,7 +973,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             //Store the map so we can get it later
             $form['hiddenthings']['orderitems_options'] 
                     = array('#type' => 'hidden', '#value' => $orderitems_options);
-            
+ error_log("LOOK MDWS orderitems_options >>> " . print_r($orderitems_options,TRUE));           
             $patientId = $myvalues['PatientID'];
             $raworderoptions = $ehrDao->getRadiologyOrderDialog($imagingTypeId, $patientId);
 
@@ -1165,9 +1169,9 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 '#size' => 10, 
                 '#maxlength' => 10, 
                 '#title'     => FormHelper::getTitleAsRequiredField('Date Desired'),
-                "#disabled" => $disabled_step2,
-                "#default_value" => $datedesired_dateonly,
-                "#description" => t('When would you like this procedure to occur? (MM/DD/YYYY)'),
+                '#disabled' => $disabled_step2,
+                '#default_value' => $datedesired_dateonly,
+                '#description' => t('When would you like this procedure to occur? (MM/DD/YYYY)'),
             );
 
             if(isset($myvalues['datedesired_timeonly']))
@@ -1184,9 +1188,9 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 '#size' => 5, 
                 '#maxlength' => 5, 
                 '#title'     => FormHelper::getTitleAsRequiredField('Desired Exam Time'),
-                "#disabled" => $disabled_step2,
-                "#default_value" => $datedesired_timeonly,
-                "#description" => t('When would you like for this procedure to occur? (HH:MM military time)'),
+                '#disabled' => $disabled_step2,
+                '#default_value' => $datedesired_timeonly,
+                '#description' => t('When would you like for this procedure to occur? (HH:MM military time)'),
             );
             
             $form['data_entry_area1']['toppart']['RB3'] = array(
@@ -1272,17 +1276,18 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 //Final step
                 $args = array();
                 $args['patientId'] = $myvalues['PatientID'];
-                
-                $date = new \DateTime();
-                $timestamp = $date->getTimestamp(); 
-                
                 $startdatetime = strtotime($myvalues['datedesired_dateonly'] . ' ' . $myvalues['datedesired_timeonly']);
-                $args['startDateTime'] = $startdatetime;   //$timestamp;// //Ymd.Hi TODO $myvalues['datedesired'];
+                $juststartdate = strtotime($myvalues['datedesired_dateonly']);
+                $juststarttime = strtotime($myvalues['datedesired_timeonly']) - strtotime('TODAY');
+error_log("LOOK PAGE getRadiologyOrderChecks date=" . $myvalues['datedesired_dateonly'] . " time=" .$myvalues['datedesired_timeonly']);                
+                $args['startDateTime'] = $startdatetime;
+                $args['datedesired_dateonly'] = $juststartdate;
+                $args['datedesired_timeonly'] = $juststarttime;
                 
                 $args['locationIEN'] = $myvalues['neworderlocation'];
                 $args['orderableItemId'] = $myvalues['neworderitem'];
                 
-error_log("LOOK MDWS getRadiologyOrderChecks args $ehrDao >>>"  .  print_r($args,TRUE));                
+error_log("LOOK PAGE getRadiologyOrderChecks args $ehrDao >>>"  .  print_r($args,TRUE));                
                 $rawchecks = $ehrDao->getRadiologyOrderChecks($args);
                 $form_state['orderchecks_result'] = $rawchecks;
                 
@@ -1323,8 +1328,8 @@ error_log("LOOK MDWS getRadiologyOrderChecks args $ehrDao >>>"  .  print_r($args
                         '#title'         => FormHelper::getTitleAsRequiredField('Order Checks Override Reason'),
                         '#size' => 64, 
                         '#maxlength' => 80, 
-                        "#description" => t('Provide short reason for order checks override.  (80 characters maximum)'),
-                        "#default_value" => $orderCheckOverrideReason,
+                        '#description' => t('Provide short reason for order checks override.  (80 characters maximum)'),
+                        '#default_value' => '',
                     );
                 } else {
                     $form['hiddenthings']['orderCheckOverrideReason'] = array('#type' => 'hidden'

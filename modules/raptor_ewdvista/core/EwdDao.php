@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150912.3');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150913.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1237,8 +1237,40 @@ error_log("LOOK EWD getOrderOverviewMap $this >>>" . print_r($formatted_detail,T
 
     public function getRadiologyOrderChecks($args)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $serviceName = $this->getCallingFunctionName();
+            $service_args = array();
+            $funnydatetime = EwdUtils::convertPhpDateTimeToFunnyText($args['startDateTime']);
+            $service_args['patientId'] = $args['patientId'];
+            $service_args['orderStartDateTime'] = $funnydatetime;
+            $service_args['locationId'] = $args['locationIEN'];
+            $service_args['orderableItemId'] = $args['orderableItemId'];
+error_log("LOOK EWD getRadiologyOrderChecks args $this >>>" . print_r($service_args,TRUE));            
+            $rawresult_ar = $this->getServiceRelatedData($serviceName, $service_args);
+error_log("LOOK EWD getRadiologyOrderChecks raw result $this >>>" . print_r($rawresult_ar,TRUE));  
+
+error_log("LOOK EWD getRadiologyOrderChecks funny date=$funnydate");  
+
+            $formatted = array();
+            foreach($rawresult_ar as $item)
+            {
+                $id = $item['id'];
+                $level = $item['level'];
+                $name = $item['name'];
+                $needsOverride = ($level == '1');
+                $formatted[$id] = array(
+                    'name'=>$name,
+                    'level'=>$level,
+                    'needsOverride'=>$needsOverride
+                );
+            }
+error_log("LOOK EWD getRadiologyOrderChecks clean result $this >>>" . print_r($formatted,TRUE));            
+            
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function getRadiologyOrderDialog($imagingTypeId, $patientId)
@@ -1320,8 +1352,8 @@ error_log("LOOK EWD getOrderOverviewMap $this >>>" . print_r($formatted_detail,T
             $args['nRpts'] = 1000;
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
             
-error_log("LOOK RAW getRadiologyReportsDetailMap args>>>" . print_r($args, TRUE));            
-error_log("LOOK RAW getRadiologyReportsDetailMap>>>" . print_r($rawresult_ar, TRUE));            
+////error_log("LOOK RAW getRadiologyReportsDetailMap args>>>" . print_r($args, TRUE));            
+//error_log("LOOK RAW getRadiologyReportsDetailMap>>>" . print_r($rawresult_ar, TRUE));            
             
             $formatted_detail = $myhelper->getFormattedRadiologyReportHelperDetail($rawresult_ar);
             return $formatted_detail;

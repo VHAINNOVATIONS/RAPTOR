@@ -283,7 +283,6 @@ class MdwsNewOrderUtils {
         if (isset($soapResult->fault)) {
             throw new \Exception('There was a problem creating the order: '.$soapResult->fault->message);
         }
-        // TODO - need to verify isset()
         $order = array();
         $order['id'] = $soapResult->id;
         $order['timestamp'] = $soapResult->timestamp;
@@ -356,50 +355,57 @@ class MdwsNewOrderUtils {
                 . "\nResult Details>>> ".print_r($result,TRUE));
     }
 
-    public static function getRadiologyOrderChecks($mdwsDao, $args) {
-        $patientId = $args['patientId'];
-        $orderDt = \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToISO($args['startDateTime']);;
-        $locationId = $args['locationIEN'];
-        $orderableItemIEN = $args['orderableItemId'];
-        
-        $soapResult = $mdwsDao->makeQuery('getOrderChecks', 
-            array('patientId'=>$patientId, 
-                'orderStartDateTime'=>$orderDt, 
-                'locationId'=>$locationId, 
-                'orderableItem'=>$orderableItemIEN));
-        
-        $soapResult = $soapResult->getOrderChecksResult;
-        
-        // massage order check result of 1 to array
-        if (!is_array($soapResult->OrderCheckTO)) {
-            $soapResult = array($soapResult->OrderCheckTO);
+    public static function getRadiologyOrderChecks($mdwsDao, $args) 
+    {
+        try
+        {
+            $patientId = $args['patientId'];
+            $orderDt = \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToISO($args['startDateTime']);;
+            $locationId = $args['locationIEN'];
+            $orderableItemIEN = $args['orderableItemId'];
+    error_log("LOOK MDWS getRadiologyOrderChecks args >>> " . print_r($args,TRUE));        
+
+            $soapParams = array('patientId'=>$patientId, 
+                    'orderStartDateTime'=>$orderDt, 
+                    'locationId'=>$locationId, 
+                    'orderableItem'=>$orderableItemIEN);
+    error_log("LOOK MDWS getRadiologyOrderChecks soap call soapParams >>> " . print_r($soapParams,TRUE));        
+            $soapRawResult = $mdwsDao->makeQuery('getOrderChecks', $soapParams);
+            $soapResult = $soapRawResult->getOrderChecksResult;
+
+            // massage order check result of 1 to array
+            if (!is_array($soapResult->OrderCheckTO)) {
+                $soapResult = array($soapResult->OrderCheckTO);
+            }
+            else {
+                $soapResult = $soapResult->OrderCheckTO;
+            }
+
+            if (isset($soapResult[0]->fault)) {
+                error_log('SOAP FAULT FOUND>>>'.print_r($soapResult,TRUE));
+                throw new \Exception('There was a problem fetching order checks: '.$soapResult[0]->fault->message);
+            }
+
+            $result = array();
+
+            $orderCheckCount = count($soapResult);
+
+            for ($i = 0; $i < $orderCheckCount; $i++) {
+                $id = $soapResult[$i]->id;
+                $name = $soapResult[$i]->name;
+                $level = $soapResult[$i]->level;
+
+                $tmp = array();
+                $tmp['name'] = $name;
+                $tmp['level'] = $level;
+                $tmp['needsOverride'] = ($level == '1');
+
+                $result[$id] = $tmp;
+            }
+    error_log("LOOK MDWS getRadiologyOrderChecks result >>> " . print_r($result,TRUE));        
+            return $result;
+        } catch (Exception $ex) {
+            throw $ex;
         }
-        else {
-            $soapResult = $soapResult->OrderCheckTO;
-        }
-        
-        if (isset($soapResult[0]->fault)) {
-            error_log('SOAP FAULT FOUND>>>'.print_r($soapResult,TRUE));
-            throw new \Exception('There was a problem fetching order checks: '.$soapResult[0]->fault->message);
-        }
-        
-        $result = array();
-                
-        $orderCheckCount = count($soapResult);
-        
-        for ($i = 0; $i < $orderCheckCount; $i++) {
-            $id = $soapResult[$i]->id;
-            $name = $soapResult[$i]->name;
-            $level = $soapResult[$i]->level;
-            
-            $tmp = array();
-            $tmp['name'] = $name;
-            $tmp['level'] = $level;
-			$tmp['needsOverride'] = ($level == '1');
-            
-            $result[$id] = $tmp;
-        }
-        
-        return $result;
     }   
 }

@@ -173,7 +173,22 @@ class EwdUtils
             return $pieces[1];
         }
     }
+
+    /**
+     * 1441515600 -> Sept 10@15:30
+     */
+    public static function convertPhpDateTimeToFunnyText($phpDateTime) 
+    {
+        return date('M d, Y@H:i', $phpDateTime);
+    }
     
+    /**
+     * 1441515600 -> 20150906.0100
+     */
+    public static function convertPhpDateTimeToISODate($phpDateTime) 
+    {
+        return date('Ymd.Hi', $phpDateTime);
+    }
 }
 
 
