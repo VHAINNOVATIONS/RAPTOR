@@ -857,11 +857,6 @@ error_log("LOOK MDWS getDiagnosticLabsDetail >>> " . print_r($result,TRUE));
         return \raptor_mdwsvista\MdwsUtils::getChemHemLabs($this);
     }
 
-    public function getEncounterStringFromVisit($vistitTo)
-    {
-        return \raptor_mdwsvista\MdwsUtils::getEncounterStringFromVisit($vistitTo);
-    }
-
     public function getHospitalLocationsMap($startingitem)
     {
         return \raptor_mdwsvista\MdwsUtils::getHospitalLocationsMap($this, $startingitem);
@@ -874,7 +869,15 @@ error_log("LOOK MDWS getDiagnosticLabsDetail >>> " . print_r($result,TRUE));
 
     public function getVisits()
     {
-        return \raptor_mdwsvista\MdwsUtils::getVisits($this);
+        $result = \raptor_mdwsvista\MdwsUtils::getVisits($this);
+//error_log("LOOK MDWS getVisits >>>" . print_r($result,TRUE));        
+        return $result;
+    }
+
+    public function getEncounterStringFromVisit($vistitTo)
+    {
+//error_log("LOOK MDWS getEncounterStringFromVisit input >>>" . print_r($vistitTo,TRUE));        
+        return \raptor_mdwsvista\MdwsUtils::getEncounterStringFromVisit($vistitTo);
     }
 
     public function signNote($newNoteIen, $eSig)

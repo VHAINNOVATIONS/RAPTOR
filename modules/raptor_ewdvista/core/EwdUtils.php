@@ -118,25 +118,45 @@ class EwdUtils
     /**
      * Convert VistA format: 3101231.150020 -> 20101231.150020
      */
-    public static function convertVistaDateToYYYYMMDDtttt($vistaDateTime) {
-        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
-        $timePart = self::getVistaDateTimePart($vistaDateTime, "time");
-        $year = 1700 + substr($datePart, 0, 3);
-        $month = substr($datePart, 3, 2);
-        $day = substr($datePart, 5, 2);
-        
-        return $year.$month.$day.".".$timePart;
+    public static function convertVistaDateToYYYYMMDDtttt($vistaDateTime) 
+    {
+        try
+        {
+            $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
+            $timePart = self::getVistaDateTimePart($vistaDateTime, "time");
+            $year = 1700 + substr($datePart, 0, 3);
+            $month = substr($datePart, 3, 2);
+            $day = substr($datePart, 5, 2);
+            if(strlen($timePart) == 2)
+            {
+                $timePart = $timePart . '00';   //Add the missing zeros
+            } else
+            if(strlen($timePart) == 3)
+            {
+                $timePart = $timePart . '0';   //Add the missing zero
+            }
+            return $year.$month.$day.".".$timePart;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }    
+    
     /**
      * Convert 20100101 format -> 2010-01-01
      */
-    public static function convertYYYYMMDDToDate($vistaDateTime) {
-        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
-        $year = substr($datePart, 0, 4);
-        $month = substr($datePart, 4, 2);
-        $day = substr($datePart, 6, 2);
-        
-        return $month."-".$day."-".$year;
+    public static function convertYYYYMMDDToDate($vistaDateTime) 
+    {
+        try
+        {
+            $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
+            $year = substr($datePart, 0, 4);
+            $month = substr($datePart, 4, 2);
+            $day = substr($datePart, 6, 2);
+
+            return $month."-".$day."-".$year;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**

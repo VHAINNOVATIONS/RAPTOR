@@ -946,13 +946,6 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
         return $namedparts;
     }
 
-    public function getEncounterStringFromVisit($vistitTo)
-    {
-        //TODO
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
-    }
-
     public function getImagingTypesMap()
     {
         try
@@ -1504,6 +1497,7 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
+//error_log("LOOK EWD >>> raw getVisits >>>" . print_r($rawresult,TRUE));
             if(!isset($rawresult['value']))
             { 
                 //There are no visits.
@@ -1514,24 +1508,55 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
                 foreach ($visitAry as $visit) 
                 {
                     $a = explode('^', $visit);
-                    $l = explode(';', $a[0]); //first field is an array "location name;visit timestamp;locationID"
+                    $l = explode(';', $a[0]); //first field is an array "type;visit timestamp;locationID"
+                    $cleantimestamp = EwdUtils::convertVistaDateToYYYYMMDDtttt($l[1]);
+                    $location = array(
+                      'id'=>$l[2],
+                      'name' => $a[2],
+                    );
+                    $visitTO = array(
+                      'type'=>$l[0],
+                      'location'=>$location,  
+                      'timestamp'=>$cleantimestamp,
+                      'status'=>(isset($a[3]) ? $a[3] : '')  
+                    );
                     $aryItem = array(
-                        //'raw' => $visit,
-                        'locationName' => $l[0],
+                        'locationName' => $a[2],
                         'locationId' => $l[2],
-                        'visitTimestamp' => EwdUtils::convertVistaDateToYYYYMMDD($a[1]), //same as $l[1]
-                        'visitTO' => $a[2]
+                        'visitTimestamp' => $cleantimestamp,
+                        'visitTO' => $visitTO
                     );
                     $result[] = $aryItem;   //Already acending
                 }
                 $aSorted = array_reverse($result); //Now this is descrnding.
             }
+//error_log("LOOK EWD >>> getVisits final >>>" . print_r($aSorted,TRUE));
             return $aSorted;
         } catch (\Exception $ex) {
             throw $ex;
         }
     }
 
+    public function getEncounterStringFromVisit($visitTO)
+    {
+error_log("LOOK EWD >>> getEncounterStringFromVisit >>>" . print_r($visitTO,TRUE));
+        if($visitTO == NULL)
+        {
+            throw new \Exception('Cannot pass a NULL visitTo into getEncounterStringFromVisit!');
+        }
+        try
+        {
+            if(!isset($visitTO['locationId']) || $visitTO['locationId'] == '')
+            {
+                throw new \Exception('Did not get a valid locationId from visit item '.print_r($visitTO,TRUE));
+            }
+            return $visitTO['locationId'].';'.$visitTO['timestamp'].';A';
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    
     /**
      * Return NULL if no problems.
      */
