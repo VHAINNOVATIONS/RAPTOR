@@ -183,7 +183,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                     $oi_txt = $oi_options[$oi_key];
                     $modality = $language_infer->inferModalityFromPhrase($oi_txt);
                 }
-                if(FALSE && $modality == NULL)  //TODO LOOK RESTORE THIS!!!!!!!!!!!!!!!!!
+                if($modality == NULL)
                 {
                     //Just highlite the selected order.
                     $modalityprefixes = trim($language_infer->getSupportedModalityCodes());
@@ -973,7 +973,6 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             //Store the map so we can get it later
             $form['hiddenthings']['orderitems_options'] 
                     = array('#type' => 'hidden', '#value' => $orderitems_options);
- error_log("LOOK MDWS orderitems_options >>> " . print_r($orderitems_options,TRUE));           
             $patientId = $myvalues['PatientID'];
             $raworderoptions = $ehrDao->getRadiologyOrderDialog($imagingTypeId, $patientId);
 
@@ -1279,15 +1278,12 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
                 $startdatetime = strtotime($myvalues['datedesired_dateonly'] . ' ' . $myvalues['datedesired_timeonly']);
                 $juststartdate = strtotime($myvalues['datedesired_dateonly']);
                 $juststarttime = strtotime($myvalues['datedesired_timeonly']) - strtotime('TODAY');
-error_log("LOOK PAGE getRadiologyOrderChecks date=" . $myvalues['datedesired_dateonly'] . " time=" .$myvalues['datedesired_timeonly']);                
                 $args['startDateTime'] = $startdatetime;
                 $args['datedesired_dateonly'] = $juststartdate;
                 $args['datedesired_timeonly'] = $juststarttime;
                 
                 $args['locationIEN'] = $myvalues['neworderlocation'];
                 $args['orderableItemId'] = $myvalues['neworderitem'];
-                
-error_log("LOOK PAGE getRadiologyOrderChecks args $ehrDao >>>"  .  print_r($args,TRUE));                
                 $rawchecks = $ehrDao->getRadiologyOrderChecks($args);
                 $form_state['orderchecks_result'] = $rawchecks;
                 

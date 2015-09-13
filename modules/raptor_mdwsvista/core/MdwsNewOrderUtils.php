@@ -360,7 +360,8 @@ class MdwsNewOrderUtils {
         try
         {
             $patientId = $args['patientId'];
-            $orderDt = \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToISO($args['startDateTime']);;
+            $orderDt = \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToISO($args['startDateTime']);
+            //Format requested by JM 9/13/2015 but not curretly being accepted $orderDt = \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToFunnyText($args['startDateTime']);
             $locationId = $args['locationIEN'];
             $orderableItemIEN = $args['orderableItemId'];
     error_log("LOOK MDWS getRadiologyOrderChecks args >>> " . print_r($args,TRUE));        

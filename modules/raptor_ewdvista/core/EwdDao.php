@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150913.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150913.2');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -625,8 +625,35 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
     }
 
     /**
-     * TODO: Confirm with Joel and Rob that intermittent 'target' param issue is resolved.
-     *       See email threads from 8/14 on the topic.
+     * Return a subset of hospital locations
+     */
+    public function getHospitalLocationsMap($startingitem)
+    {
+        try
+        {
+            $serviceName = 'getHospitalLocationsMap';   //Only gets 44 at a time
+            $args = array();
+            $args['target'] = $startingitem;
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            $formatted = array();
+            if(isset($rawresult['value']))
+            {
+                $rawdatarows = $rawresult['value'];
+                foreach($rawdatarows as $key=>$onerow)
+                {
+                    $one_ar = explode('^',$onerow);
+                    $newkey = $one_ar[0];
+                    $formatted[$newkey] = $one_ar[1];
+                }
+            }
+            return $formatted;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    /**
+     * Return all the hospital locations
      */
     public function getAllHospitalLocationsMap()
     {
@@ -746,7 +773,7 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
 
     public function getEGFRDetailMap($override_patientId = NULL)
     {
-error_log("LOOK starting getEGFRDetailMap($override_patientId)");        
+//error_log("LOOK starting getEGFRDetailMap($override_patientId)");        
         try
         {
             $oContext = \raptor\Context::getInstance();
@@ -759,7 +786,7 @@ error_log("LOOK starting getEGFRDetailMap($override_patientId)");
             $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
             $alldata = $myhelper->getLabsDetailData($pid);
             $clean_result = $alldata[1];
-error_log("LOOK done getEGFRDetailMap($pid)>>>".print_r($clean_result,TRUE));        
+//error_log("LOOK done getEGFRDetailMap($pid)>>>".print_r($clean_result,TRUE));        
             return $clean_result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -790,26 +817,6 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
         }
     }
 
-    /*
-     * @deprecated 20150911
-    public function getProcedureLabsDetailMap($override_patientId = NULL)
-    {
-        try
-        {
-            if($override_patientId != NULL)
-            {
-                $pid = $override_patientId;
-            } else {
-                $pid = $this->getSelectedPatientID();
-            }
-            //TODO!!!!! Do NOT call EWD for this one
-            return array();
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-    }
-     */
-    
     /**
      * If override_tracking_id is provided, then return dashboard for that order
      * instead of the currently selected order.
@@ -941,12 +948,7 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
 
     public function getEncounterStringFromVisit($vistitTo)
     {
-        $serviceName = $this->getCallingFunctionName();
-        return $this->getServiceRelatedData($serviceName);
-    }
-
-    public function getHospitalLocationsMap($startingitem)
-    {
+        //TODO
         $serviceName = $this->getCallingFunctionName();
         return $this->getServiceRelatedData($serviceName);
     }
@@ -1013,7 +1015,6 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
                      'PCP'=>$patient_map['teamPcpName'],
                      'AtP'=>$patient_map['teamAttendingName'],
                     );
-error_log("LOOK EWD getOrderOverviewMap $this >>>" . print_r($formatted_detail,TRUE));
             return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1088,24 +1089,26 @@ error_log("LOOK EWD getOrderOverviewMap $this >>>" . print_r($formatted_detail,T
 
     public function getPatientIDFromTrackingID($sTrackingID)
     {
-        $serviceName = $this->getCallingFunctionName();
-//error_log("Look about to call service $serviceName($sTrackingID) ...");        
-        
-        $tid = trim($sTrackingID);
-        if($tid == '')
+        try
         {
-            throw new \Exception("Cannot get patient ID without a tracking ID!");
+            $serviceName = $this->getCallingFunctionName();
+            $tid = trim($sTrackingID);
+            if($tid == '')
+            {
+                throw new \Exception("Cannot get patient ID without a tracking ID!");
+            }
+            $namedparts = $this->getTrackingIDNamedParts($tid);
+            $args['ien'] = $namedparts['ien'];
+            $result = $this->getServiceRelatedData($serviceName, $args);
+            if(!isset($result['result']))
+            {
+                throw new \Exception("Missing patient ID result from tracking ID value $sTrackingID: ".print_r($result,TRUE));
+            }
+            $patientID = $result['result'];
+            return $patientID;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $namedparts = $this->getTrackingIDNamedParts($tid);
-        $args['ien'] = $namedparts['ien'];
-        $result = $this->getServiceRelatedData($serviceName, $args);
-//error_log("LOOK EWD DAO $serviceName($sTrackingID) result = ".print_r($result,TRUE));
-        if(!isset($result['result']))
-        {
-            throw new \Exception("Missing patient ID result from tracking ID value $sTrackingID: ".print_r($result,TRUE));
-        }
-        $patientID = $result['result'];
-        return $patientID;
     }
 
     /**
@@ -1246,12 +1249,9 @@ error_log("LOOK EWD getOrderOverviewMap $this >>>" . print_r($formatted_detail,T
             $service_args['orderStartDateTime'] = $funnydatetime;
             $service_args['locationId'] = $args['locationIEN'];
             $service_args['orderableItemId'] = $args['orderableItemId'];
-error_log("LOOK EWD getRadiologyOrderChecks args $this >>>" . print_r($service_args,TRUE));            
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $service_args);
-error_log("LOOK EWD getRadiologyOrderChecks raw result $this >>>" . print_r($rawresult_ar,TRUE));  
 
-error_log("LOOK EWD getRadiologyOrderChecks funny date=$funnydate");  
-
+            //Now format our final result.
             $formatted = array();
             foreach($rawresult_ar as $item)
             {
@@ -1265,8 +1265,6 @@ error_log("LOOK EWD getRadiologyOrderChecks funny date=$funnydate");
                     'needsOverride'=>$needsOverride
                 );
             }
-error_log("LOOK EWD getRadiologyOrderChecks clean result $this >>>" . print_r($formatted,TRUE));            
-            
             return $formatted;
         } catch (\Exception $ex) {
             throw $ex;

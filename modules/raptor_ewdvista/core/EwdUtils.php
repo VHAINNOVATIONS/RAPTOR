@@ -175,7 +175,7 @@ class EwdUtils
     }
 
     /**
-     * 1441515600 -> Sept 10@15:30
+     * phpseconds -> Sept 10@15:30
      */
     public static function convertPhpDateTimeToFunnyText($phpDateTime) 
     {

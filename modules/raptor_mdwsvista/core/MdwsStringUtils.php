@@ -58,4 +58,13 @@ class MdwsStringUtils {
     public static function convertPhpDateTimeToISO($phpDateTime) {
         return date('Ymd.Hi', $phpDateTime);
     }
+    
+    /**
+     * phpseconds -> Sept 10@15:30
+     */
+    public static function convertPhpDateTimeToFunnyText($phpDateTime) 
+    {
+        return date('M d, Y@H:i', $phpDateTime);
+    }
+    
 }
