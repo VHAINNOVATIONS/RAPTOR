@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150913.2');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150913.4');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1703,24 +1703,55 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
 
     public function validateEsig($eSig)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $args = array();
+            $args['eSig'] = $eSig;
+            $serviceName = $this->getCallingFunctionName();
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+            
+error_log("LOOK EWD validateEsig($eSig)>>>".print_r($rawresult,TRUE));
+            $isvalid = FALSE;   //Assume not valid until prover otherwise by result
+            if($rawresult > '')
+            {
+                if($rawresult === TRUE)
+                {
+                    //Literal true value!
+                    $isvalid = TRUE;
+                } else {
+                    //Dig deeper treating result as a string
+                    $clean = strtoupper(trim($rawresult));
+                    if($clean == '1' || $clean == 'TRUE')
+                    {
+                        $isvalid = TRUE;
+                    }
+                }
+            }
+            return $isvalid;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function verifyNoteTitleMapping($checkVistaNoteIEN, $checkVistaNoteTitle)
     {
-        $titlemap = $this->getNoteTitles($checkVistaNoteTitle);
-        if(is_array($titlemap) && isset($titlemap[$checkVistaNoteIEN]))
+        try
         {
-            foreach($titlemap[$checkVistaNoteIEN] as $onetitle)
+            $titlemap = $this->getNoteTitles($checkVistaNoteTitle);
+            if(is_array($titlemap) && isset($titlemap[$checkVistaNoteIEN]))
             {
-                if($checkVistaNoteTitle == $onetitle)
+                foreach($titlemap[$checkVistaNoteIEN] as $onetitle)
                 {
-                    return TRUE;
+                    if($checkVistaNoteTitle == $onetitle)
+                    {
+                        return TRUE;
+                    }
                 }
             }
+            return FALSE;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return FALSE;
     }
 
     public function getNoteTitles($startingitem)
