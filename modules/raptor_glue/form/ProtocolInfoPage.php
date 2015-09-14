@@ -2247,7 +2247,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                     if(count($aChecklistData)>0)
                     {
                         //Write the checklist note
-                        $newNoteIen = $ehrDao->writeRaptorSafetyChecklist($aChecklistData,$encounterString,NULL);
+                        $newNoteIen = $ehrDao->writeRaptorSafetyChecklist($aChecklistData, $encounterString, NULL);
                         $ehrDao->signNote($newNoteIen, $eSig);
                     }
 
@@ -2266,7 +2266,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 }
                 if($newNoteIen != NULL)
                 {
-                    error_log('commitDataToVista got newNoteIen=['.$newNoteIen.'] for encounter string='.$encounterString);   
+                    error_log('commitDataToVista got newNoteIen=['.$newNoteIen.']'
+                            . ' for encounter string='.$encounterString . ' >> ' . print_r($newNoteIen,TRUE));   
                 }
 
             } catch (\Exception $ex) {

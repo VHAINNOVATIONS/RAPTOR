@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150913.4');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150914.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -1539,18 +1539,18 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
 
     public function getEncounterStringFromVisit($visitTO)
     {
-error_log("LOOK EWD >>> getEncounterStringFromVisit >>>" . print_r($visitTO,TRUE));
+//error_log("LOOK EWD >>> getEncounterStringFromVisit >>>" . print_r($visitTO,TRUE));
         if($visitTO == NULL)
         {
             throw new \Exception('Cannot pass a NULL visitTo into getEncounterStringFromVisit!');
         }
         try
         {
-            if(!isset($visitTO['locationId']) || $visitTO['locationId'] == '')
+            if(!isset($visitTO['location']) || !isset($visitTO['location']['id']))
             {
                 throw new \Exception('Did not get a valid locationId from visit item '.print_r($visitTO,TRUE));
             }
-            return $visitTO['locationId'].';'.$visitTO['timestamp'].';A';
+            return $visitTO['location']['id'] . ';' . $visitTO['timestamp'] . ';' . $visitTO['type'];
         } catch (\Exception $ex) {
             throw $ex;
         }
