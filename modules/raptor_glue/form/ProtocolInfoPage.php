@@ -2267,7 +2267,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                 if($newNoteIen != NULL)
                 {
                     error_log('commitDataToVista got newNoteIen=['.$newNoteIen.']'
-                            . ' for encounter string='.$encounterString . ' >> ' . print_r($newNoteIen,TRUE));   
+                            . ' for encounter string='.$encounterString . ' >>> ' . print_r($newNoteIen,TRUE));   
                 }
 
             } catch (\Exception $ex) {

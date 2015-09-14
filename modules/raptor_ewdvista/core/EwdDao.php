@@ -1539,7 +1539,6 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
 
     public function getEncounterStringFromVisit($visitTO)
     {
-//error_log("LOOK EWD >>> getEncounterStringFromVisit >>>" . print_r($visitTO,TRUE));
         if($visitTO == NULL)
         {
             throw new \Exception('Cannot pass a NULL visitTo into getEncounterStringFromVisit!');
@@ -1555,7 +1554,6 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             throw $ex;
         }
     }
-
     
     /**
      * Return NULL if no problems.
@@ -1686,8 +1684,18 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
 
     public function signNote($newNoteIen, $eSig)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $args = array();
+            $args['noteIen'] = $newNoteIen;
+            $args['eSig'] = $eSig;
+            $serviceName = $this->getCallingFunctionName();
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));            
+            return $newNoteIen;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function userHasKeyOREMAS()
