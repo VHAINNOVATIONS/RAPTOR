@@ -59,7 +59,7 @@ class NotesHelper
     {
         try
         {
-//error_log("LOOK notes stuff raw >>>".print_r($rawresult, TRUE));
+error_log("LOOK notes stuff raw >>>".print_r($rawresult, TRUE));
             if(!is_array($rawresult))
             {
                 $errmsg = "Expected an array for notes result but instead got $rawresult";
@@ -69,13 +69,15 @@ class NotesHelper
             $formatted = array();
             foreach($rawresult as $onegroup)
             {
-//error_log("LOOK notes one group stuff >>>".print_r($onegroup, TRUE));
-                foreach($onegroup as $blocks)
-                {
+                $onenoteitem = $onegroup['WP'];
+error_log("LOOK notes one group stuff >>>".print_r($onegroup, TRUE));
+
+                //foreach($wp as $onenoteitem)
+                //{
 //error_log("LOOK notes blocks >>>".print_r($blocks, TRUE));
-                    foreach($blocks as $onenoteitem)
-                    {
-    //error_log("LOOK notes one item >>>".print_r($onenoteitem, TRUE));
+                    //foreach($blocks as $onenoteitem)
+                    //{
+//error_log("LOOK notes one item >>>".print_r($onenoteitem, TRUE));
 
                         if(!isset($onenoteitem[self::$FLD_TITLE]))
                         {
@@ -123,17 +125,18 @@ class NotesHelper
                         }
                         $notetext = implode("\n",$clean_notetext_ar);
                         $formatted[] = array(
-                                            "Type"=>$localTitle, 
-                                            "Date"=>$datetimestr,
-                                            "Snippet" => $snippetText,
-                                            "Details" => array('Type of Note'=>$localTitle, 
-                                                            'Author'=>$authorName, 
-                                                            'Note Text'=>$notetext, 
-                                                            'Facility'=>$facility,
-                                                )
+                                'Type'=>$localTitle, 
+                                'Date'=>$datetimestr,
+                                'Snippet' => $snippetText,
+                                'Details' => array(
+                                        'Type of Note'=>$localTitle, 
+                                        'Author'=>$authorName, 
+                                        'Note Text'=>$notetext, 
+                                        'Facility'=>$facility,
+                                    )
                             );
-                    }
-                }
+                    //}
+                //}
             }
             /*
             $formatted[] = array(
@@ -148,6 +151,7 @@ class NotesHelper
                     )
                 );
              */
+error_log("LOOK notes final >>>".print_r($formatted, TRUE));
             
             return $formatted;
         } catch (\Exception $ex) {
