@@ -220,16 +220,18 @@ class MatchOrderToUser
                 } else {
                     $nDO=$nNow;
                 }
-                $nDeltaDO=abs($nNow-$nDO);
-
-                $n1Days=86400; //60*60*24
-                $n7Days=604800;
-                $nWeeksOld=ceil($nDeltaDO/$n7Days);
-                if($nWeeksOld > 0)
+                $nDeltaDO=($nNow-$nDO); //20150914
+                if($nDeltaDO > 0)
                 {
-                    $addscore = (10 * $nWeeksOld);
-                    $comment['age1'] = $addscore;
-                    $score+=$addscore;
+                    $n1Days=86400; //60*60*24
+                    $n7Days=604800;
+                    $nWeeksOld=ceil($nDeltaDO/$n7Days);
+                    if($nWeeksOld > 0)
+                    {
+                        $addscore = (10 * $nWeeksOld);
+                        $comment['age1'] = $addscore;
+                        $score+=$addscore;
+                    }
                 }
             }
 
@@ -246,16 +248,18 @@ class MatchOrderToUser
                 } else {
                     $nDO=$nNow;
                 }
-                $nDeltaDO=abs($nNow-$nDO);
-
-                $n1Days=86400; //60*60*24
-                $n7Days=604800;
-                $nDaysOld=ceil($nDeltaDO/$n1Days);
-                if($nDaysOld > 0)
+                $nDeltaDO=($nNow-$nDO); //20150914
+                if($nDeltaDO > 0)
                 {
-                    $addscore = $nDaysOld;
-                    $comment['age2'] = $addscore;
-                    $score+=$addscore;
+                    $n1Days=86400; //60*60*24
+                    $n7Days=604800;
+                    $nDaysOld=ceil($nDeltaDO/$n1Days);
+                    if($nDaysOld > 0)
+                    {
+                        $addscore = $nDaysOld;
+                        $comment['age2'] = $addscore;
+                        $score+=$addscore;
+                    }
                 }
             }
         }
