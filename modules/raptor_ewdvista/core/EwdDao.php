@@ -1709,24 +1709,11 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
             $args['eSig'] = $eSig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-            
-error_log("LOOK EWD validateEsig($eSig)>>>".print_r($rawresult,TRUE));
-            $isvalid = FALSE;   //Assume not valid until prover otherwise by result
-            if($rawresult > '')
+            if(!isset($rawresult['result']))
             {
-                if($rawresult === TRUE)
-                {
-                    //Literal true value!
-                    $isvalid = TRUE;
-                } else {
-                    //Dig deeper treating result as a string
-                    $clean = strtoupper(trim($rawresult));
-                    if($clean == '1' || $clean == 'TRUE')
-                    {
-                        $isvalid = TRUE;
-                    }
-                }
+                throw new \Exception("The $serviceName result is corrupt!");
             }
+            $isvalid = $rawresult['result'];
             return $isvalid;
         } catch (Exception $ex) {
             throw $ex;
