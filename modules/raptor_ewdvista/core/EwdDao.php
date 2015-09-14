@@ -334,7 +334,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI('GET', $url, FALSE, $header);            
-        error_log("LOOK JSON DATA for GET@URL=$url has result = " . print_r($json_string, TRUE));
+        //error_log("LOOK JSON DATA for GET@URL=$url has result = " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
             //error_log("Finish EWD $serviceName at " . microtime(TRUE));
@@ -444,17 +444,17 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 {
                     $matching_offset = count($show_rows) + $bundle['matching_offset'];
                 }
-error_log("LOOK pending_orders_map 1 >>>" . print_r($bundle['pending_orders_map'],TRUE));
+//error_log("LOOK pending_orders_map 1 >>>" . print_r($bundle['pending_orders_map'],TRUE));
                 foreach($bundle['pending_orders_map'] as $patientId=>$patientOrders)
                 {
                     if(!isset($pending_orders_map[$patientId]))
                     {
                         //Just insert it
                         $pending_orders_map[$patientId] = $patientOrders;
-error_log("LOOK pending_orders_map just adding for $patientId");
+//error_log("LOOK pending_orders_map just adding for $patientId");
                     } else {
                         //Merge it (Do this ourselves instead because PHP array_merge is buggy!)
-error_log("LOOK pending_orders_map merging for $patientId");
+//error_log("LOOK pending_orders_map merging for $patientId");
                         foreach($patientOrders as $onepatientordertid=>$onepatientorderdetail)
                         {
                             $pending_orders_map[$patientId][$onepatientordertid] = $onepatientorderdetail;
@@ -466,7 +466,7 @@ error_log("LOOK pending_orders_map merging for $patientId");
                 $row_bundles[] = $formated_datarows;
 //error_log("LOOK at page $pages getting more pages? ($getmorepages) >>>".print_r($row_bundles,TRUE));
             }
-error_log("LOOK pending_orders_map 2 ($max_rows_one_call rows scanned) >>>" . print_r($pending_orders_map,TRUE));
+//error_log("LOOK pending_orders_map 2 ($max_rows_one_call rows scanned) >>>" . print_r($pending_orders_map,TRUE));
             $show_rows = $row_bundles[0];
             
             //Scanned enough to populate the pending orders?
@@ -496,7 +496,7 @@ error_log("LOOK pending_orders_map 2 ($max_rows_one_call rows scanned) >>>" . pr
                             ,'pending_orders_map' => $pending_orders_map
                 );
 
-error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
+//error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
 
             //Done!
             return $aResult;
@@ -804,13 +804,13 @@ error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,
             } else {
                 $pid = $this->getSelectedPatientID();
             }
-error_log("LOOK 1 starting getDiagnosticLabsDetailMap($pid)...");
+//error_log("LOOK 1 starting getDiagnosticLabsDetailMap($pid)...");
             $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
-error_log("LOOK 2 starting getDiagnosticLabsDetailMap($pid)...");
+//error_log("LOOK 2 starting getDiagnosticLabsDetailMap($pid)...");
             $alldata = $myhelper->getLabsDetailData($pid);
-error_log("LOOK 3 starting getDiagnosticLabsDetailMap($pid)...");
+//error_log("LOOK 3 starting getDiagnosticLabsDetailMap($pid)...");
             $clean_result = $alldata[0];
-error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_result,TRUE));
+//error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_result,TRUE));
             return $clean_result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1664,7 +1664,7 @@ error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_resu
             $vitalsbundle = $this->getRawVitalSignsMap();
             $myhelper = new \raptor_ewdvista\VitalsHelper();
             $summary = $myhelper->getVitalsSummary($vitalsbundle);
-error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));  
+//error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));  
             return $summary;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1691,7 +1691,7 @@ error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));
             $args['eSig'] = $eSig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));            
+//error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));            
             return $newNoteIen;
         } catch (Exception $ex) {
             throw $ex;

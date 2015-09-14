@@ -3019,10 +3019,11 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
             }
             $aCandidateData['CURRENT_ALLERGIES'] = $aAllergies;
 
-            $aCandidateData['KWL_RARE_CONTRAST'] = \raptor\CustomKeywords::getBloodThinnerKeywords();
+            $aCandidateData['KWL_RARE_CONTRAST'] = \raptor\CustomKeywords::getRareContrastKeywords();   //20150914
             $aCandidateData['KWL_RARE_RADIOISOTOPE'] = \raptor\CustomKeywords::getRareRadioisotopeKeywords();
             $aCandidateData['KWL_BLOOD_THINNER'] = \raptor\CustomKeywords::getBloodThinnerKeywords();
             $aCandidateData['KWL_CONTRAST_ALLERGY_INDICATOR'] = \raptor\CustomKeywords::getAllergyContrastKeywords();
+            $aCandidateData['KWL_ATRISK_MEDS'] = \raptor\CustomKeywords::getAtRiskMedsKeywords(); //20150914
 
             //Get meds to pass in.
             $aMeds = array();

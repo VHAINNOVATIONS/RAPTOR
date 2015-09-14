@@ -76,4 +76,8 @@ class CustomKeywords
         return self::getKeywordsFromTable('raptor_atrisk_bloodthinner');
     }
     
+    public static function getAtRiskMedsKeywords()
+    {
+        return self::getKeywordsFromTable('raptor_atrisk_meds');
+    }
 }

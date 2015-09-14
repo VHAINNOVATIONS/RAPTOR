@@ -46,7 +46,7 @@ class WebServices
         try
         {
             $curl = curl_init();
-error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($headers_ar,TRUE));            
+//error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($headers_ar,TRUE));            
             
             switch ($methodtype)
             {
@@ -94,6 +94,7 @@ error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($h
             //error_log("LOOK (0000005) callAPI executes following curl: " . print_r($curl,TRUE));
 
             curl_close($curl);
+            /*
 $debug_result_text = print_r($result,TRUE);
 $debug_rawlen_result_text = strlen($debug_result_text);
 $debug_maxtolog = 4000;
@@ -103,7 +104,7 @@ if($debug_rawlen_result_text > $debug_maxtolog)
             . " ... ONLY LOGGED $debug_maxtolog chars (Original size $debug_rawlen_result_text chars)";
 }
 error_log("LOOK callAPI result from $methodtype@$url is =".$debug_result_text);            
-            
+      */      
             return $result;
         } catch (\Exception $ex) {
             throw new \Exception("Failed callAPI($methodtype, $url, $data_ar) because ".$ex,99888,$ex);

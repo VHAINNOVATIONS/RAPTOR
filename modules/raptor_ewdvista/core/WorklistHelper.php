@@ -393,7 +393,7 @@ class WorklistHelper
                             ,'matching_offset'=>$nOffsetMatchIEN
                             ,'last_ien'=>$last_ien
                             ,'all_rows'=>&$formatted_datarows);
-error_log("LOOK bundle >>>".print_r($bundle,TRUE));
+//error_log("LOOK bundle >>>".print_r($bundle,TRUE));
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;

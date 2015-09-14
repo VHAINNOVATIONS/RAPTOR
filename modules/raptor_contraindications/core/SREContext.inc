@@ -124,6 +124,7 @@ class SREContext extends \simplerulesengine\ASREContext
             ,'KWL_RARE_CONTRAST'
             ,'KWL_RARE_RADIOISOTOPE'
             ,'KWL_BLOOD_THINNER'
+            ,'KWL_ATRISK_MEDS'
             ,'KWL_CONTRAST_ALLERGY_INDICATOR'
             );
         foreach($aNames as $sName)
