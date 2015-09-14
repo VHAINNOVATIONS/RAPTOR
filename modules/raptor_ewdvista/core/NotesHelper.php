@@ -59,7 +59,6 @@ class NotesHelper
     {
         try
         {
-error_log("LOOK notes stuff raw >>>".print_r($rawresult, TRUE));
             if(!is_array($rawresult))
             {
                 $errmsg = "Expected an array for notes result but instead got $rawresult";
@@ -70,89 +69,63 @@ error_log("LOOK notes stuff raw >>>".print_r($rawresult, TRUE));
             foreach($rawresult as $onegroup)
             {
                 $onenoteitem = $onegroup['WP'];
-error_log("LOOK notes one group stuff >>>".print_r($onegroup, TRUE));
-
-                //foreach($wp as $onenoteitem)
-                //{
-//error_log("LOOK notes blocks >>>".print_r($blocks, TRUE));
-                    //foreach($blocks as $onenoteitem)
-                    //{
-//error_log("LOOK notes one item >>>".print_r($onenoteitem, TRUE));
-
-                        if(!isset($onenoteitem[self::$FLD_TITLE]))
-                        {
-                            $localTitle = NULL;
-                        } else {
-                            $localTitle = $this->getFieldTextData($onenoteitem[self::$FLD_TITLE]);
-                        }
-                        if(!isset($onenoteitem[self::$FLD_DATETIMESTR]))
-                        {
-                            $datetimestr = NULL;
-                        } else {
-                            $datetimestr = $this->getFieldTextData($onenoteitem[self::$FLD_DATETIMESTR]);
-                        }
-                        if(strlen($localTitle) > RAPTOR_DEFAULT_SNIPPET_LEN)
-                        {
-                            $snippetText = substr($localTitle, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
-                        } else {
-                            $snippetText = $localTitle;
-                        }
-                        if(!isset($onenoteitem[self::$FLD_AUTHOR]))
-                        {
-                            $authorName = NULL;
-                        } else {
-                            $authorName = $this->getFieldTextData($onenoteitem[self::$FLD_AUTHOR]);
-                        }
-                        if(!isset($onenoteitem[self::$FLD_FACILITY]))
-                        {
-                            $facility = NULL;
-                        } else {
-                            $facility = $this->getFieldTextData($onenoteitem[self::$FLD_FACILITY]);
-                        }
-                        if(!isset($onenoteitem[self::$FLD_DETAILS]))
-                        {
-                            $raw_notetext_ar = NULL;
-                        } else {
-                            $raw_notetext_ar = $onenoteitem[self::$FLD_DETAILS];
-                        }
-                        $clean_notetext_ar = array();
-                        if(is_array($raw_notetext_ar))
-                        {
-                            foreach($raw_notetext_ar as $onerawnotetextrow)
-                            {
-                                $clean_notetext_ar[] = $this->getFieldTextData($onerawnotetextrow);
-                            }
-                        }
-                        $notetext = implode("\n",$clean_notetext_ar);
-                        $formatted[] = array(
-                                'Type'=>$localTitle, 
-                                'Date'=>$datetimestr,
-                                'Snippet' => $snippetText,
-                                'Details' => array(
-                                        'Type of Note'=>$localTitle, 
-                                        'Author'=>$authorName, 
-                                        'Note Text'=>$notetext, 
-                                        'Facility'=>$facility,
-                                    )
-                            );
-                    //}
-                //}
+                if(!isset($onenoteitem[self::$FLD_TITLE]))
+                {
+                    $localTitle = NULL;
+                } else {
+                    $localTitle = $this->getFieldTextData($onenoteitem[self::$FLD_TITLE]);
+                }
+                if(!isset($onenoteitem[self::$FLD_DATETIMESTR]))
+                {
+                    $datetimestr = NULL;
+                } else {
+                    $datetimestr = $this->getFieldTextData($onenoteitem[self::$FLD_DATETIMESTR]);
+                }
+                if(strlen($localTitle) > RAPTOR_DEFAULT_SNIPPET_LEN)
+                {
+                    $snippetText = substr($localTitle, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
+                } else {
+                    $snippetText = $localTitle;
+                }
+                if(!isset($onenoteitem[self::$FLD_AUTHOR]))
+                {
+                    $authorName = NULL;
+                } else {
+                    $authorName = $this->getFieldTextData($onenoteitem[self::$FLD_AUTHOR]);
+                }
+                if(!isset($onenoteitem[self::$FLD_FACILITY]))
+                {
+                    $facility = NULL;
+                } else {
+                    $facility = $this->getFieldTextData($onenoteitem[self::$FLD_FACILITY]);
+                }
+                if(!isset($onenoteitem[self::$FLD_DETAILS]))
+                {
+                    $raw_notetext_ar = NULL;
+                } else {
+                    $raw_notetext_ar = $onenoteitem[self::$FLD_DETAILS];
+                }
+                $clean_notetext_ar = array();
+                if(is_array($raw_notetext_ar))
+                {
+                    foreach($raw_notetext_ar as $onerawnotetextrow)
+                    {
+                        $clean_notetext_ar[] = $this->getFieldTextData($onerawnotetextrow);
+                    }
+                }
+                $notetext = implode("\n",$clean_notetext_ar);
+                $formatted[] = array(
+                        'Type'=>$localTitle, 
+                        'Date'=>$datetimestr,
+                        'Snippet' => $snippetText,
+                        'Details' => array(
+                                'Type of Note'=>$localTitle, 
+                                'Author'=>$authorName, 
+                                'Note Text'=>$notetext, 
+                                'Facility'=>$facility,
+                            )
+                    );
             }
-            /*
-            $formatted[] = array(
-                'Type' => 'RAPTOR SAFETY CHECKLIST',
-                'Date' => '07/16/2015 02:51 pm',
-                'Snippet' => 'RAPTOR SAFETY CHECKLIST',
-                'Details' => array
-                    (
-                        'Type of Note' => 'RAPTOR SAFETY CHECKLIST',
-                        'Author' => NULL,
-                        'Note Text' =>  'demo 123 LOCAL TITLE: RAPTOR SAFETY CHECKLIST yadayada',
-                    )
-                );
-             */
-error_log("LOOK notes final >>>".print_r($formatted, TRUE));
-            
             return $formatted;
         } catch (\Exception $ex) {
             throw $ex;
