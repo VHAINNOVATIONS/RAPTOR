@@ -126,7 +126,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             //error_log("Got initial field values for replace order DD=[".$aOneRow['DesiredDate']."]>>>".print_r($myvalues,TRUE));
 
             return $myvalues;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }

@@ -68,7 +68,7 @@ class DashboardHelper
             
             //deprecated 20150912 $dashboard['MapPendingOrders']     = $therow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
             
-            $dashboard['RadiologyOrderStatus']     = $therow[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS];
+            $dashboard['RadiologyOrderStatus']     = $therow[\raptor\WorklistColumnMap::WLIDX_EHR_RADIOLOGYORDERSTATUS];
 
             $aSchedInfo                     = $therow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO];
             $dashboard['SchedInfo']         = $aSchedInfo;

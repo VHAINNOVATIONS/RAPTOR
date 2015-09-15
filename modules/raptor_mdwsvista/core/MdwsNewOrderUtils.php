@@ -164,30 +164,8 @@ class MdwsNewOrderUtils {
                 }
                 $result['shortList'] = $shortList;
             }
-
-            /* 
-             * Deprecated last7DaysExams on 20150911 because not in use by RAPTOR
-            // last 7 days of exams for patient
-            $result['last7DaysExams'] = array();
-            if (isset($dialog->lastSevenDaysExams) 
-                    && isset($dialog->lastSevenDaysExams->ImagingExamTO)
-                    && count($dialog->lastSevenDaysExams->ImagingExamTO) > 0) {
-                $exams = array();
-                if (!is_array($dialog->lastSevenDaysExams->ImagingExamTO)) {
-                    //20150525
-                    $dialog->lastSevenDaysExams->ImagingExamTO = array($dialog->lastSevenDaysExams->ImagingExamTO);
-                }            
-                $examsCount = count($dialog->lastSevenDaysExams->ImagingExamTO);
-                for ($i = 0; $i < $examsCount; $i++) {
-                    $examId = $dialog->lastSevenDaysExams->ImagingExamTO[$i]->id;
-                    $examName = $dialog->lastSevenDaysExams->ImagingExamTO[$i]->name;
-                    $exams[$procId] = $examName;
-                }
-                $result['last7DaysExams'] = $exams;
-            }
-            */
             return $result;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }
@@ -405,7 +383,7 @@ class MdwsNewOrderUtils {
             }
     error_log("LOOK MDWS getRadiologyOrderChecks result >>> " . print_r($result,TRUE));        
             return $result;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }   

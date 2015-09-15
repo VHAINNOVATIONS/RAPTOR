@@ -93,11 +93,15 @@ class ProtocolInfoUtility
             {
                 $result_tx = $myvalues[$rootname . 'customtx'];
             } else {
-                if(trim($myvalues[$rootname . 'id'])  > '')
+                //Make sure values are available
+                if(isset($myvalues[$rootname . 'id']))
                 {
-                    $result_tx = $myvalues[$rootname . 'id'];
-                } else {
-                    $result_tx = $myvalues[$rootname . 'customtx'];
+                    if(trim($myvalues[$rootname . 'id'])  > '')
+                    {
+                        $result_tx = $myvalues[$rootname . 'id'];
+                    } else {
+                        $result_tx = $myvalues[$rootname . 'customtx'];
+                    }
                 }
             }
             return $result_tx;

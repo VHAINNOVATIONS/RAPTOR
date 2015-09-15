@@ -208,7 +208,7 @@ class WorklistData
                         break;
                 }
                 $t[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION]     = $exploded[self::WLVFO_ExamCategory];
-                $t[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC]         = 'TODO ANATOMY';   //Placeholder for anatomy keywords
+                $t[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC]         = NULL;    //Fill if VistA order tells us
 
 
                 //Only show an assignment if ticket has not yet moved downstream in the workflow.
@@ -227,7 +227,7 @@ class WorklistData
                     $t[\raptor\WorklistColumnMap::WLIDX_ASSIGNEDUSER] = '';
                 }
 
-                $t[\raptor\WorklistColumnMap::WLIDX_ORDERSTATUS]  = '?ORDER STATUS?';   //Placeholder for Order Status
+                $t[\raptor\WorklistColumnMap::WLIDX_EHR_ORDERSTATUS]  = '';   //Placeholder for Order Status (fill later)
 
                 $t[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER]      = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
 
@@ -374,7 +374,8 @@ class WorklistData
                     $t[\raptor\WorklistColumnMap::WLIDX_RANKSCORE] = $match_order_to_user->getTicketRelevance($t);
 
                     $t[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = $exploded[self::WLVFO_OrderFileIen]; 
-                    $t[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS] = $vista_order_status_code; //Status from VistA
+                    $t[\raptor\WorklistColumnMap::WLIDX_EHR_ORDERSTATUS] = $vista_order_status_code; //Status from VistA
+                    $t[\raptor\WorklistColumnMap::WLIDX_EHR_RADIOLOGYORDERSTATUS] = $vista_order_status_code; //Status from VistA
 
                     //Add this row to the worklist because modality not blank.
                     $worklist[$offset] = $t;    
@@ -731,7 +732,7 @@ class WorklistData
             $t['CountPendingOrders']   = $row[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT];
             $t['DEPRECATE_MapPendingOrders']     = $row[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT];
             $t['OrderFileIen']          = $row[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN];
-            $t['RadiologyOrderStatus']  = $row[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS];
+            $t['RadiologyOrderStatus']  = $row[\raptor\WorklistColumnMap::WLIDX_EHR_RADIOLOGYORDERSTATUS];
 
 error_log("LOOK MDWS dashboard thing to return>>>" . print_r($t,TRUE));            
             return $t;

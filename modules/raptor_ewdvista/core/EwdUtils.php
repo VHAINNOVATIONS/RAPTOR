@@ -154,7 +154,7 @@ class EwdUtils
             $day = substr($datePart, 6, 2);
 
             return $month."-".$day."-".$year;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }

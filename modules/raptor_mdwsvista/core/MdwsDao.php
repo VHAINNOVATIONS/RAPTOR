@@ -688,7 +688,7 @@ if(count($result) > 0)
     error_log("LOOK MDWS getProcedureLabsDetailMap HAS DATA!!!!! $this >>> " . print_r($result,TRUE));
 }
             return $result;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }
@@ -706,7 +706,7 @@ if(count($result) > 0)
             $result = $this->getProtocolSupportingData('getDiagnosticLabsDetail',NULL,NULL,$override_patientId);
 error_log("LOOK MDWS getDiagnosticLabsDetail >>> " . print_r($result,TRUE));
             return $result;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }

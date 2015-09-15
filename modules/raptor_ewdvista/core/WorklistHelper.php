@@ -36,21 +36,31 @@ class WorklistHelper
 {
     
     //Worklist EWD vista result value keys
-    const WLVFO_IEN             = 'IEN';                    // 0;
-    const WLVFO_PatientID             = 'PatientID';	                       // 1;
-    const WLVFO_PatientName           = 'PatientName';	                      // 2;
-    const WLVFO_ExamCategory          = 'ExamCategory';	                      // 3;
-    const WLVFO_RequestingPhysician   = 'RequestingPhysician';	             // 4;
-    const WLVFO_OrderedDate           = 'OrderedDate';	                     // 5;
-    const WLVFO_Procedure             = 'Procedure';	                           // 6;
-    const WLVFO_ImageType             = 'ImageType';	                           // 7;
-    const WLVFO_ExamLocation          = 'ExamLocation';	                           // 8;
-    const WLVFO_Urgency               = 'Urgency';	                               // 9;
-    const WLVFO_Nature                = 'Nature';	                               // 10;
-    const WLVFO_Transport             = 'Transport';	                           // 11;
-    const WLVFO_DesiredDate           = 'DesiredDate';	                          // 12;
-    const WLVFO_OrderFileIen          = 'OrderFileIen';	                          // 13;
-    const WLVFO_RadOrderStatus        = 'RadOrderStatus';                  // 14;
+    const WLVFO_IEN                   = 'IEN';                           // 0;
+    const WLVFO_PatientID             = 'PatientID';	                 // 1;
+    const WLVFO_PatientName           = 'PatientName';	                 // 2;
+    const WLVFO_ExamCategory          = 'ExamCategory';	                 // 3;
+    const WLVFO_RequestingPhysician   = 'RequestingPhysician';	         // 4;
+    const WLVFO_OrderedDate           = 'OrderedDate';	                 // 5;
+    const WLVFO_Procedure             = 'Procedure';	                 // 6;
+    const WLVFO_ImageType             = 'ImageType';	                 // 7;
+    const WLVFO_ExamLocation          = 'ExamLocation';	                 // 8;
+    const WLVFO_Urgency               = 'Urgency';	                 // 9;
+    const WLVFO_Nature                = 'Nature';	                 // 10;
+    const WLVFO_Transport             = 'Transport';	                 // 11;
+    const WLVFO_DesiredDate           = 'DesiredDate';	                 // 12;
+    const WLVFO_OrderFileIen          = 'OrderFileIen';	                 // 13;
+    const WLVFO_RadOrderStatus        = 'RadOrderStatus';                // 14;
+    
+    //Values of Order Status http://code.osehra.org/dox/Global_XlJBTyg3NS4x.html
+    const WLVOS_DISCONTINUED = 1;
+    const WLVOS_COMPLETE = 2;
+    const WLVOS_HOLD = 3;
+    const WLVOS_PENDING = 5;
+    const WLVOS_ACTIVE = 6;
+    const WLVOS_SCHEDULED = 8;
+    const WLVOS_UNRELEASED = 11;
+    
     
     
     private function getScheduleMarkupArray($sqlScheduleTrackRow)
@@ -177,15 +187,29 @@ class WorklistHelper
             $formatted_datarows = array();
             $rownum = 0;
             $last_ien = NULL;
+            $skipped_because_status = 0;
+            $skipped_because_other = 0;
             foreach($unformatted_datarows as $onerow)
             {
                 if(isset($onerow['PatientID']) && isset($onerow['Procedure']))
                 {
                     $ienKey = $onerow[self::WLVFO_IEN];
                     $patientID = $onerow['PatientID'];
+                    $vista_order_status_code = $onerow[self::WLVFO_RadOrderStatus];
+                    
                     $sqlTicketTrackRow = array_key_exists($ienKey, $ticketTrackingRslt) ? $ticketTrackingRslt[$ienKey] : NULL;
                     $sqlTicketCollaborationRow = array_key_exists($ienKey, $ticketCollabRslt) ? $ticketCollabRslt[$ienKey] : NULL;
                     $sqlScheduleTrackRow = array_key_exists($ienKey, $scheduleTrackRslt) ? $scheduleTrackRslt[$ienKey] : NULL;
+                    
+                    $raptor_order_status  = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : NULL);
+                    if($raptor_order_status == NULL 
+                        && ($vista_order_status_code != self::WLVOS_ACTIVE && $vista_order_status_code != self::WLVOS_PENDING))
+                    {
+                        //We will NOT show this ticket in the worklist
+                        $skipped_because_status++;
+                        continue;
+                    }
+                    
                     $workflowstatus = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : 'AC');
                     $studyname = $onerow['Procedure'];
                     $imagetype = $onerow['ImageType'];
@@ -195,8 +219,10 @@ class WorklistHelper
                         $modality = $language_infer->inferModalityFromPhrase($studyname);
                     }
                     //Add the clean row to our collection of rows.
-                    if($modality > '')
+                    if($modality == '')
                     {
+                        $skipped_because_other++;
+                    } else {
                         //We have usable data for this one.
                         $rownum++;
                         $cleanrow = array();
@@ -214,20 +240,56 @@ class WorklistHelper
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE] = $imagetype;
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = $this->getScheduleMarkupArray($sqlScheduleTrackRow);
 
-                        //set elsewhere $cleanrow[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 'todo123';
-                        //set elsewhere $cleanrow[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = 'todo20'; 
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = $onerow[self::WLVFO_ExamLocation];
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = $onerow[self::WLVFO_RequestingPhysician];
                         
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC] = 'TODO ANATOMY';   //Placeholder for anatomy keywords
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERSTATUS] = '?ORDER STATUS?';   //Placeholder for Order Status
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC] = NULL; //Fill if VistA order tells us
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER]  = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
                         $cleanrow[\raptor\WorklistColumnMap::WLIDX_CPRSCODE] = '';   //Placeholder for the CPRS code associated with this ticket
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = 23;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = 24;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_RADIOLOGYORDERSTATUS] = 25;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATETIMEDESIRED] = 26;
-                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATEORDERED] = 27;
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = $onerow[self::WLVFO_OrderFileIen]; 
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EHR_ORDERSTATUS] = $vista_order_status_code;
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_EHR_RADIOLOGYORDERSTATUS] = $vista_order_status_code;
+                        
+                        $desired_date_raw = $onerow[self::WLVFO_DesiredDate];
+                        $t[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED] = $desired_date_raw;
+                        if(strpos($desired_date_raw, '@') !== FALSE)
+                        {
+                            $desired_date_parts=explode('@',$desired_date_raw);
+                            $desired_date_justdate=$desired_date_parts[0];
+                            $desired_date_justtime=$desired_date_parts[1];
+                            $desired_date_timestamp = strtotime($desired_date_justdate);  
+                            $desired_date_iso8601 = date('Y-m-d ',$desired_date_timestamp) . $desired_date_justtime;
+                        } else {
+                            $desired_date_justdate=$desired_date_raw;
+                            $desired_date_timestamp = strtotime($desired_date_justdate);  
+                            $desired_date_iso8601 = date('Y-m-d',$desired_date_timestamp);
+                        }
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATETIMEDESIRED] = $desired_date_iso8601;
+                        
+                        if($onerow[self::WLVFO_OrderedDate] !== '' 
+                                && ($last = strrpos($onerow[self::WLVFO_OrderedDate], ':')) !== FALSE)
+                        {
+                            //Remove the seconds from the time.
+                            $dateordered_raw = substr($onerow[self::WLVFO_OrderedDate], 0, $last);
+                        } else {
+                            //Assume there is no time portion.
+                            $dateordered_raw = $onerow[self::WLVFO_OrderedDate];
+                        }
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_DATEORDERED]     = $dateordered_raw;
+                        if(strpos($dateordered_raw, '@') !== FALSE)
+                        {
+                            $dateordered_parts=explode('@',$dateordered_raw);
+                            $dateordered_justdate=$dateordered_parts[0];
+                            $dateordered_justtime=$dateordered_parts[1];
+                            $dateordered_timestamp = strtotime($dateordered_justdate);  
+                            $dateordered_iso8601 = date('Y-m-d ',$dateordered_timestamp) . ' ' . $dateordered_justtime;
+                        } else {
+                            $dateordered_justdate=$dateordered_raw;
+                            $dateordered_timestamp = strtotime($dateordered_justdate);  
+                            $dateordered_iso8601 = date('Y-m-d',$dateordered_timestamp);
+                        }
+                        $cleanrow[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATEORDERED] = $dateordered_iso8601;
+                        
                         $rfs = trim($onerow[self::WLVFO_Nature]);
                         switch ($rfs)
                         {
@@ -341,7 +403,6 @@ class WorklistHelper
                                 'CanceledDT' => $sqlScheduleTrackRow->canceled_dt,
                                 'ShowTx' => $showText
                             );
-                            print_r($sqlScheduleTrackRow, TRUE);
                         } else {
                             //No record exists yet.
                             $cleanrow[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = array(
@@ -394,6 +455,7 @@ class WorklistHelper
                             ,'last_ien'=>$last_ien
                             ,'all_rows'=>&$formatted_datarows);
 //error_log("LOOK bundle >>>".print_r($bundle,TRUE));
+error_log("LOOK EWD WORKLIST skipped orders bc_status=$skipped_because_status bc_other=$skipped_because_other");
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
