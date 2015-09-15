@@ -1691,7 +1691,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['eSig'] = $eSig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-//error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));            
+error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));            
             return $newNoteIen;
         } catch (\Exception $ex) {
             throw $ex;

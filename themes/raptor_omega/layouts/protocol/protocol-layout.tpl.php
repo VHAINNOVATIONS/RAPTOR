@@ -436,7 +436,7 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                         <th>Resp</th>                        
                         <th>Pain</th>                        
                         <th>C/G</th>                        
-                        <th>Pox</th>                        
+                        <th>POx</th>                        
                         <th>CVP</th>                        
                         <th>Blood Glucose</th>                        
                       </tr>
@@ -444,19 +444,19 @@ Drupal.pageData.modality = <?php echo $modalityJSON ?>;
                     <tbody>
                       <?php foreach($vitals_detail as $data_row) { ?>
                       <tr>
-                        <td><?php echo $data_row["Date Taken"] ?></td>
-                        <td><?php echo $data_row["Temp"] ?></td>
-                        <td><?php echo $data_row["Height"] ?></td>
-                        <td><?php echo $data_row["Weight"] ?></td>
-                        <td><?php echo $data_row["BMI"] ?></td>
-                        <td><?php echo $data_row["Blood Pressure"] ?></td>
-                        <td><?php echo $data_row["Pulse"] ?></td>
-                        <td><?php echo $data_row["Resp"] ?></td>
-                        <td><?php echo $data_row["Pain"] ?></td>
-                        <td><?php echo $data_row["C/G"] ?></td>
-                        <td><?php echo $data_row["Pox"] ?></td>
-                        <td><?php echo $data_row["CVP"] ?></td>
-                        <td><?php echo $data_row["Blood Glucose"] ?></td>
+                        <td><?php echo $data_row['Date Taken'] ?></td>
+                        <td><?php echo $data_row['Temp'] ?></td>
+                        <td><?php echo $data_row['Height'] ?></td>
+                        <td><?php echo $data_row['Weight'] ?></td>
+                        <td><?php echo $data_row['BMI'] ?></td>
+                        <td><?php echo $data_row['Blood Pressure'] ?></td>
+                        <td><?php echo $data_row['Pulse'] ?></td>
+                        <td><?php echo $data_row['Resp'] ?></td>
+                        <td><?php echo $data_row['Pain'] ?></td>
+                        <td><?php echo $data_row['C/G'] ?></td>
+                        <td><?php echo $data_row['POx'] ?></td>
+                        <td><?php echo $data_row['CVP'] ?></td>
+                        <td><?php echo $data_row['Blood Glucose'] ?></td>
                       </tr>
                       <?php } ?>
                     </tbody>

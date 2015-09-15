@@ -367,7 +367,7 @@ class ProtocolSupportingData
         $aLatestValues['Resp'] = NULL;
         $aLatestValues['Pain'] = NULL;
         $aLatestValues['C/G'] = NULL;
-        $aLatestValues['Pox'] = NULL;
+        $aLatestValues['POx'] = NULL;
         $aLatestValues['CVP'] = NULL;
         $aLatestValues['Blood Glucose'] = NULL;
 
@@ -381,7 +381,7 @@ class ProtocolSupportingData
         $aLatestValueDate['Resp'] = NULL;
         $aLatestValueDate['Pain'] = NULL;
         $aLatestValueDate['C/G'] = NULL;
-        $aLatestValueDate['Pox'] = NULL;
+        $aLatestValueDate['POx'] = NULL;
         $aLatestValueDate['CVP'] = NULL;
         $aLatestValueDate['Blood Glucose'] = NULL;
         
@@ -426,7 +426,7 @@ class ProtocolSupportingData
             $displayVitals[$i]['Resp'] = " ";
             $displayVitals[$i]['Pain'] = " ";
             $displayVitals[$i]['C/G'] = " ";
-            $displayVitals[$i]['Pox'] = " ";
+            $displayVitals[$i]['POx'] = " ";
             $displayVitals[$i]['CVP'] = " ";
             $displayVitals[$i]['Blood Glucose'] = " ";
 
@@ -611,7 +611,7 @@ class ProtocolSupportingData
                             $aLatestValues[$thiskey] = $vital->value1;
                         }
                     } elseif(strcasecmp('Pulse Oxymetry', $vital->type->name) == 0){
-                        $thiskey = 'Pox';
+                        $thiskey = 'POx';
                         $displayVitals[$i][$thiskey] = $vital->value1." " 
                                 . (trim($units) == '' ? $defPOXUnits : $units);
                         if($rawTime !== NULL && ($aLatestValueDate[$thiskey]==NULL || $rawTime > $aLatestValueDate[$thiskey]))

@@ -455,7 +455,7 @@ class WorklistHelper
                             ,'last_ien'=>$last_ien
                             ,'all_rows'=>&$formatted_datarows);
 //error_log("LOOK bundle >>>".print_r($bundle,TRUE));
-error_log("LOOK EWD WORKLIST skipped orders bc_status=$skipped_because_status bc_other=$skipped_because_other");
+//error_log("LOOK EWD WORKLIST skipped orders bc_status=$skipped_because_status bc_other=$skipped_because_other");
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;

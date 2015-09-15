@@ -385,6 +385,7 @@ class VitalsHelper
                                         $aLatestValues[$thiskey] = $onecleanvitalsign['value'];
                                     }
                                     break;
+                                    /*
                                 case self::$VFLD_UKNOWN13;
                                     //Empty?
                                     if(count($itemdetail) > 0)
@@ -418,6 +419,8 @@ class VitalsHelper
                                         }
                                     }
                                     break;
+                                     * 
+                                     */
                                 default:
                                     //Unmapped item to simply ignore
                                     $onecleanvitalsign = NULL;
