@@ -92,8 +92,13 @@ class PathologyReportHelper
                     $reportdate = $this->getUserDataFromArray($onereport, self::$FLD_REPORTDATE);
                     $accession = $this->getUserDataFromArray($onereport, self::$FLD_SPECIMEN_ASCESSION_NUM);
                     $detail_tx = trim($this->getUserDataFromArrayOfArray($onereport, self::$FLD_EXAM));
-                    $specimenName = $this->getUserDataFromArrayOfArray($onereport, self::$FLD_SPECIMENS, ',');
-                    $snippet = $specimenName . '...';
+                    $specimenName = trim($this->getUserDataFromArrayOfArray($onereport, self::$FLD_SPECIMENS, ','));
+                    if($specimenName > '')
+                    {
+                        $snippet = $specimenName . '...';
+                    } else {
+                        $snippet = 'specimen not listed...';
+                    }
 
                     $onereport = array(
                             'Title' => 'Surgical Pathology Report',

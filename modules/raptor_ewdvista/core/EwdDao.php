@@ -488,6 +488,15 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                     }
                 }
             }
+/*            
+foreach($show_rows as $onerow)
+{
+    error_log("LOOK worklist one row >>>"  . print_r($onerow,TRUE));
+    $pid = $onerow[1];
+    $this->getPathologyReportsDetailMap($pid);
+}
+ */
+            
             $aResult = array('Pages'=>$pages
                             ,'Page'=>1
                             ,'RowsPerPage'=>$max_rows_one_call
@@ -611,7 +620,23 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)
     {
-        throw new \Exception("Not implemented $patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig");
+        try
+        {
+            $args = array();
+            $args['patientId'] = $patientid;
+            $args['orderId'] = $orderFileIen;
+            $args['userDuz'] = $this->getSessionVariable('userduz');
+            $args['providerId'] = $providerDUZ;
+            $args['locationId'] = $locationthing;
+            $args['reasonId'] = $reasonCode;
+            $args['eSig'] = $cancelesig;
+            $serviceName = $this->getCallingFunctionName();
+            $rawresult = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig) CHECK RESULT>>>" . print_r($rawresult,TRUE));            
+            return $rawresult;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function createNewRadiologyOrder($orderChecks, $args)
@@ -1063,7 +1088,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             }
             if($pid == '')
             {
-                throw new \Exception('Cannot get chem labs detail without a patient ID!');
+                throw new \Exception('Cannot get pathology detail without a patient ID!');
             }
             $myhelper = new \raptor_ewdvista\PathologyReportHelper();
             $serviceName = $this->getCallingFunctionName();
@@ -1073,6 +1098,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['toDate'] = EwdUtils::getVistaDate(0);
             $args['nRpts'] = 1000;
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK EWD count=" . count($rawresult_ar) . " getPathologyReportsDetailMap($override_patientId) raw >>> "  . print_r($rawresult_ar,TRUE) );
             $formatted_detail = $myhelper->getFormattedPathologyReportHelperDetail($rawresult_ar);
             return $formatted_detail;
         } catch (\Exception $ex) {
@@ -1691,7 +1717,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['eSig'] = $eSig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));            
+            //error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));            
             return $newNoteIen;
         } catch (\Exception $ex) {
             throw $ex;

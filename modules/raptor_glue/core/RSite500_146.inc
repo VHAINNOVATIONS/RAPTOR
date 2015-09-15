@@ -59,7 +59,7 @@ defined('DEFAULT_GET_VISIT_DAYS')
 
 //Set default number of days for which to get labs
 defined('DEFAULT_GET_LABS_DAYS')
-    or define('DEFAULT_GET_LABS_DAYS', 8000);
+    or define('DEFAULT_GET_LABS_DAYS', 9999);
 
 //Worklist rank score factors (Icons show at crit>600; urgent>450; high>200; medium>100; low>20)
 defined('WLSCORE_URGENCY_STAT')     //Suggested value is 500
