@@ -21,16 +21,6 @@ $m_oContext = \raptor\Context::getInstance();
 $m_oUserinfo = $raptor_context->getUserInfo();
 $m_aHiddenCols = $m_oUserinfo->getPrefWorklistColsHidden();   //These are the columns we should hide by default.
 
-/*
-if($data_rows === null || !is_array($data_rows))
-{
-    //Work around issue with no data for now. FJF 20140323
-    $data_rows = array(
-        array("NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA","NO_DATA"),
-    );
-}
- */
-
 function get_raptor_workflow_status($code,$assignmentdetails=NULL) 
 {
     $workflowStatusCodes = array(

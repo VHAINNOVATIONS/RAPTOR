@@ -64,8 +64,8 @@ class MatchOrderToUser
         {
             if($oUser->getUserID() == $a['uid'])
             {
-                $score += 100;    
-                $comment['assigned'] = 100;
+                $score += WLSCORE_ASSIGNED;    
+                $comment['assigned'] = WLSCORE_ASSIGNED;
             }
         }
 
@@ -81,11 +81,12 @@ class MatchOrderToUser
                 if($aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'RV')
                 {
                     //Ready for review means something to this user.    20140811
-                    $score += 5;
-                    $comment['review'] = 5;
+                    $score += WLSCORE_REVIEW;
+                    $comment['review'] = WLSCORE_REVIEW;
                 }
             }
-        } else if($aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AP' || $aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'PA' ) {
+        } else if($aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AP' 
+                || $aTicket[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'PA' ) {
             if($oUser->getPrivilegeSetting('CE1') == 1)     //Can complete an examination
             {
                 $bFullScoring = TRUE;
@@ -97,13 +98,13 @@ class MatchOrderToUser
             //Score the urgency.
             if($aTicket[\raptor\WorklistColumnMap::WLIDX_URGENCY] == 'STAT')
             {
-                $score += 500;
-                $comment['STAT'] = 500;
+                $score += WLSCORE_URGENCY_STAT;
+                $comment['STAT'] = WLSCORE_URGENCY_STAT;
             } 
             else if($aTicket[\raptor\WorklistColumnMap::WLIDX_URGENCY] == 'URGENT') 
             {
-                $score += 250;
-                $comment['URGENT'] = 250;
+                $score += WLSCORE_URGENCY_URGENT;
+                $comment['URGENT'] = WLSCORE_URGENCY_URGENT;
             }    
 
             //Factor in the modality too
@@ -116,8 +117,8 @@ class MatchOrderToUser
             if(in_array($aTicket[\raptor\WorklistColumnMap::WLIDX_MODALITY], $aModality))
             {
                 //Position does not matter for modality
-                $score += 20;
-                $comment['modality'] = 20;
+                $score += WLSCORE_MODALITY;
+                $comment['modality'] = WLSCORE_MODALITY;
             }
 
             //Factor in the anatomy keywords
@@ -136,7 +137,7 @@ class MatchOrderToUser
                     $nKWMatches++;
                 }
             }
-            $addscore = 20 * $nKWMatches;
+            $addscore = WLSCORE_KWM_MOST * $nKWMatches;
             $score += $addscore;
             if($nKWMatches > 0)
             {
@@ -151,7 +152,7 @@ class MatchOrderToUser
                     $nKWMatches++;
                 }
             }
-            $addscore = 10 * $nKWMatches;
+            $addscore = WLSCORE_KWM_MODERATE * $nKWMatches;
             $score += $addscore;
             if($nKWMatches > 0)
             {
@@ -166,7 +167,7 @@ class MatchOrderToUser
                     $nKWMatches++;
                 }
             }
-            $addscore = 5 * $nKWMatches;
+            $addscore = WLSCORE_KWM_LEAST * $nKWMatches;
             $score += $addscore;
             if($nKWMatches > 0)
             {
@@ -181,7 +182,7 @@ class MatchOrderToUser
                 if($nEventSched<$nNow)
                 {
                     //Event date has already passed!
-                    $addscore = 900;
+                    $addscore = WLSCORE_MISSED_SCHED_DT;
                     $score += $addscore;
                     $comment['sedt'] = $addscore;
                 } else {
@@ -190,14 +191,14 @@ class MatchOrderToUser
                     if($nDeltaDO < $n1Days)
                     {
                         //Less than 24 hours away.
-                        $addscore = 500;
+                        $addscore = WLSCORE_SCHED_IN24HR;
                         $score += $addscore;
                         $comment['sedt'] = $addscore;
                     } else {
                         $nDaysUntil=ceil($nDeltaDO/$n1Days);
                         if($nDaysUntil <= 7)
                         {
-                            $addscore = 100 / $nDaysUntil;
+                            $addscore = WLSCORE_SCHED_DAYSAWAYIN7 / $nDaysUntil;
                             $score += $addscore;
                             $comment['sedt'] = $addscore;
                         }
@@ -228,7 +229,7 @@ class MatchOrderToUser
                     $nWeeksOld=ceil($nDeltaDO/$n7Days);
                     if($nWeeksOld > 0)
                     {
-                        $addscore = (10 * $nWeeksOld);
+                        $addscore = (WLSCORE_AGE_WEEKS_FACTOR * $nWeeksOld);
                         $comment['age1'] = $addscore;
                         $score+=$addscore;
                     }
@@ -256,7 +257,7 @@ class MatchOrderToUser
                     $nDaysOld=ceil($nDeltaDO/$n1Days);
                     if($nDaysOld > 0)
                     {
-                        $addscore = $nDaysOld;
+                        $addscore = (WLSCORE_AGE_DAYS_FACTOR * $nDaysOld);
                         $comment['age2'] = $addscore;
                         $score+=$addscore;
                     }

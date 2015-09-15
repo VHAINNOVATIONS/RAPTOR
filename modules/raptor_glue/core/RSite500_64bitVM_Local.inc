@@ -1,7 +1,7 @@
 <?php
     
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150827.1 Config for DEV 64bit localhost');
+    or define('RAPTOR_CONFIG_ID', '20150915.1 Config for DEV 64bit localhost');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -44,8 +44,8 @@ defined('EWDFED_BASE_URL')
     //or define('EWDFED_BASE_URL', "http://54.243.40.32:8081/RaptorEwdVista/raptor/");
 
 defined('EHR_INT_MODULE_NAME')
-    or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
-    //or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
+    //or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
+    or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
 
 //Disable the AGE scoring if using a test VISTA with VERY OLD orders.
 defined('DISABLE_TICKET_AGE1_SCORING')
@@ -60,6 +60,34 @@ defined('DEFAULT_GET_VISIT_DAYS')
 //Set default number of days for which to get labs
 defined('DEFAULT_GET_LABS_DAYS')
     or define('DEFAULT_GET_LABS_DAYS', 8000);
+
+//Worklist rank score factors (Icons show at crit>600; urgent>450; high>200; medium>100; low>20)
+defined('WLSCORE_URGENCY_STAT')     //Suggested value is 500
+    or define('WLSCORE_URGENCY_STAT', 500);
+defined('WLSCORE_URGENCY_URGENT')   //Suggested value is 250
+    or define('WLSCORE_URGENCY_URGENT', 250);
+defined('WLSCORE_ASSIGNED')         //Suggested value is 100
+    or define('WLSCORE_ASSIGNED', 100);
+defined('WLSCORE_MODALITY')         //Suggested value is 20
+    or define('WLSCORE_MODALITY', 20);
+defined('WLSCORE_REVIEW')           //Suggested value is 5
+    or define('WLSCORE_REVIEW', 5);
+defined('WLSCORE_KWM_MOST')         //Suggested value is 20
+    or define('WLSCORE_KWM_MOST', 20);
+defined('WLSCORE_KWM_MODERATE')      //Suggested value is 10
+    or define('WLSCORE_KWM_MODERATE', 10);
+defined('WLSCORE_KWM_LEAST')         //Suggested value is 5
+    or define('WLSCORE_KWM_LEAST', 5);
+defined('WLSCORE_MISSED_SCHED_DT')   //Suggested value is 900
+    or define('WLSCORE_MISSED_SCHED_DT', 900);
+defined('WLSCORE_SCHED_IN24HR')      //Suggested value is 500
+    or define('WLSCORE_SCHED_IN24HR', 500);
+defined('WLSCORE_SCHED_DAYSAWAYIN7') //Suggested value is 100
+    or define('WLSCORE_SCHED_DAYSAWAYIN7', 100);
+defined('WLSCORE_AGE_WEEKS_FACTOR')  //Suggested value is 10
+    or define('WLSCORE_AGE_WEEKS_FACTOR', 10);
+defined('WLSCORE_AGE_DAYS_FACTOR')   //Suggested value is 1
+    or define('WLSCORE_AGE_DAYS_FACTOR', 1);
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')
