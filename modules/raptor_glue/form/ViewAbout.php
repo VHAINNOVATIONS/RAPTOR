@@ -70,6 +70,27 @@ class ViewAbout
         return $html;
     }
     
+    private function getSiteCustimizationItems($wrapperfirst='<ul>',$itemprefix='<li>',$wrapperlast='</ul>')
+    {
+        try
+        {
+            $html = '';
+            $items = array();
+            $minrowscan = min(WORKLIST_MAXROWS_PER_QUERY * WORKLIST_MAX_QUERY_LOOPS, WORKLIST_ENOUGH_ROWS_COUNT);
+            $items[] = "Scans $minrowscan rows to produce the worklist";
+            if(count($items) > 0)
+            {
+                $html = $wrapperfirst 
+                        . $itemprefix 
+                        . implode($itemprefix, $items)
+                        . $wrapperlast;
+            }
+            return $html;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     private function getWorkflowCustomizationItems($wrapperfirst='<ul>',$itemprefix='<li>',$wrapperlast='</ul>')
     {
         $html = '';
@@ -123,26 +144,30 @@ class ViewAbout
                 . '<td style="vertical-align:top">'
                 . '<p><b style="font-size: 120%">RAPTOR Configuration and Version Information</b></p>'
                 . '<table class="about-info">'
-                . '<tr><td><b>App Build</b></td><td><b>'.RAPTOR_BUILD_ID.'</b></td></tr>'
-                . '<tr><td>Machine ID</td><td>'.RAPTOR_CONFIG_ID.'</td></tr>'
-                . '<tr><td>VistA Site</td><td>'.VISTA_SITE.'</td></tr>'
-                . '<tr><td>VistA Integration</td><td>'.$ehr_integrationinfo.'</td></tr>'
+                . '<tr><td><b>App Build:</b></td><td><b>'.RAPTOR_BUILD_ID.'</b></td></tr>'
+                . '<tr><td>Machine ID: </td><td>'.RAPTOR_CONFIG_ID.'</td></tr>'
+                . '<tr><td>VistA Site: </td><td>'.VISTA_SITE.'</td></tr>'
+                . '<tr><td>VistA Integration: </td><td>'.$ehr_integrationinfo.'</td></tr>'
                 . '</table>'
                 . '<br>'
                 . '<b>Site Customization Version Information</b>'
                 . '<table class="about-info">'
-                . '<tr><td>General</td>'
+                . '<tr><td>General:</td>'
                 . '<td>'.GENERAL_DEFS_VERSION_INFO
                 . $this->getGeneralCustomizationItems()
                 . '</td></tr>'
-                . '<tr><td>Workflow</td>'
+                . '<tr><td>Workflow:</td>'
                 . '<td>'.WORKFLOW_DEFS_VERSION_INFO
                 . $this->getWorkflowCustomizationItems()
                 . '</td></tr>'
-                . '<tr><td>Time </td><td>'.TIME_DEFS_VERSION_INFO.'</td></tr>'
-                . '<tr><td>VistA </td><td>'.VISTA_DEFS_VERSION_INFO.'</td></tr>'
-                . '<tr><td>Units of Measure </td><td>'.UOM_VERSION_INFO.'</td></tr>'
-                . '<tr><td>QA Evaluations </td><td>'.QA_DEFS_VERSION_INFO.'</td></tr>'
+                . '<tr><td>General Site Specific Tuning:</td>'
+                . '<td>'.RAPTOR_CONFIG_ID
+                . $this->getSiteCustimizationItems()
+                . '</td></tr>'
+                . '<tr><td>Time: </td><td>'.TIME_DEFS_VERSION_INFO.'</td></tr>'
+                . '<tr><td>VistA: </td><td>'.VISTA_DEFS_VERSION_INFO.'</td></tr>'
+                . '<tr><td>Units of Measure: </td><td>'.UOM_VERSION_INFO.'</td></tr>'
+                . '<tr><td>QA Evaluations: </td><td>'.QA_DEFS_VERSION_INFO.'</td></tr>'
                 . '</table>'
                 . '</td>'
                 . '</tr>'

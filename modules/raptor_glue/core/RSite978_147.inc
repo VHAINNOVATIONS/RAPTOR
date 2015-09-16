@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150915.1 978 for VA 147 AppServer2');
+    or define('RAPTOR_CONFIG_ID', '20150916.1 978 for VA 147 AppServer2');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -88,6 +88,18 @@ defined('WLSCORE_AGE_WEEKS_FACTOR')  //Suggested value is 10
     or define('WLSCORE_AGE_WEEKS_FACTOR', 10);
 defined('WLSCORE_AGE_DAYS_FACTOR')   //Suggested value is 1
     or define('WLSCORE_AGE_DAYS_FACTOR', 1);
+
+//Control level of effort in pulling worklist contents from EHR system
+//Scans min(WORKLIST_MAXROWS_PER_QUERY * WORKLIST_MAX_QUERY_LOOPS, WORKLIST_ENOUGH_ROWS_COUNT)
+//Important: Duplicate checking only reliable if enough rows are scanned
+defined('WORKLIST_MAXROWS_PER_QUERY')   //Suggested value is 1000
+    or define('WORKLIST_MAXROWS_PER_QUERY', 1000);
+defined('WORKLIST_MAX_QUERY_LOOPS')   //Suggested value is 5
+    or define('WORKLIST_MAX_QUERY_LOOPS', 5);
+defined('WORKLIST_ENOUGH_ROWS_COUNT')   //Suggested value is 5000
+    or define('WORKLIST_ENOUGH_ROWS_COUNT', 5000);
+defined('WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS')   //Suggested value is 1000 (KEEP THIS HIGH!)
+    or define('WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS', 1000);
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')

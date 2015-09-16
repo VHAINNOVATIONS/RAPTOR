@@ -90,8 +90,10 @@ defined('WLSCORE_AGE_DAYS_FACTOR')   //Suggested value is 1
     or define('WLSCORE_AGE_DAYS_FACTOR', 1);
 
 //Control level of effort in pulling worklist contents from EHR system
+//Scans min(WORKLIST_MAXROWS_PER_QUERY * WORKLIST_MAX_QUERY_LOOPS, WORKLIST_ENOUGH_ROWS_COUNT)
+//Important: Duplicate checking only reliable if enough rows are scanned
 defined('WORKLIST_MAXROWS_PER_QUERY')   //Suggested value is 1000
-    or define('WORKLIST_MAXROWS_PER_QUERY', 88);
+    or define('WORKLIST_MAXROWS_PER_QUERY', 1000);
 defined('WORKLIST_MAX_QUERY_LOOPS')   //Suggested value is 5
     or define('WORKLIST_MAX_QUERY_LOOPS', 5);
 defined('WORKLIST_ENOUGH_ROWS_COUNT')   //Suggested value is 5000

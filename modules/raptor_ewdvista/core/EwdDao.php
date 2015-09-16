@@ -424,11 +424,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $pending_orders_map = array();
             $args['max'] = $max_rows_one_call;
             $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
-            $row_bundles = array();
 
-            //////////////////////
-            
-            
             //Query several times
             $enough_rows_count=WORKLIST_ENOUGH_ROWS_COUNT;
             $max_loops = WORKLIST_MAX_QUERY_LOOPS;
@@ -438,7 +434,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
             $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $rows_one_iteration = $bundle['all_rows'];
-error_log("LOOK worklist all_rows>>>" . print_r($all_worklist_rows_raw_text_ar,TRUE));           
             while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
             {
                 
@@ -453,7 +448,6 @@ error_log("LOOK worklist all_rows>>>" . print_r($all_worklist_rows_raw_text_ar,T
                 $row_ar = $rows_one_iteration[1];   //This is the first row
                 $tracking_id = $row_ar[0];          //This is the oldest ID pulled so far
                 $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $rows_one_iteration);
-    //error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
     
                 //Query the next chunk
                 $args['from'] = $tracking_id;    //VistA starts from this value -1!!!!!
@@ -461,59 +455,11 @@ error_log("LOOK worklist all_rows>>>" . print_r($all_worklist_rows_raw_text_ar,T
                 $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
                 $rows_one_iteration = $bundle['all_rows'];
             }
-/*
-error_log("LOOK worklist testing iter $iterations final result >>>>" . print_r($all_worklist_rows_raw_text_ar,TRUE));
             
-            //////////////////////
-
-            while($getmorepages)
-            {
-                $pages++;
-                $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
-                $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
-//error_log("LOOK raw data rows for worklist>>>>".print_r($rawdatarows, TRUE));            
-                $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
-                $formated_datarows = $bundle['all_rows'];
-                $rowcount = count($formated_datarows);
-                if($rowcount == 0 || !isset($bundle['last_ien']))
-                {
-                    $getmorepages = FALSE;    
-                } else {
-                    $getmorepages = ($pages <= $maxpages);    
-                }
-                $start_from_IEN = $bundle['last_ien'];
-                if($bundle['matching_offset'] != NULL)
-                {
-                    $matching_offset = count($show_rows) + $bundle['matching_offset'];
-                }
-//error_log("LOOK pending_orders_map 1 >>>" . print_r($bundle['pending_orders_map'],TRUE));
-                foreach($bundle['pending_orders_map'] as $patientId=>$patientOrders)
-                {
-                    if(!isset($pending_orders_map[$patientId]))
-                    {
-                        //Just insert it
-                        $pending_orders_map[$patientId] = $patientOrders;
-//error_log("LOOK pending_orders_map just adding for $patientId");
-                    } else {
-                        //Merge it (Do this ourselves instead because PHP array_merge is buggy!)
-//error_log("LOOK pending_orders_map merging for $patientId");
-                        foreach($patientOrders as $onepatientordertid=>$onepatientorderdetail)
-                        {
-                            $pending_orders_map[$patientId][$onepatientordertid] = $onepatientorderdetail;
-                        }
-                    }
-                    
-                }
-                //$pending_orders_map = array_merge($pending_orders_map, $bundle['pending_orders_map']);
-                $row_bundles[] = $formated_datarows;
-//error_log("LOOK at page $pages getting more pages? ($getmorepages) >>>".print_r($row_bundles,TRUE));
-            }
-//error_log("LOOK pending_orders_map 2 ($max_rows_one_call rows scanned) >>>" . print_r($pending_orders_map,TRUE));
-            $show_rows = $row_bundles[0];
-*/            
-            $show_rows = $all_worklist_rows_raw_text_ar;
             //Scanned enough to populate the pending orders?
-            if($max_rows_one_call < WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS)
+            $show_rows = $all_worklist_rows_raw_text_ar;
+            $scanned_rows = min($enough_rows_count, $max_rows_one_call * $max_loops);
+            if($scanned_rows < WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS)
             {
                 $pending_orders_map = "NOT COMPUTED (only scanned $max_rows_one_call orders and our minimum is " . WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS . ")";
             } else {
@@ -531,18 +477,10 @@ error_log("LOOK worklist testing iter $iterations final result >>>>" . print_r($
                     }
                 }
             }
-/*            
-foreach($show_rows as $onerow)
-{
-    error_log("LOOK worklist one row >>>"  . print_r($onerow,TRUE));
-    $pid = $onerow[1];
-    $this->getPathologyReportsDetailMap($pid);
-}
- */
             
-            $aResult = array('Pages'=>$pages
+            $aResult = array('Pages'=>1
                             ,'Page'=>1
-                            ,'RowsPerPage'=>$max_rows_one_call
+                            ,'RowsPerPage'=>count($show_rows)
                             ,'DataRows'=>$show_rows
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
