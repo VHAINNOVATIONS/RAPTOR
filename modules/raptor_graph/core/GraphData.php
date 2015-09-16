@@ -24,7 +24,6 @@
  * ------------------------------------------------------------------------------------
  */ 
 
-
 namespace raptor;
 
 /**
@@ -234,9 +233,10 @@ class GraphData
             {
                 $rowdatetime_tx = $onerow['Date Taken'];
                 $timestamp = strtotime($rowdatetime_tx);
-                $formatted_datetime_tx = date('m-d-Y His', $timestamp);
-                $formatted_just_date_tx = date('m-d-Y', $timestamp);
-                $just_date_ts = strtotime($formatted_just_date_tx);
+                $dtparts = $this->getGraphFriendlyDateTimeParts($timestamp);
+                $formatted_datetime_tx = $dtparts['datetime_text'];
+                $formatted_just_date_tx = $dtparts['just_date_text'];
+                $just_date_ts = $dtparts['datetime_text'];
                 if($prevdate != $just_date_ts)
                 {
                     $datecount++;
@@ -289,6 +289,31 @@ class GraphData
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
+        }
+    }
+    
+    private function getGraphFriendlyDateTimeParts($php_timestamp)
+    {
+        try
+        {
+            $formatted_datetime_text = date('m-d-Y His', $php_timestamp);
+            $too_short_count = 17 - strlen($formatted_datetime_text); //04-30-2010 135233 --- len = 17
+            if($too_short_count > 0)
+            {
+                $tailpad = str_repeat('0', $too_short_count);
+                $formatted_datetime_text .= $tailpad;
+            }
+            $formatted_just_date_text = date('m-d-Y', $php_timestamp);
+            $just_date_ts = strtotime($formatted_just_date_text);
+            return array(
+                'timestamp'=>$php_timestamp,
+                'just_date_ts'=>$just_date_ts,
+                'just_date_text'=>$formatted_just_date_text,
+                'datetime_text'=>$formatted_datetime_text,
+                );
+        } catch (\Exception $ex) {
+            $errmsg = ("Failed to get friendly date time parts from $php_timestamp");
+            throw new Exception($errmsg, 99787, $ex);
         }
     }
     
@@ -416,9 +441,18 @@ class GraphData
                             $eGFR = '';
                         }                    
                     }
-                    $formattedDate = self::convertYYYYMMDDToDate($lab['rawTime']);
-                    $datetime = self::convertYYYYMMDDToDatetime($lab['rawTime']);  //added 20141104 
-                    $result[] = array('date'=>$formattedDate, 'egfr'=>$eGFR, 'datetime'=>$datetime);
+                    //$formattedDate = self::convertYYYYMMDDToDate($lab['rawTime']);
+                    $timestamp = self::convertVistaDateTimeToPhpTimestamp($lab['rawTime']);  //added 20141104 
+error_log("LOOK lab rawTime=" . $lab['rawTime'] . " >>> real timestamp=$timestamp");                    
+                    $datetimeparts = $this->getGraphFriendlyDateTimeParts($timestamp);
+                    $formattedDate = $datetimeparts['just_date_text'];
+                    $datetime = $datetimeparts['datetime_text'];
+                    $oneresult = array(
+                        'date'=>$formattedDate, 
+                        'egfr'=>$eGFR,
+                        'datetime'=>$datetime);
+error_log("LOOK lab rawTime=" . $lab['rawTime'] . " produces >>>" . print_r($oneresult,TRUE));                    
+                    $result[] = $oneresult;
                 }
             }
             return $result;
@@ -452,19 +486,65 @@ class GraphData
         
         return $month."-".$day."-".$year;
     }
+
+    private static function convertVistaDateTimeToPhpTimestamp($fullYearVistaDateTime)
+    {
+        try
+        {
+//error_log("LOOK convert to php timestamp 1) $fullYearVistaDateTime"); 
+            //Make sure we have ALL the time in the string (sometimes trailing zeros are lost)
+            $too_short_count = 15 - strlen($fullYearVistaDateTime); //20080131.141010 --- len = 15
+            if($too_short_count > 0)
+            {
+                $tailpad = str_repeat('0', $too_short_count);
+                $fullYearVistaDateTime .= $tailpad;
+            }
+            
+//error_log("LOOK convert to php timestamp 2) $fullYearVistaDateTime"); 
+
+            //Get the large parts
+            $datePart = self::getVistaDateTimePart($fullYearVistaDateTime, "date");
+            $timePart = self::getVistaDateTimePart($fullYearVistaDateTime, "time");
+            
+//error_log("LOOK convert to php timestamp 3) $fullYearVistaDateTime >>> date=$datePart time=$timePart"); 
+
+            //Get each small part
+            $year = substr($datePart, 0, 4);
+            $month = substr($datePart, 4, 2);
+            $day = substr($datePart, 6, 2);
+
+            $hours = substr($timePart, 0, 2);
+            $minutes = substr($timePart, 2, 2);
+            $seconds = substr($timePart, 4, 2);
+            
+            //Rebuild how we want to see it.
+            $datetime_text = $year.'-'.$month.'-'.$day.' '
+                    . "$hours:$minutes:$seconds";
+//error_log("LOOK convert to php timestamp 4) $fullYearVistaDateTime >>> text='$datetime_text' date=$datePart time=$timePart"); 
+            $timestamp = strtotime($datetime_text);
+//error_log("LOOK convert to php timestamp 5) $fullYearVistaDateTime >>> timestamp=$timestamp text='$datetime_text' date=$datePart time=$timePart"); 
+            return $timestamp;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
     
     /**
      * Convert 20100101.083400 format -> 2010-01-01 083400
      */
     private static function convertYYYYMMDDToDatetime($vistaDateTime) 
     {
-        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
-        $timePart = self::getVistaDateTimePart($vistaDateTime, "time");
-        $year = substr($datePart, 0, 4);
-        $month = substr($datePart, 4, 2);
-        $day = substr($datePart, 6, 2);
-        
-        return $month."-".$day."-".$year." ".$timePart;
+        try
+        {
+            $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
+            $timePart = self::getVistaDateTimePart($vistaDateTime, "time");
+            $year = substr($datePart, 0, 4);
+            $month = substr($datePart, 4, 2);
+            $day = substr($datePart, 6, 2);
+            return $month.'-'.$day.'-'.$year.' '.$timePart;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /*
@@ -478,11 +558,12 @@ class GraphData
             throw new \Exception('Vista date/time cannot be null');
         }
         $pieces = explode('.', $vistaDateTime);
-        if ($dateOrTime == 'date' || $dateOrTime == 'Date' || $dateOrTime == 'DATE') {
+        if ($dateOrTime == 'date' || $dateOrTime == 'Date' || $dateOrTime == 'DATE') 
+        {
             return $pieces[0];
-        }
-        else {
-            if (count($pieces) == 1 || trim($pieces[1]) == '') {
+        } else {
+            if (count($pieces) == 1 || trim($pieces[1]) == '') 
+            {
                 return '000000'; // default to midnight if no time part 
             }
             return $pieces[1];
