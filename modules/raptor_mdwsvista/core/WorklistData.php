@@ -878,7 +878,9 @@ class WorklistData
      * Get all the worklist rows for the provided context
      * @return type array of rows for the worklist page
      */
-    public function getWorklistRows($startIEN=NULL, $match_this_IEN=NULL, $MAXRECS_PER_QUERY = WORKLIST_MAXROWS_PER_QUERY, $TOTAL_ORDERS_CHECKED=5000)
+    public function getWorklistRows($startIEN=NULL, $match_this_IEN=NULL
+            , $maxrows_per_query = WORKLIST_MAXROWS_PER_QUERY
+            , $enough_rows_count=WORKLIST_ENOUGH_ROWS_COUNT)
     {
         try
         {
@@ -888,23 +890,25 @@ class WorklistData
             $iterations = 0;
             $max_loops = WORKLIST_MAX_QUERY_LOOPS;
             $all_worklist_rows_raw_text_ar = array();
-            $mdwsResponse = $this->getWorklistFromMDWS($startIEN, $MAXRECS_PER_QUERY);
+            $mdwsResponse = $this->getWorklistFromMDWS($startIEN, $maxrows_per_query);
 //error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse,TRUE));
-            while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $TOTAL_ORDERS_CHECKED)
+            while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
             {
                 $iterations++;
                 $row_count = $numOrders = isset($mdwsResponse->ddrListerResult) ? $mdwsResponse->ddrListerResult->count : 0;
-                if($row_count > 0)
+                if($row_count == 0)
                 {
-                    $allrows = $mdwsResponse->ddrListerResult->text->string;
-                    $myrow = $allrows[0];   //First row is oldest order so far
-                    $row_ar = explode('^', $myrow);
-                    $tracking_id = $row_ar[self::WLVFO_TrackingID];
-                    $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $allrows);
-    //error_log("LOOK worklist testing iter $iterations myrow >>>" . print_r($myrow,TRUE));
-                    $mdwsResponse = $this->getWorklistFromMDWS($tracking_id, $MAXRECS_PER_QUERY);
-    //error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
+                    //No need to continue
+                    break;
                 }
+                $allrows = $mdwsResponse->ddrListerResult->text->string;
+                $myrow = $allrows[0];   //First row is oldest order so far
+                $row_ar = explode('^', $myrow);
+                $tracking_id = $row_ar[self::WLVFO_TrackingID];
+                $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $allrows);
+//error_log("LOOK worklist testing iter $iterations myrow >>>" . print_r($myrow,TRUE));
+                $mdwsResponse = $this->getWorklistFromMDWS($tracking_id, $maxrows_per_query);
+//error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
             }
     //error_log("LOOK worklist testing all rows (looped $iterations) >>>" . print_r($all_worklist_rows_raw_text_ar,TRUE));
             $oTT = new \raptor\TicketTrackingData();

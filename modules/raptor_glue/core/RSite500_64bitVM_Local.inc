@@ -1,7 +1,7 @@
 <?php
     
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150916.1 Config for DEV 64bit localhost');
+    or define('RAPTOR_CONFIG_ID', '20150916.2 Config for DEV 64bit localhost');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -89,10 +89,13 @@ defined('WLSCORE_AGE_WEEKS_FACTOR')  //Suggested value is 10
 defined('WLSCORE_AGE_DAYS_FACTOR')   //Suggested value is 1
     or define('WLSCORE_AGE_DAYS_FACTOR', 1);
 
+//Control level of effort in pulling worklist contents from EHR system
 defined('WORKLIST_MAXROWS_PER_QUERY')   //Suggested value is 1000
     or define('WORKLIST_MAXROWS_PER_QUERY', 1000);
 defined('WORKLIST_MAX_QUERY_LOOPS')   //Suggested value is 5
     or define('WORKLIST_MAX_QUERY_LOOPS', 5);
+defined('WORKLIST_ENOUGH_ROWS_COUNT')   //Suggested value is 5000
+    or define('WORKLIST_ENOUGH_ROWS_COUNT', 5000);
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')
