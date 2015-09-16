@@ -46,271 +46,392 @@ class GraphData
     
     function getThumbnailGraphValues()
     {
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $rawResult = $ehrDao->getRawVitalSignsMap();
-        $max_dates = 5;
-        //$result = $ehrDao->convertSoapVitalsToGraph(array('Temperature'), $soapResult, $max_dates);
-        $result = $this->convertVitalsToGraphFormat(array('Temperature'), $rawResult, $max_dates);
-        //error_log("LOOK thumb soap data>>>".print_r($soapResult,TRUE));
-        if(!is_array($result))
+        try 
         {
-            $result = array();
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $rawResult = $ehrDao->getRawVitalSignsMap();
+            $max_dates = 5;
+            $result = $this->convertVitalsToGraphFormat(array('Temperature'), $rawResult, $max_dates);
+            if(!is_array($result))
+            {
+                error_log("WARNING getThumbnailGraphValues unexpected result format>>>" . print_r($result,TRUE));
+                $result = array();
+            }
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $result;
     }
     
     function getVitalsGraphValues()
     {
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $rawResult = $ehrDao->getRawVitalSignsMap();
-        $max_dates = 20;
-        //$result = $ehrDao->convertSoapVitalsToGraph(array('Temperature', 'Pulse'), $soapResult, $max_dates);
-        $result = $this->convertVitalsToGraphFormat(array('Temperature', 'Pulse'), $rawResult, $max_dates);
-        //error_log("LOOK vitals raw data>>>".print_r($soapResult,TRUE));
-        //error_log("LOOK vitals filtered data>>>".print_r($result,TRUE));
-        if(!is_array($result))
+        try
         {
-            $result = array();
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $rawResult = $ehrDao->getRawVitalSignsMap();
+            $max_dates = 20;
+            $result = $this->convertVitalsToGraphFormat(array('Temperature', 'Pulse'), $rawResult, $max_dates);
+            if(!is_array($result))
+            {
+                error_log("WARNING unexpected format received by getVitalsGraphValues>>>".print_r($result,TRUE));
+                $result = array();
+            }
+        error_log("LOOK getVitalsGraphValues>>>".print_r($result,TRUE));
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $result;
     }
     
     function getLabsGraphValues()
     {
-       
-        //$oDD = new \raptor\DashboardData($this->m_oContext);
-        //$aDD = $oDD->getDashboardDetails();
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $aDD = $ehrDao->getDashboardDetailsMap();
-        $selectedPatient = array(
-                  'ethnicity'=>$aDD['PatientEthnicity']
-                , 'gender'=>$aDD['PatientGender']
-                , 'age'=>$aDD['PatientAge']);
-        $labsResult = $ehrDao->getChemHemLabs();
-            
-        //Pass in selected patient and egfr formula if one is defined 
-        //$result = $ehrDao->convertSoapLabsToGraph($selectedPatient, NULL, $labsResult);
-        $result = $this->convertLabsToGraphFormat($selectedPatient,$labsResult);
-        //error_log('getLabsGraphValues patient>>>'.print_r($selectedPatient,TRUE));
-        //error_log('getLabsGraphValues labs>>>'.print_r($labsResult,TRUE));
-        //error_log('getLabsGraphValues filtered>>>'.print_r($result,TRUE));
-        if(!is_array($result))
+        try
         {
-            $result = array();
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $aDD = $ehrDao->getDashboardDetailsMap();
+            $selectedPatient = array(
+                      'ethnicity'=>$aDD['PatientEthnicity']
+                    , 'gender'=>$aDD['PatientGender']
+                    , 'age'=>$aDD['PatientAge']);
+            $labsResult = $ehrDao->getChemHemLabs();
+            error_log('LOOK getLabsGraphValues patient>>>'.print_r($selectedPatient,TRUE));
+            error_log('LOOK getLabsGraphValues labs>>>'.print_r($labsResult,TRUE));
+            $result = $this->convertLabsToGraphFormat($selectedPatient,$labsResult);
+            error_log('LOOK getLabsGraphValues filtered>>>'.print_r($result,TRUE));
+            if(!is_array($result))
+            {
+                $result = array();
+            }
+            return $result;
+        } catch (Exception $ex) {
+            throw $ex;
         }
-        return $result;
     }
 
-    private function convertVitalsToGraphFormat($typeArray, $vitals, $max_dates=5)
+    /**
+     * Parses the legacy MDWS soap result format
+     */
+    private function parseVitalsFromLegacyFormat($typeArray, $vitals, $max_dates)
     {
-        global $user;
-        //error_log('Starting convertSoapVitalsToGraph as user '.$user->name.' maxdates='.$max_dates);
-        
-        if (!isset($typeArray) || count($typeArray) === 0) {
-            $errmsg = 'Invalid vital types argument:'.print_r($typeArray,TRUE);
-            error_log("ERROR: $errmsg");
-            throw new \Exception($errmsg);
-        }
-        if (isset($vitals->getVitalSignsResult->fault)) {
-            $errmsg = $vitals->getVitalSignsResult->fault->message;
-            error_log("ERROR detected in convertVitalsToGraphFormat fault=$errmsg");
-            throw new \Exception($errmsg);
-        }
-        
-        $result = array();
-        if (!isset($vitals->getVitalSignsResult->arrays->TaggedVitalSignSetArray) ||
-                !isset($vitals->getVitalSignsResult->arrays->TaggedVitalSignSetArray->sets)) {
-            //Just return the empty array.
-            return $result;
-        }
-        $vitalsAryTO = $vitals->getVitalSignsResult->arrays->TaggedVitalSignSetArray;
-        $vitalsCount = count($vitalsAryTO->sets->VitalSignSetTO);
-        $dates_with_data = 0;
-        $prev_timestamp = '';
-        for ($i = 0; $i < $vitalsCount; $i++) 
+        try
         {
-            $currentVitalsSet = NULL;
-            if (is_array($vitalsAryTO->sets->VitalSignSetTO)) {
-                $currentVitalsSet = $vitalsAryTO->sets->VitalSignSetTO[$i];
+            if (isset($vitals->getVitalSignsResult->fault)) {
+                $errmsg = $vitals->getVitalSignsResult->fault->message;
+                error_log("ERROR detected in convertVitalsToGraphFormat fault=$errmsg");
+                throw new \Exception($errmsg);
             }
-            else 
+
+            $result = array();
+            if (!isset($vitals->getVitalSignsResult->arrays->TaggedVitalSignSetArray) ||
+                    !isset($vitals->getVitalSignsResult->arrays->TaggedVitalSignSetArray->sets)) 
             {
-                $currentVitalsSet = $vitalsAryTO->sets->VitalSignSetTO;
+                //Just return the empty array.
+                return $result;
             }
-            
-            $just_date = self::convertYYYYMMDDToDate($currentVitalsSet->timestamp);
-            $datetime = self::convertYYYYMMDDToDatetime($currentVitalsSet->timestamp);
-            $signsCount = count($currentVitalsSet->vitalSigns->VitalSignTO);
-            $aryForTimestamp = array();
-            $aryForTimestamp['date'] = $just_date;      //Only the date
-            $aryForTimestamp['datetime'] = $datetime;   //The date and the time
-            $count_data_items_thisrecord = 0;   //Reset everytime.
-            for ($j = 0; $j < $signsCount; $j++) 
+            $vitalsAryTO = $vitals->getVitalSignsResult->arrays->TaggedVitalSignSetArray;
+            $vitalsCount = count($vitalsAryTO->sets->VitalSignSetTO);
+            $dates_with_data = 0;
+            $prev_timestamp = '';
+            for ($i = 0; $i < $vitalsCount; $i++) 
             {
-                // it appears PHP is making arrays with one object stdclass and not array...
-                $currentSign = NULL;
-                if (is_array($currentVitalsSet->vitalSigns->VitalSignTO)) {
-                    $currentSign = $currentVitalsSet->vitalSigns->VitalSignTO[$j];
+                $currentVitalsSet = NULL;
+                if (is_array($vitalsAryTO->sets->VitalSignSetTO)) {
+                    $currentVitalsSet = $vitalsAryTO->sets->VitalSignSetTO[$i];
                 }
                 else 
                 {
-                    $currentSign = $currentVitalsSet->vitalSigns->VitalSignTO;
+                    $currentVitalsSet = $vitalsAryTO->sets->VitalSignSetTO;
                 }
-                
-                $currentType = $currentSign->type->name;
-                
-                if (in_array($currentType, $typeArray)) 
-                {
-                    if(is_numeric( $currentSign->value1))   //20150528
-                    {
-                        if ($currentType === 'Temperature') 
-                        {
-                            $aryForTimestamp['temperature'] = $currentSign->value1;
-                            $count_data_items_thisrecord++;
-                        }
-                        else if ($currentType === 'Pulse') 
-                        {
-                            $aryForTimestamp['pulse'] = $currentSign->value1;
-                            $count_data_items_thisrecord++;
-                        }
-                    }
-                }
-            }
 
-            if (count($aryForTimestamp) > 1) 
-            { 
-                //We have a data point, do we have data from the vitals set?
-                if($count_data_items_thisrecord > 0)
+                $just_date = self::convertYYYYMMDDToDate($currentVitalsSet->timestamp);
+                $datetime = self::convertYYYYMMDDToDatetime($currentVitalsSet->timestamp);
+                $signsCount = count($currentVitalsSet->vitalSigns->VitalSignTO);
+                $aryForTimestamp = array();
+                $aryForTimestamp['date'] = $just_date;      //Only the date
+                $aryForTimestamp['datetime'] = $datetime;   //The date and the time
+                $count_data_items_thisrecord = 0;   //Reset everytime.
+                for ($j = 0; $j < $signsCount; $j++) 
                 {
-                    //We added data from the vitals set.
-                    if($prev_timestamp !== $just_date)
-                    {
-                        $dates_with_data++;
-                    }
-                    if ($dates_with_data <= $max_dates) 
-                    {
-                        $result[] = $aryForTimestamp;
+                    // it appears PHP is making arrays with one object stdclass and not array...
+                    $currentSign = NULL;
+                    if (is_array($currentVitalsSet->vitalSigns->VitalSignTO)) {
+                        $currentSign = $currentVitalsSet->vitalSigns->VitalSignTO[$j];
                     }
                     else 
                     {
-                        //Done!
-                        break;
+                        $currentSign = $currentVitalsSet->vitalSigns->VitalSignTO;
+                    }
+
+                    $currentType = $currentSign->type->name;
+
+                    if (in_array($currentType, $typeArray)) 
+                    {
+                        if(is_numeric( $currentSign->value1))   //20150528
+                        {
+                            if ($currentType === 'Temperature') 
+                            {
+                                $aryForTimestamp['temperature'] = $currentSign->value1;
+                                $count_data_items_thisrecord++;
+                            }
+                            else if ($currentType === 'Pulse') 
+                            {
+                                $aryForTimestamp['pulse'] = $currentSign->value1;
+                                $count_data_items_thisrecord++;
+                            }
+                        }
                     }
                 }
-            }
-            
-            //Setup for next loop.
-            $prev_timestamp = $just_date;
-        }
-        return $result;
-    }
 
-    private function convertLabsToGraphFormat($patientInfo, $allLabs, $limitMaxLabs=1000)
-    {
-        $labs_formulas = new \raptor_formulas\Labs();
-        
-        //Removed default of white male and default age 20150530
-        $ethnicity = is_null($patientInfo) ? ' ' : $patientInfo['ethnicity'];
-        $gender = is_null($patientInfo) ? ' ' : trim(strtoupper($patientInfo['gender']));
-        $age = is_null($patientInfo) ? 0 : $patientInfo['age']; //Changed default to 0 instead of 18
-        $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
-                             (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
-        $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
-        if(!$isMale)
-        {
-            $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
-        } else {
-            $isFemale = FALSE;
-        }
-        $foundCreatinine = FALSE;
-        $foundEGFR = FALSE;
-        $foundPLT = FALSE;
-        $foundPT = FALSE;
-        $foundINR = FALSE;
-        $foundPTT = FALSE;
-        $foundHCT = FALSE;
-
-        $sortedLabs = $allLabs;
-        // Obtain a list of columns
-        foreach ($sortedLabs as $key => $row) 
-        {
-            $name[$key]  = $row['name'];
-            $date[$key] = $row['date'];
-            $value[$key] = $row['value'];
-            $units[$key] = $row['units'];
-            $rawTime[$key] = $row['rawTime'];
-        }
-
-        if(isset($name) && is_array($name)) //20140603
-        {
-            array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedLabs);
-        }    
-        
-        $result = array();
-
-        foreach($sortedLabs as $lab)
-        {
-            if (count($result) >= $limitMaxLabs) 
-            {
-                break; // per specs - show only last X creatinine/egfr results
-            }
-            $name = $lab['name'];
-            $foundCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
-            $foundHCT = strpos('HCT', strtoupper($lab['name'])) !== FALSE;
-            $foundINR = strpos('INR', strtoupper($lab['name'])) !== FALSE;
-            $foundPT = strpos('PT', strtoupper($lab['name'])) !== FALSE;
-            $foundPLT = strpos('PLT', strtoupper($lab['name'])) !== FALSE;
-            $foundPTT = strpos('PTT', strtoupper($lab['name'])) !== FALSE;
-
-            $limits = explode(" - ", $lab['refRange']);
-            $lowerLimit = isset($limits[0]) ? $limits[0] : NULL;
-            $upperLimit = isset($limits[1]) ? $limits[1] : NULL;
-
-            $value = $lab['value'];
-
-            $rawValue = $lab['value'];
-            $units = $lab['units'];
-
-            if($foundCreatinine)
-            {
-                $foundEGFR = FALSE;
-                $checkDate = $lab['date'];
-                foreach($sortedLabs as $checkLab)
-                {
-                    if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
+                if (count($aryForTimestamp) > 1) 
+                { 
+                    //We have a data point, do we have data from the vitals set?
+                    if($count_data_items_thisrecord > 0)
                     {
-                        if($checkDate == $checkLab['date'])
+                        //We added data from the vitals set.
+                        if($prev_timestamp !== $just_date)
                         {
-                            $foundEGFR = TRUE;
-                            $eGFR = $checkLab['value'];
-                            $eGFRSource = " (eGFR from VistA)";
+                            $dates_with_data++;
+                        }
+                        if ($dates_with_data <= $max_dates) 
+                        {
+                            $result[] = $aryForTimestamp;
+                        }
+                        else 
+                        {
+                            //Done!
                             break;
                         }
                     }
                 }
-                if(!$foundEGFR)
-                {
-                    if(is_numeric($rawValue))
-                    {
-                        $eGFRSource = ' (calculated)';
-                        $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican);
-                    } else {
-                        $eGFRSource = '';
-                        $eGFR = '';
-                    }                    
-                }
-                $formattedDate = self::convertYYYYMMDDToDate($lab['rawTime']);
-                $datetime = self::convertYYYYMMDDToDatetime($lab['rawTime']);  //added 20141104 
-                $result[] = array('date'=>$formattedDate, 'egfr'=>$eGFR, 'datetime'=>$datetime);
+
+                //Setup for next loop.
+                $prev_timestamp = $just_date;
             }
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $result;
+    }
+
+    /**
+     * Parses the preferred raw format.
+     *     [0] => Temperature
+     *     [1] => Pulse
+     */
+    private function parseVitalsFromFullFormat($typeArray, $vitals_bundle, $max_dates)
+    {
+        try
+        {
+            $gettemp = in_array('Temperature', $typeArray);
+            $getpulse = in_array('Pulse', $typeArray);
+            $rows = $vitals_bundle[0];
+            $datecount = 0;
+            $prevdate = NULL;
+            $prevdate_temp = NULL;
+            $prevdate_pulse = NULL;
+            $result = array();
+            foreach($rows as $onerow)
+            {
+                $rowdatetime_tx = $onerow['Date Taken'];
+                $timestamp = strtotime($rowdatetime_tx);
+                $formatted_datetime_tx = date('m-d-Y His', $timestamp);
+                $formatted_just_date_tx = date('m-d-Y', $timestamp);
+                $just_date_ts = strtotime($formatted_just_date_tx);
+                if($prevdate != $just_date_ts)
+                {
+                    $datecount++;
+                    $prevdate = $just_date_ts;
+                    if($datecount > $max_dates)
+                    {
+                        //No more.
+                        break;
+                    }
+                    //We only grab ONE value per date.
+                    $oneitem = NULL;
+                    if($gettemp && $prevdate_temp != $just_date_ts)
+                    {
+                        if($oneitem == NULL)
+                        {
+                            $oneitem = array();
+                        }
+                        $temp_tx = trim($onerow['Temp']);
+                        if($temp_tx > '')
+                        {
+                            $founddata = TRUE;
+                            $prevdate_temp = $just_date_ts;
+                            $parts = explode(' ', $temp_tx);
+                            $oneitem['temperature'] = $parts[0];
+                        }
+                    }
+                    if($getpulse && $prevdate_pulse != $just_date_ts)
+                    {
+                        if($oneitem == NULL)
+                        {
+                            $oneitem = array();
+                        }
+                        $pulse_tx = trim($onerow['Pulse']);
+                        if($pulse_tx > '')
+                        {
+                            $founddata = TRUE;
+                            $prevdate_pulse = $just_date_ts;
+                            $parts = explode(' ', $pulse_tx);
+                            $oneitem['pulse'] = $parts[0];
+                        }
+                    }
+                    if($oneitem != NULL)
+                    {
+                        $oneitem['date'] = $formatted_just_date_tx;
+                        $oneitem['datetime'] = $formatted_datetime_tx;
+                        $result[] = $oneitem;
+                    }
+                }
+            }
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    private function convertVitalsToGraphFormat($typeArray, $vitals, $max_dates=5)
+    {
+        try
+        {
+            global $user;
+    error_log('LOOK Starting convertVitalsToGraphFormat as user '.$user->name.' maxdates='.$max_dates);
+    error_log('LOOK Starting convertVitalsToGraphFormat typeArray >>>' . print_r($typeArray,TRUE));
+
+            if (!isset($typeArray) || count($typeArray) === 0) {
+                $errmsg = 'Invalid vital types argument:'.print_r($typeArray,TRUE);
+                error_log("ERROR: $errmsg");
+                throw new \Exception($errmsg);
+            }
+            if(isset($vitals['getVitalSignsResult']))
+            {
+    error_log('LOOK Starting convertVitalsToGraphFormat vitals LEGACY format >>>' . print_r($vitals,TRUE));
+                $result = $this->parseVitalsFromLegacyFormat($typeArray, $vitals, $max_dates);
+            } else {
+    error_log('LOOK Starting convertVitalsToGraphFormat vitals FULL format >>>' . print_r($vitals,TRUE));
+                $result = $this->parseVitalsFromFullFormat($typeArray, $vitals, $max_dates);
+            }
+    error_log('LOOK DONE convertVitalsToGraphFormat result = ' . print_r($result,TRUE));
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+
+    private function convertLabsToGraphFormat($patientInfo, $allLabs, $limitMaxLabs=1000)
+    {
+        try
+        {
+            $labs_formulas = new \raptor_formulas\Labs();
+
+            //Removed default of white male and default age 20150530
+            $ethnicity = is_null($patientInfo) ? ' ' : $patientInfo['ethnicity'];
+            $gender = is_null($patientInfo) ? ' ' : trim(strtoupper($patientInfo['gender']));
+            $age = is_null($patientInfo) ? 0 : $patientInfo['age']; //Changed default to 0 instead of 18
+            $isAfricanAmerican = (strpos('BLACK', strtoupper($ethnicity)) !== FALSE) ||
+                                 (strpos('AFRICAN', strtoupper($ethnicity)) !== FALSE);
+            $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
+            if(!$isMale)
+            {
+                $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
+            } else {
+                $isFemale = FALSE;
+            }
+            $foundCreatinine = FALSE;
+            $foundEGFR = FALSE;
+            $foundPLT = FALSE;
+            $foundPT = FALSE;
+            $foundINR = FALSE;
+            $foundPTT = FALSE;
+            $foundHCT = FALSE;
+
+            $sortedLabs = $allLabs;
+            // Obtain a list of columns
+            foreach ($sortedLabs as $key => $row) 
+            {
+                $name[$key]  = $row['name'];
+                $date[$key] = $row['date'];
+                $value[$key] = $row['value'];
+                $units[$key] = $row['units'];
+                $rawTime[$key] = $row['rawTime'];
+            }
+
+            if(isset($name) && is_array($name)) //20140603
+            {
+                array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedLabs);
+            }    
+
+            $result = array();
+
+            foreach($sortedLabs as $lab)
+            {
+                if (count($result) >= $limitMaxLabs) 
+                {
+                    break; // per specs - show only last X creatinine/egfr results
+                }
+                $name = $lab['name'];
+                $foundCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
+                $foundHCT = strpos('HCT', strtoupper($lab['name'])) !== FALSE;
+                $foundINR = strpos('INR', strtoupper($lab['name'])) !== FALSE;
+                $foundPT = strpos('PT', strtoupper($lab['name'])) !== FALSE;
+                $foundPLT = strpos('PLT', strtoupper($lab['name'])) !== FALSE;
+                $foundPTT = strpos('PTT', strtoupper($lab['name'])) !== FALSE;
+
+                $limits = explode(" - ", $lab['refRange']);
+                $lowerLimit = isset($limits[0]) ? $limits[0] : NULL;
+                $upperLimit = isset($limits[1]) ? $limits[1] : NULL;
+
+                $value = $lab['value'];
+
+                $rawValue = $lab['value'];
+                $units = $lab['units'];
+
+                if($foundCreatinine)
+                {
+                    $foundEGFR = FALSE;
+                    $checkDate = $lab['date'];
+                    foreach($sortedLabs as $checkLab)
+                    {
+                        if(strpos('EGFR', strtoupper($checkLab['name'])) !== FALSE)
+                        {
+                            if($checkDate == $checkLab['date'])
+                            {
+                                $foundEGFR = TRUE;
+                                $eGFR = $checkLab['value'];
+                                $eGFRSource = " (eGFR from VistA)";
+                                break;
+                            }
+                        }
+                    }
+                    if(!$foundEGFR)
+                    {
+                        if(is_numeric($rawValue))
+                        {
+                            $eGFRSource = ' (calculated)';
+                            $eGFR = $labs_formulas->calc_eGFR($rawValue, $age, $isFemale, $isAfricanAmerican);
+                        } else {
+                            $eGFRSource = '';
+                            $eGFR = '';
+                        }                    
+                    }
+                    $formattedDate = self::convertYYYYMMDDToDate($lab['rawTime']);
+                    $datetime = self::convertYYYYMMDDToDatetime($lab['rawTime']);  //added 20141104 
+                    $result[] = array('date'=>$formattedDate, 'egfr'=>$eGFR, 'datetime'=>$datetime);
+                }
+            }
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**
      * Convert VistA format: 3101231 -> 20101231
      */
-    private static function convertVistaDateToYYYYMMDD($vistaDateTime) {
+    private static function convertVistaDateToYYYYMMDD($vistaDateTime) 
+    {
         $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
         $year = 1700 + substr($datePart, 0, 3);
         $month = substr($datePart, 3, 2);
@@ -322,7 +443,8 @@ class GraphData
     /**
      * Convert 20100101 format -> 2010-01-01
      */
-    private static function convertYYYYMMDDToDate($vistaDateTime) {
+    private static function convertYYYYMMDDToDate($vistaDateTime) 
+    {
         $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
         $year = substr($datePart, 0, 4);
         $month = substr($datePart, 4, 2);
@@ -334,7 +456,8 @@ class GraphData
     /**
      * Convert 20100101.083400 format -> 2010-01-01 083400
      */
-    private static function convertYYYYMMDDToDatetime($vistaDateTime) {
+    private static function convertYYYYMMDDToDatetime($vistaDateTime) 
+    {
         $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
         $timePart = self::getVistaDateTimePart($vistaDateTime, "time");
         $year = substr($datePart, 0, 4);

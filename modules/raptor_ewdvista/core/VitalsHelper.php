@@ -457,166 +457,171 @@ class VitalsHelper
      */
     function getVitalsSummary($vitalsbundle)
     {
-        $result = array();
-        $displayVitals  = $vitalsbundle[0];
-        $allVitals      = $vitalsbundle[1];
+        try
+        {
+            $result = array();
+            $displayVitals  = $vitalsbundle[0];
+            $allVitals      = $vitalsbundle[1];
 
-        if(empty($displayVitals))
-        {
-            return $result;
-        }
-        
-        $tempLabels = array("Temperature", "TEMP", "TEMPERATURE");
-        $hrLabels = array("Heart Rate", "HR", "HEART RATE");
-        $bpLabels = array("Blood Pressure", "DIASTOLIC BLOOD PRESSURE", "SYSTOLIC BLOOD PRESSURE", "BP", "BLOOD PRESSURE");
-        $htLabels = array("Height", "HT", "HEIGHT");
-        $wtLabels = array("Weight", "WT", "WEIGHT");
-        $bmiLabels = array("Body Mass Index", "BMI", "BODY MASS INDEX");
-        
-        $nTemp = 0;
-        $nHR = 0;
-        $nBP = 0;
-        $nHT = 0;
-        $nWT = 0;
-        $nBMI = 0;
-        $nToFind = 1;
-        
-        //Sort the vitals by type, then date (desc)
-        // Iterate through, looking for the 1st occurance of Temp, HR, BP, Ht, Wt, BMI
-        // Obtain a list of columns
-        $sortedVitals = $allVitals;
-        foreach ($sortedVitals as $key => $row) 
-        {
-            $date[$key] = $row['date'];
-            $name[$key]  = $row['name'];
-            $value[$key] = $row['value'];
-            $units[$key] = $row['units'];
-            $rawTime[$key] = $row['rawTime'];
-        }
-        if(empty($name))
-        {
-            return $result;
-        }
-
-        array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedVitals);
-        
-        $blank = array('date' => "", 'name' => "", 'value' => "None Found", 'units' => "");
-        
-        foreach($sortedVitals as $vital)
-        {
-            if($nTemp >= $nToFind && $nHR >= $nToFind 
-                    && $nBP >= $nToFind && $nHT >= $nToFind 
-                    && $nWT >= $nToFind && $nBMI >= $nToFind)
+            if(empty($displayVitals))
             {
-                break;
+                return $result;
             }
-            if(in_array(strtoupper($vital['name']), $tempLabels)){ // Temp
-                if ($nTemp++ < $nToFind)
+
+            $tempLabels = array("Temperature", "TEMP", "TEMPERATURE");
+            $hrLabels = array("Heart Rate", "HR", "HEART RATE");
+            $bpLabels = array("Blood Pressure", "DIASTOLIC BLOOD PRESSURE", "SYSTOLIC BLOOD PRESSURE", "BP", "BLOOD PRESSURE");
+            $htLabels = array("Height", "HT", "HEIGHT");
+            $wtLabels = array("Weight", "WT", "WEIGHT");
+            $bmiLabels = array("Body Mass Index", "BMI", "BODY MASS INDEX");
+
+            $nTemp = 0;
+            $nHR = 0;
+            $nBP = 0;
+            $nHT = 0;
+            $nWT = 0;
+            $nBMI = 0;
+            $nToFind = 1;
+
+            //Sort the vitals by type, then date (desc)
+            // Iterate through, looking for the 1st occurance of Temp, HR, BP, Ht, Wt, BMI
+            // Obtain a list of columns
+            $sortedVitals = $allVitals;
+            foreach ($sortedVitals as $key => $row) 
+            {
+                $date[$key] = $row['date'];
+                $name[$key]  = $row['name'];
+                $value[$key] = $row['value'];
+                $units[$key] = $row['units'];
+                $rawTime[$key] = $row['rawTime'];
+            }
+            if(empty($name))
+            {
+                return $result;
+            }
+
+            array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedVitals);
+
+            $blank = array('date' => "", 'name' => "", 'value' => "None Found", 'units' => "");
+
+            foreach($sortedVitals as $vital)
+            {
+                if($nTemp >= $nToFind && $nHR >= $nToFind 
+                        && $nBP >= $nToFind && $nHT >= $nToFind 
+                        && $nWT >= $nToFind && $nBMI >= $nToFind)
                 {
-                   $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
-                   $vital['score'] = "1";
-                   $result[] = $vital;
+                    break;
+                }
+                if(in_array(strtoupper($vital['name']), $tempLabels)){ // Temp
+                    if ($nTemp++ < $nToFind)
+                    {
+                       $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
+                       $vital['score'] = "1";
+                       $result[] = $vital;
+                    }
+                }
+                elseif(in_array(strtoupper($vital['name']), $hrLabels)){ //HR)
+                    if ($nHR++ < $nToFind)
+                    {
+                       $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
+                       $vital['score'] = "2";
+                       $result[] = $vital;
+                    }
+                }
+                elseif (in_array(strtoupper($vital['name']), $bpLabels)) { //BP
+                    if ($nBP++ < $nToFind)
+                    {
+                       $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
+                       $vital['score'] = "3";
+                       $result[] = $vital;
+                    }
+                }
+                elseif (in_array(strtoupper($vital['name']), $htLabels)) { //HT
+                    if ($nHT++ < $nToFind)
+                    {
+                       $cms = round($vital['value']*2.54, 1);
+                       $vital['value'] .= isset($vital['units']) ? " ".$vital['units']." (".$cms." cms)" : "";
+                       $vital['score'] = "4";
+                       $result[] = $vital;
+                    }
+                }
+                elseif (in_array(strtoupper($vital['name']), $wtLabels)) { //WT
+                    if ($nWT++ < $nToFind)
+                    {
+                       $kgs = round($vital['value']*0.45359237, 1);
+                       $vital['value'] .= isset($vital['units']) ? " ".$vital['units']." (".$kgs." kgs)" : "";
+                       $vital['score'] = "5";
+                       $result[] = $vital;
+                    }
+                }
+                elseif (in_array(strtoupper($vital['name']), $bmiLabels)){ //BMI
+                    if ($nBMI++ < $nToFind)
+                    {
+                       $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
+                       $vital['score'] = "6";
+                       $result[] = $vital;
+                    }
                 }
             }
-            elseif(in_array(strtoupper($vital['name']), $hrLabels)){ //HR)
-                if ($nHR++ < $nToFind)
-                {
-                   $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
-                   $vital['score'] = "2";
-                   $result[] = $vital;
-                }
+
+            //Re-Sort the vitals for display by date (desc) then by type
+            // Iterate through, looking for the 1st occurance of Temp, HR, BP, Ht, Wt, BMI
+            // Obtain a list of columns
+
+            unset($sortedVitals);
+            unset($date);
+            unset($name);
+            unset($value);
+            unset($units);
+            unset($rawTime);
+
+            $score=array(); //FJF 20120319
+            $sortedVitals = $result;
+            foreach ($sortedVitals as $key => $row) 
+            {
+                $date[$key] = $row['date'];
+                $name[$key]  = $row['name'];
+                $value[$key] = $row['value'];
+                $units[$key] = $row['units'];
+                $rawTime[$key] = $row['rawTime'];
+                $score[$key] = $row['score'];
             }
-            elseif (in_array(strtoupper($vital['name']), $bpLabels)) { //BP
-                if ($nBP++ < $nToFind)
-                {
-                   $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
-                   $vital['score'] = "3";
-                   $result[] = $vital;
-                }
+            array_multisort($score, SORT_ASC, $sortedVitals);
+            $result = array('Temperature' => ''
+                , 'Heart Rate' => ''
+                , 'Blood Pressure' => ''
+                , 'Height' => ''
+                , 'Weight' => ''
+                , 'Body Mass Index' => '');
+            foreach ($sortedVitals as $vital) 
+            {
+                $result[$vital['name']] = array('Date of Measurement' => $vital['date']
+                        , 'Measurement Value' => $vital['value']);
             }
-            elseif (in_array(strtoupper($vital['name']), $htLabels)) { //HT
-                if ($nHT++ < $nToFind)
-                {
-                   $cms = round($vital['value']*2.54, 1);
-                   $vital['value'] .= isset($vital['units']) ? " ".$vital['units']." (".$cms." cms)" : "";
-                   $vital['score'] = "4";
-                   $result[] = $vital;
-                }
+
+            // Add message for Vitals not found
+            if($nTemp == 0){
+                $result[$tempLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);        
             }
-            elseif (in_array(strtoupper($vital['name']), $wtLabels)) { //WT
-                if ($nWT++ < $nToFind)
-                {
-                   $kgs = round($vital['value']*0.45359237, 1);
-                   $vital['value'] .= isset($vital['units']) ? " ".$vital['units']." (".$kgs." kgs)" : "";
-                   $vital['score'] = "5";
-                   $result[] = $vital;
-                }
+            if($nHR == 0){
+                $result[$hrLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
             }
-            elseif (in_array(strtoupper($vital['name']), $bmiLabels)){ //BMI
-                if ($nBMI++ < $nToFind)
-                {
-                   $vital['value'] .= isset($vital['units']) ? " ".$vital['units'] : "";
-                   $vital['score'] = "6";
-                   $result[] = $vital;
-                }
+            if($nBP == 0){
+                $result[$bpLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
             }
+            if($nHT == 0){
+                $result[$htLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
+            }
+            if($nWT == 0){
+                $result[$wtLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
+            }
+            if($nBMI == 0){
+                $result[$bmiLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
+            }
+
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        //Re-Sort the vitals for display by date (desc) then by type
-        // Iterate through, looking for the 1st occurance of Temp, HR, BP, Ht, Wt, BMI
-        // Obtain a list of columns
-        
-        unset($sortedVitals);
-        unset($date);
-        unset($name);
-        unset($value);
-        unset($units);
-        unset($rawTime);
-        
-        $score=array(); //FJF 20120319
-        $sortedVitals = $result;
-        foreach ($sortedVitals as $key => $row) 
-        {
-            $date[$key] = $row['date'];
-            $name[$key]  = $row['name'];
-            $value[$key] = $row['value'];
-            $units[$key] = $row['units'];
-            $rawTime[$key] = $row['rawTime'];
-            $score[$key] = $row['score'];
-        }
-        array_multisort($score, SORT_ASC, $sortedVitals);
-        $result = array('Temperature' => ''
-            , 'Heart Rate' => ''
-            , 'Blood Pressure' => ''
-            , 'Height' => ''
-            , 'Weight' => ''
-            , 'Body Mass Index' => '');
-        foreach ($sortedVitals as $vital) 
-        {
-            $result[$vital['name']] = array('Date of Measurement' => $vital['date']
-                    , 'Measurement Value' => $vital['value']);
-        }
-        
-        // Add message for Vitals not found
-        if($nTemp == 0){
-            $result[$tempLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);        
-        }
-        if($nHR == 0){
-            $result[$hrLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
-        }
-        if($nBP == 0){
-            $result[$bpLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
-        }
-        if($nHT == 0){
-            $result[$htLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
-        }
-        if($nWT == 0){
-            $result[$wtLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
-        }
-        if($nBMI == 0){
-            $result[$bmiLabels[0]] = array("Date of Measurement" => "", "Measurement Value" => $blank['value']);
-        }
-        
-        return $result;
     }
 }
