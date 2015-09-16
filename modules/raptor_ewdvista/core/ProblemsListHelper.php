@@ -47,7 +47,7 @@ class ProblemsListHelper
     private static $FLD_NOTE_NAR = 7;
     private static $FLD_EXPOSE = 8;
     
-    private function getUserDataFromArray($myarray,$offset)
+    private function getUserDataFromArray($myarray, $offset)
     {
         if(!isset($myarray[$offset]))
         {
@@ -56,7 +56,7 @@ class ProblemsListHelper
         
         //Get the field and return just the user data part
         $rawline = $myarray[$offset];
-        return substr($rawline,2);  //Assume first two things are #^
+        return substr($rawline, 2);  //Assume first two things are #^
     }
     
     public function getFormattedProblemsDetail($value_ar)

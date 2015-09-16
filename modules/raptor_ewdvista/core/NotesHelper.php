@@ -81,12 +81,6 @@ class NotesHelper
                 } else {
                     $datetimestr = $this->getFieldTextData($onenoteitem[self::$FLD_DATETIMESTR]);
                 }
-                if(strlen($localTitle) > RAPTOR_DEFAULT_SNIPPET_LEN)
-                {
-                    $snippetText = substr($localTitle, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
-                } else {
-                    $snippetText = $localTitle;
-                }
                 if(!isset($onenoteitem[self::$FLD_AUTHOR]))
                 {
                     $authorName = NULL;
@@ -114,6 +108,18 @@ class NotesHelper
                     }
                 }
                 $notetext = implode("\n",$clean_notetext_ar);
+                $notetextsize_tx = '(' . count($clean_notetext_ar) . ' lines)';
+                $blurb = trim($facility . ' ' . $authorName);   //20150916
+                if($blurb == '')
+                {
+                    $blurb = 'no author information';
+                }
+                if(strlen($blurb) > RAPTOR_DEFAULT_SNIPPET_LEN)
+                {
+                    $snippetText = substr($blurb, 0, RAPTOR_DEFAULT_SNIPPET_LEN)."... $notetextsize_tx";
+                } else {
+                    $snippetText = "$blurb $notetextsize_tx";
+                }
                 $formatted[] = array(
                         'Type'=>$localTitle, 
                         'Date'=>$datetimestr,

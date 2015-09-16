@@ -1788,6 +1788,7 @@ class ProtocolSupportingData
                     $tempRpt['location'] = isset($RptTO->location) ? $RptTO->location : " ";
                     $tempRpt['facility'] = isset($RptTO->location->name) ? $RptTO->location->name : " ";
                     $tempRpt['text'] = isset($RptTO->text) ? $RptTO->text : "No Details Available";
+                    $notetextsize_tx = '(' . substr_count($tempRpt['text'], "\n") . ' lines)';
                     if($usenl2br)
                     {
                         $tempRpt['text'] = nl2br($tempRpt['text']);
@@ -1802,11 +1803,16 @@ class ProtocolSupportingData
                     $tempRpt['status'] = isset($RptTO->status) ? $RptTO->status : " ";
 
                     $localTitle = trim($tempRpt['localTitle']);
-                    if(strlen($localTitle) > RAPTOR_DEFAULT_SNIPPET_LEN)
+                    $blurb = $tempRpt['facility'] . ' ' . $tempRpt['authorName'];   //20150916
+                    if($blurb == '')
                     {
-                        $snippetText = substr($localTitle, 0, RAPTOR_DEFAULT_SNIPPET_LEN).'...';
+                        $blurb = 'no author information';
+                    }
+                    if(strlen($blurb) > RAPTOR_DEFAULT_SNIPPET_LEN)
+                    {
+                        $snippetText = substr($blurb, 0, RAPTOR_DEFAULT_SNIPPET_LEN)."... $notetextsize_tx";
                     } else {
-                        $snippetText = $localTitle;
+                        $snippetText = "$blurb $notetextsize_tx";
                     }
                     $result[] = array(
                                         "Type"=>$localTitle, 
