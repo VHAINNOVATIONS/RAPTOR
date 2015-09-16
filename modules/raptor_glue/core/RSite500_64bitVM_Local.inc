@@ -44,8 +44,8 @@ defined('EWDFED_BASE_URL')
     //or define('EWDFED_BASE_URL', "http://54.243.40.32:8081/RaptorEwdVista/raptor/");
 
 defined('EHR_INT_MODULE_NAME')
-    //or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
-    or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
+    or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
+    //or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
 
 //Disable the AGE scoring if using a test VISTA with VERY OLD orders.
 defined('DISABLE_TICKET_AGE1_SCORING')
@@ -91,11 +91,13 @@ defined('WLSCORE_AGE_DAYS_FACTOR')   //Suggested value is 1
 
 //Control level of effort in pulling worklist contents from EHR system
 defined('WORKLIST_MAXROWS_PER_QUERY')   //Suggested value is 1000
-    or define('WORKLIST_MAXROWS_PER_QUERY', 1000);
+    or define('WORKLIST_MAXROWS_PER_QUERY', 88);
 defined('WORKLIST_MAX_QUERY_LOOPS')   //Suggested value is 5
     or define('WORKLIST_MAX_QUERY_LOOPS', 5);
 defined('WORKLIST_ENOUGH_ROWS_COUNT')   //Suggested value is 5000
     or define('WORKLIST_ENOUGH_ROWS_COUNT', 5000);
+defined('WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS')   //Suggested value is 1000 (KEEP THIS HIGH!)
+    or define('WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS', 1000);
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')

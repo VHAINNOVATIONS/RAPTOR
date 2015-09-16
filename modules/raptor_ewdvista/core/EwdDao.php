@@ -425,7 +425,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['max'] = $max_rows_one_call;
             $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
             $row_bundles = array();
-            /*
+
             //////////////////////
             
             
@@ -434,37 +434,38 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $max_loops = WORKLIST_MAX_QUERY_LOOPS;
             $iterations = 0;
             $all_worklist_rows_raw_text_ar = array();
-            //$mdwsResponse = $this->getWorklistFromMDWS($startIEN, $MAXRECS_PER_QUERY);
             $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
             $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $rows_one_iteration = $bundle['all_rows'];
 error_log("LOOK worklist all_rows>>>" . print_r($all_worklist_rows_raw_text_ar,TRUE));           
-            $rowcount = count($rows_one_iteration);
-            while($rowcount > 0 && $iterations < $max_loops && $rowcount < $enough_rows_count)
+            while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
             {
                 
                 $iterations++;
-                $rows_one_iteration
-                $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
+                $row_count = count($rows_one_iteration);
+                if($row_count == 0)
+                {
+                    //No need to continue
+                    break;
+                }
+                
+                $row_ar = $rows_one_iteration[1];   //This is the first row
+                $tracking_id = $row_ar[0];          //This is the oldest ID pulled so far
+                $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $rows_one_iteration);
+    //error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
+    
+                //Query the next chunk
+                $args['from'] = $tracking_id;    //VistA starts from this value -1!!!!!
                 $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
                 $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
-                
-                $allrows = $mdwsResponse->ddrListerResult->text->string;
-                $myrow = $allrows[0];   //First row is oldest order so far
-                $row_ar = explode('^', $myrow);
-                $tracking_id = $row_ar[self::WLVFO_TrackingID];
-                $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $allrows);
-//error_log("LOOK worklist testing iter $iterations myrow >>>" . print_r($myrow,TRUE));
-                $mdwsResponse = $this->getWorklistFromMDWS($tracking_id, $MAXRECS_PER_QUERY);
-    //error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
-                
-                $row_count = count($all_worklist_rows_raw_text_ar);
-                
+                $rows_one_iteration = $bundle['all_rows'];
             }
+/*
+error_log("LOOK worklist testing iter $iterations final result >>>>" . print_r($all_worklist_rows_raw_text_ar,TRUE));
             
             //////////////////////
-            */
+
             while($getmorepages)
             {
                 $pages++;
@@ -509,11 +510,12 @@ error_log("LOOK worklist all_rows>>>" . print_r($all_worklist_rows_raw_text_ar,T
             }
 //error_log("LOOK pending_orders_map 2 ($max_rows_one_call rows scanned) >>>" . print_r($pending_orders_map,TRUE));
             $show_rows = $row_bundles[0];
-            
+*/            
+            $show_rows = $all_worklist_rows_raw_text_ar;
             //Scanned enough to populate the pending orders?
-            if($max_rows_one_call < 1000)
+            if($max_rows_one_call < WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS)
             {
-                $pending_orders_map = "NOT COMPUTED (only scanned $max_rows_one_call orders)";
+                $pending_orders_map = "NOT COMPUTED (only scanned $max_rows_one_call orders and our minimum is " . WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS . ")";
             } else {
                 //Put pending orders map into a cache
                 $sThisPendingOrdersResultName = REDAO_CACHE_NM_PENDINGORDERS;
