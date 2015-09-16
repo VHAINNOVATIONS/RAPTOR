@@ -37,6 +37,7 @@ class WorklistData
     private $m_oContext;
     
     //Worklist Vista Field Order
+    const WLVFO_TrackingID            = 0;    
     const WLVFO_PatientID             = 1;
     const WLVFO_PatientName           = 2;
     const WLVFO_ExamCategory          = 3;
@@ -49,7 +50,7 @@ class WorklistData
     const WLVFO_Nature                = 10;
     const WLVFO_Transport             = 11;
     const WLVFO_DesiredDate           = 12;
-    const WLVFO_OrderFileIen          = 13;
+    const WLVFO_OrderFileIen          = 13; //Not the tracking ID we use
     const WLVFO_RadOrderStatus        = 14;
     
     //Values of Order Status http://code.osehra.org/dox/Global_XlJBTyg3NS4x.html
@@ -79,7 +80,328 @@ class WorklistData
     /**
      * Gets each row of the worklist.
      */
-    private function parseWorklist($MDWSResponse, $ticketTrackingDict, $match_IEN=NULL)
+    private function parseWorklistTextRows($all_worklist_rows_raw_text_ar, $ticketTrackingDict, $match_IEN=NULL)
+    {
+        try
+        {
+            $aPatientPendingOrderCount = array();
+            $aPatientPendingOrderMap = array();
+            $nOffsetMatchIEN = NULL;
+
+            $oUserInfo = $this->m_oContext->getUserInfo();
+
+            $match_order_to_user = new \raptor_formulas\MatchOrderToUser($oUserInfo);
+            $language_infer = new \raptor_formulas\LanguageInference();
+
+            $worklist = array();
+
+            $exploded = array();
+            $t = array();
+            $nFound=0;
+
+            $ticketTrackingRslt = $ticketTrackingDict['raptor_ticket_tracking'];
+            $ticketCollabRslt = $ticketTrackingDict['raptor_ticket_collaboration'];
+            $scheduleTrackRslt = $ticketTrackingDict['raptor_schedule_track'];
+
+            $skipped_because_status = 0;
+            $skipped_because_other = 0;
+            $numOrders = count($all_worklist_rows_raw_text_ar);
+            for ($i=0; $i<$numOrders; $i++)
+            {
+                $exploded = explode("^", $all_worklist_rows_raw_text_ar[$i]);
+                $vista_order_status_code = $exploded[self::WLVFO_RadOrderStatus];
+
+                $ienKey = $exploded[0];
+                $sqlTicketTrackRow = array_key_exists($ienKey, $ticketTrackingRslt) ? $ticketTrackingRslt[$ienKey] : NULL; // use IEN from MDWS results as key
+                $sqlTicketCollaborationRow = array_key_exists($ienKey, $ticketCollabRslt) ? $ticketCollabRslt[$ienKey] : NULL; // use IEN from MDWS results as key
+                $sqlScheduleTrackRow = array_key_exists($ienKey, $scheduleTrackRslt) ? $scheduleTrackRslt[$ienKey] : NULL; // use IEN from MDWS results as key
+
+                $raptor_order_status  = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : NULL);
+                if($raptor_order_status == NULL 
+                    && ($vista_order_status_code != self::WLVOS_ACTIVE && $vista_order_status_code != self::WLVOS_PENDING))
+                {
+                    //We will NOT show this ticket in the worklist
+                    $skipped_because_status++;
+                    continue;
+                }
+                $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] = ($raptor_order_status != NULL ? $raptor_order_status : 'AC'); // default to "AC"
+                $patientID = $exploded[self::WLVFO_PatientID];
+                $t[\raptor\WorklistColumnMap::WLIDX_TRACKINGID]  = $exploded[0];
+                $t[\raptor\WorklistColumnMap::WLIDX_PATIENTID]   = $patientID; 
+                $t[\raptor\WorklistColumnMap::WLIDX_PATIENTNAME] = $this->formatPatientName($exploded[self::WLVFO_PatientName]);
+                $desired_date_raw = $exploded[self::WLVFO_DesiredDate];
+                $t[\raptor\WorklistColumnMap::WLIDX_DATETIMEDESIRED] = $desired_date_raw;
+                if(strpos($desired_date_raw, '@') !== FALSE)
+                {
+                    $desired_date_parts=explode('@',$desired_date_raw);
+                    $desired_date_justdate=$desired_date_parts[0];
+                    $desired_date_justtime=$desired_date_parts[1];
+                    $desired_date_timestamp = strtotime($desired_date_justdate);  
+                    $desired_date_iso8601 = date('Y-m-d ',$desired_date_timestamp) . $desired_date_justtime;
+                } else {
+                    $desired_date_justdate=$desired_date_raw;
+                    $desired_date_timestamp = strtotime($desired_date_justdate);  
+                    $desired_date_iso8601 = date('Y-m-d',$desired_date_timestamp);
+                }
+                $t[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATETIMEDESIRED] = $desired_date_iso8601;
+
+                if($exploded[self::WLVFO_OrderedDate] !== '' && ($last = strrpos($exploded[self::WLVFO_OrderedDate], ':')) !== FALSE)
+                {
+                    //Remove the seconds from the time.
+                    $dateordered_raw = substr($exploded[self::WLVFO_OrderedDate], 0, $last);
+                } else {
+                    //Assume there is no time portion.
+                    $dateordered_raw = $exploded[self::WLVFO_OrderedDate];
+                }
+                $t[\raptor\WorklistColumnMap::WLIDX_DATEORDERED]     = $dateordered_raw;
+                if(strpos($dateordered_raw, '@') !== FALSE)
+                {
+                    $dateordered_parts=explode('@',$dateordered_raw);
+                    $dateordered_justdate=$dateordered_parts[0];
+                    $dateordered_justtime=$dateordered_parts[1];
+                    $dateordered_timestamp = strtotime($dateordered_justdate);  
+                    $dateordered_iso8601 = date('Y-m-d ',$dateordered_timestamp) . ' ' . $dateordered_justtime;
+                } else {
+                    $dateordered_justdate=$dateordered_raw;
+                    $dateordered_timestamp = strtotime($dateordered_justdate);  
+                    $dateordered_iso8601 = date('Y-m-d',$dateordered_timestamp);
+                }
+                $t[\raptor\WorklistColumnMap::WLIDX_ISO8601_DATEORDERED] = $dateordered_iso8601;
+
+                $t[\raptor\WorklistColumnMap::WLIDX_STUDY]       = $exploded[self::WLVFO_Procedure];
+                $t[\raptor\WorklistColumnMap::WLIDX_URGENCY]     = $exploded[self::WLVFO_Urgency]; 
+                switch(trim($exploded[self::WLVFO_Transport]))
+                {
+                    case "a":
+                        $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = "AMBULATORY";
+                        break;
+                    case "p":
+                        $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = "PORTABLE";
+                        break;
+                    case "s":
+                        $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = "STRETCHER";
+                        break;
+                    case "w":
+                        $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = "WHEEL CHAIR";
+                        break;
+                    default:
+                        $t[\raptor\WorklistColumnMap::WLIDX_TRANSPORT] = $exploded[self::WLVFO_Transport];
+                        break;
+                }
+                $t[\raptor\WorklistColumnMap::WLIDX_PATIENTCATEGORYLOCATION]     = $exploded[self::WLVFO_ExamCategory];
+                $t[\raptor\WorklistColumnMap::WLIDX_ANATOMYIMAGESUBSPEC]         = NULL;    //Fill if VistA order tells us
+
+
+                //Only show an assignment if ticket has not yet moved downstream in the workflow.
+                if($t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AC' 
+                        || $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'CO' || $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'RV')
+                {
+                    $t[\raptor\WorklistColumnMap::WLIDX_ASSIGNEDUSER] = (isset($sqlTicketCollaborationRow) ? array(
+                                                              'uid'=>$sqlTicketCollaborationRow->collaborator_uid
+                                                            , 'requester_notes_tx'=>$sqlTicketCollaborationRow->requester_notes_tx
+                                                            , 'requested_dt'=>$sqlTicketCollaborationRow->requested_dt
+                                                            , 'username'=>$sqlTicketCollaborationRow->username
+                                                            , 'fullname'=>trim($sqlTicketCollaborationRow->usernametitle . ' ' .$sqlTicketCollaborationRow->firstname
+                                                                    . ' ' .$sqlTicketCollaborationRow->lastname. ' ' .$sqlTicketCollaborationRow->suffix )
+                                                        ) : NULL);    
+                } else {
+                    $t[\raptor\WorklistColumnMap::WLIDX_ASSIGNEDUSER] = '';
+                }
+
+                $t[\raptor\WorklistColumnMap::WLIDX_EHR_ORDERSTATUS]  = '';   //Placeholder for Order Status (fill later)
+
+                $t[\raptor\WorklistColumnMap::WLIDX_EDITINGUSER]      = '';   //Placeholder for UID of user that is currently editing the record, if any. (check local database)
+
+                $t[\raptor\WorklistColumnMap::WLIDX_EXAMLOCATION] = $exploded[self::WLVFO_ExamLocation];
+                $t[\raptor\WorklistColumnMap::WLIDX_REQUESTINGPHYSICIAN] = $exploded[self::WLVFO_RequestingPhysician];
+                $rfs = trim($exploded[self::WLVFO_Nature]);
+                switch ($rfs)
+                {
+                    case 'w' :
+                        $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "WRITTEN";
+                        break;
+                    case 'v' :
+                        $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "VERBAL";
+                        break;
+                    case 'p' :
+                        $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "TELEPHONED";
+                        break;
+                    case 's' :
+                        $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "SERVICE CORRECTION";
+                        break;
+                    case 'i' :
+                        $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "POLICY";
+                        break;
+                    case 'e' :
+                        $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "PHYSICIAN ENTERED";
+                        break;
+                    default :
+                        if(strlen($rfs)==0)
+                        {
+                            $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = "NOT ENTERED";
+                        } else {
+                            $t[\raptor\WorklistColumnMap::WLIDX_NATUREOFORDERACTIVITY] = $rfs;
+                        }
+                        break;
+                }
+
+                // Pull schedule from raptor_schedule_track
+                if($sqlScheduleTrackRow != null)
+                {
+                    //If a record exists, then there is something to see.
+                    $showText = '';
+                    if(isset($sqlScheduleTrackRow->scheduled_dt))
+                    {
+                        $phpdate = strtotime( $sqlScheduleTrackRow->scheduled_dt );
+                        $sdt = date( 'Y-m-d H:i', $phpdate ); //Remove the seconds
+                        if(isset($sqlScheduleTrackRow->confirmed_by_patient_dt))
+                        {
+                            if($showText > '')
+                            {
+                               $showText .= '<br>'; 
+                            }
+                            $showText .= 'Confirmed '.$sqlScheduleTrackRow->confirmed_by_patient_dt; 
+                        }
+                        if($showText > '')
+                        {
+                           $showText .= '<br>'; 
+                        }
+                        $showText .= 'For '. $sdt ;//$sqlScheduleTrackRow->scheduled_dt; 
+                        if(isset($sqlScheduleTrackRow->location_tx))
+                        {
+                            if($showText > '')
+                            {
+                               $showText .= '<br>'; 
+                            }
+                            $showText .= 'In ' . $sqlScheduleTrackRow->location_tx; 
+                        }
+                    }
+                    if(isset($sqlScheduleTrackRow->canceled_dt))
+                    {
+                        //If we are here, clear everything before.
+                        $showText = 'Cancel requested '.$sqlScheduleTrackRow->canceled_dt; 
+                    }
+                    if(trim($sqlScheduleTrackRow->notes_tx) > '')
+                    {
+                        if($showText > '')
+                        {
+                           $showText .= '<br>'; 
+                        }
+                        $showText .= 'See Notes...'; 
+                    }
+                    if($showText == '')
+                    {
+                        //Indicate there is someting to see in the form.
+                        $showText = 'See details...';
+                    }
+                    $t[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = array(
+                        'EventDT' => $sqlScheduleTrackRow->scheduled_dt,
+                        'LocationTx' => $sqlScheduleTrackRow->location_tx,
+                        'ConfirmedDT' => $sqlScheduleTrackRow->confirmed_by_patient_dt,
+                        'CanceledDT' => $sqlScheduleTrackRow->canceled_dt,
+                        'ShowTx' => $showText
+                    );
+                    //print_r($sqlScheduleTrackRow, TRUE);
+                } else {
+                    //No record exists yet.
+                    $t[\raptor\WorklistColumnMap::WLIDX_SCHEDINFO] = array(
+                        'EventDT' => NULL,
+                        'LocationTx' => NULL,
+                        'ConfirmedDT' => NULL,
+                        'CanceledDT' => NULL,
+                        'ShowTx' => 'Unknown'
+                    );
+                }
+
+                $t[\raptor\WorklistColumnMap::WLIDX_CPRSCODE]    = '';   //Placeholder for the CPRS code associated with this ticket
+                $t[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE]   = $exploded[self::WLVFO_ImageType];   //Placeholder for Imaging Type - file 75.1, field 3
+                $modality = $language_infer->inferModalityFromPhrase($t[\raptor\WorklistColumnMap::WLIDX_IMAGETYPE]);
+                if($modality == NULL)
+                {
+                    $modality = $language_infer->inferModalityFromPhrase($t[\raptor\WorklistColumnMap::WLIDX_STUDY]);
+                }
+
+                $t[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = -1;  //Important that we allocate something here, will replace later.
+
+                $t[\raptor\WorklistColumnMap::WLIDX_MODALITY] = 'Unknown';
+
+                if($modality == '')
+                {
+                    //Do not return the row if we cannot determine the modality.
+                    $skipped_because_other++;
+                 } else {
+                    //Count this order as pending for the patient?
+                    if($t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'AC'
+                            || $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'CO'
+                            || $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] == 'RV')
+                    {
+                        $aPatientPendingOrderMap[$patientID][$ienKey] 
+                                = array($ienKey
+                                    ,$modality
+                                    ,$t[\raptor\WorklistColumnMap::WLIDX_STUDY]);
+                        if(isset($aPatientPendingOrderCount[$patientID]))
+                        {
+                            $aPatientPendingOrderCount[$patientID] +=  1; 
+                        } else {
+                            $aPatientPendingOrderCount[$patientID] =  1; 
+                        }
+                    }
+
+                    $nFound++;
+                    $offset = $nFound;
+                    $t[\raptor\WorklistColumnMap::WLIDX_MODALITY] = $modality;
+
+                    //Compute the score for this row.
+                    $t[\raptor\WorklistColumnMap::WLIDX_RANKSCORE] = $match_order_to_user->getTicketRelevance($t);
+
+                    $t[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN] = $exploded[self::WLVFO_OrderFileIen]; 
+                    $t[\raptor\WorklistColumnMap::WLIDX_EHR_ORDERSTATUS] = $vista_order_status_code; //Status from VistA
+                    $t[\raptor\WorklistColumnMap::WLIDX_EHR_RADIOLOGYORDERSTATUS] = $vista_order_status_code; //Status from VistA
+
+                    //Add this row to the worklist because modality not blank.
+                    $worklist[$offset] = $t;    
+                    if($match_IEN != NULL && $ienKey == $match_IEN)
+                    {
+                        $nOffsetMatchIEN = $offset;
+                    }
+                    //error_log("LOOK MDWS worklist ticket $ienKey has vista status=" . $vista_order_status_code);
+                }
+            }
+            for($i=0;$i<count($worklist);$i++)
+            {
+                $t = &$worklist[$i];
+                if(is_array($t))
+                {
+                    //Yes, this is a real row.
+                    $patientID = $t[\raptor\WorklistColumnMap::WLIDX_PATIENTID];
+                    if(isset($aPatientPendingOrderMap[$patientID]))
+                    {
+                        $t[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = $aPatientPendingOrderMap[$patientID];
+                        $t[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = $aPatientPendingOrderCount[$patientID];
+                    } else {
+                        //Found no pending orders for this IEN
+                        $t[\raptor\WorklistColumnMap::WLIDX_MAPPENDINGORDERSSAMEPATIENT] = array();;
+                        $t[\raptor\WorklistColumnMap::WLIDX_COUNTPENDINGORDERSSAMEPATIENT] = 0;
+                    }
+                }
+            }
+            //Populate the array of results
+            $result = array('all_rows'=>&$worklist
+                            ,'pending_orders_map'=>&$aPatientPendingOrderMap
+                            ,'matching_offset'=>$nOffsetMatchIEN);
+            //error_log("LOOK MDWS WORKLIST skipped orders bc_status=$skipped_because_status bc_other=$skipped_because_other");
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    
+    /**
+     * Gets each row of the worklist.
+     * @deprecated since version number
+     */
+    private function parseWorklistOLD_PARAMS($MDWSResponse, $ticketTrackingDict, $match_IEN=NULL)
     {
         try
         {
@@ -113,7 +435,7 @@ class WorklistData
                         . $showinfo . "\nMDWSResponse->ddrListerResult Details END...");
                 return FALSE;
             }
-            $strings = isset($MDWSResponse->ddrListerResult->text->string) ? $MDWSResponse->ddrListerResult->text->string : array();
+            $ar_of_rows_as_text = isset($MDWSResponse->ddrListerResult->text->string) ? $MDWSResponse->ddrListerResult->text->string : array();
 
             $exploded = array();
             $t = array();
@@ -127,7 +449,7 @@ class WorklistData
             $skipped_because_other = 0;
             for ($i=0; $i<$numOrders; $i++)
             {
-                $exploded = explode("^", $strings[$i]);
+                $exploded = explode("^", $ar_of_rows_as_text[$i]);
                 $vista_order_status_code = $exploded[self::WLVFO_RadOrderStatus];
 
                 $ienKey = $exploded[0];
@@ -454,10 +776,11 @@ class WorklistData
     /**
      * @description Return result of web service call to MDWS, web method QueryService.ddrLister
      */
-    private function getWorklistFromMDWS($startIEN=NULL, $filterDiscontinued = TRUE, $MAXRECS = 1500)
+    private function getWorklistFromMDWS($startIEN=NULL, $MAXRECS_PER_QUERY = 1500)
     {
         try
         {
+            $filterDiscontinued = TRUE;
             $sThisResultName = 'getWorklistFromMDWS';
             if(!isset($this->m_oContext))
             {
@@ -468,19 +791,21 @@ class WorklistData
                 $startIEN = ''; //Must be an empty string
             }
             $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
-            $result = $mdwsDao->makeQuery('ddrLister', array(
+            $fieldargument_string = $this->getWorklistVistaFieldArgumentString();
+            $ddrListerArguments = array(
                 'file'=>'75.1', 
                 'iens'=>'',     //Only for sub files
-                'fields'=>$this->getWorklistVistaFieldArgumentString(), 
+                'fields'=>$fieldargument_string, 
                 'flags'=>'PB',      //P=PACKED format, B=Back
-                'maxrex'=>$MAXRECS,    //1780',   //20140926 Known issue with RPC if this number is too big need to look into fix
+                'maxrex'=>$MAXRECS_PER_QUERY,    //1780',   //20140926 Known issue with RPC if this number is too big need to look into fix
                 'from'=>$startIEN,     //For pagination provide smallest IEN as startign point for new query
                 'part'=>'',         //ignore
                 'xref'=>'#',        //Leave as #
                 'screen'=> ($filterDiscontinued ? "I (\$P(^(0),U,5)'=1)" : ''), //I ($P(^(0),U,5)=5)|($P(^(0),U,5)=6)',   //Server side filtering but APPLIED TO EACH RECORD ONE BY ONE VERY SLOW NO FILTERING BEFOREHAND
                 'identifier'=>''    //Mumps code for filtering etc
-                ));
-            
+                );
+            error_log("LOOK About to make query ddrLister with arguments>>>" . print_r($ddrListerArguments,TRUE));
+            $result = $mdwsDao->makeQuery('ddrLister', $ddrListerArguments);
             return $result;
         } catch (\Exception $ex) {
             $msg = 'Failed getting worklist because ' . $ex;
@@ -553,20 +878,45 @@ class WorklistData
      * Get all the worklist rows for the provided context
      * @return type array of rows for the worklist page
      */
-    public function getWorklistRows($startIEN=NULL,$match_this_IEN=NULL)
+    public function getWorklistRows($startIEN=NULL, $match_this_IEN=NULL, $MAXRECS_PER_QUERY = 1000, $TOTAL_ORDERS_CHECKED=5000)
     {
         try
         {
-            $mdwsResponse = $this->getWorklistFromMDWS($startIEN);
             module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+            
+            //Query several times
+            $iterations = 0;
+            $max_loops = 6;
+            $all_worklist_rows_raw_text_ar = array();
+            $mdwsResponse = $this->getWorklistFromMDWS($startIEN, $MAXRECS_PER_QUERY);
+error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse,TRUE));
+            while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $TOTAL_ORDERS_CHECKED)
+            {
+                $iterations++;
+                $row_count = $numOrders = isset($mdwsResponse->ddrListerResult) ? $mdwsResponse->ddrListerResult->count : 0;
+                if($row_count > 0)
+                {
+                    $allrows = $mdwsResponse->ddrListerResult->text->string;
+                    $myrow = $allrows[0];   //First row is oldest order so far
+                    $row_ar = explode('^', $myrow);
+                    $tracking_id = $row_ar[self::WLVFO_TrackingID];
+                    $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $allrows);
+    error_log("LOOK worklist testing iter $iterations myrow >>>" . print_r($myrow,TRUE));
+                    $mdwsResponse = $this->getWorklistFromMDWS($tracking_id, $MAXRECS_PER_QUERY);
+    error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
+                }
+            }
+    error_log("LOOK worklist testing all rows (looped $iterations) >>>" . print_r($all_worklist_rows_raw_text_ar,TRUE));
             $oTT = new \raptor\TicketTrackingData();
             $sqlResponse = $oTT->getConsolidatedWorklistTracking();
             if($match_this_IEN == NULL)
             {
                 $match_this_IEN = $this->m_oContext->getSelectedTrackingID();
             }
-            $parsedWorklist = $this->parseWorklist($mdwsResponse, $sqlResponse, $match_this_IEN);
+            //$parsedWorklist = $this->parseWorklistOLD_PARAMS($mdwsResponse, $sqlResponse, $match_this_IEN);
+            $parsedWorklist = $this->parseWorklistTextRows($all_worklist_rows_raw_text_ar, $sqlResponse, $match_this_IEN);
 
+            
             $dataRows = $parsedWorklist['all_rows'];
             $pending_orders_map = $parsedWorklist['pending_orders_map'];
             $matching_offset = $parsedWorklist['matching_offset'];
