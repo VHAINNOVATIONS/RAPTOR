@@ -48,9 +48,9 @@ class GraphData
         try 
         {
             $ehrDao = $this->m_oContext->getEhrDao();
-            $rawResult = $ehrDao->getRawVitalSignsMap();
+            $rawVitalsBundle = $ehrDao->getRawVitalSignsMap();
             $max_dates = 5;
-            $result = $this->convertVitalsToGraphFormat(array('Temperature'), $rawResult, $max_dates);
+            $result = $this->convertVitalsToGraphFormat(array('Temperature'), $rawVitalsBundle, $max_dates);
             if(!is_array($result))
             {
                 error_log("WARNING getThumbnailGraphValues unexpected result format>>>" . print_r($result,TRUE));
@@ -75,7 +75,7 @@ class GraphData
                 error_log("WARNING unexpected format received by getVitalsGraphValues>>>".print_r($result,TRUE));
                 $result = array();
             }
-        error_log("LOOK getVitalsGraphValues>>>".print_r($result,TRUE));
+        //error_log("LOOK getVitalsGraphValues>>>".print_r($result,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -93,10 +93,10 @@ class GraphData
                     , 'gender'=>$aDD['PatientGender']
                     , 'age'=>$aDD['PatientAge']);
             $labsResult = $ehrDao->getChemHemLabs();
-            error_log('LOOK getLabsGraphValues patient>>>'.print_r($selectedPatient,TRUE));
-            error_log('LOOK getLabsGraphValues labs>>>'.print_r($labsResult,TRUE));
+            //error_log('LOOK getLabsGraphValues patient>>>'.print_r($selectedPatient,TRUE));
+            //error_log('LOOK getLabsGraphValues labs>>>'.print_r($labsResult,TRUE));
             $result = $this->convertLabsToGraphFormat($selectedPatient,$labsResult);
-            error_log('LOOK getLabsGraphValues filtered>>>'.print_r($result,TRUE));
+            //error_log('LOOK getLabsGraphValues filtered>>>'.print_r($result,TRUE));
             if(!is_array($result))
             {
                 $result = array();
@@ -322,23 +322,26 @@ class GraphData
         try
         {
             global $user;
-    error_log('LOOK Starting convertVitalsToGraphFormat as user '.$user->name.' maxdates='.$max_dates);
-    error_log('LOOK Starting convertVitalsToGraphFormat typeArray >>>' . print_r($typeArray,TRUE));
+            
+    //error_log('LOOK Starting convertVitalsToGraphFormat as user '.$user->name.' maxdates='.$max_dates);
+    //error_log('LOOK Starting convertVitalsToGraphFormat typeArray >>>' . print_r($typeArray,TRUE));
+    //error_log('LOOK Starting convertVitalsToGraphFormat vitals >>>' . print_r($vitals,TRUE));
 
-            if (!isset($typeArray) || count($typeArray) === 0) {
+            if (!isset($typeArray) || count($typeArray) === 0) 
+            {
                 $errmsg = 'Invalid vital types argument:'.print_r($typeArray,TRUE);
                 error_log("ERROR: $errmsg");
                 throw new \Exception($errmsg);
             }
-            if(isset($vitals['getVitalSignsResult']))
+            if(is_array($vitals))
             {
-    error_log('LOOK Starting convertVitalsToGraphFormat vitals LEGACY format >>>' . print_r($vitals,TRUE));
-                $result = $this->parseVitalsFromLegacyFormat($typeArray, $vitals, $max_dates);
-            } else {
-    error_log('LOOK Starting convertVitalsToGraphFormat vitals FULL format >>>' . print_r($vitals,TRUE));
+    //error_log('LOOK Starting convertVitalsToGraphFormat vitals FULL format >>>' . print_r($vitals,TRUE));
                 $result = $this->parseVitalsFromFullFormat($typeArray, $vitals, $max_dates);
+            } else {
+    //error_log('LOOK Starting convertVitalsToGraphFormat vitals LEGACY format >>>' . print_r($vitals,TRUE));
+                $result = $this->parseVitalsFromLegacyFormat($typeArray, $vitals, $max_dates);
             }
-    error_log('LOOK DONE convertVitalsToGraphFormat result = ' . print_r($result,TRUE));
+    //error_log('LOOK DONE convertVitalsToGraphFormat result = ' . print_r($result,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -443,7 +446,7 @@ class GraphData
                     }
                     //$formattedDate = self::convertYYYYMMDDToDate($lab['rawTime']);
                     $timestamp = self::convertVistaDateTimeToPhpTimestamp($lab['rawTime']);  //added 20141104 
-error_log("LOOK lab rawTime=" . $lab['rawTime'] . " >>> real timestamp=$timestamp");                    
+//error_log("LOOK lab rawTime=" . $lab['rawTime'] . " >>> real timestamp=$timestamp");                    
                     $datetimeparts = $this->getGraphFriendlyDateTimeParts($timestamp);
                     $formattedDate = $datetimeparts['just_date_text'];
                     $datetime = $datetimeparts['datetime_text'];
@@ -451,7 +454,7 @@ error_log("LOOK lab rawTime=" . $lab['rawTime'] . " >>> real timestamp=$timestam
                         'date'=>$formattedDate, 
                         'egfr'=>$eGFR,
                         'datetime'=>$datetime);
-error_log("LOOK lab rawTime=" . $lab['rawTime'] . " produces >>>" . print_r($oneresult,TRUE));                    
+//error_log("LOOK lab rawTime=" . $lab['rawTime'] . " produces >>>" . print_r($oneresult,TRUE));                    
                     $result[] = $oneresult;
                 }
             }
