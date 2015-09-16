@@ -89,6 +89,11 @@ defined('WLSCORE_AGE_WEEKS_FACTOR')  //Suggested value is 10
 defined('WLSCORE_AGE_DAYS_FACTOR')   //Suggested value is 1
     or define('WLSCORE_AGE_DAYS_FACTOR', 1);
 
+defined('WORKLIST_MAXROWS_PER_QUERY')   //Suggested value is 1000
+    or define('WORKLIST_MAXROWS_PER_QUERY', 1000);
+defined('WORKLIST_MAX_QUERY_LOOPS')   //Suggested value is 5
+    or define('WORKLIST_MAX_QUERY_LOOPS', 5);
+
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')
     or define('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV', NULL);	

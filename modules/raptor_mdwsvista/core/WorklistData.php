@@ -776,7 +776,7 @@ class WorklistData
     /**
      * @description Return result of web service call to MDWS, web method QueryService.ddrLister
      */
-    private function getWorklistFromMDWS($startIEN=NULL, $MAXRECS_PER_QUERY = 1500)
+    private function getWorklistFromMDWS($startIEN=NULL, $MAXRECS_PER_QUERY = WORKLIST_MAXROWS_PER_QUERY)
     {
         try
         {
@@ -878,7 +878,7 @@ class WorklistData
      * Get all the worklist rows for the provided context
      * @return type array of rows for the worklist page
      */
-    public function getWorklistRows($startIEN=NULL, $match_this_IEN=NULL, $MAXRECS_PER_QUERY = 1000, $TOTAL_ORDERS_CHECKED=5000)
+    public function getWorklistRows($startIEN=NULL, $match_this_IEN=NULL, $MAXRECS_PER_QUERY = WORKLIST_MAXROWS_PER_QUERY, $TOTAL_ORDERS_CHECKED=5000)
     {
         try
         {
@@ -886,7 +886,7 @@ class WorklistData
             
             //Query several times
             $iterations = 0;
-            $max_loops = 6;
+            $max_loops = WORKLIST_MAX_QUERY_LOOPS;
             $all_worklist_rows_raw_text_ar = array();
             $mdwsResponse = $this->getWorklistFromMDWS($startIEN, $MAXRECS_PER_QUERY);
 //error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse,TRUE));

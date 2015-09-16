@@ -463,6 +463,10 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 {
                     $tid = $override_tracking_id;
                 }
+                if($tid == '')
+                {
+                    throw new \Exception("Cannot get dashboard without a tracking ID!");
+                }
                 $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
