@@ -350,7 +350,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             $spid = $this->getSelectedPatientID();
             if($spid != NULL)
             {
-                error_log('LOOK Transparently re-selecting patient ID>>>[' . $spid . "] from $this");
+                //error_log('LOOK Transparently re-selecting patient ID>>>[' . $spid . "] from $this");
                 $this->makeQuery('select', array('DFN' => $spid));
             }
 
@@ -451,7 +451,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         try
         {
-error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
+//error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
             $aResult = array();
             $oContext = \raptor\Context::getInstance();
             if ($oContext != NULL)
@@ -471,14 +471,14 @@ error_log("LOOK START getDashboardDetailsMap($override_tracking_id)...");
                     if ($aCachedResult !== NULL)
                     {
                         //Found it in the cache!
-error_log("LOOK Found it in the $sThisResultName cache!  $this");                        
+//error_log("LOOK Found it in the $sThisResultName cache!  $this");                        
                         return $aCachedResult;
                     }
                 }
 
                 //Create it now and add it to the cache
                 $oWL = new \raptor_mdwsvista\WorklistData($oContext);
-error_log("LOOK make call now getDashboardDetailsMap($tid)...");
+//error_log("LOOK make call now getDashboardDetailsMap($tid)...");
                 $aResult = $oWL->getDashboardMap($tid); //20150724
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
@@ -656,7 +656,7 @@ error_log("LOOK make call now getDashboardDetailsMap($tid)...");
     public function getOrderOverviewMap()
     {
         $result = $this->getProtocolSupportingData('getOrderOverview');
-error_log("LOOK MDWS getOrderOverviewMap $this >>>" . print_r($result,TRUE));
+//error_log("LOOK MDWS getOrderOverviewMap $this >>>" . print_r($result,TRUE));
         return $result;
     }
 
@@ -670,41 +670,17 @@ error_log("LOOK MDWS getOrderOverviewMap $this >>>" . print_r($result,TRUE));
         return $this->getProtocolSupportingData('getVitalsDetail');
     }
 
-    /*
-     * @deprecated 20150911
-    public function getProcedureLabsDetailMap($override_patientId = NULL)
-    {
-        if($override_patientId != NULL)
-        {
-            error_log("FAILED getProcedureLabsDetailMap because received override_patientId=$override_patientId");
-            return FALSE;   //Indicate this feature is NOT supported!
-        }
-        try
-        {
-            $result = $this->getProtocolSupportingData('getProcedureLabsDetail',NULL,NULL,$override_patientId);
-error_log("LOOK MDWS getProcedureLabsDetailMap >>> " . print_r($result,TRUE));
-if(count($result) > 0)
-{
-    error_log("LOOK MDWS getProcedureLabsDetailMap HAS DATA!!!!! $this >>> " . print_r($result,TRUE));
-}
-            return $result;
-        } catch (\Exception $ex) {
-            throw $ex;
-        }
-    }
-     */
-
     public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
-        if($override_patientId != NULL)
-        {
-            error_log("FAILED getDiagnosticLabsDetailMap because received override_patientId=$override_patientId");
-            return FALSE;   //Indicate this feature is NOT supported!
-        }
         try
         {
-            $result = $this->getProtocolSupportingData('getDiagnosticLabsDetail',NULL,NULL,$override_patientId);
-error_log("LOOK MDWS getDiagnosticLabsDetail >>> " . print_r($result,TRUE));
+            if($override_patientId != NULL)
+            {
+                error_log("FAILED getDiagnosticLabsDetailMap because received override_patientId=$override_patientId");
+                $result = FALSE;   //Indicate this feature is NOT supported!
+            } else {
+                $result = $this->getProtocolSupportingData('getDiagnosticLabsDetail',NULL,NULL,$override_patientId);
+            }
             return $result;
         } catch (\Exception $ex) {
             throw $ex;

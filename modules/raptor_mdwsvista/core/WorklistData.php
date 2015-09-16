@@ -804,11 +804,11 @@ class WorklistData
                 'screen'=> ($filterDiscontinued ? "I (\$P(^(0),U,5)'=1)" : ''), //I ($P(^(0),U,5)=5)|($P(^(0),U,5)=6)',   //Server side filtering but APPLIED TO EACH RECORD ONE BY ONE VERY SLOW NO FILTERING BEFOREHAND
                 'identifier'=>''    //Mumps code for filtering etc
                 );
-            error_log("LOOK About to make query ddrLister with arguments>>>" . print_r($ddrListerArguments,TRUE));
+            //error_log("LOOK About to make query ddrLister with arguments>>>" . print_r($ddrListerArguments,TRUE));
             $result = $mdwsDao->makeQuery('ddrLister', $ddrListerArguments);
             return $result;
         } catch (\Exception $ex) {
-            $msg = 'Failed getting worklist because ' . $ex;
+            $msg = 'Failed MDWS getting worklist because ' . $ex;
             error_log($msg);
             throw $ex;
         }
@@ -889,7 +889,7 @@ class WorklistData
             $max_loops = 6;
             $all_worklist_rows_raw_text_ar = array();
             $mdwsResponse = $this->getWorklistFromMDWS($startIEN, $MAXRECS_PER_QUERY);
-error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse,TRUE));
+//error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse,TRUE));
             while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $TOTAL_ORDERS_CHECKED)
             {
                 $iterations++;
@@ -901,12 +901,12 @@ error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse
                     $row_ar = explode('^', $myrow);
                     $tracking_id = $row_ar[self::WLVFO_TrackingID];
                     $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $allrows);
-    error_log("LOOK worklist testing iter $iterations myrow >>>" . print_r($myrow,TRUE));
+    //error_log("LOOK worklist testing iter $iterations myrow >>>" . print_r($myrow,TRUE));
                     $mdwsResponse = $this->getWorklistFromMDWS($tracking_id, $MAXRECS_PER_QUERY);
-    error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
+    //error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
                 }
             }
-    error_log("LOOK worklist testing all rows (looped $iterations) >>>" . print_r($all_worklist_rows_raw_text_ar,TRUE));
+    //error_log("LOOK worklist testing all rows (looped $iterations) >>>" . print_r($all_worklist_rows_raw_text_ar,TRUE));
             $oTT = new \raptor\TicketTrackingData();
             $sqlResponse = $oTT->getConsolidatedWorklistTracking();
             if($match_this_IEN == NULL)
@@ -923,7 +923,7 @@ error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse
 
             $aResult = array('Pages'=>1
                             ,'Page'=>1
-                            ,'RowsPerPage'=>9999
+                            ,'RowsPerPage'=>count($dataRows)
                             ,'DataRows'=>$dataRows
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
@@ -1029,10 +1029,9 @@ error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse
                    'flds'=>'*', 
                    'flags'=>'IEN'
                )));
-
-     //       $details = array();
+            //error_log("LOOK result on ticket=$currentTrackingID of file 100 search for $orderFileIen >>>>" . print_r($orderFileRec,TRUE));
             $t['orderingPhysicianDuz'] = $worklistItemDict['14']['I']; // get internal value of ordering provider field
-            $t['orderFileStatus'] = $orderFileRec['5']['E'];
+            $t['orderFileStatus'] = isset($orderFileRec['5']['E']) ? $orderFileRec['5']['E'] : NULL;
             // 3/11/15 JAM - helper boolean for cancelng order GUI
             // 5 => PENDING, 11 => UNRELEASED
             $t['canOrderBeDCd'] = $worklistItemDict['5']['I'] == '5' || $worklistItemDict['5']['I'] == '11';
@@ -1084,7 +1083,6 @@ error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse
             $t['OrderFileIen']          = $row[\raptor\WorklistColumnMap::WLIDX_ORDERFILEIEN];
             $t['RadiologyOrderStatus']  = $row[\raptor\WorklistColumnMap::WLIDX_EHR_RADIOLOGYORDERSTATUS];
 
-error_log("LOOK MDWS dashboard thing to return>>>" . print_r($t,TRUE));            
             return $t;
             
         } catch (\Exception $ex) {

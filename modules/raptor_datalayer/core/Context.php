@@ -1284,7 +1284,8 @@ class Context
     
     /**
      * We call this whenever we change something significant in the instance.
-     * REMOVE THIS DO NOT USE SERIALIZE APPROACH!!!!!!!!!!
+     * RECOMMENDATION REMOVE THIS DO NOT USE SERIALIZE APPROACH!!!!!!!!!!
+     * Only needed by MDWS implementation --- remove it when we move to EWD
      * @deprecated 20150908!!!!!!!!!!!!!!
      */
     private function serializeNow($logMsg = NULL
@@ -1292,11 +1293,11 @@ class Context
             , $nSessionRefreshDelayOverride=NULL
             , $checkSessionTimeout=TRUE)
     {
-        error_log("LOOK REMOVE THE serializeNow STUFF!!! ($logMsg)");
+        //error_log("LOOK REMOVE THE serializeNow STUFF!!! ($logMsg)");
         //return;
         if($logMsg != NULL)
         {
-            error_log('@serializeNow: '.$logMsg);
+            //error_log('@serializeNow: '.$logMsg);
         }
         if($bSystemDrivenAction)
         {

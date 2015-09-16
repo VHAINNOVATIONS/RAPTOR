@@ -986,7 +986,7 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
         {
             //module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
             $tids = trim($_GET['tids']);
-error_log("LOOK called precache with tids=$tids");            
+//error_log("LOOK called precache with tids=$tids");            
             $tids_ar=explode(',',$tids);
             $cachedcount=0;
             foreach($tids_ar as $raw_onetid)
@@ -1006,7 +1006,7 @@ error_log("LOOK called precache with tids=$tids");
                         //Pre-caching is NOT supported by this DAO!
                         break;
                     }
-error_log("LOOK processing precache with onetid=$onetid");            
+//error_log("LOOK processing precache with onetid=$onetid");            
                     $oEhrDao->getDashboardDetailsMap($onetid);  //Let the DAO use its own cache
                     if($oEhrDao->getSupportsPreCachePatientData())
                     {
