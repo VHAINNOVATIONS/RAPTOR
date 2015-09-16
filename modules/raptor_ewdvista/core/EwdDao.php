@@ -400,7 +400,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Returns array of arrays the way RAPTOR expects it.
      */
-    public function getWorklistDetailsMap($max_rows_one_call = 1500, $start_with_IEN=NULL)
+    public function getWorklistDetailsMap($max_rows_one_call = WORKLIST_MAXROWS_PER_QUERY, $start_with_IEN=NULL)
     {
         try
         {

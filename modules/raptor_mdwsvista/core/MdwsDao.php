@@ -501,7 +501,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         }
     }
 
-    public function getWorklistDetailsMap()
+    public function getWorklistDetailsMap($max_rows_one_call = WORKLIST_MAXROWS_PER_QUERY, $start_with_IEN=NULL)
     {
         try 
         {
@@ -523,7 +523,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
                 //Create it now and add it to the cache
                 $oWL = new \raptor_mdwsvista\WorklistData($oContext);
-                $aResult = $oWL->getWorklistRows();
+                $aResult = $oWL->getWorklistRows($start_with_IEN,NULL,$max_rows_one_call);
+                //getWorklistRows($startIEN=NULL, $match_this_IEN=NULL, $MAXRECS_PER_QUERY = WORKLIST_MAXROWS_PER_QUERY, $TOTAL_ORDERS_CHECKED=5000)
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
                     try {
