@@ -47,7 +47,7 @@ class DashboardHelper
             $dashboard['Urgency']   = $radiologyOrder[6]['E'];
             $dashboard['OrderFileIen'] = $radiologyOrder[7]['I'];
 
-            $dashboard['orderFileStatus'] = $orderFileRec['5']['E'];
+            $dashboard['orderFileStatus'] = isset($orderFileRec['5']['E']) ? $orderFileRec['5']['E'] : NULL;    //20150917
             $dashboard['orderActive'] = !key_exists('63', $orderFileRec);
 
             $dashboard['Procedure']             = $therow[\raptor\WorklistColumnMap::WLIDX_STUDY];

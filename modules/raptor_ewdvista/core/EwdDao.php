@@ -453,7 +453,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
             $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $rows_one_iteration = $bundle['all_rows'];
-error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' TOP args=" . print_r($args,TRUE) . " rows_one_iteration>>>" . print_r($rows_one_iteration,TRUE));
+//error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' TOP args=" . print_r($args,TRUE) . " rows_one_iteration>>>" . print_r($rows_one_iteration,TRUE));
             while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
             {
                 
@@ -474,12 +474,12 @@ error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_
                 $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
                 $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
                 $rows_one_iteration = $bundle['all_rows'];
-error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' iter=$iterations args=" . print_r($args,TRUE) . " rows_one_iteration>>>" . print_r($rows_one_iteration,TRUE));
+//error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' iter=$iterations args=" . print_r($args,TRUE) . " rows_one_iteration>>>" . print_r($rows_one_iteration,TRUE));
             }
             
             //Scanned enough to populate the pending orders?
             $show_rows = $all_worklist_rows_raw_text_ar;
-error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' show_rows>>>".print_r($show_rows,TRUE));
+//error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' show_rows>>>".print_r($show_rows,TRUE));
             $scanned_rows = min($enough_rows_count, $max_rows_one_call * $max_loops);
             if($scanned_rows < WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS)
             {
@@ -508,7 +508,7 @@ error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_
                             ,'pending_orders_map' => $pending_orders_map
                 );
 
-error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' result>>>".print_r($aResult,TRUE));
+//error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' result>>>".print_r($aResult,TRUE));
 
             //Done!
             return $aResult;
@@ -635,7 +635,7 @@ error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_
             $args['eSig'] = $cancelesig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig) CHECK RESULT>>>" . print_r($rawresult,TRUE));            
+//error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig) CHECK RESULT>>>" . print_r($rawresult,TRUE));            
             return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1101,7 +1101,6 @@ error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $pr
             $args['toDate'] = EwdUtils::getVistaDate(0);
             $args['nRpts'] = 1000;
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD count=" . count($rawresult_ar) . " getPathologyReportsDetailMap($override_patientId) raw >>> "  . print_r($rawresult_ar,TRUE) );
             $formatted_detail = $myhelper->getFormattedPathologyReportHelperDetail($rawresult_ar);
             return $formatted_detail;
         } catch (\Exception $ex) {
@@ -1384,14 +1383,14 @@ error_log("LOOK EWD count=" . count($rawresult_ar) . " getPathologyReportsDetail
 
     public function getRawVitalSignsMap($override_patientId = NULL)
     {
-        if($override_patientId != NULL)
-        {
-            error_log("LOOK TODO --- build in support for optional param in getRawVitalSignsMap!");
-            return FALSE;   //Optional param support is NOT yet implemented
-        }
         try
         {
-            $pid = $this->getSelectedPatientID();
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
             if($pid == NULL)
             {
                 throw new \Exception('Cannot return vitals when there is no selected patient!');
