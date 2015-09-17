@@ -433,7 +433,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 {
                     throw new \Exception("The starting IEN declaration must be numeric but instead we got ".print_r($start_with_IEN,TRUE));
                 }
-                $start_from_IEN = intval($start_with_IEN);// + 1; //So we really start there
+                $start_from_IEN = intval($start_with_IEN) + 1; //So we really start there
             }
             $maxpages=1;
             $pages=0;
@@ -453,6 +453,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
             $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $rows_one_iteration = $bundle['all_rows'];
+error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' TOP args=" . print_r($args,TRUE) . " rows_one_iteration>>>" . print_r($rows_one_iteration,TRUE));
             while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
             {
                 
@@ -473,10 +474,12 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
                 $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
                 $rows_one_iteration = $bundle['all_rows'];
+error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' iter=$iterations args=" . print_r($args,TRUE) . " rows_one_iteration>>>" . print_r($rows_one_iteration,TRUE));
             }
             
             //Scanned enough to populate the pending orders?
             $show_rows = $all_worklist_rows_raw_text_ar;
+error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' show_rows>>>".print_r($show_rows,TRUE));
             $scanned_rows = min($enough_rows_count, $max_rows_one_call * $max_loops);
             if($scanned_rows < WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS)
             {
@@ -505,7 +508,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                             ,'pending_orders_map' => $pending_orders_map
                 );
 
-//error_log("LOOK worklist maxrows=$max_rows_one_call result>>>".print_r($aResult,TRUE));
+error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' result>>>".print_r($aResult,TRUE));
 
             //Done!
             return $aResult;
@@ -1114,7 +1117,7 @@ error_log("LOOK EWD count=" . count($rawresult_ar) . " getPathologyReportsDetail
             $tid = trim($sTrackingID);
             if($tid == '')
             {
-                throw new \Exception("Cannot get patient ID without a tracking ID!");
+                throw new \Exception("Cannot get patient ID without a tracking ID! (param received='$sTrackingID')");
             }
             $namedparts = $this->getTrackingIDNamedParts($tid);
             $args['ien'] = $namedparts['ien'];

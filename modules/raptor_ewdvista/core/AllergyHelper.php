@@ -70,16 +70,25 @@ class AllergyHelper
                         $rawvalue = $onetype[$valuefieldname];
                     }
                 } else {
-                    if(!is_array($onetype))
+                    if(!is_array($onetype) || count($onetype) == 0)
                     {
                         $rawvalue = NULL;
                     } else {
                         $raw_ar = array();
                         foreach($onetype as $oneitem)
                         {
+                            if(!isset($oneitem[$valuefieldname]))
+                            {
+                                break;
+                            }
                             $raw_ar[] = $oneitem[$valuefieldname];
                         }
-                        $rawvalue = implode(', ', $raw_ar);
+                        if(count($raw_ar) == 0)
+                        {
+                            $rawvalue = NULL;
+                        } else {
+                            $rawvalue = implode(', ', $raw_ar);
+                        }
                     }
                 }
                 if($rawvalue != NULL)

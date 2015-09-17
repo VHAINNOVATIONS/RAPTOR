@@ -878,19 +878,30 @@ class WorklistData
      * Get all the worklist rows for the provided context
      * @return type array of rows for the worklist page
      */
-    public function getWorklistRows($startIEN=NULL, $match_this_IEN=NULL
+    public function getWorklistRows($start_with_IEN=NULL, $match_this_IEN=NULL
             , $maxrows_per_query = WORKLIST_MAXROWS_PER_QUERY
             , $enough_rows_count=WORKLIST_ENOUGH_ROWS_COUNT)
     {
         try
         {
             module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+
+            if($start_with_IEN == NULL)
+            {
+                $start_from_IEN = '';
+            } else {
+                if(!is_numeric($start_with_IEN))
+                {
+                    throw new \Exception("The starting IEN declaration must be numeric but instead we got ".print_r($start_with_IEN,TRUE));
+                }
+                $start_from_IEN = intval($start_with_IEN) + 1; //So we really start there
+            }
             
             //Query several times
             $iterations = 0;
             $max_loops = WORKLIST_MAX_QUERY_LOOPS;
             $all_worklist_rows_raw_text_ar = array();
-            $mdwsResponse = $this->getWorklistFromMDWS($startIEN, $maxrows_per_query);
+            $mdwsResponse = $this->getWorklistFromMDWS($start_from_IEN, $maxrows_per_query);
 //error_log("LOOK worklist testing first query result >>>" . print_r($mdwsResponse,TRUE));
             while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
             {

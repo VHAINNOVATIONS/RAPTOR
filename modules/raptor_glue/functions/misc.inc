@@ -1024,7 +1024,13 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
                 );
         }
     } catch (\Exception $ex) {
-        error_log("Failed pre-cache action because $ex");
+        if(isset($_GET['tids']))
+        {
+            $tids = trim($_GET['tids']);
+            error_log("Failed pre-cache action (tids=$tids) because $ex");
+        } else {
+            error_log("Failed pre-cache action (tids NOT set) because $ex");
+        }
         throw $ex;
     }
 }
