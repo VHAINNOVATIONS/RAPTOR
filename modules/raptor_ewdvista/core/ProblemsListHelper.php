@@ -49,14 +49,30 @@ class ProblemsListHelper
     
     private function getUserDataFromArray($myarray, $offset)
     {
-        if(!isset($myarray[$offset]))
+        try
         {
-            return '';
+            if(!isset($myarray[$offset]))
+            {
+                $result = '';
+            } else {
+                //Get the field and return just the user data part
+                $rawline = $myarray[$offset];
+                if(!is_array($rawline))
+                {
+                    $result = substr($rawline, 2);  //Assume first two things are #^
+                } else {
+                    $clean_ar = array();
+                    foreach($rawline as $onetext)
+                    {
+                        $clean_ar[] = substr($onetext, 2);  //Assume first two things are #^
+                    }
+                    $result = implode("\n", $clean_ar);
+                }
+            }
+            return $result;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        //Get the field and return just the user data part
-        $rawline = $myarray[$offset];
-        return substr($rawline, 2);  //Assume first two things are #^
     }
     
     public function getFormattedProblemsDetail($value_ar)
