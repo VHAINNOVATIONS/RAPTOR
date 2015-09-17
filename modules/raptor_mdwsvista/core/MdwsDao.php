@@ -37,6 +37,9 @@ defined('RMDAO_CACHE_NM_WORKLIST')
     or define('RMDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
 defined('RMDAO_CACHE_NM_SUFFIX_DASHBOARD')
     or define('RMDAO_CACHE_NM_SUFFIX_DASHBOARD', '_getDashboardDetailsMapMDWS');
+defined('REDAO_CACHE_NM_PENDINGORDERS')
+    or define('REDAO_CACHE_NM_PENDINGORDERS', 'getPendingOrdersMapMDWS');
+
 
 class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 {
@@ -228,21 +231,28 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 {
                     // TODO:makeQuery  - haven't tested this auto-reconnect code atl all. need to write tests
                     // we received a fault - might be a session timeout in which case we want to handle gracefully
-                    error_log('Encountered a fault in makeQuery >>>' . $TOResult->fault->message);
+                    $sess_logging_itemname = "MDWS_NormalQueryFault";
+                    if(!isset($_SESSION[$sess_logging_itemname]))
+                    {
+                        error_log('Encountered a fault in makeQuery >>>' . $TOResult->fault->message);
+                        $_SESSION[$sess_logging_itemname] = microtime();
+                    }
                     if (strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_1) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_2) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_3) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_4) !== FALSE)
                     {
                         $this->initClient();
-                        error_log('makeQuery  --- getting the credentials for fault resolution now>>>' . $TOResult->fault->message);
+                        if(!isset($_SESSION[$sess_logging_itemname]))
+                        {
+                            error_log('makeQuery  --- getting the credentials for fault resolution now>>>' . $TOResult->fault->message);
+                        }
                         $userAccessCode = $this->getSessionVariable('userAccessCode');
                         $userVerifyCode = $this->getSessionVariable('userVerifyCode');
                         $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
                         //$this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                         return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
-                    } else
-                    {
+                    } else {
                         $stacktrace = \raptor\Context::debugGetCallerInfo(10);
                         error_log('Found a fault in makeQuery>>>'
                                 . print_r($TOResult, TRUE)
@@ -253,8 +263,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 {
                     //error_log('TODO:makeQuery Good news --- no fault in makeQuery>>>'.$functionToInvoke);
                 }
-            } else
-            {
+            } else {
                 $soapinfo = isset($TOResult->fault->message) ? ' soapfault='.$TOResult->fault->message : '';
                 $synopsis="Did NOT find value for soapResult->{$resultVarName}";
                 $stacktrace = \raptor\Context::debugGetCallerInfo(10);
@@ -296,7 +305,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     public function connectAndLogin($siteCode, $username, $password)
     {
         //drupal_set_message('About to login to MDWS as ' . $username);
-        error_log('Starting connectAndLogin at ' . microtime());
+        //error_log('Starting connectAndLogin at ' . microtime());
         try {
             $connectResult = $this->mdwsClient->connect(array("sitelist" => $siteCode))->connectResult;
             if (isset($connectResult->fault))
@@ -332,19 +341,23 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             $this->setSessionVariable('error_count', 0);
             $this->setSessionVariable('is_authenticated', TRUE);
             $this->authenticationTimestamp = microtime();
+            
             // cache for transparent re-authentication on MDWS-Vista timeout
             $this->userSiteId = $siteCode;
-            //$this->userAccessCode = $username;
-            //$this->userVerifyCode = $password;
             $this->setSessionVariable('userAccessCode',$username);
             $this->setSessionVariable('userVerifyCode',$password);
             $userduz = $TOResult->DUZ;
             $this->setSessionVariable('duz', $userduz);
 
-            error_log("Authenticated in MdwsDao as duz={$userduz} " 
-                    . $this->instanceTimestamp 
-                    . ' at ' 
-                    . $this->authenticationTimestamp);
+            $sess_logging_itemname = "MDWS_Authenticated";
+            if(!isset($_SESSION[$sess_logging_itemname]))
+            {
+                error_log("Authenticated in MdwsDao as duz={$userduz} " 
+                        . $this->instanceTimestamp 
+                        . ' at ' 
+                        . $this->authenticationTimestamp);
+                $_SESSION[$sess_logging_itemname] = microtime();
+            }
 
             // transparently re-select last selected patient
             $spid = $this->getSelectedPatientID();
@@ -354,7 +367,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 $this->makeQuery('select', array('DFN' => $spid));
             }
 
-            error_log("Finished connectAndLogin duz={$userduz} at " . microtime());
+            //error_log("Finished connectAndLogin duz={$userduz} at " . microtime());
             return $loginResult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -486,7 +499,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 $aResult = $oWL->getDashboardMap($tid); //20150724
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
-                    try {
+                    try 
+                    {
                         $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_LABS);
                     } catch (\Exception $ex) {
                         error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
@@ -528,6 +542,15 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 if ($oRuntimeResultFlexCacheHandler != NULL)
                 {
                     try {
+                        $pending_orders_map = $aResult['pending_orders_map'];
+                        if(is_array($pending_orders_map))
+                        {
+                            //Would not be an array if we did not scan enough to compute pending orders.
+                            $sThisPendingOrdersResultName = REDAO_CACHE_NM_PENDINGORDERS;
+//error_log("LOOK adding pending stuff to cache now from worklist themap>>> " . print_r($pending_orders_map,TRUE));
+                            $oRuntimeResultFlexCacheHandler->addToCache($sThisPendingOrdersResultName, $pending_orders_map, CACHE_AGE_LABS);
+//error_log("LOOK adding pending stuff to cache now from worklist entirebundle>>> " . print_r($aResult,TRUE));
+                        }
                         $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $aResult, CACHE_AGE_SHORTLIVED);
                     } catch (\Exception $ex) {
                         error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
@@ -612,12 +635,10 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             $queries = 0;
             $startingitem = '';
             $locations = \raptor_mdwsvista\MdwsUtils::getHospitalLocationsMap($this, $startingitem);
-//error_log("LOOK got FIRST the locations>>>" . print_r($locations,TRUE));            
             $prevend = end($locations);
             while(is_array($locations) && end($locations) > '' && $queries < $maxqueries)
             {
                 $queries++;
-//error_log("LOOK got q=$queries the locations>>>" . print_r($locations,TRUE));            
                 $morelocations = \raptor_mdwsvista\MdwsUtils::getHospitalLocationsMap($this, $prevend);
                 $lastitem = end($morelocations);
                 if($prevend >= $lastitem)
@@ -642,7 +663,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 error_log("WARNING in getAllHospitalLocations stopped queries after $queries executed!!!");
                 $locations['getmore'] = '* Get More Locations *';
             }
-//error_log("LOOK got all the locations>>>" . print_r($locations,TRUE));            
             return $locations;
         } catch (\Exception $ex) {
             throw $ex;
@@ -661,7 +681,6 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     public function getOrderOverviewMap()
     {
         $result = $this->getProtocolSupportingData('getOrderOverview');
-//error_log("LOOK MDWS getOrderOverviewMap $this >>>" . print_r($result,TRUE));
         return $result;
     }
 
@@ -755,11 +774,47 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     public function getPendingOrdersMap($override_patientId = NULL)
     {
-        if($override_patientId != NULL)
+        try
         {
-            return FALSE;
+            if($override_patientId != NULL)
+            {
+                $pid = $override_patientId;
+            } else {
+                $pid = $this->getSelectedPatientID();
+            }
+            if($pid == '')
+            {
+                throw new \Exception('Cannot get pending orders detail without a patient ID!');
+            }
+            
+            $sThisPendingOrdersResultName = REDAO_CACHE_NM_PENDINGORDERS;
+            $oContext = \raptor\Context::getInstance();
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                //Note: This item is cached by the worklist function!
+                $pending_orders_map = $oRuntimeResultFlexCacheHandler->checkCache($sThisPendingOrdersResultName);
+                if($pending_orders_map == NULL)
+                {
+                    //Cache was empty; query it now.
+                    $entire_worklist_bundle = $this->getWorklistDetailsMap();
+                    $pending_orders_map = $entire_worklist_bundle['pending_orders_map'];
+                }
+                //if($pending_orders_map asdfasdf)
+            } else {
+                $entire_worklist_bundle = $this->getWorklistDetailsMap();
+                $pending_orders_map = $entire_worklist_bundle['pending_orders_map'];
+            }
+            if(!is_array($pending_orders_map) || !isset($pending_orders_map[$pid]))
+            {
+                $themapping = array();
+            } else {
+                $themapping = $pending_orders_map[$pid];
+            }
+            return $themapping;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $this->getProtocolSupportingData('getPendingOrdersMap');
     }
 
     public function getRawVitalSignsMap($override_patientId = NULL)
@@ -918,6 +973,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             {
                 $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData("{$tid}" . RMDAO_CACHE_NM_SUFFIX_DASHBOARD);
                 $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(RMDAO_CACHE_NM_WORKLIST);
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(REDAO_CACHE_NM_PENDINGORDERS);
             }
         } catch (\Exception $ex) {
             throw $ex;
@@ -928,8 +984,14 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     {
         try
         {
-            //TODO clear all the cache entries for one patient!
             $oContext = \raptor\Context::getInstance();
+            $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
+            if ($oRuntimeResultFlexCacheHandler != NULL)
+            {
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData("{$tid}" . RMDAO_CACHE_NM_SUFFIX_DASHBOARD);
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(RMDAO_CACHE_NM_WORKLIST);
+                $oRuntimeResultFlexCacheHandler->invalidateRaptorCacheData(REDAO_CACHE_NM_PENDINGORDERS);
+            }
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -937,9 +999,14 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
     public function getPatientMap($sPatientID)
     {
-        $oContext = \raptor\Context::getInstance();
-        $oWL = new \raptor_mdwsvista\WorklistData($oContext);
-        $aResult = $oWL->getPatient($sPatientID);
-        return $aResult;
+        try
+        {
+            $oContext = \raptor\Context::getInstance();
+            $oWL = new \raptor_mdwsvista\WorklistData($oContext);
+            $aResult = $oWL->getPatient($sPatientID);
+            return $aResult;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 }

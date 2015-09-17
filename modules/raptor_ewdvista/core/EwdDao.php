@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150917.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150917.2');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -453,7 +453,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
             $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $rows_one_iteration = $bundle['all_rows'];
-//error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' TOP args=" . print_r($args,TRUE) . " rows_one_iteration>>>" . print_r($rows_one_iteration,TRUE));
             while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
             {
                 
@@ -474,12 +473,10 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
                 $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
                 $rows_one_iteration = $bundle['all_rows'];
-//error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' iter=$iterations args=" . print_r($args,TRUE) . " rows_one_iteration>>>" . print_r($rows_one_iteration,TRUE));
             }
             
             //Scanned enough to populate the pending orders?
             $show_rows = $all_worklist_rows_raw_text_ar;
-//error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' show_rows>>>".print_r($show_rows,TRUE));
             $scanned_rows = min($enough_rows_count, $max_rows_one_call * $max_loops);
             if($scanned_rows < WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS)
             {
@@ -1147,7 +1144,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             }
             if($pid == '')
             {
-                throw new \Exception('Cannot get chem labs detail without a patient ID!');
+                throw new \Exception('Cannot get pending orders detail without a patient ID!');
             }
             
             $sThisPendingOrdersResultName = REDAO_CACHE_NM_PENDINGORDERS;
@@ -1157,7 +1154,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             {
                 //Note: This item is cached by the worklist function!
                 $pending_orders_map = $oRuntimeResultFlexCacheHandler->checkCache($sThisPendingOrdersResultName);
+                if($pending_orders_map == NULL)
+                {
+                    //Cache was empty; query it now.
+                    $entire_worklist_bundle = $this->getWorklistDetailsMap();
+                    $pending_orders_map = $entire_worklist_bundle['pending_orders_map'];
+                }
             } else {
+                //We have no caches, query it now.
                 $entire_worklist_bundle = $this->getWorklistDetailsMap();
                 $pending_orders_map = $entire_worklist_bundle['pending_orders_map'];
             }

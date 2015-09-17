@@ -323,7 +323,12 @@ class RuntimeResultFlexCache
                 $itemsize = strlen($myblob);
                 if($itemsize > MAX_CACHE_ITEM_SIZE)
                 {
-                    error_log("WARNING item {$this->m_sGroupName}[$item_name] will not be cached because it is too big to cache! Size=$itemsize");
+                    $cache_warn_itemname = "CW_{$this->m_sGroupName}_{$item_name}";
+                    if(!isset($_SESSION[$cache_warn_itemname]))
+                    {
+                        error_log("WARNING item {$this->m_sGroupName}[$item_name] will not be cached because it is too big to cache! Size=$itemsize");
+                        $_SESSION[$cache_warn_itemname] = microtime();
+                    }
                     return;
                 }
             } else {

@@ -2925,7 +2925,8 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     /**
      * Get the markup for contraindications
      */
-    function getContraindicationFormMarkup($nSiteID, $nIEN, $myvalues
+    function getContraindicationFormMarkup($nSiteID, $nIEN
+            , $myvalues
             , $protocolValues
             , $aMapCI_AlreadyAcknowledged)
     {
@@ -2963,11 +2964,13 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
                             $modalitycount++;
                         }
                     }
+//error_log("LOOK getPendingOrdersMap ($nSiteID, $nIEN) mod='$modality' modcount=$modalitycount");
                     $possibleDups = $modalitycount > 1;
                 }
             } else {
                 $possibleDups = FALSE;
             }
+//error_log("LOOK getPendingOrdersMap ($nSiteID, $nIEN) mod='$modality' --- (boolean = '$possibleDups') pending map>>>" . print_r($pendingMap,TRUE));
             $aCandidateData = array();  
             $aCandidateData['IS_INPATIENT'] = ($examcategory == 'INPATIENT');
             $aCandidateData['IS_OUTPATIENT'] = ($examcategory == 'OUTPATIENT');

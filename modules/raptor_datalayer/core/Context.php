@@ -1165,14 +1165,6 @@ class Context
     private function clearAllContext()
     {
         $this->logoutEhrSubsystem();
-        //$this->m_nInstanceClearedTimestamp = microtime(TRUE);
-        //$this->m_nInstanceTimestamp = null;
-        //$this->m_sCurrentTicketID = null;
-        //$this->m_aPersonalBatchStack = null;
-        //$this->m_nUID = 0;
-        //$this->m_sVistaUserID = null;
-        //$this->m_sVAPassword = null;
-
         self::saveSessionValue('InstanceClearedTimestamp', microtime(TRUE));
         self::saveSessionValue('UID', 0);        
         self::saveSessionValue('VistaUserID', NULL);        
@@ -1183,7 +1175,6 @@ class Context
         $all_literalnames = self::getAllSessionValueNames();
         foreach($all_literalnames as $onename)
         {
-            error_log("LOOK unset of $onename");
             unset($_SESSION[$onename]);
         }
         return '';
