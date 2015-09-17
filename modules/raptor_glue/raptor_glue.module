@@ -242,14 +242,8 @@ function raptor_glue_page_alter(&$page)
                 }
 
             } else if($currentpage == 'worklist' || $currentpath == 'worklist'){
-
-                //error_log('IN PAGEALTER worklist >>>[' . $currentpath . '] and [' . $currentpage . ']');
-
-                //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
-
                 //Clear any batch values from the session if any exist.
                 $oContext->clearPersonalBatchStack();
-
                 if($userprivs['SWI1'] != 1 )
                 {   
                     //Cannot view worklist.
@@ -267,6 +261,13 @@ function raptor_glue_page_alter(&$page)
                     } else {
                         //Set all the Worklist page values
                         $ehrDao = $oContext->getEhrDao();
+                        if(!$ehrDao->isAuthenticated())
+                        {
+                            //For some reason they are no longer in active session, kick them out.
+                            $errmsg = "Your EHR session is no longer active!";
+                            error_log($errmsg . '>>>' . print_r($userinfo,TRUE));
+                            throw new \Exception($errmsg);
+                        }
                         $raptor_worklist_rows = $ehrDao->getWorklistDetailsMap();
                         if(count($raptor_worklist_rows) < 1)
                         {
@@ -288,7 +289,6 @@ function raptor_glue_page_alter(&$page)
                         }
                     }
                 }
-
             } else {
                 //Some kind of admin page.
                 $raptor_worklist_rows = null;

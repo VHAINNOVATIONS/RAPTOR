@@ -206,12 +206,31 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     }
 
     /**
-     * Return TRUE if already authenticated
+     * Return TRUE if already authenticated and session is active
      */
     public function isAuthenticated() 
     {
-        $userduz = $this->getSessionVariable('userduz');
-        return ($userduz != NULL);
+        try
+        {
+            $userduz = $this->getSessionVariable('userduz');
+            $has_localsession = ($userduz != NULL);
+            if($has_localsession)
+            {
+                //Now check with EWD
+                $args = array();
+                $serviceName = 'isActiveSession';
+                $rawresult = $this->getServiceRelatedData($serviceName, $args);
+                if(!isset($rawresult['result']) || !$rawresult['result'])
+                {
+                    $has_ewd_session = FALSE;
+                } else {
+                    $has_ewd_session = TRUE;
+                }
+            }
+            return ($has_localsession && $has_ewd_session);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     private function setSessionVariable($name,$value)
@@ -1624,54 +1643,11 @@ error_log("LOOK EWD count=" . count($rawresult_ar) . " getPathologyReportsDetail
 
     public function getVitalsSummaryMap()
     {
-        /*
-         * [10-Aug-2015 14:59:47 America/New_York] LOOK data format returned for 'getVitalsSummary' is >>>Array
-(
-    [Temperature] => Array
-        (
-            [Date of Measurement] => 08/17/2010 04:03 pm
-            [Measurement Value] => 99.5 F
-        )
-
-    [Heart Rate] => Array
-        (
-            [Date of Measurement] => 
-            [Measurement Value] => None Found
-        )
-
-    [Blood Pressure] => Array
-        (
-            [Date of Measurement] => 08/17/2010 04:03 pm
-            [Measurement Value] => 190/85 mmHg
-        )
-
-    [Height] => Array
-        (
-            [Date of Measurement] => 06/10/2010 08:11 am
-            [Measurement Value] => 71 in (180.3 cms)
-        )
-
-    [Weight] => Array
-        (
-            [Date of Measurement] => 06/10/2010 08:11 am
-            [Measurement Value] => 175 lb (79.4 kgs)
-        )
-
-    [Body Mass Index] => Array
-        (
-            [Date of Measurement] => 06/10/2010 08:11 am
-            [Measurement Value] => 24 
-        )
-
-)
-
-         */
         try
         {
             $vitalsbundle = $this->getRawVitalSignsMap();
             $myhelper = new \raptor_ewdvista\VitalsHelper();
             $summary = $myhelper->getVitalsSummary($vitalsbundle);
-//error_log("LOOK final VitalsSummary ".print_r($summary, TRUE));  
             return $summary;
         } catch (\Exception $ex) {
             throw $ex;
