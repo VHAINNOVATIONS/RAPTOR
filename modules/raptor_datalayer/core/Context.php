@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150908F1a1'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150918C'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -50,21 +50,6 @@ defined('DISABLE_CONTEXT_DEBUG')
  */
 class Context
 {
-    //REPLACED private $m_nInstanceTimestamp = NULL;           //Gets set when context is instantiated.
-    //REPLACED private $m_nLastUpdateTimestamp = NULL;         //Changes when the context changes.
-    //REPLACED private $m_nInstanceClearedTimestamp = NULL;
-    //REPLACED private $m_nInstanceUserActionTimestamp = NULL;     //Periodically update to check for timeout
-    //REPLACED private $m_nInstanceSystemActionTimestamp = NULL;   //Periodically update for internal tuning
-    //REPLACED private $m_sCurrentTicketID = NULL;
-    //REPLACED private $m_aPersonalBatchStack = NULL;
-    //REPLACED private $m_sPersonalBatchStackMessage = NULL;
-    //REPLACED private $m_nUID = NULL;
-    //REPLACED private $m_sVistaUserID = NULL;
-    //REPLACED private $m_sVAPassword = NULL;
-    //REPLACED private $m_aForceLogoutReason = NULL;   //If not NULL, then we should force a logout.
-    //REPLACED private $m_sWorklistMode=NULL;  
-
-    
     private $m_oRuntimeResultFlexCacheHandler = array();    //20150715
     private $m_aLocalCache = array();
     private $m_oVixDao = NULL;      //20140718 
@@ -145,9 +130,11 @@ class Context
         $fullname = CONST_NM_RAPTOR_CONTEXT.'_'.$name;
         if(isset($_SESSION[$fullname]))
         {
-            return $_SESSION[$fullname];
+            $result = $_SESSION[$fullname];
+        } else {
+            $result = $value_if_missing;
         }
-        return $value_if_missing;
+        return $result;
     }
 
     /**
@@ -293,20 +280,6 @@ class Context
     {
         try
         {
-            /*
-            if(isset($_SESSION['REGENERATED_COUNT']))
-            {
-                $rc = $_SESSION['REGENERATED_COUNT'];
-            } else {
-                $rc = "UNKNOWN";
-            }
-            if(isset($_SESSION['CREATED']))
-            {
-                $lct = $_SESSION['CREATED'];
-            } else {
-                $lct = "UNKNOWN";
-            }
-             */
             $nUID = self::getSessionValue('UID','NONE');
             $rc = self::getSessionValue('REGENERATED_COUNT','UNKNOWN');
             $lct = self::getSessionValue('CREATED', 'UNKNOWN');
@@ -321,15 +294,6 @@ class Context
                     . " session regenerated $rc times last created $lct"
                     . "\n\tDAO=$ehr_dao";
             return $info;
-            /*
-            return 'Context of user ['.$this->m_nUID.']'
-                    . ' instance created=['.$this->m_nInstanceTimestamp . ']'
-                    . ' last updated=['.$this->m_nLastUpdateTimestamp . ']'
-                    . ' current tid=['.$this->m_sCurrentTicketID.']'
-                    . " session regenerated $rc times last created $lct"
-                    . "\n\tDAO=$ehr_dao";
-             * 
-             */
         } catch (\Exception $ex) {
             return 'Cannot get toString of Context because '.$ex;
         }
@@ -338,13 +302,11 @@ class Context
     public function getInstanceTimestamp()
     {
         return self::getSessionValue('InstanceTimestamp');
-        //return $this->m_nInstanceTimestamp;
     }
     
     public function getLastUpdateTimestamp()
     {
         return self::getSessionValue('LastUpdateTimestamp');
-        //return $this->m_nLastUpdateTimestamp;
     }
     
     /**
@@ -353,7 +315,6 @@ class Context
     public function getInstanceUserActionTimestamp()
     {
         return self::getSessionValue('InstanceUserActionTimestamp');
-        //return $this->m_nInstanceUserActionTimestamp;
     }
 
     /**
@@ -363,7 +324,6 @@ class Context
     {
         $luts = $this->getInstanceUserActionTimestamp();
         return time() - $luts;
-        //return time() - $this->m_nInstanceUserActionTimestamp;
     }
     
     /**
@@ -383,16 +343,21 @@ class Context
      */
     public function valForNullOrMissing($map, $key, $altvalue=0)
     {
-        if(!isset($map[$key]))
+        try
         {
-            return $altvalue;
-        } else {
-            $candidate = $map[$key];
-            if(!isset($candidate) || $candidate === NULL)
+            if(!isset($map[$key]))
             {
                 return $altvalue;
+            } else {
+                $candidate = $map[$key];
+                if(!isset($candidate) || $candidate === NULL)
+                {
+                    return $altvalue;
+                }
+                return $candidate;
             }
-            return $candidate;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
     }
     
@@ -760,6 +725,7 @@ class Context
         }
         
         $candidate->getEhrDao();    //Side effect of setting the context in the dao
+//error_log("LOOK debug context->getInstance session (count=" . count($_SESSION) . ")>>>>" . print_r($_SESSION,TRUE));                    
         return $candidate;
     }
     
@@ -896,29 +862,34 @@ class Context
      */
     public function getSelectedTrackingID()
     {
-        $candidate = Context::getInstance();    //Important that we ALWAYS pull it from persistence layer here!
-        self::saveSessionValue('PersonalBatchStackMessage', NULL);
-        $sCurrentTicketID = self::getSessionValue('CurrentTicketID',NULL);
-        if($sCurrentTicketID == NULL) //!isset($candidate->m_sCurrentTicketID) || $candidate->m_sCurrentTicketID == NULL)
+        try 
         {
-            //If there is anything in the personal batch stack, grab it now.
-            $sCurrentTicketID = $candidate->popPersonalBatchStack(FALSE);
-            self::saveSessionValue('CurrentTicketID', $sCurrentTicketID);
-            if($sCurrentTicketID !== NULL)
+            $candidate = Context::getInstance();    //Important that we ALWAYS pull it from persistence layer here!
+            self::saveSessionValue('PersonalBatchStackMessage', NULL);
+            $sCurrentTicketID = self::getSessionValue('CurrentTicketID', NULL);
+            if($sCurrentTicketID == NULL) //!isset($candidate->m_sCurrentTicketID) || $candidate->m_sCurrentTicketID == NULL)
             {
-                $pbsize = $candidate->getPersonalBatchStackSize();
-                if($pbsize === 1)
+                //If there is anything in the personal batch stack, grab it now.
+                $sCurrentTicketID = $candidate->popPersonalBatchStack(FALSE);
+                self::saveSessionValue('CurrentTicketID', $sCurrentTicketID);
+                if($sCurrentTicketID !== NULL)
                 {
-                    $sPersonalBatchStackMessage = 'You have 1 remaining personal batch selection.';
-                    self::saveSessionValue('PersonalBatchStackMessage', $sPersonalBatchStackMessage);
-                } else if($pbsize > 1){
-                    $sPersonalBatchStackMessage = 'You have ' . $pbsize . ' remaining personal batch selections.';
-                    self::saveSessionValue('PersonalBatchStackMessage', $sPersonalBatchStackMessage);
+                    $pbsize = $candidate->getPersonalBatchStackSize();
+                    if($pbsize === 1)
+                    {
+                        $sPersonalBatchStackMessage = 'You have 1 remaining personal batch selection.';
+                        self::saveSessionValue('PersonalBatchStackMessage', $sPersonalBatchStackMessage);
+                    } else if($pbsize > 1){
+                        $sPersonalBatchStackMessage = 'You have ' . $pbsize . ' remaining personal batch selections.';
+                        self::saveSessionValue('PersonalBatchStackMessage', $sPersonalBatchStackMessage);
+                    }
                 }
+                $candidate->serializeNow();           
             }
-            $candidate->serializeNow();           
+            return $sCurrentTicketID;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $sCurrentTicketID;
     }
     
     /**
@@ -970,6 +941,7 @@ class Context
                     . " to tid=[$sTrackingID] and pid=[$sPatientID]"
                     . " (prevtid=[$prevtid] and prevpid=[$prevpid] from last update $prevtime)"
                     . "\n\tCurrent context>>> $this";
+//error_log("LOOK set selected tracking ID $sTrackingID \n\t>>> $logmsg \n\t>>> session=" . print_r($_SESSION,TRUE));            
             $this->serializeNow($logmsg, TRUE);
         } catch (\Exception $ex) {
             throw new \Exception("Failed setSelectedTrackingID($sTrackingID, $bClearPersonalBatchStack) because $ex",99876,$ex);
@@ -1435,6 +1407,25 @@ error_log("LOOK DAO waited $trycount times for other process to create the insta
             {
                 return NULL;
             }
+            $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
+            $this->m_oEhrDao = new \raptor\EhrDao();
+            $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
+        }
+        $ehrcorrupt = FALSE;
+        try
+        {
+            //If not corrupt, then we will get some nice info here.
+            $ehrinfo = $this->m_oEhrDao->getIntegrationInfo();
+            if($ehrinfo == '')
+            {
+                $ehrcorrupt = TRUE;
+            }
+        } catch (Exception $ex) {
+            $ehrcorrupt = TRUE;
+        }
+        if($ehrcorrupt)
+        {
+error_log("LOOK DAO WAS CORRUPT (tries=$trycount cdur=$duration) SO TRYING TO CREATE AGAIN!");
             $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
             $this->m_oEhrDao = new \raptor\EhrDao();
             $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);

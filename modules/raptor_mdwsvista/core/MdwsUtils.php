@@ -303,20 +303,21 @@ class MdwsUtils {
             $encounterString, 
             //$noteAuthorDUZ, - the logged in user will ALWAYS be the author
             $cosignerDUZ) {
-        
-        $formattedNoteText = MdwsUtils::formatNoteText($noteTextArray);
-        
-        $writeNoteArgAry = array('titleIEN'=>$raptorNoteTitleIEN,
-                                    'encounterString'=>$encounterString,
-                                    'text'=>$formattedNoteText,
-                                    'authorDUZ'=>$mdwsDao->getDUZ(),
-                                    'cosignerDUZ'=>$cosignerDUZ,
-                                    'consultIEN'=>'',
-                                    'prfIEN'=>'');
-        
-        $newNoteIen = $mdwsDao->makeQuery('writeNote', $writeNoteArgAry)->writeNoteResult->id;
-        
-        return $newNoteIen;
+        try
+        {
+            $formattedNoteText = MdwsUtils::formatNoteText($noteTextArray);
+            $writeNoteArgAry = array('titleIEN'=>$raptorNoteTitleIEN,
+                                        'encounterString'=>$encounterString,
+                                        'text'=>$formattedNoteText,
+                                        'authorDUZ'=>$mdwsDao->getDUZ(),
+                                        'cosignerDUZ'=>$cosignerDUZ,
+                                        'consultIEN'=>'',
+                                        'prfIEN'=>'');
+            $newNoteIen = $mdwsDao->makeQuery('writeNote', $writeNoteArgAry)->writeNoteResult->id;
+            return $newNoteIen;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**

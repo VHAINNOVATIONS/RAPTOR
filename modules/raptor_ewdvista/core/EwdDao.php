@@ -141,27 +141,33 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
      */
     private function getURL($servicename,$args=NULL)
     {
-        $base_ewdfed_url = trim(EWDFED_BASE_URL);
-        if(!$this->endsWith($base_ewdfed_url,'/'))
+        try
         {
-           error_log("TUNING TIP: Add missing '/' at the end of the EWDFED_BASE_URL declaration (Currently declared as '$base_ewdfed_url')");
-           $base_ewdfed_url .= '/';
-        }
-        if($args === NULL)
-        {
-            return $base_ewdfed_url . "$servicename";
-        } else {
-            $argtext = '';
-            foreach($args as $k=>$v)
+            $base_ewdfed_url = trim(EWDFED_BASE_URL);
+            if(!$this->endsWith($base_ewdfed_url,'/'))
             {
-                if($argtext > '')
-                {
-                    $argtext .= '&';
-                }
-                $encoded = urlencode($v);
-                $argtext .= "$k=$encoded";
+               error_log("TUNING TIP: Add missing '/' at the end of the EWDFED_BASE_URL declaration (Currently declared as '$base_ewdfed_url')");
+               $base_ewdfed_url .= '/';
             }
-            return $base_ewdfed_url . "$servicename?{$argtext}";
+            if($args === NULL)
+            {
+                $theurl = $base_ewdfed_url . "$servicename";
+            } else {
+                $argtext = '';
+                foreach($args as $k=>$v)
+                {
+                    if($argtext > '')
+                    {
+                        $argtext .= '&';
+                    }
+                    $encoded = urlencode($v);
+                    $argtext .= "$k=$encoded";
+                }
+                $theurl = $base_ewdfed_url . "$servicename?{$argtext}";
+            }
+            return $theurl;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
     }
     
@@ -339,7 +345,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Return the raw result from the restful service.
      */
-    private function getServiceRelatedData($serviceName,$args=NULL)
+    private function getServiceRelatedData($serviceName, $args=NULL, $methodtype='GET')
     {
         try
         {
@@ -352,14 +358,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             }
             $header["Authorization"]=$authorization;
             
-            $json_string = $this->m_oWebServices->callAPI('GET', $url, FALSE, $header);            
-        //error_log("LOOK JSON DATA for GET@URL=$url has result = " . print_r($json_string, TRUE));
+            $json_string = $this->m_oWebServices->callAPI($methodtype, $url, FALSE, $header);            
+            //error_log("LOOK JSON DATA for $methodtype@URL=$url has result = " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
             //error_log("Finish EWD $serviceName at " . microtime(TRUE));
             return $php_array;
         } catch (\Exception $ex) {
-            throw new \Exception("Trouble with $serviceName($args) because $ex", 99876, $ex);;
+            throw new \Exception("Trouble with $methodtype of $serviceName($args) because $ex", 99876, $ex);;
         }
     }
     
@@ -1752,16 +1758,63 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
     
+    /**
+     * Call the web service to create the note
+     */
+    private function writeNote($titleIEN, $noteTextArray, $encounterString, $cosignerDUZ)
+    {
+        try
+        {
+            $formattedNoteText = implode("\n",$noteTextArray);
+            $patientId = $this->getSelectedPatientID();
+            $authorDUZ = $this->getEHRUserID(); //The author will ALWAYS be logged in user!
+            $userId = $cosignerDUZ;
+            if($patientId == '')
+            {
+                throw new \Exception('Did not find the patient ID for the note!');
+            }
+            if($authorDUZ == '')
+            {
+                throw new \Exception('Did not find the author DUZ for the note!');
+            }
+            $args = array();
+            $args['patientId'] = $patientId;
+            $args['titleIEN'] = $titleIEN;
+            $args['authorDUZ'] = $authorDUZ;
+            $args['userId'] = $userId;
+            $args['text'] = $formattedNoteText;
+            $args['encounterString'] = $encounterString;
+            $serviceName = 'writeNote';
+            
+error_log("LOOK $serviceName about to write with these params >>>" . print_r($args,TRUE));            
+            $rawresult = $this->getServiceRelatedData($serviceName, $args, 'POST');
+error_log("LOOK $serviceName >>>" . print_r($rawresult,TRUE));            
+            return $rawresult;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     public function writeRaptorGeneralNote($noteTextArray, $encounterString, $cosignerDUZ)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $titleIEN = VISTA_NOTEIEN_RAPTOR_GENERAL;
+            return $this->writeNote($titleIEN, $noteTextArray, $encounterString, $cosignerDUZ);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function writeRaptorSafetyChecklist($aChecklistData, $encounterString, $cosignerDUZ)
     {
-        $serviceName = $this->getCallingFunctionName();
-	return $this->getServiceRelatedData($serviceName);
+        try
+        {
+            $titleIEN = VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST;
+            return $this->writeNote($titleIEN, $aChecklistData, $encounterString, $cosignerDUZ);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function invalidateCacheForEverything()
