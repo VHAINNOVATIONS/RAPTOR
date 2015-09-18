@@ -1382,58 +1382,63 @@ class Context
      */
     public function getEhrDao($create_if_not_set=TRUE)
     {
-        $trycount = 0;
-        while(isset($_SESSION['CTX_EHRDAO_NEW_START']) != NULL && isset($_SESSION['CTX_EHRDAO_NEW_DONE']) == NULL)
-        {
-            //Wait for the singleton process to complete at least once.
-            $trycount++;
-error_log("LOOK DAO waited $trycount times for other process started at ".$_SESSION['CTX_EHRDAO_NEW_START']." to create the instance; will sleep and try again.");
-            sleep(2);
-            if(isset($_SESSION['CTX_EHRDAO_NEW_DONE']))
-            {
-error_log("LOOK DAO waited $trycount times for other process to create the instance!");
-                break;
-            }
-            if($trycount > 15)
-            {
-                $startedinfo = $_SESSION['CTX_EHRDAO_NEW_START'];
-                $_SESSION['CTX_EHRDAO_NEW_START'] = NULL;   //Clear it for next time.
-                throw new \Exception("Did NOT get an EHRDAO that started at $startedinfo after $trycount tries!");
-            }
-        }
-        if (!isset($this->m_oEhrDao)) 
-        {
-            if(!$create_if_not_set)
-            {
-                return NULL;
-            }
-            $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
-            $this->m_oEhrDao = new \raptor\EhrDao();
-            $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
-        }
-        $ehrcorrupt = FALSE;
         try
         {
-            //If not corrupt, then we will get some nice info here.
-            $ehrinfo = $this->m_oEhrDao->getIntegrationInfo();
-            if($ehrinfo == '')
+            $trycount = 0;
+            while(isset($_SESSION['CTX_EHRDAO_NEW_START']) != NULL && isset($_SESSION['CTX_EHRDAO_NEW_DONE']) == NULL)
             {
+                //Wait for the singleton process to complete at least once.
+                $trycount++;
+    error_log("LOOK DAO waited $trycount times for other process started at ".$_SESSION['CTX_EHRDAO_NEW_START']." to create the instance; will sleep and try again.");
+                sleep(2);
+                if(isset($_SESSION['CTX_EHRDAO_NEW_DONE']))
+                {
+    error_log("LOOK DAO waited $trycount times for other process to create the instance!");
+                    break;
+                }
+                if($trycount > 15)
+                {
+                    $startedinfo = $_SESSION['CTX_EHRDAO_NEW_START'];
+                    $_SESSION['CTX_EHRDAO_NEW_START'] = NULL;   //Clear it for next time.
+                    throw new \Exception("Did NOT get an EHRDAO that started at $startedinfo after $trycount tries!");
+                }
+            }
+            if (!isset($this->m_oEhrDao)) 
+            {
+                if(!$create_if_not_set)
+                {
+                    return NULL;
+                }
+                $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
+                $this->m_oEhrDao = new \raptor\EhrDao();
+                $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
+            }
+            $ehrcorrupt = FALSE;
+            try
+            {
+                //If not corrupt, then we will get some nice info here.
+                $ehrinfo = $this->m_oEhrDao->getIntegrationInfo();
+                if($ehrinfo == '')
+                {
+                    $ehrcorrupt = TRUE;
+                }
+            } catch (Exception $ex) {
                 $ehrcorrupt = TRUE;
             }
-        } catch (Exception $ex) {
-            $ehrcorrupt = TRUE;
+            if($ehrcorrupt)
+            {
+    error_log("LOOK DAO WAS CORRUPT (tries=$trycount cdur=$duration) SO TRYING TO CREATE AGAIN!");
+                $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
+                $this->m_oEhrDao = new \raptor\EhrDao();
+                $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
+            }
+            //$duration = $_SESSION['CTX_EHRDAO_NEW_DONE'] - $_SESSION['CTX_EHRDAO_NEW_START'];
+    //error_log("LOOK DAO (tries=$trycount cdur=$duration) from context is >>>".$this->m_oEhrDao);
+
+            return $this->m_oEhrDao;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        if($ehrcorrupt)
-        {
-error_log("LOOK DAO WAS CORRUPT (tries=$trycount cdur=$duration) SO TRYING TO CREATE AGAIN!");
-            $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
-            $this->m_oEhrDao = new \raptor\EhrDao();
-            $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
-        }
-        $duration = $_SESSION['CTX_EHRDAO_NEW_DONE'] - $_SESSION['CTX_EHRDAO_NEW_START'];
-//error_log("LOOK DAO (tries=$trycount cdur=$duration) from context is >>>".$this->m_oEhrDao);
-        
-        return $this->m_oEhrDao;
     }
     
     /**
