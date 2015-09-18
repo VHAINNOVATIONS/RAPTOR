@@ -810,7 +810,7 @@ class Context
 
     function getVixDao()
     {
-        module_load_include('php', 'raptor_imageviewing', 'core/VixDao');
+        module_load_include('php', IMG_INT_MODULE_NAME, 'core/VixDao');
         if($this->m_oVixDao == NULL)
         {
             $sVistaUserID = self::getSessionValue('VistaUserID',NULL);

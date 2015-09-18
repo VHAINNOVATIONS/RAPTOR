@@ -74,7 +74,6 @@ class VixDao
             return $returnInfo;        
         }
         
-        
         //http://<VIX hostname>:<VIX port>/RaptorWebApp/secure/restservices/raptor/studies/<VA patient ICN>/<VA site number>/<Patient DFN>/<Report ID>/<Case Number>
         //http://localhost:8090/RaptorWebApp/secure/restservices/raptor/studies/10110V004877/901/8/6859578.8896-1/54
         $sURL = VIX_STUDIES_URL . $patientICN . '/' . VISTA_SITE . '/' . $patientDFN . '/' . $reportID . '/' . $caseNumber;
