@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150916.1 978 for VA 146 AppServer1');
+    or define('RAPTOR_CONFIG_ID', '20150918.1 978 for VA 146 AppServer1');
 
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -43,6 +43,9 @@ defined('LAB_EGFR_ALERT_BAD_END_LEVEL')
 //Base URL for the EWD Federator
 defined('EWDFED_BASE_URL')
     or define('EWDFED_BASE_URL', "BASEURLTODO");
+
+defined('IMG_INT_MODULE_NAME')
+    or define('IMG_INT_MODULE_NAME', 'raptor_imageviewing');
 
 defined('EHR_INT_MODULE_NAME')
     or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
