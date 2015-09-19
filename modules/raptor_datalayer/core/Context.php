@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150918C'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150919B'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -380,7 +380,23 @@ class Context
         error_log("Cleared session via forceClearUserSession for user $uid");
     }
 
-    public static function getAAAInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
+    private static $m_singleton;
+
+    public static function hasSingletonInstance()
+    {
+        return (NULL !== static::$m_singleton);
+    }
+
+    public static function getSingletonInstance($uid)
+    {
+        if (NULL === static::$m_singleton) {
+            static::$m_singleton = new static($uid);
+        }
+        
+        return static::$m_singleton;
+    }
+    
+    public static function getInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
     {
         if (session_status() == PHP_SESSION_NONE) 
         {
@@ -400,21 +416,39 @@ class Context
             self::saveSessionValue('REGENERATED_COUNT', 0);
         } 
         global $user;
-        $bAccountConflictDetected = FALSE;      //Set to true if something funny is going on.
-        $bContextDetectIdleTooLong = FALSE;
         if(user_is_logged_in())
         {
             $tempUID = $user->uid;
         } else {
             $tempUID = 0;
         }
+        $candidate = self::getSingletonInstance($tempUID);
+        if($tempUID != $candidate->getUID())
+        {
+            self::saveSessionValue('UID', $tempUID);
+        }
+        if($user->uid > 0)
+        {
+            $useridleseconds = intval($candidate->getUserIdleSeconds());
+            $max_idle = USER_TIMEOUT_SECONDS 
+                    + USER_TIMEOUT_GRACE_SECONDS 
+                    + USER_ALIVE_INTERVAL_SECONDS
+                    + KICKOUT_DIRTYPADDING;
+            if($useridleseconds > $max_idle)
+            {
+                $bContextDetectIdleTooLong = TRUE;
+            }
+        }
+        $candidate->getEhrDao(TRUE);
+error_log("LOOK context final candidate >>> $candidate");        
+        return $candidate;
     }    
     
     /**
      * Factory implements session singleton.
      * @return \raptor\Context 
      */
-    public static function getInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
+    public static function getXXXXInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
     {
         $currentpath = strtolower(current_path());
         //$currentpage = drupal_lookup_path('alias',$currentpath);
@@ -449,7 +483,7 @@ class Context
         }
 error_log('LOOK CONTEXT 1 getInstance::tempUID='.$tempUID);
         $bSessionResetFlagDetected = ($forceReset || (isset($_GET['reset_session']) && $_GET['reset_session'] == 'YES'));
-error_log('LOOK CONTEXT 2 uid='.$tempUID." rfd='$bSessionResetFlagDetected'");
+error_log('LOOK CONTEXT 2 uid='.$tempUID." rfd='$bSessionResetFlagDetected' fr='$forceReset'");
         if(isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]) && !$bSessionResetFlagDetected)
         {
 error_log('LOOK CONTEXT 3a uid=' . $tempUID . " rfd='$bSessionResetFlagDetected' or hassess='". isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]) ."'");
@@ -492,15 +526,6 @@ error_log('LOOK CONTEXT 4c uid='.$tempUID." LITTLE ELSE...");
                            . "\n\tUSER OBJ=".print_r($user,TRUE)  
                            . "\n\tCANDIDATE=".print_r($candidate,TRUE));
                 }
-                /*
-                if(!isset($candidate->m_nUID)) // !isset($candidate->m_sVistaUserID))         
-                {
-                   //Log something and continue
-                   error_log("WARNING: Did NOT find a RAPTOR USER in existing session!"
-                           . "\n\tUSER OBJ=".print_r($user,TRUE)  
-                           . "\n\tCANDIDATE=".print_r($candidate,TRUE));
-                }
-                 */
             }
             
         } else {
@@ -1088,12 +1113,12 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
     {
         try
         {
-            //$this->m_sVistaUserID = $sVistaUserID;  //Cache this for later re-authentications.
-            //$this->m_sVAPassword = $sVAPassword;    //Cache this for later re-authentications.
             self::saveSessionValue('VistaUserID', $sVistaUserID);
             self::saveSessionValue('VAPassword', $sVAPassword);
+error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) started...");
             $this->serializeNow();        
             $result = $this->authenticateEhrSubsystem($sVistaUserID, $sVAPassword);
+error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) result = " . print_r($result,TRUE));
             $updated_dt = date("Y-m-d H:i:s", time());
             global $user;
             $tempUID = $user->uid;  
@@ -1137,6 +1162,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
                         ->execute();
                 }
             }
+error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result = " . print_r($result,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1424,59 +1450,65 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
      */
     public function getEhrDao($create_if_not_set=TRUE)
     {
+    $mttag = microtime(TRUE);
+    error_log("LOOK starting getEhrDao($create_if_not_set)@$mttag");
         try
         {
-            $trycount = 0;
-            while(isset($_SESSION['CTX_EHRDAO_NEW_START']) != NULL && isset($_SESSION['CTX_EHRDAO_NEW_DONE']) == NULL)
-            {
-                //Wait for the singleton process to complete at least once.
-                $trycount++;
-    error_log("LOOK DAO waited $trycount times for other process started at ".$_SESSION['CTX_EHRDAO_NEW_START']." to create the instance; will sleep and try again.");
-                sleep(2);
-                if(isset($_SESSION['CTX_EHRDAO_NEW_DONE']))
-                {
-    error_log("LOOK DAO waited $trycount times for other process to create the instance!");
-                    break;
-                }
-                if($trycount > 15)
-                {
-                    $startedinfo = $_SESSION['CTX_EHRDAO_NEW_START'];
-                    $_SESSION['CTX_EHRDAO_NEW_START'] = NULL;   //Clear it for next time.
-                    throw new \Exception("Did NOT get an EHRDAO that started at $startedinfo after $trycount tries!");
-                }
-            }
-            if (!isset($this->m_oEhrDao)) 
-            {
-                if(!$create_if_not_set)
-                {
-                    return NULL;
-                }
-                $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
-                $this->m_oEhrDao = new \raptor\EhrDao();
-                $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
-            }
             $ehrcorrupt = FALSE;
-            try
+            $trycount = 0;
+            if(!isset($this->m_oEhrDao))
             {
-                //If not corrupt, then we will get some nice info here.
-                $ehrinfo = $this->m_oEhrDao->getIntegrationInfo();
-                if($ehrinfo == '')
+                //Lets create an instance or wait for one if already being created
+                while(isset($_SESSION['CTX_EHRDAO_NEW_START']) != NULL && isset($_SESSION['CTX_EHRDAO_NEW_DONE']) == NULL)
                 {
+                    //Wait for the singleton process to complete at least once.
+                    $trycount++;
+        error_log("LOOK DAO waited $trycount times for other process started at ".$_SESSION['CTX_EHRDAO_NEW_START']." to create the instance; will sleep and try again.");
+                    sleep(2);
+                    if(isset($_SESSION['CTX_EHRDAO_NEW_DONE']))
+                    {
+        error_log("LOOK DAO waited $trycount times for other process to create the instance!");
+                        break;
+                    }
+                    if($trycount > 15)
+                    {
+                        $startedinfo = $_SESSION['CTX_EHRDAO_NEW_START'];
+                        $_SESSION['CTX_EHRDAO_NEW_START'] = NULL;   //Clear it for next time.
+                        throw new \Exception("Did NOT get an EHRDAO that started at $startedinfo after $trycount tries!");
+                    }
+                }
+                if(!isset($this->m_oEhrDao)) 
+                {
+                    if(!$create_if_not_set)
+                    {
+                        return NULL;
+                    }
+                    $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
+                    $this->m_oEhrDao = new \raptor\EhrDao($this->getSiteID());
+                    $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
+        error_log("LOOK NEW1 getEhrDao($create_if_not_set)@$mttag");
+                }
+                try
+                {
+                    //If not corrupt, then we will get some nice info here.
+                    $ehrinfo = $this->m_oEhrDao->getIntegrationInfo();
+                    if($ehrinfo == '')
+                    {
+                        $ehrcorrupt = TRUE;
+                    }
+                } catch (Exception $ex) {
                     $ehrcorrupt = TRUE;
                 }
-            } catch (Exception $ex) {
-                $ehrcorrupt = TRUE;
+                if($ehrcorrupt)
+                {
+        error_log("LOOK DAO WAS CORRUPT (tries=$trycount cdur=$duration) SO TRYING TO CREATE AGAIN!");
+                    $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
+                    $this->m_oEhrDao = new \raptor\EhrDao($this->getSiteID());
+                    $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
+        error_log("LOOK NEW2 getEhrDao($create_if_not_set)@$mttag");
+                }
             }
-            if($ehrcorrupt)
-            {
-    error_log("LOOK DAO WAS CORRUPT (tries=$trycount cdur=$duration) SO TRYING TO CREATE AGAIN!");
-                $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
-                $this->m_oEhrDao = new \raptor\EhrDao();
-                $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
-            }
-            //$duration = $_SESSION['CTX_EHRDAO_NEW_DONE'] - $_SESSION['CTX_EHRDAO_NEW_START'];
-    //error_log("LOOK DAO (tries=$trycount cdur=$duration) from context is >>>".$this->m_oEhrDao);
-
+        error_log("LOOK done getEhrDao($create_if_not_set)@$mttag");
             return $this->m_oEhrDao;
         } catch (\Exception $ex) {
             throw $ex;

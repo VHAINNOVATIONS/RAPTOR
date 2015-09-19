@@ -40,7 +40,6 @@ defined('RMDAO_CACHE_NM_SUFFIX_DASHBOARD')
 defined('REDAO_CACHE_NM_PENDINGORDERS')
     or define('REDAO_CACHE_NM_PENDINGORDERS', 'getPendingOrdersMapMDWS');
 
-
 class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 {
 
@@ -48,7 +47,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $m_oPS = NULL;
     private $instanceTimestamp;
     private $authenticationTimestamp;
-    private $mdwsClient;
+    private $mdwsClient = NULL;
     private $currentFacade;
 
     private $userSiteId;
@@ -56,22 +55,45 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
     
-    public function __construct($session_key_prefix='MDWSDAO')
+    public function __construct($siteCode, $session_key_prefix='MDWSDAO', $reset=FALSE)
     {
         $this->m_session_key_prefix = $session_key_prefix;
-        
+error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset)");  
         //Load relevant modules
         module_load_include('php', 'raptor_glue', 'core/Config');
         module_load_include('php', 'raptor_datalayer', 'core/Context');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
         $this->instanceTimestamp = microtime();
         $this->setSessionVariable('error_count', 0);
-        $this->initClient();
+        if($reset)
+        {
+            $this->initClient($siteCode);
+        } else {
+            if($this->mdwsClient == NULL)
+            {
+error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection");  
+                if(!$this->getSessionVariable('is_authenticated'))
+                {
+                    //Just init then
+error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection -- JUST INIT");  
+                    $this->initClient($siteCode);
+                } else {
+                    //Get a client that is authenticated
+                    $this->currentFacade = EMRSERVICE_URL;
+                    $this->mdwsClient = MdwsDaoFactory::getSoapClientByFacade($this->currentFacade);
+                    $userAccessCode = $this->getSessionVariable('userAccessCode');
+                    $userVerifyCode = $this->getSessionVariable('userVerifyCode');
+error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection -- Try($siteCode,$userAccessCode,$userVerifyCode)");
+                    $this->userSiteId = $siteCode;
+                    $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
+                }
+            }
+        }
     }
 
     public function getIntegrationInfo()
     {
-        return "MDWS VISTA EHR Integration 20150917.1";
+        return "MDWS VISTA EHR Integration 20150919.1";
     }
 
     /**
@@ -130,7 +152,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             $spid = $this->getSelectedPatientID();
             $is_authenticated = $this->isAuthenticated() ? 'YES' : 'NO';
             $userduz = $this->getSessionVariable('duz');
-            return 'MdwsDao instance created at ' . $this->instanceTimestamp
+            return 'MdwsDao (site=' . $this->userSiteId . ') instance created at ' . $this->instanceTimestamp
                     . ' isAuthenticated=[' . $is_authenticated . ']'
                     . ' selectedPatient=[' . $spid . ']'
                     . ' duz=[' . $userduz . ']'
@@ -140,7 +162,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         }
     }
 
-    private function initClient()
+    private function initClient($siteCode)
     {
         //we'll use the EmrSvc facade for initialization but this may change when a SOAP call is executed
         $this->currentFacade = EMRSERVICE_URL;
@@ -242,7 +264,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_3) !== FALSE ||
                             strpos($TOResult->fault->message, MDWS_CXN_TIMEOUT_ERROR_MSG_4) !== FALSE)
                     {
-                        $this->initClient();
+                        $this->initClient($this->userSiteId);
                         if(!isset($_SESSION[$sess_logging_itemname]))
                         {
                             error_log('makeQuery  --- getting the credentials for fault resolution now>>>' . $TOResult->fault->message);
@@ -284,7 +306,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             {
                 error_log("Exception in makeQuery($functionToInvoke) --- connection was closed makeQuery>>>" 
                         . $ex->getMessage());
-                $this->initClient();
+                $this->initClient($this->userSiteId);
                 $userAccessCode = $this->getSessionVariable('userAccessCode');
                 $userVerifyCode = $this->getSessionVariable('userVerifyCode');
                 $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
@@ -330,7 +352,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
 
             // successfully connected! now let's login'
             $loginResult = $this->mdwsClient->login(array("username" => $username, "pwd" => $password, "context" => MDWS_CONTEXT));
-            if (isset($loginResult->loginResult))    //20140707 FJF prevent missing property msg
+            if (isset($loginResult->loginResult))
             {
                 $TOResult = $loginResult->loginResult;
                 if (isset($TOResult->fault))
@@ -340,7 +362,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             }
             $this->setSessionVariable('error_count', 0);
             $this->setSessionVariable('is_authenticated', TRUE);
-            $this->authenticationTimestamp = microtime();
+            $this->authenticationTimestamp = microtime(TRUE);
             
             // cache for transparent re-authentication on MDWS-Vista timeout
             $this->userSiteId = $siteCode;
@@ -356,7 +378,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                         . $this->instanceTimestamp 
                         . ' at ' 
                         . $this->authenticationTimestamp);
-                $_SESSION[$sess_logging_itemname] = microtime();
+                $_SESSION[$sess_logging_itemname] = microtime(TRUE);
             }
 
             // transparently re-select last selected patient

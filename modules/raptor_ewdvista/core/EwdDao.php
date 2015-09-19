@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150917.2');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150919.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -68,18 +68,23 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_dashboardHelper = NULL;
     private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
+    private $userSiteId = NULL;
     
-    public function __construct($session_key_prefix='EWDDAO')
+    public function __construct($siteCode, $session_key_prefix='EWDDAO', $reset=FALSE)
     {
         $this->m_session_key_prefix = $session_key_prefix;
+        $this->userSiteId = $siteCode;
         
         module_load_include('php', 'raptor_datalayer', 'core/Context');
         module_load_include('php', 'raptor_datalayer', 'core/RuntimeResultFlexCache');
-        $this->m_createdtimestamp = microtime();        
+        $this->m_createdtimestamp = microtime(TRUE);        
         $this->m_oWebServices = new \raptor_ewdvista\WebServices();
         $this->m_worklistHelper = new \raptor_ewdvista\WorklistHelper();
         $this->m_dashboardHelper = new \raptor_ewdvista\DashboardHelper();
-        $this->initClient();
+        if($reset)
+        {
+            $this->initClient($siteCode);
+        }
     }
 
     public function getIntegrationInfo()
@@ -174,11 +179,13 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Initialize the DAO client session
      */
-    private function initClient()
+    private function initClient($siteCode)
     {
         try
         {
             error_log('Starting EWD initClient at ' . microtime(TRUE));
+            $stacktrace = \raptor\Context::debugGetCallerInfo(10);
+error_log("LOOK who called init!!!! >>> " . print_r($stacktrace,TRUE));            
             $this->disconnect();    //Clear all session variables
             $servicename = 'initiate';
             $url = $this->getURL($servicename);
@@ -280,7 +287,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
-            error_log('Starting EWD connectAndLogin at ' . microtime());
+            error_log('Starting EWD connectAndLogin at ' . microtime(TRUE));
             $errorMessage = "";
             
             //Are we already logged in?
@@ -296,7 +303,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             {
                 //Initialize it now
                 error_log("Calling init from connectAndLogin for $this");
-                $this->initClient();
+                $this->initClient($siteCode);
                 $authorization = $this->getSessionVariable('authorization');
             }
             $init_key = $this->getSessionVariable('init_key');
@@ -561,7 +568,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $spid = $this->getSelectedPatientID();
             $is_authenticated = $this->isAuthenticated() ? 'YES' : 'NO';
             $displayname = $this->getSessionVariable('displayname');
-            return 'EwdDao instance created at ' . $this->m_createdtimestamp
+            return 'EwdDao (site=' . $this->userSiteId . ') instance created at ' . $this->m_createdtimestamp
                     . ' isAuthenticated=[' . $is_authenticated . ']'
                     . ' selectedPatient=[' . $spid . ']'
                     . ' displayname=[' . $displayname . ']'

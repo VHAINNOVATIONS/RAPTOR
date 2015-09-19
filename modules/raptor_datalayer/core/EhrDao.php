@@ -62,7 +62,7 @@ class EhrDao implements \raptor\IEhrDao
             $classname = EHR_INT_IMPL_DAO_CLASSNAME;
             $namespace = EHR_INT_IMPL_DAO_NAMESPACE;
             $class = "\\$namespace\\$classname";
-            $this->m_implclass = new $class();
+            $this->m_implclass = new $class(VISTA_SITE);
             error_log("EhrDao construction completed >>> " . $this);
         } catch (\Exception $ex) {
             throw new \Exception("Failed constructor EhrDao(".EHR_INT_IMPL_DAO_NAMESPACE.") because $ex",99876,$ex);
