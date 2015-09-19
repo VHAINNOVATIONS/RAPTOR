@@ -89,7 +89,21 @@ class DashboardHelper
             $dashboard['ReasonForStudy']        = trim((isset($radiologyOrder['1.1']['I']) ? $radiologyOrder['1.1']['I'] : '') );
             $dashboard['RequestingLocation']    = trim((isset($radiologyOrder['22']['E']) ? $radiologyOrder['22']['E'] : '') );
             $dashboard['RequestingLocationIen'] = trim((isset($radiologyOrder['22']['I']) ? $radiologyOrder['22']['I'] : '') );
-            $dashboard['ClinicalHistory']       = isset($radiologyOrder['400']) ? $radiologyOrder['400'] : '';
+            $clin_hist = isset($radiologyOrder['400']) ? $radiologyOrder['400'] : 'None found';
+            if(is_array($clin_hist))
+            {
+                //The EWD format has an array where only the numberic indexes have data
+                $clean_ar = array();
+                foreach($clin_hist as $idx=>$oneitem)
+                {
+                    if(is_int($idx))
+                    {
+                        $clean_ar[] = $oneitem;
+                    }
+                }
+                $clin_hist = implode("\n", $clean_ar);
+            }
+            $dashboard['ClinicalHistory'] = $clin_hist;
             
             return $dashboard;
         } catch (\Exception $ex) {
