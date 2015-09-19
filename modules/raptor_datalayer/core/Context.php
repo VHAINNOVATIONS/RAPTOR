@@ -398,7 +398,7 @@ class Context
         }        
         
         //if(!isset($_SESSION['CREATED'])) 
-        if(self::hasSessionValue('CREATED')) 
+        if(!self::hasSessionValue('CREATED')) 
         { 
             $startedtime = time();
             error_log('CONTEXTgetInstance::Setting CREATED value of session to '.$startedtime);

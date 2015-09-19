@@ -3,16 +3,18 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/WorklistData.php</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/core/GeneralDefs.inc</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/MdwsDao.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/raptor_glue.module</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/functions/userlogin.inc</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_datalayer/core/Context.php</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/form/ProtocolInfoPage.php</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_imageviewing/core/VixDao.php</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/core/RSite500_64bitVM_Local.inc</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/MdwsUtils.php</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/core/config.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/WorklistData.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/EWDJSvistalayer/ewdjs/node_modules/raptor.js</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/MdwsDao.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/form/ProtocolInfoPage.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_ewdvista/core/WebServices.php</file>
+            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_glue/core/RSite500_64bitVM_Local.inc</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_ewdvista/core/EwdDao.php</file>
-            <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_datalayer/core/RuntimeResultFlexCache.php</file>
             <file>file:/C:/inetpub/wwwroot/RSite500/RAPTOR/sites/all/modules/raptor_mdwsvista/core/ProtocolSupportingData.php</file>
         </group>
     </open-files>
