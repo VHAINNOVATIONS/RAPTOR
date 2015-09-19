@@ -1151,7 +1151,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
                     . " (prevtid=[$prevtid] and prevpid=[$prevpid] from last update $prevtime)"
                     . "\n\tCurrent context>>> $this";
 //error_log("LOOK set selected tracking ID $sTrackingID \n\t>>> $logmsg \n\t>>> session=" . print_r($_SESSION,TRUE));            
-            $this->serializeNow($logmsg, TRUE);
+            //20150919 $this->serializeNow($logmsg, TRUE);
         } catch (\Exception $ex) {
             throw new \Exception("Failed setSelectedTrackingID($sTrackingID, $bClearPersonalBatchStack) because $ex",99876,$ex);
         }
@@ -1170,7 +1170,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
         self::saveSessionValue('PersonalBatchStack', $aPBatch);
         //$this->m_sCurrentTicketID = NULL;   //Clear it so we pop from the stack on request
         self::saveSessionValue('CurrentTicketID', NULL);
-        $this->serializeNow();        
+        //20150919 $this->serializeNow();        
     }
 
     /**
@@ -1182,7 +1182,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
         //$this->m_aPersonalBatchStack = NULL;
         self::saveSessionValue('PersonalBatchStack', NULL);
         self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
-        $this->serializeNow();        
+        //20150919 $this->serializeNow();        
     }
 
     /**
@@ -1220,7 +1220,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
             Context::debugDrupalMsg("<h1>Popped $nTID off the stack ". print_r($pbs, TRUE)  ."</h1>");
             if($serializeNow)
             {
-                $this->serializeNow();        
+                //20150919 $this->serializeNow();        
             }
             return $nTID;
         } catch (\Exception $ex) {
@@ -1258,7 +1258,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
             self::saveSessionValue('VistaUserID', $sVistaUserID);
             self::saveSessionValue('VAPassword', $sVAPassword);
 error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) started...");
-            $this->serializeNow();        
+            //20150919 $this->serializeNow();        
             $result = $this->authenticateEhrSubsystem($sVistaUserID, $sVAPassword);
 error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) result = " . print_r($result,TRUE));
             $updated_dt = date("Y-m-d H:i:s", time());
@@ -1415,14 +1415,14 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
             }
         }
         $this->clearAllContext();
-        $this->serializeNow();
+        //20150919 $this->serializeNow();
         return '';  //TODO
     }
     
     private function logoutEhrSubsystem() 
     {
         try {
-            $this->serializeNow('Logging out of EHR',FALSE);
+            //20150919 $this->serializeNow('Logging out of EHR',FALSE);
             $this->getEhrDao()->disconnect();
             $_SESSION['CTX_EHRDAO_NEW_START'] = NULL;
             $_SESSION['CTX_EHRDAO_NEW_DONE'] = NULL;
@@ -1452,7 +1452,7 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
         }
         
         //Now serialize it.
-        $this->serializeNow($logMsg,$bSystemDrivenAction,$nSessionRefreshDelayOverride,FALSE);
+        //20150919 $this->serializeNow($logMsg,$bSystemDrivenAction,$nSessionRefreshDelayOverride,FALSE);
     }
     
     /**
@@ -1592,8 +1592,8 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
      */
     public function getEhrDao($create_if_not_set=TRUE)
     {
-    $mttag = microtime(TRUE);
-    error_log("LOOK starting getEhrDao($create_if_not_set)@$mttag");
+        $mttag = microtime(TRUE);
+    //error_log("LOOK starting getEhrDao($create_if_not_set)@$mttag");
         try
         {
             $ehrcorrupt = FALSE;
@@ -1605,11 +1605,11 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
                 {
                     //Wait for the singleton process to complete at least once.
                     $trycount++;
-        error_log("LOOK DAO waited $trycount times for other process started at ".$_SESSION['CTX_EHRDAO_NEW_START']." to create the instance; will sleep and try again.");
+        //error_log("LOOK DAO waited $trycount times for other process started at ".$_SESSION['CTX_EHRDAO_NEW_START']." to create the instance; will sleep and try again.");
                     sleep(2);
                     if(isset($_SESSION['CTX_EHRDAO_NEW_DONE']))
                     {
-        error_log("LOOK DAO waited $trycount times for other process to create the instance!");
+        //error_log("LOOK DAO waited $trycount times for other process to create the instance!");
                         break;
                     }
                     if($trycount > 15)
@@ -1628,7 +1628,7 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
                     $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
                     $this->m_oEhrDao = new \raptor\EhrDao($this->getSiteID());
                     $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
-        error_log("LOOK NEW1 getEhrDao($create_if_not_set)@$mttag");
+        //error_log("LOOK DAO NEW1 getEhrDao($create_if_not_set)@$mttag");
                 }
                 try
                 {
@@ -1643,14 +1643,14 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
                 }
                 if($ehrcorrupt)
                 {
-        error_log("LOOK DAO WAS CORRUPT (tries=$trycount cdur=$duration) SO TRYING TO CREATE AGAIN!");
+        //error_log("LOOK DAO WAS CORRUPT (tries=$trycount cdur=$duration) SO TRYING TO CREATE AGAIN!");
                     $_SESSION['CTX_EHRDAO_NEW_START'] = microtime(TRUE);
                     $this->m_oEhrDao = new \raptor\EhrDao($this->getSiteID());
                     $_SESSION['CTX_EHRDAO_NEW_DONE'] = microtime(TRUE);
-        error_log("LOOK NEW2 getEhrDao($create_if_not_set)@$mttag");
+        //error_log("LOOK NEW2 getEhrDao($create_if_not_set)@$mttag");
                 }
             }
-        error_log("LOOK done getEhrDao($create_if_not_set)@$mttag");
+        //error_log("LOOK done getEhrDao($create_if_not_set)@$mttag");
             return $this->m_oEhrDao;
         } catch (\Exception $ex) {
             throw $ex;

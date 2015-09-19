@@ -46,7 +46,7 @@ class EhrDao implements \raptor\IEhrDao
     {
         try
         {
-            $this->instanceTimestamp = microtime();
+            $this->instanceTimestamp = microtime(TRUE);
             error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
             $loaded = module_load_include('php', 'raptor_datalayer', 'config/ehr_integration');
             if($loaded === FALSE)
