@@ -379,6 +379,36 @@ class Context
         }
         error_log("Cleared session via forceClearUserSession for user $uid");
     }
+
+    public static function getAAAInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
+    {
+        if (session_status() == PHP_SESSION_NONE) 
+        {
+            error_log('CONTEXTgetInstance::Starting session');
+            session_start();
+            drupal_session_started(TRUE);       //If we dont do this we risk warning messages elsewhere.
+        }        
+        $currentpath = strtolower(current_path());
+        $forceReset = ($currentpath == 'user/login' || $currentpath == 'user/logout');
+        if(!self::hasSessionValue('CREATED')) 
+        { 
+            $startedtime = time();
+            error_log('CONTEXTgetInstance::Setting CREATED value of session to '.$startedtime);
+            $_SESSION['CREATED'] = $startedtime;
+            $_SESSION['REGENERATED_COUNT'] = 0;
+            self::saveSessionValue('CREATED', $startedtime);
+            self::saveSessionValue('REGENERATED_COUNT', 0);
+        } 
+        global $user;
+        $bAccountConflictDetected = FALSE;      //Set to true if something funny is going on.
+        $bContextDetectIdleTooLong = FALSE;
+        if(user_is_logged_in())
+        {
+            $tempUID = $user->uid;
+        } else {
+            $tempUID = 0;
+        }
+    }    
     
     /**
      * Factory implements session singleton.
@@ -409,7 +439,6 @@ class Context
         } 
         
         global $user;
-        $bLocalReset = FALSE;   //DEPRECATE USE OF THIS VARIABLE -- JUST FAIL IF WE NEED TO FAIL
         $bAccountConflictDetected = FALSE;      //Set to true if something funny is going on.
         $bContextDetectIdleTooLong = FALSE;
         if(user_is_logged_in())
@@ -418,15 +447,18 @@ class Context
         } else {
             $tempUID = 0;
         }
-        //error_log('CONTEXTgetInstance::tempUID='.$tempUID);
+error_log('LOOK CONTEXT 1 getInstance::tempUID='.$tempUID);
         $bSessionResetFlagDetected = ($forceReset || (isset($_GET['reset_session']) && $_GET['reset_session'] == 'YES'));
+error_log('LOOK CONTEXT 2 uid='.$tempUID." rfd='$bSessionResetFlagDetected'");
         if(isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]) && !$bSessionResetFlagDetected)
         {
+error_log('LOOK CONTEXT 3a uid=' . $tempUID . " rfd='$bSessionResetFlagDetected' or hassess='". isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]) ."'");
             //We will return this instance unless ...
             $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]); //TODO change logic
             $ehr_dao = $candidate->getEhrDao(FALSE);
             if($ehr_dao != NULL)
             {
+error_log('LOOK CONTEXT 3a uid='.$tempUID." NULL DAO");
                 $ehr_dao->setCustomInfoMessage('unserialized@'.microtime(TRUE));
             }
 //error_log("LOOK unserialized $candidate");            
@@ -434,6 +466,7 @@ class Context
             $candidateUID = $candidate->getUID();
             if($candidateUID == 0 && $tempUID != 0 && !$candidate->hasForceLogoutReason())
             {
+error_log('LOOK CONTEXT 4a uid='.$tempUID." CONVERT SESSION");
                 //Convert this session instance into instance for the UID, normal occurrence to do this after a login.
                 //$candidate->m_nUID = $tempUID;
                 self::saveSessionValue('UID', $tempUID);
@@ -441,6 +474,7 @@ class Context
             } else 
             if($candidateUID > -1 && $candidateUID !== $tempUID)
             {
+error_log('LOOK CONTEXT 4b uid='.$tempUID." RESET SESSION");
                 //This can happen if a user left without proper logout.
                 $errmsg = 'Must reset because candidate UID['.$candidate->getUID().'] != current UID['.$tempUID.']';
                 //drupal_set_message($errmsg, 'error');
@@ -449,14 +483,8 @@ class Context
                 //UGLY ABORT NOW
                 $candidate->clearAllContext();
                 throw new \Exception("Conflict current user session vs existing session detected!");
-                
-                
-                $bLocalReset=TRUE;
-                $candidate=NULL;
-                $wmodeParam='P';    //Hardcode assumption for now.
-                
             } else {
-                $bLocalReset=FALSE;
+error_log('LOOK CONTEXT 4c uid='.$tempUID." LITTLE ELSE...");
                 if(!self::hasSessionValue('UID'))
                 {
                    //Log something and continue
@@ -483,25 +511,28 @@ class Context
             } else {
                 error_log('Creating new session for uid='.$tempUID.' (missing session)');
             }
-            $bLocalReset=TRUE;
             $candidate=NULL;
             $wmodeParam='P';    //Hardcode assumption for now.
+error_log('LOOK CONTEXT 3b uid='.$tempUID." BIG ELSE...");
         }
         
         if($candidate==NULL)    // $nElapsedSeconds > MAXINACTIVITYSECONDS 
         {
+error_log('LOOK CONTEXT 5a uid='.$tempUID." candidate NULL!");
             //Create an instance because one does not already exist
-            $bLocalReset=TRUE;
             $candidate = new \raptor\Context($tempUID);
+error_log('LOOK CONTEXT 5b uid='.$tempUID." candidate NEW CREATED!");
         }
         
         if($bSystemDrivenAction)
         {
+error_log('LOOK CONTEXT 6a uid='.$tempUID." system driven");
             //Update the session info.
             //$candidate->m_nInstanceSystemActionTimestamp = time();
             $candidate->saveSessionValue('InstanceSystemActionTimestamp', time());
             $candidate->serializeNow(); //Store this now!!!
         } else {
+error_log('LOOK CONTEXT 6a uid='.$tempUID." user driven");
             //Update user action tracking in datatabase.
             if($candidate !== NULL)
             {
@@ -512,6 +543,7 @@ class Context
             if(isset($tempUID) 
                     && $tempUID !== 0 && ($nElapsedSeconds > 10))
             {
+error_log('LOOK CONTEXT 7a uid='.$tempUID." check for duplicate login");
                 try
                 {
                     //First make sure no one else is logged in as same UID
@@ -591,6 +623,7 @@ class Context
                     }
                     if(!$forceReset)
                     {
+error_log('LOOK CONTEXT 7b uid='.$tempUID." log our activity with INSERT");
                         //Log our activity.
                         $updated_dt = date("Y-m-d H:i:s", time());
                         db_insert('raptor_user_activity_tracking')
@@ -631,6 +664,7 @@ class Context
         $its = $candidate->getSessionValue('InstanceTimestamp');
         $candidateUID = $candidate->getSessionValue('UID');
         Context::debugDrupalMsg('[' . $its . '] Got context from cache! UID='.$candidateUID);
+error_log('LOOK CONTEXT 8a uid='.$tempUID." its=$its");
         if($user->uid > 0)
         {
             $useridleseconds = intval($candidate->getUserIdleSeconds());
@@ -646,15 +680,19 @@ class Context
         
         //Now trigger logout if account conflict was detected.
         $candidateVistaUserID = $candidate->getVistaUserID();
+error_log('LOOK CONTEXT 9a uid='.$tempUID." vistaUserID=$candidateVistaUserID");
         if($bAccountConflictDetected || $bContextDetectIdleTooLong)
         {
+error_log('LOOK CONTEXT 9b uid='.$tempUID." vistaUserID=$candidateVistaUserID");
             //Don't kick out an administrator in a protected URL
             $is_protected_adminuser = \raptor\UserInfo::is_protected_adminuser();
             if(!$is_protected_adminuser)
             {
                 //Don't get stuck in an infinite loop.
+error_log('LOOK CONTEXT 9c uid='.$tempUID." vistaUserID=$candidateVistaUserID");
                 if(substr($candidateVistaUserID,0,8) !== 'kickout_')
                 {
+error_log('LOOK CONTEXT 9d uid='.$tempUID." vistaUserID=$candidateVistaUserID");
                     //Prevent duplicate user messages.
                     $aForceLogoutReason = self::getSessionValue('ForceLogoutReason',NULL);
                     if($aForceLogoutReason == NULL)
@@ -703,14 +741,17 @@ class Context
             }
         }
         
+error_log('LOOK CONTEXT 10a uid='.$tempUID." vistaUserID=$candidateVistaUserID");
         if (!isset($candidate->m_oEhrDao))
         {
+error_log('LOOK CONTEXT 10b uid='.$tempUID." vistaUserID=$candidateVistaUserID NO DAO");
             if($candidate == NULL)
             {
                 error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has candidate instance from '. $_SERVER['REMOTE_ADDR']);
             } else {
                 $candidateUID = $candidate->getUID();
                 $candidateVistaUserID = $candidate->getVistaUserID();
+error_log('LOOK CONTEXT 10c uid='.$candidateUID." vistaUserID=$candidateVistaUserID NO DAO");
                 if($candidateUID == NULL || $candidateUID < 1)
                 {
                     $its = self::getSessionValue('InstanceTimestamp');
@@ -726,6 +767,7 @@ class Context
         
         $candidate->getEhrDao();    //Side effect of setting the context in the dao
 //error_log("LOOK debug context->getInstance session (count=" . count($_SESSION) . ")>>>>" . print_r($_SESSION,TRUE));                    
+error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candidate->getVistaUserID() . " FINAL >>> $candidate");
         return $candidate;
     }
     
