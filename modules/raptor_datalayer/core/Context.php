@@ -435,14 +435,72 @@ class Context
                     + USER_ALIVE_INTERVAL_SECONDS
                     + KICKOUT_DIRTYPADDING;
             $bContextDetectIdleTooLong = ($useridleseconds > $max_idle);
-            $bAccountConflictDetected = $candidate->hasAccountConflict($tempUID);   //TODO force logout
+            $bAccountConflictDetected = $candidate->hasAccountConflict($tempUID);
             if(!$forceReset && !$bContextDetectIdleTooLong && !$bAccountConflictDetected)
             {
                 $candidate->updateUserActivityTracking($tempUID);
+            } else {
+                //Now trigger logout if account conflict was detected.
+                $candidateVistaUserID = $candidate->getVistaUserID();
+                if($bAccountConflictDetected || $bContextDetectIdleTooLong)
+                {
+                    //Don't kick out an administrator in a protected URL
+                    $is_protected_adminuser = \raptor\UserInfo::is_protected_adminuser();
+                    if(!$is_protected_adminuser)
+                    {
+                        //Don't get stuck in an infinite loop.
+                        if(substr($candidateVistaUserID,0,8) !== 'kickout_')
+                        {
+                            //Prevent duplicate user messages.
+                            $aForceLogoutReason = self::getSessionValue('ForceLogoutReason',NULL);
+                            if($aForceLogoutReason == NULL)
+                            {
+                                //Not already set, so set it now.
+                                if($bContextDetectIdleTooLong)
+                                {
+                                    $useridleseconds = intval($candidate->getUserIdleSeconds());
+                                    $usermsg = 'You are kicked out because context has detected excessive'
+                                            . " idle time of $useridleseconds seconds";
+                                    $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
+                                    $kickoutlabel = 'TIMEOUT';
+                                } else {
+                                    if($candidateVistaUserID > '')
+                                    {
+                                        $usermsg = 'You are kicked out because another workstation has'
+                                                . ' logged in as the same'
+                                                . ' RAPTOR user account "'
+                                                . $candidateVistaUserID.'"';
+                                        $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
+                                        $kickoutlabel = 'ACCOUNT CONFLICT';
+                                    } else {
+                                        //This can happen to a NON VISTA admin user for timeout and things like that.
+                                        $usermsg = 'Your admin account has timed out';
+                                        $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
+                                        $kickoutlabel = 'TIMEOUT CONFLICT';
+                                    }
+                                }
+                                drupal_set_message($usermsg, 'error');
+                                $aForceLogoutReason = array();
+                                $aForceLogoutReason['code'] = $errorcode;
+                                $aForceLogoutReason['text'] = $usermsg;
+                                self::saveSessionValue('ForceLogoutReason', $aForceLogoutReason);
+                                self::saveSessionValue('VistaUserID', 'kickout_' . $candidateVistaUserID);
+                                self::saveSessionValue('VAPassword', NULL);
+                            }
+
+                            $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
+                            error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
+                                    . $candidateVistaUserID . '] >>> ' 
+                                    . time() 
+                                    . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
+
+                            $candidate->forceSessionRefresh(0);  //Invalidate any current form data now!
+                        }
+                    }
+                }
             }
         }
         $candidate->getEhrDao(TRUE);
-//error_log("LOOK context final candidate >>> $candidate");        
         return $candidate;
     }    
     
