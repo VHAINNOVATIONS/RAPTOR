@@ -314,7 +314,12 @@ class Context
      */
     public function getInstanceUserActionTimestamp()
     {
-        return self::getSessionValue('InstanceUserActionTimestamp');
+        $luats = self::getSessionValue('InstanceUserActionTimestamp');
+        if($luats == NULL)
+        {
+            error_log("LOOK did NOT find value InstanceUserActionTimestamp in session >>> " . print_r($luats,TRUE));
+        }
+        return $luats;
     }
 
     /**
@@ -322,8 +327,8 @@ class Context
      */
     public function getUserIdleSeconds()
     {
-        $luts = $this->getInstanceUserActionTimestamp();
-        return time() - $luts;
+        $luats = $this->getInstanceUserActionTimestamp();
+        return time() - $luats;
     }
     
     /**
