@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150919C'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150920A'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -486,6 +486,13 @@ class Context
                                 self::saveSessionValue('ForceLogoutReason', $aForceLogoutReason);
                                 self::saveSessionValue('VistaUserID', 'kickout_' . $candidateVistaUserID);
                                 self::saveSessionValue('VAPassword', NULL);
+                                try
+                                {
+                                    $dao = $candidate->getEhrDao(TRUE);
+                                    $dao->disconnect();
+                                } catch (\Exception $ex) {
+                                    error_log("Failed to issue disconnect on dao because $ex");
+                                }
                             }
 
                             $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
@@ -509,7 +516,8 @@ class Context
         try
         {
             //Log our activity.
-            $updated_dt = date("Y-m-d H:i:s", time());
+            $stopwatchmoment = time();
+            $updated_dt = date("Y-m-d H:i:s", $stopwatchmoment);
             db_insert('raptor_user_activity_tracking')
             ->fields(array(
                     'uid'=>$tempUID,
@@ -533,7 +541,7 @@ class Context
                 ))
                 ->execute();
 
-            $this->saveSessionValue('InstanceUserActionTimestamp', time());
+            $this->saveSessionValue('InstanceUserActionTimestamp', $stopwatchmoment);
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -550,6 +558,7 @@ class Context
             {
                 $nElapsedSeconds = time() - $reftime; // m_nInstanceUserActionTimestamp;
             } else {
+                error_log("LOOK did NOT get numeric instance ref time (found='$reftime') from session >>> " . print_r($_SESSION,TRUE));
                 $nElapsedSeconds = 0;
             }
             if(isset($tempUID) 

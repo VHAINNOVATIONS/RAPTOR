@@ -55,8 +55,12 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
     
-    public function __construct($siteCode, $session_key_prefix='MDWSDAO', $reset=FALSE)
+    public function __construct($siteCode, $session_key_prefix=NULL, $reset=FALSE)
     {
+        if($session_key_prefix==NULL)
+        {
+            $session_key_prefix='MDWSDAO';
+        }
         $this->m_session_key_prefix = $session_key_prefix;
 error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset)");  
         //Load relevant modules

@@ -70,8 +70,12 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     private $m_session_key_prefix = NULL;
     private $userSiteId = NULL;
     
-    public function __construct($siteCode, $session_key_prefix='EWDDAO', $reset=FALSE)
+    public function __construct($siteCode, $session_key_prefix=NULL, $reset=FALSE)
     {
+        if($session_key_prefix==NULL)
+        {
+            $session_key_prefix='EWDDAO';
+        }
         $this->m_session_key_prefix = $session_key_prefix;
         $this->userSiteId = $siteCode;
         
