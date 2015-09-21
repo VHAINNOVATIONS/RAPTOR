@@ -16,20 +16,20 @@ defined('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST')
     or define('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST', '149');
 
 //Other site specific values
-defined("RAPTOR_ROOT_URL")
-    or define("RAPTOR_ROOT_URL", "http://localhost/RSite500/RAPTOR/");
+defined('RAPTOR_ROOT_URL')
+    or define('RAPTOR_ROOT_URL', "http://localhost/RSite500/RAPTOR/");
 
-defined("EMRSERVICE_URL")
-    or define("EMRSERVICE_URL", "http://localhost/mdws2.5/emrsvc.asmx");
-defined("QUERYSERVICE_URL")
+defined('EMRSERVICE_URL')
+    or define('EMRSERVICE_URL', "http://localhost/mdws2.5/emrsvc.asmx");
+defined('QUERYSERVICE_URL')
     or define("QUERYSERVICE_URL", "http://localhost/mdws2.5/querysvc.asmx");
 
-defined("VIX_STUDIES_URL")
-    or define("VIX_STUDIES_URL", "http://localhost:8090/RaptorWebApp/secure/restservices/raptor/studies/");
-defined("VIX_THUMBNAIL_URL")
-    or define("VIX_THUMBNAIL_URL", "http://localhost:8090/RaptorWebApp/token/thumbnail");
-defined("VIX_HTML_VIEWER_URL")
-    or define("VIX_HTML_VIEWER_URL", "http://localhost:9000/hydra/viewer");
+defined('VIX_STUDIES_URL')
+    or define('VIX_STUDIES_URL', "http://localhost:8090/RaptorWebApp/secure/restservices/raptor/studies/");
+defined('VIX_THUMBNAIL_URL')
+    or define('VIX_THUMBNAIL_URL', "http://localhost:8090/RaptorWebApp/token/thumbnail");
+defined('VIX_HTML_VIEWER_URL')
+    or define('VIX_HTML_VIEWER_URL', "http://localhost:9000/hydra/viewer");
 
 //Lab settings might be different for different sites
 defined('LAB_EGFR_ALERT_WARN_END_LEVEL')
@@ -47,8 +47,8 @@ defined('IMG_INT_MODULE_NAME')
     or define('IMG_INT_MODULE_NAME', 'raptor_imageviewing');
 
 defined('EHR_INT_MODULE_NAME')
-    or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
-    //or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
+    //or define('EHR_INT_MODULE_NAME', 'raptor_ewdvista');
+    or define('EHR_INT_MODULE_NAME', 'raptor_mdwsvista');
 
 //Disable the AGE scoring if using a test VISTA with VERY OLD orders.
 defined('DISABLE_TICKET_AGE1_SCORING')
