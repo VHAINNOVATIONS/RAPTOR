@@ -44,8 +44,6 @@ defined('DISABLE_CONTEXT_DEBUG')
  * The context has all the details relevant to the user of the session and their
  * current activities.
  * 
- * NOTE: static members of an object are not serialized.
- *
  * @author Frank Font of SAN Business Consultants
  */
 class Context
@@ -326,7 +324,7 @@ class Context
                 //Purge old cache contents now.
                 RuntimeResultFlexCache::purgeOldItems();
             } else {
-error_log("LOOK in construct session>>>>" . print_r($_SESSION,TRUE));                
+//error_log("LOOK in construct session>>>>" . print_r($_SESSION,TRUE));                
             }
 
         } catch (\Exception $ex) {
@@ -577,7 +575,7 @@ error_log("LOOK in construct session>>>>" . print_r($_SESSION,TRUE));
                                 }
                             }
 
-                            $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
+                            //$_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
                             error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
                                     . $candidateVistaUserID . '] >>> ' 
                                     . time() 
@@ -1160,14 +1158,14 @@ error_log("LOOK in construct session>>>>" . print_r($_SESSION,TRUE));
     }
     
     /**
-     * @return empty string if no error, else returns else associative array with following keys: ERRNUM, ERRSUMMARY, ERRDETAIL
+     * Throws exception if fails
      */
     public function logoutSubsystems() 
     {
-        $nUID = self::getSessionValue('UID',NULL);
-        if($nUID != NULL && $nUID > 0)
+        try
         {
-            try
+            $nUID = self::getSessionValue('UID',NULL);
+            if($nUID != NULL && $nUID > 0)
             {
                 $updated_dt = date("Y-m-d H:i:s", time());
                 db_insert('raptor_user_activity_tracking')
@@ -1179,23 +1177,7 @@ error_log("LOOK in construct session>>>>" . print_r($_SESSION,TRUE));
                         'updated_dt'=>$updated_dt,
                     ))
                     ->execute();
-                    //Write the recent activity to the single record that tracks it too.
-                /*
-                db_merge('raptor_user_recent_activity_tracking')
-                    ->key(array('uid'=>$this->m_nUID,
-                        'ipaddress'=>$_SERVER['REMOTE_ADDR'],
-                        'sessionid' => session_id(),
-                        ))
-                    ->fields(array(
-                            'uid'=>$this->m_nUID,
-                            'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                            'sessionid' => session_id(),
-                            'most_recent_logout_dt'=>$updated_dt,
-                            'most_recent_action_dt'=>$updated_dt,
-                            'most_recent_action_cd' => UATC_LOGOUT,
-                        ))
-                        ->execute();
-                 */
+                //Write the recent activity to the single record that tracks it too.
                 db_merge('raptor_user_recent_activity_tracking')
                     ->key(array('uid'=>$nUID))
                     ->fields(array(
@@ -1207,19 +1189,16 @@ error_log("LOOK in construct session>>>>" . print_r($_SESSION,TRUE));
                             'most_recent_action_cd' => UATC_LOGOUT,
                         ))
                         ->execute();
-            } catch (\Exception $ex) {
-                error_log('Trouble updating raptor_user_activity_tracking>>>' . print_r($ex,TRUE));
             }
+            $this->clearAllContext();
+        } catch (\Exception $ex) {
+            error_log('Trouble updating raptor_user_activity_tracking>>>' . print_r($ex,TRUE));
         }
-        $this->clearAllContext();
-        //20150919 $this->serializeNow();
-        return '';  //TODO
     }
     
     private function logoutEhrSubsystem() 
     {
         try {
-            //20150919 $this->serializeNow('Logging out of EHR',FALSE);
             $this->getEhrDao()->disconnect();
             $_SESSION['CTX_EHRDAO_NEW_START'] = NULL;
             $_SESSION['CTX_EHRDAO_NEW_DONE'] = NULL;
@@ -1228,56 +1207,6 @@ error_log("LOOK in construct session>>>>" . print_r($_SESSION,TRUE));
             //Log it and continue
             error_log('Failed logout of EHR system because '.$ex);
         }
-    }
-
-    /**
-     * This is not a graceful kickout.
-     */
-    private function forceKickoutNow($reason=NULL
-            ,$reasoncode=0
-            ,$candidate=NULL)
-    {
-        if($candidate == NULL)
-        {
-            error_log("Unserializing now for kickout processing!");
-            $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]);
-            $ehr_dao = $candidate->getEhrDao(FALSE);
-            if($ehr_dao != NULL)
-            {
-                $ehr_dao->setCustomInfoMessage('kickout unserialized@'.microtime(TRUE));
-            }
-            if($candidate == '')
-            {
-                error_log("No existing context instance found, creating a temporary one now for kickout processing!");
-                $candidate = new \raptor\Context(-1);
-            }
-        }
-        if($reason === NULL)
-        {
-            $reason = 'No reason given';
-            $showusermsgmarkup = '';
-        } else {
-            $showusermsgmarkup = "<h2>".$reason."</h2>";
-        }
-        $aForceLogoutReason = array();
-        $aForceLogoutReason['code'] = $reasoncode;
-        $aForceLogoutReason['text'] = $reason;
-        self::saveSessionValue('ForceLogoutReason', $aForceLogoutReason);
-        error_log('CONTEXT KICKOUT ACCOUNT AT ' . time() . "\n\tSESSION>>>>" 
-                . print_r($_SESSION,TRUE));
-        $sVistaUserID = self::getAllSessionValueNames('sVistaUserID',NULL);
-        //$candidate->m_sVistaUserID = 'kickout_' . $candidate->m_sVistaUserID;
-        //$candidate->m_sVAPassword = NULL;
-        
-        $newVUIDvalue = 'kickout_' . $sVistaUserID;
-        self::saveSessionValue('VistaUserID', $newVUIDvalue);
-        self::saveSessionValue('VAPassword', NULL);
-        
-        //Store this now!!!
-        $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate);
-        unset($_SESSION['CREATED']);
-        die("<h1>Your RAPTOR session has ended</h1>$showusermsgmarkup"
-                . "<a href='".RAPTOR_ROOT_URL."'>Log back in</a>");
     }
 
     /**

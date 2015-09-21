@@ -543,7 +543,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 }
                 if($tid == '')
                 {
-error_log("LOOK debug why dashboard has not tracking ID session>>>>" . print_r($_SESSION,TRUE));                    
+$stacktrace = \raptor\Context::debugGetCallerInfo(10);
+error_log("LOOK debug why dashboard has not tracking ID session >>> " . print_r($_SESSION,TRUE) . "\n\tDEBUG STACK TRACE >>> " . print_r($stacktrace,TRUE));                    
                     throw new \Exception("Cannot get dashboard without a tracking ID!");
                 }
                 $oRuntimeResultFlexCacheHandler = $oContext->getRuntimeResultFlexCacheHandler($this->m_groupname);
