@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150916.1 Config for DEV 54.235.92.244');
+    or define('RAPTOR_CONFIG_ID', '20150921.1 Config for DEV 54.235.92.244');
 
 /*
  * These are RAPTOR INSTANCE specific settings
