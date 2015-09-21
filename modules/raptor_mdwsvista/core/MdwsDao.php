@@ -62,7 +62,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             $session_key_prefix='MDWSDAO';
         }
         $this->m_session_key_prefix = $session_key_prefix;
-error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset)");  
+//error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset)");  
         //Load relevant modules
         module_load_include('php', 'raptor_glue', 'core/Config');
         module_load_include('php', 'raptor_datalayer', 'core/Context');
@@ -75,11 +75,11 @@ error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset)");
         } else {
             if($this->mdwsClient == NULL)
             {
-error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection");  
+//error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection");  
                 if(!$this->getSessionVariable('is_authenticated'))
                 {
                     //Just init then
-error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection -- JUST INIT");  
+//error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection -- JUST INIT");  
                     $this->initClient($siteCode);
                 } else {
                     //Get a client that is authenticated
@@ -87,7 +87,7 @@ error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to pres
                     $this->mdwsClient = MdwsDaoFactory::getSoapClientByFacade($this->currentFacade);
                     $userAccessCode = $this->getSessionVariable('userAccessCode');
                     $userVerifyCode = $this->getSessionVariable('userVerifyCode');
-error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection -- Try($siteCode,$userAccessCode,$userVerifyCode)");
+//error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection -- Try($siteCode,$userAccessCode,$userVerifyCode)");
                     $this->userSiteId = $siteCode;
                     $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
                 }

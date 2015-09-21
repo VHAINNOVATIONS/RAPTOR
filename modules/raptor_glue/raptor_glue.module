@@ -110,10 +110,6 @@ function raptor_glue_init()
     raptor_glue_intercept_bad_users();
 }
 
-/**
- * Populate some variables that can be displayed by the theme pages.
- * @param type page 
- */
 function raptor_glue_page_alter(&$page) 
 {
     module_load_include('php', 'raptor_datalayer', 'core/Context');
@@ -153,7 +149,12 @@ function raptor_glue_page_alter(&$page)
             error_log('HIT PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
             return;
         }
-        error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
+        if($currentpath == 'protocol')
+        {
+            error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . '] GET=' . print_r($_GET,TRUE));
+        } else {
+            error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
+        }
 
         //Go to our custom front page url.
         $is_front_page = drupal_is_front_page();
