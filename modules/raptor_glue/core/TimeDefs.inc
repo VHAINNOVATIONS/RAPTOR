@@ -21,10 +21,10 @@ defined("TIME_DEFS_VERSION_INFO")
 // Production recommendation for USER_TIMEOUT_SECONDS=900
 // Production recommendation for USER_TIMEOUT_GRACE_SECONDS=180
 // Production recommendation for USER_ALIVE_INTERVAL_SECONDS=60
-defined('USER_TIMEOUT_SECONDS')
-    or define('USER_TIMEOUT_SECONDS', 900);
+defined('USER_TIMEOUT_SECONDS') 
+    or define('USER_TIMEOUT_SECONDS', 55); //900);
 defined('USER_TIMEOUT_GRACE_SECONDS')
-    or define('USER_TIMEOUT_GRACE_SECONDS', 180);   //Prompt shows for this long
+    or define('USER_TIMEOUT_GRACE_SECONDS', 18);    //0);   //Prompt shows for this long
 defined('USER_ALIVE_INTERVAL_SECONDS')
     or define('USER_ALIVE_INTERVAL_SECONDS', 60);
 

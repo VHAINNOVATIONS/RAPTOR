@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150920A'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150921A'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -257,19 +257,31 @@ class Context
     
     private function __construct($nUID)
     {
-        if(!is_numeric($nUID))
+        try
         {
-            throw new \Exception('The UID passed into contructor of Context must be numeric, but instead got "'.$nUID.'"');
-        }
+            if(!is_numeric($nUID))
+            {
+                throw new \Exception("The UID passed into contructor of Context must be numeric, but instead got '$nUID'");
+            }
 
-        self::saveSessionValue('UID', $nUID);
-        self::saveSessionValue('InstanceTimestamp', microtime(TRUE));
-        self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
-        self::saveSessionValue('InstanceUserActionTimestamp', time());
-        self::saveSessionValue('InstanceSystemActionTimestamp', time());
-        
-        //Purge old cache contents now.
-        RuntimeResultFlexCache::purgeOldItems();
+            //Do we need to initialize some fundamental session variables?
+            if(!self::hasSessionValue('UID'))
+            {
+                //We only do this IF user is not already in an active session
+                self::saveSessionValue('UID', $nUID);
+                self::saveSessionValue('InstanceTimestamp', microtime(TRUE));
+                self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
+                self::saveSessionValue('InstanceUserActionTimestamp', time());
+                self::saveSessionValue('InstanceSystemActionTimestamp', time());
+
+                //Purge old cache contents now.
+                RuntimeResultFlexCache::purgeOldItems();
+    error_log("LOOK context constructor done >>> " . print_r($_SESSION,TRUE));        
+            }
+
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }    
 
     /**
@@ -327,8 +339,19 @@ class Context
      */
     public function getUserIdleSeconds()
     {
-        $luats = $this->getInstanceUserActionTimestamp();
-        return time() - $luats;
+        try
+        {
+            $luats = $this->getInstanceUserActionTimestamp();
+            $now = time();
+            $diff = $now - $luats;
+if($diff == 0)
+{
+    error_log("LOOK getUserIdleSeconds $diff = $now - $luats >>> " . print_r($_SESSION,TRUE));
+}
+            return $diff;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**
@@ -443,7 +466,15 @@ class Context
             $bAccountConflictDetected = $candidate->hasAccountConflict($tempUID);
             if(!$forceReset && !$bContextDetectIdleTooLong && !$bAccountConflictDetected)
             {
-                $candidate->updateUserActivityTracking($tempUID);
+                if($bSystemDrivenAction)
+                {
+                    //Just update this guy
+                    self::saveSessionValue('InstanceSystemActionTimestamp', time());
+error_log("LOOK just update InstanceSystemActionTimestamp");                    
+                } else {
+                    //Update that the user is actively doing things
+                    $candidate->updateUserActivityTracking($tempUID);
+                }
             } else {
                 //Now trigger logout if account conflict was detected.
                 $candidateVistaUserID = $candidate->getVistaUserID();
@@ -547,6 +578,7 @@ class Context
                 ->execute();
 
             $this->saveSessionValue('InstanceUserActionTimestamp', $stopwatchmoment);
+error_log("LOOK updated InstanceUserActionTimestamp=$stopwatchmoment");       
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -558,10 +590,11 @@ class Context
         {
             //Update user action tracking in datatabase.
             $bAccountConflictDetected = FALSE;  //Assume everything is okay to start.
-            $reftime = $this->getSessionValue('InstanceUserActionTimestamp');
+            $thismoment = time();
+            $reftime = self::getSessionValue('InstanceUserActionTimestamp');
             if(is_numeric($reftime))
             {
-                $nElapsedSeconds = time() - $reftime; // m_nInstanceUserActionTimestamp;
+                $nElapsedSeconds = $thismoment - $reftime; // m_nInstanceUserActionTimestamp;
             } else {
                 error_log("LOOK did NOT get numeric instance ref time (found='$reftime') from session >>> " . print_r($_SESSION,TRUE));
                 $nElapsedSeconds = 0;
@@ -656,12 +689,12 @@ class Context
             throw $ex;
         }
     }
+
     
     /**
      * Factory implements session singleton.
      * @return \raptor\Context 
      * @deprecated
-     */
     public static function getXXXXInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
     {
         $currentpath = strtolower(current_path());
@@ -1009,6 +1042,7 @@ error_log('LOOK CONTEXT 10c uid='.$candidateUID." vistaUserID=$candidateVistaUse
 error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candidate->getVistaUserID() . " FINAL >>> $candidate");
         return $candidate;
     }
+     */
     
     public function hasForceLogoutReason()
     {
@@ -1025,7 +1059,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
     {
         self::saveSessionValue('ForceLogoutReason', NULL);
         //$this->m_sForceLogoutReason = NULL;
-        $this->serializeNow(); //Store this now!!!
+        //$this->serializeNow(); //Store this now!!!
     }
     
     /**
@@ -1113,7 +1147,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
                 throw new \Exception("Invalid WorklistMode='$sWMODE'!");
             }
             self::saveSessionValue('WorklistMode', $sWMODE);
-            $this->serializeNow();        
+            //$this->serializeNow();        
         }
     }
     
@@ -1124,10 +1158,13 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
         self::saveSessionValue('CurrentTicketID', NULL);
         $nLastUpdateTimestamp = microtime(TRUE);
         self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
+        /*
         if($bSaveSession)
         {
             $this->serializeNow();        
         }
+         * 
+         */
     }
 
     /**
@@ -1165,7 +1202,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
                         self::saveSessionValue('PersonalBatchStackMessage', $sPersonalBatchStackMessage);
                     }
                 }
-                $candidate->serializeNow();           
+                //$candidate->serializeNow();           
             }
             return $sCurrentTicketID;
         } catch (\Exception $ex) {
@@ -1290,10 +1327,13 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
             $nTID = array_pop($pbs);
             self::saveSessionValue('PersonalBatchStack', $pbs);
             Context::debugDrupalMsg("<h1>Popped $nTID off the stack ". print_r($pbs, TRUE)  ."</h1>");
+            /*
             if($serializeNow)
             {
                 //20150919 $this->serializeNow();        
             }
+             * 
+             */
             return $nTID;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1532,7 +1572,6 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
      * RECOMMENDATION REMOVE THIS DO NOT USE SERIALIZE APPROACH!!!!!!!!!!
      * Only needed by MDWS implementation --- remove it when we move to EWD
      * @deprecated 20150908!!!!!!!!!!!!!!
-     */
     private function serializeNow($logMsg = NULL
             , $bSystemDrivenAction=TRUE
             , $nSessionRefreshDelayOverride=NULL
@@ -1540,6 +1579,7 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
     {
         error_log("LOOK REMOVE THE serializeNow STUFF!!! ($logMsg)");
         return;
+        
         if($logMsg != NULL)
         {
             //error_log('@serializeNow: '.$logMsg);
@@ -1569,6 +1609,7 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
         $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($this);
         //error_log('WORKFLOWDEBUG>>>Serialized context at ' . microtime(TRUE));  
     }    
+     */
     
     /**
      * This is not a graceful kickout.
