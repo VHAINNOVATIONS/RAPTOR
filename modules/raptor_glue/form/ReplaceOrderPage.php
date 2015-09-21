@@ -64,7 +64,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             //$oWL = new \raptor\WorklistData($this->m_oContext);
             //$aOneRow = $oWL->getDashboardMap();
             $ehrDao = $this->m_oContext->getEhrDao();
-            $aOneRow = $ehrDao->getDashboardDetailsMap();
+            $aOneRow = $ehrDao->getDashboardDetailsMap($tid);
             $nUID = $this->m_oContext->getUID();
             $imagetypes = $ehrDao->getImagingTypesMap($ehrDao);
 
@@ -627,7 +627,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         
         //$oDD = new \raptor\DashboardData($this->m_oContext);
         //$rpd = $oDD->getDashboardDetails();
-        $rpd = $ehrDao->getDashboardDetailsMap();
+        $rpd = $ehrDao->getDashboardDetailsMap($myIEN);
         $gender = trim($rpd['PatientGender']);
         $age = intval(trim($rpd['PatientAge']));
         $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';

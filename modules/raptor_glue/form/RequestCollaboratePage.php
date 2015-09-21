@@ -54,44 +54,48 @@ class RequestCollaboratePage
      */
     function getFieldValues()
     {
-        $tid = $this->m_oContext->getSelectedTrackingID();
-        
-        //$oWL = new \raptor\WorklistData($this->m_oContext);
-        //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $aOneRow = $ehrDao->getDashboardDetailsMap();
-        $nSiteID = $this->m_oContext->getSiteID();
-        
-        $nIEN = $tid;
-        $nUID = $this->m_oContext->getUID();
-        
-        $myvalues = array();
-        $myvalues['tid'] = $tid;
-        $myvalues['procName'] = $aOneRow['Procedure'];
-        
-        $result = db_select('raptor_ticket_collaboration','c')
-                ->fields('c')
-                ->condition('siteid',$nSiteID,'=')
-                ->condition('IEN',$nIEN,'=')
-                ->condition('active_yn',1,'=')
-                ->execute();
-        if($result->rowCount() == 0)
+        try
         {
-            //Initialize all values as empty.
-            $myvalues['prev_collaborator_uid'] = '';
-            $myvalues['collaborator_uid'] = '';     //This gets filled in by javascript
-            $myvalues['requester_prev_notes_tx'] = '';
-            $myvalues['requester_notes_tx'] = '';
-        } else {
-            //Initialize all values with what we found.
-            $record = $result->fetchAssoc();
-            $myvalues['prev_collaborator_uid'] = $record['collaborator_uid'];
-            $myvalues['collaborator_uid'] = $record['collaborator_uid'];
-            $myvalues['requester_prev_notes_tx'] = $record['requester_notes_tx'];
-            $myvalues['requester_notes_tx'] = '';
-        }
+            $tid = $this->m_oContext->getSelectedTrackingID();
+            $nIEN = $tid;
 
-        return $myvalues;
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOneRow = $oWL->getDashboardMap();    //$tid);
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $aOneRow = $ehrDao->getDashboardDetailsMap($tid);
+            $nSiteID = $this->m_oContext->getSiteID();
+            $nUID = $this->m_oContext->getUID();
+
+            $myvalues = array();
+            $myvalues['tid'] = $tid;
+            $myvalues['procName'] = $aOneRow['Procedure'];
+
+            $result = db_select('raptor_ticket_collaboration','c')
+                    ->fields('c')
+                    ->condition('siteid',$nSiteID,'=')
+                    ->condition('IEN',$nIEN,'=')
+                    ->condition('active_yn',1,'=')
+                    ->execute();
+            if($result->rowCount() == 0)
+            {
+                //Initialize all values as empty.
+                $myvalues['prev_collaborator_uid'] = '';
+                $myvalues['collaborator_uid'] = '';     //This gets filled in by javascript
+                $myvalues['requester_prev_notes_tx'] = '';
+                $myvalues['requester_notes_tx'] = '';
+            } else {
+                //Initialize all values with what we found.
+                $record = $result->fetchAssoc();
+                $myvalues['prev_collaborator_uid'] = $record['collaborator_uid'];
+                $myvalues['collaborator_uid'] = $record['collaborator_uid'];
+                $myvalues['requester_prev_notes_tx'] = $record['requester_notes_tx'];
+                $myvalues['requester_notes_tx'] = '';
+            }
+
+            return $myvalues;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**

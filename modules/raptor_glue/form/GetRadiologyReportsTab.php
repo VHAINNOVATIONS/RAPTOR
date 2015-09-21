@@ -34,6 +34,7 @@ namespace raptor;
 class GetRadiologyReportsTab
 {
     private $m_oContext = NULL;
+    private $m_TID = NULL;
     
      //Call same function as in EditUserPage here!
     function __construct($oContext)
@@ -46,6 +47,11 @@ class GetRadiologyReportsTab
         if(!$oContext->hasSelectedTrackingID())
         {
             throw new \Exception('Did NOT find a selected Tracking ID.  Go back to the worklist and select a ticket first.');
+        }
+        $this->m_TID = $oContext->getSelectedTrackingID();
+        if($this->m_TID == '')
+        {
+            throw new \Exception('Did NOT find a selected Tracking ID.  Go back to the worklist and select a ticket first.  (STRANGE CASE!)');
         }
     }
 
@@ -145,7 +151,7 @@ class GetRadiologyReportsTab
             );
             $ehrDao = $this->m_oContext->getEhrDao();
             $radiology_reports_detail = $ehrDao->getRadiologyReportsDetailMap();
-            $raptor_protocoldashboard = $ehrDao->getDashboardDetailsMap();
+            $raptor_protocoldashboard = $ehrDao->getDashboardDetailsMap($this->m_TID);
             $sTrackingIDfromDD = $raptor_protocoldashboard['Tracking ID'];
             $patientDFN=$raptor_protocoldashboard['PatientID'];
             $patientICN=$raptor_protocoldashboard['mpiPid'];

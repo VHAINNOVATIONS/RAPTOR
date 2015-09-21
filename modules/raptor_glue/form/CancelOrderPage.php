@@ -41,7 +41,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
     function __construct()
     {
         module_load_include('php', 'raptor_datalayer', 'config/Choices');
-        //module_load_include('php', 'raptor_datalayer', 'core/data_worklist');
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_oTT = new \raptor\TicketTrackingData();
     }
@@ -58,11 +57,8 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
         }
         $ehrDao = $this->m_oContext->getEhrDao();
-        $aOneRow = $ehrDao->getDashboardDetailsMap();
-        //$oWL = new \raptor\WorklistData($this->m_oContext);
-        //$aOneRow = $oWL->getDashboardMap();    //$tid);
+        $aOneRow = $ehrDao->getDashboardDetailsMap($tid);
         $nSiteID = $this->m_oContext->getSiteID();
-        
         $nIEN = $tid;
         $nUID = $this->m_oContext->getUID();
         
@@ -70,7 +66,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         $myvalues['tid'] = $tid;
         $myvalues['procName'] = $aOneRow['Procedure'];
         $myvalues['reason'] = '';
-//        $myvalues['notes_tx'] = '';
         $myvalues['esig'] = '';
         $myvalues['providerDUZ'] = '';
         
@@ -80,7 +75,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         $myvalues['OrderFileIen'] = $aOneRow['OrderFileIen'];
         $myvalues['PatientID'] = $aOneRow['PatientID'];
 
-        //TODO: Pre-populate values for display
         return $myvalues;
     }
     
@@ -180,10 +174,9 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
             '#disabled' => $disabled,
         );
 
-        //$oWL = new \raptor\WorklistData($this->m_oContext);
-        //$aOneRow = $oWL->getDashboardMap();    //$tid);
+        $myIEN = $myvalues['tid'];
         $ehrDao = $this->m_oContext->getEhrDao();
-        $aOneRow = $ehrDao->getDashboardDetailsMap();        
+        $aOneRow = $ehrDao->getDashboardDetailsMap($myIEN);        
         $sRequestedByName = $aOneRow['RequestedBy'];
         $canOrderBeDCd = $aOneRow['canOrderBeDCd'];
         $orderFileStatus = $aOneRow['orderFileStatus'];
@@ -204,9 +197,6 @@ class CancelOrderPage extends \raptor\ASimpleFormPage
         
         $ehrDao = $this->m_oContext->getEhrDao();
         $myDuz = $ehrDao->getEHRUserID();
-        $myIEN = $myvalues['tid'];
-        //$orderDetails = $ehrDao->getOrderDetails($myIEN);
-        //$orginalProviderDuz = $orderDetails['orderingPhysicianDuz'];
         $orginalProviderDuz = $aOneRow['orderingPhysicianDuz'];
 
         //Hidden values

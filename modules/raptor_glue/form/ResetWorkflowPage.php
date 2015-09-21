@@ -52,28 +52,35 @@ class ResetWorkflowPage extends \raptor\ASimpleFormPage
      */
     function getFieldValues()
     {
-        $tid = $this->m_oContext->getSelectedTrackingID();
-        if($tid == NULL || trim($tid) == '' || trim($tid) == 0)
+        try
         {
-            throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
+            $tid = $this->m_oContext->getSelectedTrackingID();
+            if($tid == '')
+            {
+                throw new \Exception("Cannot reset a ticket workflow without a ticket number!");
+            }
+            $nIEN = $tid;
+            if($tid == NULL || trim($tid) == '' || trim($tid) == 0)
+            {
+                throw new \Exception('Missing selected ticket number!  (If using direct, try overridetid.)');
+            }
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOneRow = $oWL->getDashboardMap();    //$tid);
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $aOneRow = $ehrDao->getDashboardDetailsMap($tid);
+            $nSiteID = $this->m_oContext->getSiteID();
+            $nUID = $this->m_oContext->getUID();
+
+            $myvalues = array();
+            $myvalues['tid'] = $tid;
+            $myvalues['procName'] = $aOneRow['Procedure'];
+            $myvalues['new_wfs'] = '';
+            $myvalues['notes_tx'] = '';
+
+            return $myvalues;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        //$oWL = new \raptor\WorklistData($this->m_oContext);
-        //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $aOneRow = $ehrDao->getDashboardDetailsMap();
-        $nSiteID = $this->m_oContext->getSiteID();
-        
-        $nIEN = $tid;
-        $nUID = $this->m_oContext->getUID();
-        
-        $myvalues = array();
-        $myvalues['tid'] = $tid;
-        $myvalues['procName'] = $aOneRow['Procedure'];
-        $myvalues['new_wfs'] = '';
-        $myvalues['notes_tx'] = '';
-        
-        //TODO: Pre-populate values for display
-        return $myvalues;
     }
     
     /**

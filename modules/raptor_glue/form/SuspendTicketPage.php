@@ -53,28 +53,34 @@ class SuspendTicketPage
      */
     function getFieldValues()
     {
-        $tid = $this->m_oContext->getSelectedTrackingID();
-        
-        //$oWL = new \raptor\WorklistData($this->m_oContext);
-        //$aOneRow = $oWL->getDashboardMap();    //$tid);
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $aOneRow = $ehrDao->getDashboardDetailsMap();
-        $nSiteID = $this->m_oContext->getSiteID();
-        
-        $nIEN = $tid;
-        $nUID = $this->m_oContext->getUID();
-        
-        $myvalues = array();
-        $myvalues['tid'] = $tid;
-        $myvalues['procName'] = $aOneRow['Procedure'];
-        
-        
-        $this->m_oContext = \raptor\Context::getInstance();
-        $myvalues['tid'] = $this->m_oContext->getSelectedTrackingID();
+        try
+        {
+            $tid = $this->m_oContext->getSelectedTrackingID();
+            if($tid == '')
+            {
+                throw new \Exception("Cannot suspend a ticket without a ticket number!");
+            }
+            $nIEN = $tid;
 
-        //TODO: Pre-populate values for display
-        
-        return $myvalues;
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOneRow = $oWL->getDashboardMap();    //$tid);
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $aOneRow = $ehrDao->getDashboardDetailsMap($tid);
+            $nSiteID = $this->m_oContext->getSiteID();
+
+            $nUID = $this->m_oContext->getUID();
+
+            $myvalues = array();
+            $myvalues['tid'] = $tid;
+            $myvalues['procName'] = $aOneRow['Procedure'];
+
+
+            $this->m_oContext = \raptor\Context::getInstance();
+            $myvalues['tid'] = $tid;
+            return $myvalues;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     /**

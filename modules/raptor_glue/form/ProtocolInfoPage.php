@@ -46,7 +46,6 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
     private $m_oLI = NULL;
     private $m_oFRD = NULL;
     private $m_bFormDisabled = NULL;
-    //private $m_oDD = NULL;
     private $m_aPatientDD = NULL;
     
     /**
@@ -74,12 +73,16 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_bFormDisabled = $disabled;
         $this->m_oContext = \raptor\Context::getInstance();
         $this->m_tid = $tid;
+        if($tid == '')
+        {
+            throw new Exception('Cannot get protocol information page without a ticket number!');
+        }
         $this->m_oCIE = NULL;
         $this->m_oUtility = new \raptor\ProtocolInfoUtility();
         $this->m_oTT = new \raptor\TicketTrackingData();
         $this->m_oLI = new \raptor_formulas\LanguageInference();
         $this->m_oFRD = new \raptor\FacilityRadiationDose();
-        $this->m_aPatientDD = $this->m_oContext->getEhrDao()->getDashboardDetailsMap();
+        $this->m_aPatientDD = $this->m_oContext->getEhrDao()->getDashboardDetailsMap($tid);
     }
 
     /**
@@ -2340,7 +2343,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOrderInfo = $oWL->getDashboardMap();
         $ehrDao = $this->m_oContext->getEhrDao();
-        $aOrderInfo = $ehrDao->getDashboardDetailsMap();
+        $aOrderInfo = $ehrDao->getDashboardDetailsMap($nIEN);
         $aQuestionsMetadata = $this->getAllSavedSafetyChecklistTicketData($nSiteID,$nIEN,$oAllUsers,$prev_commit_dt);
         if(count($aQuestionsMetadata)>0)
         {
@@ -2422,7 +2425,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         //$oWL = new \raptor\WorklistData($this->m_oContext);
         //$aOrderInfo = $oWL->getDashboardMap();
         $ehrDao = $this->m_oContext->getEhrDao();
-        $aOrderInfo = $ehrDao->getDashboardDetailsMap();
+        $aOrderInfo = $ehrDao->getDashboardDetailsMap($nIEN);
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
         $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Embedded Due Date',$aOrderInfo,'DesiredDate');

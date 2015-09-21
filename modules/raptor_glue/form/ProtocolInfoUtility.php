@@ -3660,7 +3660,7 @@ class ProtocolInfoUtility
             //$oDD = new \raptor\DashboardData($this->m_oContext);
             //$raptor_protocoldashboard = $oDD->getDashboardDetails();
             $ehrDao = $this->m_oContext->getEhrDao();
-            $raptor_protocoldashboard = $ehrDao->getDashboardDetailsMap();
+            $raptor_protocoldashboard = $ehrDao->getDashboardDetailsMap($nIEN);
             $patientDFN=$raptor_protocoldashboard['PatientID'];
         } catch (\Exception $ex) {
             throw new \Exception('Failed to get the dashboard to save exam fields',91111,$ex);
