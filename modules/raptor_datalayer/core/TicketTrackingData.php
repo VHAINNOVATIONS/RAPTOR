@@ -876,16 +876,15 @@ class TicketTrackingData
      */
     public function updateTicketEditLock($sTrackingID, $nUID, $updated_dt = NULL)
     {
-        $aParts = $this->getTrackingIDParts($sTrackingID);
-        $nSiteID = $aParts[0];
-        $nIEN = $aParts[1];
-        if($updated_dt == NULL)
-        {
-            $updated_dt = date("Y-m-d H:i:s", time());
-        }
-        $num_updated = 0;
         try
         {
+            $aParts = $this->getTrackingIDParts($sTrackingID);
+            $nSiteID = $aParts[0];
+            $nIEN = $aParts[1];
+            if($updated_dt == NULL)
+            {
+                $updated_dt = date("Y-m-d H:i:s", time());
+            }
             $num_updated  = db_update('raptor_ticket_lock_tracking')
                     ->fields(array(
                         'lock_refreshed_dt' => $updated_dt,
@@ -895,13 +894,14 @@ class TicketTrackingData
                     ->condition('locked_type_cd','E','=')
                     ->condition('locked_by_uid',$nUID,'=')
                     ->execute();
+            //Only throw an exception if we updated MORE than one.  Leave zero alone.
+            if($num_updated > 1)
+            {
+                throw new \Exception('Expected to update one ticket edit lock for '.$sTrackingID.' but instead updated '.$num_updated);
+            }
         } catch (\Exception $ex) {
             error_log('Failed to update edit lock for '.$sTrackingID.' because '.print_r($ex,TRUE));
             throw $ex;
-        }
-        if($num_updated !== 1)
-        {
-            throw new \Exception('Expected to update one ticket edit lock for '.$sTrackingID.' but instead updated '.$num_updated);
         }
     }
     

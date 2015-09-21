@@ -85,8 +85,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                     //Get a client that is authenticated
                     $this->currentFacade = EMRSERVICE_URL;
                     $this->mdwsClient = MdwsDaoFactory::getSoapClientByFacade($this->currentFacade);
-                    $userAccessCode = $this->getSessionVariable('userAccessCode');
-                    $userVerifyCode = $this->getSessionVariable('userVerifyCode');
+                    $userAccessCode = $this->getSessionVariable('userAccessCode', TRUE);
+                    $userVerifyCode = $this->getSessionVariable('userVerifyCode', TRUE);
 //error_log("LOOK constructing Mdws Dao($session_key_prefix,$reset) trying to preserve connection -- Try($siteCode,$userAccessCode,$userVerifyCode)");
                     $this->userSiteId = $siteCode;
                     $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
@@ -175,19 +175,58 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         // $this->currentSoapClientFunctions = $this->mdwsClient->__getFunctions();        
     }
 
-    private function setSessionVariable($name,$value)
+    
+    public static function getFastScrambled($cleartext)
+    {
+        try
+        {
+            $timetx = ''.time();
+            $modifiedtext = substr($timetx,2,5) . "$cleartext";
+            $unpacked = unpack('H*', $modifiedtext);
+            $scrambedtext = 'ST'.array_shift( $unpacked );
+            return $scrambedtext;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    public static function getFastUnscrambled($scrambedtext)
+    {
+        try 
+        {
+            $hex = substr($scrambedtext,2);
+            $modifiedtext = pack('H*', $hex);
+            $cleartext = substr($modifiedtext,5);
+            return $cleartext;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    private function setSessionVariable($name,$value,$encrypt=FALSE)
     {
         $fullname = "{$this->m_session_key_prefix}_$name";
-        $_SESSION[$fullname] = $value;
+        if(!$encrypt)
+        {
+            $_SESSION[$fullname] = $value;
+        } else {
+            $_SESSION[$fullname] = self::getFastScrambled($value);
+        }
     }
 
-    private function getSessionVariable($name)
+    private function getSessionVariable($name,$decrypt=FALSE)
     {
         $fullname = "{$this->m_session_key_prefix}_$name";
         if(isset($_SESSION[$fullname]) 
                 && $_SESSION[$fullname] > '')
         {
-            return $_SESSION[$fullname];
+            if(!$decrypt)
+            {
+                $cleartext = $_SESSION[$fullname];
+            } else {
+                $cleartext = self::getFastUnscrambled($_SESSION[$fullname]);
+            }
+            return $cleartext;
         }
         return NULL;
     }
@@ -273,8 +312,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                         {
                             error_log('makeQuery  --- getting the credentials for fault resolution now>>>' . $TOResult->fault->message);
                         }
-                        $userAccessCode = $this->getSessionVariable('userAccessCode');
-                        $userVerifyCode = $this->getSessionVariable('userVerifyCode');
+                        $userAccessCode = $this->getSessionVariable('userAccessCode', TRUE);
+                        $userVerifyCode = $this->getSessionVariable('userVerifyCode', TRUE);
                         $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
                         //$this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                         return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
@@ -311,8 +350,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
                 error_log("Exception in makeQuery($functionToInvoke) --- connection was closed makeQuery>>>" 
                         . $ex->getMessage());
                 $this->initClient($this->userSiteId);
-                $userAccessCode = $this->getSessionVariable('userAccessCode');
-                $userVerifyCode = $this->getSessionVariable('userVerifyCode');
+                $userAccessCode = $this->getSessionVariable('userAccessCode', TRUE);
+                $userVerifyCode = $this->getSessionVariable('userVerifyCode', TRUE);
                 $this->connectAndLogin($this->userSiteId, $userAccessCode, $userVerifyCode);
                 //$this->connectAndLogin($this->userSiteId, $this->userAccessCode, $this->userVerifyCode);
                 return $this->makeQuery($functionToInvoke, $args); //, $retryLimit-1);
@@ -370,8 +409,8 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             
             // cache for transparent re-authentication on MDWS-Vista timeout
             $this->userSiteId = $siteCode;
-            $this->setSessionVariable('userAccessCode',$username);
-            $this->setSessionVariable('userVerifyCode',$password);
+            $this->setSessionVariable('userAccessCode',$username, TRUE);
+            $this->setSessionVariable('userVerifyCode',$password, TRUE);
             $userduz = $TOResult->DUZ;
             $this->setSessionVariable('duz', $userduz);
 

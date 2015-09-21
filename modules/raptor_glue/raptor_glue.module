@@ -149,12 +149,7 @@ function raptor_glue_page_alter(&$page)
             error_log('HIT PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
             return;
         }
-        if($currentpath == 'protocol')
-        {
-            error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . '] GET=' . print_r($_GET,TRUE));
-        } else {
-            error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
-        }
+        error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . '] GET=' . print_r($_GET,TRUE));
 
         //Go to our custom front page url.
         $is_front_page = drupal_is_front_page();

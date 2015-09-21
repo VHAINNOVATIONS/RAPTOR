@@ -35,7 +35,7 @@ require_once 'EhrDao.php';
 require_once 'RuntimeResultFlexCache.php';
 
 defined('CONST_NM_RAPTOR_CONTEXT')
-    or define('CONST_NM_RAPTOR_CONTEXT', 'R150921A'.EHR_INT_MODULE_NAME);
+    or define('CONST_NM_RAPTOR_CONTEXT', 'R150921B'.EHR_INT_MODULE_NAME);
 
 defined('DISABLE_CONTEXT_DEBUG')
     or define('DISABLE_CONTEXT_DEBUG', TRUE);
@@ -89,23 +89,62 @@ class Context
         }
     }
 
+    public static function getFastScrambled($cleartext)
+    {
+        try
+        {
+            $timetx = ''.time();
+            $modifiedtext = substr($timetx,2,5) . "$cleartext";
+            $unpacked = unpack('H*', $modifiedtext);
+            $scrambedtext = 'ST'.array_shift( $unpacked );
+            return $scrambedtext;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    public static function getFastUnscrambled($scrambedtext)
+    {
+        try 
+        {
+            $hex = substr($scrambedtext,2);
+            $modifiedtext = pack('H*', $hex);
+            $cleartext = substr($modifiedtext,5);
+            return $cleartext;
+        } catch (Exception $ex) {
+            throw $ex;
+        }
+    }
+    
     /**
      * Put value into session with special variable names
      */
-    public static function saveSessionValue($name, $value)
+    public static function saveSessionValue($name, $value, $encrypt=FALSE)
     {
-        $fullname = CONST_NM_RAPTOR_CONTEXT.'_'.$name;
-        $_SESSION[$fullname] = $value;
-        $allnamesname = CONST_NM_RAPTOR_CONTEXT.'_allnames';
-        if(!isset($_SESSION[$allnamesname]) || !is_array($_SESSION[$allnamesname]))
+        try
         {
-            $_SESSION[$allnamesname] = array($allnamesname);
-        }
-        if($value != NULL)
-        {
-            $_SESSION[$allnamesname][$fullname] = $value;
-        } else {
-            unset($_SESSION[$allnamesname][$fullname]);
+            $fullname = CONST_NM_RAPTOR_CONTEXT.'_'.$name;
+            $allnamesname = CONST_NM_RAPTOR_CONTEXT.'_allnames';
+            if(!isset($_SESSION[$allnamesname]) || !is_array($_SESSION[$allnamesname]))
+            {
+                $_SESSION[$allnamesname] = array($allnamesname);
+            }
+            if($value != NULL)
+            {
+                $_SESSION[$allnamesname][$fullname] = microtime(TRUE);  //When the value got set
+                if(!$encrypt)
+                {
+                    $_SESSION[$fullname] = $value;
+                } else {
+                    $scrambed = self::getFastScrambled($value);
+                    $_SESSION[$fullname] = $scrambed;
+                }
+            } else {
+                $_SESSION[$fullname] = NULL;
+                unset($_SESSION[$allnamesname][$fullname]);
+            }
+        } catch (\Exception $ex) {
+            throw $ex;
         }
     }
     
@@ -114,23 +153,33 @@ class Context
      */
     public static function getAllSessionValueNames()
     {
-        $allnamesname = CONST_NM_RAPTOR_CONTEXT.'_allnames';
-        if(!isset($_SESSION[$allnamesname]) || !is_array($_SESSION[$allnamesname]))
+        try
         {
-            $_SESSION[$allnamesname] = array();
+            $allnamesname = CONST_NM_RAPTOR_CONTEXT.'_allnames';
+            if(!isset($_SESSION[$allnamesname]) || !is_array($_SESSION[$allnamesname]))
+            {
+                $_SESSION[$allnamesname] = array();
+            }
+            return $_SESSION[$allnamesname];
+        } catch (Exception $ex) {
+            throw $ex;
         }
-        return $_SESSION[$allnamesname];
     }
 
     /**
      * Get value from session with special variable names
      */
-    public static function getSessionValue($name, $value_if_missing=NULL)
+    public static function getSessionValue($name, $value_if_missing=NULL, $decrypt=FALSE)
     {
         $fullname = CONST_NM_RAPTOR_CONTEXT.'_'.$name;
         if(isset($_SESSION[$fullname]))
         {
-            $result = $_SESSION[$fullname];
+            if(!$decrypt)
+            {
+                $result = $_SESSION[$fullname];
+            } else {
+                $result = self::getFastUnscrambled($_SESSION[$fullname]);
+            }
         } else {
             $result = $value_if_missing;
         }
@@ -276,6 +325,8 @@ class Context
 
                 //Purge old cache contents now.
                 RuntimeResultFlexCache::purgeOldItems();
+            } else {
+error_log("LOOK in construct session>>>>" . print_r($_SESSION,TRUE));                
             }
 
         } catch (\Exception $ex) {
@@ -731,8 +782,8 @@ class Context
         module_load_include('php', IMG_INT_MODULE_NAME, 'core/VixDao');
         if($this->m_oVixDao == NULL)
         {
-            $sVistaUserID = self::getSessionValue('VistaUserID',NULL);
-            $sVAPassword = self::getSessionValue('VAPassword',NULL);
+            $sVistaUserID = self::getSessionValue('VistaUserID',NULL,TRUE);
+            $sVAPassword = self::getSessionValue('VAPassword',NULL,TRUE);
             $this->m_oVixDao = new \raptor\VixDao($sVistaUserID, $sVAPassword);
         }
         return $this->m_oVixDao;
@@ -796,6 +847,7 @@ class Context
     {
         try
         {
+//error_log("LOOK clearSelectedTrackingID");            
             Context::debugDrupalMsg('called clearSelectedTrackingID');
             self::saveSessionValue('CurrentTicketID', NULL);
             $nLastUpdateTimestamp = microtime(TRUE);
@@ -1007,12 +1059,9 @@ class Context
     {
         try
         {
-            self::saveSessionValue('VistaUserID', $sVistaUserID);
-            self::saveSessionValue('VAPassword', $sVAPassword);
-error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) started...");
-            //20150919 $this->serializeNow();        
+            self::saveSessionValue('VistaUserID', $sVistaUserID, TRUE);
+            self::saveSessionValue('VAPassword', $sVAPassword, TRUE);
             $result = $this->authenticateEhrSubsystem($sVistaUserID, $sVAPassword);
-error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) result = " . print_r($result,TRUE));
             $updated_dt = date("Y-m-d H:i:s", time());
             global $user;
             $tempUID = $user->uid;  
@@ -1056,7 +1105,6 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) result = " .
                         ->execute();
                 }
             }
-error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result = " . print_r($result,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1183,72 +1231,6 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
     }
 
     /**
-     * Call this once when user is logging in so age of login page is not issue.
-     */
-    private function serializeForNewLogin($logMsg = ''
-            , $bSystemDrivenAction=TRUE
-            , $nSessionRefreshDelayOverride=NULL)
-    {
-        error_log('CONTEXT called serializeForNewLogin');
-        $_SESSION['CREATED'] = time();  //Created as of now!
-        
-        //Help prevent long lived configuration errors.
-        $maxlimit = USER_TIMEOUT_SECONDS+USER_TIMEOUT_GRACE_SECONDS+KICKOUT_DIRTYPADDING;
-        if($maxlimit < USER_ALIVE_INTERVAL_SECONDS)
-        {
-            error_log('Config ERROR detected: '."$maxlimit < USER_ALIVE_INTERVAL_SECONDS");
-            drupal_set_message("Session may timeout without warning.  Contact administrator to correct the interval settings!","error");
-        }
-        
-        //Now serialize it.
-        //20150919 $this->serializeNow($logMsg,$bSystemDrivenAction,$nSessionRefreshDelayOverride,FALSE);
-    }
-    
-    /**
-     * We call this whenever we change something significant in the instance.
-     * RECOMMENDATION REMOVE THIS DO NOT USE SERIALIZE APPROACH!!!!!!!!!!
-     * Only needed by MDWS implementation --- remove it when we move to EWD
-     * @deprecated 20150908!!!!!!!!!!!!!!
-    private function serializeNow($logMsg = NULL
-            , $bSystemDrivenAction=TRUE
-            , $nSessionRefreshDelayOverride=NULL
-            , $checkSessionTimeout=TRUE)
-    {
-        error_log("LOOK REMOVE THE serializeNow STUFF!!! ($logMsg)");
-        return;
-        
-        if($logMsg != NULL)
-        {
-            //error_log('@serializeNow: '.$logMsg);
-        }
-        if($bSystemDrivenAction)
-        {
-            self::saveSessionValue('InstanceSystemActionTimestamp', time());
-            //$this->m_nInstanceSystemActionTimestamp = time(); //Capture the time whenever we serialize.
-        } else {
-            self::saveSessionValue('InstanceUserActionTimestamp', time());
-            //$this->m_nInstanceUserActionTimestamp = time(); //Capture the time whenever we serialize.
-        }
-        $this->bNeedsSave=FALSE;    //Because we are saving it now.
-        //if(!isset($this->m_nInstanceTimestamp))
-        //{
-            self::saveSessionValue('InstanceTimestamp', time());
-            //$this->m_nInstanceTimestamp = microtime(TRUE);
-        //}
-        if($nSessionRefreshDelayOverride !== NULL)
-        {
-            $SESSION_REFRESH_DELAY = $nSessionRefreshDelayOverride;
-        } else {
-            $SESSION_REFRESH_DELAY = SESSION_KEY_TIMEOUT_SECONDS;
-        }
-        $this->forceSessionRefresh($SESSION_REFRESH_DELAY);
-        
-        $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($this);
-        //error_log('WORKFLOWDEBUG>>>Serialized context at ' . microtime(TRUE));  
-    }    
-     */
-    
-    /**
      * This is not a graceful kickout.
      */
     private function forceKickoutNow($reason=NULL
@@ -1343,7 +1325,6 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
     public function getEhrDao($create_if_not_set=TRUE)
     {
         $mttag = microtime(TRUE);
-    //error_log("LOOK starting getEhrDao($create_if_not_set)@$mttag");
         try
         {
             $ehrcorrupt = FALSE;
