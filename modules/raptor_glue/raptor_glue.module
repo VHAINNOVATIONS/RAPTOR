@@ -1437,7 +1437,7 @@ function raptor_glue_userinteractionping_form_builder($form, &$form_state)
         $aResult['errormsg'] = $errormsg;
     }
     $sJSON = json_encode($aResult);
-error_log("LOOK resut from raptor_glue_userinteractionping_form_builder >>> " . print_r($aResult,TRUE));  
+//error_log("LOOK result from raptor_glue_userinteractionping_form_builder >>> " . print_r($aResult,TRUE));  
     //Output the results.
     header("Content-Type: application/json");
     echo $sJSON;

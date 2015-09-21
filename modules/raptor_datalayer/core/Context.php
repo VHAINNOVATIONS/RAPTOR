@@ -276,7 +276,6 @@ class Context
 
                 //Purge old cache contents now.
                 RuntimeResultFlexCache::purgeOldItems();
-    error_log("LOOK context constructor done >>> " . print_r($_SESSION,TRUE));        
             }
 
         } catch (\Exception $ex) {
@@ -326,12 +325,13 @@ class Context
      */
     public function getInstanceUserActionTimestamp()
     {
-        $luats = self::getSessionValue('InstanceUserActionTimestamp');
-        if($luats == NULL)
+        try
         {
-            error_log("LOOK did NOT find value InstanceUserActionTimestamp in session >>> " . print_r($luats,TRUE));
+            $luats = self::getSessionValue('InstanceUserActionTimestamp');
+            return $luats;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $luats;
     }
 
     /**
@@ -344,10 +344,6 @@ class Context
             $luats = $this->getInstanceUserActionTimestamp();
             $now = time();
             $diff = $now - $luats;
-if($diff == 0)
-{
-    error_log("LOOK getUserIdleSeconds $diff = $now - $luats >>> " . print_r($_SESSION,TRUE));
-}
             return $diff;
         } catch (\Exception $ex) {
             throw $ex;
@@ -470,7 +466,6 @@ if($diff == 0)
                 {
                     //Just update this guy
                     self::saveSessionValue('InstanceSystemActionTimestamp', time());
-error_log("LOOK just update InstanceSystemActionTimestamp");                    
                 } else {
                     //Update that the user is actively doing things
                     $candidate->updateUserActivityTracking($tempUID);
@@ -578,7 +573,6 @@ error_log("LOOK just update InstanceSystemActionTimestamp");
                 ->execute();
 
             $this->saveSessionValue('InstanceUserActionTimestamp', $stopwatchmoment);
-error_log("LOOK updated InstanceUserActionTimestamp=$stopwatchmoment");       
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -596,7 +590,6 @@ error_log("LOOK updated InstanceUserActionTimestamp=$stopwatchmoment");
             {
                 $nElapsedSeconds = $thismoment - $reftime; // m_nInstanceUserActionTimestamp;
             } else {
-                error_log("LOOK did NOT get numeric instance ref time (found='$reftime') from session >>> " . print_r($_SESSION,TRUE));
                 $nElapsedSeconds = 0;
             }
             if(isset($tempUID) 
@@ -690,360 +683,6 @@ error_log("LOOK updated InstanceUserActionTimestamp=$stopwatchmoment");
         }
     }
 
-    
-    /**
-     * Factory implements session singleton.
-     * @return \raptor\Context 
-     * @deprecated
-    public static function getXXXXInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
-    {
-        $currentpath = strtolower(current_path());
-        //$currentpage = drupal_lookup_path('alias',$currentpath);
-        $forceReset = ($currentpath == 'user/login' || $currentpath == 'user/logout');
-    
-        if (session_status() == PHP_SESSION_NONE) 
-        {
-            error_log('CONTEXTgetInstance::Starting session');
-            session_start();
-            drupal_session_started(TRUE);       //If we dont do this we risk warning messages elsewhere.
-        }        
-        
-        //if(!isset($_SESSION['CREATED'])) 
-        if(!self::hasSessionValue('CREATED')) 
-        { 
-            $startedtime = time();
-            error_log('CONTEXTgetInstance::Setting CREATED value of session to '.$startedtime);
-            $_SESSION['CREATED'] = $startedtime;
-            $_SESSION['REGENERATED_COUNT'] = 0;
-            self::saveSessionValue('CREATED', $startedtime);
-            self::saveSessionValue('REGENERATED_COUNT', 0);
-        } 
-        
-        global $user;
-        $bAccountConflictDetected = FALSE;      //Set to true if something funny is going on.
-        $bContextDetectIdleTooLong = FALSE;
-        if(user_is_logged_in())
-        {
-            $tempUID = $user->uid;
-        } else {
-            $tempUID = 0;
-        }
-error_log('LOOK CONTEXT 1 getInstance::tempUID='.$tempUID);
-        $bSessionResetFlagDetected = ($forceReset || (isset($_GET['reset_session']) && $_GET['reset_session'] == 'YES'));
-error_log('LOOK CONTEXT 2 uid='.$tempUID." rfd='$bSessionResetFlagDetected' fr='$forceReset'");
-        if(isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]) && !$bSessionResetFlagDetected)
-        {
-error_log('LOOK CONTEXT 3a uid=' . $tempUID . " rfd='$bSessionResetFlagDetected' or hassess='". isset($_SESSION[CONST_NM_RAPTOR_CONTEXT]) ."'");
-            //We will return this instance unless ...
-            $candidate=unserialize($_SESSION[CONST_NM_RAPTOR_CONTEXT]); //TODO change logic
-            $ehr_dao = $candidate->getEhrDao(FALSE);
-            if($ehr_dao != NULL)
-            {
-error_log('LOOK CONTEXT 3a uid='.$tempUID." NULL DAO");
-                $ehr_dao->setCustomInfoMessage('unserialized@'.microtime(TRUE));
-            }
-//error_log("LOOK unserialized $candidate");            
-            $wmodeParam = $candidate->getWorklistMode();
-            $candidateUID = $candidate->getUID();
-            if($candidateUID == 0 && $tempUID != 0 && !$candidate->hasForceLogoutReason())
-            {
-error_log('LOOK CONTEXT 4a uid='.$tempUID." CONVERT SESSION");
-                //Convert this session instance into instance for the UID, normal occurrence to do this after a login.
-                //$candidate->m_nUID = $tempUID;
-                self::saveSessionValue('UID', $tempUID);
-                $candidate->serializeForNewLogin('Set the uid to the user->uid');
-            } else 
-            if($candidateUID > -1 && $candidateUID !== $tempUID)
-            {
-error_log('LOOK CONTEXT 4b uid='.$tempUID." RESET SESSION");
-                //This can happen if a user left without proper logout.
-                $errmsg = 'Must reset because candidate UID['.$candidate->getUID().'] != current UID['.$tempUID.']';
-                //drupal_set_message($errmsg, 'error');
-                error_log('CONTEXTgetInstance::'.$errmsg . "\nCANDIDATE at time of reset=".print_r($candidate,TRUE));
-                
-                //UGLY ABORT NOW
-                $candidate->clearAllContext();
-                throw new \Exception("Conflict current user session vs existing session detected!");
-            } else {
-error_log('LOOK CONTEXT 4c uid='.$tempUID." LITTLE ELSE...");
-                if(!self::hasSessionValue('UID'))
-                {
-                   //Log something and continue
-                   error_log("WARNING: Did NOT find a RAPTOR USER in existing session!"
-                           . "\n\tUSER OBJ=".print_r($user,TRUE)  
-                           . "\n\tCANDIDATE=".print_r($candidate,TRUE));
-                }
-            }
-            
-        } else {
-            //No session already exists, so we will create a new one.
-            if($bSessionResetFlagDetected)
-            {
-                error_log('Creating new session for uid='.$tempUID.' (session reset)');
-            } else {
-                error_log('Creating new session for uid='.$tempUID.' (missing session)');
-            }
-            $candidate=NULL;
-            $wmodeParam='P';    //Hardcode assumption for now.
-error_log('LOOK CONTEXT 3b uid='.$tempUID." BIG ELSE...");
-        }
-        
-        if($candidate==NULL)    // $nElapsedSeconds > MAXINACTIVITYSECONDS 
-        {
-error_log('LOOK CONTEXT 5a uid='.$tempUID." candidate NULL!");
-            //Create an instance because one does not already exist
-            $candidate = new \raptor\Context($tempUID);
-error_log('LOOK CONTEXT 5b uid='.$tempUID." candidate NEW CREATED!");
-        }
-        
-        if($bSystemDrivenAction)
-        {
-error_log('LOOK CONTEXT 6a uid='.$tempUID." system driven");
-            //Update the session info.
-            //$candidate->m_nInstanceSystemActionTimestamp = time();
-            $candidate->saveSessionValue('InstanceSystemActionTimestamp', time());
-            $candidate->serializeNow(); //Store this now!!!
-        } else {
-error_log('LOOK CONTEXT 6a uid='.$tempUID." user driven");
-            //Update user action tracking in datatabase.
-            if($candidate !== NULL)
-            {
-                $nElapsedSeconds = time() - $candidate->getInstanceUserActionTimestamp(); // m_nInstanceUserActionTimestamp;
-            } else {
-                $nElapsedSeconds = 0;
-            }
-            if(isset($tempUID) 
-                    && $tempUID !== 0 && ($nElapsedSeconds > 10))
-            {
-error_log('LOOK CONTEXT 7a uid='.$tempUID." check for duplicate login");
-                try
-                {
-                    //First make sure no one else is logged in as same UID
-                    $mysessionid = session_id();
-                    $other_or = db_or();
-                    $other_or->condition('ipaddress', $_SERVER['REMOTE_ADDR'],'<>');
-                    $other_or->condition('sessionid', $mysessionid ,'<>');
-                    $resultOther = db_select('raptor_user_recent_activity_tracking','u')
-                            ->fields('u')
-                            ->condition('uid',$tempUID,'=')
-                            ->condition($other_or)
-                            ->orderBy('most_recent_action_dt','DESC')
-                            ->execute();
-                    if($resultOther->rowCount() > 0)
-                    {
-                        //There is always only one record in raptor_user_recent_activity_tracking
-                        $resultMe = db_select('raptor_user_activity_tracking','u')
-                                ->fields('u')
-                                ->condition('uid',$tempUID,'=')
-                                ->condition('ipaddress',$_SERVER['REMOTE_ADDR'],'=')
-                                ->condition('sessionid', $mysessionid ,'=')
-                                ->orderBy('updated_dt','DESC')
-                                ->execute();
-                        if($resultMe->rowCount() > 0)
-                        {
-                            $other = $resultOther->fetchAssoc();
-                            $me = $resultMe->fetchAssoc();
-                            $conflict_logic_info=array();
-                            if($other['ipaddress'] == $me['ipaddress'])
-                            {
-                                //This is on same machine.
-                                $nSesElapsedSeconds = (time() - $_SESSION['CREATED']);
-                                $conflict_logic_info['same-machine-elapsed-seconds'] 
-                                        = $nSesElapsedSeconds;
-                                if (!isset($_SESSION['CREATED']) 
-                                        || $nSesElapsedSeconds < CONFLICT_CHECK_DELAY_SECONDS)
-                                {
-                                    //Allow for possibility that the session ID has changed for a single user
-                                    $bAccountConflictDetected = FALSE;
-                                } else {
-                                    //Possible the user has two browsers open with same account.
-                                    $bAccountConflictDetected 
-                                        = $other['most_recent_action_dt'] >= $me['updated_dt'];
-                                }
-                            } else {
-                                //Simple check
-                                $bAccountConflictDetected 
-                                        = $other['most_recent_action_dt'] >= $me['updated_dt'];
-                                $conflict_logic_info['simple date check'] = $bAccountConflictDetected;
-                            }
-                            if($bAccountConflictDetected)
-                            {
-                                error_log('CONTEXTgetInstance::Account conflict has '
-                                        . 'been detected at '.$_SERVER['REMOTE_ADDR']
-                                        . ' for UID=['.$tempUID.']'
-                                        . ' this user at '.$me['ipaddress']
-                                        . ' other user at '.$other['ipaddress'] 
-                                        . ' user sessionid ['.$mysessionid.']'
-                                        . ' other sessionid ['.$other['sessionid'].']' 
-                                        . '>>> TIMES = other[' 
-                                        . $other['most_recent_action_dt'] 
-                                        . '] vs this['
-                                        . $me['updated_dt'] 
-                                        . '] logicinfo='
-                                        .print_r($conflict_logic_info,TRUE));
-                            } else {
-                                error_log('CONTEXTgetInstance::No account conflict detected '
-                                        . 'on check (es='.$nElapsedSeconds.') for UID=['.$tempUID.'] '
-                                        . 'this user at '.$_SERVER['REMOTE_ADDR']
-                                        . ' other user at '.$other['ipaddress'] 
-                                        . '>>> TIMES = other[' 
-                                        . $other['most_recent_action_dt'] 
-                                        . '] vs this['
-                                        . $me['updated_dt'] . ']');
-                            }
-                        }                    
-                    }
-                    if(!$forceReset)
-                    {
-error_log('LOOK CONTEXT 7b uid='.$tempUID." log our activity with INSERT");
-                        //Log our activity.
-                        $updated_dt = date("Y-m-d H:i:s", time());
-                        db_insert('raptor_user_activity_tracking')
-                        ->fields(array(
-                                'uid'=>$tempUID,
-                                'action_cd' => UATC_GENERAL,
-                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                                'sessionid' => session_id(),
-                                'updated_dt'=>$updated_dt,
-                            ))
-                            ->execute();
-                        $updated_dt = date("Y-m-d H:i:s", time());
-
-                        //Write the recent activity to the single record that tracks it too.
-                        db_merge('raptor_user_recent_activity_tracking')
-                        ->key(array('uid'=>$tempUID,
-                            ))
-                        ->fields(array(
-                                'uid'=>$tempUID,
-                                'ipaddress' => $_SERVER['REMOTE_ADDR'],
-                                'sessionid' => session_id(),
-                                'most_recent_action_dt'=>$updated_dt,
-                                'most_recent_action_cd' => UATC_GENERAL,
-                            ))
-                            ->execute();
-                    }
-                    //Update the session info.
-                    //$candidate->m_nInstanceUserActionTimestamp = time();
-                    $candidate->saveSessionValue('InstanceUserActionTimestamp', time());
-                    $candidate->serializeNow(); //Store this now!!!
-                } catch (\Exception $ex) {
-                    //Log this but keep going.
-                    error_log('CONTEXTgetInstance::Trouble updating raptor_user_activity_tracking>>>'.print_r($ex,TRUE));
-                }
-            }
-        }
-        
-        $its = $candidate->getSessionValue('InstanceTimestamp');
-        $candidateUID = $candidate->getSessionValue('UID');
-        Context::debugDrupalMsg('[' . $its . '] Got context from cache! UID='.$candidateUID);
-error_log('LOOK CONTEXT 8a uid='.$tempUID." its=$its");
-        if($user->uid > 0)
-        {
-            $useridleseconds = intval($candidate->getUserIdleSeconds());
-            $max_idle = USER_TIMEOUT_SECONDS 
-                    + USER_TIMEOUT_GRACE_SECONDS 
-                    + USER_ALIVE_INTERVAL_SECONDS
-                    + KICKOUT_DIRTYPADDING;
-            if($useridleseconds > $max_idle)
-            {
-                $bContextDetectIdleTooLong = TRUE;
-            }
-        }
-        
-        //Now trigger logout if account conflict was detected.
-        $candidateVistaUserID = $candidate->getVistaUserID();
-error_log('LOOK CONTEXT 9a uid='.$tempUID." vistaUserID=$candidateVistaUserID");
-        if($bAccountConflictDetected || $bContextDetectIdleTooLong)
-        {
-error_log('LOOK CONTEXT 9b uid='.$tempUID." vistaUserID=$candidateVistaUserID");
-            //Don't kick out an administrator in a protected URL
-            $is_protected_adminuser = \raptor\UserInfo::is_protected_adminuser();
-            if(!$is_protected_adminuser)
-            {
-                //Don't get stuck in an infinite loop.
-error_log('LOOK CONTEXT 9c uid='.$tempUID." vistaUserID=$candidateVistaUserID");
-                if(substr($candidateVistaUserID,0,8) !== 'kickout_')
-                {
-error_log('LOOK CONTEXT 9d uid='.$tempUID." vistaUserID=$candidateVistaUserID");
-                    //Prevent duplicate user messages.
-                    $aForceLogoutReason = self::getSessionValue('ForceLogoutReason',NULL);
-                    if($aForceLogoutReason == NULL)
-                    {
-                        //Not already set, so set it now.
-                        if($bContextDetectIdleTooLong)
-                        {
-                            $useridleseconds = intval($candidate->getUserIdleSeconds());
-                            $usermsg = 'You are kicked out because context has detected excessive'
-                                    . " idle time of $useridleseconds seconds";
-                            $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
-                            $kickoutlabel = 'TIMEOUT';
-                        } else {
-                            if($candidateVistaUserID > '')
-                            {
-                                $usermsg = 'You are kicked out because another workstation has'
-                                        . ' logged in as the same'
-                                        . ' RAPTOR user account "'
-                                        . $candidateVistaUserID.'"';
-                                $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
-                                $kickoutlabel = 'ACCOUNT CONFLICT';
-                            } else {
-                                //This can happen to a NON VISTA admin user for timeout and things like that.
-                                $usermsg = 'Your admin account has timed out';
-                                $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
-                                $kickoutlabel = 'TIMEOUT CONFLICT';
-                            }
-                        }
-                        drupal_set_message($usermsg, 'error');
-                        $aForceLogoutReason = array();
-                        $aForceLogoutReason['code'] = $errorcode;
-                        $aForceLogoutReason['text'] = $usermsg;
-                        self::saveSessionValue('ForceLogoutReason', $aForceLogoutReason);
-                        self::saveSessionValue('VistaUserID', 'kickout_' . $candidateVistaUserID);
-                        self::saveSessionValue('VAPassword', NULL);
-                    }
-
-                    $_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
-                    error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
-                            . $candidateVistaUserID . '] >>> ' 
-                            . time() 
-                            . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
-
-                    $candidate->forceSessionRefresh(0);  //Invalidate any current form data now!
-                }
-            }
-        }
-        
-error_log('LOOK CONTEXT 10a uid='.$tempUID." vistaUserID=$candidateVistaUserID");
-        if (!isset($candidate->m_oEhrDao))
-        {
-error_log('LOOK CONTEXT 10b uid='.$tempUID." vistaUserID=$candidateVistaUserID NO DAO");
-            if($candidate == NULL)
-            {
-                error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has candidate instance from '. $_SERVER['REMOTE_ADDR']);
-            } else {
-                $candidateUID = $candidate->getUID();
-                $candidateVistaUserID = $candidate->getVistaUserID();
-error_log('LOOK CONTEXT 10c uid='.$candidateUID." vistaUserID=$candidateVistaUserID NO DAO");
-                if($candidateUID == NULL || $candidateUID < 1)
-                {
-                    $its = self::getSessionValue('InstanceTimestamp');
-                    error_log('CONTEXTgetInstance::WORKFLOWDEBUG>>>getInstance has NO existing Vista connection for ' 
-                            . $candidateVistaUserID 
-                            . ' from ' 
-                            . $_SERVER['REMOTE_ADDR'] 
-                            . ' in ' 
-                            . $its);
-                }
-            }
-        }
-        
-        $candidate->getEhrDao();    //Side effect of setting the context in the dao
-//error_log("LOOK debug context->getInstance session (count=" . count($_SESSION) . ")>>>>" . print_r($_SESSION,TRUE));                    
-error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candidate->getVistaUserID() . " FINAL >>> $candidate");
-        return $candidate;
-    }
-     */
-    
     public function hasForceLogoutReason()
     {
         $aForceLogoutReason = $this->getForceLogoutReason();
@@ -1058,8 +697,6 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
     public function clearForceLogoutReason()
     {
         self::saveSessionValue('ForceLogoutReason', NULL);
-        //$this->m_sForceLogoutReason = NULL;
-        //$this->serializeNow(); //Store this now!!!
     }
     
     /**
@@ -1137,34 +774,35 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
      */
     public function setWorklistMode($sWMODE)
     {
-        $nLastUpdateTimestamp = microtime(TRUE);
-        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
-        $current_wlm = $this->getWorklistMode();
-        if($current_wlm != $sWMODE)
+        try
         {
-            if(!in_array($sWMODE, array('P', 'E', 'I', 'Q', 'S')))
+            $nLastUpdateTimestamp = microtime(TRUE);
+            self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
+            $current_wlm = $this->getWorklistMode();
+            if($current_wlm != $sWMODE)
             {
-                throw new \Exception("Invalid WorklistMode='$sWMODE'!");
+                if(!in_array($sWMODE, array('P', 'E', 'I', 'Q', 'S')))
+                {
+                    throw new \Exception("Invalid WorklistMode='$sWMODE'!");
+                }
+                self::saveSessionValue('WorklistMode', $sWMODE);
             }
-            self::saveSessionValue('WorklistMode', $sWMODE);
-            //$this->serializeNow();        
+        } catch (\Exception $ex) {
+            throw $ex;
         }
     }
     
     public function clearSelectedTrackingID($bSaveSession=TRUE)
     {
-        Context::debugDrupalMsg('called clearSelectedTrackingID');
-        //$this->m_sCurrentTicketID = NULL;
-        self::saveSessionValue('CurrentTicketID', NULL);
-        $nLastUpdateTimestamp = microtime(TRUE);
-        self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
-        /*
-        if($bSaveSession)
+        try
         {
-            $this->serializeNow();        
+            Context::debugDrupalMsg('called clearSelectedTrackingID');
+            self::saveSessionValue('CurrentTicketID', NULL);
+            $nLastUpdateTimestamp = microtime(TRUE);
+            self::saveSessionValue('LastUpdateTimestamp', $nLastUpdateTimestamp);
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-         * 
-         */
     }
 
     /**
@@ -1188,7 +826,7 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
             if($sCurrentTicketID == NULL) //!isset($candidate->m_sCurrentTicketID) || $candidate->m_sCurrentTicketID == NULL)
             {
                 //If there is anything in the personal batch stack, grab it now.
-                $sCurrentTicketID = $candidate->popPersonalBatchStack(FALSE);
+                $sCurrentTicketID = $candidate->popPersonalBatchStack();
                 self::saveSessionValue('CurrentTicketID', $sCurrentTicketID);
                 if($sCurrentTicketID !== NULL)
                 {
@@ -1202,7 +840,6 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
                         self::saveSessionValue('PersonalBatchStackMessage', $sPersonalBatchStackMessage);
                     }
                 }
-                //$candidate->serializeNow();           
             }
             return $sCurrentTicketID;
         } catch (\Exception $ex) {
@@ -1227,7 +864,6 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
         {
             $prevtime = self::getSessionValue('LastUpdateTimestamp'); //$this->m_nLastUpdateTimestamp;
             $prevtid = self::getSessionValue('CurrentTicketID',NULL); //$this->m_nLastUpdateTimestamp;
-            //$prevtid = $this->m_sCurrentTicketID;
             if($bClearPersonalBatchStack)   //20140619
             {
                 $this->clearPersonalBatchStack();
@@ -1255,12 +891,12 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
             }
             $prevpid = $oMC->getSelectedPatientID();
             $oMC->setPatientID($sPatientID);
+            /*
             $logmsg = "Finished setSelectedTrackingID"
                     . " to tid=[$sTrackingID] and pid=[$sPatientID]"
                     . " (prevtid=[$prevtid] and prevpid=[$prevpid] from last update $prevtime)"
                     . "\n\tCurrent context>>> $this";
-//error_log("LOOK set selected tracking ID $sTrackingID \n\t>>> $logmsg \n\t>>> session=" . print_r($_SESSION,TRUE));            
-            //20150919 $this->serializeNow($logmsg, TRUE);
+             */
         } catch (\Exception $ex) {
             throw new \Exception("Failed setSelectedTrackingID($sTrackingID, $bClearPersonalBatchStack) because $ex",99876,$ex);
         }
@@ -1272,14 +908,15 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
      */
     function setPersonalBatchStack($aPBatch)
     {
-        self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
-        //$this->m_sPersonalBatchStackMessage = NULL;
-        //$this->m_aPersonalBatchStack = $aPBatch;
-        self::saveSessionValue('PersonalBatchStackMessage', NULL);
-        self::saveSessionValue('PersonalBatchStack', $aPBatch);
-        //$this->m_sCurrentTicketID = NULL;   //Clear it so we pop from the stack on request
-        self::saveSessionValue('CurrentTicketID', NULL);
-        //20150919 $this->serializeNow();        
+        try
+        {
+            self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
+            self::saveSessionValue('PersonalBatchStackMessage', NULL);
+            self::saveSessionValue('PersonalBatchStack', $aPBatch);
+            self::saveSessionValue('CurrentTicketID', NULL);
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     /**
@@ -1287,11 +924,14 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
      */
     function clearPersonalBatchStack()
     {
-        Context::debugDrupalMsg('<h1>called clearPersonalBatchStack</h1>');
-        //$this->m_aPersonalBatchStack = NULL;
-        self::saveSessionValue('PersonalBatchStack', NULL);
-        self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
-        //20150919 $this->serializeNow();        
+        try
+        {
+            Context::debugDrupalMsg('<h1>called clearPersonalBatchStack</h1>');
+            self::saveSessionValue('PersonalBatchStack', NULL);
+            self::saveSessionValue('LastUpdateTimestamp', microtime(TRUE));
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     /**
@@ -1308,32 +948,25 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
     {
         $pbs = self::getSessionValue('PersonalBatchStack');
         return print_r($pbs, TRUE);
-        //return print_r($this->m_aPersonalBatchStack, true);
     }
 
     /**
-     * @return null if nothing is on the stack.
+     * @return NULL if nothing is on the stack.
      */
-    function popPersonalBatchStack($serializeNow=TRUE)
+    function popPersonalBatchStack()
     {
         try
         {
             if(!$this->hasPersonalBatchStack())
             {
                 Context::debugDrupalMsg("<h1>Popped nothing off the stack </h1>");
-                return NULL;
+                $nTID = NULL;
+            } else {
+                $pbs = self::getSessionValue('PersonalBatchStack');
+                $nTID = array_pop($pbs);
+                self::saveSessionValue('PersonalBatchStack', $pbs);
+                Context::debugDrupalMsg("<h1>Popped $nTID off the stack ". print_r($pbs, TRUE)  ."</h1>");
             }
-            $pbs = self::getSessionValue('PersonalBatchStack');
-            $nTID = array_pop($pbs);
-            self::saveSessionValue('PersonalBatchStack', $pbs);
-            Context::debugDrupalMsg("<h1>Popped $nTID off the stack ". print_r($pbs, TRUE)  ."</h1>");
-            /*
-            if($serializeNow)
-            {
-                //20150919 $this->serializeNow();        
-            }
-             * 
-             */
             return $nTID;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1342,12 +975,19 @@ error_log('LOOK CONTEXT 11 uid='.$candidate->getUID()." vistaUserID=" . $candida
     
     function getPersonalBatchStackSize()
     {
-        if(!$this->hasPersonalBatchStack())
+        try
         {
-            return 0;
+            if(!$this->hasPersonalBatchStack())
+            {
+                $thecount = 0;
+            } else {
+                $pbs = self::getSessionValue('PersonalBatchStack');
+                $thecount = count($pbs);
+            }
+            return $thecount;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        $pbs = self::getSessionValue('PersonalBatchStack');
-        return count($pbs);
     }
     
     /**
@@ -1433,10 +1073,7 @@ error_log("LOOK authenticateSubsystems($sVistaUserID, $sVAPassword) DONE result 
                     . ' in ' . $its);
             
             // NOTE - hardcoded vista site per config.php->VISTA_SITE
-            $oEhrDao = $this->getEhrDao();
-            //error_log("LOOK before login $oEhrDao");
             $loginResult = $this->getEhrDao()->connectAndLogin(VISTA_SITE, $sVistaUserID, $sVAPassword);
-            //error_log("LOOK after login $oEhrDao");
             $this->clearForceLogoutReason();    //Important that we clear it now otherwise can be stuck in kickout mode.
             return ''; // per data functions doc - return empty string on success
         }  catch (\Exception $ex) {

@@ -47,7 +47,7 @@ class EhrDao implements \raptor\IEhrDao
         try
         {
             $this->instanceTimestamp = microtime(TRUE);
-            error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
+            //error_log("Creating instance of EhrDao ts={$this->instanceTimestamp}");
             $loaded = module_load_include('php', 'raptor_datalayer', 'config/ehr_integration');
             if($loaded === FALSE)
             {
@@ -63,7 +63,7 @@ class EhrDao implements \raptor\IEhrDao
             $namespace = EHR_INT_IMPL_DAO_NAMESPACE;
             $class = "\\$namespace\\$classname";
             $this->m_implclass = new $class(VISTA_SITE);
-            error_log("EhrDao construction completed >>> " . $this);
+            //error_log("EhrDao construction completed >>> " . $this);
         } catch (\Exception $ex) {
             throw new \Exception("Failed constructor EhrDao(".EHR_INT_IMPL_DAO_NAMESPACE.") because $ex",99876,$ex);
         }
