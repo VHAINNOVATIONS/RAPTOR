@@ -1024,6 +1024,7 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
                 );
         }
     } catch (\Exception $ex) {
+        //Do not throw an exception, just create a log entry
         if(isset($_GET['tids']))
         {
             $tids = trim($_GET['tids']);
@@ -1031,6 +1032,6 @@ function raptor_glue_loadcache_form_builder($form, &$form_state)
         } else {
             error_log("Failed pre-cache action (tids NOT set) because $ex");
         }
-        throw $ex;
+        //throw $ex;
     }
 }

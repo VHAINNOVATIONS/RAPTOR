@@ -54,32 +54,32 @@ class LabsHelper
         try
         {
             $labsResults = array();
-//error_log("LOOK debug raw result >>>>" . print_r($rawresult_ar,TRUE));
-            foreach ($rawresult_ar as $specimen)
+            foreach ($rawresult_ar as $onebundle)
             {
-                $specimen_rawTime = $specimen['timestamp'];
-//error_log("LOOK debug one item of raw result ($specimen_rawTime) >>>>" . print_r($specimen,TRUE));
-                $specimen_date = EwdUtils::convertVistaDateTimeToDate($specimen_rawTime);
-                $specimen_time = EwdUtils::convertVistaDateTimeToDatetime($specimen_rawTime);//getVistaDateTimePart($specimen_rawTime, 'time');
-                foreach($specimen['labResults'] as $labResult)
+                $onebundle_rawTime = $onebundle['timestamp'];
+                $onebundle_specimen_ar = $onebundle['specimen'];
+                $onebundle_date = EwdUtils::convertVistaDateTimeToDate($onebundle_rawTime);
+                $onebundle_time = EwdUtils::convertVistaDateTimeToDatetime($onebundle_rawTime);
+                foreach($onebundle['labResults'] as $labResult)
                 {
                     $labResult_value = $labResult['value'];
                     $labTest = $labResult['labTest'];
                     $labTest_name = $labTest['name'];
                     $labTest_units = $labTest['units'];
                     $labTest_refRange = $labTest['refRange'];
-                    $labsResults[] = array(
+                    $oneresult = array(
                         'name'      => $labTest_name,
-                        'date'      => $specimen_date,
-                        'datetime'  => $specimen_time,
+                        'date'      => $onebundle_date,
+                        'datetime'  => $onebundle_time,
                         'value'     => $labResult_value,
                         'units'     => $labTest_units,
                         'refRange'  => $labTest_refRange,
-                        'rawTime'   => EwdUtils::convertVistaDateToYYYYMMDDtttt($specimen_rawTime)//$specimen_time//$specimen_rawTime //??? is that the place that should be fixed
+                        'rawTime'   => EwdUtils::convertVistaDateToYYYYMMDDtttt($onebundle_rawTime),
+                        'specimen_ar'   => $onebundle_specimen_ar,
                         );
+                    $labsResults[] = $oneresult;
                 }
             }
-//error_log("Look results from getFormattedChemHemLabsDetail>>>".print_r($labsResults,TRUE));
             return $labsResults;
         } catch (\Exception $ex) {
             throw $ex;
@@ -152,8 +152,8 @@ class LabsHelper
                 $isFemale = FALSE;
             }
 
-            $filteredLabs = array();
-            $foundCreatinine = FALSE;
+            $foundSerumCreatinine = FALSE;
+            $foundNonSerumCreatinine = FALSE;
             $foundEGFR = FALSE;
             $foundPLT = FALSE;
             $foundPT = FALSE;
@@ -166,13 +166,12 @@ class LabsHelper
             foreach ($sortedLabs as $key => $row) 
             {
                 $name[$key]  = $row['name'];
-                $date[$key] = $row['date'];
+                //$date[$key] = $row['date'];
                 $value[$key] = $row['value'];
                 $units[$key] = $row['units'];
-                $refRange[$key] = $row['refRange'];
+                //$refRange[$key] = $row['refRange'];
                 $rawTime[$key] = $row['rawTime'];
             }
-
             if(isset($name) && is_array($name)) //20140603
             {
                 array_multisort($name, SORT_ASC, $rawTime, SORT_DESC, $sortedLabs);
@@ -181,7 +180,27 @@ class LabsHelper
             foreach($sortedLabs as $key => $lab)
             {
                 $name = $lab['name'];
-                $foundCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
+                if(isset($lab['specimen_ar']))
+                {
+                    $lab_specimen_ar = $lab['specimen_ar'];
+                    $lab_specimen_name = strtoupper($lab_specimen_ar['name']);
+                } else {
+                    $lab_specimen_ar = array();
+                    $lab_specimen_name = NULL;
+                }
+                if($lab_specimen_name == 'SERUM')
+                {
+                    $foundSerumCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
+                    $foundNonSerumCreatinine = FALSE;
+                } else {
+                    //There are other types of CREATININE, such as in urine.
+                    $foundSerumCreatinine = FALSE;
+                    $foundNonSerumCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
+                    if($foundNonSerumCreatinine)
+                    {
+                        error_log("LOOK found a non-serum CREATININE in $lab_specimen_name for patient $pid >>> " . print_r($lab,TRUE));
+                    }
+                }
                 $foundHCT = strpos('HCT', strtoupper($lab['name'])) !== FALSE;
                 $foundINR = strpos('INR', strtoupper($lab['name'])) !== FALSE;
                 $foundPT = strpos('PT', strtoupper($lab['name'])) !== FALSE;
@@ -212,7 +231,7 @@ class LabsHelper
                 $creatinineRefRange = '';
                 $eGFRRefRange = '';
 
-                if($foundCreatinine)
+                if($foundSerumCreatinine)
                 {
                     $creatinineRefRange = $lab['refRange'];
                     $foundEGFR = FALSE;

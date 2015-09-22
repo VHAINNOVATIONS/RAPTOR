@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150919.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150922.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -188,8 +188,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             error_log('Starting EWD initClient at ' . microtime(TRUE));
-            $stacktrace = \raptor\Context::debugGetCallerInfo(10);
-error_log("LOOK who called init!!!! >>> " . print_r($stacktrace,TRUE));            
+//$stacktrace = \raptor\Context::debugGetCallerInfo(10);
+//error_log("LOOK who called init!!!! >>> " . print_r($stacktrace,TRUE));            
             $this->disconnect();    //Clear all session variables
             $servicename = 'initiate';
             $url = $this->getURL($servicename);
@@ -804,9 +804,9 @@ error_log("LOOK who called init!!!! >>> " . print_r($stacktrace,TRUE));
             
 //error_log("LOOK getChemHemLabs args>>>" . print_r($args,TRUE));        
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);;
-//error_log("LOOK getChemHemLabs raw result>>>" . print_r($rawresult_ar,TRUE));        
+//error_log("LOOK getChemHemLabs($pid) raw result>>>" . print_r($rawresult_ar,TRUE));        
             $formatted_detail = $myhelper->getFormattedChemHemLabsDetail($rawresult_ar);
-//error_log("LOOK getChemHemLabs formatted result>>>" . print_r($formatted_detail,TRUE));        
+//error_log("LOOK getChemHemLabs($pid) formatted result>>>" . print_r($formatted_detail,TRUE));        
             return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
