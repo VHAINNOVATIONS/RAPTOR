@@ -22,7 +22,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * ------------------------------------------------------------------------------------
-
  */
 
 namespace raptor_mdwsvista;
@@ -32,6 +31,9 @@ require_once 'MdwsUtils.php';
 require_once 'MdwsNewOrderUtils.php';
 require_once 'WorklistData.php';
 require_once 'ProtocolSupportingData.php';
+
+defined('VERSION_INFO_RAPTOR_MDWSDAO')
+    or define('VERSION_INFO_RAPTOR_MDWSDAO', 'MDWS VISTA EHR Integration 20150922.1');
 
 defined('RMDAO_CACHE_NM_WORKLIST')
     or define('RMDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -49,12 +51,10 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
     private $authenticationTimestamp;
     private $mdwsClient = NULL;
     private $currentFacade;
-
     private $userSiteId;
-
     private $m_info_message = NULL;
     private $m_session_key_prefix = NULL;
-    
+
     public function __construct($siteCode, $session_key_prefix=NULL, $reset=FALSE)
     {
         if($session_key_prefix==NULL)
@@ -95,9 +95,12 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
         }
     }
 
+    /**
+     * Tell us the version of this DAO
+     */
     public function getIntegrationInfo()
     {
-        return "MDWS VISTA EHR Integration 20150919.1";
+        return VERSION_INFO_RAPTOR_MDWSDAO;
     }
 
     /**

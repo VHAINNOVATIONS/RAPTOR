@@ -91,6 +91,9 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         }
     }
 
+    /**
+     * Tell us the version of this DAO
+     */
     public function getIntegrationInfo()
     {
         return VERSION_INFO_RAPTOR_EWDDAO;

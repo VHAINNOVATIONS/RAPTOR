@@ -230,52 +230,65 @@ class MdwsUtils {
    
     public static function getChemHemLabs($mdwsDao)
     {
-        $displayLabsResult = array();
-        
-        $today = getDate();
-        $toDate = "".($today['year']+1)."0101";
-        $fromDate = "".($today['year'] - 20)."0101";
+        try
+        {
+            $displayLabsResult = array();
 
-       // $serviceResponse = $this->m_oContext->getEMRService()->getChemHemReports(array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
-        $serviceResponse = $mdwsDao->makeQuery("getChemHemReports", array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
-        
-        $blank = " ";
-        if(!isset($serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->count))
-                return $displayLabsResult;;
-        $numTaggedRpts = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->count;
-        if($numTaggedRpts == 0)
-            return $displayLabsResult;
-        
-        for($i=0; $i<$numTaggedRpts; $i++){ //ChemHemRpts
-            // Check to see if the set of rpts is an object or an array
-            if (is_array($serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt)){
-                $rpt = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt[$i];
-            }
-            else {
-                $rpt = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt;
+            $today = getDate();
+            $toDate = "".($today['year']+1)."0101";
+            $fromDate = "".($today['year'] - 20)."0101";
+
+            // $serviceResponse = $this->m_oContext->getEMRService()->getChemHemReports(array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
+            $serviceResponse = $mdwsDao->makeQuery("getChemHemReports", array('fromDate'=>$fromDate,'toDate'=>$toDate,'nrpts'=>'0'));
+
+            //$blank = " ";
+            if(!isset($serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->count))
+                    return $displayLabsResult;;
+            $numTaggedRpts = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->count;
+            if($numTaggedRpts == 0)
+            {
+                return $displayLabsResult;
             }
 
-            $specimen = $rpt->specimen;
-            $nResults = is_array($rpt->results->LabResultTO) ? count($rpt->results->LabResultTO) : 1;
-            for($j = 0; $j< $nResults; $j++){
-                $result = is_array($rpt->results->LabResultTO) ? $rpt->results->LabResultTO[$j] : $rpt->results->LabResultTO;
-                $test = $result->test;
-                if(isset($rpt->timestamp))
-                {
-                    $just_date = MdwsUtils::convertYYYYMMDDToDate($rpt->timestamp);
-                    $datetime = MdwsUtils::convertYYYYMMDDToDatetime($rpt->timestamp);  //added 20141104 
-                    $displayLabsResult[] = array(
-                        'name' => isset($test->name) ? $test->name : " ",
-                        'date' => $just_date,   //isset($rpt->timestamp) ? date("m/d/Y h:i a", strtotime($rpt->timestamp)) : " ",
-                        'datetime' => $datetime,   //isset($rpt->timestamp) ? date("m/d/Y h:i a", strtotime($rpt->timestamp)) : " ",
-                        'value' => isset($result->value) ? $result->value : " ",
-                        'units' =>isset($test->units) ? $test->units : " ",
-                        'refRange' => isset($test->refRange) ? $test->refRange : " ",
-                        'rawTime' => isset($rpt->timestamp) ? $rpt->timestamp : " ");
+            for($i=0; $i<$numTaggedRpts; $i++)
+            { //ChemHemRpts
+                // Check to see if the set of rpts is an object or an array
+                if (is_array($serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt)){
+                    $rpt = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt[$i];
+                }
+                else {
+                    $rpt = $serviceResponse->getChemHemReportsResult->arrays->TaggedChemHemRptArray->rpts->ChemHemRpt;
+                }
+//error_log("LOOK chem mdws>>> " . print_r($rpt,TRUE));
+                $specimen = $rpt->specimen;
+                $onebundle_specimen_ar = (array) $specimen;
+                $nResults = is_array($rpt->results->LabResultTO) ? count($rpt->results->LabResultTO) : 1;
+                for($j = 0; $j< $nResults; $j++){
+                    $result = is_array($rpt->results->LabResultTO) ? $rpt->results->LabResultTO[$j] : $rpt->results->LabResultTO;
+                    $test = $result->test;
+                    if(isset($rpt->timestamp))
+                    {
+                        $just_date = MdwsUtils::convertYYYYMMDDToDate($rpt->timestamp);
+                        $datetime = MdwsUtils::convertYYYYMMDDToDatetime($rpt->timestamp);  //added 20141104 
+                        $oneresult = array(
+                            'name' => isset($test->name) ? $test->name : " ",
+                            'date' => $just_date,   //isset($rpt->timestamp) ? date("m/d/Y h:i a", strtotime($rpt->timestamp)) : " ",
+                            'datetime' => $datetime,   //isset($rpt->timestamp) ? date("m/d/Y h:i a", strtotime($rpt->timestamp)) : " ",
+                            'value' => isset($result->value) ? $result->value : " ",
+                            'units' =>isset($test->units) ? $test->units : " ",
+                            'refRange' => isset($test->refRange) ? $test->refRange : " ",
+                            'rawTime' => isset($rpt->timestamp) ? $rpt->timestamp : " ",
+                            'specimen_ar'   => $onebundle_specimen_ar,
+                            );
+//error_log("LOOK chem mdws oneresult >>> " . print_r($oneresult,TRUE));
+                        $displayLabsResult[] = $oneresult;
+                    }
                 }
             }
+            return $displayLabsResult;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return $displayLabsResult;
     }
     
     public static function writeRaptorGeneralNote(
