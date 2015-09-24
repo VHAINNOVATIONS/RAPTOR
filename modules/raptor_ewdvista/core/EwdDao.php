@@ -1781,8 +1781,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         {
             $formattedNoteText = implode("\n",$noteTextArray);
             $patientId = $this->getSelectedPatientID();
-            $authorDUZ = $this->getEHRUserID(); //The author will ALWAYS be logged in user!
-            $userId = $cosignerDUZ;
+            $userId = $this->getEHRUserID(); 
+            $authorDUZ = $userId;   //The author will ALWAYS be logged in user!
             if($patientId == '')
             {
                 throw new \Exception('Did not find the patient ID for the note!');
@@ -1795,6 +1795,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['patientId'] = $patientId;
             $args['titleIEN'] = $titleIEN;
             $args['authorDUZ'] = $authorDUZ;
+            $args['cosignerDUZ'] = $cosignerDUZ;
             $args['userId'] = $userId;
             $args['text'] = $formattedNoteText;
             $args['encounterString'] = $encounterString;
@@ -1802,7 +1803,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             
 error_log("LOOK $serviceName about to write with these params >>>" . print_r($args,TRUE));            
             $rawresult = $this->getServiceRelatedData($serviceName, $args, 'POST');
-error_log("LOOK $serviceName >>>" . print_r($rawresult,TRUE));            
+error_log("LOOK $serviceName result >>>" . print_r($rawresult,TRUE));            
             return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;
