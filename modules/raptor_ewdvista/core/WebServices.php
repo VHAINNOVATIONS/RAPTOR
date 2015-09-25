@@ -46,14 +46,16 @@ class WebServices
         try
         {
             $curl = curl_init();
-//error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($headers_ar,TRUE));            
+error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($headers_ar,TRUE) 
+        . "\n\tdata_ar=".print_r($data_ar,TRUE));            
             
             switch ($methodtype)
             {
                 case 'POST':
                     curl_setopt($curl, CURLOPT_POST, 1);
-                    if($data_ar)
+                    if($data_ar !== FALSE)
                     {
+error_log("LOOK POST >>>" . print_r($data_ar,TRUE));
                         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_ar);
                     }
                     break;
@@ -61,7 +63,7 @@ class WebServices
                     curl_setopt($curl, CURLOPT_PUT, 1);
                     break;
                 case 'GET':
-                    if($data_ar)
+                    if($data_ar !== FALSE)
                     {
                         $url = sprintf("%s?%s", $url, http_build_query($data_ar));
                     }
@@ -85,13 +87,7 @@ class WebServices
             curl_setopt($curl, CURLOPT_URL, $url);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-            //TODO: Note at the next step curl_exec() migh return error message listed below, 
-            //      while the same API call through Advanced Rest Client works just fine. 
-            //      Here is the error message:
-            //      {"code":"RESTError","message":"An error occurred while executing raptor/parse: TypeError: Cannot call method 'substr' of undefined"}
             $result = curl_exec($curl);
-            //error_log("LOOK (0000004) callAPI result: " . print_r($result,TRUE));
-            //error_log("LOOK (0000005) callAPI executes following curl: " . print_r($curl,TRUE));
 
             curl_close($curl);
             /*
@@ -107,7 +103,7 @@ error_log("LOOK callAPI result from $methodtype@$url is =".$debug_result_text);
       */      
             return $result;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed callAPI($methodtype, $url, $data_ar) because ".$ex,99888,$ex);
+            throw new \Exception("Failed callAPI($methodtype, $url, $data_ar, $headers_ar) because ".$ex,99888,$ex);
         }
     }
 }

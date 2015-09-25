@@ -151,7 +151,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Return the site specific fully qualified URL for the service.
      */
-    private function getURL($servicename,$args=NULL)
+    private function getURL($servicename, $args=NULL)
     {
         try
         {
@@ -161,13 +161,21 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                error_log("TUNING TIP: Add missing '/' at the end of the EWDFED_BASE_URL declaration (Currently declared as '$base_ewdfed_url')");
                $base_ewdfed_url .= '/';
             }
-            if($args === NULL)
+            if($args === NULL || $args === FALSE)
             {
                 $theurl = $base_ewdfed_url . "$servicename";
             } else {
+                if(!is_array($args))
+                {
+                    throw new \Exception("Expected arguments to be array instead of " . print_r($args,TRUE));
+                }
                 $argtext = '';
                 foreach($args as $k=>$v)
                 {
+                    if(!is_string($v) && !is_numeric($v))
+                    {
+                        throw new \Exception("Expected arguments to be array of text values instead of " . print_r($args,TRUE));
+                    }
                     if($argtext > '')
                     {
                         $argtext .= '&';
@@ -359,12 +367,12 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     /**
      * Return the raw result from the restful service.
      */
-    private function getServiceRelatedData($serviceName, $args=NULL, $methodtype='GET')
+    private function getServiceRelatedData($serviceName, $args_ar=NULL, $methodtype='GET', $data_ar=FALSE)
     {
         try
         {
             //error_log("Starting EWD $serviceName at " . microtime(TRUE));
-            $url = $this->getURL($serviceName,$args);
+            $url = $this->getURL($serviceName, $args_ar);
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
             {
@@ -372,14 +380,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             }
             $header["Authorization"]=$authorization;
             
-            $json_string = $this->m_oWebServices->callAPI($methodtype, $url, FALSE, $header);            
+            $json_string = $this->m_oWebServices->callAPI($methodtype, $url, $data_ar, $header);            
             //error_log("LOOK JSON DATA for $methodtype@URL=$url has result = " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
             //error_log("Finish EWD $serviceName at " . microtime(TRUE));
             return $php_array;
         } catch (\Exception $ex) {
-            throw new \Exception("Trouble with $methodtype of $serviceName($args) because $ex", 99876, $ex);;
+            throw new \Exception("Trouble with $methodtype of $serviceName($args_ar) because $ex", 99876, $ex);;
         }
     }
     
@@ -1696,12 +1704,16 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             $args = array();
-            $args['noteIen'] = $newNoteIen;
+            $args['noteIEN'] = $newNoteIen;
             $args['eSig'] = $eSig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-            //error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));            
-            return $newNoteIen;
+error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));   
+            if(!is_array($rawresult))
+            {
+                throw new Exception("Expected array result from signNote($newNoteIen,****) instead of " . print_r($rawresult,TRUE));
+            }
+            return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;
         }
@@ -1773,7 +1785,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     }
     
     /**
-     * Call the web service to create the note
+     * Call the web service to create the note and return new IEN
      */
     private function writeNote($titleIEN, $noteTextArray, $encounterString, $cosignerDUZ)
     {
@@ -1791,20 +1803,21 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             {
                 throw new \Exception('Did not find the author DUZ for the note!');
             }
-            $args = array();
-            $args['patientId'] = $patientId;
-            $args['titleIEN'] = $titleIEN;
-            $args['authorDUZ'] = $authorDUZ;
-            $args['cosignerDUZ'] = $cosignerDUZ;
-            $args['userId'] = $userId;
-            $args['encounterString'] = $encounterString;
-            $args['text'] = $formattedNoteText;
+            $args_as_data = array();
+            $args_as_data['patientId'] = $patientId;
+            $args_as_data['titleIEN'] = $titleIEN;
+            $args_as_data['authorDUZ'] = $authorDUZ;
+            $args_as_data['cosignerDUZ'] = $cosignerDUZ;
+            $args_as_data['userId'] = $userId;
+            $args_as_data['encounterString'] = $encounterString;
+            $args_as_data['text'] = $formattedNoteText;
             $serviceName = 'writeNote';
-            
-error_log("LOOK $serviceName about to write with these params >>>" . print_r($args,TRUE));            
-            $rawresult = $this->getServiceRelatedData($serviceName, $args, 'POST');
-error_log("LOOK $serviceName result >>>" . print_r($rawresult,TRUE));            
-            return $rawresult;
+            $rawresult = $this->getServiceRelatedData($serviceName, NULL, 'POST', $args_as_data);
+            if(!isset($rawresult['id']))
+            {
+                throw new \Exception("Expected result as array with id instead of this >>> " . print_r($rawresult,TRUE));
+            }
+            return $rawresult['id'];
         } catch (\Exception $ex) {
             throw $ex;
         }
