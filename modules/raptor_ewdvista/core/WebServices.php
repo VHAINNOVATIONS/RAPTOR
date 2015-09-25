@@ -46,16 +46,12 @@ class WebServices
         try
         {
             $curl = curl_init();
-error_log("LOOK callAPI about to issue $methodtype@$url with header=".print_r($headers_ar,TRUE) 
-        . "\n\tdata_ar=".print_r($data_ar,TRUE));            
-            
             switch ($methodtype)
             {
                 case 'POST':
                     curl_setopt($curl, CURLOPT_POST, 1);
                     if($data_ar !== FALSE)
                     {
-error_log("LOOK POST >>>" . print_r($data_ar,TRUE));
                         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_ar);
                     }
                     break;
@@ -90,17 +86,6 @@ error_log("LOOK POST >>>" . print_r($data_ar,TRUE));
             $result = curl_exec($curl);
 
             curl_close($curl);
-            /*
-$debug_result_text = print_r($result,TRUE);
-$debug_rawlen_result_text = strlen($debug_result_text);
-$debug_maxtolog = 4000;
-if($debug_rawlen_result_text > $debug_maxtolog)
-{
-    $debug_result_text = substr($debug_result_text,0,$debug_maxtolog) 
-            . " ... ONLY LOGGED $debug_maxtolog chars (Original size $debug_rawlen_result_text chars)";
-}
-error_log("LOOK callAPI result from $methodtype@$url is =".$debug_result_text);            
-      */      
             return $result;
         } catch (\Exception $ex) {
             throw new \Exception("Failed callAPI($methodtype, $url, $data_ar, $headers_ar) because ".$ex,99888,$ex);

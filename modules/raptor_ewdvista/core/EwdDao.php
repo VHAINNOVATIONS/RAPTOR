@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150922.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150925.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -199,8 +199,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             error_log('Starting EWD initClient at ' . microtime(TRUE));
-//$stacktrace = \raptor\Context::debugGetCallerInfo(10);
-//error_log("LOOK who called init!!!! >>> " . print_r($stacktrace,TRUE));            
             $this->disconnect();    //Clear all session variables
             $servicename = 'initiate';
             $url = $this->getURL($servicename);
@@ -335,10 +333,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             //http://localhost:8081/RaptorEwdVista/raptor/login?credentials=
             $url = $this->getURL($method) . "?credentials=" . $credentials;
             $header["Authorization"]=$authorization;
-            
-            //error_log("LOOK header>>>".print_r($header,TRUE));
-            //error_log("LOOK url>>>".print_r($url,TRUE));
-            
             $json_string = $this->m_oWebServices->callAPI('GET', $url, FALSE, $header);            
             $json_array = json_decode($json_string, TRUE);
             
@@ -371,7 +365,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     {
         try
         {
-            //error_log("Starting EWD $serviceName at " . microtime(TRUE));
             $url = $this->getURL($serviceName, $args_ar);
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
@@ -381,10 +374,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI($methodtype, $url, $data_ar, $header);            
-            //error_log("LOOK JSON DATA for $methodtype@URL=$url has result = " . print_r($json_string, TRUE));
             $php_array = json_decode($json_string, TRUE);
             
-            //error_log("Finish EWD $serviceName at " . microtime(TRUE));
             return $php_array;
         } catch (\Exception $ex) {
             throw new \Exception("Trouble with $methodtype of $serviceName($args_ar) because $ex", 99876, $ex);;
@@ -396,52 +387,56 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
     */
     private function getCallingFunctionName($completeTrace=FALSE)
     {
-        $trace=debug_backtrace();
-        $functionName = "";
-        if($completeTrace)
+        try
         {
-            $str = '';
-            foreach($trace as $caller)
+            $trace=debug_backtrace();
+            $functionName = "";
+            if($completeTrace)
             {
-                //get the name, and we really interested in the last name in the wholepath 
+                $str = '';
+                foreach($trace as $caller)
+                {
+                    //get the name, and we really interested in the last name in the wholepath 
+                    $functionName = "".$caller['function'];
+                    //get log information    
+                    $str .= " -- Called by {$caller['function']}";
+                    if (isset($caller['class']))
+                    {
+                        $str .= " From Class {$caller['class']}";
+                    }
+                }
+            }
+            else
+            {
+                //$caller=$trace[2];  20150812 Not safe to hardcode key as 2; does not always work!
+                $breakatnext = FALSE;
+                foreach($trace as $key=>$caller)
+                {
+                    $functionName = "".$caller['function'];
+                    if($breakatnext)
+                    {
+                        break;
+                    } else
+                    if($functionName == 'getCallingFunctionName')
+                    {
+                        $breakatnext = TRUE;
+                    }
+                }
+                if(!$breakatnext)
+                {
+                    throw new \Exception("Failed to find the calling function name in ".print_r($trace,TRUE));
+                }
                 $functionName = "".$caller['function'];
-                //get log information    
-                $str .= " -- Called by {$caller['function']}";
+                $str = "Called by {$functionName}";
                 if (isset($caller['class']))
                 {
                     $str .= " From Class {$caller['class']}";
                 }
             }
+            return $functionName;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        else
-        {
-            //$caller=$trace[2];  20150812 Not safe to hardcode key as 2; does not always work!
-            $breakatnext = FALSE;
-            foreach($trace as $key=>$caller)
-            {
-                $functionName = "".$caller['function'];
-                if($breakatnext)
-                {
-                    break;
-                } else
-                if($functionName == 'getCallingFunctionName')
-                {
-                    $breakatnext = TRUE;
-                }
-            }
-            if(!$breakatnext)
-            {
-                throw new \Exception("Failed to find the calling function name in ".print_r($trace,TRUE));
-            }
-            $functionName = "".$caller['function'];
-            $str = "Called by {$functionName}";
-            if (isset($caller['class']))
-            {
-                $str .= " From Class {$caller['class']}";
-            }
-        }
-        //error_log("LOOK getCallingFunctionName: " . $str);
-        return $functionName;
     }
     
     /**
@@ -660,7 +655,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['eSig'] = $cancelesig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-//error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig) CHECK RESULT>>>" . print_r($rawresult,TRUE));            
+error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig) CHECK RESULT>>>" . print_r($rawresult,TRUE));            
             return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -813,11 +808,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_LABS_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
             
-//error_log("LOOK getChemHemLabs args>>>" . print_r($args,TRUE));        
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);;
-//error_log("LOOK getChemHemLabs($pid) raw result>>>" . print_r($rawresult_ar,TRUE));        
             $formatted_detail = $myhelper->getFormattedChemHemLabsDetail($rawresult_ar);
-//error_log("LOOK getChemHemLabs($pid) formatted result>>>" . print_r($formatted_detail,TRUE));        
             return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
@@ -826,7 +818,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getEGFRDetailMap($override_patientId = NULL)
     {
-//error_log("LOOK starting getEGFRDetailMap($override_patientId)");        
         try
         {
             $oContext = \raptor\Context::getInstance();
@@ -839,7 +830,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
             $alldata = $myhelper->getLabsDetailData($pid);
             $clean_result = $alldata[1];
-//error_log("LOOK done getEGFRDetailMap($pid)>>>".print_r($clean_result,TRUE));        
             return $clean_result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -857,13 +847,9 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             } else {
                 $pid = $this->getSelectedPatientID();
             }
-//error_log("LOOK 1 starting getDiagnosticLabsDetailMap($pid)...");
             $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
-//error_log("LOOK 2 starting getDiagnosticLabsDetailMap($pid)...");
             $alldata = $myhelper->getLabsDetailData($pid);
-//error_log("LOOK 3 starting getDiagnosticLabsDetailMap($pid)...");
             $clean_result = $alldata[0];
-//error_log("LOOK result from getDiagnosticLabsDetailMap>>>" . print_r($clean_result,TRUE));
             return $clean_result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1403,9 +1389,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['nRpts'] = 1000;
             $rawresult_ar = $this->getServiceRelatedData($serviceName, $args);
             
-////error_log("LOOK RAW getRadiologyReportsDetailMap args>>>" . print_r($args, TRUE));            
-//error_log("LOOK RAW getRadiologyReportsDetailMap>>>" . print_r($rawresult_ar, TRUE));            
-            
             $formatted_detail = $myhelper->getFormattedRadiologyReportHelperDetail($rawresult_ar);
             return $formatted_detail;
         } catch (\Exception $ex) {
@@ -1439,7 +1422,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                     if ($aCachedResult !== NULL)
                     {
                         //Found it in the cache!
-//error_log("LOOK final bundle getRawVitalSignsMap PULLED FROM CACHE >>> ".print_r($aCachedResult, TRUE));  
                         return $aCachedResult;
                     }
                 }
@@ -1455,12 +1437,10 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $rawresult['result'] = $this->getServiceRelatedData($serviceName, $args);
             $bundle = $myhelper->getFormattedSuperset($rawresult);
             
-//error_log("LOOK final bundle getRawVitalSignsMap ".print_r($bundle, TRUE));  
             if ($oRuntimeResultFlexCacheHandler != NULL)
             {
                 try 
                 {
-//error_log("LOOK final bundle getRawVitalSignsMap WENT INTO CACHE!!!");  
                     $oRuntimeResultFlexCacheHandler->addToCache($sThisResultName, $bundle, CACHE_AGE_LABS);
                 } catch (\Exception $ex) {
                     error_log("Failed to cache $sThisResultName result because " . $ex->getMessage());
@@ -1509,7 +1489,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['uid'] = $userduz;
             $formatted_detail = array();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-//error_log("LOOK raw security thing>>>>" . print_r($rawresult,TRUE));
             $warnings = array();
             if(is_array($rawresult))
             {
@@ -1529,7 +1508,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             {
                 error_log("WARNING: For user DUZ=$userduz we did NOT find a security key name for the following IDs:" . implode(", ",$warnings));
             }
-//error_log("LOOK formatted security thing>>>>" . print_r($formatted_detail,TRUE));            
             return $formatted_detail;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1557,7 +1535,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['fromDate'] = EwdUtils::getVistaDate(-1 * DEFAULT_GET_VISIT_DAYS);
             $args['toDate'] = EwdUtils::getVistaDate(0);
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-//error_log("LOOK EWD >>> raw getVisits >>>" . print_r($rawresult,TRUE));
             if(!isset($rawresult['value']))
             { 
                 //There are no visits.
@@ -1590,7 +1567,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 }
                 $aSorted = array_reverse($result); //Now this is descrnding.
             }
-//error_log("LOOK EWD >>> getVisits final >>>" . print_r($aSorted,TRUE));
             return $aSorted;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1653,26 +1629,35 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
 
     public function getVitalsDetailMap()
     {
-        $vitalsbundle = $this->getRawVitalSignsMap();
-        if(isset($vitalsbundle[0]))
+        try
         {
-            //error_log("LOOK getVitalsDetailMap >>> ".print_r($vitalsbundle[0],TRUE));
-            return $vitalsbundle[0];
+            $vitalsbundle = $this->getRawVitalSignsMap();
+            if(isset($vitalsbundle[0]))
+            {
+                return $vitalsbundle[0];
+            }
+            //Return an empty array.
+            return array(); 
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        //Return an empty array.
-        return array(); 
     }
 
     public function getVitalsDetailOnlyLatestMap()
     {
-        $vitalsbundle = $this->getRawVitalSignsMap();
-        if(isset($vitalsbundle[2]))
+        try
         {
-            //error_log("LOOK getVitalsDetailOnlyLatestMap >>> ".print_r($vitalsbundle[2],TRUE));
-            return $vitalsbundle[2];
+            $vitalsbundle = $this->getRawVitalSignsMap();
+            if(isset($vitalsbundle[2]))
+            {
+                //error_log("LOOK getVitalsDetailOnlyLatestMap >>> ".print_r($vitalsbundle[2],TRUE));
+                return $vitalsbundle[2];
+            }
+            //Return an empty array.
+            return array(); 
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        //Return an empty array.
-        return array(); 
     }
 
     public function getVitalsSummaryMap()
@@ -1708,7 +1693,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['eSig'] = $eSig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD signNote($newNoteIen, $eSig) >>> " . print_r($rawresult,TRUE));   
             if(!is_array($rawresult))
             {
                 throw new Exception("Expected array result from signNote($newNoteIen,****) instead of " . print_r($rawresult,TRUE));

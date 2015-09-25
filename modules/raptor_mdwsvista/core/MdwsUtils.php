@@ -565,16 +565,21 @@ class MdwsUtils {
     }
     
     public static function signNote($mdwsDao, $noteIen, $userDuz, $eSig) {
-        $soapResult = $mdwsDao->makeQuery('signNote', array(
-            'noteIEN'=>$noteIen, 
-            'userDUZ'=>$userDuz, 
-            'esig'=>$eSig));
+        try
+        {
+            $soapResult = $mdwsDao->makeQuery('signNote', array(
+                'noteIEN'=>$noteIen, 
+                'userDUZ'=>$userDuz, 
+                'esig'=>$eSig));
 
-        if (!isset($soapResult) || !isset($soapResult->signNoteResult) || isset($soapResult->signNoteResult->fault)) {
-            throw new \Exception('ERROR Invalid sign note result -> '.print_r($soapResult, TRUE));
+            if (!isset($soapResult) || !isset($soapResult->signNoteResult) || isset($soapResult->signNoteResult->fault)) {
+                throw new \Exception('ERROR Invalid sign note result -> '.print_r($soapResult, TRUE));
+            }
+
+            return TRUE;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-
-        return TRUE;
     }    
     
     public static function selectPatient($mdwsDao, $pid) {

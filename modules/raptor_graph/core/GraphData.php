@@ -102,7 +102,7 @@ class GraphData
                 $result = array();
             }
             return $result;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }

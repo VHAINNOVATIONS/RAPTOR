@@ -201,7 +201,7 @@ class MdwsDao implements \raptor_mdwsvista\IMdwsDao
             $modifiedtext = pack('H*', $hex);
             $cleartext = substr($modifiedtext,5);
             return $cleartext;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }

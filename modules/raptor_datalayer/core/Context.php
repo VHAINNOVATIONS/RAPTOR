@@ -109,7 +109,7 @@ class Context
             $modifiedtext = pack('H*', $hex);
             $cleartext = substr($modifiedtext,5);
             return $cleartext;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }
@@ -159,7 +159,7 @@ class Context
                 $_SESSION[$allnamesname] = array();
             }
             return $_SESSION[$allnamesname];
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             throw $ex;
         }
     }
@@ -1298,7 +1298,7 @@ class Context
                     {
                         $ehrcorrupt = TRUE;
                     }
-                } catch (Exception $ex) {
+                } catch (\Exception $ex) {
                     $ehrcorrupt = TRUE;
                 }
                 if($ehrcorrupt)
