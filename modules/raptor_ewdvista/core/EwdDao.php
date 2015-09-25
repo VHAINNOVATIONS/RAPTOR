@@ -664,55 +664,41 @@ error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $pr
 
     public function createNewRadiologyOrder($orderChecks, $args)
     {
-        error_log("LOOK createNewRadiologyOrder params "
-                . "\n\tsee orderChecks >>> " . print_r($orderChecks,TRUE)
-                . "\n\tsee args>>> " . print_r($args,TRUE));
-        return NULL;
-        /*
-         * TODO POST
-         *             var params = {
-                patientId: ewd.post_data.patientId,
-                providerId: ewd.post_data.providerId,
-                userId: ewd.post_data.userId,
-                eSig: ewd.post_data.eSig,
-                dialogId: ewd.post_data.dialogId,
-                locationId: ewd.post_data.locationId,
-                orderableItemId: ewd.post_data.orderableItemId,
-                orderStartDateTime: ewd.post_data.orderStartDateTime,
-                urgencyCode: ewd.post_data.urgencyCode,
-                modeCode: ewd.post_data.modeCode,
-                classCode: ewd.post_data.classCode,
-                submitTo: ewd.post_data.submitTo,
-                pregnant: ewd.post_data.pregnant,
-                isolation: ewd.post_data.isolation,
-                preOpDateTime: ewd.post_data.preOpDateTime,
-                reasonForStudy: ewd.post_data.reasonForStudy,
-
-                clinicHx: ewd.post_data.clinicHx, // separate lines with pipe character: '|'
-                orderCheckOverrideReason: ewd.post_data.orderCheckOverrideReason,
-
-                modifiers: ewd.post_data.modifiers // separate modifiers with pipe character: '|'
-         */
-        
         try
         {
+            error_log("LOOK createNewRadiologyOrder params "
+                    . "\n\tsee orderChecks >>> " . print_r($orderChecks,TRUE)
+                    . "\n\tsee args>>> " . print_r($args,TRUE));
+        
             $serviceName = 'createNewRadiologyOrder';
+            $userId = $this->getEHRUserID(); 
+            $funnydatetime = EwdUtils::convertPhpDateTimeToFunnyText($args['startDateTime']);
+
             $args_as_data = array();
-            $args_as_data['patientId'] = $patientId;
-            $args_as_data['providerId'] = $xxx;
+            $args_as_data['patientId'] = $args['patientId'];
+            $args_as_data['providerId'] = $args['requestingProviderDuz'];
             $args_as_data['userId'] = $userId;
-            $args_as_data['eSig'] = $authorDUZ;
-            $args_as_data['authorDUZ'] = $authorDUZ;
-            $args_as_data['cosignerDUZ'] = $cosignerDUZ;
-            $args_as_data['encounterString'] = $encounterString;
-            $args_as_data['text'] = $formattedNoteText;
-            $serviceName = 'writeNote';
+            $args_as_data['eSig'] = $args['eSig'];
+            $args_as_data['dialogId'] = $args['imagingTypeId'];
+            $args_as_data['locationId'] = $args['locationIEN'];
+            $args_as_data['orderableItemId'] = $args['orderableItemId'];
+            $args_as_data['orderStartDateTime'] = $funnydatetime;
+            $args_as_data['urgencyCode'] = $args['urgencyCode'];
+            $args_as_data['modeCode'] = $args['modeCode'];
+            $args_as_data['classCode'] = $args['classCode'];
+            $args_as_data['submitTo'] = $args['submitTo'];
+            $args_as_data['pregnant'] = $args['pregnant'];
+            $args_as_data['isolation'] = $args['isolation'];
+            $args_as_data['preOpDateTime'] = $args['preOpDateTime'];
+            $args_as_data['reasonForStudy'] = $args['reasonForStudy'];
+            $args_as_data['clinicHx'] = $args['clinicHx'];
+            $args_as_data['orderCheckOverrideReason'] = $args['orderCheckOverrideReason'];
+            $args_as_data['modifiers'] = $args['modifierIds'];
+
             $rawresult = $this->getServiceRelatedData($serviceName, NULL, 'POST', $args_as_data);
-            if(!isset($rawresult['id']))
-            {
-                throw new \Exception("Expected result as array with id instead of this >>> " . print_r($rawresult,TRUE));
-            }
-            return $rawresult['id'];
+            error_log("LOOK createNewRadiologyOrder RESULT "
+                    . "\n\tsee orderChecks >>> " . print_r($rawresult,TRUE));
+            return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;
         }
