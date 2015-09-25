@@ -1797,8 +1797,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['authorDUZ'] = $authorDUZ;
             $args['cosignerDUZ'] = $cosignerDUZ;
             $args['userId'] = $userId;
-            $args['text'] = $formattedNoteText;
             $args['encounterString'] = $encounterString;
+            $args['text'] = $formattedNoteText;
             $serviceName = 'writeNote';
             
 error_log("LOOK $serviceName about to write with these params >>>" . print_r($args,TRUE));            
