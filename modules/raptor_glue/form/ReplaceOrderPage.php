@@ -910,7 +910,7 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
         if($currentstep > 1)
         {
             //Select the new order requester
-            $neworderproviders = $ehrDao->getProviders($ehrDao, $neworderprovider_name);
+            $neworderproviders = $ehrDao->getProviders($neworderprovider_name);
             $requestingProviderDuz = $this->
                     getNonEmptyValueFromArrayElseAlternateLiteral($myvalues
                             , 'requestingProviderDuz', $neworderproviders);

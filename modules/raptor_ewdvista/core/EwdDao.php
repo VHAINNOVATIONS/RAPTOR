@@ -664,12 +664,75 @@ error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $pr
 
     public function createNewRadiologyOrder($orderChecks, $args)
     {
-        throw new \Exception("Not implemented $orderChecks, $args");
+        error_log("LOOK createNewRadiologyOrder params "
+                . "\n\tsee orderChecks >>> " . print_r($orderChecks,TRUE)
+                . "\n\tsee args>>> " . print_r($args,TRUE));
+        return NULL;
+        /*
+         * TODO POST
+         *             var params = {
+                patientId: ewd.post_data.patientId,
+                providerId: ewd.post_data.providerId,
+                userId: ewd.post_data.userId,
+                eSig: ewd.post_data.eSig,
+                dialogId: ewd.post_data.dialogId,
+                locationId: ewd.post_data.locationId,
+                orderableItemId: ewd.post_data.orderableItemId,
+                orderStartDateTime: ewd.post_data.orderStartDateTime,
+                urgencyCode: ewd.post_data.urgencyCode,
+                modeCode: ewd.post_data.modeCode,
+                classCode: ewd.post_data.classCode,
+                submitTo: ewd.post_data.submitTo,
+                pregnant: ewd.post_data.pregnant,
+                isolation: ewd.post_data.isolation,
+                preOpDateTime: ewd.post_data.preOpDateTime,
+                reasonForStudy: ewd.post_data.reasonForStudy,
+
+                clinicHx: ewd.post_data.clinicHx, // separate lines with pipe character: '|'
+                orderCheckOverrideReason: ewd.post_data.orderCheckOverrideReason,
+
+                modifiers: ewd.post_data.modifiers // separate modifiers with pipe character: '|'
+         */
+        
+        try
+        {
+            $serviceName = 'createNewRadiologyOrder';
+            $args_as_data = array();
+            $args_as_data['patientId'] = $patientId;
+            $args_as_data['providerId'] = $xxx;
+            $args_as_data['userId'] = $userId;
+            $args_as_data['eSig'] = $authorDUZ;
+            $args_as_data['authorDUZ'] = $authorDUZ;
+            $args_as_data['cosignerDUZ'] = $cosignerDUZ;
+            $args_as_data['encounterString'] = $encounterString;
+            $args_as_data['text'] = $formattedNoteText;
+            $serviceName = 'writeNote';
+            $rawresult = $this->getServiceRelatedData($serviceName, NULL, 'POST', $args_as_data);
+            if(!isset($rawresult['id']))
+            {
+                throw new \Exception("Expected result as array with id instead of this >>> " . print_r($rawresult,TRUE));
+            }
+            return $rawresult['id'];
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     public function createUnsignedRadiologyOrder($orderChecks, $args)
     {
-        throw new \Exception("Not implemented $orderChecks, $args");
+        try
+        {
+            //Make sure we do NOT have an eSig.
+            if(isset($args['eSig'])) 
+            {
+                 throw new \Exception("Cannot create an unsigned order and provide a signature!");
+            }
+            //Simply call the create orer function without an eSig.
+            return $this->createNewRadiologyOrder($orderChecks, $args);
+            
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     /**
