@@ -655,7 +655,8 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['eSig'] = $cancelesig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig) CHECK RESULT>>>" . print_r($rawresult,TRUE));            
+error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig) CHECK RESULT>>>" 
+        . print_r($rawresult,TRUE));            
             return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -672,7 +673,20 @@ error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $pr
         
             $serviceName = 'createNewRadiologyOrder';
             $userId = $this->getEHRUserID(); 
-            $funnydatetime = EwdUtils::convertPhpDateTimeToFunnyText($args['startDateTime']);
+            $funnydatetime_startDateTime = EwdUtils::convertPhpDateTimeToFunnyText($args['startDateTime']);
+            $funnydatetime_preOpDateTime = EwdUtils::convertPhpDateTimeToFunnyText($args['preOpDateTime']);
+            if(!is_array($args['clinicalHx']))
+            {
+                $clinicHxText = '';
+            } else {
+                $clinicHxText = implode('|', $args['clinicalHx']);
+            }
+            if(!is_array($args['modifierIds']))
+            {
+                $modifiersText = '';
+            } else {
+                $modifiersText = implode('|', $args['modifierIds']);
+            }
 
             $args_as_data = array();
             $args_as_data['patientId'] = $args['patientId'];
@@ -682,22 +696,22 @@ error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $pr
             $args_as_data['dialogId'] = $args['imagingTypeId'];
             $args_as_data['locationId'] = $args['locationIEN'];
             $args_as_data['orderableItemId'] = $args['orderableItemId'];
-            $args_as_data['orderStartDateTime'] = $funnydatetime;
+            $args_as_data['orderStartDateTime'] = $funnydatetime_startDateTime;
             $args_as_data['urgencyCode'] = $args['urgencyCode'];
             $args_as_data['modeCode'] = $args['modeCode'];
             $args_as_data['classCode'] = $args['classCode'];
             $args_as_data['submitTo'] = $args['submitTo'];
             $args_as_data['pregnant'] = $args['pregnant'];
             $args_as_data['isolation'] = $args['isolation'];
-            $args_as_data['preOpDateTime'] = $args['preOpDateTime'];
+            $args_as_data['preOpDateTime'] = $funnydatetime_preOpDateTime;
             $args_as_data['reasonForStudy'] = $args['reasonForStudy'];
-            $args_as_data['clinicHx'] = $args['clinicHx'];
+            $args_as_data['clinicHx'] = $clinicHxText;
             $args_as_data['orderCheckOverrideReason'] = $args['orderCheckOverrideReason'];
-            $args_as_data['modifiers'] = $args['modifierIds'];
+            $args_as_data['modifiers'] = $modifiersText;
 
             $rawresult = $this->getServiceRelatedData($serviceName, NULL, 'POST', $args_as_data);
-            error_log("LOOK createNewRadiologyOrder RESULT "
-                    . "\n\tsee orderChecks >>> " . print_r($rawresult,TRUE));
+            error_log("LOOK createNewRadiologyOrder RESULT >>> "
+                    . print_r($rawresult,TRUE));
             return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;

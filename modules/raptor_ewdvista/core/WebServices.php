@@ -52,6 +52,9 @@ class WebServices
                     curl_setopt($curl, CURLOPT_POST, 1);
                     if($data_ar !== FALSE)
                     {
+            error_log("LOOK method=$methodtype url=$url"
+                    . "\n\tand data_ar=" . print_r($data_ar,TRUE) 
+                    . "\n\tand headers_ar=" . print_r($headers_ar,TRUE));
                         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_ar);
                     }
                     break;
@@ -88,7 +91,13 @@ class WebServices
             curl_close($curl);
             return $result;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed callAPI($methodtype, $url, $data_ar, $headers_ar) because ".$ex,99888,$ex);
+            error_log("Failed with $ex on method=$methodtype url=$url"
+                    . "\n\tand data_ar=" . print_r($data_ar,TRUE) 
+                    . "\n\tand headers_ar=" . print_r($headers_ar,TRUE));
+            throw new \Exception("Failed callAPI($methodtype, $url, " 
+                    . gettype($data_ar) 
+                    . ", " 
+                    . gettype($headers_ar) . ") because " . $ex ,99888 , $ex);
         }
     }
 }
