@@ -172,16 +172,22 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 $argtext = '';
                 foreach($args as $k=>$v)
                 {
-                    if(!is_string($v) && !is_numeric($v))
+                    if($v != '')    //Do NOT use strict check here!
                     {
-                        throw new \Exception("Expected arguments to be array of text values instead of " . print_r($args,TRUE));
+                        if(!is_string($v) && !is_numeric($v))
+                        {
+                            throw new \Exception("Expected arguments to be array of text/number values instead of value for $k of " 
+                                    . print_r($v,TRUE) 
+                                    . ' in ' 
+                                    .print_r($args,TRUE));
+                        }
+                        if($argtext > '')
+                        {
+                            $argtext .= '&';
+                        }
+                        $encoded = urlencode($v);
+                        $argtext .= "$k=$encoded";
                     }
-                    if($argtext > '')
-                    {
-                        $argtext .= '&';
-                    }
-                    $encoded = urlencode($v);
-                    $argtext .= "$k=$encoded";
                 }
                 $theurl = $base_ewdfed_url . "$servicename?{$argtext}";
             }
@@ -366,6 +372,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             $url = $this->getURL($serviceName, $args_ar);
+error_log("LOOK URL=$url");            
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
             {
@@ -473,7 +480,9 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $iterations = 0;
             $all_worklist_rows_raw_text_ar = array();
             $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
+error_log("LOOK about to get worklist with these args >>> " . print_r($args,TRUE));            
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
+error_log("LOOK got worklist result >>> " . print_r($rawdatarows,TRUE));            
             $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $rows_one_iteration = $bundle['all_rows'];
             while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
@@ -533,7 +542,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             //Done!
             return $aResult;
         } catch (\Exception $ex) {
-            throw $ex;
+            throw new \Exception("Failed to get worklist because $ex",99888,$ex);
         }
     }
     
@@ -648,7 +657,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args = array();
             $args['patientId'] = $patientid;
             $args['orderId'] = $orderFileIen;
-            $args['userDuz'] = $this->getSessionVariable('userduz');
+            $args['userId'] = $this->getSessionVariable('userduz');
             $args['providerId'] = $providerDUZ;
             $args['locationId'] = $locationthing;
             $args['reasonId'] = $reasonCode;
