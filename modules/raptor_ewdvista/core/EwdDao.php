@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150925.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150927.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -480,9 +480,7 @@ error_log("LOOK URL=$url");
             $iterations = 0;
             $all_worklist_rows_raw_text_ar = array();
             $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
-error_log("LOOK about to get worklist with these args >>> " . print_r($args,TRUE));            
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK got worklist result >>> " . print_r($rawdatarows,TRUE));            
             $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $rows_one_iteration = $bundle['all_rows'];
             while($iterations < $max_loops && count($all_worklist_rows_raw_text_ar) < $enough_rows_count)
@@ -664,8 +662,32 @@ error_log("LOOK got worklist result >>> " . print_r($rawdatarows,TRUE));
             $args['eSig'] = $cancelesig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD UNTESTED cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig) CHECK RESULT>>>" 
+error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)"
+        . " CHECK RESULT>>>" 
         . print_r($rawresult,TRUE));            
+            if(!isset($rawresult['code']))
+            { 
+                //Assume success
+                $rawresult['cancelled_count'] = 1;
+            } else {
+                //We do NOT expect this when the cancel is succesful.
+                $rawresult['cancelled_count'] = 0;
+                if(!isset($rawresult['message']))
+                {
+                    $myerrmsg = print_r($rawresult,TRUE);
+                } else {
+                    $rawmessage = $rawresult['message'];
+                    $strpos = strpos($rawmessage,'Error:');
+                    if($strpos === FALSE)
+                    {
+                        $myerrmsg = print_r($rawresult,TRUE);
+                    } else {
+                        $myerrmsg = trim(substr($rawmessage, $strpos));
+                    }
+                }
+                $rawresult['cancelled_errmsg'] = $myerrmsg;
+                error_log("Failed cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, ***) because $myerrmsg");
+            }
             return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;

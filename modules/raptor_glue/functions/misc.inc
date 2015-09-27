@@ -405,12 +405,19 @@ function raptor_glue_cancelorder_form_builder_submit($form, &$form_state)
     $oPI = new \raptor\CancelOrderPage();
     try
     {
-        $successMessage = $oPI->updateDatabase($form, $form_state['values']);
-        //Success!
-        drupal_set_message($successMessage);
-        $form_state['redirect'] = array(
-            'worklist',
-          );
+        $myMessage = $oPI->updateDatabase($form, $form_state['values']);
+        $ucase = strtoupper($myMessage);
+        if(substr($ucase, 0, 4) == 'FAIL' || substr($ucase, 0, 5) == 'ERROR')
+        {
+            //Assume failed
+            drupal_set_message($myMessage,'error');
+        } else {
+            //Assume success
+            drupal_set_message($myMessage);
+            $form_state['redirect'] = array(
+                'worklist',
+              );
+        }
     } catch (\Exception $ex) {
         throw $ex;
     }
@@ -863,10 +870,10 @@ function raptor_glue_worklist_form_builder($form, &$form_state)
 
 function raptor_glue_worklist_form_builder_submit($form, &$form_state) 
 {
-	$form_state['redirect'] = array(
-		'worklist',
-		array(),
-	  );
+    $form_state['redirect'] = array(
+            'worklist',
+            array(),
+      );
 }
 
 
