@@ -44,13 +44,14 @@ RPCEXECUTE(TMP,DT) ;
  ;    result 1 - success
  ;           0 - error
  ;
- k (TMP,DT)
+ ;k (TMP,DT)
  N rpc,pRpc,tArgs,tCnt,tI,tOut,tResult,X
  N XWBAPVER,DUZ,DT
  ;
  S U=$G(U,"^")  ; set default to "^"
  ;
  S pRpc("name")=$G(@TMP@("name"))
+ S:pRpc("name")["ORWDX SEND" ^TMP($J,"input",5,"value")=""
  Q:pRpc("name")="" $$error(-1,"RPC name is missing")
  ;
  S rpc("ien")=$O(^XWB(8994,"B",pRpc("name"),""))
