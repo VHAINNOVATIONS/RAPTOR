@@ -535,8 +535,6 @@ error_log("LOOK URL=$url");
                             ,'pending_orders_map' => $pending_orders_map
                 );
 
-//error_log("LOOK worklist maxrows=$max_rows_one_call started at ien='$start_with_IEN' result>>>".print_r($aResult,TRUE));
-
             //Done!
             return $aResult;
         } catch (\Exception $ex) {
@@ -665,7 +663,7 @@ error_log("LOOK URL=$url");
 error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)"
         . " CHECK RESULT>>>" 
         . print_r($rawresult,TRUE));            
-            if(!isset($rawresult['code']))
+            if(!isset($rawresult['code']) && isset($rawresult['id']) && $rawresult['id'] > '')
             { 
                 //Assume success
                 $rawresult['cancelled_count'] = 1;
@@ -698,10 +696,12 @@ error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ
     {
         try
         {
+            /*
             error_log("LOOK createNewRadiologyOrder params "
                     . "\n\tsee orderChecks >>> " . print_r($orderChecks,TRUE)
                     . "\n\tsee args>>> " . print_r($args,TRUE));
-        
+            */
+            
             $serviceName = 'createNewRadiologyOrder';
             $userId = $this->getEHRUserID(); 
             $funnydatetime_startDateTime = EwdUtils::convertPhpDateTimeToFunnyText($args['startDateTime']);
@@ -741,8 +741,7 @@ error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ
             $args_as_data['modifiers'] = $modifiersText;
 
             $rawresult = $this->getServiceRelatedData($serviceName, NULL, 'POST', $args_as_data);
-            error_log("LOOK createNewRadiologyOrder RESULT >>> "
-                    . print_r($rawresult,TRUE));
+            //error_log("LOOK createNewRadiologyOrder RESULT >>> " . print_r($rawresult,TRUE));
             return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;

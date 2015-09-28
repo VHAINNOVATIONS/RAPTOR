@@ -51,10 +51,11 @@ class WebServices
                 case 'POST':
                     curl_setopt($curl, CURLOPT_POST, 1);
                     if($data_ar !== FALSE)
-                    {
-            error_log("LOOK method=$methodtype url=$url"
-                    . "\n\tand data_ar=" . print_r($data_ar,TRUE) 
-                    . "\n\tand headers_ar=" . print_r($headers_ar,TRUE));
+                    {   /*
+                        error_log("LOOK method=$methodtype url=$url"
+                                . "\n\tand data_ar=" . print_r($data_ar,TRUE) 
+                                . "\n\tand headers_ar=" . print_r($headers_ar,TRUE));
+                         */
                         curl_setopt($curl, CURLOPT_POSTFIELDS, $data_ar);
                     }
                     break;

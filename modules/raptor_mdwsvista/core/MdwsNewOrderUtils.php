@@ -342,13 +342,13 @@ class MdwsNewOrderUtils {
             //Format requested by JM 9/13/2015 but not curretly being accepted $orderDt = \raptor_mdwsvista\MdwsStringUtils::convertPhpDateTimeToFunnyText($args['startDateTime']);
             $locationId = $args['locationIEN'];
             $orderableItemIEN = $args['orderableItemId'];
-    error_log("LOOK MDWS getRadiologyOrderChecks args >>> " . print_r($args,TRUE));        
+    //error_log("LOOK MDWS getRadiologyOrderChecks args >>> " . print_r($args,TRUE));        
 
             $soapParams = array('patientId'=>$patientId, 
                     'orderStartDateTime'=>$orderDt, 
                     'locationId'=>$locationId, 
                     'orderableItem'=>$orderableItemIEN);
-    error_log("LOOK MDWS getRadiologyOrderChecks soap call soapParams >>> " . print_r($soapParams,TRUE));        
+    //error_log("LOOK MDWS getRadiologyOrderChecks soap call soapParams >>> " . print_r($soapParams,TRUE));        
             $soapRawResult = $mdwsDao->makeQuery('getOrderChecks', $soapParams);
             $soapResult = $soapRawResult->getOrderChecksResult;
 
@@ -381,7 +381,7 @@ class MdwsNewOrderUtils {
 
                 $result[$id] = $tmp;
             }
-    error_log("LOOK MDWS getRadiologyOrderChecks result >>> " . print_r($result,TRUE));        
+    //error_log("LOOK MDWS getRadiologyOrderChecks result >>> " . print_r($result,TRUE));        
             return $result;
         } catch (\Exception $ex) {
             throw $ex;

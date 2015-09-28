@@ -141,7 +141,6 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
             $myvalues = $form_state['values'];
             $goodtrack = array();
             $currentstep = $this->getSubmittedStepNumber($form_state);
-
             if($currentstep == 1)
             {
                 $goodtrack[] = FormHelper::validate_number_field_not_empty($myvalues, 'cancelreason', 'Replacement Reason');
@@ -243,219 +242,223 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
      */
     function updateDatabaseFromFormState($form, &$form_state)
     {
-        $myvalues = $form_state['values'];
-        $ehrDao = $this->m_oContext->getEhrDao();
-        
-        $canCreateNewOrder = $myvalues['canCreateNewOrder'];
-        $canReallyCancel = $myvalues['canReallyCancel'];
-        $canOrderBeDCd = $myvalues['canOrderBeDCd'];
-        $myDuz = $ehrDao->getEHRUserID();
-        $isPROVIDER = $ehrDao->isProvider($myDuz);
-        $hasOREMAS = $ehrDao->userHasKeyOREMAS($myDuz);
-        if($isPROVIDER)
-        {
-            //Provider overrides OREMAS
-            $canUseOREMASFeature = FALSE;
-        } else {
-            $canUseOREMASFeature = $hasOREMAS;
-        }
-        
-        //Get key information now for replacement logic.
-        $userinfo = $this->m_oContext->getUserInfo();
-        $nSiteID = $this->m_oContext->getSiteID();
-        $nIEN = $myvalues['tid'];
-        $orderFileIen = $myvalues['OrderFileIen'];
-        $nUID = $this->m_oContext->getUID();
-        $sCWFS = $this->m_oTT->getTicketWorkflowState($nSiteID . '-' . $nIEN);
-        $updated_dt = date("Y-m-d H:i:s", time());
-        
-        $reasonCode = $myvalues['cancelreason'];
-        $user_esig = $myvalues['esig'];
-        
-        $orderChecks = $form_state['orderchecks_result'];
-        
-        $fulloriginalTID = $nSiteID."-".$myvalues['tid'];
-        
-        $args = array();
-        $neworder = array();
         try
         {
-            $args['patientId'] = $myvalues['PatientID'];
-            $args['locationIEN'] = $myvalues['neworderlocation'];
-            $args['imagingTypeId'] = $myvalues['neworderimagetype'];
-            $args['orderableItemId'] = $myvalues['neworderitem'];
-            $args['urgencyCode'] = $myvalues['neworderurgency'];
-            $args['modeCode'] = $myvalues['modecode'];
-            $args['classCode'] = $myvalues['category'];
-            $args['submitTo'] = $myvalues['submitto'];
-            $args['pregnant'] = $myvalues['pregnant'];
-            $args['isolation'] = $myvalues['isolation'];
-            $args['reasonForStudy'] = $myvalues['reasonforstudy'];
-            $args['contractSharingIen'] = $myvalues['contractSharingIen'];
-            $args['requestingProviderDuz'] = $myvalues['requestingProviderDuz'];
-            $args['orderCheckOverrideReason'] = $myvalues['orderCheckOverrideReason'];
-            
-            //Add the order history into clinical history
-            $or = $myvalues['OriginalRequester'];
-            $ol = $myvalues['RequestingLocation'];
-            $phrase = "Original order $fulloriginalTID was requested by ".$or." at ".$ol.".";
-            $orpos = strpos($myvalues['clinhist'],$phrase);
-            if($orpos === FALSE)
+            $myvalues = $form_state['values'];
+            $ehrDao = $this->m_oContext->getEhrDao();
+
+            //$canCreateNewOrder = $myvalues['canCreateNewOrder'];
+            $canReallyCancel = $myvalues['canReallyCancel'];
+            $canOrderBeDCd = $myvalues['canOrderBeDCd'];
+            $myDuz = $ehrDao->getEHRUserID();
+            $isPROVIDER = $ehrDao->isProvider($myDuz);
+            $hasOREMAS = $ehrDao->userHasKeyOREMAS($myDuz);
+            if($isPROVIDER)
             {
-                $myvalues['clinhist'] .= "\n".$phrase;
-            }
-            $clinhistArray = explode("\n",$myvalues['clinhist']);
-            $args['clinicalHx'] = $clinhistArray;
-            
-            $datetimedesired = $myvalues['datedesired_dateonly'].' '.$myvalues['datedesired_timeonly'];
-            $args['startDateTime'] = strtotime($datetimedesired);
-            $preopdatetime = $myvalues['preopdate_dateonly'].' '.$myvalues['preopdate_timeonly'];
-            $args['preOpDateTime'] = strtotime($preopdatetime);
-            if(!isset($myvalues['newordermodifiers']))
-            {
-                $args['modifierIds'] = array();
+                //Provider overrides OREMAS
+                $canUseOREMASFeature = FALSE;
             } else {
-                $mids = array();
-                foreach($myvalues['newordermodifiers'] as $k=>$v)
-                {
-                    if($k==$v)
-                    {
-                        if($v == 'NONE')
-                        {
-                            //We just want an empty array then.
-                            $mids = array();
-                            break;
-                        }
-                        $mids[] = $k;   //The value is the key
-                    }
-                }
-                $args['modifierIds'] = $mids;
+                $canUseOREMASFeature = $hasOREMAS;
             }
-            $args['eSig'] = $myvalues['esig'];
-            if($myvalues['cancommitorder'] == 'yes')
-            {
-                if($canUseOREMASFeature)
-                {
-                    //The new order will still keep the original provider
-                    $args['requestingProviderDuz'] = $myvalues['originalOrderProviderDuz'];
-                } else {
-                    //We will be the provider on the new order
-                    $args['requestingProviderDuz'] = $myDuz;
-                }
-                $neworder = $ehrDao->createNewRadiologyOrder($orderChecks, $args);
-            } else {
-                //The other user will need to log into VISTA to sign it
-                $args['requestingProviderDuz'] = $myvalues['originalOrderProviderDuz'];
-                $neworder = $ehrDao->createUnsignedRadiologyOrder($orderChecks, $args);
-            }
-            
-            $neworder['replaced_tid'] = $myvalues['tid'];
-            $form_state['finalstep_result'] = $neworder;
 
-        } catch (\Exception $ex) {
-            $msg = 'Failed to create replacement of '.$nIEN
-                    .' (orderFileIen='.$orderFileIen.') as user with '
-                    . 'DUZ='.$myDuz
-                    .' because '.$ex->getMessage();
-            drupal_set_message($msg,'error');
-            error_log($msg . "\nData Details..."
-                    .Context::safeArrayDump($myvalues)
-                    ."\nargs="
-                    .print_r($args,TRUE)
-                    );
-            throw $ex;
-        }
+            //Get key information now for replacement logic.
+            //$userinfo = $this->m_oContext->getUserInfo();
+            $nSiteID = $this->m_oContext->getSiteID();
+            $nIEN = $myvalues['tid'];
+            $orderFileIen = $myvalues['OrderFileIen'];
+            $nUID = $this->m_oContext->getUID();
+            $sCWFS = $this->m_oTT->getTicketWorkflowState($nSiteID . '-' . $nIEN);
+            $updated_dt = date("Y-m-d H:i:s", time());
 
-        //Make sure we really got a new record before we continue.
-        if(!isset($neworder['radiologyOrderId']) || empty($neworder['radiologyOrderId']))
-        {
-            $msg = 'Failed to create replacement of '.$nIEN
-                    .' (orderFileIen='.$orderFileIen.') as user with '
-                    . 'DUZ='.$myDuz
-                    .' because NO radiologyOrderId was returned! '
-                    . 'WARNING the new VISTA record MAY have been created BUT the RAPTOR details of the original ticket WILL NOT have been copied into the new ticket!!!';
-            drupal_set_message($msg,'error');
-            error_log($msg . "\nData Details..."
-                    .print_r($myvalues,TRUE)
-                    ."\nargs="
-                    .print_r($args,TRUE)
-                    );
-            throw new \Exception($msg);
-        }
-        
-        //Now copy the details to the new order.
-        try
-        {
-            $sourceTID = $nSiteID.'-'.$nIEN;
-            $targetTID = $nSiteID.'-'.$neworder['radiologyOrderId'];
-            ProtocolPageUtils::copyProtocolDetailsToNewOrder($sourceTID, $targetTID);
-        } catch (\Exception $ex) {
-            $msg = 'Failed to copy details from '.$nIEN.' (orderFileIen='.$orderFileIen.') '
-                    .' on replace because '.$ex->getMessage();
-            drupal_set_message($msg,'error');
-            error_log($msg . "\nData Details..." 
-                    . Context::safeArrayDump($myvalues));
-            throw $ex;
-        }
+            $reasonCode = $myvalues['cancelreason'];
+            $user_esig = $myvalues['esig'];
 
-        if($canOrderBeDCd)
-        {
-            //Now cancel the old order.
+            $orderChecks = $form_state['orderchecks_result'];
+
+            $fulloriginalTID = $nSiteID."-".$myvalues['tid'];
+
+            $args = array();
+            $neworder = array();
             try
             {
-                if($canReallyCancel)
+                $args['patientId'] = $myvalues['PatientID'];
+                $args['locationIEN'] = $myvalues['neworderlocation'];
+                $args['imagingTypeId'] = $myvalues['neworderimagetype'];
+                $args['orderableItemId'] = $myvalues['neworderitem'];
+                $args['urgencyCode'] = $myvalues['neworderurgency'];
+                $args['modeCode'] = $myvalues['modecode'];
+                $args['classCode'] = $myvalues['category'];
+                $args['submitTo'] = $myvalues['submitto'];
+                $args['pregnant'] = $myvalues['pregnant'];
+                $args['isolation'] = $myvalues['isolation'];
+                $args['reasonForStudy'] = $myvalues['reasonforstudy'];
+                $args['contractSharingIen'] = $myvalues['contractSharingIen'];
+                $args['requestingProviderDuz'] = $myvalues['requestingProviderDuz'];
+                $args['orderCheckOverrideReason'] = $myvalues['orderCheckOverrideReason'];
+
+                //Add the order history into clinical history
+                $or = $myvalues['OriginalRequester'];
+                $ol = $myvalues['RequestingLocation'];
+                $phrase = "Original order $fulloriginalTID was requested by ".$or." at ".$ol.".";
+                $orpos = strpos($myvalues['clinhist'],$phrase);
+                if($orpos === FALSE)
                 {
-                    $cancel_esig = $user_esig;
-                } else {
-                    $cancel_esig = NULL;  //Causes action request but no signature in VISTA
+                    $myvalues['clinhist'] .= "\n".$phrase;
                 }
-                $cancelLocation = $myvalues['neworderlocation'];
-                $cancelDUZ = $myvalues['originalOrderProviderDuz'];    //Always the DUZ from the order being canceled
-                $results = $ehrDao->cancelRadiologyOrder( 
-                        $myvalues['PatientID'],
-                        $orderFileIen,
-                        $cancelDUZ,
-                        $cancelLocation,
-                        $reasonCode, 
-                        $cancel_esig);
-                $cancelled_iens = $results['cancelled_iens'];
-                $failed_iens = $results['failed_iens'];
+                $clinhistArray = explode("\n",$myvalues['clinhist']);
+                $args['clinicalHx'] = $clinhistArray;
+
+                $datetimedesired = $myvalues['datedesired_dateonly'].' '.$myvalues['datedesired_timeonly'];
+                $args['startDateTime'] = strtotime($datetimedesired);
+                $preopdatetime = $myvalues['preopdate_dateonly'].' '.$myvalues['preopdate_timeonly'];
+                $args['preOpDateTime'] = strtotime($preopdatetime);
+                if(!isset($myvalues['newordermodifiers']))
+                {
+                    $args['modifierIds'] = array();
+                } else {
+                    $mids = array();
+                    foreach($myvalues['newordermodifiers'] as $k=>$v)
+                    {
+                        if($k==$v)
+                        {
+                            if($v == 'NONE')
+                            {
+                                //We just want an empty array then.
+                                $mids = array();
+                                break;
+                            }
+                            $mids[] = $k;   //The value is the key
+                        }
+                    }
+                    $args['modifierIds'] = $mids;
+                }
+                $args['eSig'] = $myvalues['esig'];
+                if($myvalues['cancommitorder'] == 'yes')
+                {
+                    if($canUseOREMASFeature)
+                    {
+                        //The new order will still keep the original provider
+                        $args['requestingProviderDuz'] = $myvalues['originalOrderProviderDuz'];
+                    } else {
+                        //We will be the provider on the new order
+                        $args['requestingProviderDuz'] = $myDuz;
+                    }
+                    $neworder = $ehrDao->createNewRadiologyOrder($orderChecks, $args);
+                } else {
+                    //The other user will need to log into VISTA to sign it
+                    $args['requestingProviderDuz'] = $myvalues['originalOrderProviderDuz'];
+                    $neworder = $ehrDao->createUnsignedRadiologyOrder($orderChecks, $args);
+                }
+
+                $neworder['replaced_tid'] = $myvalues['tid'];
+                $form_state['finalstep_result'] = $neworder;
+
             } catch (\Exception $ex) {
-                $msg = 'Failed to cancel '.$nIEN.' (orderFileIen='.$orderFileIen.') '
+                $msg = 'Failed to create replacement of '.$nIEN
+                        .' (orderFileIen='.$orderFileIen.') as user with '
+                        . 'DUZ='.$myDuz
+                        .' because '.$ex->getMessage();
+                drupal_set_message($msg,'error');
+                error_log($msg . "\nData Details..."
+                        .Context::safeArrayDump($myvalues)
+                        ."\nargs="
+                        .print_r($args,TRUE)
+                        );
+                throw $ex;
+            }
+
+            //Make sure we really got a new record before we continue.
+            if(!isset($neworder['radiologyOrderId']) || empty($neworder['radiologyOrderId']))
+            {
+                $msg = 'Failed to create replacement of '.$nIEN
+                        .' (orderFileIen='.$orderFileIen.') as user with '
+                        . 'DUZ='.$myDuz
+                        .' because NO radiologyOrderId was returned! '
+                        . 'WARNING the new VISTA record MAY have been created BUT the RAPTOR details of the original ticket WILL NOT have been copied into the new ticket!!!';
+                drupal_set_message($msg,'error');
+                error_log($msg . "\nData Details..."
+                        .print_r($myvalues,TRUE)
+                        ."\nargs="
+                        .print_r($args,TRUE)
+                        );
+                throw new \Exception($msg);
+            }
+
+            //Now copy the details to the new order.
+            try
+            {
+                $sourceTID = $nSiteID.'-'.$nIEN;
+                $targetTID = $nSiteID.'-'.$neworder['radiologyOrderId'];
+                ProtocolPageUtils::copyProtocolDetailsToNewOrder($sourceTID, $targetTID);
+            } catch (\Exception $ex) {
+                $msg = 'Failed to copy details from '.$nIEN.' (orderFileIen='.$orderFileIen.') '
                         .' on replace because '.$ex->getMessage();
                 drupal_set_message($msg,'error');
                 error_log($msg . "\nData Details..." 
                         . Context::safeArrayDump($myvalues));
                 throw $ex;
             }
+            if($canOrderBeDCd)
+            {
+                //Now cancel the old order.
+                try
+                {
+                    if($canReallyCancel)
+                    {
+                        $cancel_esig = $user_esig;
+                    } else {
+                        $cancel_esig = NULL;  //Causes action request but no signature in VISTA
+                    }
+                    $cancelLocation = $myvalues['neworderlocation'];
+                    $cancelDUZ = $myvalues['originalOrderProviderDuz'];    //Always the DUZ from the order being canceled
+                    $results = $ehrDao->cancelRadiologyOrder( 
+                            $myvalues['PatientID'],
+                            $orderFileIen,
+                            $cancelDUZ,
+                            $cancelLocation,
+                            $reasonCode, 
+                            $cancel_esig);
+                    $cancelled_iens = $results['cancelled_iens'];
+                    $failed_iens = $results['failed_iens'];
+                } catch (\Exception $ex) {
+                    $msg = 'Failed to cancel '.$nIEN.' (orderFileIen='.$orderFileIen.') '
+                            .' on replace because '.$ex->getMessage();
+                    drupal_set_message($msg,'error');
+                    error_log($msg . "\nData Details..." 
+                            . Context::safeArrayDump($myvalues));
+                    throw $ex;
+                }
 
-            //If we made it here, go ahead and mark the order as inactive.
-            $sNewWFS = 'IA';
-            $this->m_oTT->setTicketWorkflowState($nSiteID . '-' . $nIEN
-                    , $nUID, $sNewWFS, $sCWFS, $updated_dt);
-        } else {
-            //Give some feedback to the user.
-            $msg = "RAPTOR created a new order BUT could not cancel existing order ".$nSiteID . '-' . $nIEN . " due to current VistA status of the existing order";
-            error_log($msg);
-            drupal_set_message($msg, 'warn');
-        }
+                //If we made it here, go ahead and mark the order as inactive.
+                $sNewWFS = 'IA';
+                $this->m_oTT->setTicketWorkflowState($nSiteID . '-' . $nIEN
+                        , $nUID, $sNewWFS, $sCWFS, $updated_dt);
+            } else {
+                //Give some feedback to the user.
+                $msg = "RAPTOR created a new order BUT could not cancel existing order ".$nSiteID . '-' . $nIEN . " due to current VistA status of the existing order";
+                error_log($msg);
+                drupal_set_message($msg, 'warn');
+            }
 
-        //Write success message
-        if($myvalues['cancommitorder'] == 'yes')
-        {
-            drupal_set_message('Replaced Order ' . $myvalues['tid'] 
-                    . ' (' . $myvalues['procName'] .') with '
-                    .$neworder['radiologyOrderId']);
-        } else {
-            drupal_set_message('Replaced Order ' . $myvalues['tid'] 
-                    . ' (' . $myvalues['procName'] .') with UNSIGNED ORDER '
-                    .$neworder['radiologyOrderId']);
-            drupal_set_message('The new '.$neworder['radiologyOrderId']
-                    .' order will not be active until signed by '
-                    .$myvalues['requestingProviderDuz']
-                    ,'warn');
+            //Write success message
+            if($myvalues['cancommitorder'] == 'yes')
+            {
+                drupal_set_message('Replaced Order ' . $myvalues['tid'] 
+                        . ' (' . $myvalues['procName'] .') with '
+                        .$neworder['radiologyOrderId']);
+            } else {
+                drupal_set_message('Replaced Order ' . $myvalues['tid'] 
+                        . ' (' . $myvalues['procName'] .') with UNSIGNED ORDER '
+                        .$neworder['radiologyOrderId']);
+                drupal_set_message('The new '.$neworder['radiologyOrderId']
+                        .' order will not be active until signed by '
+                        .$myvalues['requestingProviderDuz']
+                        ,'warn');
+            }
+            return TRUE;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return TRUE;
     }
     
     public static function getStepCount()
@@ -472,49 +475,54 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
      */
     public static function getWorkflowAction($form_state)
     {
-        if(isset($form_state['values']))
+        try
         {
-            $myvalues = $form_state['values'];
-        } else {
-            $myvalues = array();
-        }
-        if(isset($myvalues['navigationoverride']) && $myvalues['navigationoverride'] > '')
-        {
-            //Allow workflow action to be overridden by value in the field
-            $clickedvalue = strtolower($myvalues['navigationoverride']);
-            $clickednext = strpos($clickedvalue,'next') !== FALSE;
-            $clickedback = strpos($clickedvalue,'back') !== FALSE;
-            $clickedfinish = strpos($clickedvalue,'finish') !== FALSE;
-        } else {
-            //Workflow action is interpretted from the button clicked
-            if(isset($form_state['clicked_button']))
+            if(isset($form_state['values']))
             {
-                $clickedbutton = $form_state['clicked_button'];
-                $clickedvalue = strtolower($clickedbutton['#value']);
+                $myvalues = $form_state['values'];
+            } else {
+                $myvalues = array();
+            }
+            if(isset($myvalues['navigationoverride']) && $myvalues['navigationoverride'] > '')
+            {
+                //Allow workflow action to be overridden by value in the field
+                $clickedvalue = strtolower($myvalues['navigationoverride']);
                 $clickednext = strpos($clickedvalue,'next') !== FALSE;
                 $clickedback = strpos($clickedvalue,'back') !== FALSE;
                 $clickedfinish = strpos($clickedvalue,'finish') !== FALSE;
             } else {
-                $clickedbutton = NULL;
-                $clickedvalue = NULL;
-                $clickednext = FALSE;
-                $clickedback = FALSE;
-                $clickedfinish = FALSE;
+                //Workflow action is interpretted from the button clicked
+                if(isset($form_state['clicked_button']))
+                {
+                    $clickedbutton = $form_state['clicked_button'];
+                    $clickedvalue = strtolower($clickedbutton['#value']);
+                    $clickednext = strpos($clickedvalue,'next') !== FALSE;
+                    $clickedback = strpos($clickedvalue,'back') !== FALSE;
+                    $clickedfinish = strpos($clickedvalue,'finish') !== FALSE;
+                } else {
+                    $clickedbutton = NULL;
+                    $clickedvalue = NULL;
+                    $clickednext = FALSE;
+                    $clickedback = FALSE;
+                    $clickedfinish = FALSE;
+                }
             }
+            if($clickedback)
+            {
+                return 'b';
+            } else
+            if($clickednext)
+            {
+                return 'n';
+            } else
+            if($clickedfinish)
+            {
+                return 'f';
+            }
+            return NULL;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        if($clickedback)
-        {
-            return 'b';
-        } else
-        if($clickednext)
-        {
-            return 'n';
-        } else
-        if($clickedfinish)
-        {
-            return 'f';
-        }
-        return NULL;
     }
     
     /**
@@ -546,883 +554,888 @@ class ReplaceOrderPage extends \raptor\ASimpleFormPage
      */
     public function getForm($form, &$form_state, $disabled, $myvalues_override)
     {
-        if($myvalues_override != NULL)
+        try
         {
-            $myvalues = $myvalues_override;
-        } else {
-            $myvalues = $form_state['values'];
-        }
-        
-        $actioncode = $this->getWorkflowAction($form_state);
-        $clickednext = $actioncode == 'n';
-        $clickedback = $actioncode == 'b';
-        $clickedfinish = $actioncode == 'f';
+            if($myvalues_override != NULL)
+            {
+                $myvalues = $myvalues_override;
+            } else {
+                $myvalues = $form_state['values'];
+            }
 
-        $diagnosesteps = 'init';
-        $formhost = $myvalues['formhost'];
-        if(isset($form_state['values'])) 
-        {
-            if($clickednext || $clickedfinish)
+            $actioncode = $this->getWorkflowAction($form_state);
+            $clickednext = $actioncode == 'n';
+            $clickedback = $actioncode == 'b';
+            $clickedfinish = $actioncode == 'f';
+
+            $diagnosesteps = 'init';
+            $formhost = $myvalues['formhost'];
+            if(isset($form_state['values'])) 
             {
-                $move = 1;
-            } else if($clickedback) {
-                $move = -1;
-            } else {
-                $move = 0;
-            }
-            $submittedstep = $this->getSubmittedStepNumber($form_state);
-            if($submittedstep < 1)
-            {
-                //Odd situation might happen on error condition last submit
-                //Try the current step from myvalues.
-                $submittedstep = $myvalues['currentstep'];
-                error_log("WARNING did not find a 'step' value in form_state!"
-                        . "  Defaulting to myvalues currentstep instead (" 
-                        . $myvalues['currentstep'] .")" );
-            }
-            $currentstep = $submittedstep + $move;
-            $diagnosesteps = "$currentstep = $submittedstep + $move";
-        } else {
-            //When no values were already posted then 
-            //we can be sure we are step one
-            $currentstep = 1;
-            $diagnosesteps = "hardcoded at $currentstep";
-        }    
-        if($currentstep < 1)
-        {
-            if($formhost == 'fulltab')
-            {
-                //This is an error
-                error_log("ERROR TROUBLE did not find a valid 'step' value!"
-                        . "\n...Navigation action=[$actioncode]"
-                        . "\n...Form host=[$formhost]"
-                        . "\n...Diagnostic tip=[$diagnosesteps]");
-                throw new \Exception('Cannot have a step = '.$currentstep);
-            } else {
-                //Continue with warning assuming this was embedded dialog issue
-                error_log("WARNING TROUBLE did not find a valid 'step' value!"
-                        . "\n...Navigation action=[$actioncode]"
-                        . "\n...Form host=[$formhost]"
-                        . "\n...Diagnostic tip=[$diagnosesteps]");
-                if($currentstep == 0)
+                if($clickednext || $clickedfinish)
                 {
-                    $currentstep = $this->getStepCount()-1;   //Back from last
+                    $move = 1;
+                } else if($clickedback) {
+                    $move = -1;
                 } else {
-                    $currentstep = $this->getStepCount();     //Repeat last step
+                    $move = 0;
                 }
-            }
-        } else if($currentstep > $this->getStepCount()){
-            //We can be here if the submit on the final step 
-            //failed and we are repeating the last step after submit
-            $currentstep = $this->getStepCount();   //Repeat last step
-        }
-        $form_state['step'] = $currentstep;
-        
-        //Set flags to adjust UI for steps already been completed
-        $disabled_step1 = $disabled || ($currentstep > 1);
-        $disabled_step2 = $disabled || ($currentstep > 2);
-
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $myIEN = $myvalues['tid'];
-        
-        //$oDD = new \raptor\DashboardData($this->m_oContext);
-        //$rpd = $oDD->getDashboardDetails();
-        $rpd = $ehrDao->getDashboardDetailsMap($myIEN);
-        $gender = trim($rpd['PatientGender']);
-        $age = intval(trim($rpd['PatientAge']));
-        $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
-        if(!$isMale)
-        {
-            $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
-        } else {
-            $isFemale = FALSE;
-        }
-        if($isFemale && $age > 59 && !is_int($myvalues['pregnant']))
-        {
-            //Assume default not pregnant for anyone too old to bear children.
-            $myvalues['pregnant'] = 2;
-        }
-
-        $orginalProviderDuz = $myvalues['originalOrderProviderDuz'];
-        $canOrderBeDCd = $myvalues['canOrderBeDCd'];
-        $imagetypes = $myvalues['imagetypes'];
-
-        $myDuz = $ehrDao->getEHRUserID();
-        $isPROVIDER = $ehrDao->isProvider($myDuz);
-        $hasOREMAS = $ehrDao->userHasKeyOREMAS($myDuz);
-        if($isPROVIDER)
-        {
-            //Provider overrides OREMAS
-            $canUseOREMASFeature = FALSE;
-        } else {
-            $canUseOREMASFeature = $hasOREMAS;
-        }
-        
-        if(!$hasOREMAS && !$isPROVIDER)
-        {
-            //This user cannot cancel/replace a ticket thus cannot replace.
-            $form['data_entry_area1']['userrejected'] = array('#type' => 'item'
-                    , '#markup' => '<h2>Your account does not have sufficient VISTA'
-                . ' privilege to replace CPRS orders</h2>'
-                . '</p>Relevant VISTA keys are the following...</p>'
-                . '<ul>'
-                . '<li>PROVIDER key allows an account to create orders'
-                . '<li>OREMAS key allows an account to use Signature on File feature'
-                . '</ul>'
-                . '</p>Your account has neither of these keys.</p>'
-                );
-            $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="raptor-dialog-cancel" type="button" value="Exit with No Changes">');
-            return $form;
-        }
-        
-        //Set important flags now
-        $canCreateNewOrder = TRUE;  //If we are here, then the user can create a new order.
-        $needsESIG = TRUE;          //If they are here, we will need a signature
-        $canReallyCancel = FALSE;   //Assume they cannot really cancel
-        if($isPROVIDER)
-        {
-            //He is a provider, can only reallycancel if created the order
-            if($myDuz == $orginalProviderDuz)
-            {
-                $canReallyCancel = TRUE;
-            }
-        } else if($canUseOREMASFeature) {
-            //They can cancel with signature on file feature
-            $canReallyCancel = TRUE;
-        }
-        
-        //Make sure these values are always preserved
-        $form['hiddenthings']['canCreateNewOrder'] = array('#type' => 'hidden', '#value' => $canCreateNewOrder);
-        $form['hiddenthings']['canReallyCancel'] = array('#type' => 'hidden', '#value' => $canReallyCancel);
-        $form['hiddenthings']['originalOrderProviderDuz'] 
-                        = array('#type' => 'hidden'
-                            , '#value' => $orginalProviderDuz);
-        $form['hiddenthings']['canOrderBeDCd'] = array('#type' => 'hidden', '#value' => $canOrderBeDCd);
-        $form['hiddenthings']['imagetypes'] = array('#type' => 'hidden', '#value' => $imagetypes);
-        $form['hiddenthings']['uid'] = array('#type' => 'hidden', '#value' => $myvalues['uid']);
-        $form['hiddenthings']['tid'] = array('#type' => 'hidden', '#value' => $myvalues['tid']);
-
-        if(!$canOrderBeDCd)
-        {
-            if($canUseOREMASFeature)
-            {
-                $introblurb = '<p>This order cannot be discontinued because of current VISTA status but a new '
-                        . 'order will be created using the signature on file feature.</p>';
-            } else {
-                if($canReallyCancel)
+                $submittedstep = $this->getSubmittedStepNumber($form_state);
+                if($submittedstep < 1)
                 {
-                    $introblurb = '<p>This order cannot be discontinued because of current VISTA status but a new '
-                        . 'order will be created using <strong>your name</strong> as the provider.</p>';
-                } else {
-                    $introblurb = '<p>This order cannot be marked for discontinuation because of current VISTA status.'
-                            . '  A new order will be created using <strong>your name</strong> as the provider.</p>';
+                    //Odd situation might happen on error condition last submit
+                    //Try the current step from myvalues.
+                    $submittedstep = $myvalues['currentstep'];
+                    error_log("WARNING did not find a 'step' value in form_state!"
+                            . "  Defaulting to myvalues currentstep instead (" 
+                            . $myvalues['currentstep'] .")" );
                 }
-            }
-        } else {
-            if($canUseOREMASFeature)
-            {
-                $introblurb = '<p>This order will be canceled and a new '
-                        . 'order will be created using the signature on file feature.</p>';
+                $currentstep = $submittedstep + $move;
+                $diagnosesteps = "$currentstep = $submittedstep + $move";
             } else {
-                if($canReallyCancel)
+                //When no values were already posted then 
+                //we can be sure we are step one
+                $currentstep = 1;
+                $diagnosesteps = "hardcoded at $currentstep";
+            }    
+            if($currentstep < 1)
+            {
+                if($formhost == 'fulltab')
                 {
-                    $introblurb = '<p>This order will be canceled and a new '
-                        . 'order will be created using <strong>your name</strong> as the provider.</p>';
+                    //This is an error
+                    error_log("ERROR TROUBLE did not find a valid 'step' value!"
+                            . "\n...Navigation action=[$actioncode]"
+                            . "\n...Form host=[$formhost]"
+                            . "\n...Diagnostic tip=[$diagnosesteps]");
+                    throw new \Exception('Cannot have a step = '.$currentstep);
                 } else {
-                    $introblurb = '<p>This order will be marked for discontinuation in VISTA but will not be canceled'
-                            . ' until the original order provider signs the discontinuation action.  It may continue to show up'
-                            . ' in the RAPTOR worklist until the original order provider signs it.'
-                            . '  A new order will be created using <strong>your name</strong> as the provider.</p>';
+                    //Continue with warning assuming this was embedded dialog issue
+                    error_log("WARNING TROUBLE did not find a valid 'step' value!"
+                            . "\n...Navigation action=[$actioncode]"
+                            . "\n...Form host=[$formhost]"
+                            . "\n...Diagnostic tip=[$diagnosesteps]");
+                    if($currentstep == 0)
+                    {
+                        $currentstep = $this->getStepCount()-1;   //Back from last
+                    } else {
+                        $currentstep = $this->getStepCount();     //Repeat last step
+                    }
                 }
+            } else if($currentstep > $this->getStepCount()){
+                //We can be here if the submit on the final step 
+                //failed and we are repeating the last step after submit
+                $currentstep = $this->getStepCount();   //Repeat last step
             }
-        }
-        
-        //Hidden values in the form
-        $form['hiddenthings']['navigationoverride'] = array(
-            '#type'       => 'hidden',
-            '#attributes' =>array('id'=> 'replaceorderstep'),
-            '#default_value' => '',
-        );
-        $form['hiddenthings']['formhost'] = array(
-            '#type'       => 'hidden',
-            '#attributes' =>array('id'=> 'formhost'),
-            '#default_value' => $myvalues['formhost'],
-        );
-        $form['hiddenthings']['tid'] = array('#type' => 'hidden', '#value' => $myvalues['tid']);
-        $form['hiddenthings']['procName'] = array('#type' => 'hidden', '#value' => $myvalues['procName']);
-        $form['hiddenthings']['OrderFileIen'] = array('#type' => 'hidden', '#value' => $myvalues['OrderFileIen']);
-        $form['hiddenthings']['PatientID'] = array('#type' => 'hidden', '#value' => $myvalues['PatientID']);
-        $form['hiddenthings']['currentstep'] = array('#type' => 'hidden', '#value' => $currentstep);
-        $form['hiddenthings']['OriginalRequester'] = array('#type' => 'hidden', '#value' => $myvalues['OriginalRequester']);
-        $form['hiddenthings']['RequestingLocation'] = array('#type' => 'hidden', '#value' => $myvalues['RequestingLocation']);
+            $form_state['step'] = $currentstep;
 
-        if($currentstep != 1)
-        {
-            $form['hiddenthings']['cancelreason'] 
-                    = array('#type' => 'hidden', '#value' => $myvalues['cancelreason']);
-            if($myvalues['neworderimagetype'] != NULL)
-            {
-                $form['hiddenthings']['neworderimagetype'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['neworderimagetype']);
-            }
-            if($myvalues['neworderprovider_name'] != NULL)
-            {
-                $form['hiddenthings']['neworderprovider_name'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['neworderprovider_name']);
-            }
-        }
-        if($currentstep != 2)
-        {
-            if($myvalues['newordermodifiers'] != NULL)
-            {
-                $form['hiddenthings']['newordermodifiers'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['newordermodifiers']);
-            }
-            if($myvalues['neworderlocation'] != NULL)
-            {
-                $form['hiddenthings']['neworderlocation'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['neworderlocation']);
-            }
-            if($myvalues['neworderitem'] != NULL)
-            {
-                $form['hiddenthings']['neworderitem'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['neworderitem']);
-            }
-            if($myvalues['neworderurgency'] != NULL)
-            {
-                $form['hiddenthings']['neworderurgency'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['neworderurgency']);
-            }
-            if($myvalues['modecode'] != NULL)
-            {
-                $form['hiddenthings']['modecode'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['modecode']);
-            }
-            if($myvalues['category'] != NULL)
-            {
-                $form['hiddenthings']['category'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['category']);
-            }
-            if($myvalues['submitto'] != NULL)
-            {
-                $form['hiddenthings']['submitto'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['submitto']);
-            }
-            $form['hiddenthings']['isolation'] 
-                    = array('#type' => 'hidden', '#value' => $myvalues['isolation']);
-            $form['hiddenthings']['pregnant'] 
-                    = array('#type' => 'hidden', '#value' => $myvalues['pregnant']);
-            if($myvalues['reasonforstudy'] != NULL)
-            {
-                $form['hiddenthings']['reasonforstudy'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['reasonforstudy']);
-            }
-            if($myvalues['clinhist'] != NULL)
-            {
-                $form['hiddenthings']['clinhist'] 
-                        = array('#type' => 'hidden', '#value' => $myvalues['clinhist']);
-            }
-            $form['hiddenthings']['datedesired_dateonly'] 
-                    = array('#type' => 'hidden', '#value' => $myvalues['datedesired_dateonly']);
-            $form['hiddenthings']['preopdate_dateonly'] 
-                    = array('#type' => 'hidden', '#value' => $myvalues['preopdate_dateonly']);
-            $form['hiddenthings']['datedesired_timeonly'] 
-                    = array('#type' => 'hidden', '#value' => $myvalues['datedesired_timeonly']);
-            $form['hiddenthings']['preopdate_timeonly'] 
-                    = array('#type' => 'hidden', '#value' => $myvalues['preopdate_timeonly']);
-            if($myvalues['requestingProviderDuz'] != NULL)
-            {
-                $form['hiddenthings']['requestingProviderDuz'] 
-                        = array('#type' => 'hidden'
-                            , '#value' => $myvalues['requestingProviderDuz']);
-            }
-        }
-            
-        if($canUseOREMASFeature)
-        {
-            $mytitle = "Step $currentstep of {$this->getStepCount()} (Signature on file)";
-        } else {
-            $mytitle = "Step $currentstep of {$this->getStepCount()} (No signature on file)";
-        }
-        $form['data_entry_area1'] = array(
-            '#prefix' => "\n<section class='multistep-dataentry'>"
-            . "<H2>$mytitle</H2>\n$introblurb\n",
-            '#suffix' => "\n</section>\n",
-            '#disabled' => $disabled,
-        );
+            //Set flags to adjust UI for steps already been completed
+            $disabled_step1 = $disabled || ($currentstep > 1);
+            $disabled_step2 = $disabled || ($currentstep > 2);
 
-        $aCancelOptions = $ehrDao->getRadiologyCancellationReasons();
-        
-        $form['data_entry_area1']['toppart']['cancelreason'] = array(
-            "#type" => "select",
-            "#title" => t('Replacement Reason'),
-            "#options" => $aCancelOptions,
-            "#description" => t("Select reason for canceling the existing order."),
-            "#default_value" => $myvalues['cancelreason'],
-            "#disabled" => $disabled_step1,
-            '#required' => TRUE,
-            );        
-        
-        $neworderimagetype = FormHelper::getKeyOfValue($imagetypes, $rpd['ImageType']);
-        if($neworderimagetype === FALSE)
-        {
-            $neworderimagetype = NULL;
-        }
-        $neworderimagetype = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'neworderimagetype', $neworderimagetype);
-        $form['data_entry_area1']['toppart']['neworderimagetype'] = array(
-            "#type" => "select",
-            "#title" => t('Imaging Type'),
-            "#options" => $imagetypes,
-            "#description" => t("Select Imaging Type for the new order."),
-            "#default_value" => $neworderimagetype,
-            "#disabled" => $disabled_step1,
-            '#required' => TRUE,
-            );
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $myIEN = $myvalues['tid'];
 
-        $neworderprovider_name = $myvalues['OriginalRequester'];
-        if(isset($myvalues['neworderprovider_name']))
-        {
-            $neworderprovider_name = $myvalues['neworderprovider_name'];
-        }
-        if($isPROVIDER)
-        {
-            $mytitle = FormHelper::getTitleAsRequiredField('New Order Provider Name');
-            $mydesc = t('You will be the provider on the replacement order because your account has the VISTA PROVIDER key');
-            $mydisable = $disabled_step1;
-            $neworderprovider_name = 'Self'; //A provider can only select themselves as the provider.
-            $mydisable = TRUE;
-        } else {
-            $mytitle = t('New Order Provider Name');
-            $mydesc = t('Signature on file for this provider');
-            $mydisable = TRUE;
-        }
-        $form['data_entry_area1']['toppart']['WB2']['neworderprovider_name'] = array(
-            '#type'          => 'textfield',
-            '#title'         => $mytitle,
-            '#size' => 30, 
-            '#maxlength' => 30, 
-            "#description" => $mydesc,
-            "#default_value" => $neworderprovider_name,
-            "#disabled" => $mydisable,
-        );
-        
-        if($currentstep > 1)
-        {
-            //Select the new order requester
-            $neworderproviders = $ehrDao->getProviders($neworderprovider_name);
-            $requestingProviderDuz = $this->
-                    getNonEmptyValueFromArrayElseAlternateLiteral($myvalues
-                            , 'requestingProviderDuz', $neworderproviders);
+            //$oDD = new \raptor\DashboardData($this->m_oContext);
+            //$rpd = $oDD->getDashboardDetails();
+            $rpd = $ehrDao->getDashboardDetailsMap($myIEN);
+            $gender = trim($rpd['PatientGender']);
+            $age = intval(trim($rpd['PatientAge']));
+            $isMale = $gender > '' && strtoupper(substr($gender,0,1)) == 'M';
+            if(!$isMale)
+            {
+                $isFemale = $gender > '' && strtoupper(substr($gender,0,1)) == 'F';
+            } else {
+                $isFemale = FALSE;
+            }
+            if($isFemale && $age > 59 && !is_int($myvalues['pregnant']))
+            {
+                //Assume default not pregnant for anyone too old to bear children.
+                $myvalues['pregnant'] = 2;
+            }
+
+            $orginalProviderDuz = $myvalues['originalOrderProviderDuz'];
+            $canOrderBeDCd = $myvalues['canOrderBeDCd'];
+            $imagetypes = $myvalues['imagetypes'];
+
+            $myDuz = $ehrDao->getEHRUserID();
+            $isPROVIDER = $ehrDao->isProvider($myDuz);
+            $hasOREMAS = $ehrDao->userHasKeyOREMAS($myDuz);
             if($isPROVIDER)
             {
-                //They must be the provider for the new order
-                $form['hiddenthings']['requestingProviderDuz'] 
-                        = array('#type' => 'hidden'
-                            , '#value' => $myDuz);
+                //Provider overrides OREMAS
+                $canUseOREMASFeature = FALSE;
             } else {
-                //They cannot change the provider!
-                $form['hiddenthings']['requestingProviderDuz'] 
-                        = array('#type' => 'hidden'
-                            , '#value' => $orginalProviderDuz);   //$neworderprovider_duz);
+                $canUseOREMASFeature = $hasOREMAS;
             }
-            
-            //Important NOT to mark fields as #required else BACK will fail!!!
-            $imagingTypeId = intval($myvalues['neworderimagetype']);
-            //$locations = $this->m_oPS->getAllHospitalLocations($ehrDao);
-            $locations = $this->m_oContext->getEhrDao()->getAllHospitalLocationsMap();
-            $neworderlocation = FormHelper::getKeyOfValue($locations, $rpd['PatientLocation']);
-            if($neworderlocation === FALSE)
-            {
-                $neworderlocation = NULL;
-            }
-            $neworderlocation = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues
-                    , 'neworderlocation', $neworderlocation);
-            $form['data_entry_area1']['toppart']['neworderlocation'] = array(
-                '#prefix' => '<div id="dropdown-orderlocations-replace">',
-                '#suffix' => '</div>',
-                '#type' => 'select',
-                '#empty_option'=>t('- Select -'),
-                '#title' => FormHelper::getTitleAsRequiredField('Ordering Location'),
-                '#options' => $locations, 
-                '#description' => t('Select location'),
-                '#default_value' => $neworderlocation,
-                '#disabled' => $disabled_step2,
-                );        
-            $raw_orderitems = $ehrDao->getOrderableItems($imagingTypeId);
-            $orderitems_options = array();
-            foreach($raw_orderitems as $k=>$v)
-            {
-                $orderitems_options[$k] = $v['name'];
-            }
-            $neworderitem = FormHelper::getKeyOfValue($orderitems_options, $rpd['Procedure']);
-            if($neworderitem === FALSE)
-            {
-                $neworderitem = NULL;
-            }
-            $neworderitem = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'neworderitem', $neworderitem);
-            $form['data_entry_area1']['toppart']['neworderitem'] = array(
-                "#type" => "select",
-                "#empty_option"=>t('- Select -'),
-                "#title" => FormHelper::getTitleAsRequiredField("Orderable Item"),
-                "#options" => $orderitems_options,
-                "#description" => t("Select orderable item (imaging procedure)"),
-                "#default_value" => $neworderitem,
-                "#disabled" => $disabled_step2,
-                );  
-            //Store the map so we can get it later
-            $form['hiddenthings']['orderitems_options'] 
-                    = array('#type' => 'hidden', '#value' => $orderitems_options);
-            $patientId = $myvalues['PatientID'];
-            $raworderoptions = $ehrDao->getRadiologyOrderDialog($imagingTypeId, $patientId);
 
-            $raw_modifiers = $raworderoptions['modifiers'];
-            if(!is_array($raw_modifiers) || count($raw_modifiers) < 1)
+            if(!$hasOREMAS && !$isPROVIDER)
             {
-                $form['data_entry_area1']['toppart']['newordermodifiers'] = array(
-                    "#type" => "checkboxes",
-                    "#title" => t("Modifiers"),
-                    "#options" => array('NONE'=>'None'),
-                    "#default_value" => array('NONE'=>'NONE'),
-                    "#disabled" => TRUE,
-                    );        
-            } else {
-                $options_modifiers = array();
-                foreach($raw_modifiers as $k=>$v)
+                //This user cannot cancel/replace a ticket thus cannot replace.
+                $form['data_entry_area1']['userrejected'] = array('#type' => 'item'
+                        , '#markup' => '<h2>Your account does not have sufficient VISTA'
+                    . ' privilege to replace CPRS orders</h2>'
+                    . '</p>Relevant VISTA keys are the following...</p>'
+                    . '<ul>'
+                    . '<li>PROVIDER key allows an account to create orders'
+                    . '<li>OREMAS key allows an account to use Signature on File feature'
+                    . '</ul>'
+                    . '</p>Your account has neither of these keys.</p>'
+                    );
+                $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
+                    , '#markup' => '<input class="raptor-dialog-cancel" type="button" value="Exit with No Changes">');
+                return $form;
+            }
+
+            //Set important flags now
+            $canCreateNewOrder = TRUE;  //If we are here, then the user can create a new order.
+            $needsESIG = TRUE;          //If they are here, we will need a signature
+            $canReallyCancel = FALSE;   //Assume they cannot really cancel
+            if($isPROVIDER)
+            {
+                //He is a provider, can only reallycancel if created the order
+                if($myDuz == $orginalProviderDuz)
                 {
-                    $options_modifiers[$k] = $v;
+                    $canReallyCancel = TRUE;
                 }
-                if(isset($myvalues['newordermodifiers']))
+            } else if($canUseOREMASFeature) {
+                //They can cancel with signature on file feature
+                $canReallyCancel = TRUE;
+            }
+
+            //Make sure these values are always preserved
+            $form['hiddenthings']['canCreateNewOrder'] = array('#type' => 'hidden', '#value' => $canCreateNewOrder);
+            $form['hiddenthings']['canReallyCancel'] = array('#type' => 'hidden', '#value' => $canReallyCancel);
+            $form['hiddenthings']['originalOrderProviderDuz'] 
+                            = array('#type' => 'hidden'
+                                , '#value' => $orginalProviderDuz);
+            $form['hiddenthings']['canOrderBeDCd'] = array('#type' => 'hidden', '#value' => $canOrderBeDCd);
+            $form['hiddenthings']['imagetypes'] = array('#type' => 'hidden', '#value' => $imagetypes);
+            $form['hiddenthings']['uid'] = array('#type' => 'hidden', '#value' => $myvalues['uid']);
+            $form['hiddenthings']['tid'] = array('#type' => 'hidden', '#value' => $myvalues['tid']);
+
+            if(!$canOrderBeDCd)
+            {
+                if($canUseOREMASFeature)
                 {
-                    $defaultmods = $myvalues['newordermodifiers'];
+                    $introblurb = '<p>This order cannot be discontinued because of current VISTA status but a new '
+                            . 'order will be created using the signature on file feature.</p>';
                 } else {
-                    $defaultmods = array();
+                    if($canReallyCancel)
+                    {
+                        $introblurb = '<p>This order cannot be discontinued because of current VISTA status but a new '
+                            . 'order will be created using <strong>your name</strong> as the provider.</p>';
+                    } else {
+                        $introblurb = '<p>This order cannot be marked for discontinuation because of current VISTA status.'
+                                . '  A new order will be created using <strong>your name</strong> as the provider.</p>';
+                    }
                 }
-                $form['data_entry_area1']['toppart']['newordermodifiers'] = array(
-                    "#type" => "checkboxes",
-                    "#title" => t("Modifiers"),
-                    "#options" => $options_modifiers,
-                    "#default_value" => $defaultmods,
+            } else {
+                if($canUseOREMASFeature)
+                {
+                    $introblurb = '<p>This order will be canceled and a new '
+                            . 'order will be created using the signature on file feature.</p>';
+                } else {
+                    if($canReallyCancel)
+                    {
+                        $introblurb = '<p>This order will be canceled and a new '
+                            . 'order will be created using <strong>your name</strong> as the provider.</p>';
+                    } else {
+                        $introblurb = '<p>This order will be marked for discontinuation in VISTA but will not be canceled'
+                                . ' until the original order provider signs the discontinuation action.  It may continue to show up'
+                                . ' in the RAPTOR worklist until the original order provider signs it.'
+                                . '  A new order will be created using <strong>your name</strong> as the provider.</p>';
+                    }
+                }
+            }
+
+            //Hidden values in the form
+            $form['hiddenthings']['navigationoverride'] = array(
+                '#type'       => 'hidden',
+                '#attributes' =>array('id'=> 'replaceorderstep'),
+                '#default_value' => '',
+            );
+            $form['hiddenthings']['formhost'] = array(
+                '#type'       => 'hidden',
+                '#attributes' =>array('id'=> 'formhost'),
+                '#default_value' => $myvalues['formhost'],
+            );
+            $form['hiddenthings']['tid'] = array('#type' => 'hidden', '#value' => $myvalues['tid']);
+            $form['hiddenthings']['procName'] = array('#type' => 'hidden', '#value' => $myvalues['procName']);
+            $form['hiddenthings']['OrderFileIen'] = array('#type' => 'hidden', '#value' => $myvalues['OrderFileIen']);
+            $form['hiddenthings']['PatientID'] = array('#type' => 'hidden', '#value' => $myvalues['PatientID']);
+            $form['hiddenthings']['currentstep'] = array('#type' => 'hidden', '#value' => $currentstep);
+            $form['hiddenthings']['OriginalRequester'] = array('#type' => 'hidden', '#value' => $myvalues['OriginalRequester']);
+            $form['hiddenthings']['RequestingLocation'] = array('#type' => 'hidden', '#value' => $myvalues['RequestingLocation']);
+
+            if($currentstep != 1)
+            {
+                $form['hiddenthings']['cancelreason'] 
+                        = array('#type' => 'hidden', '#value' => $myvalues['cancelreason']);
+                if($myvalues['neworderimagetype'] != NULL)
+                {
+                    $form['hiddenthings']['neworderimagetype'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['neworderimagetype']);
+                }
+                if($myvalues['neworderprovider_name'] != NULL)
+                {
+                    $form['hiddenthings']['neworderprovider_name'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['neworderprovider_name']);
+                }
+            }
+            if($currentstep != 2)
+            {
+                if($myvalues['newordermodifiers'] != NULL)
+                {
+                    $form['hiddenthings']['newordermodifiers'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['newordermodifiers']);
+                }
+                if($myvalues['neworderlocation'] != NULL)
+                {
+                    $form['hiddenthings']['neworderlocation'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['neworderlocation']);
+                }
+                if($myvalues['neworderitem'] != NULL)
+                {
+                    $form['hiddenthings']['neworderitem'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['neworderitem']);
+                }
+                if($myvalues['neworderurgency'] != NULL)
+                {
+                    $form['hiddenthings']['neworderurgency'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['neworderurgency']);
+                }
+                if($myvalues['modecode'] != NULL)
+                {
+                    $form['hiddenthings']['modecode'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['modecode']);
+                }
+                if($myvalues['category'] != NULL)
+                {
+                    $form['hiddenthings']['category'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['category']);
+                }
+                if($myvalues['submitto'] != NULL)
+                {
+                    $form['hiddenthings']['submitto'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['submitto']);
+                }
+                $form['hiddenthings']['isolation'] 
+                        = array('#type' => 'hidden', '#value' => $myvalues['isolation']);
+                $form['hiddenthings']['pregnant'] 
+                        = array('#type' => 'hidden', '#value' => $myvalues['pregnant']);
+                if($myvalues['reasonforstudy'] != NULL)
+                {
+                    $form['hiddenthings']['reasonforstudy'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['reasonforstudy']);
+                }
+                if($myvalues['clinhist'] != NULL)
+                {
+                    $form['hiddenthings']['clinhist'] 
+                            = array('#type' => 'hidden', '#value' => $myvalues['clinhist']);
+                }
+                $form['hiddenthings']['datedesired_dateonly'] 
+                        = array('#type' => 'hidden', '#value' => $myvalues['datedesired_dateonly']);
+                $form['hiddenthings']['preopdate_dateonly'] 
+                        = array('#type' => 'hidden', '#value' => $myvalues['preopdate_dateonly']);
+                $form['hiddenthings']['datedesired_timeonly'] 
+                        = array('#type' => 'hidden', '#value' => $myvalues['datedesired_timeonly']);
+                $form['hiddenthings']['preopdate_timeonly'] 
+                        = array('#type' => 'hidden', '#value' => $myvalues['preopdate_timeonly']);
+                if($myvalues['requestingProviderDuz'] != NULL)
+                {
+                    $form['hiddenthings']['requestingProviderDuz'] 
+                            = array('#type' => 'hidden'
+                                , '#value' => $myvalues['requestingProviderDuz']);
+                }
+            }
+
+            if($canUseOREMASFeature)
+            {
+                $mytitle = "Step $currentstep of {$this->getStepCount()} (Signature on file)";
+            } else {
+                $mytitle = "Step $currentstep of {$this->getStepCount()} (No signature on file)";
+            }
+            $form['data_entry_area1'] = array(
+                '#prefix' => "\n<section class='multistep-dataentry'>"
+                . "<H2>$mytitle</H2>\n$introblurb\n",
+                '#suffix' => "\n</section>\n",
+                '#disabled' => $disabled,
+            );
+
+            $aCancelOptions = $ehrDao->getRadiologyCancellationReasons();
+
+            $form['data_entry_area1']['toppart']['cancelreason'] = array(
+                "#type" => "select",
+                "#title" => t('Replacement Reason'),
+                "#options" => $aCancelOptions,
+                "#description" => t("Select reason for canceling the existing order."),
+                "#default_value" => $myvalues['cancelreason'],
+                "#disabled" => $disabled_step1,
+                '#required' => TRUE,
+                );        
+
+            $neworderimagetype = FormHelper::getKeyOfValue($imagetypes, $rpd['ImageType']);
+            if($neworderimagetype === FALSE)
+            {
+                $neworderimagetype = NULL;
+            }
+            $neworderimagetype = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'neworderimagetype', $neworderimagetype);
+            $form['data_entry_area1']['toppart']['neworderimagetype'] = array(
+                "#type" => "select",
+                "#title" => t('Imaging Type'),
+                "#options" => $imagetypes,
+                "#description" => t("Select Imaging Type for the new order."),
+                "#default_value" => $neworderimagetype,
+                "#disabled" => $disabled_step1,
+                '#required' => TRUE,
+                );
+
+            $neworderprovider_name = $myvalues['OriginalRequester'];
+            if(isset($myvalues['neworderprovider_name']))
+            {
+                $neworderprovider_name = $myvalues['neworderprovider_name'];
+            }
+            if($isPROVIDER)
+            {
+                $mytitle = FormHelper::getTitleAsRequiredField('New Order Provider Name');
+                $mydesc = t('You will be the provider on the replacement order because your account has the VISTA PROVIDER key');
+                $mydisable = $disabled_step1;
+                $neworderprovider_name = 'Self'; //A provider can only select themselves as the provider.
+                $mydisable = TRUE;
+            } else {
+                $mytitle = t('New Order Provider Name');
+                $mydesc = t('Signature on file for this provider');
+                $mydisable = TRUE;
+            }
+            $form['data_entry_area1']['toppart']['WB2']['neworderprovider_name'] = array(
+                '#type'          => 'textfield',
+                '#title'         => $mytitle,
+                '#size' => 30, 
+                '#maxlength' => 30, 
+                "#description" => $mydesc,
+                "#default_value" => $neworderprovider_name,
+                "#disabled" => $mydisable,
+            );
+
+            if($currentstep > 1)
+            {
+                //Select the new order requester
+                $neworderproviders = $ehrDao->getProviders($neworderprovider_name);
+                $requestingProviderDuz = $this->
+                        getNonEmptyValueFromArrayElseAlternateLiteral($myvalues
+                                , 'requestingProviderDuz', $neworderproviders);
+                if($isPROVIDER)
+                {
+                    //They must be the provider for the new order
+                    $form['hiddenthings']['requestingProviderDuz'] 
+                            = array('#type' => 'hidden'
+                                , '#value' => $myDuz);
+                } else {
+                    //They cannot change the provider!
+                    $form['hiddenthings']['requestingProviderDuz'] 
+                            = array('#type' => 'hidden'
+                                , '#value' => $orginalProviderDuz);   //$neworderprovider_duz);
+                }
+
+                //Important NOT to mark fields as #required else BACK will fail!!!
+                $imagingTypeId = intval($myvalues['neworderimagetype']);
+                //$locations = $this->m_oPS->getAllHospitalLocations($ehrDao);
+                $locations = $this->m_oContext->getEhrDao()->getAllHospitalLocationsMap();
+                $neworderlocation = FormHelper::getKeyOfValue($locations, $rpd['PatientLocation']);
+                if($neworderlocation === FALSE)
+                {
+                    $neworderlocation = NULL;
+                }
+                $neworderlocation = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues
+                        , 'neworderlocation', $neworderlocation);
+                $form['data_entry_area1']['toppart']['neworderlocation'] = array(
+                    '#prefix' => '<div id="dropdown-orderlocations-replace">',
+                    '#suffix' => '</div>',
+                    '#type' => 'select',
+                    '#empty_option'=>t('- Select -'),
+                    '#title' => FormHelper::getTitleAsRequiredField('Ordering Location'),
+                    '#options' => $locations, 
+                    '#description' => t('Select location'),
+                    '#default_value' => $neworderlocation,
+                    '#disabled' => $disabled_step2,
+                    );        
+                $raw_orderitems = $ehrDao->getOrderableItems($imagingTypeId);
+                $orderitems_options = array();
+                foreach($raw_orderitems as $k=>$v)
+                {
+                    $orderitems_options[$k] = $v['name'];
+                }
+                $neworderitem = FormHelper::getKeyOfValue($orderitems_options, $rpd['Procedure']);
+                if($neworderitem === FALSE)
+                {
+                    $neworderitem = NULL;
+                }
+                $neworderitem = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'neworderitem', $neworderitem);
+                $form['data_entry_area1']['toppart']['neworderitem'] = array(
+                    "#type" => "select",
+                    "#empty_option"=>t('- Select -'),
+                    "#title" => FormHelper::getTitleAsRequiredField("Orderable Item"),
+                    "#options" => $orderitems_options,
+                    "#description" => t("Select orderable item (imaging procedure)"),
+                    "#default_value" => $neworderitem,
+                    "#disabled" => $disabled_step2,
+                    );  
+                //Store the map so we can get it later
+                $form['hiddenthings']['orderitems_options'] 
+                        = array('#type' => 'hidden', '#value' => $orderitems_options);
+                $patientId = $myvalues['PatientID'];
+                $raworderoptions = $ehrDao->getRadiologyOrderDialog($imagingTypeId, $patientId);
+
+                $raw_modifiers = $raworderoptions['modifiers'];
+                if(!is_array($raw_modifiers) || count($raw_modifiers) < 1)
+                {
+                    $form['data_entry_area1']['toppart']['newordermodifiers'] = array(
+                        "#type" => "checkboxes",
+                        "#title" => t("Modifiers"),
+                        "#options" => array('NONE'=>'None'),
+                        "#default_value" => array('NONE'=>'NONE'),
+                        "#disabled" => TRUE,
+                        );        
+                } else {
+                    $options_modifiers = array();
+                    foreach($raw_modifiers as $k=>$v)
+                    {
+                        $options_modifiers[$k] = $v;
+                    }
+                    if(isset($myvalues['newordermodifiers']))
+                    {
+                        $defaultmods = $myvalues['newordermodifiers'];
+                    } else {
+                        $defaultmods = array();
+                    }
+                    $form['data_entry_area1']['toppart']['newordermodifiers'] = array(
+                        "#type" => "checkboxes",
+                        "#title" => t("Modifiers"),
+                        "#options" => $options_modifiers,
+                        "#default_value" => $defaultmods,
+                        "#disabled" => $disabled_step2,
+                        );        
+                }
+
+                $form['data_entry_area1']['toppart']['WB1'] = array(
+                    '#prefix' => "\n<div id='wb1' style='min-height: 150px;'>\n",
+                    '#suffix' => "\n</div>\n",
+                );
+
+                $form['data_entry_area1']['toppart']['WB1']['LB1'] = array(
+                    '#prefix' => "\n<div id='lb1' style='float:left; width: 250px; padding: 0px 0px 0px 0px'>\n",
+                    '#suffix' => "\n</div>\n",
+                );
+
+                $urgencies = $raworderoptions['urgencies'];
+                $neworderurgency = FormHelper::getKeyOfValue($urgencies, $rpd['Urgency']);
+                if($neworderurgency === FALSE)
+                {
+                    $neworderurgency = NULL;
+                }
+                $neworderurgency = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'neworderurgency', $neworderurgency);
+                $form['data_entry_area1']['toppart']['WB1']['LB1']['neworderurgency'] = array(
+                    "#type" => "select",
+                    "#empty_option"=>t('- Select -'),
+                    "#title" => FormHelper::getTitleAsRequiredField('Urgency'),
+                    "#options" => $urgencies,
+                    "#description" => t('Select urgency'),
+                    "#default_value" => $neworderurgency,
                     "#disabled" => $disabled_step2,
                     );        
-            }
 
-            $form['data_entry_area1']['toppart']['WB1'] = array(
-                '#prefix' => "\n<div id='wb1' style='min-height: 150px;'>\n",
-                '#suffix' => "\n</div>\n",
-            );
-            
-            $form['data_entry_area1']['toppart']['WB1']['LB1'] = array(
-                '#prefix' => "\n<div id='lb1' style='float:left; width: 250px; padding: 0px 0px 0px 0px'>\n",
-                '#suffix' => "\n</div>\n",
-            );
-            
-            $urgencies = $raworderoptions['urgencies'];
-            $neworderurgency = FormHelper::getKeyOfValue($urgencies, $rpd['Urgency']);
-            if($neworderurgency === FALSE)
-            {
-                $neworderurgency = NULL;
-            }
-            $neworderurgency = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'neworderurgency', $neworderurgency);
-            $form['data_entry_area1']['toppart']['WB1']['LB1']['neworderurgency'] = array(
-                "#type" => "select",
-                "#empty_option"=>t('- Select -'),
-                "#title" => FormHelper::getTitleAsRequiredField('Urgency'),
-                "#options" => $urgencies,
-                "#description" => t('Select urgency'),
-                "#default_value" => $neworderurgency,
-                "#disabled" => $disabled_step2,
-                );        
-            
-            $transports = $raworderoptions['transports'];
-            $modecode = FormHelper::getKeyOfValue($transports, $rpd['Transport']);
-            if($modecode === FALSE)
-            {
-                $modecode = NULL;
-            }
-            $modecode = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'modecode', $modecode);
-            $form['data_entry_area1']['toppart']['WB1']['LB1']['modecode'] = array(
-                "#type" => "select",
-                "#empty_option"=>t('- Select -'),
-                "#title" => FormHelper::getTitleAsRequiredField("Transports"),
-                "#options" => $transports,
-                "#description" => t("Select mode code"),
-                "#default_value" => $modecode,
-                "#disabled" => $disabled_step2,
-                );        
+                $transports = $raworderoptions['transports'];
+                $modecode = FormHelper::getKeyOfValue($transports, $rpd['Transport']);
+                if($modecode === FALSE)
+                {
+                    $modecode = NULL;
+                }
+                $modecode = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'modecode', $modecode);
+                $form['data_entry_area1']['toppart']['WB1']['LB1']['modecode'] = array(
+                    "#type" => "select",
+                    "#empty_option"=>t('- Select -'),
+                    "#title" => FormHelper::getTitleAsRequiredField("Transports"),
+                    "#options" => $transports,
+                    "#description" => t("Select mode code"),
+                    "#default_value" => $modecode,
+                    "#disabled" => $disabled_step2,
+                    );        
 
-            $form['data_entry_area1']['toppart']['WB1']['RB1'] = array(
-                //'#prefix' => "\n<div id='rb1'>\n",
-                '#prefix' => "\n<div id='rb1' style='float:left; width: 250px; padding: 0px 0px 0px 0px'>\n",
-                '#suffix' => "\n</div>\n",
-            );
-            
-            $categories = $raworderoptions['categories'];
-            $category = FormHelper::getKeyOfValue($categories, $rpd['ExamCategory']);
-            if($category === FALSE)
-            {
-                $category = NULL;
-            }
-            $category = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'category', $category);
-            $form['data_entry_area1']['toppart']['WB1']['RB1']['category'] = array(
-                "#type" => "select",
-                "#empty_option"=>t('- Select -'),
-                "#title" => FormHelper::getTitleAsRequiredField("Category"),
-                "#options" => $categories,
-                "#description" => t('Select class code'),
-                "#default_value" => $category,
-                "#disabled" => $disabled_step2,
-                );        
+                $form['data_entry_area1']['toppart']['WB1']['RB1'] = array(
+                    //'#prefix' => "\n<div id='rb1'>\n",
+                    '#prefix' => "\n<div id='rb1' style='float:left; width: 250px; padding: 0px 0px 0px 0px'>\n",
+                    '#suffix' => "\n</div>\n",
+                );
 
-            $options_submitTo = $raworderoptions['submitTo'];
-            $findval_submitto = isset($rpd['LocationTx']) ? $rpd['LocationTx'] : '';
-            $submitto = FormHelper::getKeyOfValue($options_submitTo, $findval_submitto);
-            if($submitto === FALSE)
-            {
-                $submitto = NULL;
-            }
-            $submitto = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'submitto', $submitto);
-            $form['data_entry_area1']['toppart']['WB1']['RB1']['submitto'] = array(
-                "#type" => "select",
-                "#empty_option"=>t('- Select -'),
-                "#title" => FormHelper::getTitleAsRequiredField("Submit To"),
-                "#options" => $options_submitTo,
-                "#description" => t('Select the facility for this order'),
-                "#default_value" => $submitto,
-                "#disabled" => $disabled_step2,
-                );        
+                $categories = $raworderoptions['categories'];
+                $category = FormHelper::getKeyOfValue($categories, $rpd['ExamCategory']);
+                if($category === FALSE)
+                {
+                    $category = NULL;
+                }
+                $category = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'category', $category);
+                $form['data_entry_area1']['toppart']['WB1']['RB1']['category'] = array(
+                    "#type" => "select",
+                    "#empty_option"=>t('- Select -'),
+                    "#title" => FormHelper::getTitleAsRequiredField("Category"),
+                    "#options" => $categories,
+                    "#description" => t('Select class code'),
+                    "#default_value" => $category,
+                    "#disabled" => $disabled_step2,
+                    );        
 
-            $form['data_entry_area1']['toppart']['WB1']['LB2'] = array(
-                '#prefix' => "\n<div id='lb2' style='float:left; width: 250px; padding: 0px 0px 0px 0px'>\n",
-                '#suffix' => "\n</div>\n",
-            );
-            
-            $form['data_entry_area1']['toppart']['WB1']['LB2']['isolation'] = array(
-                "#type" => "radios",
-                "#empty_option"=>t('- Select -'),
-                "#title" => FormHelper::getTitleAsUnrequiredField("Isolation"),
-                "#options" => array(1=>t('Yes'),2=>t('No'),3=>t('Unknown')),
-                "#default_value" => $myvalues['isolation'],
-                "#disabled" => $disabled_step2,
-                );        
-            
-            $form['data_entry_area1']['toppart']['WB1']['RB2'] = array(
-                '#prefix' => "\n<div id='rb2'>\n",
-                '#suffix' => "\n</div>\n",
-            );
+                $options_submitTo = $raworderoptions['submitTo'];
+                $findval_submitto = isset($rpd['LocationTx']) ? $rpd['LocationTx'] : '';
+                $submitto = FormHelper::getKeyOfValue($options_submitTo, $findval_submitto);
+                if($submitto === FALSE)
+                {
+                    $submitto = NULL;
+                }
+                $submitto = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'submitto', $submitto);
+                $form['data_entry_area1']['toppart']['WB1']['RB1']['submitto'] = array(
+                    "#type" => "select",
+                    "#empty_option"=>t('- Select -'),
+                    "#title" => FormHelper::getTitleAsRequiredField("Submit To"),
+                    "#options" => $options_submitTo,
+                    "#description" => t('Select the facility for this order'),
+                    "#default_value" => $submitto,
+                    "#disabled" => $disabled_step2,
+                    );        
 
-            if($isMale)
-            {
-                //Never ask for a male.
-                $form['hiddenthings']['pregnant'] = array('#type' => 'hidden', '#value' => '2');
-            } else {
-                $form['data_entry_area1']['toppart']['WB1']['RB2']['pregnant'] = array(
+                $form['data_entry_area1']['toppart']['WB1']['LB2'] = array(
+                    '#prefix' => "\n<div id='lb2' style='float:left; width: 250px; padding: 0px 0px 0px 0px'>\n",
+                    '#suffix' => "\n</div>\n",
+                );
+
+                $form['data_entry_area1']['toppart']['WB1']['LB2']['isolation'] = array(
                     "#type" => "radios",
-                    "#title" => FormHelper::getTitleAsRequiredField("Pregnant"),
+                    "#empty_option"=>t('- Select -'),
+                    "#title" => FormHelper::getTitleAsUnrequiredField("Isolation"),
                     "#options" => array(1=>t('Yes'),2=>t('No'),3=>t('Unknown')),
-                    "#default_value" => $myvalues['pregnant'],
+                    "#default_value" => $myvalues['isolation'],
                     "#disabled" => $disabled_step2,
                     );        
+
+                $form['data_entry_area1']['toppart']['WB1']['RB2'] = array(
+                    '#prefix' => "\n<div id='rb2'>\n",
+                    '#suffix' => "\n</div>\n",
+                );
+
+                if($isMale)
+                {
+                    //Never ask for a male.
+                    $form['hiddenthings']['pregnant'] = array('#type' => 'hidden', '#value' => '2');
+                } else {
+                    $form['data_entry_area1']['toppart']['WB1']['RB2']['pregnant'] = array(
+                        "#type" => "radios",
+                        "#title" => FormHelper::getTitleAsRequiredField("Pregnant"),
+                        "#options" => array(1=>t('Yes'),2=>t('No'),3=>t('Unknown')),
+                        "#default_value" => $myvalues['pregnant'],
+                        "#disabled" => $disabled_step2,
+                        );        
+                }
+
+                $form['data_entry_area1']['toppart']['WB2'] = array(
+                    '#prefix' => "\n<div id='wb2'>\n",
+                    '#suffix' => "\n</div>\n",
+                );
+
+                $reasonforstudy = $this->getNonEmptyValueFromArrayElseAlternateArray($myvalues, 'reasonforstudy', $rpd, 'ReasonForStudy');
+                $form['data_entry_area1']['toppart']['WB2']['reasonforstudy'] = array(
+                    '#type'          => 'textfield',
+                    '#title'         => FormHelper::getTitleAsRequiredField('Reason for Study'),
+                    '#size' => 64, 
+                    '#maxlength' => 64, 
+                    "#description" => t('Provide short reason for study.  (64 characters maximum)'),
+                    "#default_value" => $reasonforstudy,
+                    "#disabled" => $disabled_step2,
+                );
+
+                $clinhist = $this->getNonEmptyValueFromArrayElseAlternateArray($myvalues, 'clinhist', $rpd, 'ClinicalHistory');
+                $form['data_entry_area1']['toppart']['WB2']['clinhist'] = array(
+                    '#type'          => 'textarea',
+                    '#title'         => t('Clinical History'),
+                    "#disabled" => $disabled_step2,
+                    "#default_value" => $clinhist,
+                );
+
+                $form['data_entry_area1']['toppart']['LB3'] = array(
+                    '#prefix' => "\n<div id='lb3' style='float:left; padding: 0px 30px 0px 0px'>\n",
+                    '#suffix' => "\n</div>\n",
+                );
+
+                if(isset($myvalues['datedesired_dateonly']))
+                {
+                    $datedesired_dateonly = $myvalues['datedesired_dateonly'];
+                } else {
+                    $datedesired_dateonly = NULL;
+                }
+                $form['data_entry_area1']['toppart']['LB3']['datedesired_dateonly'] = array(
+                    '#type' => 'textfield',
+                    '#attributes' =>array('id'=> 'edit-datedesired-dateonly'
+                                         ,'class' => array('ui-datedesired-dateonly-input','datepicker')
+                            ),
+                    '#size' => 10, 
+                    '#maxlength' => 10, 
+                    '#title'     => FormHelper::getTitleAsRequiredField('Date Desired'),
+                    '#disabled' => $disabled_step2,
+                    '#default_value' => $datedesired_dateonly,
+                    '#description' => t('When would you like this procedure to occur? (MM/DD/YYYY)'),
+                );
+
+                if(isset($myvalues['datedesired_timeonly']))
+                {
+                    $datedesired_timeonly = $myvalues['datedesired_timeonly'];
+                } else {
+                    $datedesired_timeonly = NULL;
+                }
+                $form['data_entry_area1']['toppart']['LB3']['datedesired_timeonly'] = array(
+                    '#type' => 'textfield',
+                    '#attributes' =>array('id'=> 'edit-datedesired-timeonly'
+                                         ,'class' => array('ui-timepicker-input','hasTimepicker')
+                            ),
+                    '#size' => 5, 
+                    '#maxlength' => 5, 
+                    '#title'     => FormHelper::getTitleAsRequiredField('Desired Exam Time'),
+                    '#disabled' => $disabled_step2,
+                    '#default_value' => $datedesired_timeonly,
+                    '#description' => t('When would you like for this procedure to occur? (HH:MM military time)'),
+                );
+
+                $form['data_entry_area1']['toppart']['RB3'] = array(
+                    '#prefix' => "\n<div id='rb3'>\n",
+                    '#suffix' => "\n</div>\n",
+                );
+
+                if(isset($myvalues['preopdate_dateonly']))
+                {
+                    $preopdate_dateonly = $myvalues['preopdate_dateonly'];
+                } else {
+                    $preopdate_dateonly = NULL;
+                }
+                $form['data_entry_area1']['toppart']['RB3']['preopdate_dateonly'] = array(
+                    '#type'          => 'textfield',
+                    '#attributes' =>array('id'=> 'edit-preopdate-dateonly'
+                                         ,'class' => array('ui-peopdate-dateonly-input','datepicker')
+                            ),
+                    '#size' => 10, 
+                    '#maxlength' => 10, 
+                    '#title'         => FormHelper::getTitleAsUnrequiredField('PreOp Scheduled'),
+                    "#disabled" => $disabled_step2,
+                    "#default_value" => $preopdate_dateonly,
+                    "#description" => t('What is the preop date? (MM/DD/YYYY)'),
+                );
+
+                if(isset($myvalues['preopdate_timeonly']))
+                {
+                    $preopdate_timeonly = $myvalues['preopdate_timeonly'];
+                } else {
+                    $preopdate_timeonly = NULL;
+                }
+                $form['data_entry_area1']['toppart']['RB3']['preopdate_timeonly'] = array(
+                    '#type' => 'textfield',
+                    '#attributes' =>array('id'=> 'edit-preopdate-timeonly'
+                                         ,'class' => array('ui-timepicker-input','hasTimepicker')
+                            ),
+                    '#size' => 5, 
+                    '#maxlength' => 5, 
+                    '#title'     => FormHelper::getTitleAsUnrequiredField('Preop Time'),
+                    "#disabled" => $disabled_step2,
+                    "#default_value" => $preopdate_timeonly,
+                    "#description" => t('What is the preop start time? (HH:MM military time)'),
+                );
+
+                if($currentstep == $this->getStepCount())
+                {
+
+                    $otherlabel = NULL;
+                    $otherOptions = array();
+                    $otherrequired = FALSE;
+                    if($myvalues['category'] == 'C')
+                    {
+                        $otherlabel = "Contract Source";
+                        $otherOptions = $raworderoptions['contractOptions'];
+                    } else
+                    if($myvalues['category'] == 'S')
+                    {
+                        $otherlabel = "Sharing Source";
+                        $otherOptions = $raworderoptions['sharingOptions'];
+                    } else
+                    if($myvalues['category'] == 'R')
+                    {
+                        $otherlabel = "Research Source";
+                        $otherOptions = $raworderoptions['researchOptions'];
+                    }
+                    if($otherlabel == NULL)
+                    {
+                        $form['hiddenthings']['contractSharingIen'] = array('#type' => 'hidden', '#value' => '');
+                    } else {
+                        $contractSharingIen = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'contractSharingIen', $contractSharingIen);
+                        $form['data_entry_area1']['toppart']['contractSharingIen'] = array(
+                            "#type" => "select",
+                            "#empty_option"=>t('- Select -'),
+                            '#title'   => FormHelper::getTitleAsRequiredField($otherlabel),
+                            "#options" => $otherOptions,
+                            "#description" => t('Select a '.$otherlabel.' option'),
+                            "#default_value" => $category,
+                            //"#disabled" => $disabled_step3,
+                            );        
+                    }
+
+                    //Final step
+                    $args = array();
+                    $args['patientId'] = $myvalues['PatientID'];
+                    $startdatetime = strtotime($myvalues['datedesired_dateonly'] . ' ' . $myvalues['datedesired_timeonly']);
+                    $juststartdate = strtotime($myvalues['datedesired_dateonly']);
+                    $juststarttime = strtotime($myvalues['datedesired_timeonly']) - strtotime('TODAY');
+                    $args['startDateTime'] = $startdatetime;
+                    $args['datedesired_dateonly'] = $juststartdate;
+                    $args['datedesired_timeonly'] = $juststarttime;
+
+                    $args['locationIEN'] = $myvalues['neworderlocation'];
+                    $args['orderableItemId'] = $myvalues['neworderitem'];
+                    $rawchecks = $ehrDao->getRadiologyOrderChecks($args);
+                    $form_state['orderchecks_result'] = $rawchecks;
+
+                    //Format the order check results for UI
+                    $checkresultitems = array();
+                    $orderChecksNeedOverride=FALSE;
+                    foreach($rawchecks as $key=>$value)
+                    {
+                        if($value['level'] == 1)
+                        {
+                            $levelword = 'HIGH: ';
+                        } else if($value['level'] == 1) {
+                            $levelword = 'MODERATE: ';
+                        } else {
+                            $levelword = '';
+                        }
+                        if($value['needsOverride'])
+                        {
+                            $checkresultitems[$key] = $levelword.$value['name'] . ' <strong>(Requires Override)</strong>';
+                            $orderChecksNeedOverride=TRUE;
+                        } else {
+                            $checkresultitems[$key] = $levelword.$value['name'];
+                        }
+                    }
+                    $checkresulthtml = implode('<li>',$checkresultitems);
+                    $form['data_entry_area1']['toppart']['confirmationinfo'] = array(
+                        '#prefix' => "\n<section class='generic-warning-area'>\n"
+                        . '<p><ol>'
+                        . $checkresulthtml
+                        . '</ol></p>',
+                        '#suffix' => "\n</section>\n",
+                        '#disabled' => $disabled,
+                    );
+                    if($orderChecksNeedOverride)
+                    {
+                         $form['data_entry_area1']['toppart']['orderCheckOverrideReason'] = array(
+                            '#type'          => 'textfield',
+                            '#title'         => FormHelper::getTitleAsRequiredField('Order Checks Override Reason'),
+                            '#size' => 64, 
+                            '#maxlength' => 80, 
+                            '#description' => t('Provide short reason for order checks override.  (80 characters maximum)'),
+                            '#default_value' => '',
+                        );
+                    } else {
+                        $form['hiddenthings']['orderCheckOverrideReason'] = array('#type' => 'hidden'
+                            , '#value' => '');  //MUST BE EMPTY
+                    }
+
+                    if(!$needsESIG)
+                    {
+                        $form['hiddenthings']['esig'] = array('#type' => 'hidden'
+                            , '#value' => '');  //MUST BE EMPTY
+                        $form['hiddenthings']['require_esig'] = array('#type' => 'hidden'
+                            , '#value' => 'no');
+                    } else {
+                        $form['hiddenthings']['require_esig'] = array('#type' => 'hidden'
+                            , '#value' => 'yes');
+                        //This is the person currently logged in.
+                        $form['data_entry_area1']['toppart']['esig'] = array(
+                            '#type'          => 'password',
+                            '#title'         => FormHelper::getTitleAsRequiredField('Electronic Signature'),
+                            '#disabled'      => $disabled,
+                            '#size' => 55, 
+                            '#maxlength' => 128, 
+                            '#default_value' => '',
+                        );
+                    }
+
+                    if(!$isPROVIDER)
+                    {
+                        //Signature on file workflow
+                        $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'yes');
+                    } else {
+                        //Could be anyone on the order
+                        $ehr_user_id = $ehrDao->getEHRUserID();
+                        if($ehr_user_id == $myvalues['requestingProviderDuz'])
+                        {
+                            $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'yes');
+                        } else {
+                            $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'no');
+                            //This person cannot commit this order.
+                            $form['data_entry_area1']['toppart']['cannotcommitorderinfo'] 
+                                    = array('#type' => 'item'
+                                    , '#markup' 
+                                        => '<h2><strong>IMPORTANT:</strong> You MUST contact '
+                                        .$myvalues['neworderprovider_name']
+                                        . " to electronically sign the new order before you can continue"
+                                        . " with the RAPTOR workflow.</h2>");
+                        }
+                    }
+                }
             }
 
-            $form['data_entry_area1']['toppart']['WB2'] = array(
-                '#prefix' => "\n<div id='wb2'>\n",
-                '#suffix' => "\n</div>\n",
-            );
-            
-            $reasonforstudy = $this->getNonEmptyValueFromArrayElseAlternateArray($myvalues, 'reasonforstudy', $rpd, 'ReasonForStudy');
-            $form['data_entry_area1']['toppart']['WB2']['reasonforstudy'] = array(
-                '#type'          => 'textfield',
-                '#title'         => FormHelper::getTitleAsRequiredField('Reason for Study'),
-                '#size' => 64, 
-                '#maxlength' => 64, 
-                "#description" => t('Provide short reason for study.  (64 characters maximum)'),
-                "#default_value" => $reasonforstudy,
-                "#disabled" => $disabled_step2,
-            );
-            
-            $clinhist = $this->getNonEmptyValueFromArrayElseAlternateArray($myvalues, 'clinhist', $rpd, 'ClinicalHistory');
-            $form['data_entry_area1']['toppart']['WB2']['clinhist'] = array(
-                '#type'          => 'textarea',
-                '#title'         => t('Clinical History'),
-                "#disabled" => $disabled_step2,
-                "#default_value" => $clinhist,
-            );
-            
-            $form['data_entry_area1']['toppart']['LB3'] = array(
-                '#prefix' => "\n<div id='lb3' style='float:left; padding: 0px 30px 0px 0px'>\n",
-                '#suffix' => "\n</div>\n",
-            );
-            
-            if(isset($myvalues['datedesired_dateonly']))
-            {
-                $datedesired_dateonly = $myvalues['datedesired_dateonly'];
-            } else {
-                $datedesired_dateonly = NULL;
-            }
-            $form['data_entry_area1']['toppart']['LB3']['datedesired_dateonly'] = array(
-                '#type' => 'textfield',
-                '#attributes' =>array('id'=> 'edit-datedesired-dateonly'
-                                     ,'class' => array('ui-datedesired-dateonly-input','datepicker')
-                        ),
-                '#size' => 10, 
-                '#maxlength' => 10, 
-                '#title'     => FormHelper::getTitleAsRequiredField('Date Desired'),
-                '#disabled' => $disabled_step2,
-                '#default_value' => $datedesired_dateonly,
-                '#description' => t('When would you like this procedure to occur? (MM/DD/YYYY)'),
+            $form['data_entry_area1']['action_buttons'] = array(
+                '#prefix' => "\n<section class='raptor-action-buttons'>\n",
+                '#suffix' => "\n</section>\n",
+                '#disabled' => $disabled,
             );
 
-            if(isset($myvalues['datedesired_timeonly']))
+            if($currentstep > 1)
             {
-                $datedesired_timeonly = $myvalues['datedesired_timeonly'];
-            } else {
-                $datedesired_timeonly = NULL;
+                $form['data_entry_area1']['action_buttons']['back'] 
+                        = array('#type' => 'submit'
+                        ,'#id' => 'replace-order-submit-back-button' //alex edits
+                        , '#attributes' => array('class' => array('admin-action-button')
+                            ,'title'=>'Go back to the previous step')
+                        , '#value' => t('<< Back')
+                        //, '#limit_validation_errors' => array()
+                        , '#disabled' => $disabled
+                );
             }
-            $form['data_entry_area1']['toppart']['LB3']['datedesired_timeonly'] = array(
-                '#type' => 'textfield',
-                '#attributes' =>array('id'=> 'edit-datedesired-timeonly'
-                                     ,'class' => array('ui-timepicker-input','hasTimepicker')
-                        ),
-                '#size' => 5, 
-                '#maxlength' => 5, 
-                '#title'     => FormHelper::getTitleAsRequiredField('Desired Exam Time'),
-                '#disabled' => $disabled_step2,
-                '#default_value' => $datedesired_timeonly,
-                '#description' => t('When would you like for this procedure to occur? (HH:MM military time)'),
-            );
-            
-            $form['data_entry_area1']['toppart']['RB3'] = array(
-                '#prefix' => "\n<div id='rb3'>\n",
-                '#suffix' => "\n</div>\n",
-            );
-            
-            if(isset($myvalues['preopdate_dateonly']))
-            {
-                $preopdate_dateonly = $myvalues['preopdate_dateonly'];
-            } else {
-                $preopdate_dateonly = NULL;
-            }
-            $form['data_entry_area1']['toppart']['RB3']['preopdate_dateonly'] = array(
-                '#type'          => 'textfield',
-                '#attributes' =>array('id'=> 'edit-preopdate-dateonly'
-                                     ,'class' => array('ui-peopdate-dateonly-input','datepicker')
-                        ),
-                '#size' => 10, 
-                '#maxlength' => 10, 
-                '#title'         => FormHelper::getTitleAsUnrequiredField('PreOp Scheduled'),
-                "#disabled" => $disabled_step2,
-                "#default_value" => $preopdate_dateonly,
-                "#description" => t('What is the preop date? (MM/DD/YYYY)'),
-            );
-
-            if(isset($myvalues['preopdate_timeonly']))
-            {
-                $preopdate_timeonly = $myvalues['preopdate_timeonly'];
-            } else {
-                $preopdate_timeonly = NULL;
-            }
-            $form['data_entry_area1']['toppart']['RB3']['preopdate_timeonly'] = array(
-                '#type' => 'textfield',
-                '#attributes' =>array('id'=> 'edit-preopdate-timeonly'
-                                     ,'class' => array('ui-timepicker-input','hasTimepicker')
-                        ),
-                '#size' => 5, 
-                '#maxlength' => 5, 
-                '#title'     => FormHelper::getTitleAsUnrequiredField('Preop Time'),
-                "#disabled" => $disabled_step2,
-                "#default_value" => $preopdate_timeonly,
-                "#description" => t('What is the preop start time? (HH:MM military time)'),
-            );
 
             if($currentstep == $this->getStepCount())
             {
-
-                $otherlabel = NULL;
-                $otherOptions = array();
-                $otherrequired = FALSE;
-                if($myvalues['category'] == 'C')
-                {
-                    $otherlabel = "Contract Source";
-                    $otherOptions = $raworderoptions['contractOptions'];
-                } else
-                if($myvalues['category'] == 'S')
-                {
-                    $otherlabel = "Sharing Source";
-                    $otherOptions = $raworderoptions['sharingOptions'];
-                } else
-                if($myvalues['category'] == 'R')
-                {
-                    $otherlabel = "Research Source";
-                    $otherOptions = $raworderoptions['researchOptions'];
-                }
-                if($otherlabel == NULL)
-                {
-                    $form['hiddenthings']['contractSharingIen'] = array('#type' => 'hidden', '#value' => '');
-                } else {
-                    $contractSharingIen = $this->getNonEmptyValueFromArrayElseAlternateLiteral($myvalues, 'contractSharingIen', $contractSharingIen);
-                    $form['data_entry_area1']['toppart']['contractSharingIen'] = array(
-                        "#type" => "select",
-                        "#empty_option"=>t('- Select -'),
-                        '#title'   => FormHelper::getTitleAsRequiredField($otherlabel),
-                        "#options" => $otherOptions,
-                        "#description" => t('Select a '.$otherlabel.' option'),
-                        "#default_value" => $category,
-                        //"#disabled" => $disabled_step3,
-                        );        
-                }
-                
-                //Final step
-                $args = array();
-                $args['patientId'] = $myvalues['PatientID'];
-                $startdatetime = strtotime($myvalues['datedesired_dateonly'] . ' ' . $myvalues['datedesired_timeonly']);
-                $juststartdate = strtotime($myvalues['datedesired_dateonly']);
-                $juststarttime = strtotime($myvalues['datedesired_timeonly']) - strtotime('TODAY');
-                $args['startDateTime'] = $startdatetime;
-                $args['datedesired_dateonly'] = $juststartdate;
-                $args['datedesired_timeonly'] = $juststarttime;
-                
-                $args['locationIEN'] = $myvalues['neworderlocation'];
-                $args['orderableItemId'] = $myvalues['neworderitem'];
-                $rawchecks = $ehrDao->getRadiologyOrderChecks($args);
-                $form_state['orderchecks_result'] = $rawchecks;
-                
-                //Format the order check results for UI
-                $checkresultitems = array();
-                $orderChecksNeedOverride=FALSE;
-                foreach($rawchecks as $key=>$value)
-                {
-                    if($value['level'] == 1)
-                    {
-                        $levelword = 'HIGH: ';
-                    } else if($value['level'] == 1) {
-                        $levelword = 'MODERATE: ';
-                    } else {
-                        $levelword = '';
-                    }
-                    if($value['needsOverride'])
-                    {
-                        $checkresultitems[$key] = $levelword.$value['name'] . ' <strong>(Requires Override)</strong>';
-                        $orderChecksNeedOverride=TRUE;
-                    } else {
-                        $checkresultitems[$key] = $levelword.$value['name'];
-                    }
-                }
-                $checkresulthtml = implode('<li>',$checkresultitems);
-                $form['data_entry_area1']['toppart']['confirmationinfo'] = array(
-                    '#prefix' => "\n<section class='generic-warning-area'>\n"
-                    . '<p><ol>'
-                    . $checkresulthtml
-                    . '</ol></p>',
-                    '#suffix' => "\n</section>\n",
-                    '#disabled' => $disabled,
+                $finishnotallowed = FALSE;
+                $form['data_entry_area1']['action_buttons']['next'] = array('#type' => 'submit'
+                        ,'#id' => 'replace-order-submit-next-button' 
+                        , '#attributes' => array('class' => array('admin-action-button')
+                            , 'title'=>'Commit all the values to VistA')
+                        , '#value' => t('Finish >>')
+                        , '#disabled' => $disabled || $finishnotallowed,
                 );
-                if($orderChecksNeedOverride)
-                {
-                     $form['data_entry_area1']['toppart']['orderCheckOverrideReason'] = array(
-                        '#type'          => 'textfield',
-                        '#title'         => FormHelper::getTitleAsRequiredField('Order Checks Override Reason'),
-                        '#size' => 64, 
-                        '#maxlength' => 80, 
-                        '#description' => t('Provide short reason for order checks override.  (80 characters maximum)'),
-                        '#default_value' => '',
-                    );
-                } else {
-                    $form['hiddenthings']['orderCheckOverrideReason'] = array('#type' => 'hidden'
-                        , '#value' => '');  //MUST BE EMPTY
-                }
-                
-                if(!$needsESIG)
-                {
-                    $form['hiddenthings']['esig'] = array('#type' => 'hidden'
-                        , '#value' => '');  //MUST BE EMPTY
-                    $form['hiddenthings']['require_esig'] = array('#type' => 'hidden'
-                        , '#value' => 'no');
-                } else {
-                    $form['hiddenthings']['require_esig'] = array('#type' => 'hidden'
-                        , '#value' => 'yes');
-                    //This is the person currently logged in.
-                    $form['data_entry_area1']['toppart']['esig'] = array(
-                        '#type'          => 'password',
-                        '#title'         => FormHelper::getTitleAsRequiredField('Electronic Signature'),
-                        '#disabled'      => $disabled,
-                        '#size' => 55, 
-                        '#maxlength' => 128, 
-                        '#default_value' => '',
-                    );
-                }
-                
-                if(!$isPROVIDER)
-                {
-                    //Signature on file workflow
-                    $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'yes');
-                } else {
-                    //Could be anyone on the order
-                    $ehr_user_id = $ehrDao->getEHRUserID();
-                    if($ehr_user_id == $myvalues['requestingProviderDuz'])
-                    {
-                        $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'yes');
-                    } else {
-                        $form['hiddenthings']['cancommitorder'] = array('#type' => 'hidden', '#value' => 'no');
-                        //This person cannot commit this order.
-                        $form['data_entry_area1']['toppart']['cannotcommitorderinfo'] 
-                                = array('#type' => 'item'
-                                , '#markup' 
-                                    => '<h2><strong>IMPORTANT:</strong> You MUST contact '
-                                    .$myvalues['neworderprovider_name']
-                                    . " to electronically sign the new order before you can continue"
-                                    . " with the RAPTOR workflow.</h2>");
-                    }
-                }
+            } else {
+                $form['data_entry_area1']['action_buttons']['next'] = array('#type' => 'submit'
+                        ,'#id' => 'replace-order-submit-next-button' //alex edits
+                        , '#attributes' => array('class' => array('admin-action-button')
+                            , 'title'=>'Save values so far and go to the next step')
+                        , '#value' => t('Next >>')
+                        , '#disabled' => $disabled
+                );
             }
-        }
-       
-        $form['data_entry_area1']['action_buttons'] = array(
-            '#prefix' => "\n<section class='raptor-action-buttons'>\n",
-            '#suffix' => "\n</section>\n",
-            '#disabled' => $disabled,
-        );
 
-        if($currentstep > 1)
-        {
-            $form['data_entry_area1']['action_buttons']['back'] 
-                    = array('#type' => 'submit'
-                    ,'#id' => 'replace-order-submit-back-button' //alex edits
-                    , '#attributes' => array('class' => array('admin-action-button')
-                        ,'title'=>'Go back to the previous step')
-                    , '#value' => t('<< Back')
-                    //, '#limit_validation_errors' => array()
-                    , '#disabled' => $disabled
-            );
+            $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
+                    , '#markup' => '<input class="raptor-dialog-cancel" '
+                    . ' type="button" value="Exit with No Changes"'
+                    . ' title="Quit the Replace Order action without saving any changes" >');
+
+
+            return $form;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        
-        if($currentstep == $this->getStepCount())
-        {
-            $finishnotallowed = FALSE;
-            $form['data_entry_area1']['action_buttons']['next'] = array('#type' => 'submit'
-                    ,'#id' => 'replace-order-submit-next-button' 
-                    , '#attributes' => array('class' => array('admin-action-button')
-                        , 'title'=>'Commit all the values to VistA')
-                    , '#value' => t('Finish >>')
-                    , '#disabled' => $disabled || $finishnotallowed,
-            );
-        } else {
-            $form['data_entry_area1']['action_buttons']['next'] = array('#type' => 'submit'
-                    ,'#id' => 'replace-order-submit-next-button' //alex edits
-                    , '#attributes' => array('class' => array('admin-action-button')
-                        , 'title'=>'Save values so far and go to the next step')
-                    , '#value' => t('Next >>')
-                    , '#disabled' => $disabled
-            );
-        }
-        
-        $form['data_entry_area1']['action_buttons']['cancel'] = array('#type' => 'item'
-                , '#markup' => '<input class="raptor-dialog-cancel" '
-                . ' type="button" value="Exit with No Changes"'
-                . ' title="Quit the Replace Order action without saving any changes" >');
- 
-        
-        return $form;
     }
 }
 
