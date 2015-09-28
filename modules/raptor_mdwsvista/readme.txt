@@ -1,4 +1,4 @@
-INFO HERE
+RPC INFO HERE
 
 
 RAPTOR/MDWS invokes the following RPCs:
