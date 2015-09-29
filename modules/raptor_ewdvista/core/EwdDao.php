@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150929.2');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150929.3');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -172,18 +172,20 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 $argtext = '';
                 foreach($args as $k=>$v)
                 {
-                    if($v != '')    //Do NOT use strict check here!
+                    if($argtext > '')
                     {
+                        $argtext .= '&';
+                    }
+                    if($v == '')    //Do NOT use strict check here!
+                    {
+                        $argtext .= "$k=";  //Just an empty string
+                    } else { 
                         if(!is_string($v) && !is_numeric($v))
                         {
                             throw new \Exception("Expected arguments to be array of text/number values instead of value for $k of " 
                                     . print_r($v,TRUE) 
                                     . ' in ' 
                                     .print_r($args,TRUE));
-                        }
-                        if($argtext > '')
-                        {
-                            $argtext .= '&';
                         }
                         $encoded = urlencode($v);
                         $argtext .= "$k=$encoded";
@@ -375,7 +377,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             $url = $this->getURL($serviceName, $args_ar);
-//error_log("LOOK getServiceRelatedData $methodtype " . ($data_ar !== FALSE ? '(WITH Data Array!)' : '(without data array)' ) . " URL=$url");            
+//error_log("LOOK getServiceRelatedData $methodtype " . ($data_ar !== FALSE ? '(WITH Data Array!)' : '(no data array)' ) . " URL=$url");            
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
             {
@@ -384,6 +386,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $header["Authorization"]=$authorization;
             
             $json_string = $this->m_oWebServices->callAPI($methodtype, $url, $data_ar, $header);            
+//error_log("LOOK getServiceRelatedData $methodtype result=" . print_r($json_string,TRUE));            
             $php_array = json_decode($json_string, TRUE);
             
             return $php_array;
@@ -1328,7 +1331,7 @@ error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ
             $raw_result = $this->getServiceRelatedData($serviceName, $args);
             if(!isset($raw_result['value']))
             {
-                error_log("Missing the expected value key in this>>>>" . print_r($raw_result,TRUE));
+                error_log("Missing the expected 'value' key from target='" . $args['target'] . "' in this result>>>>" . print_r($raw_result,TRUE));
                 throw new \Exception('Missing the expected value key!');
             }
             $values = $raw_result['value'];
