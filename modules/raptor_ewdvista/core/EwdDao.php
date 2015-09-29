@@ -351,9 +351,13 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 $this->setSessionVariable('greeting',trim($json_array['greeting']));
                 $securitykeys = $this->getSecurityKeysForUser($userduz);
                 $this->setSessionVariable('securitykeys',$securitykeys);
-            }
-            else {
-                $errorMessage = 'Unable to LOGIN because missing DUZ in ' . print_r($json_array, TRUE);
+            } else {
+                if(array_key_exists('code', $json_array))
+                {
+                    $errorMessage = 'Unable to LOGIN because ' . $json_array['code'] . ' in ' . print_r($json_array, TRUE);
+                } else {
+                    $errorMessage = 'Unable to LOGIN because missing DUZ in ' . print_r($json_array, TRUE);
+                }
                 throw new \Exception($errorMessage);
             }
         } catch (\Exception $ex) {
@@ -371,7 +375,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             $url = $this->getURL($serviceName, $args_ar);
-error_log("LOOK getServiceRelatedData $methodtype " . ($data_ar !== FALSE ? '(WITH Data Array!)' : '(without data array)' ) . " URL=$url");            
+//error_log("LOOK getServiceRelatedData $methodtype " . ($data_ar !== FALSE ? '(WITH Data Array!)' : '(without data array)' ) . " URL=$url");            
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
             {

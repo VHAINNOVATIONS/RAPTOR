@@ -34,18 +34,19 @@ namespace raptor_ewdvista;
  */
 class Encryption
 {
-    private static function getEncryptedText ($key, $data)
+    private static function getEncryptedText($key, $data)
     {
         try
         {
+            $cstrong = TRUE;
             $bytes = openssl_random_pseudo_bytes(8, $cstrong);
             $iv   = bin2hex($bytes);
-            $encrypted_data = openssl_encrypt($data, "aes-256-cbc", $key, 0, $iv);
+            $cleankey = str_replace('-', '', $key);
+            $encrypted_data = openssl_encrypt($data, "aes-256-cbc", $cleankey, 0, $iv);
 
             $binary = base64_decode($encrypted_data);
             $hex = bin2hex($binary);
-
-            $encrypted_bundle= ($iv.";;".$hex);
+            $encrypted_bundle= ($iv."_x_".$hex);
 
             return $encrypted_bundle;
         }
@@ -58,10 +59,9 @@ class Encryption
     {
         try
         {
-
-            $a= explode(";;", $encrypted_bundle);
-            $iv= $a[0];
-            $encry=$a[1];
+            $a = explode("_x_", $encrypted_bundle);
+            $iv = $a[0];
+            $encry =$a[1];
 
             $binary = hex2bin($encry);
             $base64 = base64_encode($binary);
@@ -76,46 +76,13 @@ class Encryption
     
     public static function getEncryptedCredentials($keytext,$access_code,$verify_code)
     {
-        //FAKE CODE NOT ENCRYPT
-        $input = 'accessCode:' . $access_code . ';verifyCode:' . $verify_code;
-error_log("LOOK PARAMS getEncryptedCredentials($keytext,$access_code,$verify_code)");
-error_log("LOOK INPUT getEncryptedCredentials=$input");
-    $output = self::getEncryptedText ($keytext, $input);
-error_log("LOOK OUTPUT getEncryptedCredentials=$output");
-$output = $input;   //REPLACE THIS WITH REAL ENCRYPTION!!!!!!!!!!!!!!!!  TODO
-        return $output;
-        /* REAL CODE
-        
         try
         {
-            //$algorithm = 'rijndael-128';
-            $algorithm = 'aes-256-cbc';
-            
-            //$debugstuff = openssl_get_cipher_methods();
-            //$key = hash('sha256', $keytext, TRUE);
-            
-            $input = 'accessCode=' + $access_code + '&verifyCode=' + $verify_code;
-            //$iv = unpack('C*', 'raptorraptor2015');
-            $iv = 'raptorraptor2015';
-            $encrypted_data = openssl_encrypt($input, $algorithm, $keytext, 0, $iv);
-
-            //$td = mcrypt_module_open($algorithm, '', 'cbc', '');
-            //$iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_DEV_URANDOM);
-            //mcrypt_generic_init($td, $key, $iv);
-            //$encrypted_data = mcrypt_generic($td, $input);
-            //mcrypt_generic_deinit($td);
-            //mcrypt_module_close($td);
-
-            $ciphertext_base64 = base64_encode($encrypted_data);
-            $ciphertext_hex = bin2hex($encrypted_data);
-            error_log("LOOK encrypted_data=[$encrypted_data]");
-            error_log("LOOK ciphertext_base64=[$ciphertext_base64]");
-            error_log("LOOK ciphertext_hex=[$ciphertext_hex]");
-            
-            return $ciphertext_hex;
+            $input = 'accessCode:' . $access_code . ';verifyCode:' . $verify_code;
+            $output = self::getEncryptedText($keytext, $input);
+            return $output;
         } catch (\Exception $ex) {
-            throw new \Exception("Failed encryption because ".$ex,99876,$ex);
+            throw $ex;
         }
-            */
     }
 }
