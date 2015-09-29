@@ -1705,467 +1705,472 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     function updateDatabase($clickedbutton, $myvalues)
     {
-        $bSuccess = TRUE;   //Assume happy case.
-        $successMsg = NULL;
-        $removeTicketLock = TRUE;
-        
-        $nSiteID = $this->m_oContext->getSiteID();
-        $nIEN = $myvalues['tid'];
-        $nUID = $this->m_oContext->getUID();
-        $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
-        $oAA = new \raptor\AllowedActions();    //Leverage workflow dependences from special class
-        $sTrackingID = $this->m_oTT->getTrackingID($nSiteID, $nIEN);
-        $updated_dt = date("Y-m-d H:i:s", time());
-        
-        $sFullTicketID = $nSiteID . '-' . $nIEN;
-
-        if(isset($myvalues['collaboration_uid']) 
-                && is_numeric($myvalues['collaboration_uid']))
+        try
         {
-            //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
-            $clickedvalue = 'Collaborate';
-        } else {
-            $clickedvalue = $clickedbutton['#value'];
-        }
-        $userAcknowledgedProtocol = FALSE;  //Set this flag if they clicked the button
-        
-        //die('>>>>clicked['.$clickedbutton["#value"].'] values>>>>'.print_r($myvalues,TRUE));
-        if($bSuccess)
-        {
-            if(substr($clickedvalue,0,7) == 'Approve')
+            $bSuccess = TRUE;   //Assume happy case.
+            $successMsg = NULL;
+            $removeTicketLock = TRUE;
+
+            $nSiteID = $this->m_oContext->getSiteID();
+            $nIEN = $myvalues['tid'];
+            $nUID = $this->m_oContext->getUID();
+            $sCWFS = $this->m_oUtility->getCurrentWorkflowState($nSiteID, $nIEN);
+            $oAA = new \raptor\AllowedActions();    //Leverage workflow dependences from special class
+            $sTrackingID = $this->m_oTT->getTrackingID($nSiteID, $nIEN);
+            $updated_dt = date("Y-m-d H:i:s", time());
+
+            $sFullTicketID = $nSiteID . '-' . $nIEN;
+
+            if(isset($myvalues['collaboration_uid']) 
+                    && is_numeric($myvalues['collaboration_uid']))
             {
-                //################
-                // APPROVAL BLOCK
-                //################
+                //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
+                $clickedvalue = 'Collaborate';
+            } else {
+                $clickedvalue = $clickedbutton['#value'];
+            }
+            $userAcknowledgedProtocol = FALSE;  //Set this flag if they clicked the button
 
-                $sNewWFS = 'AP';
-                $bSuccess = $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
-                if($bSuccess)
-                {
-                    $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
-                    
-                    //Write success message
-                    $successMsg = ('Approved ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                }
-            } else
-            if(substr($clickedvalue,0,9) == 'Unapprove')
+            //die('>>>>clicked['.$clickedbutton["#value"].'] values>>>>'.print_r($myvalues,TRUE));
+            if($bSuccess)
             {
-                //#################
-                // UNAPPROVAL BLOCK
-                //#################
-
-                try
+                if(substr($clickedvalue,0,7) == 'Approve')
                 {
-                    $sNewWFS = 'AC';
-                    $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
-                
-                    //Make a success message
-                    $successMsg = ('Changed workflow back to un-approved ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                    //################
+                    // APPROVAL BLOCK
+                    //################
 
-                    //Add a comment into the ticket
-                    $this->m_oUtility->createSimpleProtocolNotesRecord($nSiteID, $nIEN, $successMsg, $nUID, $updated_dt);
-                } catch (\Exception $ex) {
-                    $errmsg = "Failed to unapprove because ".$ex->getMessage();
-                    error_log($errmsg);
-                    drupal_set_message($errmsg,'error');
-                    $bSuccess = FALSE;
-                }
-            } else
-            if(substr($clickedvalue,0,7) == 'Request')
-            {
-                //#######################
-                // REQUEST APPROVAL BLOCK
-                //#######################
-
-                $sNewWFS = 'RV';
-                $bSuccess = $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
-                if($bSuccess)
-                {
-                    $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
-                    
-                    //Write success message
-                    $successMsg = ('Requested approval for ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                }
-            } else
-            if(substr($clickedvalue,0,11) == 'Acknowledge')
-            {
-                //##################
-                // ACKNOWLEDGE BLOCK
-                //##################
-
-                //Save checklist settings.
-                $aAnswers = isset($myvalues['questions']['thisuser']) ? $myvalues['questions']['thisuser'] : NULL;
-                
-                $bSuccess = $this->saveChecklist($nSiteID,$nIEN,$nUID,$updated_dt,$aAnswers);
-                if($bSuccess)
-                {
-                    $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
-                
-                    $sNewWFS = 'PA';
-                    $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
-
-                    //Write success message
-                    $successMsg = ('Acknowledged ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                    $userAcknowledgedProtocol = TRUE;
-                }
-            } else
-            if(substr($clickedvalue,0,13) == 'Unacknowledge')
-            {
-                //####################
-                // UNACKNOWLEDGE BLOCK
-                //####################
-
-                try
-                {
                     $sNewWFS = 'AP';
-                    $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
-                
-                    //Make a success message
-                    $successMsg = ('Changed workflow back to unacknowledged ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                    $bSuccess = $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
+                    if($bSuccess)
+                    {
+                        $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
 
-                    //Add a comment into the ticket
-                    $this->m_oUtility->createSimpleProtocolNotesRecord($nSiteID, $nIEN, $successMsg, $nUID, $updated_dt);
-                } catch (\Exception $ex) {
-                    $errmsg = "Failed to un-acknowledged because ".$ex->getMessage();
-                    error_log($errmsg);
-                    drupal_set_message($errmsg,'error');
-                    $bSuccess = FALSE;
-                }
-            } else
-            if(substr($clickedvalue,0,4) == 'Exam')
-            {
-                //####################
-                // EXAM COMPLETE BLOCK
-                //####################
+                        //Write success message
+                        $successMsg = ('Approved ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                    }
+                } else
+                if(substr($clickedvalue,0,9) == 'Unapprove')
+                {
+                    //#################
+                    // UNAPPROVAL BLOCK
+                    //#################
 
-                $sNewWFS = 'EC';
-                $bSuccess = $this->m_oUtility->saveAllExamFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
-                if($bSuccess)
-                {
-                    $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
-                    
-                    //Write success message
-                    $successMsg = ('Examined patient for ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                }
-            } else
-            if(substr($clickedvalue,0,9) == 'Save Exam')
-            {
-                //#####################
-                // SAVE EXAM DATA BLOCK
-                //#####################
+                    try
+                    {
+                        $sNewWFS = 'AC';
+                        $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
 
-                $removeTicketLock = FALSE;
-                $sNewWFS = 'SAVE_SOFAR';    //Special keyword for function
-                $bSuccess = $this->m_oUtility->
-                        saveAllExamFieldValues($nSiteID, $nIEN, $nUID
-                                , $sCWFS
-                                , $sNewWFS
-                                , $updated_dt
-                                , $myvalues);
-                if($bSuccess)
+                        //Make a success message
+                        $successMsg = ('Changed workflow back to un-approved ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+
+                        //Add a comment into the ticket
+                        $this->m_oUtility->createSimpleProtocolNotesRecord($nSiteID, $nIEN, $successMsg, $nUID, $updated_dt);
+                    } catch (\Exception $ex) {
+                        $errmsg = "Failed to unapprove because ".$ex->getMessage();
+                        error_log($errmsg);
+                        drupal_set_message($errmsg,'error');
+                        $bSuccess = FALSE;
+                    }
+                } else
+                if(substr($clickedvalue,0,7) == 'Request')
                 {
-                    $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
-                    
-                    //Write success message
-                    $successMsg = ('Saved current exam values ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                }
-            } else
-            if(substr($clickedvalue,0,5) == 'Inter')
-            {
-                //######################################################
-                // INTERPRETATION COMPLETE BLOCK with NO commit to Vista
-                //######################################################
-                $sNewWFS = 'QA';
-                $bSuccess = $this->m_oUtility->saveAllInterpretationFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
-                if($bSuccess)
+                    //#######################
+                    // REQUEST APPROVAL BLOCK
+                    //#######################
+
+                    $sNewWFS = 'RV';
+                    $bSuccess = $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
+                    if($bSuccess)
+                    {
+                        $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
+
+                        //Write success message
+                        $successMsg = ('Requested approval for ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                    }
+                } else
+                if(substr($clickedvalue,0,11) == 'Acknowledge')
                 {
-                    //Also save QA fields in case they filled them in.
+                    //##################
+                    // ACKNOWLEDGE BLOCK
+                    //##################
+
+                    //Save checklist settings.
+                    $aAnswers = isset($myvalues['questions']['thisuser']) ? $myvalues['questions']['thisuser'] : NULL;
+
+                    $bSuccess = $this->saveChecklist($nSiteID,$nIEN,$nUID,$updated_dt,$aAnswers);
+                    if($bSuccess)
+                    {
+                        $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
+
+                        $sNewWFS = 'PA';
+                        $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
+
+                        //Write success message
+                        $successMsg = ('Acknowledged ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                        $userAcknowledgedProtocol = TRUE;
+                    }
+                } else
+                if(substr($clickedvalue,0,13) == 'Unacknowledge')
+                {
+                    //####################
+                    // UNACKNOWLEDGE BLOCK
+                    //####################
+
+                    try
+                    {
+                        $sNewWFS = 'AP';
+                        $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
+
+                        //Make a success message
+                        $successMsg = ('Changed workflow back to unacknowledged ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+
+                        //Add a comment into the ticket
+                        $this->m_oUtility->createSimpleProtocolNotesRecord($nSiteID, $nIEN, $successMsg, $nUID, $updated_dt);
+                    } catch (\Exception $ex) {
+                        $errmsg = "Failed to un-acknowledged because ".$ex->getMessage();
+                        error_log($errmsg);
+                        drupal_set_message($errmsg,'error');
+                        $bSuccess = FALSE;
+                    }
+                } else
+                if(substr($clickedvalue,0,4) == 'Exam')
+                {
+                    //####################
+                    // EXAM COMPLETE BLOCK
+                    //####################
+
+                    $sNewWFS = 'EC';
+                    $bSuccess = $this->m_oUtility->saveAllExamFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                    if($bSuccess)
+                    {
+                        $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
+
+                        //Write success message
+                        $successMsg = ('Examined patient for ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                    }
+                } else
+                if(substr($clickedvalue,0,9) == 'Save Exam')
+                {
+                    //#####################
+                    // SAVE EXAM DATA BLOCK
+                    //#####################
+
+                    $removeTicketLock = FALSE;
+                    $sNewWFS = 'SAVE_SOFAR';    //Special keyword for function
+                    $bSuccess = $this->m_oUtility->
+                            saveAllExamFieldValues($nSiteID, $nIEN, $nUID
+                                    , $sCWFS
+                                    , $sNewWFS
+                                    , $updated_dt
+                                    , $myvalues);
+                    if($bSuccess)
+                    {
+                        $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
+
+                        //Write success message
+                        $successMsg = ('Saved current exam values ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                    }
+                } else
+                if(substr($clickedvalue,0,5) == 'Inter')
+                {
+                    //######################################################
+                    // INTERPRETATION COMPLETE BLOCK with NO commit to Vista
+                    //######################################################
+                    $sNewWFS = 'QA';
+                    $bSuccess = $this->m_oUtility->saveAllInterpretationFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                    if($bSuccess)
+                    {
+                        //Also save QA fields in case they filled them in.
+                        $bSuccess = $this->m_oUtility->saveAllQAFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                        if($bSuccess)
+                        {
+                            $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
+
+                            //Write success message
+                            $successMsg = ('Interpretation completed ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                        }
+                    }
+                } else
+                if(substr($clickedvalue,0,2) == 'QA')
+                {
+                    //##########################################
+                    // QA COMPLETE BLOCK with NO commit to Vista
+                    //##########################################
+                    $sNewWFS = 'QA';    //Stays in QA forever
                     $bSuccess = $this->m_oUtility->saveAllQAFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
                     if($bSuccess)
                     {
                         $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
 
                         //Write success message
-                        $successMsg = ('Interpretation completed ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                        $successMsg = ('QA completed ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
                     }
-                }
-            } else
-            if(substr($clickedvalue,0,2) == 'QA')
-            {
-                //##########################################
-                // QA COMPLETE BLOCK with NO commit to Vista
-                //##########################################
-                $sNewWFS = 'QA';    //Stays in QA forever
-                $bSuccess = $this->m_oUtility->saveAllQAFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
-                if($bSuccess)
+                } else
+                if(strpos($clickedvalue,'Commit') !== FALSE)
                 {
-                    $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
-                    
-                    //Write success message
-                    $successMsg = ('QA completed ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                }
-            } else
-            if(strpos($clickedvalue,'Commit') !== FALSE)
-            {
-                //NOTE: The 'Commit' button text is added by the looksValidFormState function!!!
-                //######################
-                // COMMIT TO VISTA BLOCK
-                //######################
-                
-                $sNewWFS = 'QA';    //Stays in QA forever
-                if(strpos($clickedvalue,'Interpret') !== FALSE) 
-                {
-                    $bSuccess = $this->m_oUtility->
-                            saveAllInterpretationFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
-                } elseif(strpos($clickedvalue,'QA') !== FALSE) {
-                    $bSuccess = $this->m_oUtility->
-                            saveAllQAFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
-                } elseif(strpos($clickedvalue,'Exam') !== FALSE) {
-                    $bSuccess = $this->m_oUtility->
-                            saveAllExamFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
-                } elseif(strpos($clickedvalue,'Acknowledge') !== FALSE) {
-                    $aAnswers = isset($myvalues['questions']['thisuser']) ? $myvalues['questions']['thisuser'] : NULL;
-                    $bSuccess = $this->saveChecklist($nSiteID,$nIEN,$nUID,$updated_dt,$aAnswers);
-                    if($bSuccess)
+                    //NOTE: The 'Commit' button text is added by the looksValidFormState function!!!
+                    //######################
+                    // COMMIT TO VISTA BLOCK
+                    //######################
+
+                    $sNewWFS = 'QA';    //Stays in QA forever
+                    if(strpos($clickedvalue,'Interpret') !== FALSE) 
                     {
-                        $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
-                    }
-                } else {
-                    throw new \Exception('Did not recognize button click value ['.$clickedvalue.']');
-                }
-                if($bSuccess)
-                {
-                    $bSuccess = $this->commitDataToVista($nSiteID, $nIEN, $nUID, $sCWFS, $myvalues);
-                    if($bSuccess)
-                    {
-                        $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
-                        if(substr($clickedvalue,0,5) == 'Inter') {
-                            //We were in interpret mode so write the QA message
-                            $successMsg = ('Interpretation completed and updated VistA for ' 
-                                    . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                        } elseif(strpos($clickedvalue,'Exam') !== FALSE) {
-                            $successMsg = ('Examined patient and updated VistA for ' 
-                                    . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                        } elseif(strpos($clickedvalue,'Acknowledge') !== FALSE) {
-                            $successMsg = ('Acknowledged and updated VistA for ' 
-                                    . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-                        } else {
-                            //Write success message for QA mode
-                            $successMsg = ('QA completed and updated VistA for ' 
-                                    . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                        $bSuccess = $this->m_oUtility->
+                                saveAllInterpretationFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                    } elseif(strpos($clickedvalue,'QA') !== FALSE) {
+                        $bSuccess = $this->m_oUtility->
+                                saveAllQAFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                    } elseif(strpos($clickedvalue,'Exam') !== FALSE) {
+                        $bSuccess = $this->m_oUtility->
+                                saveAllExamFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt, $myvalues);
+                    } elseif(strpos($clickedvalue,'Acknowledge') !== FALSE) {
+                        $aAnswers = isset($myvalues['questions']['thisuser']) ? $myvalues['questions']['thisuser'] : NULL;
+                        $bSuccess = $this->saveChecklist($nSiteID,$nIEN,$nUID,$updated_dt,$aAnswers);
+                        if($bSuccess)
+                        {
+                            $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
                         }
-                    }
-                }
-            } else
-            if(substr($clickedvalue,0,7) == 'Suspend' 
-                    || substr($clickedvalue,0,6) == 'Remove'
-                    || substr($clickedvalue,0,12) == 'Cancel Order')
-            {
-                //################
-                // SUSPEND BLOCK
-                //################
-
-                //Create the raptor_ticket_suspend_notes record now
-                try
-                {
-                    $oInsert = db_insert('raptor_ticket_suspend_notes')
-                            ->fields(array(
-                                'siteid' => $nSiteID,
-                                'IEN' => $nIEN,
-                                'notes_tx' => $myvalues['suspend_notes_tx'],
-                                'author_uid' => $nUID,
-                                'created_dt' => $updated_dt,
-                            ))
-                            ->execute();
-                }
-                catch(\Exception $e)
-                {
-                    error_log('Failed to create raptor_ticket_suspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,TRUE));
-                    form_set_error('suspend_notes_tx','Failed to save notes for this ticket!');
-                    $bSuccess = FALSE;
-                }
-
-                $sNewWFS = 'IA';
-                $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
-
-                //Write success message
-                $successMsg = ('Suspended ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-            } else
-            if(substr($clickedvalue,0,9) == 'Unsuspend')
-            {
-                //################
-                // UNSUSPEND BLOCK
-                //################
-
-                //Create the raptor_ticket_unsuspend_notes record now
-                try
-                {
-                    $oInsert = db_insert('raptor_ticket_unsuspend_notes')
-                            ->fields(array(
-                                'siteid' => $nSiteID,
-                                'IEN' => $nIEN,
-                                'notes_tx' => 'Unsuspended by user', //$myvalues['unsuspend_notes_tx'],
-                                'author_uid' => $nUID,
-                                'created_dt' => $updated_dt,
-                            ))
-                            ->execute();
-                }
-                catch(\Exception $e)
-                {
-                    error_log('Failed to create raptor_ticket_unsuspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,TRUE));
-                    form_set_error('unsuspend_notes_tx','Failed to save notes for this ticket!');
-                    $bSuccess = FALSE;
-                }
-
-                $sNewWFS = 'AC';
-                $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
-
-                //Write success message
-                $successMsg = ('Unsuspended ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
-            } else
-            if(substr($clickedvalue,0,7) == 'Reserve' || substr($clickedvalue,0,11) == 'Collaborate')
-            {
-                //#############################
-                // RESERVE or COLLABORATE BLOCK
-                //#############################
-                $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
-                
-                $sMode = NULL;  //Indicate which of the two modes. C or R
-                if(substr($clickedvalue,0,11) == 'Collaborate')
-                {
-                    //Collaborate with the selected user.
-                    $sMode = 'C';
-                    $collaboration_uid = $myvalues['collaboration_uid'];
-                    $collaboration_note_tx = $myvalues['collaboration_note_tx'];
-                } else {
-                    //Collaborate with yourself.
-                    $sMode = 'R';
-                    $collaboration_uid = $nUID;
-                    $collaboration_note_tx = 'Reserving for myself.';
-                }
-
-                //Create the raptor_ticket_collaboration record now
-                try
-                {
-                    $result = db_select('raptor_ticket_collaboration','p')
-                            ->fields('p')
-                            ->condition('siteid',$nSiteID,'=')
-                            ->condition('IEN',$nIEN,'=')
-                            ->condition('collaborator_uid',$collaboration_uid,'=')
-                            ->condition('active_yn',1,'=')
-                            ->execute();
-                    $nRows = $result->rowCount();
-                    if($nRows > 0 && $sMode == 'R')
-                    {
-                        //No need to write records for a reservation if same user.  Note: not same thing as collaborate case!
-                        $successMsg = 'Already reserved ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .') by the same user.';
                     } else {
-                        //If we are here, make sure we end up with a raptor_ticket_tracking record too.
-                        db_merge('raptor_ticket_tracking')
-                            ->key(
-                                    array('siteid'=>$nSiteID
-                                            ,'IEN' => $nIEN,
-                                ))
-                            ->fields(array(
-                                    'updated_dt'=>$updated_dt,
-                                ))
-                            ->execute();
-                        
-                        //Deactivate any existing collaboration records
-                        try
+                        throw new \Exception('Did not recognize button click value ['.$clickedvalue.']');
+                    }
+                    if($bSuccess)
+                    {
+                        $bSuccess = $this->commitDataToVista($nSiteID, $nIEN, $nUID, $sCWFS, $myvalues);
+                        if($bSuccess)
                         {
-                            $updated = db_update('raptor_ticket_collaboration')
-                                    ->fields(array('active_yn' => 0))
-                                    ->condition('siteid',$nSiteID,'=')
-                                    ->condition('IEN',$nIEN,'=')
-                                    ->condition('active_yn',1,'=')
-                                    ->execute();
-                        } catch (\Exception $ex) {
-                            $showmsg = 'Unable deactivate existing collaboration settings!';
-                            drupal_set_message($showmsg,'error');
-                            throw new \Exception($showmsg . '  Failed to reserve because failed update: ' 
-                                    . $ex . "\nDetails..." . print_r($myvalues,TRUE),99123,$ex);
-                        }
-                        try
-                        {
-                            $oInsert = db_insert('raptor_ticket_collaboration')
-                                    ->fields(array(
-                                        'siteid' => $nSiteID,
-                                        'IEN' => $nIEN,
-                                        'requester_uid' => $nUID,
-                                        'requested_dt' => $updated_dt,
-                                        'requester_notes_tx' => $collaboration_note_tx,
-                                        'collaborator_uid' => $collaboration_uid,
-                                        'active_yn' => 1,
-                                    ))
-                                    ->execute();
-                        } catch (\Exception $ex) {
-                            $showmsg = 'Unable insert collaboration record!';
-                            error_log($showmsg.' Failed to collaborate because failed raptor_ticket_collaboration insert: ' 
-                                    . $ex . "\nDetails..." . print_r($myvalues,TRUE));
-                            drupal_set_message($showmsg,'error');
-                            return 0;
+                            $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
+                            if(substr($clickedvalue,0,5) == 'Inter') {
+                                //We were in interpret mode so write the QA message
+                                $successMsg = ('Interpretation completed and updated VistA for ' 
+                                        . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                            } elseif(strpos($clickedvalue,'Exam') !== FALSE) {
+                                $successMsg = ('Examined patient and updated VistA for ' 
+                                        . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                            } elseif(strpos($clickedvalue,'Acknowledge') !== FALSE) {
+                                $successMsg = ('Acknowledged and updated VistA for ' 
+                                        . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                            } else {
+                                //Write success message for QA mode
+                                $successMsg = ('QA completed and updated VistA for ' 
+                                        . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                            }
                         }
                     }
-                }
-                catch(\Exception $ex)
+                } else
+                if(substr($clickedvalue,0,7) == 'Suspend' 
+                        || substr($clickedvalue,0,6) == 'Remove'
+                        || substr($clickedvalue,0,12) == 'Cancel Order')
                 {
-                    error_log('Failed to create raptor_ticket_collaboration: ' . $ex . "\nDetails..." . print_r($myvalues,TRUE));
-                    form_set_error('protocol1_nm','Failed to reserve this ticket!');
-                    $bSuccess = FALSE;
-                }
+                    //################
+                    // SUSPEND BLOCK
+                    //################
 
-                /** DONT CHANGE THE STATE TO CO 20150702 
-                $sNewWFS = 'CO'; 
-                $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
-                */
-                $sNewWFS = $sCWFS;  //No NOT change the workflow state.
-                $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
-                
-                //Write success message
-                if($sMode == 'C')
+                    //Create the raptor_ticket_suspend_notes record now
+                    try
+                    {
+                        $oInsert = db_insert('raptor_ticket_suspend_notes')
+                                ->fields(array(
+                                    'siteid' => $nSiteID,
+                                    'IEN' => $nIEN,
+                                    'notes_tx' => $myvalues['suspend_notes_tx'],
+                                    'author_uid' => $nUID,
+                                    'created_dt' => $updated_dt,
+                                ))
+                                ->execute();
+                    }
+                    catch(\Exception $e)
+                    {
+                        error_log('Failed to create raptor_ticket_suspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,TRUE));
+                        form_set_error('suspend_notes_tx','Failed to save notes for this ticket!');
+                        $bSuccess = FALSE;
+                    }
+
+                    $sNewWFS = 'IA';
+                    $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
+
+                    //Write success message
+                    $successMsg = ('Suspended ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                } else
+                if(substr($clickedvalue,0,9) == 'Unsuspend')
                 {
-                    $oOtherUser = new \raptor\UserInfo($collaboration_uid);
-                    $sFullname = $oOtherUser->getFullName();
-                    $successMsg = 'Collaboration with '.$sFullname.' set for '. $sFullTicketID . ' (' . $myvalues['procName'] .')';
+                    //################
+                    // UNSUSPEND BLOCK
+                    //################
+
+                    //Create the raptor_ticket_unsuspend_notes record now
+                    try
+                    {
+                        $oInsert = db_insert('raptor_ticket_unsuspend_notes')
+                                ->fields(array(
+                                    'siteid' => $nSiteID,
+                                    'IEN' => $nIEN,
+                                    'notes_tx' => 'Unsuspended by user', //$myvalues['unsuspend_notes_tx'],
+                                    'author_uid' => $nUID,
+                                    'created_dt' => $updated_dt,
+                                ))
+                                ->execute();
+                    }
+                    catch(\Exception $e)
+                    {
+                        error_log('Failed to create raptor_ticket_unsuspend_notes: ' . $e . "\nDetails..." . print_r($myvalues,TRUE));
+                        form_set_error('unsuspend_notes_tx','Failed to save notes for this ticket!');
+                        $bSuccess = FALSE;
+                    }
+
+                    $sNewWFS = 'AC';
+                    $this->m_oUtility->changeTicketWorkflowStatus($nSiteID, $nIEN, $nUID, $sNewWFS, $sCWFS, $updated_dt);
+
+                    //Write success message
+                    $successMsg = ('Unsuspended ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                } else
+                if(substr($clickedvalue,0,7) == 'Reserve' || substr($clickedvalue,0,11) == 'Collaborate')
+                {
+                    //#############################
+                    // RESERVE or COLLABORATE BLOCK
+                    //#############################
+                    $this->writeContraindicationAcknowledgements($nSiteID, $nIEN, $nUID, $myvalues);
+
+                    $sMode = NULL;  //Indicate which of the two modes. C or R
+                    if(substr($clickedvalue,0,11) == 'Collaborate')
+                    {
+                        //Collaborate with the selected user.
+                        $sMode = 'C';
+                        $collaboration_uid = $myvalues['collaboration_uid'];
+                        $collaboration_note_tx = $myvalues['collaboration_note_tx'];
+                    } else {
+                        //Collaborate with yourself.
+                        $sMode = 'R';
+                        $collaboration_uid = $nUID;
+                        $collaboration_note_tx = 'Reserving for myself.';
+                    }
+
+                    //Create the raptor_ticket_collaboration record now
+                    try
+                    {
+                        $result = db_select('raptor_ticket_collaboration','p')
+                                ->fields('p')
+                                ->condition('siteid',$nSiteID,'=')
+                                ->condition('IEN',$nIEN,'=')
+                                ->condition('collaborator_uid',$collaboration_uid,'=')
+                                ->condition('active_yn',1,'=')
+                                ->execute();
+                        $nRows = $result->rowCount();
+                        if($nRows > 0 && $sMode == 'R')
+                        {
+                            //No need to write records for a reservation if same user.  Note: not same thing as collaborate case!
+                            $successMsg = 'Already reserved ' . $myvalues['tid'] . ' (' . $myvalues['procName'] .') by the same user.';
+                        } else {
+                            //If we are here, make sure we end up with a raptor_ticket_tracking record too.
+                            db_merge('raptor_ticket_tracking')
+                                ->key(
+                                        array('siteid'=>$nSiteID
+                                                ,'IEN' => $nIEN,
+                                    ))
+                                ->fields(array(
+                                        'updated_dt'=>$updated_dt,
+                                    ))
+                                ->execute();
+
+                            //Deactivate any existing collaboration records
+                            try
+                            {
+                                $updated = db_update('raptor_ticket_collaboration')
+                                        ->fields(array('active_yn' => 0))
+                                        ->condition('siteid',$nSiteID,'=')
+                                        ->condition('IEN',$nIEN,'=')
+                                        ->condition('active_yn',1,'=')
+                                        ->execute();
+                            } catch (\Exception $ex) {
+                                $showmsg = 'Unable deactivate existing collaboration settings!';
+                                drupal_set_message($showmsg,'error');
+                                throw new \Exception($showmsg . '  Failed to reserve because failed update: ' 
+                                        . $ex . "\nDetails..." . print_r($myvalues,TRUE),99123,$ex);
+                            }
+                            try
+                            {
+                                $oInsert = db_insert('raptor_ticket_collaboration')
+                                        ->fields(array(
+                                            'siteid' => $nSiteID,
+                                            'IEN' => $nIEN,
+                                            'requester_uid' => $nUID,
+                                            'requested_dt' => $updated_dt,
+                                            'requester_notes_tx' => $collaboration_note_tx,
+                                            'collaborator_uid' => $collaboration_uid,
+                                            'active_yn' => 1,
+                                        ))
+                                        ->execute();
+                            } catch (\Exception $ex) {
+                                $showmsg = 'Unable insert collaboration record!';
+                                error_log($showmsg.' Failed to collaborate because failed raptor_ticket_collaboration insert: ' 
+                                        . $ex . "\nDetails..." . print_r($myvalues,TRUE));
+                                drupal_set_message($showmsg,'error');
+                                return 0;
+                            }
+                        }
+                    }
+                    catch(\Exception $ex)
+                    {
+                        error_log('Failed to create raptor_ticket_collaboration: ' . $ex . "\nDetails..." . print_r($myvalues,TRUE));
+                        form_set_error('protocol1_nm','Failed to reserve this ticket!');
+                        $bSuccess = FALSE;
+                    }
+
+                    /** DONT CHANGE THE STATE TO CO 20150702 
+                    $sNewWFS = 'CO'; 
+                    $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
+                    */
+                    $sNewWFS = $sCWFS;  //No NOT change the workflow state.
+                    $this->m_oUtility->saveAllProtocolFieldValues($nSiteID, $nIEN, $nUID, $sCWFS, $sNewWFS, $updated_dt,$myvalues);
+
+                    //Write success message
+                    if($sMode == 'C')
+                    {
+                        $oOtherUser = new \raptor\UserInfo($collaboration_uid);
+                        $sFullname = $oOtherUser->getFullName();
+                        $successMsg = 'Collaboration with '.$sFullname.' set for '. $sFullTicketID . ' (' . $myvalues['procName'] .')';
+                    } else {
+                        $successMsg = 'Reserved '. $sFullTicketID . ' (' . $myvalues['procName'] .')';
+                    }
                 } else {
-                    $successMsg = 'Reserved '. $sFullTicketID . ' (' . $myvalues['procName'] .')';
+                    //Did not recognize the button STOP EVERYTHING!
+                    $diemsg = ('Did NOT recognize the ['.$clickedvalue.'] button pressed in updateDatabase!!!>>>'.print_r($myvalues,TRUE));
+                    error_log($diemsg);
+                    throw new \Exception($diemsg);
                 }
-            } else {
-                //Did not recognize the button STOP EVERYTHING!
-                $diemsg = ('Did NOT recognize the ['.$clickedvalue.'] button pressed in updateDatabase!!!>>>'.print_r($myvalues,TRUE));
-                error_log($diemsg);
-                throw new \Exception($diemsg);
             }
-        }
-        if(!$bSuccess)
-        {
-            drupal_set_message('Trouble processing the page.','error');
-        } else {
-            if($successMsg == NULL || strlen(trim($successMsg)) == 0)
+            if(!$bSuccess)
             {
-                //If this happens, help us debug.
-                drupal_set_message('Missing success message','warning');
+                drupal_set_message('Trouble processing the page.','error');
             } else {
-                drupal_set_message($successMsg);
+                if($successMsg == NULL || strlen(trim($successMsg)) == 0)
+                {
+                    //If this happens, help us debug.
+                    drupal_set_message('Missing success message','warning');
+                } else {
+                    drupal_set_message($successMsg);
+                }
             }
-        }
-        
-        if($removeTicketLock)
-        {
-            //Remove any lock if we had one.
-            $this->m_oTT->markTicketUnlocked($sTrackingID, $nUID);
-        }
-        
-        //Invalidate any cached worklist now because tickets may have changed with this update
-        if($nIEN > '' && $bSuccess)
-        {
-            $ehrDao = $this->m_oContext->getEhrDao();
-            $ehrDao->invalidateCacheForOrder($nIEN);
-        }
 
-        //Return the status.
-        return $bSuccess;
+            if($removeTicketLock)
+            {
+                //Remove any lock if we had one.
+                $this->m_oTT->markTicketUnlocked($sTrackingID, $nUID);
+            }
+
+            //Invalidate any cached worklist now because tickets may have changed with this update
+            if($nIEN > '' && $bSuccess)
+            {
+                $ehrDao = $this->m_oContext->getEhrDao();
+                $ehrDao->invalidateCacheForOrder($nIEN);
+            }
+
+            //Return the status.
+            return $bSuccess;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
     
     function isValidEsig($eSig,$ehrDao=NULL)
@@ -2183,237 +2188,247 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     function commitDataToVista($nSiteID,$nIEN,$nUID,$sCWFS,$myvalues,$encounterString=NULL)
     {
-        $bSuccess = TRUE;
-        $errormsg = NULL;
-        error_log('Starting commitDataToVista('.$nSiteID.','.$nIEN.') at '.microtime());
-
-        $commit_dt = date("Y-m-d H:i:s", time());
-        $prev_commit_dt = $this->getDateMostRecentVistaCommitDate($nSiteID,$nIEN);
-        
-        //Verify the electronic sigature
-        $eSig = $myvalues['commit_esig'];
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $bValidESig = $this->isValidEsig($eSig, $ehrDao);
-        if(!$bValidESig)
+        try
         {
-            $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' Safety Checklist note to Vista because invalid electronic signature');
-            $bSuccess = FALSE;
-        }
-         
-        if($bSuccess)
-        {
-            module_load_include('php', 'raptor_datalayer', 'core/AllUsers');
-            $oAllUsers = new \raptor\AllUsers();
+            $bSuccess = TRUE;
+            $errormsg = NULL;
+            error_log('Starting commitDataToVista('.$nSiteID.','.$nIEN.') at '.microtime());
 
-            try
+            $commit_dt = date("Y-m-d H:i:s", time());
+            $prev_commit_dt = $this->getDateMostRecentVistaCommitDate($nSiteID,$nIEN);
+
+            //Verify the electronic sigature
+            $eSig = $myvalues['commit_esig'];
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $bValidESig = $this->isValidEsig($eSig, $ehrDao);
+            if(!$bValidESig)
             {
-                $ehrDao = $this->m_oContext->getEhrDao();
-                if($encounterString == NULL)
-                {
-                    $aVisits = $ehrDao->getVisits();
-                    if(is_array($aVisits) && count($aVisits) > 0)
-                    {
-                        if(isset($myvalues['selected_vid']) && $myvalues['selected_vid'] != '')
-                        {
-                            $selected_vid = $myvalues['selected_vid'];
-                            //vid_<LOCATIONID>_<TIMESTAMP>
-                            $vidparts = explode('_',$selected_vid);
-                            $locationId = $vidparts[1];
-                            $visitTimestamp = $vidparts[2];
-                            foreach($aVisits as $aVisit)
-                            {
-                                if($aVisit['locationId'] == $locationId && $aVisit['visitTimestamp'] == $visitTimestamp)
-                                {
-                                    $encounterString = $ehrDao->getEncounterStringFromVisit($aVisit['visitTO']);  
-                                }
-                            }
-                            if($encounterString == NULL)
-                            {
-                                throw new \Exception('Did NOT find an encounter string for $selected_vid=['.$selected_vid.'] in '.print_r($aVisits,TRUE));
-                            }
-                        } else {
-                            throw new \Exception('Did not find any selected visit for the VISTA writeback!');
-                        }
-                    } else {
-                       drupal_set_message('Did NOT find any visits to which we can commit a note!','error'); 
-                       $bSuccess = FALSE;
-                    }
-                }
+                $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' Safety Checklist note to Vista because invalid electronic signature');
+                $bSuccess = FALSE;
+            }
 
-                //Write the note(s).
-                $newNoteIen = NULL;
+            if($bSuccess)
+            {
+                module_load_include('php', 'raptor_datalayer', 'core/AllUsers');
+                $oAllUsers = new \raptor\AllUsers();
+
                 try
                 {
-                    $userDuz = $ehrDao->getEHRUserID();
-
-                    //Pull values from database that have not yet been committed to VISTA
-                    $aChecklistData = array();
-                    $this->addUncommittedChecklistDetailsToNotesArray($nSiteID, $nIEN, $oAllUsers, $prev_commit_dt, $aChecklistData);
-                    if(count($aChecklistData)>0)
+                    $ehrDao = $this->m_oContext->getEhrDao();
+                    if($encounterString == NULL)
                     {
-                        //Write the checklist note
-                        $newNoteIen = $ehrDao->writeRaptorSafetyChecklist($aChecklistData, $encounterString, NULL);
-                        $ehrDao->signNote($newNoteIen, $eSig);
+                        $aVisits = $ehrDao->getVisits();
+                        if(is_array($aVisits) && count($aVisits) > 0)
+                        {
+                            if(isset($myvalues['selected_vid']) && $myvalues['selected_vid'] != '')
+                            {
+                                $selected_vid = $myvalues['selected_vid'];
+                                //vid_<LOCATIONID>_<TIMESTAMP>
+                                $vidparts = explode('_',$selected_vid);
+                                $locationId = $vidparts[1];
+                                $visitTimestamp = $vidparts[2];
+                                foreach($aVisits as $aVisit)
+                                {
+                                    if($aVisit['locationId'] == $locationId && $aVisit['visitTimestamp'] == $visitTimestamp)
+                                    {
+                                        $encounterString = $ehrDao->getEncounterStringFromVisit($aVisit['visitTO']);  
+                                    }
+                                }
+                                if($encounterString == NULL)
+                                {
+                                    throw new \Exception('Did NOT find an encounter string for $selected_vid=['.$selected_vid.'] in '.print_r($aVisits,TRUE));
+                                }
+                            } else {
+                                throw new \Exception('Did not find any selected visit for the VISTA writeback!');
+                            }
+                        } else {
+                           drupal_set_message('Did NOT find any visits to which we can commit a note!','error'); 
+                           $bSuccess = FALSE;
+                        }
                     }
 
-                    //Pull values from database that have not yet been committed to VISTA
-                    $noteTextArray = array();
-                    $this->addUncommittedDetailsToNotesArray($nSiteID, $nIEN, $oAllUsers, $prev_commit_dt, $noteTextArray);
-                    if(count($noteTextArray)>0)
+                    //Write the note(s).
+                    $newNoteIen = NULL;
+                    try
                     {
-                        //Yes, write the general note.
-                        $newGeneralNoteIen = $ehrDao->writeRaptorGeneralNote($noteTextArray, $encounterString, NULL); 
-                        $ehrDao->signNote($newGeneralNoteIen, $eSig);
+                        $userDuz = $ehrDao->getEHRUserID();
+
+                        //Pull values from database that have not yet been committed to VISTA
+                        $aChecklistData = array();
+                        $this->addUncommittedChecklistDetailsToNotesArray($nSiteID, $nIEN, $oAllUsers, $prev_commit_dt, $aChecklistData);
+                        if(count($aChecklistData)>0)
+                        {
+                            //Write the checklist note
+                            $newNoteIen = $ehrDao->writeRaptorSafetyChecklist($aChecklistData, $encounterString, NULL);
+                            $ehrDao->signNote($newNoteIen, $eSig);
+                        }
+
+                        //Pull values from database that have not yet been committed to VISTA
+                        $noteTextArray = array();
+                        $this->addUncommittedDetailsToNotesArray($nSiteID, $nIEN, $oAllUsers, $prev_commit_dt, $noteTextArray);
+                        if(count($noteTextArray)>0)
+                        {
+                            //Yes, write the general note.
+                            $newGeneralNoteIen = $ehrDao->writeRaptorGeneralNote($noteTextArray, $encounterString, NULL); 
+                            $ehrDao->signNote($newGeneralNoteIen, $eSig);
+                        }
+                    } catch (\Exception $ex) {
+                        drupal_set_message('Trouble in commit because ' . $ex->getMessage(),'error');
+                        throw $ex;
                     }
+                    if($newNoteIen != NULL)
+                    {
+                        error_log('commitDataToVista got newNoteIen=['.$newNoteIen.']'
+                                . ' for encounter string='.$encounterString . ' >>> ' . print_r($newNoteIen,TRUE));   
+                    }
+
                 } catch (\Exception $ex) {
-                    drupal_set_message('Trouble in commit because ' . $ex->getMessage(),'error');
+
+                    $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' Safety Checklist note to Vista because ' . $ex->getMessage());
                     throw $ex;
                 }
-                if($newNoteIen != NULL)
+            }
+
+            if($bSuccess)
+            {
+                //Okay, record that we successfully committed.
+                try
                 {
-                    error_log('commitDataToVista got newNoteIen=['.$newNoteIen.']'
-                            . ' for encounter string='.$encounterString . ' >>> ' . print_r($newNoteIen,TRUE));   
+                    db_insert('raptor_ticket_commit_tracking')
+                            ->fields(array(
+                            'siteid' => $nSiteID,
+                            'IEN' => $nIEN,
+                            'workflow_state' => $sCWFS,
+                            'author_uid' => $nUID,
+                            'commit_dt' => $commit_dt,
+                      ))->execute();
+                } catch (\Exception $ex) {
+                    $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' to raptor_ticket_commit_tracking because ' 
+                            . $ex->getMessage());
+                    throw $ex;
                 }
 
-            } catch (\Exception $ex) {
-
-                $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' Safety Checklist note to Vista because ' . $ex->getMessage());
-                throw $ex;
-            }
-        }
-
-        if($bSuccess)
-        {
-            //Okay, record that we successfully committed.
-            try
-            {
-                db_insert('raptor_ticket_commit_tracking')
+                try
+                {
+                    db_merge('raptor_ticket_tracking')
+                        ->key(
+                                array('siteid'=>$nSiteID
+                                        ,'IEN' => $nIEN,
+                            ))
                         ->fields(array(
-                        'siteid' => $nSiteID,
-                        'IEN' => $nIEN,
-                        'workflow_state' => $sCWFS,
-                        'author_uid' => $nUID,
-                        'commit_dt' => $commit_dt,
-                  ))->execute();
-            } catch (\Exception $ex) {
-                $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' to raptor_ticket_commit_tracking because ' 
-                        . $ex->getMessage());
-                throw $ex;
-            }
-            
-            try
+                                'exam_details_committed_dt'=>$commit_dt,
+                                'updated_dt'=>$commit_dt,
+                            ))
+                        ->execute();                
+                } catch (\Exception $ex) {
+                    $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' to raptor_ticket_tracking because ' 
+                            . $ex->getMessage());
+                    throw $ex;
+                }
+
+            }        
+
+            if($bSuccess)
             {
-                db_merge('raptor_ticket_tracking')
-                    ->key(
-                            array('siteid'=>$nSiteID
-                                    ,'IEN' => $nIEN,
-                        ))
-                    ->fields(array(
-                            'exam_details_committed_dt'=>$commit_dt,
-                            'updated_dt'=>$commit_dt,
-                        ))
-                    ->execute();                
-            } catch (\Exception $ex) {
-                $errormsg = ('Trouble committing ticket '.$nSiteID.'-'.$nIEN.' to raptor_ticket_tracking because ' 
-                        . $ex->getMessage());
-                throw $ex;
-            }
-            
-        }        
-        
-        if($bSuccess)
-        {
-            drupal_set_message('Committed patient data to VistA');
-        } else {
-            if($errormsg != NULL)
-            {
-                error_log('failed commit to vista>>> '.$errormsg);
-                drupal_set_message($errormsg,'error');
+                drupal_set_message('Committed patient data to VistA');
             } else {
-                drupal_set_message('Trouble committing patient data to VistA','error');
+                if($errormsg != NULL)
+                {
+                    error_log('failed commit to vista>>> '.$errormsg);
+                    drupal_set_message($errormsg,'error');
+                } else {
+                    drupal_set_message('Trouble committing patient data to VistA','error');
+                }
             }
+            error_log('Finished commitDataToVista on ticket '.$nSiteID.'-'.$nIEN.' at '.microtime());
+            return $bSuccess;
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        error_log('Finished commitDataToVista on ticket '.$nSiteID.'-'.$nIEN.' at '.microtime());
-        return $bSuccess;
     }
 
     
     function addUncommittedChecklistDetailsToNotesArray($nSiteID, $nIEN, $oAllUsers
             , $prev_commit_dt, &$noteTextArray)
     {
-        $tid = $nSiteID.'-'.$nIEN;
-        //$oWL = new \raptor\WorklistData($this->m_oContext);
-        //$aOrderInfo = $oWL->getDashboardMap();
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $aOrderInfo = $ehrDao->getDashboardDetailsMap($nIEN);
-        $aQuestionsMetadata = $this->getAllSavedSafetyChecklistTicketData($nSiteID,$nIEN,$oAllUsers,$prev_commit_dt);
-        if(count($aQuestionsMetadata)>0)
+        try
         {
-            //We have some un-committed checklist questions.
-            $aQuestions = $aQuestionsMetadata['questions'];
-            if(!is_array($aQuestions) || count($aQuestions) < 1)
+            $tid = $nSiteID.'-'.$nIEN;
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOrderInfo = $oWL->getDashboardMap();
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $aOrderInfo = $ehrDao->getDashboardDetailsMap($nIEN);
+            $aQuestionsMetadata = $this->getAllSavedSafetyChecklistTicketData($nSiteID,$nIEN,$oAllUsers,$prev_commit_dt);
+            if(count($aQuestionsMetadata)>0)
             {
-                $emsg = 'Did NOT find checklist in commitChecklistToVista('.$nSiteID.','.$nIEN.') at '.microtime();
-                throw new \Exception($emsg);
-            }
-            $aAuthors = $aQuestionsMetadata['authors'];
-            $dLastDate = $aQuestionsMetadata['last_date'];
+                //We have some un-committed checklist questions.
+                $aQuestions = $aQuestionsMetadata['questions'];
+                if(!is_array($aQuestions) || count($aQuestions) < 1)
+                {
+                    $emsg = 'Did NOT find checklist in commitChecklistToVista('.$nSiteID.','.$nIEN.') at '.microtime();
+                    throw new \Exception($emsg);
+                }
+                $aAuthors = $aQuestionsMetadata['authors'];
+                $dLastDate = $aQuestionsMetadata['last_date'];
 
-            $noteTextArray = array();
-            
-            //We will include protocol information into our checklist note
-            $getvalues = array();
-            $relevant_protocol_shortname = NULL;
-            $this->loadProtocolFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
-            if($getvalues['protocol_data_from_database'])
-            {
-                $this->addFormattedVistaNoteRow($noteTextArray
-                        ,'Protocol Settings Approved Date',$getvalues,'protocol_data_created_dt');
-                $author_uid = $getvalues['protocol_approval_author_uid'];
-                $relevant_protocol_shortname = $getvalues['protocol1_nm'];
-                $userinfo = $oAllUsers->getByUID($author_uid);
-                $fullname = $userinfo->getFullName();
-                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
+                $noteTextArray = array();
 
-                $this->addFormattedVistaNoteRow($noteTextArray
-                        ,'Protocol Primary Selection ID',$getvalues,'protocol1_nm');
-                $this->addFormattedVistaNoteRow($noteTextArray
-                        ,'Protocol Primary Selection NAME',$getvalues,'protocol1_fullname');
-                $this->addFormattedVistaNoteRow($noteTextArray
-                        ,'Protocol Primary Selection MODALITY',$getvalues,'protocol1_modality_abbr');
-                $this->addFormattedVistaNoteRow($noteTextArray
-                        ,'Protocol Secondary Selection ID',$getvalues,'protocol2_nm');
-                $this->addFormattedVistaNoteRow($noteTextArray
-                        ,'Protocol Secondary Selection NAME',$getvalues,'protocol2_fullname');
-                $this->addFormattedVistaNoteRow($noteTextArray
-                        ,'Protocol Secondary Selection MODALITY',$getvalues,'protocol2_modality_abbr');
-            }
-            
-            //Now write the CPRS order info
-            $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Embedded Due Date',$aOrderInfo,'DesiredDate');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Tracking ID',$tid);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Checklist Type','Safety Checklist');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Completion Date',$dLastDate);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Site ID',$nSiteID);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Ticket IEN',$nIEN);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Total Responses',count($aQuestions));
-            
-            //Now write the responses
-            $noteTextArray[] = '';
-            foreach($aQuestions as $aQuestion)
-            {
-                $this->addFormattedVistaNoteRow($noteTextArray,'Question Shortname',$aQuestion['question_shortname']);
-                $this->addFormattedVistaNoteRow($noteTextArray,'Question Text',$aQuestion['question_tx']);
-                $this->addFormattedVistaNoteRow($noteTextArray,'Question Answer','"'.$aQuestion['answer_tx'].'"');
-                $nAuthorUID = $aQuestion['author_uid'];
-                $this->addFormattedVistaNoteRow($noteTextArray,'Question Answer Author',$aAuthors[$nAuthorUID]);
-                $this->addFormattedVistaNoteRow($noteTextArray,'Question Comment Prompt','"'.$aQuestion['comment_prompt_tx'].'"');
-                $this->addFormattedVistaNoteRow($noteTextArray,'Question Comment Answer','"'.$aQuestion['comment_tx'].'"');
+                //We will include protocol information into our checklist note
+                $getvalues = array();
+                $relevant_protocol_shortname = NULL;
+                $this->loadProtocolFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
+                if($getvalues['protocol_data_from_database'])
+                {
+                    $this->addFormattedVistaNoteRow($noteTextArray
+                            ,'Protocol Settings Approved Date',$getvalues,'protocol_data_created_dt');
+                    $author_uid = $getvalues['protocol_approval_author_uid'];
+                    $relevant_protocol_shortname = $getvalues['protocol1_nm'];
+                    $userinfo = $oAllUsers->getByUID($author_uid);
+                    $fullname = $userinfo->getFullName();
+                    $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
+
+                    $this->addFormattedVistaNoteRow($noteTextArray
+                            ,'Protocol Primary Selection ID',$getvalues,'protocol1_nm');
+                    $this->addFormattedVistaNoteRow($noteTextArray
+                            ,'Protocol Primary Selection NAME',$getvalues,'protocol1_fullname');
+                    $this->addFormattedVistaNoteRow($noteTextArray
+                            ,'Protocol Primary Selection MODALITY',$getvalues,'protocol1_modality_abbr');
+                    $this->addFormattedVistaNoteRow($noteTextArray
+                            ,'Protocol Secondary Selection ID',$getvalues,'protocol2_nm');
+                    $this->addFormattedVistaNoteRow($noteTextArray
+                            ,'Protocol Secondary Selection NAME',$getvalues,'protocol2_fullname');
+                    $this->addFormattedVistaNoteRow($noteTextArray
+                            ,'Protocol Secondary Selection MODALITY',$getvalues,'protocol2_modality_abbr');
+                }
+
+                //Now write the CPRS order info
+                $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Embedded Due Date',$aOrderInfo,'DesiredDate');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Tracking ID',$tid);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Checklist Type','Safety Checklist');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Completion Date',$dLastDate);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Site ID',$nSiteID);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Ticket IEN',$nIEN);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Total Responses',count($aQuestions));
+
+                //Now write the responses
                 $noteTextArray[] = '';
+                foreach($aQuestions as $aQuestion)
+                {
+                    $this->addFormattedVistaNoteRow($noteTextArray,'Question Shortname',$aQuestion['question_shortname']);
+                    $this->addFormattedVistaNoteRow($noteTextArray,'Question Text',$aQuestion['question_tx']);
+                    $this->addFormattedVistaNoteRow($noteTextArray,'Question Answer','"'.$aQuestion['answer_tx'].'"');
+                    $nAuthorUID = $aQuestion['author_uid'];
+                    $this->addFormattedVistaNoteRow($noteTextArray,'Question Answer Author',$aAuthors[$nAuthorUID]);
+                    $this->addFormattedVistaNoteRow($noteTextArray,'Question Comment Prompt','"'.$aQuestion['comment_prompt_tx'].'"');
+                    $this->addFormattedVistaNoteRow($noteTextArray,'Question Comment Answer','"'.$aQuestion['comment_tx'].'"');
+                    $noteTextArray[] = '';
+                }
+                $this->addFormattedVistaNoteRow($noteTextArray,'Total Authors',count($aAuthors));
             }
-            $this->addFormattedVistaNoteRow($noteTextArray,'Total Authors',count($aAuthors));
+        } catch (\Exception $ex) {
+            throw $ex;
         }
     }
     
@@ -2422,279 +2437,284 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
      */
     function addUncommittedDetailsToNotesArray($nSiteID, $nIEN, $oAllUsers, $prev_commit_dt, &$noteTextArray)
     {
-        //Get all the VISTA baseline information.
-        $tid = $nSiteID.'-'.$nIEN;
-        //$oWL = new \raptor\WorklistData($this->m_oContext);
-        //$aOrderInfo = $oWL->getDashboardMap();
-        $ehrDao = $this->m_oContext->getEhrDao();
-        $aOrderInfo = $ehrDao->getDashboardDetailsMap($nIEN);
-        $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
-        $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
-        $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Embedded Due Date',$aOrderInfo,'DesiredDate');
-        $this->addFormattedVistaNoteRow($noteTextArray,'Tracking ID',$tid);
-        if(count($noteTextArray)>0)
+        try
         {
-            $noteTextArray[] = '';
-        }
-        
-        //Get all the scheduler information.
-        if(isset($aOrderInfo['ScheduledDate']) && $aOrderInfo['ScheduledDate'] > '')
-        {
-            $scheduled_dt = $aOrderInfo['ScheduledDate'];
-            $this->addFormattedVistaNoteRow($noteTextArray,'Scheduled Date/Time',$scheduled_dt);
-        }
-        $getvalues = array();
-        $prevnotes = $this->getSchedulerNotes($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
-        foreach($prevnotes as $prevnoteinfo)
-        {
+            //Get all the VISTA baseline information.
+            $tid = $nSiteID.'-'.$nIEN;
+            //$oWL = new \raptor\WorklistData($this->m_oContext);
+            //$aOrderInfo = $oWL->getDashboardMap();
+            $ehrDao = $this->m_oContext->getEhrDao();
+            $aOrderInfo = $ehrDao->getDashboardDetailsMap($nIEN);
+            $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Title',$aOrderInfo,'Procedure');
+            $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Created Date/Time',$aOrderInfo,'RequestedDate');
+            $this->addFormattedVistaNoteRow($noteTextArray,'Order CPRS Embedded Due Date',$aOrderInfo,'DesiredDate');
+            $this->addFormattedVistaNoteRow($noteTextArray,'Tracking ID',$tid);
             if(count($noteTextArray)>0)
             {
                 $noteTextArray[] = '';
             }
-            $author_uid = $prevnoteinfo['author_uid'];
-            $created_dt = $prevnoteinfo['created_dt'];
-            $notes_tx = $prevnoteinfo['notes_tx'];
-            $notes_critical_yn = $prevnoteinfo['notes_critical_yn'];
-            $userinfo = $oAllUsers->getByUID($author_uid);
-            if($userinfo == NULL)
-            {
-                $fullname = 'RAPTOR user '.$author_uid;
-            } else {
-                $fullname = $userinfo->getFullName();
-            }
-            if(trim($notes_tx) == '')
-            {
-                $notes_tx = 'BLANK';
-            }
-            if($notes_critical_yn == 1)
-            {
-                $notetype = 'Critical';
-            } else {
-                $notetype = 'Standard';
-            }
-            $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Date',$created_dt);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Text',$notes_tx,NULL,TRUE);
-        }
-        if(count($noteTextArray)>0)
-        {
-            $noteTextArray[] = '';
-        }
-        
-        //Get all the protocol settings
-        $relevant_protocol_shortname = NULL;
-        $this->loadProtocolFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
-        if($getvalues['protocol_data_from_database'])
-        {
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved Date',$getvalues,'protocol_data_created_dt');
-            $author_uid = $getvalues['protocol_approval_author_uid'];
-            $relevant_protocol_shortname = $getvalues['protocol1_nm'];
-            $userinfo = $oAllUsers->getByUID($author_uid);
-            $fullname = $userinfo->getFullName();
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
 
-            $this->addFormattedVistaNoteRow($noteTextArray
-                    ,'Protocol Primary Selection ID',$getvalues,'protocol1_nm');
-            $this->addFormattedVistaNoteRow($noteTextArray
-                    ,'Protocol Primary Selection NAME',$getvalues,'protocol1_fullname');
-            $this->addFormattedVistaNoteRow($noteTextArray
-                    ,'Protocol Primary Selection MODALITY',$getvalues,'protocol1_modality_abbr');
-            $this->addFormattedVistaNoteRow($noteTextArray
-                    ,'Protocol Secondary Selection ID',$getvalues,'protocol2_nm');
-            $this->addFormattedVistaNoteRow($noteTextArray
-                    ,'Protocol Secondary Selection NAME',$getvalues,'protocol2_fullname');
-            $this->addFormattedVistaNoteRow($noteTextArray
-                    ,'Protocol Secondary Selection MODALITY',$getvalues,'protocol2_modality_abbr');
-            
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Oral Hydration',$getvalues,'hydration_oral_customtx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Hydration',$getvalues,'hydration_iv_customtx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Oral Sedation',$getvalues,'sedation_oral_customtx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Sedation',$getvalues,'sedation_iv_customtx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Enteric Contrast',$getvalues,'contrast_enteric_customtx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Contrast',$getvalues,'contrast_iv_customtx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Enteric Radionuclide',$getvalues,'radioisotope_enteric_customtx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Radionuclide',$getvalues,'radioisotope_iv_customtx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Allergy',$getvalues,'allergy_kw');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Claustrophobic',$getvalues,'claustrophobic_kw');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Consent Required',$getvalues,'consent_req_kw');
-        }
-        if(count($noteTextArray)>0)
-        {
-            $noteTextArray[] = '';
-        }
-
-        //Collect the protocol notes.
-        $getvalues = array();
-        $prevnotes = $this->getProtocolNotes($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
-        foreach($prevnotes as $prevnoteinfo)
-        {
-            if(count($noteTextArray)>0)
+            //Get all the scheduler information.
+            if(isset($aOrderInfo['ScheduledDate']) && $aOrderInfo['ScheduledDate'] > '')
             {
-                $noteTextArray[] = '';
+                $scheduled_dt = $aOrderInfo['ScheduledDate'];
+                $this->addFormattedVistaNoteRow($noteTextArray,'Scheduled Date/Time',$scheduled_dt);
             }
-            $author_uid = $prevnoteinfo['author_uid'];
-            $created_dt = $prevnoteinfo['created_dt'];
-            $notes_tx = $prevnoteinfo['notes_tx'];
-            $userinfo = $oAllUsers->getByUID($author_uid);
-            if($userinfo == NULL)
+            $getvalues_scheduler = array();
+            $prevnotes_scheduler = $this->getSchedulerNotes($nSiteID,$nIEN,$getvalues_scheduler,$prev_commit_dt);
+            foreach($prevnotes_scheduler as $prevnoteinfo)
             {
-                $fullname = 'RAPTOR user '.$author_uid;
-            } else {
-                $fullname = $userinfo->getFullName();
-            }
-            if(trim($notes_tx) == '')
-            {
-                $notes_tx = 'BLANK';
-            }
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Date',$created_dt);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Text',$notes_tx,NULL,TRUE);
-        }
-        if(count($noteTextArray)>0)
-        {
-            $noteTextArray[] = '';
-        }
-        
-        //raptor_ticket_contraindication
-        $sRowLabel = '[Contraindication Acknowledgement';
-        $query=db_select('raptor_ticket_contraindication', 't')
-                ->fields('t')
-                ->condition('siteid', $nSiteID,'=')
-                ->condition('IEN', $nIEN,'=');
-                if($prev_commit_dt != NULL)
+                if(count($noteTextArray)>0)
                 {
-                    $query->condition('created_dt', $prev_commit_dt,'>');
+                    $noteTextArray[] = '';
                 }
-                $query->orderBy('rule_nm', 'DESC');
-        $result = $query->execute();
-        while($record = $result->fetchAssoc())
-        {
-            $acknowledged_dt = $record['created_dt'];
-            $rule_nm = $record['rule_nm'];
-            $author_uid = $record['author_uid'];
-            $userinfo = $oAllUsers->getByUID($author_uid);
-            $fullname = $userinfo->getFullName();
-            $writevalue = 'acknowledged by ' . $fullname . ' on '. $acknowledged_dt;
-            $labeltext = 'Contraindication Acknowledgement ' . $rule_nm;
-            $this->addFormattedVistaNoteRow($noteTextArray,$labeltext,$writevalue);
-        }
-        if(count($noteTextArray)>0)
-        {
-            $noteTextArray[] = '';
-        }
-        
-        //Collect the exam data.
-        $getvalues = array();
-        if(count($noteTextArray)>0)
-        {
-            $noteTextArray[] = '';
-        }
-        $getvalues['protocol1_nm'] = $relevant_protocol_shortname;  //Because need for exam collection
-        $this->loadExamFieldValues($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
-        if($getvalues['exam_data_from_database'])
-        {
-            $author_uid = $getvalues['exam_author_uid'];
-            $userinfo = $oAllUsers->getByUID($author_uid);
-            $fullname = $userinfo->getFullName();
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Date',$getvalues,'exam_data_created_dt');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Oral Hydration',$getvalues,'exam_hydration_oral_tx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Hydration',$getvalues,'exam_hydration_iv_tx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Oral Sedation',$getvalues,'exam_sedation_oral_tx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Sedation',$getvalues,'exam_sedation_iv_tx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Enteric Contrast',$getvalues,'exam_contrast_enteric_tx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Contrast',$getvalues,'exam_contrast_iv_tx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Enteric Radionuclide',$getvalues,'exam_radioisotope_enteric_tx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Radionuclide',$getvalues,'exam_radioisotope_iv_tx');
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Consent Received',$getvalues,'exam_consent_received_kw');
-            
-            //Process ALL the possible radiation dose input areas.
-            $littlename_map = RadiationDoseHelper::getDoseSourceLittlenameMap();
-            foreach($littlename_map as $dose_source_code=>$littlename)
-            {
-                $formfield_valuemap_name = 'exam_'.$littlename.'_radiation_dose_map';
-                $dose_details = $getvalues[$formfield_valuemap_name];
-                if(is_array($dose_details))
+                $author_uid = $prevnoteinfo['author_uid'];
+                $created_dt = $prevnoteinfo['created_dt'];
+                $notes_tx = $prevnoteinfo['notes_tx'];
+                $notes_critical_yn = $prevnoteinfo['notes_critical_yn'];
+                $userinfo = $oAllUsers->getByUID($author_uid);
+                if($userinfo == NULL)
                 {
-                    $category_term=RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_code);
-                    foreach($dose_details as $uom=>$values)
+                    $fullname = 'RAPTOR user '.$author_uid;
+                } else {
+                    $fullname = $userinfo->getFullName();
+                }
+                if(trim($notes_tx) == '')
+                {
+                    $notes_tx = 'BLANK';
+                }
+                if($notes_critical_yn == 1)
+                {
+                    $notetype = 'Critical';
+                } else {
+                    $notetype = 'Standard';
+                }
+                $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Date',$created_dt);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Author',$fullname);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Scheduler '.$notetype.' Note Text',$notes_tx,NULL,TRUE);
+            }
+            if(count($noteTextArray)>0)
+            {
+                $noteTextArray[] = '';
+            }
+
+            //Get all the protocol settings
+            $relevant_protocol_shortname = NULL;
+            $this->loadProtocolFieldValues($nSiteID,$nIEN,$getvalues_scheduler,$prev_commit_dt);
+            if($getvalues_scheduler['protocol_data_from_database'])
+            {
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved Date',$getvalues_scheduler,'protocol_data_created_dt');
+                $author_uid = $getvalues_scheduler['protocol_approval_author_uid'];
+                $relevant_protocol_shortname = $getvalues_scheduler['protocol1_nm'];
+                $userinfo = $oAllUsers->getByUID($author_uid);
+                $fullname = $userinfo->getFullName();
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Settings Approved By',$fullname);
+
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Primary Selection ID',$getvalues_scheduler,'protocol1_nm');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Primary Selection NAME',$getvalues_scheduler,'protocol1_fullname');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Primary Selection MODALITY',$getvalues_scheduler,'protocol1_modality_abbr');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Secondary Selection ID',$getvalues_scheduler,'protocol2_nm');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Secondary Selection NAME',$getvalues_scheduler,'protocol2_fullname');
+                $this->addFormattedVistaNoteRow($noteTextArray
+                        ,'Protocol Secondary Selection MODALITY',$getvalues_scheduler,'protocol2_modality_abbr');
+
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Oral Hydration',$getvalues_scheduler,'hydration_oral_customtx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Hydration',$getvalues_scheduler,'hydration_iv_customtx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Oral Sedation',$getvalues_scheduler,'sedation_oral_customtx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Sedation',$getvalues_scheduler,'sedation_iv_customtx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Enteric Contrast',$getvalues_scheduler,'contrast_enteric_customtx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Contrast',$getvalues_scheduler,'contrast_iv_customtx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Enteric Radionuclide',$getvalues_scheduler,'radioisotope_enteric_customtx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note IV Radionuclide',$getvalues_scheduler,'radioisotope_iv_customtx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Allergy',$getvalues_scheduler,'allergy_kw');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Claustrophobic',$getvalues_scheduler,'claustrophobic_kw');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol Note Consent Required',$getvalues_scheduler,'consent_req_kw');
+            }
+            if(count($noteTextArray)>0)
+            {
+                $noteTextArray[] = '';
+            }
+
+            //Collect the protocol notes.
+            $getvalues = array();
+            $prevnotes = $this->getProtocolNotes($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
+            foreach($prevnotes as $prevnoteinfo)
+            {
+                if(count($noteTextArray)>0)
+                {
+                    $noteTextArray[] = '';
+                }
+                $author_uid = $prevnoteinfo['author_uid'];
+                $created_dt = $prevnoteinfo['created_dt'];
+                $notes_tx = $prevnoteinfo['notes_tx'];
+                $userinfo = $oAllUsers->getByUID($author_uid);
+                if($userinfo == NULL)
+                {
+                    $fullname = 'RAPTOR user '.$author_uid;
+                } else {
+                    $fullname = $userinfo->getFullName();
+                }
+                if(trim($notes_tx) == '')
+                {
+                    $notes_tx = 'BLANK';
+                }
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Date',$created_dt);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Author',$fullname);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Protocol General Note Text',$notes_tx,NULL,TRUE);
+            }
+            if(count($noteTextArray)>0)
+            {
+                $noteTextArray[] = '';
+            }
+
+            //raptor_ticket_contraindication
+            //$sRowLabel = '[Contraindication Acknowledgement';
+            $query=db_select('raptor_ticket_contraindication', 't')
+                    ->fields('t')
+                    ->condition('siteid', $nSiteID,'=')
+                    ->condition('IEN', $nIEN,'=');
+                    if($prev_commit_dt != NULL)
                     {
-                        $this->addFormattedVistaNoteRow($noteTextArray
-                                , 'Exam Note '
-                                    . $category_term
-                                    . ' Radiation Exposure UoM',$uom);
-                        $sample_size=1;
-                        $doses=0;
-                        $total_dose=0;
-                        foreach($values as $dose_record)
+                        $query->condition('created_dt', $prev_commit_dt,'>');
+                    }
+                    $query->orderBy('rule_nm', 'DESC');
+            $result = $query->execute();
+            while($record = $result->fetchAssoc())
+            {
+                $acknowledged_dt = $record['created_dt'];
+                $rule_nm = $record['rule_nm'];
+                $author_uid = $record['author_uid'];
+                $userinfo = $oAllUsers->getByUID($author_uid);
+                $fullname = $userinfo->getFullName();
+                $writevalue = 'acknowledged by ' . $fullname . ' on '. $acknowledged_dt;
+                $labeltext = 'Contraindication Acknowledgement ' . $rule_nm;
+                $this->addFormattedVistaNoteRow($noteTextArray,$labeltext,$writevalue);
+            }
+            if(count($noteTextArray)>0)
+            {
+                $noteTextArray[] = '';
+            }
+
+            //Collect the exam data.
+            $getvalues_exam = array();
+            if(count($noteTextArray)>0)
+            {
+                $noteTextArray[] = '';
+            }
+            $getvalues_exam['protocol1_nm'] = $relevant_protocol_shortname;  //Because need for exam collection
+            $this->loadExamFieldValues($nSiteID,$nIEN,$getvalues_exam,$prev_commit_dt);
+            if($getvalues_exam['exam_data_from_database'])
+            {
+                $author_uid = $getvalues_exam['exam_author_uid'];
+                $userinfo = $oAllUsers->getByUID($author_uid);
+                $fullname = $userinfo->getFullName();
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Author',$fullname);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Date',$getvalues_exam,'exam_data_created_dt');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Oral Hydration',$getvalues_exam,'exam_hydration_oral_tx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Hydration',$getvalues_exam,'exam_hydration_iv_tx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Oral Sedation',$getvalues_exam,'exam_sedation_oral_tx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Sedation',$getvalues_exam,'exam_sedation_iv_tx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Enteric Contrast',$getvalues_exam,'exam_contrast_enteric_tx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Contrast',$getvalues_exam,'exam_contrast_iv_tx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Enteric Radionuclide',$getvalues_exam,'exam_radioisotope_enteric_tx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note IV Radionuclide',$getvalues_exam,'exam_radioisotope_iv_tx');
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note Consent Received',$getvalues_exam,'exam_consent_received_kw');
+
+                //Process ALL the possible radiation dose input areas.
+                $littlename_map = RadiationDoseHelper::getDoseSourceLittlenameMap();
+                foreach($littlename_map as $dose_source_code=>$littlename)
+                {
+                    $formfield_valuemap_name = 'exam_'.$littlename.'_radiation_dose_map';
+                    $dose_details = $getvalues_exam[$formfield_valuemap_name];
+                    if(is_array($dose_details))
+                    {
+                        $category_term=RadiationDoseHelper::getDefaultTermForDoseSource($dose_source_code);
+                        foreach($dose_details as $uom=>$values)
                         {
-                            $dose = $dose_record['dose'];
-                            $total_dose+=$dose; //The patient is exposed to the TOTAL dose of this exam.
-                            $doses++;
-                            $qcd = $dose_record['dose_type_cd'];
-                            $qterm = RadiationDoseHelper::getDoseTypeTermForTypeCode($qcd);
-                            $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note '.$category_term.' Radiation Exposure Data'
-                                    ,$dose.' '.$uom.$qterm);
+                            $this->addFormattedVistaNoteRow($noteTextArray
+                                    , 'Exam Note '
+                                        . $category_term
+                                        . ' Radiation Exposure UoM',$uom);
+                            $sample_size=1;
+                            $doses=0;
+                            $total_dose=0;
+                            foreach($values as $dose_record)
+                            {
+                                $dose = $dose_record['dose'];
+                                $total_dose+=$dose; //The patient is exposed to the TOTAL dose of this exam.
+                                $doses++;
+                                $qcd = $dose_record['dose_type_cd'];
+                                $qterm = RadiationDoseHelper::getDoseTypeTermForTypeCode($qcd);
+                                $this->addFormattedVistaNoteRow($noteTextArray,'Exam Note '.$category_term.' Radiation Exposure Data'
+                                        ,$dose.' '.$uom.$qterm);
+                            }
+                            $this->m_oFRD->updateSiteDoseTracking($relevant_protocol_shortname
+                                    ,$dose_source_code,$uom,$qcd,$total_dose,$sample_size);
                         }
-                        $this->m_oFRD->updateSiteDoseTracking($relevant_protocol_shortname
-                                ,$dose_source_code,$uom,$qcd,$total_dose,$sample_size);
                     }
                 }
+
             }
-            
-        }
-        $prevnotes = $this->getExamNotes($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
-        foreach($prevnotes as $prevnoteinfo)
-        {
+            $prevnotes_exam = $this->getExamNotes($nSiteID,$nIEN,$getvalues_exam,$prev_commit_dt);
+            foreach($prevnotes_exam as $prevnoteinfo)
+            {
+                if(count($noteTextArray)>0)
+                {
+                    $noteTextArray[] = '';
+                }
+                $author_uid = $prevnoteinfo['author_uid'];
+                $created_dt = $prevnoteinfo['created_dt'];
+                $notes_tx = $prevnoteinfo['notes_tx'];
+                $userinfo = $oAllUsers->getByUID($author_uid);
+                if($userinfo == NULL)
+                {
+                    $fullname = 'RAPTOR user '.$author_uid;
+                } else {
+                    $fullname = $userinfo->getFullName();
+                }
+                if(trim($notes_tx) == '')
+                {
+                    $notes_tx = 'BLANK';
+                }
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Date',$created_dt);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Author',$fullname);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Text',$notes_tx, NULL, TRUE);
+            }
             if(count($noteTextArray)>0)
             {
                 $noteTextArray[] = '';
             }
-            $author_uid = $prevnoteinfo['author_uid'];
-            $created_dt = $prevnoteinfo['created_dt'];
-            $notes_tx = $prevnoteinfo['notes_tx'];
-            $userinfo = $oAllUsers->getByUID($author_uid);
-            if($userinfo == NULL)
+
+            //Get raptor_ticket_interpret_notes
+            $getvalues_interpret_notes = array();
+            $prevnotes_interpret_notes = $this->getInterpretationNotes($nSiteID,$nIEN,$getvalues_interpret_notes,$prev_commit_dt);
+            foreach($prevnotes_interpret_notes as $prevnoteinfo)
             {
-                $fullname = 'RAPTOR user '.$author_uid;
-            } else {
-                $fullname = $userinfo->getFullName();
+                $author_uid = $prevnoteinfo['author_uid'];
+                $created_dt = $prevnoteinfo['created_dt'];
+                $notes_tx = $prevnoteinfo['notes_tx'];
+                $userinfo = $oAllUsers->getByUID($author_uid);
+                if($userinfo == NULL)
+                {
+                    $fullname = 'RAPTOR user '.$author_uid;
+                } else {
+                    $fullname = $userinfo->getFullName();
+                }
+                if(trim($notes_tx) == '')
+                {
+                    $notes_tx = 'BLANK';
+                }
+                $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Date',$created_dt);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Author',$fullname);
+                $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Text',$notes_tx,NULL,TRUE);
             }
-            if(trim($notes_tx) == '')
-            {
-                $notes_tx = 'BLANK';
-            }
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Date',$created_dt);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Exam General Note Text',$notes_tx, NULL, TRUE);
-        }
-        if(count($noteTextArray)>0)
-        {
-            $noteTextArray[] = '';
-        }
-        
-        //Get raptor_ticket_interpret_notes
-        $getvalues = array();
-        $prevnotes = $this->getInterpretationNotes($nSiteID,$nIEN,$getvalues,$prev_commit_dt);
-        foreach($prevnotes as $prevnoteinfo)
-        {
-            $author_uid = $prevnoteinfo['author_uid'];
-            $created_dt = $prevnoteinfo['created_dt'];
-            $notes_tx = $prevnoteinfo['notes_tx'];
-            $userinfo = $oAllUsers->getByUID($author_uid);
-            if($userinfo == NULL)
-            {
-                $fullname = 'RAPTOR user '.$author_uid;
-            } else {
-                $fullname = $userinfo->getFullName();
-            }
-            if(trim($notes_tx) == '')
-            {
-                $notes_tx = 'BLANK';
-            }
-            $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Date',$created_dt);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Author',$fullname);
-            $this->addFormattedVistaNoteRow($noteTextArray,'Interpretation General Note Text',$notes_tx,NULL,TRUE);
+        } catch (\Exception $ex) {
+            throw $ex;
         }
     }
 

@@ -95,11 +95,11 @@ function raptor_glue_edithydrationoptions_form()
 }
 function raptor_glue_editcontrastoptions_form() 
 {
-    return drupal_get_form("raptor_glue_editcontrastoptions_form_builder");
+    return drupal_get_form('raptor_glue_editcontrastoptions_form_builder');
 }
 function raptor_glue_editradioisotopeoptions_form() 
 {
-    return drupal_get_form("raptor_glue_editradioisotopeoptions_form_builder");
+    return drupal_get_form('raptor_glue_editradioisotopeoptions_form_builder');
 }
 function raptor_glue_editexamroomoptions_form() 
 {
@@ -825,47 +825,80 @@ function raptor_glue_worklist_form()
 
 function raptor_glue_worklist_form_builder($form, &$form_state)
 {
-    if(isset($_GET['successmsg']))
+    try
     {
-        $msg = $_GET['successmsg'];
-        $stripprefix = 'Status message';
-        $pos = strpos($msg, $stripprefix);
-        if($pos !== FALSE && $pos === 0)
+        if(isset($_GET['successmsg']))
         {
-            $msg = substr($msg, strlen($stripprefix));
-        }
-        drupal_set_message($msg);
-    }
-    if(isset($_GET['releasealltickets']))
-    {
-        $releasealltickets = $_GET['releasealltickets'];
-        if(strtoupper($releasealltickets) == 'TRUE')
-        {
-            //Clear all current ticket locks for this user now!
-            module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
-            $oContext = \raptor\Context::getInstance();
-            $oTT = new \raptor\TicketTrackingData();
-            $nUID = $oContext->getUID();
-            if($nUID > '')
+            $msg = $_GET['successmsg'];
+            $stripprefix = 'Status message';
+            $pos = strpos($msg, $stripprefix);
+            if($pos !== FALSE && $pos === 0)
             {
-                //They are logged in, delete tickets.
-                $oTT->deleteAllUserTicketLocks($nUID); 
+                $msg = substr($msg, strlen($stripprefix));
             }
-        } else
-        if(strtoupper($releasealltickets) == 'FALSE')
-        {
-            drupal_set_message("No existing ticket locks (if any existed) were cleared");
-        } else {
-            throw new \Exception("Invalid URL parameter value [$releasealltickets] for [releasealltickets]!");
+            if(strlen($msg) > 4)
+            {
+                $firstpart = strtoupper(substr($msg,0,4)) == 'FAIL';
+                if($firstpart == 'FAIL' || $firstpart == 'ERRO')
+                {
+                    //Actually a fail message passed using the success convention
+                    drupal_set_message($msg, 'error');
+                } else {
+                    //Show the success message
+                    drupal_set_message($msg);
+                }
+            } else {
+                if(strlen($msg) > 0)
+                {
+                    //Just a very short message
+                    drupal_set_message($msg);
+                }
+            }
         }
-    }
+        if(isset($_GET['failmsg']))
+        {
+            $msg = $_GET['failmsg'];
+            $stripprefix = 'Status message';
+            $pos = strpos($msg, $stripprefix);
+            if($pos !== FALSE && $pos === 0)
+            {
+                $msg = substr($msg, strlen($stripprefix));
+            }
+            drupal_set_message($msg,'error');
+        }
+        if(isset($_GET['releasealltickets']))
+        {
+            $releasealltickets = $_GET['releasealltickets'];
+            if(strtoupper($releasealltickets) == 'TRUE')
+            {
+                //Clear all current ticket locks for this user now!
+                module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+                $oContext = \raptor\Context::getInstance();
+                $oTT = new \raptor\TicketTrackingData();
+                $nUID = $oContext->getUID();
+                if($nUID > '')
+                {
+                    //They are logged in, delete tickets.
+                    $oTT->deleteAllUserTicketLocks($nUID); 
+                }
+            } else
+            if(strtoupper($releasealltickets) == 'FALSE')
+            {
+                drupal_set_message("No existing ticket locks (if any existed) were cleared");
+            } else {
+                throw new \Exception("Invalid URL parameter value [$releasealltickets] for [releasealltickets]!");
+            }
+        }
 
-    $oPI = new \raptor\WorklistPage();
-    $form = array();
-    $disabled = false;
-    $myvalues = $oPI->getFieldValues();
-    $buildresult = $oPI->getForm($form, $form_state, $disabled, $myvalues);
-    return $buildresult;
+        $oPI = new \raptor\WorklistPage();
+        $form = array();
+        $disabled = false;
+        $myvalues = $oPI->getFieldValues();
+        $buildresult = $oPI->getForm($form, $form_state, $disabled, $myvalues);
+        return $buildresult;
+    } catch (\Exception $ex) {
+        throw $ex;
+    }
 }
 
 function raptor_glue_worklist_form_builder_submit($form, &$form_state) 
@@ -943,7 +976,6 @@ function raptor_glue_editatriskrarecontrast_form_builder_submit($form, &$form_st
     }
 }
 
-
 function raptor_glue_editatriskrareradioisotope_form() 
 {
     return drupal_get_form("raptor_glue_editatriskrareradioisotope_form_builder");
@@ -976,7 +1008,6 @@ function raptor_glue_editatriskrareradioisotope_form_builder_submit($form, &$for
           );
     }
 }
-
 
 function raptor_about_form_builder($form, &$form_state)
 {

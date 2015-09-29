@@ -334,15 +334,14 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $encryption = new \raptor_ewdvista\Encryption();
             $credentials = $encryption->getEncryptedCredentials($init_key, $username, $password);
             $this->setSessionVariable('credentials', $credentials);
-
-            $method = 'login';
+            $serviceName = 'login';
             //http://localhost:8081/RaptorEwdVista/raptor/login?credentials=
-            $url = $this->getURL($method) . "?credentials=" . $credentials;
-            $header["Authorization"]=$authorization;
+            $url = $this->getURL($serviceName) . '?credentials=' . $credentials;
+            $header['Authorization']=$authorization;
             $json_string = $this->m_oWebServices->callAPI('GET', $url, FALSE, $header);            
             $json_array = json_decode($json_string, TRUE);
             
-            if (array_key_exists("DUZ", $json_array))
+            if (array_key_exists('DUZ', $json_array))
             {
                 $userduz = trim($json_array['DUZ']);
                 $this->setSessionVariable('dt',trim($json_array['DT']));
@@ -354,7 +353,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 $this->setSessionVariable('securitykeys',$securitykeys);
             }
             else {
-                $errorMessage = "Unable to LOGIN because missing DUZ in " . print_r($json_array, TRUE);
+                $errorMessage = 'Unable to LOGIN because missing DUZ in ' . print_r($json_array, TRUE);
                 throw new \Exception($errorMessage);
             }
         } catch (\Exception $ex) {

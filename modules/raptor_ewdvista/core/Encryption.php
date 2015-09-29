@@ -34,12 +34,56 @@ namespace raptor_ewdvista;
  */
 class Encryption
 {
+    private static function getEncryptedText ($key, $data)
+    {
+        try
+        {
+            $bytes = openssl_random_pseudo_bytes(8, $cstrong);
+            $iv   = bin2hex($bytes);
+            $encrypted_data = openssl_encrypt($data, "aes-256-cbc", $key, 0, $iv);
+
+            $binary = base64_decode($encrypted_data);
+            $hex = bin2hex($binary);
+
+            $encrypted_bundle= ($iv.";;".$hex);
+
+            return $encrypted_bundle;
+        }
+        catch (\Exception $ex) {
+            throw new \Exception("Failed encryption because ".$ex,99876,$ex);
+        }
+    }
+    
+    private static function getDecryptedText($key, $encrypted_bundle)
+    {
+        try
+        {
+
+            $a= explode(";;", $encrypted_bundle);
+            $iv= $a[0];
+            $encry=$a[1];
+
+            $binary = hex2bin($encry);
+            $base64 = base64_encode($binary);
+
+            $decrypted_data = openssl_decrypt($base64, "aes-256-cbc", $key, 0, $iv);
+            return $decrypted_data;
+        }
+        catch (\Exception $ex) {
+                throw new \Exception("Failed encryption because " . $ex, 99876, $ex);
+        }
+    }    
+    
     public static function getEncryptedCredentials($keytext,$access_code,$verify_code)
     {
         //FAKE CODE NOT ENCRYPT
         $input = 'accessCode:' . $access_code . ';verifyCode:' . $verify_code;
-        return $input;
-        
+error_log("LOOK PARAMS getEncryptedCredentials($keytext,$access_code,$verify_code)");
+error_log("LOOK INPUT getEncryptedCredentials=$input");
+    $output = self::getEncryptedText ($keytext, $input);
+error_log("LOOK OUTPUT getEncryptedCredentials=$output");
+$output = $input;   //REPLACE THIS WITH REAL ENCRYPTION!!!!!!!!!!!!!!!!  TODO
+        return $output;
         /* REAL CODE
         
         try
