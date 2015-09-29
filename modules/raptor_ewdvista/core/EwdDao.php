@@ -43,7 +43,7 @@ require_once 'PathologyReportHelper.php';
 require_once 'RadiologyReportHelper.php';
 
 defined('VERSION_INFO_RAPTOR_EWDDAO')
-    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150927.1');
+    or define('VERSION_INFO_RAPTOR_EWDDAO', 'EWD VISTA EHR Integration 20150929.1');
 
 defined('REDAO_CACHE_NM_WORKLIST')
     or define('REDAO_CACHE_NM_WORKLIST', 'getWorklistDetailsMapData');
@@ -372,7 +372,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         try
         {
             $url = $this->getURL($serviceName, $args_ar);
-error_log("LOOK URL=$url");            
+error_log("LOOK getServiceRelatedData $methodtype " . ($data_ar !== FALSE ? '(WITH Data Array!)' : '(without data array)' ) . " URL=$url");            
             $authorization = $this->getSessionVariable('authorization');
             if($authorization == NULL)
             {

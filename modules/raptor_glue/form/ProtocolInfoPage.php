@@ -1727,6 +1727,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         } else {
             $clickedvalue = $clickedbutton['#value'];
         }
+        $userAcknowledgedProtocol = FALSE;  //Set this flag if they clicked the button
         
         //die('>>>>clicked['.$clickedbutton["#value"].'] values>>>>'.print_r($myvalues,TRUE));
         if($bSuccess)
@@ -1805,6 +1806,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
 
                     //Write success message
                     $successMsg = ('Acknowledged ' . $sFullTicketID . ' (' . $myvalues['procName'] .')');
+                    $userAcknowledgedProtocol = TRUE;
                 }
             } else
             if(substr($clickedvalue,0,13) == 'Unacknowledge')

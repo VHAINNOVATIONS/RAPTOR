@@ -104,81 +104,87 @@ function raptor_glue_protocolinfo_form_inputarea()
 
 function raptor_glue_protocolinfo_form_builder($form, &$form_state)
 {
-    module_load_include('php', 'raptor_datalayer', 'core/Context');
-    $oContext = \raptor\Context::getInstance();
-    if(isset($_REQUEST['drupalmsg']))
+    try
     {
-        //There was there a request to generate a drupal message in the UI?
-        $msg=urldecode($_GET['drupalmsg']);
-        drupal_set_message($msg);
-    }
-    if(isset($_REQUEST['pbatch']))
-    {
-error_log('LOOK PBATCH detected!!!>>>' . $_REQUEST['pbatch']);
-        $rawrtid=null;
-        $pbatch=$_REQUEST['pbatch'];
-        if($pbatch !== 'CONTINUE')
+        module_load_include('php', 'raptor_datalayer', 'core/Context');
+        $oContext = \raptor\Context::getInstance();
+        if(isset($_REQUEST['drupalmsg']))
         {
-            $aPBatch=explode(',', urldecode($pbatch));
-            $oContext->setPersonalBatchStack($aPBatch);
+            //There was there a request to generate a drupal message in the UI?
+            $msg=urldecode($_GET['drupalmsg']);
+            drupal_set_message($msg);
+        }
+        if(isset($_REQUEST['pbatch']))
+        {
+    error_log('LOOK PBATCH detected!!!>>>' . $_REQUEST['pbatch']);
+            $rawrtid=null;
+            $pbatch=$_REQUEST['pbatch'];
+            if($pbatch !== 'CONTINUE')
+            {
+                $aPBatch=explode(',', urldecode($pbatch));
+                $oContext->setPersonalBatchStack($aPBatch);
+            } else {
+                //drupal_set_message('PBATCH CONTINUE detected and selected!!!');
+    error_log('LOOK PBATCH CONTINUE detected and selected!!!');
+                $oContext->clearSelectedTrackingID();  //Blank out current selection so gets next from the stack.
+            }
+        } else if(isset($_REQUEST['rawrtid'])) {
+            $rawrtid=$_REQUEST['rawrtid'];
+            $pbatch=NULL;
+            if($rawrtid === null || substr($rawrtid,0,1) !== '[' || substr($rawrtid,-1) !== ']')
+            {
+                throw new \Exception("The rawrtid parameter MUST start with [ and end with ] bracket!");
+            }
+            $clean_rawrtid = substr($rawrtid, 1, -1);
+            $oContext->setSelectedTrackingID($clean_rawrtid);
+        }
+        if(!$oContext->hasSelectedTrackingID())
+        {
+            //Clear all current ticket locks now!
+            module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+            $oTT = new \raptor\TicketTrackingData();
+            $nUID = $oContext->getUID();
+            $oTT->deleteAllUserTicketLocks($nUID);  //Clear all other ticket locks for this user now.
+            //Go back to the worklist now!
+            drupal_goto('worklist',array('redirectreason'=>'nomorertids'));
+        }
+        $disabled = FALSE;
+        if(isset($_REQUEST['mode'])) 
+        {
+            $showmode=  strtoupper($_REQUEST['mode']);
+            if($showmode == 'VIEW')
+            {
+                $disabled = TRUE;
+            }
+        }
+
+        //If we are here, we will display the protocol form to the user.
+        $getform = TRUE;
+        if($getform)
+        {
+            $pbmsg = $oContext->getPersonalBatchStackMessage();
+            if($pbmsg !== null)
+            {
+                drupal_set_message('<div class="personalbatchmsg">'.$pbmsg.'</div>');
+            }
+            $tid = $oContext->getSelectedTrackingID();
+            module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
+            $oPI = new \raptor\ProtocolInfoPage($tid, $disabled);
+            $form = array();
+            if(!isset($form_state['values']))
+            {
+                $myvalues_override = $oPI->getFieldValues();
+            } else {
+                $myvalues_override = NULL;
+            }
+            $buildResult = $oPI->getForm($form, $form_state, $disabled, $myvalues_override);
         } else {
-            //drupal_set_message('PBATCH CONTINUE detected and selected!!!');
-error_log('LOOK PBATCH CONTINUE detected and selected!!!');
-            $oContext->clearSelectedTrackingID();  //Blank out current selection so gets next from the stack.
+            $buildResult = array();
         }
-    } else if(isset($_REQUEST['rawrtid'])) {
-        $rawrtid=$_REQUEST['rawrtid'];
-        $pbatch=NULL;
-        if($rawrtid === null || substr($rawrtid,0,1) !== '[' || substr($rawrtid,-1) !== ']')
-        {
-            throw new \Exception("The rawrtid parameter MUST start with [ and end with ] bracket!");
-        }
-        $clean_rawrtid = substr($rawrtid, 1, -1);
-        $oContext->setSelectedTrackingID($clean_rawrtid);
+        return $buildResult;
+    } catch (\Exception $ex) {
+
     }
-    if(!$oContext->hasSelectedTrackingID())
-    {
-        //Clear all current ticket locks now!
-        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
-        $oTT = new \raptor\TicketTrackingData();
-        $nUID = $oContext->getUID();
-        $oTT->deleteAllUserTicketLocks($nUID);  //Clear all other ticket locks for this user now.
-        //Go back to the worklist now!
-        drupal_goto('worklist',array('redirectreason'=>'nomorertids'));
-    }
-    $disabled = FALSE;
-    if(isset($_REQUEST['mode'])) 
-    {
-        $showmode=  strtoupper($_REQUEST['mode']);
-        if($showmode == 'VIEW')
-        {
-            $disabled = TRUE;
-        }
-    }
-        
-    $getform = TRUE;
-    if($getform)
-    {
-        $pbmsg = $oContext->getPersonalBatchStackMessage();
-        if($pbmsg !== null)
-        {
-            drupal_set_message('<div class="personalbatchmsg">'.$pbmsg.'</div>');
-        }
-        $tid = $oContext->getSelectedTrackingID();
-        module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
-        $oPI = new \raptor\ProtocolInfoPage($tid,$disabled);
-        $form = array();
-        if(!isset($form_state['values']))
-        {
-            $myvalues_override = $oPI->getFieldValues();
-        } else {
-            $myvalues_override = NULL;
-        }
-        $buildResult = $oPI->getForm($form, $form_state, $disabled, $myvalues_override);
-    } else {
-        $buildResult = array();
-    }
-    return $buildResult;
 }
 
 
@@ -247,52 +253,60 @@ function raptor_glue_protocolinfo_form_builder_validate($form, &$form_state)
  */ 
 function raptor_glue_protocolinfo_form_builder_submit($form, &$form_state) 
 {
-    $clickedbutton = $form_state['clicked_button'];
-    $clickedvalue = $clickedbutton['#value'];
-    if($clickedvalue == '')
+    try
     {
-        //Some kind of ajax event, get out now with success.
-        return TRUE;
-    }
-    $myvalues = $form_state['values'];
-    if(isset($myvalues['collaboration_uid']) && is_numeric($myvalues['collaboration_uid']))
-    {
-        //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
-        $clickedvalue = 'Collaborate';
-    }
-    module_load_include('php', 'raptor_datalayer', 'core/Context');
-    module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
-    $oContext = \raptor\Context::getInstance();
-    $tid = $oContext->getSelectedTrackingID();
-    $oPI = new \raptor\ProtocolInfoPage($tid);
-    $bOkay = $oPI->updateDatabase($clickedbutton, $form_state['values']);
-    if($bOkay)
-    {
-        if($clickedvalue == 'Approve' 
-                || substr($clickedvalue,0,11) == 'Collaborate' 
-                || substr($clickedvalue,0,12) == 'Cancel Order' 
-                || substr($clickedvalue,0,7) == 'Suspend' 
-                || substr($clickedvalue,0,7) == 'Reserve' 
-                || substr($clickedvalue,0,7) == 'Request' 
-                || substr($clickedvalue,0,4) == 'Exam' 
-                || substr($clickedvalue,0,5) == 'Inter'
-                || substr($clickedvalue,0,2) == 'QA'
-                || substr($clickedvalue,0,3) == 'Ack'
-                || substr($clickedvalue,0,6) == 'Commit')
+        $clickedbutton = $form_state['clicked_button'];
+        $clickedvalue = $clickedbutton['#value'];
+        if($clickedvalue == '')
         {
-            $form_state['redirect'] = array(
-                'protocol',array('query' => array('pbatch'=>'CONTINUE'))
-              );  
-        } else {
-            //Re-display the current protocol the hard way!
-            $ready_rawrtid = '['.$tid.']';
-            $form_state['redirect'] = array(
-                'protocol',
-                array(
-                  'query' => array('rawrtid'=>$ready_rawrtid),
-                ),
-              );
+            //Some kind of ajax event, get out now with success.
+            return TRUE;
         }
+        $myvalues = $form_state['values'];
+        if(isset($myvalues['collaboration_uid']) && is_numeric($myvalues['collaboration_uid']))
+        {
+            //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
+            $clickedvalue = 'Collaborate';
+        }
+        module_load_include('php', 'raptor_datalayer', 'core/Context');
+        module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
+        $oContext = \raptor\Context::getInstance();
+        $tid = $oContext->getSelectedTrackingID();
+        $oPI = new \raptor\ProtocolInfoPage($tid);
+        $bOkay = $oPI->updateDatabase($clickedbutton, $form_state['values']);
+        if($bOkay)
+        {
+            $query_args = array();
+            if($clickedvalue == 'Approve' 
+                    || substr($clickedvalue,0,11) == 'Collaborate' 
+                    || substr($clickedvalue,0,12) == 'Cancel Order' 
+                    || substr($clickedvalue,0,7) == 'Suspend' 
+                    || substr($clickedvalue,0,7) == 'Reserve' 
+                    || substr($clickedvalue,0,7) == 'Request' 
+                    || substr($clickedvalue,0,4) == 'Exam' 
+                    || substr($clickedvalue,0,5) == 'Inter'
+                    || substr($clickedvalue,0,2) == 'QA'
+                    //|| substr($clickedvalue,0,3) == 'Ack' 20190929
+                    || substr($clickedvalue,0,6) == 'Commit')
+            {
+                //Let the page check for batch and decide if there is none.
+                $query_args['pbatch'] = 'CONTINUE';
+                $form_state['redirect'] = array(
+                    'protocol',array('query' => $query_args)
+                  );  
+            } else {
+                //Re-display the current protocol the direct way
+                $ready_rawrtid = '['.$tid.']';
+                $form_state['redirect'] = array(
+                    'protocol',
+                    array(
+                      'query' => array('rawrtid'=>$ready_rawrtid),
+                    ),
+                  );
+            }
+        }
+    } catch (\Exception $ex) {
+        throw $ex;
     }
 }
 

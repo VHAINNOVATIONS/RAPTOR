@@ -172,7 +172,6 @@ class WorklistHelper
             $oContext = \raptor\Context::getInstance();
             $userinfo = $oContext->getUserInfo();
 
-            
             $match_order_to_user = new \raptor_formulas\MatchOrderToUser($userinfo);
             $language_infer = new \raptor_formulas\LanguageInference();
             $unformatted_datarows = $rawdatarows['data'];
@@ -183,7 +182,7 @@ class WorklistHelper
             } else {
                 $rowcount = 0;
             }
-            //error_log("LOOK TODO implement reformat of $rowcount raw data rows");
+
             $formatted_datarows = array();
             $rownum = 0;
             $last_ien = NULL;
@@ -202,8 +201,10 @@ class WorklistHelper
                     $sqlScheduleTrackRow = array_key_exists($ienKey, $scheduleTrackRslt) ? $scheduleTrackRslt[$ienKey] : NULL;
                     
                     $raptor_order_status  = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : NULL);
-                    if($raptor_order_status == NULL 
-                        && ($vista_order_status_code != self::WLVOS_ACTIVE && $vista_order_status_code != self::WLVOS_PENDING))
+                    if(
+                        ($raptor_order_status == NULL 
+                            && ($vista_order_status_code != self::WLVOS_ACTIVE && $vista_order_status_code != self::WLVOS_PENDING))
+                      || $vista_order_status_code == self::WLVOS_DISCONTINUED)       
                     {
                         //We will NOT show this ticket in the worklist
                         $skipped_because_status++;
@@ -423,6 +424,7 @@ class WorklistHelper
                     }
                 }
             }
+            
             //Now walk through all the clean rows to update the pending order reference information
             for($i=0;$i<count($formatted_datarows);$i++)
             {
@@ -454,8 +456,6 @@ class WorklistHelper
                             ,'matching_offset'=>$nOffsetMatchIEN
                             ,'last_ien'=>$last_ien
                             ,'all_rows'=>&$formatted_datarows);
-//error_log("LOOK bundle >>>".print_r($bundle,TRUE));
-//error_log("LOOK EWD WORKLIST skipped orders bc_status=$skipped_because_status bc_other=$skipped_because_other");
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
