@@ -919,6 +919,10 @@ error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ
             } else {
                 $pid = $this->getSelectedPatientID();
             }
+            if(trim($pid) == '')
+            {
+                throw new \Exception("Cannot get EGFR because no pid was provided!");
+            }
             $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
             $alldata = $myhelper->getLabsDetailData($pid);
             $clean_result = $alldata[1];
@@ -938,6 +942,10 @@ error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ
                 $pid = $override_patientId;
             } else {
                 $pid = $this->getSelectedPatientID();
+            }
+            if(trim($pid) == '')
+            {
+                throw new \Exception("Cannot get Diagnostic Labs because no pid was provided!");
             }
             $myhelper = new \raptor_ewdvista\LabsHelper($oContext, $pid);
             $alldata = $myhelper->getLabsDetailData($pid);

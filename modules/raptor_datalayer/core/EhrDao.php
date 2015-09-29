@@ -361,19 +361,10 @@ class EhrDao implements \raptor\IEhrDao
 
     /**
      * Returns FALSE if optional param is not NULL and feature is not supported.
-     * @Deprecated 20150911
-    public function getProcedureLabsDetailMap($override_patientId = NULL)
-    {
-        return $this->m_implclass->getProcedureLabsDetailMap();
-    }
-     */
-
-    /**
-     * Returns FALSE if optional param is not NULL and feature is not supported.
      */
     public function getDiagnosticLabsDetailMap($override_patientId = NULL)
     {
-        return $this->m_implclass->getDiagnosticLabsDetailMap();
+        return $this->m_implclass->getDiagnosticLabsDetailMap($override_patientId);
     }
 
     /**

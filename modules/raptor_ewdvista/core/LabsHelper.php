@@ -100,6 +100,10 @@ class LabsHelper
             if($override_patientId == NULL)
             {
                 $tid = $this->m_oContext->getSelectedTrackingID();
+                if(trim($tid) == '')
+                {
+                    throw new \Exception("No patient id was provided and no order is currently active!");
+                }
                 $pid = $myDao->getPatientIDFromTrackingID($tid);
             } else {
                 $pid = $override_patientId;
