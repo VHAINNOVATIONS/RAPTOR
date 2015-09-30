@@ -620,7 +620,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args = array();
             $args['patientId'] = $pid;
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-            $notesdetail = $myhelper->getFormattedNotes($rawresult);
+            $notesdetail = $myhelper->getFormattedNotes($rawresult, MAX_DEFAULT_NOTES_TO_SHOW);
             return $notesdetail;
         } catch (\Exception $ex) {
             throw $ex;

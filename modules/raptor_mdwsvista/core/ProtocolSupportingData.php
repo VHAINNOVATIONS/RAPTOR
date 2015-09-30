@@ -1780,8 +1780,10 @@ class ProtocolSupportingData
     {
         try
         {
+            $numadded=0;
+            $max_notes_to_report = MAX_DEFAULT_NOTES_TO_SHOW;
             $mdwsDao = $this->m_oContext->getEhrDao()->getImplementationInstance();
-            $serviceResponse = $mdwsDao->makeQuery("getNotesWithText", array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>0));
+            $serviceResponse = $mdwsDao->makeQuery("getNotesWithText", array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>($max_notes_to_report+1)));  //So we trigger message
             //$serviceResponse = $this->m_oContext->getMdwsClient()->makeQuery("getNotesWithText", array('fromDate'=>'0', 'toDate'=>'0', 'nNotes'=>0));
             $result = array();
             if(!isset($serviceResponse->getNotesWithTextResult->arrays->TaggedNoteArray->count)) return $result;
@@ -1843,14 +1845,29 @@ class ProtocolSupportingData
                     } else {
                         $snippetText = "$blurb $notetextsize_tx";
                     }
-                    $result[] = array(
-                                        "Type"=>$localTitle, 
-                                        "Date"=>$tempRpt['timestamp'],
-                                        "Snippet" => $snippetText,
-                                        "Details" => array('Type of Note'=>$localTitle, 
-                                                        'Author'=>$tempRpt['authorName'], 
-                                                        'Note Text'=>$tempRpt['text'], 
-                                                        'Facility'=>$tempRpt['facility']));
+                    $numadded++;
+                    if($numadded > $max_notes_to_report)
+                    {
+                        //Hit the max, dont do anymore.
+                        $result[] = array(
+                                            "Type"=>'!! User Notice !!', 
+                                            "Date"=>$tempRpt['timestamp'],
+                                            "Snippet" => 'More notes available elsewhere',
+                                            "Details" => array('Type of Note'=>'user message', 
+                                                            'Author'=>'NA', 
+                                                            'Note Text'=>"More notes do exist for this patient and can be accessed using other tools.  The RAPTOR application is configured to display only $max_notes_to_report notes for a patient and that maximum has now been displayed.", 
+                                                            'Facility'=>'RAPTOR VistA site '.VISTA_SITE));
+                        break;
+                    } else {
+                        $result[] = array(
+                                            "Type"=>$localTitle, 
+                                            "Date"=>$tempRpt['timestamp'],
+                                            "Snippet" => $snippetText,
+                                            "Details" => array('Type of Note'=>$localTitle, 
+                                                            'Author'=>$tempRpt['authorName'], 
+                                                            'Note Text'=>$tempRpt['text'], 
+                                                            'Facility'=>$tempRpt['facility']));
+                    }
                 }
             }
             return $result;

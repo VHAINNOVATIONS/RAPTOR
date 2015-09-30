@@ -47,15 +47,20 @@ class NotesHelper
     
     private function getFieldTextData($rawfield,$delminiter='^')
     {
-        $strpos = strpos($rawfield,$delminiter);
-        if($strpos == FALSE)
+        try
         {
-            return NULL;
+            $strpos = strpos($rawfield,$delminiter);
+            if($strpos == FALSE)
+            {
+                return NULL;
+            }
+            return trim(substr($rawfield,$strpos+1));
+        } catch (\Exception $ex) {
+            throw $ex;
         }
-        return trim(substr($rawfield,$strpos+1));
     }
     
-    public function getFormattedNotes($rawresult)
+    public function getFormattedNotes($rawresult, $max_notes_to_report=MAX_DEFAULT_NOTES_TO_SHOW)
     {
         try
         {
@@ -65,6 +70,7 @@ class NotesHelper
                 error_log("$errmsg >>>".print_r($rawresult, TRUE));
                 throw new \Exception($errmsg);
             }
+            $numadded=0;
             $formatted = array();
             foreach($rawresult as $onegroup)
             {
@@ -120,17 +126,32 @@ class NotesHelper
                 } else {
                     $snippetText = "$blurb $notetextsize_tx";
                 }
-                $formatted[] = array(
-                        'Type'=>$localTitle, 
-                        'Date'=>$datetimestr,
-                        'Snippet' => $snippetText,
-                        'Details' => array(
-                                'Type of Note'=>$localTitle, 
-                                'Author'=>$authorName, 
-                                'Note Text'=>$notetext, 
-                                'Facility'=>$facility,
-                            )
-                    );
+                $numadded++;
+                if($numadded > $max_notes_to_report)
+                {
+                    //Hit the max, dont do anymore.
+                    $formatted[] = array(
+                                        'Type'=>'!! User Notice !!', 
+                                        'Date'=>$tempRpt['timestamp'],
+                                        'Snippet' => 'More notes available elsewhere',
+                                        'Details' => array('Type of Note'=>'user message', 
+                                                        'Author'=>'NA', 
+                                                        'Note Text'=>"More notes do exist for this patient and can be accessed using other tools.  The RAPTOR application is configured to display only $max_notes_to_report notes for a patient and that maximum has now been displayed.", 
+                                                        'Facility'=>'RAPTOR VistA site '.VISTA_SITE));
+                    break;
+                } else {
+                    $formatted[] = array(
+                            'Type'=>$localTitle, 
+                            'Date'=>$datetimestr,
+                            'Snippet' => $snippetText,
+                            'Details' => array(
+                                    'Type of Note'=>$localTitle, 
+                                    'Author'=>$authorName, 
+                                    'Note Text'=>$notetext, 
+                                    'Facility'=>$facility,
+                                )
+                        );
+                }
             }
             return $formatted;
         } catch (\Exception $ex) {

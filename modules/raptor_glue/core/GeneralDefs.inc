@@ -1,7 +1,7 @@
 <?php
 
 defined('GENERAL_DEFS_VERSION_INFO')
-    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150930.1');
+    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150930.2');
 
 /*
  * These are General Purpose settings
@@ -15,9 +15,13 @@ defined('REQUIRE_ACKNOWLEDGE_DEFAULTS')
 defined('PROTOCOL_SHORTLIST_MIN_SIZE')
     or define('PROTOCOL_SHORTLIST_MIN_SIZE', 3);
 
+//Some default limits to reduce data volumes on text displayed
+defined('MAX_DEFAULT_NOTES_TO_SHOW')
+    or define('MAX_DEFAULT_NOTES_TO_SHOW', 100);
+
 //Define some graphing constraints
 defined('GRAPH_THUMBNAIL_DEFAULT_POINT_COUNT')
-    or define('GRAPH_THUMBNAIL_DEFAULT_POINT_COUNT', 5);
+    or define('GRAPH_THUMBNAIL_DEFAULT_POINT_COUNT', 8);
 defined('GRAPH_NORMAL_DEFAULT_POINT_COUNT')
     or define('GRAPH_NORMAL_DEFAULT_POINT_COUNT', 20);
 defined('GRAPH_LARGE_DEFAULT_POINT_COUNT')

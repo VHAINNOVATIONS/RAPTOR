@@ -110,6 +110,7 @@ class GraphData
     {
         try
         {
+error_log("LOOK parseVitalsFromLegacyFormat($max_dates) start...");
             if (isset($vitals->getVitalSignsResult->fault)) {
                 $errmsg = $vitals->getVitalSignsResult->fault->message;
                 error_log("ERROR detected in convertVitalsToGraphFormat fault=$errmsg");
@@ -187,6 +188,7 @@ class GraphData
                         {
                             $dates_with_data++;
                         }
+error_log("LOOK parseVitalsFromLegacyFormat($max_dates) datecount=$dates_with_data $prev_timestamp vs $just_date...");
                         if ($dates_with_data <= $max_dates) 
                         {
                             $result[] = $aryForTimestamp;
@@ -213,14 +215,15 @@ class GraphData
      *     [0] => Temperature
      *     [1] => Pulse
      */
-    private function parseVitalsFromFullFormat($typeArray, $vitals_bundle, $max_data_points)
+    private function parseVitalsFromFullFormat($typeArray, $vitals_bundle, $max_dates)
     {
         try
         {
+error_log("LOOK parseVitalsFromFullFormat($max_dates) start...");
             $gettemp = in_array('Temperature', $typeArray);
             $getpulse = in_array('Pulse', $typeArray);
             $rows = $vitals_bundle[0];
-            $datecount = 0;
+            $datecount_any_data = 0;
             $prevdate = NULL;
             $prevdate_temp = NULL;
             $prevdate_pulse = NULL;
@@ -235,58 +238,65 @@ class GraphData
                 $just_date_ts = $dtparts['datetime_text'];
                 if($prevdate != $just_date_ts)
                 {
-                    $datecount++;
                     $prevdate = $just_date_ts;
-                    /*
-                    if($datecount > $max_data_points)
+                    $count_newdate = TRUE;
+error_log("LOOK parseVitalsFromFullFormat($max_dates) datecount=$datecount_any_data $prevdate vs $just_date_ts...");
+                } else {
+                    $count_newdate = FALSE;
+                }
+                //We only grab ONE value per date.
+                $oneitem = NULL;
+                if($gettemp)    // && $prevdate_temp != $just_date_ts)
+                {
+                    if($count_newdate)
                     {
-                        //No more.
-                        break;
+                        $datecount_any_data++;
+                        $count_newdate = FALSE;
                     }
-                     */
-                    //We only grab ONE value per date.
-                    $oneitem = NULL;
-                    if($gettemp && $prevdate_temp != $just_date_ts)
+                    if($oneitem == NULL)
                     {
-                        if($oneitem == NULL)
-                        {
-                            $oneitem = array();
-                        }
-                        $temp_tx = trim($onerow['Temp']);
-                        if($temp_tx > '')
-                        {
-                            $founddata = TRUE;
-                            $prevdate_temp = $just_date_ts;
-                            $parts = explode(' ', $temp_tx);
-                            $oneitem['temperature'] = $parts[0];
-                        }
+                        $oneitem = array();
                     }
-                    if($getpulse && $prevdate_pulse != $just_date_ts)
+                    $temp_tx = trim($onerow['Temp']);
+                    if($temp_tx > '')
                     {
-                        if($oneitem == NULL)
-                        {
-                            $oneitem = array();
-                        }
-                        $pulse_tx = trim($onerow['Pulse']);
-                        if($pulse_tx > '')
-                        {
-                            $founddata = TRUE;
-                            $prevdate_pulse = $just_date_ts;
-                            $parts = explode(' ', $pulse_tx);
-                            $oneitem['pulse'] = $parts[0];
-                        }
+                        $founddata = TRUE;
+                        $prevdate_temp = $just_date_ts;
+                        $parts = explode(' ', $temp_tx);
+                        $oneitem['temperature'] = $parts[0];
                     }
-                    if($oneitem != NULL)
+                }
+                if($getpulse)   // && $prevdate_pulse != $just_date_ts)
+                {
+                    if($count_newdate)
                     {
-                        $oneitem['date'] = $formatted_just_date_tx;
-                        $oneitem['datetime'] = $formatted_datetime_tx;
-                        $result[] = $oneitem;
+                        $datecount_any_data++;
+                        $count_newdate = FALSE;
                     }
-                    if(count($result) >= $max_data_points)
+                    if($oneitem == NULL)
                     {
-                        //No more.
-                        break;
+                        $oneitem = array();
                     }
+                    $pulse_tx = trim($onerow['Pulse']);
+                    if($pulse_tx > '')
+                    {
+                        $founddata = TRUE;
+                        $prevdate_pulse = $just_date_ts;
+                        $parts = explode(' ', $pulse_tx);
+                        $oneitem['pulse'] = $parts[0];
+                    }
+                }
+                if($datecount_any_data > $max_dates)    //Stop when we hit MORE not when we hit equal!
+                {
+                    //No more -- do NOT add this one.
+                    break;
+                }
+                if($oneitem != NULL)
+                {
+                    $oneitem['date'] = $formatted_just_date_tx;
+                    $oneitem['datetime'] = $formatted_datetime_tx;
+                    $result[] = $oneitem;
+error_log("LOOK parseVitalsFromFullFormat($max_dates) ADDED TO RESULT datecount=$datecount_any_data $prevdate vs $just_date_ts...");
                 }
             }
             return $result;
