@@ -49,7 +49,7 @@ class GraphData
         {
             $ehrDao = $this->m_oContext->getEhrDao();
             $rawVitalsBundle = $ehrDao->getRawVitalSignsMap();
-            $max_dates = 5;
+            $max_dates = GRAPH_THUMBNAIL_DEFAULT_POINT_COUNT;
             $result = $this->convertVitalsToGraphFormat(array('Temperature'), $rawVitalsBundle, $max_dates);
             if(!is_array($result))
             {
@@ -68,14 +68,13 @@ class GraphData
         {
             $ehrDao = $this->m_oContext->getEhrDao();
             $rawResult = $ehrDao->getRawVitalSignsMap();
-            $max_dates = 20;
+            $max_dates = GRAPH_NORMAL_DEFAULT_POINT_COUNT;
             $result = $this->convertVitalsToGraphFormat(array('Temperature', 'Pulse'), $rawResult, $max_dates);
             if(!is_array($result))
             {
                 error_log("WARNING unexpected format received by getVitalsGraphValues>>>".print_r($result,TRUE));
                 $result = array();
             }
-        //error_log("LOOK getVitalsGraphValues>>>".print_r($result,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -93,10 +92,7 @@ class GraphData
                     , 'gender'=>$aDD['PatientGender']
                     , 'age'=>$aDD['PatientAge']);
             $labsResult = $ehrDao->getChemHemLabs();
-            //error_log('LOOK getLabsGraphValues patient>>>'.print_r($selectedPatient,TRUE));
-            //error_log('LOOK getLabsGraphValues labs>>>'.print_r($labsResult,TRUE));
             $result = $this->convertLabsToGraphFormat($selectedPatient,$labsResult);
-            //error_log('LOOK getLabsGraphValues filtered>>>'.print_r($result,TRUE));
             if(!is_array($result))
             {
                 $result = array();
@@ -217,7 +213,7 @@ class GraphData
      *     [0] => Temperature
      *     [1] => Pulse
      */
-    private function parseVitalsFromFullFormat($typeArray, $vitals_bundle, $max_dates)
+    private function parseVitalsFromFullFormat($typeArray, $vitals_bundle, $max_data_points)
     {
         try
         {
@@ -241,11 +237,13 @@ class GraphData
                 {
                     $datecount++;
                     $prevdate = $just_date_ts;
-                    if($datecount > $max_dates)
+                    /*
+                    if($datecount > $max_data_points)
                     {
                         //No more.
                         break;
                     }
+                     */
                     //We only grab ONE value per date.
                     $oneitem = NULL;
                     if($gettemp && $prevdate_temp != $just_date_ts)
@@ -284,6 +282,11 @@ class GraphData
                         $oneitem['datetime'] = $formatted_datetime_tx;
                         $result[] = $oneitem;
                     }
+                    if(count($result) >= $max_data_points)
+                    {
+                        //No more.
+                        break;
+                    }
                 }
             }
             return $result;
@@ -317,16 +320,11 @@ class GraphData
         }
     }
     
-    private function convertVitalsToGraphFormat($typeArray, $vitals, $max_dates=5)
+    private function convertVitalsToGraphFormat($typeArray, $vitals, $max_dates=GRAPH_THUMBNAIL_DEFAULT_POINT_COUNT)
     {
         try
         {
             global $user;
-            
-    //error_log('LOOK Starting convertVitalsToGraphFormat as user '.$user->name.' maxdates='.$max_dates);
-    //error_log('LOOK Starting convertVitalsToGraphFormat typeArray >>>' . print_r($typeArray,TRUE));
-    //error_log('LOOK Starting convertVitalsToGraphFormat vitals >>>' . print_r($vitals,TRUE));
-
             if (!isset($typeArray) || count($typeArray) === 0) 
             {
                 $errmsg = 'Invalid vital types argument:'.print_r($typeArray,TRUE);
@@ -335,13 +333,10 @@ class GraphData
             }
             if(is_array($vitals))
             {
-    //error_log('LOOK Starting convertVitalsToGraphFormat vitals FULL format >>>' . print_r($vitals,TRUE));
                 $result = $this->parseVitalsFromFullFormat($typeArray, $vitals, $max_dates);
             } else {
-    //error_log('LOOK Starting convertVitalsToGraphFormat vitals LEGACY format >>>' . print_r($vitals,TRUE));
                 $result = $this->parseVitalsFromLegacyFormat($typeArray, $vitals, $max_dates);
             }
-    //error_log('LOOK DONE convertVitalsToGraphFormat result = ' . print_r($result,TRUE));
             return $result;
         } catch (\Exception $ex) {
             throw $ex;
@@ -380,7 +375,7 @@ class GraphData
             foreach ($sortedLabs as $key => $row) 
             {
                 $name[$key]  = $row['name'];
-                $date[$key] = $row['date'];
+                //$date[$key] = $row['date'];
                 $value[$key] = $row['value'];
                 $units[$key] = $row['units'];
                 $rawTime[$key] = $row['rawTime'];
@@ -407,9 +402,9 @@ class GraphData
                 $foundPLT = strpos('PLT', strtoupper($lab['name'])) !== FALSE;
                 $foundPTT = strpos('PTT', strtoupper($lab['name'])) !== FALSE;
 
-                $limits = explode(" - ", $lab['refRange']);
-                $lowerLimit = isset($limits[0]) ? $limits[0] : NULL;
-                $upperLimit = isset($limits[1]) ? $limits[1] : NULL;
+                //$limits = explode(" - ", $lab['refRange']);
+                //$lowerLimit = isset($limits[0]) ? $limits[0] : NULL;
+                //$upperLimit = isset($limits[1]) ? $limits[1] : NULL;
 
                 $value = $lab['value'];
 
@@ -446,7 +441,6 @@ class GraphData
                     }
                     //$formattedDate = self::convertYYYYMMDDToDate($lab['rawTime']);
                     $timestamp = self::convertVistaDateTimeToPhpTimestamp($lab['rawTime']);  //added 20141104 
-//error_log("LOOK lab rawTime=" . $lab['rawTime'] . " >>> real timestamp=$timestamp");                    
                     $datetimeparts = $this->getGraphFriendlyDateTimeParts($timestamp);
                     $formattedDate = $datetimeparts['just_date_text'];
                     $datetime = $datetimeparts['datetime_text'];
@@ -454,7 +448,6 @@ class GraphData
                         'date'=>$formattedDate, 
                         'egfr'=>$eGFR,
                         'datetime'=>$datetime);
-//error_log("LOOK lab rawTime=" . $lab['rawTime'] . " produces >>>" . print_r($oneresult,TRUE));                    
                     $result[] = $oneresult;
                 }
             }
@@ -469,12 +462,17 @@ class GraphData
      */
     private static function convertVistaDateToYYYYMMDD($vistaDateTime) 
     {
-        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
-        $year = 1700 + substr($datePart, 0, 3);
-        $month = substr($datePart, 3, 2);
-        $day = substr($datePart, 5, 2);
-        
-        return $year.$month.$day;
+        try 
+        {
+            $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
+            $year = 1700 + substr($datePart, 0, 3);
+            $month = substr($datePart, 3, 2);
+            $day = substr($datePart, 5, 2);
+
+            return $year.$month.$day;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     /**
@@ -482,19 +480,23 @@ class GraphData
      */
     private static function convertYYYYMMDDToDate($vistaDateTime) 
     {
-        $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
-        $year = substr($datePart, 0, 4);
-        $month = substr($datePart, 4, 2);
-        $day = substr($datePart, 6, 2);
-        
-        return $month."-".$day."-".$year;
+        try 
+        {
+            $datePart = self::getVistaDateTimePart($vistaDateTime, "date");
+            $year = substr($datePart, 0, 4);
+            $month = substr($datePart, 4, 2);
+            $day = substr($datePart, 6, 2);
+
+            return $month.'-'.$day.'-'.$year;
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
     private static function convertVistaDateTimeToPhpTimestamp($fullYearVistaDateTime)
     {
         try
         {
-//error_log("LOOK convert to php timestamp 1) $fullYearVistaDateTime"); 
             //Make sure we have ALL the time in the string (sometimes trailing zeros are lost)
             $too_short_count = 15 - strlen($fullYearVistaDateTime); //20080131.141010 --- len = 15
             if($too_short_count > 0)
@@ -503,14 +505,10 @@ class GraphData
                 $fullYearVistaDateTime .= $tailpad;
             }
             
-//error_log("LOOK convert to php timestamp 2) $fullYearVistaDateTime"); 
-
             //Get the large parts
             $datePart = self::getVistaDateTimePart($fullYearVistaDateTime, "date");
             $timePart = self::getVistaDateTimePart($fullYearVistaDateTime, "time");
             
-//error_log("LOOK convert to php timestamp 3) $fullYearVistaDateTime >>> date=$datePart time=$timePart"); 
-
             //Get each small part
             $year = substr($datePart, 0, 4);
             $month = substr($datePart, 4, 2);
@@ -523,9 +521,7 @@ class GraphData
             //Rebuild how we want to see it.
             $datetime_text = $year.'-'.$month.'-'.$day.' '
                     . "$hours:$minutes:$seconds";
-//error_log("LOOK convert to php timestamp 4) $fullYearVistaDateTime >>> text='$datetime_text' date=$datePart time=$timePart"); 
             $timestamp = strtotime($datetime_text);
-//error_log("LOOK convert to php timestamp 5) $fullYearVistaDateTime >>> timestamp=$timestamp text='$datetime_text' date=$datePart time=$timePart"); 
             return $timestamp;
         } catch (\Exception $ex) {
             throw $ex;
@@ -556,20 +552,27 @@ class GraphData
      * Ex 2) ::getVistaDateTimePart('3101231.0930', 'time') -> '0930'
      * Ex 3) ::getVistaDateTimePart('3101231', 'time') -> '000000' (defaults to midnight if not time part)
      */
-    private static function getVistaDateTimePart($vistaDateTime, $dateOrTime) {
-        if ($vistaDateTime === NULL) {
-            throw new \Exception('Vista date/time cannot be null');
-        }
-        $pieces = explode('.', $vistaDateTime);
-        if ($dateOrTime == 'date' || $dateOrTime == 'Date' || $dateOrTime == 'DATE') 
+    private static function getVistaDateTimePart($vistaDateTime, $dateOrTime) 
+    {
+        try
         {
-            return $pieces[0];
-        } else {
-            if (count($pieces) == 1 || trim($pieces[1]) == '') 
+            if ($vistaDateTime === NULL) 
             {
-                return '000000'; // default to midnight if no time part 
+                throw new \Exception('Vista date/time cannot be null');
             }
-            return $pieces[1];
+            $pieces = explode('.', $vistaDateTime);
+            if ($dateOrTime == 'date' || $dateOrTime == 'Date' || $dateOrTime == 'DATE') 
+            {
+                return $pieces[0];
+            } else {
+                if (count($pieces) == 1 || trim($pieces[1]) == '') 
+                {
+                    return '000000'; // default to midnight if no time part 
+                }
+                return $pieces[1];
+            }
+        } catch (\Exception $ex) {
+            throw $ex;
         }
     }
 }

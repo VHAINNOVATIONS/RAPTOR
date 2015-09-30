@@ -1,7 +1,7 @@
 <?php
 
 defined('GENERAL_DEFS_VERSION_INFO')
-    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150827.1');
+    or define('GENERAL_DEFS_VERSION_INFO', 'UAT 20150930.1');
 
 /*
  * These are General Purpose settings
@@ -11,8 +11,17 @@ defined('GENERAL_DEFS_VERSION_INFO')
 defined('REQUIRE_ACKNOWLEDGE_DEFAULTS')
     or define('REQUIRE_ACKNOWLEDGE_DEFAULTS', FALSE);
 
+//Preferred miniumum size for shortlist of protocol filter result
 defined('PROTOCOL_SHORTLIST_MIN_SIZE')
     or define('PROTOCOL_SHORTLIST_MIN_SIZE', 3);
+
+//Define some graphing constraints
+defined('GRAPH_THUMBNAIL_DEFAULT_POINT_COUNT')
+    or define('GRAPH_THUMBNAIL_DEFAULT_POINT_COUNT', 5);
+defined('GRAPH_NORMAL_DEFAULT_POINT_COUNT')
+    or define('GRAPH_NORMAL_DEFAULT_POINT_COUNT', 20);
+defined('GRAPH_LARGE_DEFAULT_POINT_COUNT')
+    or define('GRAPH_LARGE_DEFAULT_POINT_COUNT', 100);
 
 //Modality inference configuration items; change with care.
 defined('MATCH_MODALITY_ON_PREFIX')

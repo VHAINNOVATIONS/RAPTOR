@@ -116,7 +116,6 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
         }
         if(isset($_REQUEST['pbatch']))
         {
-    error_log('LOOK PBATCH detected!!!>>>' . $_REQUEST['pbatch']);
             $rawrtid=null;
             $pbatch=$_REQUEST['pbatch'];
             if($pbatch !== 'CONTINUE')
@@ -125,7 +124,6 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
                 $oContext->setPersonalBatchStack($aPBatch);
             } else {
                 //drupal_set_message('PBATCH CONTINUE detected and selected!!!');
-    error_log('LOOK PBATCH CONTINUE detected and selected!!!');
                 $oContext->clearSelectedTrackingID();  //Blank out current selection so gets next from the stack.
             }
         } else if(isset($_REQUEST['rawrtid'])) {

@@ -717,7 +717,7 @@ var makeTemperatureGraph = function(temperatures, date, temperature, location) {
         },
         width: 400,
         height: 150,
-        maxColumns: 5,
+        maxColumns: 10,
         enableDateGap: false,
         xAxisFormatter: function (d) {
             function pad(n, width, z) {
