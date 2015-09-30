@@ -150,7 +150,7 @@ function raptor_glue_decrypt($message, $key, $encoded = FALSE)
     if ($encoded) {
         $message = base64_decode($message, TRUE);
         if ($message === FALSE) {
-            throw new Exception('Encryption failure');
+            throw new \Exception('Encryption failure');
         }
     }
 

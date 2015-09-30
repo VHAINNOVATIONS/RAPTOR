@@ -321,7 +321,7 @@ class GraphData
                 );
         } catch (\Exception $ex) {
             $errmsg = ("Failed to get friendly date time parts from $php_timestamp");
-            throw new Exception($errmsg, 99787, $ex);
+            throw new \Exception($errmsg, 99787, $ex);
         }
     }
     

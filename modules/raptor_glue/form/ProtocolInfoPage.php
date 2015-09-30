@@ -75,7 +75,7 @@ class ProtocolInfoPage extends \raptor\ASimpleFormPage
         $this->m_tid = $tid;
         if($tid == '')
         {
-            throw new Exception('Cannot get protocol information page without a ticket number!');
+            throw new \Exception('Cannot get protocol information page without a ticket number!');
         }
         $this->m_oCIE = NULL;
         $this->m_oUtility = new \raptor\ProtocolInfoUtility();

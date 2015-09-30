@@ -1795,7 +1795,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
             if(!is_array($rawresult))
             {
-                throw new Exception("Expected array result from signNote($newNoteIen,****) instead of " . print_r($rawresult,TRUE));
+                throw new \Exception("Expected array result from signNote($newNoteIen,****) instead of " . print_r($rawresult,TRUE));
             }
             return $rawresult;
         } catch (\Exception $ex) {

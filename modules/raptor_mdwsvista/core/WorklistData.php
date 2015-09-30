@@ -412,7 +412,7 @@ class WorklistData
             if(LOG_WORKLIST_METADATA)
             {
                 //Useful for diagnostics of a site
-                error_log("Worklist metadata for site " . VISTA_SITE. " >>> " . print_r($mymetadata,TRUE));            
+                error_log("LOG_WORKLIST_METADATA for site " . VISTA_SITE. " >>> " . print_r($mymetadata,TRUE));            
             }
             $result = array('all_rows'=>&$worklist
                             ,'pending_orders_map'=>&$aPatientPendingOrderMap
