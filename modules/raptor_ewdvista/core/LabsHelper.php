@@ -200,12 +200,6 @@ class LabsHelper
                     //There are other types of CREATININE, such as in urine.
                     $foundSerumCreatinine = FALSE;
                     $foundNonSerumCreatinine = strpos('CREATININE', strtoupper($name)) !== FALSE;
-                    /*
-                    if($foundNonSerumCreatinine)
-                    {
-                        error_log("LOOK found a non-serum CREATININE in $lab_specimen_name for patient $pid >>> " . print_r($lab,TRUE));
-                    }
-                    */
                 }
                 $foundHCT = strpos('HCT', strtoupper($lab['name'])) !== FALSE;
                 $foundINR = strpos('INR', strtoupper($lab['name'])) !== FALSE;

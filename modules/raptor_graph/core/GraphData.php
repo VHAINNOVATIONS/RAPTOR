@@ -110,7 +110,6 @@ class GraphData
     {
         try
         {
-error_log("LOOK parseVitalsFromLegacyFormat($max_dates) start...");
             if (isset($vitals->getVitalSignsResult->fault)) {
                 $errmsg = $vitals->getVitalSignsResult->fault->message;
                 error_log("ERROR detected in convertVitalsToGraphFormat fault=$errmsg");
@@ -188,7 +187,6 @@ error_log("LOOK parseVitalsFromLegacyFormat($max_dates) start...");
                         {
                             $dates_with_data++;
                         }
-error_log("LOOK parseVitalsFromLegacyFormat($max_dates) datecount=$dates_with_data $prev_timestamp vs $just_date...");
                         if ($dates_with_data <= $max_dates) 
                         {
                             $result[] = $aryForTimestamp;
@@ -219,7 +217,6 @@ error_log("LOOK parseVitalsFromLegacyFormat($max_dates) datecount=$dates_with_da
     {
         try
         {
-error_log("LOOK parseVitalsFromFullFormat($max_dates) start...");
             $gettemp = in_array('Temperature', $typeArray);
             $getpulse = in_array('Pulse', $typeArray);
             $rows = $vitals_bundle[0];
@@ -240,7 +237,6 @@ error_log("LOOK parseVitalsFromFullFormat($max_dates) start...");
                 {
                     $prevdate = $just_date_ts;
                     $count_newdate = TRUE;
-error_log("LOOK parseVitalsFromFullFormat($max_dates) datecount=$datecount_any_data $prevdate vs $just_date_ts...");
                 } else {
                     $count_newdate = FALSE;
                 }
@@ -296,7 +292,6 @@ error_log("LOOK parseVitalsFromFullFormat($max_dates) datecount=$datecount_any_d
                     $oneitem['date'] = $formatted_just_date_tx;
                     $oneitem['datetime'] = $formatted_datetime_tx;
                     $result[] = $oneitem;
-error_log("LOOK parseVitalsFromFullFormat($max_dates) ADDED TO RESULT datecount=$datecount_any_data $prevdate vs $just_date_ts...");
                 }
             }
             return $result;

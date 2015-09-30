@@ -175,7 +175,6 @@ class WorklistHelper
             $match_order_to_user = new \raptor_formulas\MatchOrderToUser($userinfo);
             $language_infer = new \raptor_formulas\LanguageInference();
             $unformatted_datarows = $rawdatarows['data'];
-            //error_log("LOOK raw data for worklist>>>".print_r($unformatted_datarows,TRUE));
             if(is_array($unformatted_datarows))
             {
                 $rowcount = count($unformatted_datarows);

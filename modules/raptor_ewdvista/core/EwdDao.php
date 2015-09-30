@@ -471,11 +471,11 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 }
                 $start_from_IEN = intval($start_with_IEN) + 1; //So we really start there
             }
-            $maxpages=1;
-            $pages=0;
+            //$maxpages=1;
+            //$pages=0;
             $matching_offset=NULL;
-            $getmorepages = TRUE;
-            $show_rows = array();
+            //$getmorepages = TRUE;
+            //$show_rows = array();
             $pending_orders_map = array();
             $args['max'] = $max_rows_one_call;
             $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
@@ -666,9 +666,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $args['eSig'] = $cancelesig;
             $serviceName = $this->getCallingFunctionName();
             $rawresult = $this->getServiceRelatedData($serviceName, $args);
-error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ, $locationthing, $reasonCode, $cancelesig)"
-        . " CHECK RESULT>>>" 
-        . print_r($rawresult,TRUE));            
             if(!isset($rawresult['code']) && isset($rawresult['id']) && $rawresult['id'] > '')
             { 
                 //Assume success
@@ -702,12 +699,6 @@ error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ
     {
         try
         {
-            /*
-            error_log("LOOK createNewRadiologyOrder params "
-                    . "\n\tsee orderChecks >>> " . print_r($orderChecks,TRUE)
-                    . "\n\tsee args>>> " . print_r($args,TRUE));
-            */
-            
             $serviceName = 'createNewRadiologyOrder';
             $userId = $this->getEHRUserID(); 
             $funnydatetime_startDateTime = EwdUtils::convertPhpDateTimeToFunnyText($args['startDateTime']);
@@ -747,7 +738,6 @@ error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ
             $args_as_data['modifiers'] = $modifiersText;
 
             $rawresult = $this->getServiceRelatedData($serviceName, NULL, 'POST', $args_as_data);
-            //error_log("LOOK createNewRadiologyOrder RESULT >>> " . print_r($rawresult,TRUE));
             return $rawresult;
         } catch (\Exception $ex) {
             throw $ex;
@@ -1757,7 +1747,6 @@ error_log("LOOK EWD cancelRadiologyOrder($patientid, $orderFileIen, $providerDUZ
             $vitalsbundle = $this->getRawVitalSignsMap();
             if(isset($vitalsbundle[2]))
             {
-                //error_log("LOOK getVitalsDetailOnlyLatestMap >>> ".print_r($vitalsbundle[2],TRUE));
                 return $vitalsbundle[2];
             }
             //Return an empty array.

@@ -117,8 +117,10 @@ class WorklistData
                 $sqlScheduleTrackRow = array_key_exists($ienKey, $scheduleTrackRslt) ? $scheduleTrackRslt[$ienKey] : NULL; // use IEN from MDWS results as key
 
                 $raptor_order_status  = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : NULL);
-                if($raptor_order_status == NULL 
-                    && ($vista_order_status_code != self::WLVOS_ACTIVE && $vista_order_status_code != self::WLVOS_PENDING))
+                if(
+                    ($raptor_order_status == NULL 
+                        && ($vista_order_status_code != self::WLVOS_ACTIVE && $vista_order_status_code != self::WLVOS_PENDING))
+                    || $vista_order_status_code == self::WLVOS_DISCONTINUED)
                 {
                     //We will NOT show this ticket in the worklist
                     $skipped_because_status++;
@@ -464,7 +466,6 @@ class WorklistData
                 'screen'=> ($filterDiscontinued ? "I (\$P(^(0),U,5)'=1)" : ''), //I ($P(^(0),U,5)=5)|($P(^(0),U,5)=6)',   //Server side filtering but APPLIED TO EACH RECORD ONE BY ONE VERY SLOW NO FILTERING BEFOREHAND
                 'identifier'=>''    //Mumps code for filtering etc
                 );
-            //error_log("LOOK About to make query ddrLister with arguments>>>" . print_r($ddrListerArguments,TRUE));
             $result = $mdwsDao->makeQuery('ddrLister', $ddrListerArguments);
             return $result;
         } catch (\Exception $ex) {
