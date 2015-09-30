@@ -105,6 +105,8 @@ class WorklistData
 
             $skipped_because_status = 0;
             $skipped_because_other = 0;
+            $status_tracking_info1 = array();
+            $status_tracking_info2 = array();
             $numOrders = count($all_worklist_rows_raw_text_ar);
             for ($i=0; $i<$numOrders; $i++)
             {
@@ -126,6 +128,20 @@ class WorklistData
                     $skipped_because_status++;
                     continue;
                 }
+                if(isset($status_tracking_info1[$vista_order_status_code]))
+                {
+                    $status_tracking_info1[$vista_order_status_code] = $status_tracking_info1[$vista_order_status_code] + 1;
+                    if(isset($status_tracking_info2[$vista_order_status_code][$raptor_order_status]))
+                    {
+                        $status_tracking_info2[$vista_order_status_code][$raptor_order_status] = $status_tracking_info2[$vista_order_status_code][$raptor_order_status] + 1;
+                    } else {
+                        $status_tracking_info2[$vista_order_status_code][$raptor_order_status] = 1;
+                    }
+                } else {
+                    $status_tracking_info1[$vista_order_status_code] = 1;
+                    $status_tracking_info2[$vista_order_status_code][$raptor_order_status] = 1;
+                }
+                
                 $t[\raptor\WorklistColumnMap::WLIDX_WORKFLOWSTATUS] = ($raptor_order_status != NULL ? $raptor_order_status : 'AC'); // default to "AC"
                 $patientID = $exploded[self::WLVFO_PatientID];
                 $t[\raptor\WorklistColumnMap::WLIDX_TRACKINGID]  = $exploded[0];
@@ -389,9 +405,19 @@ class WorklistData
             }
             
             //Populate the array of results
+            $mymetadata = array('skipped_because_status' => $skipped_because_status
+                    , 'skipped_because_other' => $skipped_because_other
+                    , 'vista_status_count'=>$status_tracking_info1
+                    , 'vista_raptor_status_count_map'=>$status_tracking_info2);
+            if(LOG_WORKLIST_METADATA)
+            {
+                //Useful for diagnostics of a site
+                error_log("Worklist metadata for site " . VISTA_SITE. " >>> " . print_r($mymetadata,TRUE));            
+            }
             $result = array('all_rows'=>&$worklist
                             ,'pending_orders_map'=>&$aPatientPendingOrderMap
-                            ,'matching_offset'=>$nOffsetMatchIEN);
+                            ,'matching_offset'=>$nOffsetMatchIEN
+                            ,'metadata'=>$mymetadata);
             //error_log("LOOK MDWS WORKLIST skipped orders bc_status=$skipped_because_status bc_other=$skipped_because_other");
             return $result;
         } catch (\Exception $ex) {
@@ -547,7 +573,7 @@ class WorklistData
         {
             module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
 
-            if($start_with_IEN == NULL)
+            if($start_with_IEN === NULL)    //Force STRICT check here!!!!
             {
                 $start_from_IEN = '';
             } else {
@@ -579,6 +605,13 @@ class WorklistData
                 $tracking_id = $row_ar[self::WLVFO_TrackingID];
                 $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $allrows);
 //error_log("LOOK worklist testing iter $iterations myrow >>>" . print_r($myrow,TRUE));
+                
+                //Now query the next chunk
+                if(OLDEST_WORKLIST_TICKET_ID && OLDEST_WORKLIST_TICKET_ID > $tracking_id)
+                {
+                    //We are done because we do not care about tickets older than OLDEST_WORKLIST_TICKET_ID
+                    break;
+                }
                 $mdwsResponse = $this->getWorklistFromMDWS($tracking_id, $maxrows_per_query);
 //error_log("LOOK worklist testing iter $iterations new result started at '$tracking_id' >>>" . print_r($mdwsResponse,TRUE));
             }
@@ -589,7 +622,6 @@ class WorklistData
             {
                 $match_this_IEN = $this->m_oContext->getSelectedTrackingID();
             }
-            //$parsedWorklist = $this->parseWorklistOLD_PARAMS($mdwsResponse, $sqlResponse, $match_this_IEN);
             $parsedWorklist = $this->parseWorklistTextRows($all_worklist_rows_raw_text_ar, $sqlResponse, $match_this_IEN);
 
             
@@ -600,6 +632,7 @@ class WorklistData
             $aResult = array('Pages'=>1
                             ,'Page'=>1
                             ,'RowsPerPage'=>count($dataRows)
+                            ,'started_with'=>$start_with_IEN
                             ,'DataRows'=>$dataRows
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map

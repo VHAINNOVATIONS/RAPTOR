@@ -461,7 +461,7 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
         {
             $args = array();
             $serviceName = $this->getCallingFunctionName();
-            if($start_with_IEN == NULL)
+            if($start_with_IEN === NULL)    //Force STRICT check here!!!!
             {
                 $start_from_IEN = '';
             } else {
@@ -485,7 +485,6 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $max_loops = WORKLIST_MAX_QUERY_LOOPS;
             $iterations = 0;
             $all_worklist_rows_raw_text_ar = array();
-            $args['from'] = $start_from_IEN;    //VistA starts from this value -1!!!!!
             $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
             $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
             $rows_one_iteration = $bundle['all_rows'];
@@ -505,6 +504,11 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
                 $all_worklist_rows_raw_text_ar = array_merge($all_worklist_rows_raw_text_ar, $rows_one_iteration);
     
                 //Query the next chunk
+                if(OLDEST_WORKLIST_TICKET_ID && OLDEST_WORKLIST_TICKET_ID > $tracking_id)
+                {
+                    //We are done because we do not care about tickets older than OLDEST_WORKLIST_TICKET_ID
+                    break;
+                }
                 $args['from'] = $tracking_id;    //VistA starts from this value -1!!!!!
                 $rawdatarows = $this->getServiceRelatedData($serviceName, $args);
                 $bundle = $this->m_worklistHelper->getFormatWorklistRows($rawdatarows);
@@ -536,11 +540,11 @@ class EwdDao implements \raptor_ewdvista\IEwdDao
             $aResult = array('Pages'=>1
                             ,'Page'=>1
                             ,'RowsPerPage'=>count($show_rows)
+                            ,'started_with'=>$start_with_IEN
                             ,'DataRows'=>$show_rows
                             ,'matching_offset' => $matching_offset
                             ,'pending_orders_map' => $pending_orders_map
                 );
-
             //Done!
             return $aResult;
         } catch (\Exception $ex) {

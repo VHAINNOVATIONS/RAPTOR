@@ -78,6 +78,10 @@ class ViewAbout
             $items = array();
             $minrowscan = min(WORKLIST_MAXROWS_PER_QUERY * WORKLIST_MAX_QUERY_LOOPS, WORKLIST_ENOUGH_ROWS_COUNT);
             $items[] = "Scans $minrowscan rows to produce the worklist";
+            if(OLDEST_WORKLIST_TICKET_ID)
+            {
+                $items[] = 'Does not look for tickets older than ID=' . OLDEST_WORKLIST_TICKET_ID . ' for the worklist';
+            }
             if(count($items) > 0)
             {
                 $html = $wrapperfirst 

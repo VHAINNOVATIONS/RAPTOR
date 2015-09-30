@@ -1,19 +1,23 @@
 <?php
     
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150919.1 Config for DEV 64bit localhost');
+    or define('RAPTOR_CONFIG_ID', '20150930.1 Config for DEV 64bit localhost');
 
 /*
  * These are RAPTOR INSTANCE specific settings
  */
 
-//VISTA values that might change per site
+//VISTA values that WILL change per site
 defined('VISTA_SITE')
     or define('VISTA_SITE', '500');	
 defined('VISTA_NOTEIEN_RAPTOR_GENERAL')
     or define('VISTA_NOTEIEN_RAPTOR_GENERAL', '142');
 defined('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST')
     or define('VISTA_NOTEIEN_RAPTOR_SAFETY_CKLST', '149');
+
+//Help with diagnostics
+defined('LOG_WORKLIST_METADATA')
+    or define('LOG_WORKLIST_METADATA', FALSE);  //Leave as FALSE except for temporary diagnostics
 
 //Other site specific values
 defined('RAPTOR_ROOT_URL')
@@ -103,6 +107,10 @@ defined('WORKLIST_ENOUGH_ROWS_COUNT')   //Suggested value is 5000
     or define('WORKLIST_ENOUGH_ROWS_COUNT', 5000);
 defined('WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS')   //Suggested value is 1000 (KEEP THIS HIGH!)
     or define('WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS', 1000);
+
+//On initial deployment, there may be many old tickets you want to ignore.
+defined('OLDEST_WORKLIST_TICKET_ID')    
+    or define('OLDEST_WORKLIST_TICKET_ID', NULL);   //To disable this, assign NULL
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')

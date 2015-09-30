@@ -187,6 +187,8 @@ class WorklistHelper
             $last_ien = NULL;
             $skipped_because_status = 0;
             $skipped_because_other = 0;
+            $status_tracking_info1 = array();
+            $status_tracking_info2 = array();
             foreach($unformatted_datarows as $onerow)
             {
                 if(isset($onerow['PatientID']) && isset($onerow['Procedure']))
@@ -209,7 +211,20 @@ class WorklistHelper
                         $skipped_because_status++;
                         continue;
                     }
-                    
+                    if(isset($status_tracking_info1[$vista_order_status_code]))
+                    {
+                        $status_tracking_info1[$vista_order_status_code] = $status_tracking_info1[$vista_order_status_code] + 1;
+                        if(isset($status_tracking_info2[$vista_order_status_code][$raptor_order_status]))
+                        {
+                            $status_tracking_info2[$vista_order_status_code][$raptor_order_status] = $status_tracking_info2[$vista_order_status_code][$raptor_order_status] + 1;
+                        } else {
+                            $status_tracking_info2[$vista_order_status_code][$raptor_order_status] = 1;
+                        }
+                    } else {
+                        $status_tracking_info1[$vista_order_status_code] = 1;
+                        $status_tracking_info2[$vista_order_status_code][$raptor_order_status] = 1;
+                    }
+                                
                     $workflowstatus = (isset($sqlTicketTrackRow) ? $sqlTicketTrackRow->workflow_state : 'AC');
                     $studyname = $onerow['Procedure'];
                     $imagetype = $onerow['ImageType'];
@@ -451,10 +466,20 @@ class WorklistHelper
             }
             
             //return $formatted_datarows;
+            $mymetadata = array('skipped_because_status' => $skipped_because_status
+                    , 'skipped_because_other' => $skipped_because_other
+                    , 'vista_status_count'=>$status_tracking_info1
+                    , 'vista_raptor_status_count_map'=>$status_tracking_info2);
+            if(LOG_WORKLIST_METADATA)
+            {
+                //Useful for diagnostics of a site
+                error_log("Worklist metadata for site " . VISTA_SITE. " >>> " . print_r($mymetadata,TRUE));            
+            }
             $bundle = array( 'pending_orders_map'=>&$aPatientPendingOrderMap
                             ,'matching_offset'=>$nOffsetMatchIEN
                             ,'last_ien'=>$last_ien
-                            ,'all_rows'=>&$formatted_datarows);
+                            ,'all_rows'=>&$formatted_datarows
+                            ,'metadata'=>$mymetadata);
             return $bundle;
         } catch (\Exception $ex) {
             throw $ex;
