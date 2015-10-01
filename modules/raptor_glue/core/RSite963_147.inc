@@ -1,7 +1,7 @@
 <?php
 
 defined('RAPTOR_CONFIG_ID')
-    or define('RAPTOR_CONFIG_ID', '20150930.1 963 for VA 147 AppServer2');
+    or define('RAPTOR_CONFIG_ID', '20150930.2 963 for VA 147 AppServer2');
 	
 /*
  * These are RAPTOR INSTANCE specific settings
@@ -110,7 +110,7 @@ defined('WORKLIST_ENOUGH_ROWS_TO_FIND_DUPS')   //Suggested value is 1000 (KEEP T
 
 //On initial deployment, there may be many old tickets you want to ignore.
 defined('OLDEST_WORKLIST_TICKET_ID')    
-    or define('OLDEST_WORKLIST_TICKET_ID', NULL);   //To disable this, assign NULL
+    or define('OLDEST_WORKLIST_TICKET_ID', 2114000);   //To disable this, assign NULL
 
 //Control availability of resource intensive configuration features (NULL enables for everyone)
 defined('ENABLE_RAPTOR_PERFORMANCE_TUNING_SPECIAL_PRIV')
