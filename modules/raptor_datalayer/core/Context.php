@@ -471,124 +471,130 @@ class Context
     
     public static function getInstance($forceReset=FALSE, $bSystemDrivenAction=FALSE)
     {
-        if (session_status() == PHP_SESSION_NONE) 
+        try
         {
-            error_log('CONTEXTgetInstance::Starting session');
-            session_start();
-            drupal_session_started(TRUE);       //If we dont do this we risk warning messages elsewhere.
-        }        
-        $currentpath = strtolower(current_path());
-        $forceReset = ($currentpath == 'user/login' || $currentpath == 'user/logout');
-        if(!self::hasSessionValue('CREATED')) 
-        { 
-            $startedtime = time();
-            error_log('CONTEXTgetInstance::Setting CREATED value of session to '.$startedtime);
-            $_SESSION['CREATED'] = $startedtime;
-            $_SESSION['REGENERATED_COUNT'] = 0;
-            self::saveSessionValue('CREATED', $startedtime);
-            self::saveSessionValue('REGENERATED_COUNT', 0);
-        } 
-        global $user;
-        if(user_is_logged_in())
-        {
-            $tempUID = $user->uid;
-        } else {
-            $tempUID = 0;
-        }
-        $candidate = self::getSingletonInstance($tempUID);
-        if($tempUID != $candidate->getUID())
-        {
-            self::saveSessionValue('UID', $tempUID);
-        }
-        if($tempUID > 0)
-        {
-            $useridleseconds = intval($candidate->getUserIdleSeconds());
-            $max_idle = USER_TIMEOUT_SECONDS 
-                    + USER_TIMEOUT_GRACE_SECONDS 
-                    + USER_ALIVE_INTERVAL_SECONDS
-                    + KICKOUT_DIRTYPADDING;
-            $bContextDetectIdleTooLong = ($useridleseconds > $max_idle);
-            $bAccountConflictDetected = $candidate->hasAccountConflict($tempUID);
-            if(!$forceReset && !$bContextDetectIdleTooLong && !$bAccountConflictDetected)
+            if (session_status() == PHP_SESSION_NONE) 
             {
-                if($bSystemDrivenAction)
-                {
-                    //Just update this guy
-                    self::saveSessionValue('InstanceSystemActionTimestamp', time());
-                } else {
-                    //Update that the user is actively doing things
-                    $candidate->updateUserActivityTracking($tempUID);
-                }
+                error_log('CONTEXTgetInstance::Starting session');
+                session_start();
+                drupal_session_started(TRUE);       //If we dont do this we risk warning messages elsewhere.
+            }        
+            $currentpath = strtolower(current_path());
+            $forceReset = ($currentpath == 'user/login' || $currentpath == 'user/logout');
+            if(!self::hasSessionValue('CREATED')) 
+            { 
+                $startedtime = time();
+                error_log('CONTEXTgetInstance::Setting CREATED value of session to '.$startedtime);
+                $_SESSION['CREATED'] = $startedtime;
+                $_SESSION['REGENERATED_COUNT'] = 0;
+                self::saveSessionValue('CREATED', $startedtime);
+                self::saveSessionValue('REGENERATED_COUNT', 0);
+            } 
+            global $user;
+            if(user_is_logged_in())
+            {
+                $tempUID = $user->uid;
             } else {
-                //Now trigger logout if account conflict was detected.
-                $candidateVistaUserID = $candidate->getVistaUserID();
-                if($bAccountConflictDetected || $bContextDetectIdleTooLong)
+                $tempUID = 0;
+            }
+            $candidate = self::getSingletonInstance($tempUID);
+            if($tempUID != $candidate->getUID())
+            {
+                self::saveSessionValue('UID', $tempUID);
+            }
+            if($tempUID > 0)
+            {
+                $useridleseconds = intval($candidate->getUserIdleSeconds());
+                $max_idle = USER_TIMEOUT_SECONDS 
+                        + USER_TIMEOUT_GRACE_SECONDS 
+                        + USER_ALIVE_INTERVAL_SECONDS
+                        + KICKOUT_DIRTYPADDING;
+                $bContextDetectIdleTooLong = ($useridleseconds > $max_idle);
+                $bAccountConflictDetected = $candidate->hasAccountConflict($tempUID);
+                if(!$forceReset && !$bContextDetectIdleTooLong && !$bAccountConflictDetected)
                 {
-                    //Don't kick out an administrator in a protected URL
-                    $is_protected_adminuser = \raptor\UserInfo::is_protected_adminuser();
-                    if(!$is_protected_adminuser)
+                    if($bSystemDrivenAction)
                     {
-                        //Don't get stuck in an infinite loop.
-                        if(substr($candidateVistaUserID,0,8) !== 'kickout_')
+                        //Just update this guy
+                        self::saveSessionValue('InstanceSystemActionTimestamp', time());
+                    } else {
+                        //Update that the user is actively doing things
+                        $candidate->updateUserActivityTracking($tempUID);
+                    }
+                } else {
+                    //Now trigger logout if account conflict was detected.
+                    $candidateVistaUserID = $candidate->getVistaUserID();
+                    if($bAccountConflictDetected || $bContextDetectIdleTooLong)
+                    {
+                        //Don't kick out an administrator in a protected URL
+                        $is_protected_adminuser = \raptor\UserInfo::is_protected_adminuser();
+                        if(!$is_protected_adminuser)
                         {
-                            //Prevent duplicate user messages.
-                            $aForceLogoutReason = self::getSessionValue('ForceLogoutReason',NULL);
-                            if($aForceLogoutReason == NULL)
+                            //Don't get stuck in an infinite loop.
+                            if(substr($candidateVistaUserID,0,8) !== 'kickout_')
                             {
-                                //Not already set, so set it now.
-                                if($bContextDetectIdleTooLong)
+                                //Prevent duplicate user messages.
+                                $aForceLogoutReason = self::getSessionValue('ForceLogoutReason',NULL);
+                                if($aForceLogoutReason == NULL)
                                 {
-                                    $useridleseconds = intval($candidate->getUserIdleSeconds());
-                                    $usermsg = 'You are kicked out because context has detected excessive'
-                                            . " idle time of $useridleseconds seconds";
-                                    $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
-                                    $kickoutlabel = 'TIMEOUT';
-                                } else {
-                                    if($candidateVistaUserID > '')
+                                    //Not already set, so set it now.
+                                    if($bContextDetectIdleTooLong)
                                     {
-                                        $usermsg = 'You are kicked out because another workstation has'
-                                                . ' logged in as the same'
-                                                . ' RAPTOR user account "'
-                                                . $candidateVistaUserID.'"';
-                                        $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
-                                        $kickoutlabel = 'ACCOUNT CONFLICT';
-                                    } else {
-                                        //This can happen to a NON VISTA admin user for timeout and things like that.
-                                        $usermsg = 'Your admin account has timed out';
+                                        $useridleseconds = intval($candidate->getUserIdleSeconds());
+                                        $usermsg = 'You are kicked out because context has detected excessive'
+                                                . " idle time of $useridleseconds seconds";
                                         $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
-                                        $kickoutlabel = 'TIMEOUT CONFLICT';
+                                        $kickoutlabel = 'TIMEOUT';
+                                    } else {
+                                        if($candidateVistaUserID > '')
+                                        {
+                                            $usermsg = 'You are kicked out because another workstation has'
+                                                    . ' logged in as the same'
+                                                    . ' RAPTOR user account "'
+                                                    . $candidateVistaUserID.'"';
+                                            $errorcode = ERRORCODE_KICKOUT_ACCOUNTCONFLICT;
+                                            $kickoutlabel = 'ACCOUNT CONFLICT';
+                                        } else {
+                                            //This can happen to a NON VISTA admin user for timeout and things like that.
+                                            $usermsg = 'Your admin account has timed out';
+                                            $errorcode = ERRORCODE_KICKOUT_TIMEOUT;
+                                            $kickoutlabel = 'TIMEOUT CONFLICT';
+                                        }
+                                    }
+                                    drupal_set_message($usermsg, 'error');
+                                    $aForceLogoutReason = array();
+                                    $aForceLogoutReason['code'] = $errorcode;
+                                    $aForceLogoutReason['text'] = $usermsg;
+                                    self::saveSessionValue('ForceLogoutReason', $aForceLogoutReason);
+                                    self::saveSessionValue('VistaUserID', 'kickout_' . $candidateVistaUserID);
+                                    self::saveSessionValue('VAPassword', NULL);
+                                    try
+                                    {
+                                        $dao = $candidate->getEhrDao(TRUE);
+                                        $dao->disconnect();
+                                    } catch (\Exception $ex) {
+                                        error_log("Failed to issue disconnect on dao because $ex");
                                     }
                                 }
-                                drupal_set_message($usermsg, 'error');
-                                $aForceLogoutReason = array();
-                                $aForceLogoutReason['code'] = $errorcode;
-                                $aForceLogoutReason['text'] = $usermsg;
-                                self::saveSessionValue('ForceLogoutReason', $aForceLogoutReason);
-                                self::saveSessionValue('VistaUserID', 'kickout_' . $candidateVistaUserID);
-                                self::saveSessionValue('VAPassword', NULL);
-                                try
-                                {
-                                    $dao = $candidate->getEhrDao(TRUE);
-                                    $dao->disconnect();
-                                } catch (\Exception $ex) {
-                                    error_log("Failed to issue disconnect on dao because $ex");
-                                }
+
+                                //$_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
+                                error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
+                                        . $candidateVistaUserID . '] >>> ' 
+                                        . time() 
+                                        . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
+
+                                $candidate->forceSessionRefresh(0);  //Invalidate any current form data now!
                             }
-
-                            //$_SESSION[CONST_NM_RAPTOR_CONTEXT] = serialize($candidate); //Store this NOW!!!
-                            error_log("CONTEXT KICKOUT $kickoutlabel DETECTED ON [" 
-                                    . $candidateVistaUserID . '] >>> ' 
-                                    . time() 
-                                    . "\n\tSESSION>>>>" . print_r($_SESSION,TRUE));
-
-                            $candidate->forceSessionRefresh(0);  //Invalidate any current form data now!
                         }
                     }
                 }
             }
+            $candidate->getEhrDao(TRUE);
+            return $candidate;
+        } catch (\Exception $ex) {
+            error_log("Failed getInstance because $ex");
+            throw $ex;
         }
-        $candidate->getEhrDao(TRUE);
-        return $candidate;
     }    
     
     private function updateUserActivityTracking($tempUID)

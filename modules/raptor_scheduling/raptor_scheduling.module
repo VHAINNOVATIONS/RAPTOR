@@ -112,25 +112,31 @@ function raptor_adminschedulingdatadump_form_builder($form, &$form_state)
 
 function raptor_scheduling_scheduleticket_form_builder($form, &$form_state)
 {
-    $oContext = \raptor\Context::getInstance();
-    $oPI = new \raptor_sched\ScheduleTicketPage();
-    
-    if(!isset($_REQUEST['rawrtid'])) 
+    try
     {
-        die('Did not find expected rawrtid parameter!');
+        $oContext = \raptor\Context::getInstance();
+        $oPI = new \raptor_sched\ScheduleTicketPage();
+
+        if(!isset($_REQUEST['rawrtid'])) 
+        {
+            die('Did not find expected rawrtid parameter!');
+        }
+        $rawrtid=$_REQUEST['rawrtid'];
+        if($rawrtid === null || substr($rawrtid,0,1) !== '[' || substr($rawrtid,-1) !== ']')
+        {
+            die("The rawrtid parameter MUST start with [ and end with ] bracket!");
+        }
+        $clean_rawrtid = substr($rawrtid, 1, -1);
+        $oContext->setSelectedTrackingID($clean_rawrtid);
+
+        $form = array();
+        $disabled = false;
+        $myvalues = $oPI->getFieldValues();    
+        return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_scheduling_scheduleticket_form_builder because $ex");
+        throw $ex;
     }
-    $rawrtid=$_REQUEST['rawrtid'];
-    if($rawrtid === null || substr($rawrtid,0,1) !== '[' || substr($rawrtid,-1) !== ']')
-    {
-        die("The rawrtid parameter MUST start with [ and end with ] bracket!");
-    }
-    $clean_rawrtid = substr($rawrtid, 1, -1);
-    $oContext->setSelectedTrackingID($clean_rawrtid);
-    
-    $form = array();
-    $disabled = false;
-    $myvalues = $oPI->getFieldValues();    
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
 }
 function raptor_scheduling_scheduleticket_form_builder_validate($form, &$form_state) 
 {
@@ -140,21 +146,27 @@ function raptor_scheduling_scheduleticket_form_builder_validate($form, &$form_st
 
 function raptor_scheduling_scheduleticket_form_builder_submit($form, &$form_state) 
 {
-    $clickedbutton = $form_state['clicked_button'];
-    $clickedvalue = $clickedbutton['#value'];
-    if(substr($clickedvalue,0,strlen(t('Save these'))) == t('Save these'))
+    try
     {
-        //Write an error message but save it anyways
-        drupal_set_message('The multiple schedule feature is under consideration, seeking feedback from SMEs on workflow fit.', 'error');
-    }
-    $oPI = new \raptor_sched\ScheduleTicketPage();
-    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
-    if($rowsupdated > 0)
-    {
-        //Success!
-        $form_state['redirect'] = array(
-            'worklist',
-          );
+        $clickedbutton = $form_state['clicked_button'];
+        $clickedvalue = $clickedbutton['#value'];
+        if(substr($clickedvalue,0,strlen(t('Save these'))) == t('Save these'))
+        {
+            //Write an error message but save it anyways
+            drupal_set_message('The multiple schedule feature is under consideration, seeking feedback from SMEs on workflow fit.', 'error');
+        }
+        $oPI = new \raptor_sched\ScheduleTicketPage();
+        $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+        if($rowsupdated > 0)
+        {
+            //Success!
+            $form_state['redirect'] = array(
+                'worklist',
+              );
+        }
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_scheduling_scheduleticket_form_builder_submit because $ex");
+        throw $ex;
     }
 }
 

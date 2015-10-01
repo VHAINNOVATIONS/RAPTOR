@@ -226,6 +226,7 @@ function raptor_glue_protcolinfo_after_build($form, $form_state)
 
 function raptor_glue_protocolinfo_form_builder_validate($form, &$form_state) 
 {
+    $oContext = NULL;   //Declare out here so we have it in the catch
     try
     {
         $clickedbutton = '';
@@ -254,7 +255,12 @@ function raptor_glue_protocolinfo_form_builder_validate($form, &$form_state)
         $oPI->setupFormContext();
         return $oPI->looksValidFormState($form, $form_state);
     } catch (\Exception $ex) {
-        error_log("Failed raptor_glue_protocolinfo_form_builder_validate because $ex");
+        if($oContext === NULL)
+        {
+            error_log("Failed raptor_glue_protocolinfo_form_builder_validate (no context!) because $ex");
+        } else {
+            error_log("Failed raptor_glue_protocolinfo_form_builder_validate because $ex\n\tcontext information>>> $oContext");
+        }
         throw $ex;
     }
 }
