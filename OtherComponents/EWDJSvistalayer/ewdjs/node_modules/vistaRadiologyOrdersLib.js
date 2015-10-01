@@ -1,0 +1,958 @@
+var raptor = { config: { okToCancelOrderFromAnotherProvider: true } };
+
+module.exports = {
+	getRadiologyOrderIenFromOrderId: function(orderId, session, ewd) {
+		if (!orderId || orderId == '') {
+			throw new Error('Missing orderId');
+		}
+		
+		// if orderId has semicolon (e.g. 34120;2) then use just IEN piece
+		if (orderId.indexOf(';') > 0) {
+			orderId = orderId.split(';')[0];
+		}
+		
+		var params = { 
+			FILE: '75.1',
+			FIELDS: '.01;7',
+			MAX: '500',
+			SCREEN: 'I ($P(^(0),U,7)=' + orderId + ')'
+		};
+		
+		var ddr = vistaLib.ddrLister3(params, session, ewd);
+		
+		if (!ddr || !ddr.data || ddr.data.length < 1) {
+			throw new Error('Unable to determine radiology order IEN from order ID');
+		}		
+
+		for (var i = 0; i < ddr.data.length; i++) {
+			var pieces = ddr.data[i].split('^');
+			
+			if (pieces[2] == orderId) {
+				return pieces[0];
+			}
+		}
+		
+		// if we reached this point, didn't find match
+		throw new Error('Unable to determine radiology order IEN from order ID');
+	},	
+	
+	getOrderableItems: function(params, session, ewd) {
+		params.rpcName = "ORWDRA32 RAORDITM";
+		params.rpcArgs = [
+			{type: "LITERAL", value: ""},
+			{type: "LITERAL", value: "1"},
+			{type: "LITERAL", value: params.dialogId},
+		];
+		var response = vistaLib.runRpc(params, session, ewd);
+				
+		return response;
+	},
+	
+	checkDcAndSignParams: function(params) {
+		if (!params.patientId || params.patientId == "") {
+			throw new Error("No patientId");
+		}
+		if (!params.orderId || params.orderId == "") {
+			throw new Error("No orderId");
+		}
+		if (!params.providerId || params.providerId == "") {
+			throw new Error("No providerId");
+		}
+		if (!params.locationId || params.locationId == "") {
+			throw new Error("No locationId");
+		}
+		if (!params.reasonId || params.reasonId == "") {
+			throw new Error("No reasonId");
+		}
+		if (!params.eSig || params.eSig == "") {
+			throw new Error("No eSig");
+		}
+		
+		return { ok: true };
+	},
+
+	checkDcParams: function(params) {
+		if (!params.patientId || params.patientId == "") {
+			throw new Error("No patientId");
+		}
+		if (!params.orderId || params.orderId == "") {
+			throw new Error("No orderId");
+		}
+		if (!params.providerId || params.providerId == "") {
+			throw new Error("No providerId");
+		}
+		if (!params.locationId || params.locationId == "") {
+			throw new Error("No locationId");
+		}
+
+		return { ok: true };
+	},
+
+
+	discontinueRadiologyOrder: function(params, session, ewd) {
+		var okCheck = this.checkDcParams(params);
+				
+		var providerHasProvider = userLib.userHasKey(params.providerId, "PROVIDER", session, ewd);
+		if (!providerHasProvider) { // params.providerId of the user who is cancelling the order (not necessarily the current user)
+			throw new Error("The account with the DUZ specified does not hold the PROVIDER key");
+		}
+		
+		var theOrder = this.getOrder(params, session, ewd);
+		
+		if (!theOrder.hasOwnProperty("id")) {
+			throw new Error("No such order");
+		}
+		
+		if (theOrder.status == "DISCONTINUED") {
+			throw new Error("Order is already discontinued");
+		}
+				
+		params.orderAction = "DC";
+		params.orderNature = "";
+		var msg = this.validateOrderActionNature(params, session, ewd);
+		if (msg != "") {
+			throw new Error("Invalid order action: " + msg);
+		}
+		
+		msg = this.getComplexOrderMsg(params, session, ewd);
+		if (msg != "") {
+			throw new Error("Complex order - unable to cancel: " + msg);
+		}
+
+		
+		if (!this.lockOrdersForPatient(params, session, ewd)) {
+			throw new Error("Unable to lock orders for patient");
+		}
+		
+		var lockSuccess = this.lockOrder(params, session, ewd);
+		if (!lockSuccess) {
+			this.unlockOrdersForPatient(params, session, ewd);
+			throw new Error('Unable to lock order: ' + msg);
+		}
+		
+		var canceledOrder = this.cancelOrder(params, session, ewd);
+		params.orderId = canceledOrder.id;
+		
+		this.unlockOrder(params, session, ewd);
+		this.unlockOrdersForPatient(params, session, ewd);
+		
+		return canceledOrder;
+	},
+	
+	discontinueAndSignRadiologyOrder: function(params, session, ewd) {
+		var okCheck = this.checkDcAndSignParams(params);
+		
+		if (!vistaLib.isValidESig(params, session, ewd)) {
+			throw new Error("Invalid signature code");
+		}
+		
+		var providerHasProvider = userLib.userHasKey(params.providerId, "PROVIDER", session, ewd);
+		if (!providerHasProvider) { // params.providerDuz of the user who is cancelling the order (not necessarily the current user)
+			throw new Error("The account with the DUZ specified does not hold the PROVIDER key");
+		}
+		
+		var theOrder = this.getOrder(params, session, ewd);
+		
+		if (!theOrder || !theOrder.hasOwnProperty("id")) {
+			throw new Error("No such order");
+		}
+		
+		if (theOrder.status == "DISCONTINUED") {
+			throw new Error("Order is already discontinued");
+		}
+		
+		if (!params.userId || params.userId == '') {
+			params.userId = params.providerId;
+		}
+		
+		// if user ID equals provider DUZ, use key check above otherwise fetch user key for check
+		var userHasProvider = (params.userId == params.providerId) ? providerHasProvider : userLib.userHasKey(params.userId, "PROVIDER", session, ewd); // params.userId
+		var userHasOremas = userLib.userHasKey(params.userId, "OREMAS", session, ewd);
+		var usingWrittenOnChart = false;
+		var okToDcAndSign = false;
+		var okToCancelOrderFromAnotherProvider = false; // MDWS pulls this override from config - setting false by default
+		if (raptor && raptor.config && raptor.config.okToCancelOrderFromAnotherProvider) {
+			okToCancelOrderFromAnotherProvider = true;
+		}
+		
+		var originalOrderProvider = theOrder.provider.uid;
+		
+		if (params.userId == originalOrderProvider) {
+			okToDcAndSign = true;
+		}
+		
+		if (!okToDcAndSign) {
+			if (userHasProvider && !(params.userId == originalOrderProvider)) {
+				if (okToCancelOrderFromAnotherProvider) {
+					okToDcAndSign = true;
+				} else {
+					throw new Error("Providers may not sign discontinue order request for another provider's order. Use discontinue order without signature");
+				}
+			}
+		}
+		
+		if (!okToDcAndSign) {
+			if (!userHasOremas && !userHasProvider) {
+				throw new Error("User does not have appropriate keys for cancel and sign");
+			}
+		}
+		
+		if (!okToDcAndSign) {
+			if (userHasOremas && !userHasProvider) {
+				okToDcAndSign = usingWrittenOnChart = true;
+			}
+		}
+		
+		params.orderAction = "DC";
+		params.orderNature = "";
+		var msg = this.validateOrderActionNature(params, session, ewd);
+		if (msg != "") {
+			throw new Error("Invalid order action: " + msg);
+		}
+		
+		msg = this.getComplexOrderMsg(params, session, ewd);
+		if (msg != "") {
+			throw new Error("Complex order - unable to cancel: " + msg);
+		}
+
+		if (!this.lockOrdersForPatient(params, session, ewd)) {
+			throw new Error("Unable to lock orders for patient");
+		}
+		
+		var lockSuccess = this.lockOrder(params, session, ewd);
+		if (!lockSuccess) {
+			this.unlockOrdersForPatient(params, session, ewd);
+			throw new Error('Unable to lock order: ' + msg);
+		}
+		
+		var canceledOrder = this.cancelOrder(params, session, ewd);
+		params.orderId = canceledOrder.id;
+		params.signedOnChart = usingWrittenOnChart;
+		var signOrderResponse = this.signOrder(params, session, ewd);
+		
+		this.unlockOrder(params, session, ewd);
+		this.unlockOrdersForPatient(params, session, ewd);
+		
+		if (signOrderResponse.hasOwnProperty("error")) {
+			throw new Error('Unable to sign cancelled order: ' + JSON.stringify(signOrderResponse));
+		}
+		return canceledOrder;
+	},
+	
+	validateOrderActionNature: function(params, session, ewd) {
+		
+		params.rpcName = "ORWDXA VALID";
+		params.rpcArgs = [];
+		params.rpcArgs.push({ type: "LITERAL", value: params.orderId });
+		params.rpcArgs.push({ type: "LITERAL", value: params.orderAction });
+		params.rpcArgs.push({ type: "LITERAL", value: params.providerId });
+		params.rpcArgs.push({ type: "LITERAL", value: params.orderNature }); 
+		
+		var response = vistaLib.runRpc(params, session, ewd);
+		
+		if (response.value && response.value != "") {
+			return response.value;
+		}
+		return "";
+	},
+	
+	getComplexOrderMsg: function(params, session, ewd) {
+		params.rpcName = "ORWDXA OFCPLX";
+		params.rpcArgs = [];
+		params.rpcArgs.push({ type: "LITERAL", value: params.orderId });
+		var response = vistaLib.runRpc(params, session, ewd);
+		return response.value || "";	
+	},
+	
+	checkReleaseOrder: function(params, session, ewd) {
+		params.rpcName = "ORWDXC SESSION";
+		params.rpcArgs = [];
+		params.rpcArgs.push({ type: "LITERAL", value: params.patientId });
+		var list = {};
+		list["1"] = (params.orderId + "^^1");
+		params.rpcArgs.push({ type: "LIST", value: list });
+
+		var response = vistaLib.runRpc(params, session, ewd);
+		var result = [];
+		if (response.value && response.value.hasOwnProperty("1")) {
+			for (var i = 1; response.value.hasOwnProperty(i.toString()); i++) {
+				result.push(response.value[i.toString()]);
+			}
+		}
+		return result;
+	},
+
+	lockOrder: function(params, session, ewd) {
+		var params2 = {};
+		params2.rpcName = "ORWDX LOCK ORDER";
+		params2.rpcArgs = [{ type: "LITERAL", value: params.orderId }];
+		var result = vistaLib.runRpc(params2, session, ewd);
+		return result.value == "1"; // TBD - do something with result - this helper should probably just return a bool
+	},
+	
+	lockOrdersForPatient: function(params, session, ewd) {
+		var params2 = {};
+		params2.rpcName = "ORWDX LOCK";
+		params2.rpcArgs = [{ type: "LITERAL", value: params.patientId }];
+		var result = vistaLib.runRpc(params2, session, ewd);
+		return result.value == "1"; // TBD - do something with result - this helper should probably just return a bool
+	},
+	
+	unlockOrder: function(params, session, ewd) {
+		var params2 = {};
+		params2.rpcName = "ORWDX UNLOCK ORDER";
+		params2.rpcArgs = [{ type: "LITERAL", value: params.orderId }];
+		var result = vistaLib.runRpc(params2, session, ewd);
+		return result.value == "1"; // TBD - do something with result - this helper should probably just return a bool
+	},
+	
+	unlockOrdersForPatient: function(params, session, ewd) {
+		var params2 = {};
+		params2.rpcName = "ORWDX UNLOCK";
+		params2.rpcArgs = [{ type: "LITERAL", value: params.patientId }];
+		var result = vistaLib.runRpc(params2, session, ewd);
+		return result.value == "1"; // TBD - do something with result - this helper should probably just return a bool
+	},
+	
+	signOrder: function(params, session, ewd) {
+		var params2 = {};
+		params2.rpcName = "ORWDX SEND";
+		params2.deleteGlobal = false;
+		params2.rpcArgs = [];
+		params2.rpcArgs.push({ type: "LITERAL", value: "" });
+		params2.rpcArgs.push({ type: "LITERAL", value: params.providerId });
+		params2.rpcArgs.push({ type: "LITERAL", value: params.locationId });
+		params2.rpcArgs.push({ type: "LITERAL", value: vistaLib.encryptRpcParameter(params.eSig, session, ewd) });
+		
+		if (params.signedOnChart) {
+			var signOnChart = params.signedOnChart;
+			var signOnChartFlag = (signOnChart ? "0" : "1");
+			var natureOfOrder = (signOnChart ? "W" : "E");
+			var arg = { };
+			arg["1"] = params.orderId + "^" + signOnChartFlag + "^1^" + natureOfOrder; // e.g. 21354;1^0^1^E
+			params2.rpcArgs.push({ type: "LIST", value: arg });
+		} else { // if didn't specify signedOnChart options, default to regular sig args
+			var arg = { }; 
+			arg["1"] = params.orderId + "^1^1^E"; // e.g. 21354;1^1^1^E
+			params2.rpcArgs.push({ type: "LIST", value: arg });
+		}
+		
+		var result = vistaLib.runRpc(params2, session, ewd);
+		//throw new Error('blowing up so we can see the global data');
+		return this.toSignOrderResponse(result, params2);
+	},
+	
+	toSignOrderResponse: function(response, params) {
+		if (!response || !response.value || !response.value.hasOwnProperty("1")) {
+			throw new Error('Unable to parse sign order response: ' + JSON.stringify(response));
+		}
+		
+		var pieces = response.value["1"].split("^");
+		if (pieces.length > 2 && pieces[1] == "E") {
+			return {
+				orderId: pieces[0],
+				error: true,
+				reason: pieces[3],
+				debug: params
+			};
+		} else {
+			return { orderId: pieces[0] };
+		}
+	},	
+
+	cancelOrder: function(params, session, ewd) {
+		var params2 = {};
+		params2.rpcName = "ORWDXA DC";
+		params2.rpcArgs = [];
+		params2.rpcArgs.push({ type: "LITERAL", value: params.orderId });
+		params2.rpcArgs.push({ type: "LITERAL", value: params.providerId });
+		params2.rpcArgs.push({ type: "LITERAL", value: params.locationId });
+		params2.rpcArgs.push({ type: "LITERAL", value: params.reasonId || "0" }); // unreleased orders do not require a reason
+		params2.rpcArgs.push({ type: "LITERAL", value: "0" });
+		params2.rpcArgs.push({ type: "LITERAL", value: "0" });
+		
+		var statusDict = this.getOrderStatuses(session, ewd);
+		return this.toCancelOrder(vistaLib.runRpc(params2, session, ewd), statusDict);
+	},
+	
+	toCancelOrder: function(response, orderStatusDict) {
+		//if (!response.hasOwnProperty("value") || !response.value.hasOwnProperty("1") || response.value["1"].indexOf("~") < 0) {
+		//	throw Error("Unable to cancel order: " + JSON.stringify(response));
+		//}
+		
+		//var result = {};
+		
+		//var line1Pieces = response.value["1"].split("^");
+		//result.id = line1Pieces[0].substr(1); // get rid of tilde
+		// NOTE: we're not doing anything else with the rest of this parsed cancelled order... ignoring for now!!
+		//throw new Error(JSON.stringify(response));
+		return this.toOrder(response, orderStatusDict);
+		//return result;
+	},
+	
+	getOrder: function(params, session, ewd) {
+		params.rpcName = "ORWORR GETBYIFN";
+		params.rpcArgs = [{type: "LITERAL", value: params.orderId}];
+		var response = vistaLib.runRpc(params, session, ewd);
+		var orderStatusDict = this.getOrderStatuses(session, ewd);
+		return this.toOrder(response, orderStatusDict);
+	},
+	
+	toOrder: function(response, orderStatusDict) {
+		var result = {};
+		if (!response.hasOwnProperty("value") || !response.value.hasOwnProperty("1")) {
+			return result;
+		}
+		
+		var line1Pieces = response.value["1"].split("^");
+
+		result.id = line1Pieces[0].substr(1);
+		result.timestamp = line1Pieces[2];
+		result.startDate = line1Pieces[3];
+		result.stopDate = line1Pieces[4];
+		result.statusCode = line1Pieces[5];
+		result.status = orderStatusDict.hasOwnProperty(result.statusCode) ? orderStatusDict[result.statusCode].name : "";
+		// TODO - fetch result.status for result.statusCode
+		result.sigStatus = line1Pieces[6];
+		result.verifyingNurse = line1Pieces[7];
+		result.verifyingClerk = line1Pieces[8];
+		result.provider = { uid: line1Pieces[9], name: line1Pieces[10] }; // changed MDWS PersonName to use name string straight from Vista
+		result.flag = (line1Pieces[12] == "1");
+		result.chartReviewer = line1Pieces[14];
+		
+		var locationPieces = line1Pieces[18].split(":");
+		result.location = { id: locationPieces[1], name: locationPieces[0] };
+		
+		result.text = "";
+		for (var i = 2; response.value.hasOwnProperty(i.toString()); i++) {
+			result.text += (response.value[i.toString()].substr(1) + "\r\n");
+		}
+		
+		return result;
+	},
+	
+	getOrderStatuses: function(session, ewd) {
+		var ddrResponse = vistaLib.ddrLister3({ FILE: "100.01" }, session, ewd);
+		var result = {};
+		for (var i = 0; i < ddrResponse.data.length; i++) {
+			var pieces = ddrResponse.data[i].split("^");
+			result[pieces[0]] = { ien: pieces[0], name: pieces[1] };		
+		}
+		return result;
+	},
+	
+	getContractAndSharingAgreements: function(session, ewd) {
+		var ddrParams = {
+			FILE: "34",
+			FIELDS: ".01;2;3"
+		};
+		var ddrResult = vistaLib.ddrLister3(ddrParams, session, ewd);
+		return this.toContractAndSharingAgreements(ddrResult);
+	},
+	
+	toContractAndSharingAgreements: function(ddrResult) {
+		var result = { "C": [], "S": [], "R": [] };
+
+		for (var i = 0; i < ddrResult.data.length; i++) {
+			var pieces = ddrResult.data[i].split("^");
+			if (pieces[3] != "") {
+				continue; // INACTIVE date (field #3) is set - skip record
+			}
+			
+			var type = pieces[2];
+			if (type != "C" && type != "S" && type != "R") {
+				continue;
+			}
+			
+			result[type].push({ key: pieces[0], value: pieces[1] });
+			//return result[type];
+		}
+		
+		return result;
+	},
+	
+	getRadiologyOrderDialog: function(params, session, ewd) {
+		var agreements = this.getContractAndSharingAgreements(session, ewd);
+		params.rpcName = "ORWDRA32 DEF";
+		params.rpcArgs = [];
+		params.rpcArgs.push({type: "LITERAL", value: params.patientId});
+		params.rpcArgs.push({type: "LITERAL", value: ""});
+		params.rpcArgs.push({type: "LITERAL", value: params.dialogId});
+		var response = vistaLib.runRpc(params, session, ewd);
+		
+		return this.toRadiologyOrderDialog(response, agreements);
+	},
+	
+	toRadiologyOrderDialog: function(response, agreements) {
+		// first make object easier to use - copy to object by section name
+		var chunksByName = {};
+		var currentSectionName = "";
+		for (var i =1; response.value.hasOwnProperty(i.toString()); i++) {
+			var currentLine = response.value[i.toString()];
+			
+			if (currentLine == "") {
+				continue;
+			}
+			
+			if (currentLine.substr(0, 1) == "~") {
+				currentSectionName = (currentLine.substr(1)).replace(/ /g, "_"); // global replacement of all spaces with underscore
+				chunksByName[currentSectionName] = [];
+				continue;
+			}
+			
+			chunksByName[currentSectionName].push(currentLine);
+		}
+				
+		var dialog = { commonProcedures: [], last7DaysExams: [], modifiers: {}, urgencies: {}, transports: {}, categories: {}, submitTo: {}};
+		
+		for (var i = 0; i < chunksByName["Common_Procedures"].length; i++) {
+			var pieces = chunksByName["Common_Procedures"][i].split("^");
+			dialog.commonProcedures.push({ id: pieces[0].substr(1), name: pieces[1], requiresApproval: pieces[3] });
+		}
+		
+		// PER FRANK - don't want to throw an exception here. JOEL RECOMMENDS NOT DOING THIS AS IT WILL CAUSE
+		// A PATIENT SAFETY ISSUE IN PROD AND PROBABLY KILL A PATIENT (SERIOUSLY). COMMENTING OUT AGAINST JOEL'S ADVICE
+		//for (var i = 0; i < chunksByName["Last_7_Days"].length; i++) {
+		//	throw new NotImplementedException("Last 7 Days Exams Parsing: NOT YET IMPLEMENTED BUT VERY IMPORTANT... NOT ABLE TO FIND ANY PATIENTS WITH RECENT IMAGING EXAMS IN DEV");
+		//}
+		
+		for (var i = 0; i < chunksByName["Modifiers"].length; i++) {
+			var pieces = chunksByName["Modifiers"][i].split("^");
+			dialog.modifiers[pieces[0].substr(1)] = pieces[1]; // dictionary - property name is key, property value is val
+		}
+		
+		for (var i = 0; i < chunksByName["Urgencies"].length; i++) {
+			var pieces = chunksByName["Urgencies"][i].split("^");
+			dialog.urgencies[pieces[0].substr(1)] = pieces[1]; // dictionary - property name is key, property value is val
+		}
+		
+		for (var i = 0; i < chunksByName["Transport"].length; i++) {
+			var pieces = chunksByName["Transport"][i].split("^");
+			dialog.transports[pieces[0].substr(1)] = pieces[1]; // dictionary - property name is key, property value is val
+		}
+		
+		for (var i = 0; i < chunksByName["Category"].length; i++) {
+			var pieces = chunksByName["Category"][i].split("^");
+			dialog.categories[pieces[0].substr(1)] = pieces[1]; // dictionary - property name is key, property value is val
+		}
+		
+		for (var i = 0; i < chunksByName["Submit_to"].length; i++) {
+			var pieces = chunksByName["Submit_to"][i].split("^");
+			dialog.submitTo[pieces[0].substr(1)] = pieces[1]; // dictionary - property name is key, property value is val
+		}
+		
+		dialog.contractOptions = agreements["C"];
+		dialog.sharingOptions = agreements["S"];
+		dialog.researchOptions = agreements["R"];
+		
+		return dialog;
+	},
+	
+	getRadiologyOrderChecksForAcceptOrderRequest: function(params, session, ewd) {
+		if (!params.patientId) {
+			throw new Error("Missing patientId");
+		}
+		if (!params.orderStartDateTime) {
+			throw new Error("Missing orderStartDateTime");
+		}
+		if (!params.locationId) {
+			throw new Error("Missing locationId");
+		}
+		if (!params.orderableItemId) {
+			throw new Error("Missing orderableItemId");
+		}
+		
+		params.rpcName = "ORWDXC ACCEPT";
+		params.rpcArgs = [];
+		
+		params.rpcArgs.push({type: "LITERAL", value: params.patientId});
+		params.rpcArgs.push({type: "LITERAL", value: "RA"});
+		params.rpcArgs.push({type: "LITERAL", value: params.orderStartDateTime}); // params.orderStartDateTime
+		params.rpcArgs.push({type: "LITERAL", value: params.locationId});
+		var list = {};
+		list["1"] = params.orderableItemId;
+		params.rpcArgs.push({type: "LIST", value: list});
+		
+		var response = vistaLib.runRpc(params, session, ewd);
+		
+		return this.toOrderChecks(response);
+	},
+
+	toOrderChecks: function(response) {
+		if (!response.hasOwnProperty("value")) {
+			throw Error("Unexpected order check response: " + JSON.stringify(response));
+		}
+		
+		var result = [];
+		for (var i = 1; response.value.hasOwnProperty(i.toString()); i++) {
+			var pieces = response.value[i.toString()].split("^");
+			if (pieces && pieces.length > 3) {
+				var name = pieces[3];
+				if (pieces.length > 4) {
+					for (var j = 4; j < pieces.length; j++) {
+						name += ("^" + pieces[j]);
+					}
+				}
+				var id = pieces[1];
+				var level = pieces[2];
+				
+				result.push({ id: id, level: level, name: name });
+			}
+		}
+		
+		return result;
+	},
+	
+	getProcedureMessage: function(params, session, ewd) {
+		params.rpcName = "ORWDRA32 PROCMSG";
+		params.rpcArgs = [{ type: "LITERAL", value: params.orderableItemId }];
+		
+		var response = vistaLib.runRpc(params, session, ewd);
+		return { theResponse: response, args: params };
+		var text = "";
+		if (response.value && response.value.hasOwnProperty("1")) {
+			for (var i = 1; response.value.hasOwnProperty(i.toString()); i++) {
+				text += (response.value[i.toString()] + "\r\n");
+			}
+		}
+		return { result: text };
+	},
+	
+	getRadiologyOrderDialogDefinition: function(params, session, ewd) {
+		var params2 = { rpcName: "ORWDX DLGDEF" };
+		params2.rpcArgs = [{ type: "LITERAL", value: "RA OERR EXAM" }];
+		
+		var response = vistaLib.runRpc(params2, session, ewd);
+		return this.toRadiologyOrderDialogDefinition(response);
+	},
+	
+	toRadiologyOrderDialogDefinition: function(response) {
+		var result = {};
+		
+		for (var i = 1; response.value.hasOwnProperty(i.toString()); i++) {
+			var pieces = response.value[i.toString()].split("^");
+			result[pieces[0]] = pieces[1]; // "key" is name, "value" is id
+		}
+		return result;
+	},
+	
+	isOrderCheckingEnabled: function(params, session, ewd) {
+		params.rpcName = "ORWDXC ON";
+		params.rpcArgs = [];
+		return (vistaLib.runRpc(params, session, ewd)).value == "E";
+	},	
+	
+	saveNewRadiologyOrderWithRules: function(params, session, ewd) {
+		// see if any order checks, if so, verify override reason was supplied if required
+		if (this.isOrderCheckingEnabled(params, session, ewd)) {
+			var checks = this.getRadiologyOrderChecksForAcceptOrderRequest(params, session, ewd);
+			params.orderChecks = checks; // set this lazily
+			if (checks && checks.length > 0) {
+				for (var i = 0; i < checks.length; i++) {
+					if (checks[i].level == "1" && (!params.orderCheckOverrideReason || params.orderCheckOverrideReason == "")) {
+						throw new Error('Order checks require a manual override reason!');
+					}
+				}
+			}
+		}
+		
+		// make sure ordering provider holds PROVIDER key
+		var orderingProviderHasProvider = userLib.userHasKey(params.providerId, "PROVIDER", session, ewd);
+		if (!orderingProviderHasProvider) {
+			throw new Error('Ordering provider does not have PROVIDER key');
+		}
+		
+		// see if signature was provided to sign/release order, if user == provider and/or user can sign order on chart
+		var userHasProviderKey = orderingProviderHasProvider;
+		var userHasKeyOremas = false;
+		if (params.eSig && params.eSig != "") {
+			if (params.userId != params.providerId) {
+				var userHasProviderKey = userLib.userHasKey(params.userId, "PROVIDER", session, ewd);
+				
+				if (userHasProviderKey) {
+                    throw new Error("Providers may not sign orders for other providers. Drop the eSig to enable enable order creation without signature"); 
+				}
+				
+				userHasKeyOremas = userLib.userHasKey(params.userId, "OREMAS", session, ewd);
+				if (!userHasKeyOremas && !userHasProviderKey) {
+					throw new Error('Authenticated user does not have keys necessary to sign this order. Drop the eSig to enable enable order creation without signature');
+				}
+			}
+		}
+		
+		// validate eSig, if provided
+		if (params.eSig && params.eSig != "") {
+			if (!vistaLib.isValidESig(params, session, ewd)) {
+				throw new Error("Invalid electronic signature code");
+			}
+		}
+		
+		// check args are valid
+		var orderDlg = this.getRadiologyOrderDialog(params, session, ewd);
+		
+		if (!orderDlg.urgencies.hasOwnProperty(params.urgencyCode)) {
+			throw new Error('The urgency code is not a valid value for this order"');
+		}
+		
+		if (!orderDlg.transports.hasOwnProperty(params.modeCode)) // e.g. P (portable), W (wheelchair), etc.
+		{
+			throw new Error("The mode code is not a valid value for this order");
+		}
+		if (!orderDlg.categories.hasOwnProperty(params.classCode)) // e.g. I (inpatient), O (outpatient), etc
+		{
+			throw new Error("The patient class is not a valid value for this order");
+		}
+		if (!orderDlg.submitTo.hasOwnProperty(params.submitTo)) // e.g. 12 (CT SCAN), etc
+		{
+			throw new Error("The submit to location is not a valid value for this order");
+		}
+		if (params.classCode == "C" || params.classCode == "S")
+		{
+			if (!params.contractSharingId || params.contractSharingId == "")
+			{
+				throw new Error("Must supply a contract/sharing value with CONTRACT/SHARING category");
+			}
+			if (params.classCode == "C")
+			{
+				var found = false;
+				for (var i = 0; i < orderDlg.contractOptions.length; i++) {
+					if (orderDlg.contractOptions[i].key == params.contractSharingId) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) { 
+					throw new Error("That contract IEN appears to be invalid");
+				}
+			}
+			if (params.classCode == "S")
+			{
+				var found = false;
+				for (var i = 0; i < orderDlg.sharingOptions.length; i++) {
+					if (orderDlg.sharingOptions[i].key == params.contractSharingId) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) { 
+					throw new Error("That sharing IEN appears to be invalid");
+				}
+			}
+		}
+		// end checks for valid values!
+		
+		if (!this.lockOrdersForPatient(params, session, ewd)) {
+			throw new Error('Unable to lock orders for patient');
+		}
+		
+		var newOrder = this.saveNewRadiologyOrder(params, session, ewd);
+		
+		if (params.eSig && params.eSig != "") {
+			params.orderId = newOrder.id; // note copying this here on params but used in functions below too!
+			if (!this.lockOrder(params, session, ewd)) {
+				this.unlockOrdersForPatient(params, session, ewd);
+				throw new Error('Unable to lock new order for signing');
+			}
+			
+			var orderAction = userHasProviderKey ? "ES" : "RS";
+			var orderNature = userHasProviderKey ? "E" : "W";
+			params.orderAction = orderAction;
+			params.orderNature = orderNature;
+			var orderActionValidationText = this.validateOrderActionNature(params, session, ewd);
+			if (orderActionValidationText != "") {
+				this.unlockOrder(params, session, ewd);
+				this.unlockOrdersForPatient(params, session, ewd);
+				throw new Error('Invalid order action: ' + orderActionValidationText);
+			}
+			
+			// set up params for this call
+			var checkLines = this.checkReleaseOrder(params, session, ewd); 
+			if (checkLines && checkLines.length > 0) {
+				this.saveOrderChecksFromReleaseOrderResponse(checkLines, params, session, ewd);
+			}
+			
+			params.signedOnChart = !userHasProviderKey;
+			this.signOrder(params, session, ewd);
+			this.unlockOrder(params, session, ewd);
+			newOrder = this.getOrder(params, session, ewd); // re-fetch order now that it has been signed/released
+			
+			newOrder.radiologyOrderId = this.getRadiologyOrderIenFromOrderId(newOrder.id, session, ewd);
+			//newOrder.checkLinesResponse = { lookHere: checkLines };
+		}
+		
+		if (!this.unlockOrdersForPatient(params, session, ewd)) {
+			throw new Error('There was a problem unlocking the patients orders after creating this new order...');
+		}
+		
+		return newOrder;
+	},
+	
+	saveOrderChecksFromReleaseOrderResponse: function(checkLines, params, session, ewd) {
+		params.checkLinesCount = checkLines.length;
+		params.rpcName = "ORWDXC SAVECHK";
+		params.rpcArgs = [];
+		params.rpcArgs.push({type: "LITERAL", value: params.patientId});
+		params.rpcArgs.push({type: "LITERAL", value: params.orderCheckOverrideReason || "" });
+		var list = {};
+		list["ORCHECKS"] = {}; //checkLines.length.toString();
+		for (var i = 0; i < checkLines.length; i++) {
+			list["ORCHECKS"][(i+1).toString()] = checkLines[i];
+		}
+		params.rpcArgs.push({type: "LIST", value: list});
+
+		var response = vistaLib.runRpcForSaveOrderChecks(params, session, ewd);
+		if (response.value != "1") {
+			throw new Error("Unexpected result from saveOrderChecksFromReleaseOrderResponse: " + JSON.stringify(response));
+		}
+	},
+	
+	saveNewRadiologyOrder: function(params, session, ewd) {
+		if (!params.patientId) { throw new Error("Missing patientId") };
+		if (!params.providerId) { throw new Error("Missing providerId") };
+		if (!params.locationId) { throw new Error("Missing locationId") };
+		if (!params.dialogId) { throw new Error("Missing dialogId") };
+		if (!params.orderableItemId) { throw new Error("Missing orderableItemId") };
+		if (!params.orderStartDateTime) { throw new Error("Missing orderStartDateTime") };
+		if (!params.urgencyCode) { throw new Error("Missing urgencyCode") };
+		if (!params.modeCode) { throw new Error("Missing modeCode") };
+		if (!params.classCode) { throw new Error("Missing classCode") };
+		if (!params.submitTo) { throw new Error("Missing submitTo") };
+		//if (!params.orderDialogDefinition) { throw new Error("Missing orderDialogDefinition - set property with call to getRadiologyOrderDialogDefinition") };
+		
+		params.rpcName = "ORWDX SAVE";
+		params.rpcArgs = [];
+		params.rpcArgs.push({type: "LITERAL", value: params.patientId});
+		params.rpcArgs.push({type: "LITERAL", value: params.providerId});
+		params.rpcArgs.push({type: "LITERAL", value: params.locationId});
+		params.rpcArgs.push({type: "LITERAL", value: "RA OERR EXAM"});
+		params.rpcArgs.push({type: "LITERAL", value: params.dialogId});
+		params.rpcArgs.push({type: "LITERAL", value: "1"});
+		params.rpcArgs.push({type: "LITERAL", value: ""});
+		
+		// lazy load if not passed in
+		if (!params.orderDialogDefinition) {
+			params.orderDialogDefinition = this.getRadiologyOrderDialogDefinition(params, session, ewd);
+		}
+		var dialogDef = params.orderDialogDefinition; // fetch this before and pass in as params property
+		
+		var list = { };
+		
+		list[dialogDef.ORDERABLE] = {};
+		list[dialogDef.START] = {};
+		list[dialogDef.URGENCY] = {};
+		list[dialogDef.MODE] = {};
+		list[dialogDef.CLASS] = {};
+		list[dialogDef.IMLOC] = {};
+		list[dialogDef.PREGNANT] = {}; 
+		list[dialogDef.YN] = {};
+		list[dialogDef.PREOP] = {};
+		list[dialogDef.REASON] = {};
+		list[dialogDef.PROVIDER] = {}; 
+		list[dialogDef.CONTRACT] = {} 
+		list[dialogDef.RESEARCH] = {}; 
+		list[dialogDef.LOCATION] = {}; 
+
+		list[dialogDef.ORDERABLE]["1"] = params.orderableItemId;
+		list[dialogDef.START]["1"] = params.orderStartDateTime; // Sep 10,2015@13:30
+		list[dialogDef.URGENCY]["1"] = params.urgencyCode; 
+		list[dialogDef.MODE]["1"] = params.modeCode; 
+		list[dialogDef.CLASS]["1"] = params.classCode; 
+		list[dialogDef.IMLOC]["1"] = params.submitTo;
+		
+		var preggers = "0";
+		if (typeof params.pregnant === "string" || params.pregnant instanceof String) {
+			if (params.pregnant == "true") {
+				preggers = "1";
+			}
+		} 
+		list[dialogDef.PREGNANT]["1"] = preggers; 
+		
+		var iso = "0";
+		if (typeof params.isolation === "string" || params.isolation instanceof String) {
+			if (params.isolation == "true") {
+				iso = "1";
+			}
+		} 
+		list[dialogDef.YN]["1"] = iso 
+
+		list[dialogDef.PREOP]["1"] = params.preOpDateTime || ''; 
+		list[dialogDef.REASON]["1"] = params.reasonForStudy || ''; 
+		
+		if (params.clinicHx && params.clinicHx != "") {
+			list[dialogDef.COMMENT] = {}; 
+			list[dialogDef.COMMENT]["1"] = "ORDIALOG(\"WP\"," + dialogDef.COMMENT + ",1)";
+			var lines = params.clinicHx.split("|");
+			list["WP"] = { };
+			list["WP"][dialogDef.COMMENT] = { };
+			list["WP"][dialogDef.COMMENT]["1"] = { };
+			for (var i = 0; i < lines.length; i++) {
+				list["WP"][dialogDef.COMMENT]["1"][(i+1).toString()] = {};
+				list["WP"][dialogDef.COMMENT]["1"][(i+1).toString()]["0"] = lines[i];
+			}
+		}
+
+		list[dialogDef.PROVIDER]["1"] = ""; 
+		list[dialogDef.CONTRACT]["1"] = params.contractSharingId || ""; 
+		list[dialogDef.RESEARCH]["1"] = params.researchId || ""; 
+		list[dialogDef.LOCATION]["1"] = params.locationId || ""; 
+
+		// params.modifiers should be pipe separated list - convert to array of strings
+		if (params.modifiers && params.modifiers != "") {
+			params.modifiers = params.modifiers.split('|');
+		}
+		if (params.modifiers && params.modifiers.length > 0) {
+			list[dialogDef.MODIFIER] = {};
+			for (var i = 0; i < params.modifiers.length; i++) {
+				list[dialogDef.MODIFIER][(i+1).toString()] = params.modifiers[i];
+			}
+		}
+		
+		if (params.orderChecks && params.orderChecks.length > 0) {
+			// TODO/TBD - JSON can't handle when global is a value but also an object - need to set count manually!
+			//list["ORCHECK"] = params.orderChecks.length.toString();
+			list["ORCHECK"] = { };
+			list["ORCHECK"]["NEW"] = { };
+			
+			for (var i = 0; i < params.orderChecks.length; i++) {
+				// e.g. "ORCHECK","NEW","1","1"=123^1^LOCAL ONLY
+				if (!(list["ORCHECK"]["NEW"].hasOwnProperty(params.orderChecks[i].level))) {
+					list["ORCHECK"]["NEW"][params.orderChecks[i].level] = {};
+				}
+				list["ORCHECK"]["NEW"][params.orderChecks[i].level][(i+1).toString()] = 
+					params.orderChecks[i].id + "^" + params.orderChecks[i].level + "^" + params.orderChecks[i].name;
+			}
+		} else {
+			list["ORCHECK"] = "0";
+		}
+		
+		list["ORTS"] = "0";
+		params.rpcArgs.push({ type: "LIST", value: list });
+		
+		// per MDWS...
+		params.rpcArgs.push({type: "LITERAL", value: ""});
+		params.rpcArgs.push({type: "LITERAL", value: ""});
+		params.rpcArgs.push({type: "LITERAL", value: ""});
+		params.rpcArgs.push({type: "LITERAL", value: "0"});
+
+		// special bit to handle saving order checks!
+		if (params.orderChecks && params.orderChecks.length > 0) {
+			params.orderCheckCount = params.orderChecks.length;
+		}
+		// end special!
+		
+		var orderStatusDict = this.getOrderStatuses(session, ewd);
+		
+	//	return { paramsPreOrderCreate: params, statuses: orderStatusDict};
+		var newOrder = this.toOrder(vistaLib.runRpcForCreateOrder(params, session, ewd), orderStatusDict);
+		return newOrder;
+	}
+	
+};
+
+function NotImplementedException(message) {
+	this.message = "message";
+	this.name = "NotImplementedException";
+};
+
+var vistaLib = require('VistALib');
+var userLib = require('vistaUserLib');
