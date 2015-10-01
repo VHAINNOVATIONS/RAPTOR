@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+  Microsoft Visual Studio 2005 Web Deployment Project 
+  http://go.microsoft.com/fwlink/?LinkId=55111
+-->
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.30319</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{26352670-EAF1-4EF6-B37A-94F355DFAC2E}</ProjectGuid>
+    <SourceWebPhysicalPath>..\mdws</SourceWebPhysicalPath>
+    <SourceWebProject>{B103EB8C-786E-40A4-B49F-91C585ACE032}|mdws\mdws.csproj</SourceWebProject>
+    <SourceWebVirtualPath>/mdws.csproj</SourceWebVirtualPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>.\Debug</OutputPath>
+    <EnableUpdateable>true</EnableUpdateable>
+    <UseMerge>true</UseMerge>
+    <SingleAssemblyName>mdws.csproj_deploy</SingleAssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>.\Release</OutputPath>
+    <EnableUpdateable>true</EnableUpdateable>
+    <UseMerge>true</UseMerge>
+    <SingleAssemblyName>mdws.csproj_deploy</SingleAssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\mdws\mdws.csproj">
+      <Project>{B103EB8C-786E-40A4-B49F-91C585ACE032}</Project>
+      <Name>mdws</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WebDeployment\v10.0\Microsoft.WebDeployment.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.WebDeployment.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="BeforeMerge">
+  </Target>
+  <Target Name="AfterMerge">
+  </Target>
+  -->
+  <!-- these commands delete the .csproj files and unused directories -->
+  <Target Name="AfterBuild">
+    <Exec Command="del $(Configuration)\mdws.csproj" />
+    <Exec Command="del $(Configuration)\mdws.csproj.user" />
+    <Exec Command="rd $(Configuration)\src /Q /S" />
+  </Target>
+</Project>

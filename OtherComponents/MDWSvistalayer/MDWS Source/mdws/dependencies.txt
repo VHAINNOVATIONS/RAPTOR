@@ -1,0 +1,6 @@
+nunit http://svn.medora.va.gov/lib/vendor/nunit/2.0-2.2.9/bin
+log4net http://svn.medora.va.gov/lib/vendor/log4net/1.2.10/bin/net/2.0/release
+spring/bin http://svn.medora.va.gov/lib/vendor/spring.net/1.1_RC1/bin/net/2.0/release
+spring/lib http://svn.medora.va.gov/lib/vendor/spring.net/1.1_RC1/lib/Net/2.0
+toreflection http://svn.medora.va.gov/lib/TOReflection/1.5.1.0/Release
+nhibernate http://svn.medora.va.gov/lib/vendor/nhibernate/1.2.0

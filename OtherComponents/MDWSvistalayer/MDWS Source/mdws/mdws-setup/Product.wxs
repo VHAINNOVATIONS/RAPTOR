@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+     <!-- add schema for checking .NET framework version -->
+     <!-- add schema for creating IIS virtual directory -->
+     <!-- add schema for installer UI -->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension"
+     xmlns:iis="http://schemas.microsoft.com/wix/IIsExtension" >
+
+  <!-- MUST UPDATE THE VERSION NUMBER TO COINCIDE WITH ASSEMBLYINFO - Can't figure out how to make WiX read from AssemblyInfo -->
+  <?define mdwsVersion = "2.5" ?>
+
+  <Product Id="{2B1EC245-D5D9-4654-9DD9-E4A7A0F71B79}" Name="MDWS" Language="1033"
+           Version="2.5.21"
+           Manufacturer="Mewtation, LLC"
+           UpgradeCode="{271DB88A-2A60-4F04-A8BC-79A7CDC6DE21}">
+
+    <Package Id="*" InstallerVersion="200" Compressed="yes" Description="MDWS Installer" />
+
+    <Media Id="1" Cabinet="mdws.cab" EmbedCab="yes" />
+
+    <Condition Message="You must be a member of the administrator's group to install MDWS">
+      Privileged
+    </Condition>
+
+    <!-- hard code logs path as it is hard coded in .config file -->
+    <!--<CustomAction Id="CreateLogsFolder" Directory="TARGETDIR"
+                  ExeCommand="&quot;mkdir.exe&quot; &quot;C:\inetpub\wwwroot\Logs&quot;"
+                  Return="check" />-->
+
+    <!-- Doesn't seem to be working - same command works from the console - NEED TO FIX!!! -->
+    <!--<CustomAction Id="GiveEveryoneWriteToLogs" Directory="TARGETDIR"
+                  ExeCommand="&quot;cacls.exe&quot; &quot;C:\inetpub\wwwroot\Logs&quot; /T /E /G &quot;NT AUTHORITY\Everyone:C&quot;"
+                  Return="check" />-->
+
+    <PropertyRef Id="NETFRAMEWORK40CLIENT"/>
+    <Condition Message=".NET 4.0 is required for installation of MDWS">
+      <![CDATA[Installed OR NETFRAMEWORK40CLIENT]]>
+    </Condition>
+
+    <!-- UNCOMMENT WSE3 to enable condition (don't need registry search) -->
+    <Condition Message="WSE 3.0 Must be installed (http://www.microsoft.com/downloads/details.aspx?FamilyID=018a09fd-3a74-43c5-8ec1-8d789091255d)">WSE3FOUND</Condition>
+    <Property Id="WSE3FOUND" >
+      <DirectorySearch Id="WSE3Search" Path="[ProgramFilesFolder]\Microsoft WSE\v3.0" />
+    </Property>
+
+    <!-- This doesn't seem to be a problem with Server 2008. TBD: still needed???
+    <Condition Message="ASP.NET must be registered with IIS. Run 'C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\aspnet_regiis.exe -i' from a command line and then relaunch the MDWS installer">ASPNETREGISTERED</Condition>
+    <Property Id="ASPNETREGISTERED">
+      <RegistrySearch Id="FrameworkRegisteredSearch" Root="HKLM" Key="SOFTWARE\Microsoft\ASP.NET\2.0.50727.0" Name="AssemblyVersion" Type="raw" />
+    </Property>-->
+
+    
+    <!--<Property Id="PREVIOUSFOUND" Secure="yes" />
+    <Upgrade Id="2c11f240-6af7-4db6-83d8-57b9ab3fcd6d">
+      <UpgradeVersion OnlyDetect="no" Property="PREVIOUSFOUND"
+                      Minimum="1.0.0" IncludeMinimum="yes"
+                      Maximum="100.0.0" IncludeMaximum="yes"/>
+    </Upgrade>-->
+
+    <InstallExecuteSequence>
+      <!--<RemoveExistingProducts Before="InstallInitialize" />-->
+      <Custom Action="CfgAppPool64" After="InstallFinalize"><![CDATA[NOT Installed AND Msix64]]></Custom>
+      <Custom Action="LaunchBrowser" After="InstallFinalize">NOT Installed</Custom>
+    </InstallExecuteSequence>
+
+
+    <!-- START IIS FILES CONFIGURATION -->
+    <Property Id="WWWROOT" Value="#0">
+      <RegistrySearch Id="WWWROOT" Type="raw" Root="HKLM" Key="Software\Microsoft\InetStp" Name="PathWwwRoot" />
+    </Property>
+    <!-- PUT OTHER NEEDED FILES HERE -->
+    <Directory Id="TARGETDIR" Name="SourceDir" >
+      <Directory Id="WWWROOT" Name="." >
+        <!--<Component Id="">
+          <CreateFolder Directory="Logs">
+            <Permission User="Everyone" />
+          </CreateFolder>
+        </Component>-->
+        <Directory Id="INSTALLLOCATION" Name="MDWS$(var.mdwsVersion)" >
+          <Component Id="PrecompiledApp.config" Guid="257DFB6C-7A82-44a3-95B2-FD772A6C08E6" Feature="Complete">
+            <File Id="PrecompiledAppFile" Name="PrecompiledApp.config" Source="../mdws.csproj_deploy/$(var.Configuration)/PrecompiledApp.config" KeyPath="yes" />
+          </Component>
+          <Component Id="ApolloService.asmx" Guid="AB480B90-5758-4af0-BC83-0FD9528902EB" Feature="Complete">
+            <File Id="ApolloServiceFile" Name="ApolloService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/ApolloService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="AthenaService.asmx" Guid="0F65BABE-1B74-4123-A421-5465A71D1C6D" Feature="Complete">
+            <File Id="AthenaServiceFile" Name="AthenaService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/AthenaService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="BaseService.asmx" Guid="D69EEF13-2C47-4986-A480-C155F5D99106" Feature="Complete">
+            <File Id="BaseServiceFile" Name="BaseService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/BaseService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="BhieService.asmx" Guid="8A09305E-664A-4719-BE16-A2C297765AB7" Feature="Complete">
+            <File Id="BhieServiceFile" Name="BhieService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/BhieService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="CallService.asmx" Guid="8B2B0E57-3533-499b-81AE-D74AF0B595E5" Feature="Complete">
+            <File Id="CallServiceFile" Name="CallService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/CallService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="ClaimSvc.asmx" Guid="84910877-022E-4DDB-92D2-FC7B74B4A230" Feature="Complete">
+            <File Id="ClaimsSvcFile" Name="ClaimSvc.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/ClaimSvc.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="EmerseService.asmx" Guid="D0B5EE6C-F173-41ac-954F-299819DDC406" Feature="Complete">
+            <File Id="EmerseServiceFile" Name="EmerseService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/EmerseService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="EmrSvc.asmx" Guid="139663C3-1255-4e55-A087-BC2FA99EBD49" Feature="Complete">
+            <File Id="EmrSvcFile" Name="EmrSvc.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/EmrSvc.asmx" KeyPath="yes" />
+          </Component>
+          <!--<Component Id="EmrSvc.svc" Guid="098EF4AB-211E-450B-8CB6-08801E1BCA51" Feature="Complete">
+            <File Id="EmrSvcWcfFile" Name="EmrSvc.svc" Source="../mdws.csproj_deploy/$(var.Configuration)/EmrSvc.svc" KeyPath="yes" />
+          </Component>-->
+          <Component Id="FindPatientService.asmx" Guid="C7B81ADD-96C4-49a0-BE74-9E298E9E7FD5" Feature="Complete">
+            <File Id="FindPatientServiceFile" Name="FindPatientService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/FindPatientService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="MdwsSvc.asmx" Guid="2DD1EF42-2220-4D50-A66B-390C09865626" Feature="Complete">
+            <File Id="MdwsSvcFile" Name="MdwsSvc.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/MdwsSvc.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="MhvService.asmx" Guid="C878996E-6D6C-4a8a-B06A-07C0035864C3" Feature="Complete">
+            <File Id="MhvServiceFile" Name="MhvService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/MhvService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="NumiService.asmx" Guid="98DD32E1-4D1F-47b9-93B5-37E2934B8C7E" Feature="Complete">
+            <File Id="NumiServiceFile" Name="NumiService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/NumiService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="QuerySvc.asmx" Guid="481703EC-1C1E-400D-91B0-9871E4CD081A" Feature="Complete">
+            <File Id="QuerySvcFile" Name="QuerySvc.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/QuerySvc.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="SchedulingSvc.asmx" Guid="F1606AA9-BEFB-4F6A-8B12-CEE4B67D8781" Feature="Complete">
+            <File Id="SchedulingSvcAsmxFile" Name="SchedulingSvc.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/SchedulingSvc.asmx" KeyPath="yes" />
+          </Component>
+          <!--<Component Id="SchedulingSvc.svc" Guid="94F49A87-0F6F-4E31-87AC-91199E590CD4" Feature="Complete">
+            <File Id="SchedulingSvcSvcFile" Name="SchedulingSvc.svc" Source="../mdws.csproj_deploy/$(var.Configuration)/SchedulingSvc.svc" KeyPath="yes" />
+          </Component>-->
+          <Component Id="TbiService.asmx" Guid="6188C736-A343-435a-B725-018C89EAA3EF" Feature="Complete">
+            <File Id="TbiServiceFile" Name="TbiService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/TbiService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="ToolsService.asmx" Guid="DC31F5F7-D6A6-468d-BD49-1C2CAEE04857" Feature="Complete">
+            <File Id="ToolsServiceFile" Name="ToolsService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/ToolsService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="UserMgtService.asmx" Guid="C538E386-D304-44db-9214-4A73380A0289" Feature="Complete">
+            <File Id="UserMgtServiceFile" Name="UserMgtService.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/UserMgtService.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="UserMgtSvc.asmx" Guid="2C1F5A60-9297-4ce8-91B9-26E68B292044" Feature="Complete">
+            <File Id="UserMgtSvcFile" Name="UserMgtSvc.asmx" Source="../mdws.csproj_deploy/$(var.Configuration)/UserMgtSvc.asmx" KeyPath="yes" />
+          </Component>
+          <Component Id="web.config" Guid="B9F78B80-F0BF-418e-952C-676D455891B3" Feature="Complete">
+            <File Id="WebConfigFile" Name="web.config" Source="../mdws.csproj_deploy/$(var.Configuration)/web.config" KeyPath="yes" />
+          </Component>
+
+          <Directory Id="BinFolder" Name="bin">
+            <Component Id="App_global.asax.compiled" Guid="08C28FD7-B21C-46d9-BA23-78805EC39A36" Feature="Complete">
+              <File Id="App_globalAsaxFile" Name="App_global.asax.compiled" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/App_global.asax.compiled" KeyPath="yes" />
+            </Component>
+            <Component Id="mdo.dll" Guid="97eafeea-0685-4481-a86a-d7a86e601ad7" Feature="Complete">
+              <File Id="mdo.dll" Name="mdo.dll" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/mdo.dll" KeyPath="yes" />
+            </Component>
+            <Component Id="mdws.csproj_deploy.dll" Guid="E831B209-B325-462e-B825-68091E9E249A" Feature="Complete">
+              <File Id="mdws.csproj_deploy.dll" Name="mdws.csproj_deploy.dll" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/mdws.csproj_deploy.dll" KeyPath="yes" />
+            </Component>
+            <Component Id="mdws.dll" Guid="3d5900ae-111a-45be-96b3-d9e4606ca793" Feature="Complete">
+              <File Id="mdws.dll" Name="mdws.dll" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/mdws.dll" KeyPath="yes" />
+            </Component>
+            <!--<Component Id="Oracle.DataAccess.dll" Guid="BC538E3A-9C9C-497C-9573-F45E3C403DC8" Feature="Complete">
+              <File Id="Oracle.DataAccess.dll" Name="Oracle.DataAccess.dll" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/Oracle.DataAccess.dll" KeyPath="yes" />
+            </Component>-->
+            <Component Id="TOReflection.dll" Guid="067DCC25-1A22-4691-8040-8B9DDDC8259C" Feature="Complete">
+              <File Id="TOReflection.dll" Name="TOReflection.dll" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/TOReflection.dll" KeyPath="yes" />
+            </Component>
+            <Component Id="NHapi.Base.dll" Guid="DB6FDA16-8785-4115-A0C8-DA7B4298BD58" Feature="Complete">
+              <File Id="NHapi.Base.dll" Name="NHapi.Base.dll" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/NHapi.Base.dll" KeyPath="yes" />
+            </Component>
+            <Component Id="NHapi.Base.xml" Guid="DA480E5A-296E-4EDF-9C84-4733F09768FC" Feature="Complete">
+              <File Id="NHapi.Base.xml" Name="NHapi.Base.xml" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/NHapi.Base.xml" KeyPath="yes" />
+            </Component>
+            <Component Id="NHapi.Model.V24.dll" Guid="BAA9007D-97B4-4E49-9547-11AE9C245AC7" Feature="Complete">
+              <File Id="NHapi.Model.V24.dll" Name="NHapi.Model.V24.dll" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/NHapi.Model.V24.dll" KeyPath="yes" />
+            </Component>
+            <Component Id="NHapi.Model.V24.xml" Guid="09708BBF-1ADA-434A-9C69-04D4E93940A5" Feature="Complete">
+              <File Id="NHapi.Model.V24.xml" Name="NHapi.Model.V24.xml" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/NHapi.Model.V24.xml" KeyPath="yes" />
+            </Component>
+            <!--<Component Id="System.Data.SQLite.dll" Guid="1431476E-C4A3-4DE7-901C-5E18BE9DD1BC" Feature="Complete">
+              <File Id="System.Data.SQLite.dll" Name="System.Data.SQLite.dll" Source="../mdws.csproj_deploy/$(var.Configuration)/bin/System.Data.SQLite.dll" KeyPath="yes" />
+            </Component>-->
+          </Directory> 
+          
+          <Directory Id="resources" Name="resources">
+            <Directory Id="conf" Name="conf">
+              <Component Id="mdws.conf" Guid="87F05380-74E2-4DEA-BE6C-AD4E550C92BD" Feature="Complete">
+                <File Id="mdws.conf" Name="mdws.conf" Source="../mdws.csproj_deploy/$(var.Configuration)/resources/conf/mdws.conf" KeyPath="yes" />
+              </Component>
+            </Directory>
+              <Directory Id="xml" Name="xml">
+                <Component Id="objects.xml" Guid="61DE15FE-9454-46c0-B5B2-36EAE22B792C" Feature="Complete">
+                  <File Id="objects.xml" Name="objects.xml" Source="../mdws.csproj_deploy/$(var.Configuration)/resources/xml/objects.xml" KeyPath="yes" />
+                </Component>
+                <Component Id="VhaSites.xml" Guid="92346EFC-9978-43fa-ACD4-697EB8110331" Feature="Complete">
+                  <File Id="VhaSites.xml" Name="VhaSites.xml" Source="../mdws.csproj_deploy/$(var.Configuration)/resources/xml/VhaSites.xml" KeyPath="yes" />
+                </Component>
+                <Component Id="VhaSitesByState.xml" Guid="1C4842E5-353B-4b56-9308-217BCBA3F12E" Feature="Complete">
+                  <File Id="VhaSitesByState.xml" Name="VhaSitesByState.xml" Source="../mdws.csproj_deploy/$(var.Configuration)/resources/xml/VhaSitesByState.xml" KeyPath="yes" />
+                </Component>
+                <Component Id="VisnsByState.xml" Guid="6FB50F7A-EE36-4da1-90CB-252DD58CAD79" Feature="Complete">
+                  <File Id="VisnsByState.xml" Name="VisnsByState.xml" Source="../mdws.csproj_deploy/$(var.Configuration)/resources/xml/VisnsByState.xml" KeyPath="yes" />
+                </Component>
+                <Component Id="VistaFiles.xml" Guid="B242D2BC-B524-4b0c-8ACB-96A0E5DE072A" Feature="Complete">
+                  <File Id="VistaFiles.xml" Name="VistaFiles.xml" Source="../mdws.csproj_deploy/$(var.Configuration)/resources/xml/VistaFiles.xml" KeyPath="yes" />
+                </Component>
+                <Component Id="VistaFiles.xsd" Guid="BD421721-CCDC-4614-B26C-07437D211DD5" Feature="Complete">
+                  <File Id="VistaFiles.xsd" Name="VistaFiles.xsd" Source="../mdws.csproj_deploy/$(var.Configuration)/resources/xml/VistaFiles.xsd" KeyPath="yes" />
+                </Component>
+              </Directory>
+            </Directory>
+          
+          
+          <Directory Id="Web" Name="Web">
+            <Directory Id="css" Name="css">
+              <Component Id="jquery.treeview.css" Guid="79CD3D89-0ACE-4c3f-9AC0-9D7FBBEB58B1" Feature="Complete">
+                <File Id="jquery.treeview.css" Name="jquery.treeview.css" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/css/jquery.treeview.css" KeyPath="yes" />
+              </Component>
+              <Component Id="screen.css" Guid="3BBDE4DE-3E72-41e7-8B8C-EC00E1BA4078" Feature="Complete">
+                <File Id="screen.css" Name="screen.css" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/css/screen.css" KeyPath="yes" />
+              </Component>
+            </Directory>
+            <Directory Id="images" Name="images">
+              <Component Id="file.gif" Guid="80228FC4-55F0-42b5-8014-2E77DDF07F8B" Feature="Complete">
+                <File Id="file.gif" Name="file.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/file.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="folderclosed.gif" Guid="2E95AA50-B22A-4c03-804F-2F7426CD493F" Feature="Complete">
+                <File Id="folderclosed.gif" Name="folder-closed.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/folder-closed.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="folder.gif" Guid="4AA347B4-54CB-4af5-B187-28070D2C3199" Feature="Complete">
+                <File Id="folder.gif" Name="folder.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/folder.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="mdws.gif" Guid="73C73727-0EA5-42e4-B9F9-FAE41D4EDEFF" Feature="Complete">
+                <File Id="mdws.gif" Name="mdws.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/mdws.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="mdws_dashboard.png" Guid="A80C6A2B-51A4-45ba-9EEF-10374A8E6DB3" Feature="Complete">
+                <File Id="mdws_dashboard.png" Name="mdws_dashboard.png" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/mdws_dashboard.png" KeyPath="yes" />
+              </Component>
+              <Component Id="minus.gif" Guid="9141701F-E459-4d3a-A9B8-F0B8CE95FA86" Feature="Complete">
+                <File Id="minus.gif" Name="minus.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/minus.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="plus.gif" Guid="B56F330E-DA9F-4e76-B96F-EB3E6B398B7B" Feature="Complete">
+                <File Id="plus.gif" Name="plus.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/plus.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewblackline.gif" Guid="5D29579E-1E9B-4cdb-B7C3-24E8D62FEE89" Feature="Complete">
+                <File Id="treeviewblackline.gif" Name="treeview-black-line.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-black-line.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewblack.gif" Guid="B269AAB4-5A3C-487a-910A-BC742730AA3D" Feature="Complete">
+                <File Id="treeviewblack.gif" Name="treeview-black.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-black.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewdefaultline.gif" Guid="4829A74E-9B18-448f-8852-B7CDB2102512" Feature="Complete">
+                <File Id="treeviewdefaultline.gif" Name="treeview-default-line.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-default-line.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewdefault.gif" Guid="36AA62C8-6B92-44d4-A1BC-47A66F49404C" Feature="Complete">
+                <File Id="treeviewdefault.gif" Name="treeview-default.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-default.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewfamfamfamline.gif" Guid="7F509574-EDBE-4f3e-A8FC-E96D667B8FA0" Feature="Complete">
+                <File Id="treeviewfamfamfamline.gif" Name="treeview-famfamfam-line.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-famfamfam-line.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewfamfamfam.gif" Guid="5821269C-AAC0-4a26-B651-8B6F98E4AF92" Feature="Complete">
+                <File Id="treeviewfamfamfam.gif" Name="treeview-famfamfam.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-famfamfam.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewgrayline.gif" Guid="0DCA31AA-DFE3-43bd-B560-AA1552ABA405" Feature="Complete">
+                <File Id="treeviewgrayline.gif" Name="treeview-gray-line.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-gray-line.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewgray.gif" Guid="52F2C70B-9BAE-41e8-9A7C-7306F97B2D91" Feature="Complete">
+                <File Id="treeviewgray.gif" Name="treeview-gray.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-gray.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewredline.gif" Guid="DA9B2ED1-61B1-4a43-922D-9DEFD2D95382" Feature="Complete">
+                <File Id="treeviewredline.gif" Name="treeview-red-line.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-red-line.gif" KeyPath="yes" />
+              </Component>
+              <Component Id="treeviewred.gif" Guid="4248FEBD-9AF8-424a-B752-CC08593AE848" Feature="Complete">
+                <File Id="treeviewred.gif" Name="treeview-red.gif" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/images/treeview-red.gif" KeyPath="yes" />
+              </Component>
+            </Directory>
+            <Directory Id="js" Name="js">
+              <Component Id="jquery.cookie.js" Guid="FD451C19-FA77-4097-B6F6-8C424E29D679" Feature="Complete">
+                <File Id="jquery.cookie.js" Name="jquery.cookie.js" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/js/jquery.cookie.js" KeyPath="yes" />
+              </Component>
+              <Component Id="jquery.js" Guid="2FF97341-070D-43a9-AF23-03FA2DA2B6AA" Feature="Complete">
+                <File Id="jquery.js" Name="jquery.js" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/js/jquery.js" KeyPath="yes" />
+              </Component>
+              <Component Id="jquery.treeview.js" Guid="E3FF73F0-6C3E-4124-85EB-751D7F05545B" Feature="Complete">
+                <File Id="jquery.treeview.js" Name="jquery.treeview.js" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/js/jquery.treeview.js" KeyPath="yes" />
+              </Component>
+            </Directory>
+
+            <Directory Id="auth" Name="auth">
+              <Component Id="Administration.aspx" Guid="32765C2E-B111-4e0e-A712-0B25C24739EA" Feature="Complete">
+                <File Id="Administration.aspx" Name="Administration.aspx" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/auth/Administration.aspx" KeyPath="yes" />
+              </Component>
+            </Directory>
+
+            <Component Id="Validate.aspx" Guid="18E59258-3DEB-4FA6-9EB3-479ACC745989" Feature="Complete">
+              <File Id="Validate.aspx" Name="Validate.aspx" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/Validate.aspx" KeyPath="yes" />
+            </Component>
+            <Component Id="Dashboard.aspx" Guid="C567F4F1-8FA5-4013-9656-80A09E4C24BC" Feature="Complete">
+              <File Id="Dashboard.aspx" Name="Dashboard.aspx" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/Dashboard.aspx" KeyPath="yes" />
+            </Component>
+            <Component Id="VistaSitesMap.html" Guid="C49D14B2-4CEC-48A4-8E99-84603B6A9BA4" Feature="Complete">
+              <File Id="VistaSitesMap.html" Name="VistaSitesMap.html" Source="../mdws.csproj_deploy/$(var.Configuration)/Web/VistaSitesMap.html" KeyPath="yes" />
+            </Component>
+          </Directory>
+
+        </Directory>
+      </Directory>
+
+      
+      
+      <!-- START IIS APPLICATION CONFIGURATION AND IIS FOLDER SECURITY SETTINGS -->
+      <!-- THESE GUIDS SHOULD BE CHANGED FOR NEW VERSIONS OF THE INSTALLER -->
+      <Component Id="iisWebAppPool" Guid="3EB8A96F-9CA1-4d70-9E09-4F6E1031912F" Feature="Complete">
+        <iis:WebAppPool Id="mdwsAppPool" Name="MDWS$(var.mdwsVersion)_APP_POOL" ManagedPipelineMode="integrated" />
+      </Component>
+
+      <Component Id="iisVirtualDirectory" Guid="73DDF0F1-C143-41ad-9C8B-B09967914AED" Feature="Complete">
+        <iis:WebVirtualDir Id="mdwsVirtualDirectory" 
+                           Alias="mdws$(var.mdwsVersion)" Directory="INSTALLLOCATION" WebSite="DefaultWebSite">
+          
+          <iis:WebApplication Id="mdwsApplication" Name="mdws$(var.mdwsVersion)" AllowSessions="yes" 
+                              WebAppPool="mdwsAppPool" SessionTimeout="20" />
+        </iis:WebVirtualDir>
+        
+        <iis:WebDir Id="mdwsWebAuthDirectory" Path="mdws$(var.mdwsVersion)/Web/auth" WebSite="DefaultWebSite">
+          <iis:WebDirProperties Id="MdwsWebDirectoryProps" AnonymousAccess="no" WindowsAuthentication="yes" />
+        </iis:WebDir>
+      </Component>
+      <!-- END IIS APPLICATION CONFIGURATION AND IIS FOLDER SECURITY SETTINGS -->
+
+    </Directory>
+    <!-- END IIS FILES CONFIGURATION -->
+
+    
+    <iis:WebSite Id="DefaultWebSite" Description="Default Web Site" Directory="INSTALLLOCATION">
+      <iis:WebAddress Id="AllUnassigned" Port="80"/>
+    </iis:WebSite>
+
+
+    <Feature Id="Complete" Title="MDWS" Level="1" Display="expand"
+             Description="Complete MDWS Installation" ConfigurableDirectory="INSTALLLOCATION">
+    </Feature>
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLLOCATION" />
+    <UIRef Id="WixUI_InstallDir" />
+
+
+    <CustomAction Id="LaunchBrowser" BinaryKey="WixCA" DllEntry="WixShellExec" Execute="immediate">
+    </CustomAction>
+
+    <Property Id="WixShellExecTarget" Value="http://localhost/mdws$(var.mdwsVersion)/Web/auth/Administration.aspx?install=true" />
+
+    <CustomAction Id="CfgAppPool64" Return="check" Directory="TARGETDIR" ExeCommand="[SystemFolder]\inetsrv\appcmd set apppool /apppool.name:&quot;MDWS$(var.mdwsVersion)_APP_POOL&quot; /enable32BitAppOnWin64:false /managedRuntimeVersion:v4.0" />
+    
+
+    <WixVariable Id="WixUIDialogBmp" Value="images/mdws.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="images/mdws-banner.bmp" />
+
+    <WixVariable Id="WixUILicenseRtf" Value="ApacheLicense.rtf"/>
+  </Product>
+</Wix>

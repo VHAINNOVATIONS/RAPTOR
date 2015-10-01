@@ -1,0 +1,702 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{47016C54-EA0E-4DDD-8073-AA9C01BE68F2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>gov.va.medora.mdo</RootNamespace>
+    <AssemblyName>mdo</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <PublishUrl>http://localhost/mdo/</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'LiveRun|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\LiveRun\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\mdo.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>;C:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Release\mdo.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>;C:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'LiveRun|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\LiveRun\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\LiveRun\mdo.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NHapi.Base, Version=2.4.0.0, Culture=neutral, PublicKeyToken=d0d8ea960a3440eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>resources\lib\nhapi\NHapi.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="NHapi.Model.V24, Version=2.4.0.0, Culture=neutral, PublicKeyToken=d0d8ea960a3440eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>resources\lib\nhapi\NHapi.Model.V24.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.DataAccess, Version=4.121.1.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=x86" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>resources\lib\sqlite\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\mdo\api\ProblemApi.cs" />
+    <Compile Include="src\mdo\api\RadiologyApi.cs" />
+    <Compile Include="src\mdo\dao\IProblemDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\evault\UserProfileDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\MessageActivityDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\SmUtils.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\SystemDao.cs" />
+    <Compile Include="src\mdo\dao\soap\cds\CdsClinicalDao.cs" />
+    <Compile Include="src\mdo\dao\soap\cds\CdsConnection.cs" />
+    <Compile Include="src\mdo\dao\soap\cds\CdsLabsDao.cs" />
+    <Compile Include="src\mdo\dao\soap\cds\CdsVitalsDao.cs" />
+    <Compile Include="src\mdo\dao\vista\DdrListerUtils.cs" />
+    <Compile Include="src\mdo\dao\vista\IProblemDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaCrudDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaOrdersDao2.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaProblemDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaRpcQuery.cs" />
+    <Compile Include="src\mdo\domain\Address.cs" />
+    <Compile Include="src\mdo\domain\AdHocHealthSummary.cs" />
+    <Compile Include="src\mdo\domain\Adt.cs" />
+    <Compile Include="src\mdo\domain\Allergy.cs" />
+    <Compile Include="src\mdo\domain\AnatomicPathologyReport.cs" />
+    <Compile Include="src\mdo\api\ClinicalApi.cs" />
+    <Compile Include="src\mdo\api\EncounterApi.cs" />
+    <Compile Include="src\mdo\api\LabsApi.cs" />
+    <Compile Include="src\mdo\api\MedsApi.cs" />
+    <Compile Include="src\mdo\api\NoteApi.cs" />
+    <Compile Include="src\mdo\api\PatientApi.cs" />
+    <Compile Include="src\mdo\api\SitesApi.cs" />
+    <Compile Include="src\mdo\api\ToolsApi.cs" />
+    <Compile Include="src\mdo\api\UserApi.cs" />
+    <Compile Include="src\mdo\domain\Appointment.cs" />
+    <Compile Include="src\mdo\domain\AppointmentType.cs" />
+    <Compile Include="src\mdo\domain\Author.cs" />
+    <Compile Include="src\mdo\domain\BasicMdo.cs" />
+    <Compile Include="src\mdo\domain\CachedObject.cs" />
+    <Compile Include="src\mdo\domain\ChemHemReport.cs" />
+    <Compile Include="src\mdo\domain\City.cs" />
+    <Compile Include="src\mdo\domain\Claim.cs" />
+    <Compile Include="src\mdo\domain\ClinicalReminder.cs" />
+    <Compile Include="src\mdo\domain\ClosestFacility.cs" />
+    <Compile Include="src\mdo\domain\CollectionSample.cs" />
+    <Compile Include="src\mdo\conf\ConfigFileConstants.cs" />
+    <Compile Include="src\mdo\conf\LdapConfiguration.cs" />
+    <Compile Include="src\mdo\conf\MdoConfiguration.cs" />
+    <Compile Include="src\mdo\conf\MsSqlConfiguration.cs" />
+    <Compile Include="src\mdo\conf\OracleConfiguration.cs" />
+    <Compile Include="src\mdo\conf\AbstractSqlConfiguration.cs" />
+    <Compile Include="src\mdo\domain\Consult.cs" />
+    <Compile Include="src\mdo\domain\CptCode.cs" />
+    <Compile Include="src\mdo\domain\CrudOperation.cs" />
+    <Compile Include="src\mdo\domain\CytologyReport.cs" />
+    <Compile Include="src\mdo\dao\AbstractAccount.cs" />
+    <Compile Include="src\mdo\dao\AbstractConnection.cs" />
+    <Compile Include="src\mdo\dao\AbstractCredentials.cs" />
+    <Compile Include="src\mdo\dao\AbstractState.cs" />
+    <Compile Include="src\mdo\dao\hl7\HL7DaoFactory.cs" />
+    <Compile Include="src\mdo\dao\hl7\HL7Helper.cs" />
+    <Compile Include="src\mdo\dao\hl7\rxRefill\RxRefillPharmacyDao.cs" />
+    <Compile Include="src\mdo\dao\hl7\rxRefill\OMP_O09.cs" />
+    <Compile Include="src\mdo\dao\hl7\rxRefill\ORP_O10_ORCRXE.cs" />
+    <Compile Include="src\mdo\dao\hl7\rxRefill\QBP_Q13_PID.cs" />
+    <Compile Include="src\mdo\dao\hl7\rxRefill\RxProfileDecoder.cs" />
+    <Compile Include="src\mdo\dao\hl7\HL7Connection.cs" />
+    <Compile Include="src\mdo\dao\hl7\rxRefill\RxRefillDecoder.cs" />
+    <Compile Include="src\mdo\dao\ISchedulingDao.cs" />
+    <Compile Include="src\mdo\dao\ldap\ActiveDirectoryConstants.cs" />
+    <Compile Include="src\mdo\dao\ldap\Impersonator.cs" />
+    <Compile Include="src\mdo\dao\ldap\LdapAccount.cs" />
+    <Compile Include="src\mdo\dao\ldap\LdapConnection.cs" />
+    <Compile Include="src\mdo\dao\ldap\LdapCredentials.cs" />
+    <Compile Include="src\mdo\dao\ldap\LdapDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\ldap\LdapGroup.cs" />
+    <Compile Include="src\mdo\dao\ldap\LdapUserDao.cs" />
+    <Compile Include="src\mdo\dao\ldap\LdapUtils.cs" />
+    <Compile Include="src\mdo\dao\mock\MockDataReader.cs" />
+    <Compile Include="src\mdo\dao\mock\XCdwConnection.cs" />
+    <Compile Include="src\mdo\dao\mock\XSqliteConnection.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\AddresseeDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\AttachmentDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\FolderDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\QueryUtils.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\SecureMessageDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\TableSchemas.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\ThreadedEmailer.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\sm\UserDao.cs" />
+    <Compile Include="src\mdo\dao\QueryThreadConnectionPool.cs" />
+    <Compile Include="src\mdo\dao\QueryThreadPool.cs" />
+    <Compile Include="src\mdo\dao\QueryThreadPoolEventArgs.cs" />
+    <Compile Include="src\mdo\dao\QueryThreadPoolQueue.cs" />
+    <Compile Include="src\mdo\dao\ConnectionSet.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\mdo\dao\AbstractDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\AbstractPermission.cs" />
+    <Compile Include="src\mdo\dao\CredentialSet.cs" />
+    <Compile Include="src\mdo\dao\file\ConfigFileDao.cs" />
+    <Compile Include="src\mdo\dao\hl7\components\ColumnDescription.cs" />
+    <Compile Include="src\mdo\dao\hl7\components\RdfColumn.cs" />
+    <Compile Include="src\mdo\dao\hl7\components\RdtColumn.cs" />
+    <Compile Include="src\mdo\dao\hl7\components\SelectionCriterion.cs" />
+    <Compile Include="src\mdo\dao\hl7\EncodingCharacters.cs" />
+    <Compile Include="src\mdo\dao\hl7\HL7Constants.cs" />
+    <Compile Include="src\mdo\dao\hl7\IEncodingCharacters.cs" />
+    <Compile Include="src\mdo\dao\hl7\mpi\messages\PatientMatchesRequest.cs" />
+    <Compile Include="src\mdo\dao\hl7\mpi\messages\PatientMatchesResponse.cs" />
+    <Compile Include="src\mdo\dao\hl7\mpi\MpiConnection.cs" />
+    <Compile Include="src\mdo\dao\hl7\mpi\MpiConstants.cs" />
+    <Compile Include="src\mdo\dao\hl7\mpi\MpiPatientDao.cs" />
+    <Compile Include="src\mdo\dao\hl7\mpi\segments\MpiMshSegment.cs" />
+    <Compile Include="src\mdo\dao\hl7\segments\MsaSegment.cs" />
+    <Compile Include="src\mdo\dao\hl7\segments\MshSegment.cs" />
+    <Compile Include="src\mdo\dao\hl7\segments\QakSegment.cs" />
+    <Compile Include="src\mdo\dao\hl7\segments\RdfSegment.cs" />
+    <Compile Include="src\mdo\dao\hl7\segments\RdtSegment.cs" />
+    <Compile Include="src\mdo\dao\hl7\segments\VtqSegment.cs" />
+    <Compile Include="src\mdo\dao\http\HttpConnection.cs" />
+    <Compile Include="src\mdo\dao\IChemHemDao.cs" />
+    <Compile Include="src\mdo\dao\IClaimsDao.cs" />
+    <Compile Include="src\mdo\dao\IClinicalDao.cs" />
+    <Compile Include="src\mdo\dao\IConnectStrategy.cs" />
+    <Compile Include="src\mdo\dao\IConsultDao.cs" />
+    <Compile Include="src\mdo\dao\IEncounterDao.cs" />
+    <Compile Include="src\mdo\dao\ILabsDao.cs" />
+    <Compile Include="src\mdo\dao\ILocationDao.cs" />
+    <Compile Include="src\mdo\dao\INoteDao.cs" />
+    <Compile Include="src\mdo\dao\IPatientDao.cs" />
+    <Compile Include="src\mdo\dao\IPharmacyDao.cs" />
+    <Compile Include="src\mdo\dao\IRadiologyDao.cs" />
+    <Compile Include="src\mdo\dao\IRemindersDao.cs" />
+    <Compile Include="src\mdo\dao\ISystemDao.cs" />
+    <Compile Include="src\mdo\dao\ISystemFileHandler.cs" />
+    <Compile Include="src\mdo\dao\IToolsDao.cs" />
+    <Compile Include="src\mdo\dao\IUserDao.cs" />
+    <Compile Include="src\mdo\dao\IVitalsDao.cs" />
+    <Compile Include="src\mdo\dao\mock\XDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\mock\MockAccount.cs" />
+    <Compile Include="src\mdo\dao\mock\MockConnection.cs" />
+    <Compile Include="src\mdo\dao\mock\MockConnectStrategy.cs" />
+    <Compile Include="src\mdo\dao\mock\MockDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\mock\MockDataSource.cs" />
+    <Compile Include="src\mdo\dao\mock\XVistaConnection.cs" />
+    <Compile Include="src\mdo\dao\oracle\adr\AdrClaimsDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\adr\AdrConstants.cs" />
+    <Compile Include="src\mdo\dao\oracle\adr\AdrDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\oracle\MdoOracleConnection.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\MhvConstants.cs" />
+    <Compile Include="src\mdo\dao\oracle\mhv\MhvDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\oracle\OracleClaimsDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\vadir\VadirClaimsDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\vadir\VadirConstants.cs" />
+    <Compile Include="src\mdo\dao\oracle\vadir\VadirDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\oracle\vadir\VadirPatientDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\vbacorp\VbacorpClaimsDao.cs" />
+    <Compile Include="src\mdo\dao\oracle\vbacorp\VbacorpConstants.cs" />
+    <Compile Include="src\mdo\dao\oracle\vbacorp\VbacorpDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\QueryThread.cs" />
+    <Compile Include="src\mdo\dao\sqlite\SqliteDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwAccount.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwChemHemDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwClinicalDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwConnection.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwCredentials.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwEncounterDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwLocationDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwNoteDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwPatientDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwPharmacyDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwRadiologyDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwUserDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\CdwVitalsDao.cs" />
+    <Compile Include="src\mdo\dao\sql\cdw\PatientQueryBuilder.cs" />
+    <Compile Include="src\mdo\dao\sql\npt\NptClaimsDao.cs" />
+    <Compile Include="src\mdo\dao\sql\npt\NptConnection.cs" />
+    <Compile Include="src\mdo\dao\sql\npt\NptDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\sql\npt\NptPatientDao.cs" />
+    <Compile Include="src\mdo\dao\sql\pssg\PssgDao.cs" />
+    <Compile Include="src\mdo\dao\sql\userValidation\UserValidationConnection.cs" />
+    <Compile Include="src\mdo\dao\sql\userValidation\UserValidationDao.cs" />
+    <Compile Include="src\mdo\dao\sql\zipcodeDB\ZipcodeConnection.cs" />
+    <Compile Include="src\mdo\dao\sql\zipcodeDB\ZipcodeDao.cs" />
+    <Compile Include="src\mdo\dao\tcpip\SocketConnection.cs" />
+    <Compile Include="src\mdo\domain\ClinicalProcedure.cs" />
+    <Compile Include="src\mdo\dao\vista\CrossRef.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhieChemHemDao.cs" />
+    <Compile Include="src\mdo\dao\ICytologyReportDao.cs" />
+    <Compile Include="src\mdo\dao\IProceduresDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaChemHemDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaClaimsDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaConnectionPoolDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaCredentials.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\mdo\dao\vista\DdrField.cs" />
+    <Compile Include="src\mdo\dao\vista\DdrFiler.cs" />
+    <Compile Include="src\mdo\dao\vista\DdrGetsEntry.cs" />
+    <Compile Include="src\mdo\dao\vista\DdrLister.cs" />
+    <Compile Include="src\mdo\dao\vista\DdrQuery.cs" />
+    <Compile Include="src\mdo\dao\vista\DdrValidator.cs" />
+    <Compile Include="src\mdo\dao\vista\DelegatedOption.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhieClinicalDao.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhieDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhieEncounterDao.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhieLabsDao.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhieNoteDao.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhiePatientDao.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhiePharmacyDao.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhieUserDao.cs" />
+    <Compile Include="src\mdo\dao\vista\fhie\FhieVitalsDao.cs" />
+    <Compile Include="src\mdo\dao\vista\MdoSocket.cs" />
+    <Compile Include="src\mdo\dao\vista\MenuOption.cs" />
+    <Compile Include="src\mdo\dao\vista\RemoteApplication.cs" />
+    <Compile Include="src\mdo\dao\vista\SecurityKey.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaAccount.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaClinicalDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaConnection.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaConstants.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaConsultDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaDaoFactory.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaDateTimeIterator.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaDirectConnectStrategy.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaEncounterDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaField.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaFieldMapping.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaFile.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaLabsDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaLocationDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaNatConnectStrategy.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaNoteDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaOption.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\mdo\dao\vista\VistaOrdersDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaPatientDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaPharmacyDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaPoolConnection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="src\mdo\dao\vista\VistaProceduresDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaQuery.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaRadiologyDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaRemindersDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaSchedulingDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaSocSecNum.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaState.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaSystemFileHandler.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaTimestamp.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaToolsDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaUserDao.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaUtils.cs" />
+    <Compile Include="src\mdo\dao\vista\VistaVitalsDao.cs" />
+    <Compile Include="src\mdo\dao\xml\questionnaire\QuestionnaireDao.cs" />
+    <Compile Include="src\mdo\domain\DataSource.cs" />
+    <Compile Include="src\mdo\domain\DdrGetsEntryDictionary.cs" />
+    <Compile Include="src\mdo\domain\DemographicSet.cs" />
+    <Compile Include="src\mdo\domain\Diagnosis.cs" />
+    <Compile Include="src\mdo\domain\DictionaryHashList.cs" />
+    <Compile Include="src\mdo\domain\DischargeDiagnoses.cs" />
+    <Compile Include="src\mdo\domain\ccd\ccd.cs" />
+    <Compile Include="src\mdo\domain\ccr\ccr.cs" />
+    <Compile Include="src\mdo\domain\ccr\CCRHelper.cs" />
+    <Compile Include="src\mdo\domain\EwlItem.cs" />
+    <Compile Include="src\mdo\domain\LabPanel.cs" />
+    <Compile Include="src\mdo\domain\OrderCheck.cs" />
+    <Compile Include="src\mdo\domain\pool\AbstractPoolSource.cs" />
+    <Compile Include="src\mdo\domain\pool\AbstractPoolSourceFactory.cs" />
+    <Compile Include="src\mdo\domain\pool\AbstractResource.cs" />
+    <Compile Include="src\mdo\domain\pool\AbstractResourceState.cs" />
+    <Compile Include="src\mdo\domain\pool\AbstractResourceThread.cs" />
+    <Compile Include="src\mdo\domain\pool\connection\ConnectionPools.cs" />
+    <Compile Include="src\mdo\domain\pool\connection\ConnectionPoolSourceFactory.cs" />
+    <Compile Include="src\mdo\domain\pool\connection\ConnectionPoolsSource.cs" />
+    <Compile Include="src\mdo\domain\pool\connection\ConnectionThread.cs" />
+    <Compile Include="src\mdo\domain\pool\connection\ConnectionPool.cs" />
+    <Compile Include="src\mdo\domain\pool\connection\ConnectionPoolFactory.cs" />
+    <Compile Include="src\mdo\domain\pool\connection\ConnectionPoolSource.cs" />
+    <Compile Include="src\mdo\domain\pool\AbstractResourcePool.cs" />
+    <Compile Include="src\mdo\domain\pool\AbstractResourcePoolFactory.cs" />
+    <Compile Include="src\mdo\domain\pool\AbstractTimedResource.cs" />
+    <Compile Include="src\mdo\domain\RadiologyCancellationReason.cs" />
+    <Compile Include="src\mdo\domain\RadiologyOrderDialog.cs" />
+    <Compile Include="src\mdo\domain\RPC.cs" />
+    <Compile Include="src\mdo\domain\sm\AbstractPage.cs" />
+    <Compile Include="src\mdo\domain\sm\Addressee.cs" />
+    <Compile Include="src\mdo\domain\sm\Addressees.cs" />
+    <Compile Include="src\mdo\domain\sm\Administrator.cs" />
+    <Compile Include="src\mdo\domain\sm\AdminRole.cs" />
+    <Compile Include="src\mdo\domain\sm\Annotation.cs" />
+    <Compile Include="src\mdo\domain\sm\BaseModel.cs" />
+    <Compile Include="src\mdo\domain\sm\ClinicalUserType.cs" />
+    <Compile Include="src\mdo\domain\sm\Clinician.cs" />
+    <Compile Include="src\mdo\domain\sm\ClinicianTriageMap.cs" />
+    <Compile Include="src\mdo\domain\sm\ContactUs.cs" />
+    <Compile Include="src\mdo\domain\sm\Credentials.cs" />
+    <Compile Include="src\mdo\domain\sm\DistributionGroup.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\ActivityEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\AddresseeRoleEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\ClinicianStatusEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\EmailNotificationEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\IdTypeEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\MessageCategoryTypeEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\MessageFilterEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\ParticipantTypeEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\RelationTypeEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\RoleScopeEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\SystemFolderEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\UserStatusEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\enums\UserTypeEnum.cs" />
+    <Compile Include="src\mdo\domain\sm\Facility.cs" />
+    <Compile Include="src\mdo\domain\sm\Folder.cs" />
+    <Compile Include="src\mdo\domain\sm\Holiday.cs" />
+    <Compile Include="src\mdo\domain\sm\IPage.cs" />
+    <Compile Include="src\mdo\domain\sm\LogEntry.cs" />
+    <Compile Include="src\mdo\domain\sm\Mailbox.cs" />
+    <Compile Include="src\mdo\domain\sm\MailParticipant.cs" />
+    <Compile Include="src\mdo\domain\sm\Message.cs" />
+    <Compile Include="src\mdo\domain\sm\MessageActivity.cs" />
+    <Compile Include="src\mdo\domain\sm\MessageAttachment.cs" />
+    <Compile Include="src\mdo\domain\sm\MessagesPage.cs" />
+    <Compile Include="src\mdo\domain\sm\MhvAuthenticationSubject.cs" />
+    <Compile Include="src\mdo\domain\sm\MhvIntegrationSettings.cs" />
+    <Compile Include="src\mdo\domain\sm\MhvPatient.cs" />
+    <Compile Include="src\mdo\domain\sm\NewMessage.cs" />
+    <Compile Include="src\mdo\domain\sm\Patient.cs" />
+    <Compile Include="src\mdo\domain\sm\PatientFacility.cs" />
+    <Compile Include="src\mdo\domain\sm\PatientTriageMap.cs" />
+    <Compile Include="src\mdo\domain\sm\PersistentObject.cs" />
+    <Compile Include="src\mdo\domain\sm\RelationAction.cs" />
+    <Compile Include="src\mdo\domain\sm\Signature.cs" />
+    <Compile Include="src\mdo\domain\sm\StationTimezone.cs" />
+    <Compile Include="src\mdo\domain\sm\SubFolder.cs" />
+    <Compile Include="src\mdo\domain\sm\Surrogate.cs" />
+    <Compile Include="src\mdo\domain\sm\SystemFolder.cs" />
+    <Compile Include="src\mdo\domain\sm\Thread.cs" />
+    <Compile Include="src\mdo\domain\sm\TiuNotePreview.cs" />
+    <Compile Include="src\mdo\domain\sm\TiuNoteRecord.cs" />
+    <Compile Include="src\mdo\domain\sm\TriageGroup.cs" />
+    <Compile Include="src\mdo\domain\sm\TriageRelation.cs" />
+    <Compile Include="src\mdo\domain\sm\User.cs" />
+    <Compile Include="src\mdo\domain\Drg.cs" />
+    <Compile Include="src\mdo\domain\ElectronMicroscopyReport.cs" />
+    <Compile Include="src\mdo\domain\EmailAddress.cs" />
+    <Compile Include="src\mdo\domain\Encounter.cs" />
+    <Compile Include="src\mdo\domain\TimeSlot.cs" />
+    <Compile Include="src\mdo\exceptions\ConnectionException.cs" />
+    <Compile Include="src\mdo\exceptions\DataException.cs" />
+    <Compile Include="src\mdo\exceptions\MdoException.cs" />
+    <Compile Include="src\mdo\exceptions\PermissionLockedException.cs" />
+    <Compile Include="src\mdo\exceptions\PermissionNotFoundException.cs" />
+    <Compile Include="src\mdo\exceptions\UnexpectedDataException.cs" />
+    <Compile Include="src\mdo\domain\FileHeader.cs" />
+    <Compile Include="src\mdo\domain\GeographicLocation.cs" />
+    <Compile Include="src\mdo\domain\HealthSummary.cs" />
+    <Compile Include="src\mdo\domain\HospitalLocation.cs" />
+    <Compile Include="src\mdo\domain\IcdReport.cs" />
+    <Compile Include="src\mdo\domain\ImagingExam.cs" />
+    <Compile Include="src\mdo\domain\ImagingWorklist.cs" />
+    <Compile Include="src\mdo\domain\Immunization.cs" />
+    <Compile Include="src\mdo\domain\IndexedHashtable.cs" />
+    <Compile Include="src\mdo\domain\InpatientStay.cs" />
+    <Compile Include="src\mdo\dao\IOrdersDao.cs" />
+    <Compile Include="src\mdo\domain\ISpringer.cs" />
+    <Compile Include="src\mdo\domain\IvSolution.cs" />
+    <Compile Include="src\mdo\domain\LabObservation.cs" />
+    <Compile Include="src\mdo\domain\LabObservationType.cs" />
+    <Compile Include="src\mdo\domain\LabReport.cs" />
+    <Compile Include="src\mdo\domain\LabResult.cs" />
+    <Compile Include="src\mdo\domain\LabSpecimen.cs" />
+    <Compile Include="src\mdo\domain\LabTest.cs" />
+    <Compile Include="src\mdo\domain\MdoConstants.cs" />
+    <Compile Include="src\mdo\domain\MdoDocument.cs" />
+    <Compile Include="src\mdo\domain\MdoQuery.cs" />
+    <Compile Include="src\mdo\domain\MdoTimeInterval.cs" />
+    <Compile Include="src\mdo\domain\Medication.cs" />
+    <Compile Include="src\mdo\domain\MentalHealthInstrument.cs" />
+    <Compile Include="src\mdo\domain\MentalHealthInstrumentAdministration.cs" />
+    <Compile Include="src\mdo\domain\MentalHealthInstrumentResultSet.cs" />
+    <Compile Include="src\mdo\domain\MicrobiologyReport.cs" />
+    <Compile Include="src\mdo\domain\Note.cs" />
+    <Compile Include="src\mdo\domain\NoteDefinition.cs" />
+    <Compile Include="src\mdo\domain\NoteResult.cs" />
+    <Compile Include="src\mdo\domain\Observation.cs" />
+    <Compile Include="src\mdo\domain\ObservationType.cs" />
+    <Compile Include="src\mdo\domain\OEF_OIF.cs" />
+    <Compile Include="src\mdo\domain\OracleQuery.cs" />
+    <Compile Include="src\mdo\domain\Order.cs" />
+    <Compile Include="src\mdo\domain\OrderDialog.cs" />
+    <Compile Include="src\mdo\domain\OrderDialogColumn.cs" />
+    <Compile Include="src\mdo\domain\OrderDialogItem.cs" />
+    <Compile Include="src\mdo\domain\OrderDialogName.cs" />
+    <Compile Include="src\mdo\domain\OrderDialogRow.cs" />
+    <Compile Include="src\mdo\domain\OrderResponse.cs" />
+    <Compile Include="src\mdo\domain\OrderType.cs" />
+    <Compile Include="src\mdo\domain\PathologyReport.cs" />
+    <Compile Include="src\mdo\domain\Patient.cs" />
+    <Compile Include="src\mdo\domain\PatientAssociate.cs" />
+    <Compile Include="src\mdo\domain\PatientCareTeam.cs" />
+    <Compile Include="src\mdo\domain\PatientCareTeamMember.cs" />
+    <Compile Include="src\mdo\domain\PatientListEntry.cs" />
+    <Compile Include="src\mdo\domain\PatientRecordFlag.cs" />
+    <Compile Include="src\mdo\domain\PatientRecordFlagNote.cs" />
+    <Compile Include="src\mdo\domain\Person.cs" />
+    <Compile Include="src\mdo\domain\PersonName.cs" />
+    <Compile Include="src\mdo\domain\PhoneNum.cs" />
+    <Compile Include="src\mdo\domain\Problem.cs" />
+    <Compile Include="src\mdo\domain\ProstheticClaim.cs" />
+    <Compile Include="src\mdo\domain\Questionnaire.cs" />
+    <Compile Include="src\mdo\domain\QuestionnairePage.cs" />
+    <Compile Include="src\mdo\domain\QuestionnaireQuestion.cs" />
+    <Compile Include="src\mdo\domain\QuestionnaireSection.cs" />
+    <Compile Include="src\mdo\domain\QuestionnaireSet.cs" />
+    <Compile Include="src\mdo\domain\QuestionnaireSubsection.cs" />
+    <Compile Include="src\mdo\domain\RadiologyReport.cs" />
+    <Compile Include="src\mdo\domain\RatedDisability.cs" />
+    <Compile Include="src\mdo\domain\Region.cs" />
+    <Compile Include="src\mdo\domain\ReminderReportPatientList.cs" />
+    <Compile Include="src\mdo\domain\Report.cs" />
+    <Compile Include="src\mdo\domain\Service.cs" />
+    <Compile Include="src\mdo\domain\Site.cs" />
+    <Compile Include="src\mdo\domain\SiteId.cs" />
+    <Compile Include="src\mdo\domain\SiteTable.cs" />
+    <Compile Include="src\mdo\domain\SnoMedAttribute.cs" />
+    <Compile Include="src\mdo\domain\SnoMedConcept.cs" />
+    <Compile Include="src\mdo\domain\SnoMedDescription.cs" />
+    <Compile Include="src\mdo\domain\SocSecNum.cs" />
+    <Compile Include="src\mdo\domain\Specialty.cs" />
+    <Compile Include="src\mdo\domain\SpringVitalSign.cs" />
+    <Compile Include="src\mdo\domain\SqlQuery.cs" />
+    <Compile Include="src\mdo\sso\saml\saml20.cs" />
+    <Compile Include="src\mdo\domain\State.cs" />
+    <Compile Include="src\mdo\domain\SurgeryReport.cs" />
+    <Compile Include="src\mdo\domain\SurgicalPathologyReport.cs" />
+    <Compile Include="src\mdo\domain\Symptom.cs" />
+    <Compile Include="src\mdo\domain\Team.cs" />
+    <Compile Include="src\mdo\domain\TextReport.cs" />
+    <Compile Include="src\mdo\domain\TreatingSpecialty.cs" />
+    <Compile Include="src\mdo\domain\User.cs" />
+    <Compile Include="src\mdo\domain\UserOption.cs" />
+    <Compile Include="src\mdo\domain\UserSecurityKey.cs" />
+    <Compile Include="src\utils\Compression.cs" />
+    <Compile Include="src\mdo\domain\Visit.cs" />
+    <Compile Include="src\mdo\domain\VitalSign.cs" />
+    <Compile Include="src\mdo\domain\VitalSignSet.cs" />
+    <Compile Include="src\mdo\domain\Ward.cs" />
+    <Compile Include="src\mdo\domain\Zipcode.cs" />
+    <Compile Include="src\utils\AssertionGenerator.cs" />
+    <Compile Include="src\utils\DateUtils.cs" />
+    <Compile Include="src\utils\DbReaderUtils.cs" />
+    <Compile Include="src\utils\FileIOUtils.cs" />
+    <Compile Include="src\utils\IdentityImpersonationUtil.cs" />
+    <Compile Include="src\utils\ImpersonationCredentials.cs" />
+    <Compile Include="src\utils\JsonUtils.cs" />
+    <Compile Include="src\utils\LogUtils.cs" />
+    <Compile Include="src\utils\mock\MockXmlSource.cs" />
+    <Compile Include="src\utils\ResourceUtils.cs" />
+    <Compile Include="src\utils\SSTCryptographer.cs" />
+    <Compile Include="src\utils\StringUtils.cs" />
+    <Compile Include="src\utils\Utils.cs" />
+    <Compile Include="src\utils\XmlUtils.cs" />
+    <Compile Include="Web References\cds\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.map</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="resources\xml\VistaFiles.xsd">
+      <SubType>
+      </SubType>
+    </None>
+    <None Include="Web References\cds\cds-service.wsdl" />
+    <None Include="Web References\cds\Reference.map">
+      <Generator>MSDiscoCodeGenerator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferences Include="Web References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\xml\VhaSites.xml" />
+    <Content Include="resources\xml\VistaFiles.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\mdo\dao\webService\soap\ihs\" />
+    <Folder Include="src\mdo\dao\webService\soap\vha\" />
+    <Folder Include="src\mdo\utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="ActiveDs">
+      <Guid>{97D25DB0-0363-11CF-ABC4-02608C9E7553}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WebReferenceUrl Include="http://vahdrsvwls01.aac.va.gov:7051/cds-wsclient/cds-service%3fWSDL">
+      <UrlBehavior>Dynamic</UrlBehavior>
+      <RelPath>Web References\cds\</RelPath>
+      <UpdateFromURL>http://vahdrsvwls01.aac.va.gov:7051/cds-wsclient/cds-service%3fWSDL</UpdateFromURL>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
+      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
+      <CachedSettingsPropName>mdo_cds_ClinicalDataServiceSynchronousInterface</CachedSettingsPropName>
+    </WebReferenceUrl>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
