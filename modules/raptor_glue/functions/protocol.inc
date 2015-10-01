@@ -27,27 +27,27 @@
 //Protocol lib management
 function raptor_glue_viewscannedprotocol_form() 
 {
-    return drupal_get_form("raptor_glue_viewscannedprotocol_form_builder");
+    return drupal_get_form('raptor_glue_viewscannedprotocol_form_builder');
 }
 function raptor_glue_mng_protocols_form() 
 {
-    return drupal_get_form("raptor_glue_mng_protocols_form_builder");
+    return drupal_get_form('raptor_glue_mng_protocols_form_builder');
 }
 function raptor_glue_viewprotocollib_form() 
 {
-    return drupal_get_form("raptor_glue_viewprotocollib_form_builder");
+    return drupal_get_form('raptor_glue_viewprotocollib_form_builder');
 }
 function raptor_glue_addprotocollib_form() 
 {
-    return drupal_get_form("raptor_glue_addprotocollib_form_builder");
+    return drupal_get_form('raptor_glue_addprotocollib_form_builder');
 }
 function raptor_glue_editprotocollib_form() 
 {
-    return drupal_get_form("raptor_glue_editprotocollib_form_builder");
+    return drupal_get_form('raptor_glue_editprotocollib_form_builder');
 }
 function raptor_glue_deleteprotocollib_form() 
 {
-    return drupal_get_form("raptor_glue_deleteprotocollib_form_builder");
+    return drupal_get_form('raptor_glue_deleteprotocollib_form_builder');
 }
 
 function raptor_glue_addprotocollib_form_builder($form, &$form_state)
@@ -99,7 +99,7 @@ function raptor_glue_getprotocollibtab_form_builder($form, &$form_state)
 
 function raptor_glue_protocolinfo_form_inputarea() 
 {
-    return drupal_get_form("raptor_glue_protocolinfo_form_builder");
+    return drupal_get_form('raptor_glue_protocolinfo_form_builder');
 }
 
 function raptor_glue_protocolinfo_form_builder($form, &$form_state)
@@ -181,7 +181,8 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
         }
         return $buildResult;
     } catch (\Exception $ex) {
-
+        error_log("Failed raptor_glue_protocolinfo_form_builder because $ex");
+        throw $ex;
     }
 }
 
@@ -191,59 +192,71 @@ function raptor_glue_protocolinfo_form_builder($form, &$form_state)
  */
 function raptor_glue_protcolinfo_after_build($form, $form_state)
 {
-    $myvalues = isset($form_state['values']) ? $form_state['values'] : array();
-    //Make sure the safety checklist comment boxes show if there is text.
-    foreach($myvalues as $key=>$value)
+    try
     {
-        if($key === 'questions')
+        $myvalues = isset($form_state['values']) ? $form_state['values'] : array();
+        //Make sure the safety checklist comment boxes show if there is text.
+        foreach($myvalues as $key=>$value)
         {
-            if(is_array($value['thisuser']))
+            if($key === 'questions')
             {
-                $aAnswers = $value['thisuser'];
-                foreach($aAnswers as $sShortname=>$aQuestionBlock)
+                if(is_array($value['thisuser']))
                 {
-                    $response = $aQuestionBlock['response'];
-                    $showOnValues = $aQuestionBlock['showcommentonvalues'];
-                    $commentDrupalName = 'comment';
-                    $commentHtmlTagName = 'questions[thisuser]['.$sShortname.']['.$commentDrupalName.']'; //Because #tree structure!
-                    //$javascript = 'alert("now set comment for name='.$commentHtmlTagName.'");';
-                    $javascript = 'manageChecklistQuestionCommentByName("'.$response.'","'.$showOnValues.'","'.$commentHtmlTagName.'");';
-                    drupal_add_js('jQuery(document).ready(function () {'.$javascript.'});', array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
+                    $aAnswers = $value['thisuser'];
+                    foreach($aAnswers as $sShortname=>$aQuestionBlock)
+                    {
+                        $response = $aQuestionBlock['response'];
+                        $showOnValues = $aQuestionBlock['showcommentonvalues'];
+                        $commentDrupalName = 'comment';
+                        $commentHtmlTagName = 'questions[thisuser]['.$sShortname.']['.$commentDrupalName.']'; //Because #tree structure!
+                        //$javascript = 'alert("now set comment for name='.$commentHtmlTagName.'");';
+                        $javascript = 'manageChecklistQuestionCommentByName("'.$response.'","'.$showOnValues.'","'.$commentHtmlTagName.'");';
+                        drupal_add_js('jQuery(document).ready(function () {'.$javascript.'});', array('type' => 'inline', 'scope' => 'footer', 'weight' => 5));
+                    }
                 }
             }
         }
+        return $form;
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_glue_protcolinfo_after_build because $ex");
+        throw $ex;
     }
-    return $form;
 }
 
 
 function raptor_glue_protocolinfo_form_builder_validate($form, &$form_state) 
 {
-    $clickedbutton = '';
-    $clickedvalue = '';
-    if(isset($form_state['clicked_button']))
+    try
     {
-        $clickedbutton = $form_state['clicked_button'];
-        $clickedvalue = $clickedbutton['#value'];
+        $clickedbutton = '';
+        $clickedvalue = '';
+        if(isset($form_state['clicked_button']))
+        {
+            $clickedbutton = $form_state['clicked_button'];
+            $clickedvalue = $clickedbutton['#value'];
+        }
+        if($clickedvalue == '')
+        {
+            //Some kind of ajax event, get out now with success.
+            return TRUE;
+        }
+        $myvalues = $form_state['values'];
+        if(isset($myvalues['collaboration_uid']) && is_numeric($myvalues['collaboration_uid']))
+        {
+            //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
+            $clickedvalue = 'Collaborate';
+        }
+        module_load_include('php', 'raptor_datalayer', 'core/Context');
+        module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
+        $oContext = \raptor\Context::getInstance();
+        $tid = $oContext->getSelectedTrackingID();
+        $oPI = new \raptor\ProtocolInfoPage($tid);
+        $oPI->setupFormContext();
+        return $oPI->looksValidFormState($form, $form_state);
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_glue_protocolinfo_form_builder_validate because $ex");
+        throw $ex;
     }
-    if($clickedvalue == '')
-    {
-        //Some kind of ajax event, get out now with success.
-        return TRUE;
-    }
-    $myvalues = $form_state['values'];
-    if(isset($myvalues['collaboration_uid']) && is_numeric($myvalues['collaboration_uid']))
-    {
-        //Handle it this way because simple javascript submit seems to assume Approve button otherwise.
-        $clickedvalue = 'Collaborate';
-    }
-    module_load_include('php', 'raptor_datalayer', 'core/Context');
-    module_load_include('php', 'raptor_glue', 'form/ProtocolInfoPage');
-    $oContext = \raptor\Context::getInstance();
-    $tid = $oContext->getSelectedTrackingID();
-    $oPI = new \raptor\ProtocolInfoPage($tid);
-    $oPI->setupFormContext();
-    return $oPI->looksValidFormState($form, $form_state);
 }
 
 /**
@@ -304,48 +317,61 @@ function raptor_glue_protocolinfo_form_builder_submit($form, &$form_state)
             }
         }
     } catch (\Exception $ex) {
+        error_log("Failed raptor_glue_protocolinfo_form_builder_submit because $ex");
         throw $ex;
     }
 }
 
 function raptor_glue_viewscannedprotocol_form_builder($form, &$form_state)
 {
-    if(!isset($_GET['protocol_shortname']))
+    try
     {
-        throw new \Exception("Missing required protocol_shortname url parameter!");
-    }
-    $psn = $_GET['protocol_shortname'];
-    if(is_numeric($psn))
-    {
-        throw new \Exception("Invalid psn url parameter: that value MUST NOT be numeric!");
-    }
+        if(!isset($_GET['protocol_shortname']))
+        {
+            throw new \Exception("Missing required protocol_shortname url parameter!");
+        }
+        $psn = $_GET['protocol_shortname'];
+        if(is_numeric($psn))
+        {
+            throw new \Exception("Invalid psn url parameter: that value MUST NOT be numeric!");
+        }
 
-    module_load_include('php', 'raptor_glue', 'form/ViewScannedProtocolLibFile');
-    
-    $showclose = isset($_GET['showclose']);
-    $oPI = new \raptor\ViewScannedProtocolLibFile($psn,$showclose);
-    $form = array();
-    return $oPI->getForm($form, $form_state);
+        module_load_include('php', 'raptor_glue', 'form/ViewScannedProtocolLibFile');
+
+        $showclose = isset($_GET['showclose']);
+        $oPI = new \raptor\ViewScannedProtocolLibFile($psn,$showclose);
+        $form = array();
+        return $oPI->getForm($form, $form_state);
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_glue_viewscannedprotocol_form_builder because $ex");
+        throw $ex;
+    }
 }
 
 function raptor_glue_viewprotocollib_form_builder($form, &$form_state)
 {
-    if(!isset($_GET['protocol_shortname']))
+    try
     {
-        throw new \Exception("Missing required protocol_shortname url parameter!");
-    }
-    $psn = $_GET['protocol_shortname'];
-    if(is_numeric($psn))
-    {
-        throw new \Exception("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
-    }
+        if(!isset($_GET['protocol_shortname']))
+        {
+            throw new \Exception("Missing required protocol_shortname url parameter!");
+        }
+        $psn = $_GET['protocol_shortname'];
+        if(is_numeric($psn))
+        {
+            throw new \Exception("Invalid protocol_shortname url parameter: that value MUST NOT be numeric!");
+        }
 
-    module_load_include('php', 'raptor_glue', 'form/ViewProtocolLibPage');
-    
-    $oPI = new \raptor\ViewProtocolLibPage($psn);
-    $disabled = false;
-    $myvalues = $oPI->getFieldValues($psn);
-    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+        module_load_include('php', 'raptor_glue', 'form/ViewProtocolLibPage');
+
+        $oPI = new \raptor\ViewProtocolLibPage($psn);
+        $disabled = false;
+        $myvalues = $oPI->getFieldValues($psn);
+        return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+    } catch (\Exception $ex) {
+        error_log("Failed raptor_glue_viewprotocollib_form_builder because $ex");
+        throw $ex;
+    }
 }
 function raptor_glue_deleteprotocollib_form_builder($form, &$form_state)
 {
