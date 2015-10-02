@@ -23,6 +23,9 @@ libraries/*
 !OtherComponents
 !OtherComponents/*
 
+!miscellaneous
+!miscellaneous/*
+
 !themes/raptor_omega
 !themes/raptor_omega/*
 
