@@ -1,0 +1,50 @@
+svg {
+	font-family:sans-serif;
+}
+
+svg .axis path, svg .axis line {
+    fill:none;
+    stroke:#000
+}
+
+svg .line,svg .line {
+    fill:none;
+    stroke:blue;
+    stroke-width:2px
+}
+
+    svg line {
+    stroke:#ccc
+}
+
+.vitals-graph .line {
+    fill:none;
+    stroke:red;
+    stroke-width:2px
+}
+
+.vitals-graph .line2 {
+    stroke:blue
+}
+
+.vitals-graph line[x1="0"][x2="0"] {
+    stroke:blue;
+    stroke-width:2px
+}
+
+.vitals-graph line[x1="800"][x2="800"] {
+    stroke:red;
+    stroke-width:2px
+}
+
+.vitals-graph .y2 {
+    stroke:blue;
+}
+
+.MISSING{
+	fill:white !important;
+}
+
+.NOCIRCLE{
+	display:none !important;
+}

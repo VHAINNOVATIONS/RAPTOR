@@ -1,0 +1,86 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2015
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ * Copyright 2015 SAN Business Consultants, a Maryland USA company (sanbusinessconsultants.com)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------------
+ * A protocol library integration module for the RAPTOR application. 
+ * 
+ */
+
+defined('RAPTOR_PL_MODULE_PATH')
+    or define('RAPTOR_PL_MODULE_PATH', dirname(__FILE__));  
+
+/** 
+ * Implements hook_help. 
+ * 
+ * Displays help and module information. 
+ * 
+ * @param path  
+ *   Which path of the site we're using to display help 
+ * @param arg  
+ *   Array that holds the current path as returned from arg() function 
+ */
+function raptor_protocollib_help($path, $arg) 
+{
+  switch ($path)
+  {
+    case "admin/help#raptor_protocollib":
+        return '<p>'.  t("Integrates protocol library support.") .'</p>';
+        break;
+  }
+}
+
+function raptor_protocollib_menu() 
+{
+    $items = array();
+    
+    $items['admin/config/raptor_protocollib'] = array(
+      'title' => t('Edit Protocol Library Configuration'),
+      'page callback' => 'raptor_protocollib_edit_config_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Protocol Library Configuration Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'EditProtocolLibraryConfigPage.php',
+      'file path' => '/sites/all/modules/raptor_protocollib/form/',
+    );
+    
+    return $items;
+}
+
+function raptor_protocollib_edit_config_form() 
+{
+    return drupal_get_form('raptor_protocollib_edit_config_form_builder');
+}
+
+function raptor_protocollib_edit_config_form_builder($form, &$form_state)
+{
+    $oPI = new \raptor\EditProtocolLibraryConfigPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+
+
+

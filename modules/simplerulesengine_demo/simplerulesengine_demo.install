@@ -1,0 +1,227 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants
+ * Designed and implemented by Frank Font (ffont@sanbusinessconsultants.com)
+ * In collaboration with Andrew Casertano (acasertano@sanbusinessconsultants.com)
+ * Open source enhancements to this module are welcome!  Contact SAN to share updates.
+ *
+ * Copyright 2015 SAN Business Consultants, a Maryland USA company (sanbusinessconsultants.com)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------------
+ *  
+ * This is a simple decision support engine module for Drupal.
+ */
+
+require_once ('install/simplerulesengine_demo_schema.inc');
+
+function simplerulesengine_demo_uninstall()
+{
+    $t = get_t();
+    drupal_set_message($t('Uninstalled simplerulesengine_demo'));
+}
+
+/**
+ * Insert baseline rows into tables
+ * @return status
+ */
+function simplerulesengine_demo_install()
+{
+    //Install the base data.
+    simplerulesengine_demo_basedata_measures();
+    simplerulesengine_demo_basedata_rules();
+    
+    $t = get_t();
+    drupal_set_message($t('Installed simplerulesengine_demo'));
+}
+
+function simplerulesengine_demo_basedata_measures()
+{
+    $t = get_t();
+    $updated_dt = date("Y-m-d H:i", time());
+    db_insert('simplerulesengine_demo_measure')->fields(array(
+        'category_nm' => $t('Demographics'),
+        'measure_nm' => 'GENDER',
+        'version' => 1,
+        'purpose_tx' => 'M if Male, F if Female',
+        'criteria_tx' => 'INPUT',
+        'return_type' => 'letter',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    
+    db_insert('simplerulesengine_demo_measure')->fields(array(
+        'category_nm' => $t('Demographics'),
+        'measure_nm' => 'AGE',
+        'version' => 1,
+        'purpose_tx' => 'The age of the patient in years',
+        'criteria_tx' => 'INPUT',
+        'return_type' => 'number',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+
+    
+    //Flags
+    db_insert('simplerulesengine_demo_measure')->fields(array(
+        'category_nm' => $t('Protocol'),
+        'measure_nm' => 'GIVE_CONTRAST',
+        'version' => 1,
+        'purpose_tx' => 'True if patient will receive contrast',
+        'criteria_tx' => 'INPUT',
+        'return_type' => 'boolean',
+        'readonly_yn' => 1,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    
+    db_insert('simplerulesengine_demo_measure')->fields(array(
+        'category_nm' => $t('Protocol'),
+        'measure_nm' => 'GIVE_SEDATION',
+        'version' => 1,
+        'purpose_tx' => 'True if patient will receive sedation',
+        'criteria_tx' => 'INPUT',
+        'return_type' => 'boolean',
+        'readonly_yn' => 1,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    
+    db_insert('simplerulesengine_demo_measure')->fields(array(
+        'category_nm' => $t('Demographics'),
+        'measure_nm' => 'IS_FEMALE',
+        'version' => 1,
+        'purpose_tx' => 'True if patient is female',
+        'criteria_tx' => 'GENDER = "F"',
+        'return_type' => 'boolean',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+     
+    db_insert('simplerulesengine_demo_measure')->fields(array(
+        'category_nm' => $t('Demographics'),
+        'measure_nm' => 'IS_MALE',
+        'version' => 1,
+        'purpose_tx' => 'True if patient is male',
+        'criteria_tx' => 'GENDER = "M"',
+        'return_type' => 'boolean',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    
+    db_insert('simplerulesengine_demo_measure')->fields(array(
+        'category_nm' => $t('Demographics'),
+        'measure_nm' => 'IS_AGE_50_OR_LESS',
+        'version' => 1,
+        'purpose_tx' => 'True if patient is male',
+        'criteria_tx' => 'AGE <= 50',
+        'return_type' => 'boolean',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    
+    db_insert('simplerulesengine_demo_measure')->fields(array(
+        'category_nm' => $t('Demographics'),
+        'measure_nm' => 'IS_AGE_60_OR_MORE',
+        'version' => 1,
+        'purpose_tx' => 'True if patient is male',
+        'criteria_tx' => 'AGE >= 60',
+        'return_type' => 'boolean',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    
+    drupal_set_message($t('Loaded basedata for measures'));
+}
+
+function simplerulesengine_demo_basedata_rules()
+{
+    $t = get_t();
+    $updated_dt = date("Y-m-d H:i", time());
+    db_insert('simplerulesengine_demo_rule')->fields(array(
+        'category_nm' => $t('Demographics'),
+        'rule_nm' => 'PREG_RISK',
+        'version' => 1,
+        'summary_msg_tx' => 'Embryo Risk',
+        'msg_tx' => 'Confirm patient is not pregnant',
+        'explanation' => 'Embryo would be at risk from radiation',
+        'req_ack_yn' => 1,
+        'trigger_crit' => 'AllFlagsTrue(IS_FEMALE,IS_AGE_50_OR_LESS,GIVE_XRAY)',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    db_insert('simplerulesengine_demo_rule')->fields(array(
+        'category_nm' => $t('Demographics'),
+        'rule_nm' => 'ANXIETY_RISK',
+        'version' => 1,
+        'summary_msg_tx' => 'Anxiety Risk',
+        'msg_tx' => 'Patient has reaction to confined spaces',
+        'explanation' => 'The MRI is a confined space which may provoke anxiety in the patient.',
+        'req_ack_yn' => 1,
+        'trigger_crit' => 'AllFlagsTrue(IS_CLAUSTROPHOBIC,GIVE_MRI)',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    db_insert('simplerulesengine_demo_rule')->fields(array(
+        'category_nm' => $t('Age'),
+        'rule_nm' => 'CONTRAST_RISK',
+        'version' => 1,
+        'summary_msg_tx' => 'Contrast Risk',
+        'msg_tx' => 'Confirm patient has appropriate renal function',
+        'explanation' => 'Older patients may be at greater risk for contrast complications',
+        'req_ack_yn' => 1,
+        'trigger_crit' => 'AllFlagsTrue(GIVE_CONTRAST,IS_AGE_60_OR_MORE)',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    db_insert('simplerulesengine_demo_rule')->fields(array(
+        'category_nm' => $t('Contrast'),
+        'rule_nm' => 'CONTRAST_ALLERGY',
+        'version' => 1,
+        'summary_msg_tx' => 'Contrast Risk',
+        'msg_tx' => 'Patient has allergy to contrast',
+        'explanation' => 'Patient has a risk to some or all contrast',
+        'req_ack_yn' => 1,
+        'trigger_crit' => 'AllFlagsTrue(GIVE_CONTRAST,HAS_CONTRAST_ALLERGY)',
+        'readonly_yn' => 0,
+        'active_yn' => 1,
+        'updated_dt' => $updated_dt,
+        'created_dt' => $updated_dt,
+        ))->execute();
+    
+    drupal_set_message($t('Loaded basedata for rules'));
+}
+
+    

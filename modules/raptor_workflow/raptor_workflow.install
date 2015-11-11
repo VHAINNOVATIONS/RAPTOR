@@ -1,0 +1,91 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2015
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ * Copyright 2015 SAN Business Consultants, a Maryland USA company (sanbusinessconsultants.com)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------------ 
+ * Install the module
+ */
+
+require_once 'install/raptor_schema.inc';
+
+
+function raptor_workflow_uninstall()
+{
+    $t = get_t();
+    drupal_set_message($t('Uninstalled raptor_workflow'));
+}
+
+/**
+ * Create indexes and insert baseline rows into tables
+ * @return status
+ */
+function raptor_workflow_install()
+{
+    $t = get_t();
+    
+    raptor_workflow_basedata();
+    
+    drupal_set_message($t('Installed raptor_workflow'));
+}
+
+function raptor_workflow_basedata()
+{
+     db_insert('raptor_workflow_state')->fields(array(
+        'abbr' => 'AC',
+        'name' => 'Active',
+        'description' => 'A ticket is availabe for protocol step.',
+      ))->execute();
+     db_insert('raptor_workflow_state')->fields(array(
+        'abbr' => 'CO',
+        'name' => 'Collaborate',
+        'description' => '(DEPRECATED) A ticket may have been partially protocoled and someone has been identified for collaboration on it.',
+      ))->execute();
+     db_insert('raptor_workflow_state')->fields(array(
+        'abbr' => 'RV',
+        'name' => 'Review',
+        'description' => 'The protocol settings are ready for review by a patient care specialist that has approval authority.',
+      ))->execute();
+     db_insert('raptor_workflow_state')->fields(array(
+        'abbr' => 'IA',
+        'name' => 'Needs Cancel/Replace',
+        'description' => 'The ticket needs cancel/replace.',
+      ))->execute();
+     db_insert('raptor_workflow_state')->fields(array(
+        'abbr' => 'PA',
+        'name' => 'Protocol Acknowledged',
+        'description' => 'The technologist acknowledges all the protocol settings before starting an exam.',
+      ))->execute();
+     db_insert('raptor_workflow_state')->fields(array(
+        'abbr' => 'EC',
+        'name' => 'Exam Completed',
+        'description' => 'Patient examination has been completed',
+      ))->execute();
+     db_insert('raptor_workflow_state')->fields(array(
+        'abbr' => 'QA',
+        'name' => 'Quality Assurance',
+        'description' => 'This is the ticket state after all patient care workflow is complete.',
+      ))->execute();
+}
+
+
+
+    

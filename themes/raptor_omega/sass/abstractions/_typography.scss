@@ -1,0 +1,15 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Feb 1, 2014, 9:47:52 AM
+    Author     : FrankWin7VM
+*/
+
+//Use REMs with a pixel fallback for font sizing
+@mixin font-size($font-size){
+    font-size:$font-size;
+    font-size:($font-size / $mybase-font-size)*1rem;
+}

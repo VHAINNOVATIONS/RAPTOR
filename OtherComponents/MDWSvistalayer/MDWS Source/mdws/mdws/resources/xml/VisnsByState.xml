@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<states>
+	<state name="Alabama" abbr="AL" visns="7,16" />
+	<state name="Alaska" abbr="AK" visns="20" />
+	<state name="American Samoa" abbr="AS" visns="21" />
+	<state name="Arkansas" abbr="AR" visns="9,15,16" />
+	<state name="Arizona" abbr="AZ" visns="18" />
+	<state name="California" abbr="CA" visns="20,21" />
+	<state name="Colorado" abbr="CO" visns="18,19" />
+	<state name="Connecticut" abbr="CT" visns="1" />
+	<state name="Delaware" abbr="DE" visns="4" />
+	<state name="District of Coumbia" abbr="DC" visns="5" />
+	<state name="Florida" abbr="FL" visns="8,16" />
+	<state name="Georgia" abbr="GA" visns="7,8,9" />
+	<state name="Guam" abbr="GU" visns="21" />
+	<state name="Hawaii" abbr="HI" visns="21" />
+	<state name="Idaho" abbr="ID" visns="19,20" />
+	<state name="Illinois" abbr="IL" visns="11,12,15,23" />
+	<state name="Indiana" abbr="IN" visns="9,10,11,12,15" />
+	<state name="Iowa" abbr="IA" visns="23" />
+	<state name="Kansas" abbr="KS" visns="15,23" />
+	<state name="Kentucky" abbr="KY" visns="9,10,15" />
+	<state name="Louisiana" abbr="LA" visns="16" />
+	<state name="Maine" abbr="ME" visns="1" />
+	<state name="Maryland" abbr="MD" visns="5" />
+	<state name="Massachusetts" abbr="MA" visns="1" />
+	<state name="Michigan" abbr="MI" visns="11,12" />
+	<state name="Minnesota" abbr="MN" visns="12,23" />
+	<state name="Mississippi" abbr="MS" visns="9,16" />
+	<state name="Missouri" abbr="MO" visns="15,16,23" />
+	<state name="Montana" abbr="MT" visns="19,20" />
+	<state name="Nebraska" abbr="NE" visns="19,23" />
+	<state name="Nevada" abbr="NV" visns="19,21,22" />
+	<state name="New Hampshire" abbr="NH" visns="1" />
+	<state name="New Jersey" abbr="NJ" visns="3,4" />
+	<state name="New Mexico" abbr="NM" visns="18" />
+	<state name="New York" abbr="NY" visns="2,3,4" />
+	<state name="North Carolina" abbr="NC" visns="6" />
+	<state name="North Dakota" abbr="ND" visns="19,23" />
+	<state name="Ohio" abbr="OH" visns="4,9,10,11" />
+	<state name="Oklahoma" abbr="OK" visns="16,17,18" />
+	<state name="Oregon" abbr="OR" visns="20" />
+	<state name="Pennsylvania" abbr="PA" visns="2,4,5" />
+	<state name="Philippines" abbr="PI" visns="21" />
+	<state name="Puerto Rico" abbr="PR" visns="8" />
+	<state name="Rhode Island" abbr="RI" visns="1" />
+	<state name="South Carolina" abbr="SC" visns="6,7" />
+	<state name="South Dakota" abbr="SD" visns="23" />
+	<state name="Tennessee" abbr="TN" visns="9" />
+	<state name="Texas" abbr="TX" visns="16,17,18" />
+	<state name="Utah" abbr="UT" visns="19" />
+	<state name="Vermont" abbr="VT" visns="1" />
+	<state name="Virginia" abbr="VA" visns="5,6,9" />
+	<state name="Virgin Islands" abbr="VI" visns="8" />
+	<state name="Washington" abbr="WA" visns="20" />
+	<state name="West Virginia" abbr="WV" visns="4,5,6,9" />
+	<state name="Wisconsin" abbr="WI" visns="12,23" />
+	<state name="Wyoming" abbr="WY" visns="19,23" />
+</states>

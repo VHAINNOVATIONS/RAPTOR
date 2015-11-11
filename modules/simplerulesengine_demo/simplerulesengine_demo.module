@@ -1,0 +1,672 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants
+ * Designed and implemented by Frank Font (ffont@sanbusinessconsultants.com)
+ * In collaboration with Andrew Casertano (acasertano@sanbusinessconsultants.com)
+ * Open source enhancements to this module are welcome!  Contact SAN to share updates.
+ *
+ * Copyright 2015 SAN Business Consultants, a Maryland USA company (sanbusinessconsultants.com)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------------
+ *  
+ * This is a simple decision support engine module for Drupal.
+ */
+
+defined('SIMPLERULESENGINE_DEMO_MODULE_PATH')
+    or define('SIMPLERULESENGINE_DEMO_MODULE_PATH', dirname(__FILE__));  
+
+
+/** 
+ * Implements hook_help. 
+ * 
+ * Displays help and module information. 
+ * 
+ * @param path  
+ *   Which path of the site we're using to display help 
+ * @param arg  
+ *   Array that holds the current path as returned from arg() function 
+ */
+function simplerulesengine_demo_help($path, $arg) 
+{
+    global $base_url;
+    $mainurl = $base_url . '/simplerulesengine_demo/evaluate';
+    $contributemsg = 'Contact Frank Font or Andrew Casertano at <a href="http://sanbusinessconsultants.com/">SAN Business Consultants</a> to contribute to this open source project or to ask about decision support consulting services.';
+    switch ($path)
+    {
+      case "admin/help#simplerulesengine_demo":
+          return '<p>'. t("Demonstrate utilization of the simple rules engine.") .'</p>'
+                .'<p>'.t($contributemsg).'</p>'
+                .'<p>A user interface form is built into this module and can be executed at <a href="'.$mainurl.'">'.$mainurl.'</a></p>';
+          break;
+    }
+}
+
+function simplerulesengine_demo_menu() 
+{
+    $items = array();
+    $items['simplerulesengine_demo/evaluate'] = array(
+      'title' => t('Demo Evaluate Page'),
+      'page callback' => 'simplerulesengine_demo_evaluate_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Evaluate Rules on Data'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoEvaluatePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    
+    //Manage Rules
+    $items['simplerulesengine_demo/managerules'] = array(
+      'title' => t('Manage Rules'),
+      'page callback' => 'simplerulesengine_demo_managerules_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Manage Rules Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoManageRulesPage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    $items['simplerulesengine_demo/addrule'] = array(
+      'title' => t('Add Rule'),
+      'page callback' => 'simplerulesengine_demo_addrule_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Add Rule Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoAddRulePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    $items['simplerulesengine_demo/viewrule'] = array(
+      'title' => t('View Rule'),
+      'page callback' => 'simplerulesengine_demo_viewrule_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('View Rule Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoViewRulePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    $items['simplerulesengine_demo/editrule'] = array(
+      'title' => t('Edit Rule'),
+      'page callback' => 'simplerulesengine_demo_editrule_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Rule Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoEditRulePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    $items['simplerulesengine_demo/deleterule'] = array(
+      'title' => t('Delete Rule'),
+      'page callback' => 'simplerulesengine_demo_deleterule_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Delete Rule Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoDeleteRulePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+
+    //Manage Measures
+    $items['simplerulesengine_demo/managemeasures'] = array(
+      'title' => t('Manage Measures'),
+      'page callback' => 'simplerulesengine_demo_managemeasures_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Manage Measures Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoManageMeasuresPage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    $items['simplerulesengine_demo/addmeasure'] = array(
+      'title' => t('Add Measure'),
+      'page callback' => 'simplerulesengine_demo_addmeasure_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Add Measure Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoAddMeasurePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    $items['simplerulesengine_demo/viewmeasure'] = array(
+      'title' => t('View Measure'),
+      'page callback' => 'simplerulesengine_demo_viewmeasure_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('View Measure Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoViewMeasurePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    $items['simplerulesengine_demo/editmeasure'] = array(
+      'title' => t('Edit Measure'),
+      'page callback' => 'simplerulesengine_demo_editmeasure_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Measure Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoEditMeasurePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    $items['simplerulesengine_demo/deletemeasure'] = array(
+      'title' => t('Delete Measure'),
+      'page callback' => 'simplerulesengine_demo_deletemeasure_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Delete Measure Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoDeleteMeasurePage.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    
+    //Reports
+    $items['simplerulesengine_demo/viewinputs'] = array(
+      'title' => t('View Inputs'),
+      'page callback' => 'simplerulesengine_demo_viewinputs_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('View Inputs Report'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoReportInputs.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+    
+    $items['simplerulesengine_demo/reportrules'] = array(
+      'title' => t('View Rules'),
+      'page callback' => 'simplerulesengine_demo_reportrules_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('View Rules Report'),
+      'type' => MENU_CALLBACK,
+      'file' => 'DemoReportRules.php',
+      'file path' => '/sites/all/modules/simplerulesengine_demo/form/',
+    );
+
+    $items['simplerulesengine_demo/exportxml'] = array(
+      'title' => t('XML Rulebase Dump'),
+      'page callback' => 'simplerulesengine_demo_exportxml_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Export all the rulebase info in a shareable XML format'),
+      'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+
+function simplerulesengine_demo_evaluate_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_evaluate_form_builder');
+}
+function simplerulesengine_demo_managerules_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_managerules_form_builder');
+}
+function simplerulesengine_demo_managemeasures_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_managemeasures_form_builder');
+}
+
+function simplerulesengine_demo_evaluate_form_builder($form, &$form_state)
+{
+    $oPI = new \simplerulesengine_demo\DemoEvaluatePage();
+    $form = array();
+    $disabled = false;
+    if(isset($_SESSION['SIMPLERULESENGINE_DEMO']))
+    {
+        $myvalues = $_SESSION['SIMPLERULESENGINE_DEMO'];
+    } else {
+        $myvalues = $oPI->getFieldValues();
+    }
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+function simplerulesengine_demo_managerules_form_builder($form, &$form_state)
+{
+    $oPI = new \simplerulesengine_demo\DemoManageRulesPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_managemeasures_form_builder($form, &$form_state)
+{
+    $oPI = new \simplerulesengine_demo\DemoManageMeasuresPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+
+function simplerulesengine_demo_evaluate_form_builder_validate($form, &$form_state) 
+{
+    $oPI = new \simplerulesengine_demo\DemoEvaluatePage();
+    $myvalues = $form_state['values'];
+    return $oPI->looksValid($form, $myvalues);
+}
+
+function simplerulesengine_demo_evaluate_form_builder_submit($form, &$form_state) 
+{
+    $oPI = new \simplerulesengine_demo\DemoEvaluatePage();
+    $myvalues = $form_state['values'];
+    $_SESSION['SIMPLERULESENGINE_DEMO'] = $myvalues;
+    $oPI->evaluate($form, $myvalues);
+}
+
+//Manage rules
+function simplerulesengine_demo_viewrule_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_viewrule_form_builder');
+}
+function simplerulesengine_demo_addrule_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_addrule_form_builder');
+}
+function simplerulesengine_demo_editrule_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_editrule_form_builder');
+}
+function simplerulesengine_demo_deleterule_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_deleterule_form_builder');
+}
+
+//Manage measures
+function simplerulesengine_demo_viewmeasure_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_viewmeasure_form_builder');
+}
+function simplerulesengine_demo_addmeasure_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_addmeasure_form_builder');
+}
+function simplerulesengine_demo_editmeasure_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_editmeasure_form_builder');
+}
+function simplerulesengine_demo_deletemeasure_form() 
+{
+    return drupal_get_form('simplerulesengine_demo_deletemeasure_form_builder');
+}
+
+//Reports
+function simplerulesengine_demo_viewinputs_form() 
+{
+    return drupal_get_form("simplerulesengine_demo_viewinputs_form_builder");
+}
+function simplerulesengine_demo_reportrules_form() 
+{
+    return drupal_get_form("simplerulesengine_demo_reportrules_form_builder");
+}
+
+function simplerulesengine_demo_addrule_form_builder($form, &$form_state)
+{
+    $oPI = new \simplerulesengine_demo\DemoAddRulePage();
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues();
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_addrule_form_builder_validate($form, &$form_state) 
+{
+    $oPI = new \simplerulesengine_demo\DemoAddRulePage();
+    return $oPI->looksValid($form, $form_state['values']);
+}
+function simplerulesengine_demo_addrule_form_builder_submit($form, &$form_state) 
+{
+    $oPI = new \simplerulesengine_demo\DemoAddRulePage();
+    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+    if($rowsupdated == 1)
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'simplerulesengine_demo/managerules',
+            array(
+              'query' => array(
+                'action' => 'added',
+              ),
+            ),
+          );
+    }
+}
+
+function simplerulesengine_demo_viewrule_form_builder($form, &$form_state)
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $rule_nm = $_GET['rn'];
+    if(is_numeric($rule_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+
+    $oPI = new \simplerulesengine_demo\DemoViewRulePage($rule_nm);
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues($rule_nm);
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_deleterule_form_builder($form, &$form_state)
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $rule_nm = $_GET['rn'];
+    if(is_numeric($rule_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+    
+    $oPI = new \simplerulesengine_demo\DemoDeleteRulePage($rule_nm);
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues($rule_nm);
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_deleterule_form_builder_submit($form, &$form_state) 
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $rule_nm = $_GET['rn'];
+    if(is_numeric($rule_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+    $oPI = new \simplerulesengine_demo\DemoDeleteRulePage($rule_nm);
+    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+    if($rowsupdated == 1)
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'simplerulesengine_demo/managerules',
+            array(
+              'query' => array(
+                'action' => 'deleted',
+              ),
+            ),
+          );
+    }
+}
+function simplerulesengine_demo_editrule_form_builder($form, &$form_state)
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $rule_nm = $_GET['rn'];
+    if(is_numeric($rule_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+    $oPI = new \simplerulesengine_demo\DemoEditRulePage($rule_nm);
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues($rule_nm);
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_editrule_form_builder_validate($form, &$form_state) 
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $rule_nm = $_GET['rn'];
+    $oPI = new \simplerulesengine_demo\DemoEditRulePage($rule_nm);
+    return $oPI->looksValid($form, $form_state['values']);
+}
+function simplerulesengine_demo_editrule_form_builder_submit($form, &$form_state) 
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $rule_nm = $_GET['rn'];
+    if(is_numeric($rule_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+    $oPI = new \simplerulesengine_demo\DemoEditRulePage($rule_nm);
+    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+    if($rowsupdated == 1)
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'simplerulesengine_demo/managerules',
+            array(
+              'query' => array(
+                'action' => 'edited',
+              ),
+            ),
+          );
+    }
+}
+function simplerulesengine_demo_viewinputs_form_builder($form, &$form_state)
+{
+    $oPI = new \simplerulesengine_demo\DemoReportInputs();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_reportrules_form_builder($form, &$form_state)
+{
+    $oPI = new \simplerulesengine_demo\DemoReportRules();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+
+function simplerulesengine_demo_exportxml_form() 
+{
+    return drupal_get_form("simplerulesengine_demo_exportxml_form_builder");
+}
+
+/**
+ * Send a downloadable file to the browser
+ * @param type $form_state
+ * @return binary file
+ */
+function simplerulesengine_demo_exportxml_form_builder($form, &$form_state)
+{
+    //Log this.
+    global $user;
+    error_log('Exporting rulebase XML as ' . print_r($user,TRUE));
+
+    $loaded = module_load_include('inc','simplerulesengine_demo','core/SREContext');
+    if(!$loaded)
+    {
+        drupal_set_message(t('Failed to load the SREContext class'), 'error');
+    }
+    $loaded = module_load_include('inc','simplerulesengine_core','io/IO');
+    if(!$loaded)
+    {
+        drupal_set_message(t('Failed to load the IO class'), 'error');
+    }
+
+    $oSREContext = new \simplerulesengine_demo\SREContext();
+    $oIO = new \simplerulesengine\IO($oSREContext);
+    $sRulebaseName='SimpleRulesEngineDemo';
+    $sXML = $oIO->getRulebaseAsXML($sRulebaseName);
+    
+    //Dump it.
+    $now = date('Y-m-d H:i:s');
+    header("Cache-Control: public");
+    header("Content-Description: File Transfer");
+    header("Content-Disposition: attachment; filename=simplerulesengine_rulebase_$now.xml");
+    header("Content-Type: application/octet-stream; "); 
+    header("Content-Transfer-Encoding: binary");
+    
+    echo $sXML;
+
+    drupal_exit();  //Otherwise more stuff gets added to the file.
+}
+
+
+//Functions for MANAGING MEASURES
+function simplerulesengine_demo_addmeasure_form_builder($form, &$form_state)
+{
+    $oPI = new \simplerulesengine_demo\DemoAddMeasurePage();
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues();
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_addmeasure_form_builder_validate($form, &$form_state) 
+{
+    $oPI = new \simplerulesengine_demo\DemoAddMeasurePage();
+    return $oPI->looksValid($form, $form_state['values']);
+}
+function simplerulesengine_demo_addmeasure_form_builder_submit($form, &$form_state) 
+{
+    $oPI = new \simplerulesengine_demo\DemoAddMeasurePage();
+    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+    if($rowsupdated == 1)
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'simplerulesengine_demo/managemeasures',
+            array(
+              'query' => array(
+                'action' => 'added',
+              ),
+            ),
+          );
+    }
+}
+
+function simplerulesengine_demo_viewmeasure_form_builder($form, &$form_state)
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $measure_nm = $_GET['rn'];
+    if(is_numeric($measure_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+
+    $oPI = new \simplerulesengine_demo\DemoViewMeasurePage($measure_nm);
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues($measure_nm);
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_deletemeasure_form_builder($form, &$form_state)
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $measure_nm = $_GET['rn'];
+    if(is_numeric($measure_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+    
+    $oPI = new \simplerulesengine_demo\DemoDeleteMeasurePage($measure_nm);
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues($measure_nm);
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_deletemeasure_form_builder_submit($form, &$form_state) 
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $measure_nm = $_GET['rn'];
+    if(is_numeric($measure_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+    $oPI = new \simplerulesengine_demo\DemoDeleteMeasurePage($measure_nm);
+    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+    if($rowsupdated == 1)
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'simplerulesengine_demo/managemeasures',
+            array(
+              'query' => array(
+                'action' => 'deleted',
+              ),
+            ),
+          );
+    }
+}
+function simplerulesengine_demo_editmeasure_form_builder($form, &$form_state)
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $measure_nm = $_GET['rn'];
+    if(is_numeric($measure_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+    $oPI = new \simplerulesengine_demo\DemoEditMeasurePage($measure_nm);
+    $form = array();
+    $disabled = false;
+    $myvalues = $oPI->getFieldValues($measure_nm);
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+function simplerulesengine_demo_editmeasure_form_builder_validate($form, &$form_state) 
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $measure_nm = $_GET['rn'];
+    $oPI = new \simplerulesengine_demo\DemoEditMeasurePage($measure_nm);
+    return $oPI->looksValid($form, $form_state['values']);
+}
+function simplerulesengine_demo_editmeasure_form_builder_submit($form, &$form_state) 
+{
+    if(!isset($_GET['rn']))
+    {
+        die("Missing required rn url parameter!");
+    }
+    $measure_nm = $_GET['rn'];
+    if(is_numeric($measure_nm))
+    {
+        die("Invalid rn url parameter: that value MUST NOT be numeric!");
+    }
+    $oPI = new \simplerulesengine_demo\DemoEditMeasurePage($measure_nm);
+    $rowsupdated = $oPI->updateDatabase($form, $form_state['values']);
+    if($rowsupdated == 1)
+    {
+        //Success!
+        $form_state['redirect'] = array(
+            'simplerulesengine_demo/managemeasures',
+            array(
+              'query' => array(
+                'action' => 'edited',
+              ),
+            ),
+          );
+    }
+}

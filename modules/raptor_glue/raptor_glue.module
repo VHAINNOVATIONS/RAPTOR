@@ -1,0 +1,1507 @@
+<?php
+/**
+ * @file
+ * ------------------------------------------------------------------------------------
+ * Created by SAN Business Consultants for RAPTOR phase 2
+ * Open Source VA Innovation Project 2011-2015
+ * VA Innovator: Dr. Jonathan Medverd
+ * SAN Implementation: Andrew Casertano, Frank Font, et al
+ * Contacts: acasertano@sanbusinessconsultants.com, ffont@sanbusinessconsultants.com
+ * ------------------------------------------------------------------------------------
+ * Copyright 2015 SAN Business Consultants, a Maryland USA company (sanbusinessconsultants.com)
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------------
+ * The glue module for the RAPTOR application. 
+ *
+ */
+
+defined('RAPTOR_GLUE_MODULE_PATH')
+    or define('RAPTOR_GLUE_MODULE_PATH', dirname(__FILE__));  
+
+require_once 'core/config.php';
+require_once 'functions/misc.inc';
+require_once 'functions/userlogin.inc';
+require_once 'functions/protocol.inc';
+require_once 'form/ProtocolInfoPage.php';
+
+/**
+ * Catch-all for error logging.
+ */
+function raptor_glue_watchdog($log_entry)
+{
+    $severity = isset($log_entry['severity']) ? $log_entry['severity'] : 99;
+    if($severity > WATCHDOG_NOTICE
+            || (isset($log_entry['message']) 
+                && ( 
+                    $log_entry['message'] == 'raptor/undefined' 
+                 || $log_entry['message'] == 'Session opened for %name.'
+                 || $log_entry['message'] == 'Session closed for %name.'))
+            )
+    {
+        //Do NOT bother logging this one.
+    } else {
+        //Log this one.
+        $logprefix = 'RAPTOR WATCHDOG[config='.RAPTOR_CONFIG_ID.'][build='.RAPTOR_BUILD_ID.']:';
+        error_log($logprefix.print_r($log_entry,TRUE));
+
+        try
+        {
+            global $user;
+            $tempUID = $user->uid;  
+            if($tempUID == NULL || $tempUID == 0)
+            {
+                try
+                {
+                    error_log("$logprefix Global user variable was not set.");
+                    $tempUID = intval($log_entry['user']->uid);
+                } catch (\Exception $ex) {
+                    error_log("$logprefix Unable to determine user UID!");
+                    $tempUID = -1;
+                }
+            }
+
+            $severity = intval($log_entry['severity']);
+
+            $updated_dt = date("Y-m-d H:i:s", time());
+            $error_cd = $severity;
+            db_merge('raptor_user_recent_activity_tracking')
+            ->key(array('uid'=>$tempUID,
+                ))
+            ->fields(array(
+                    'uid'=>$tempUID,
+                    'most_recent_error_dt'=>$updated_dt,
+                    'most_recent_error_cd' => $error_cd,
+                ))
+                ->execute();
+
+        } catch (\Exception $ex) {
+            error_log("$logprefix Failed to update raptor_user_recent_activity_tracking "
+                    . "because ". $ex->getMessage());
+        }
+    }
+}
+
+function raptor_glue_help($path, $arg) 
+{
+  switch ($path)
+  {
+    case "admin/help#raptor_glue":
+        return '<p>'.  t("This module combines the functionality of the various RAPTOR modules into what the user sees as the RAPTOR application.") .'</p>';
+        break;
+  }
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function raptor_glue_init() 
+{
+    raptor_glue_intercept_bad_users();
+}
+
+function raptor_glue_page_alter(&$page) 
+{
+    module_load_include('php', 'raptor_datalayer', 'core/Context');
+    module_load_include('php', 'raptor_datalayer', 'core/UserInfo');
+
+    global $user;
+    global $base_url;
+    $currentpath = current_path();
+    $currentpage = drupal_lookup_path('alias',$currentpath);
+    
+    $is_protected_adminuser = \raptor\UserInfo::is_protected_adminuser();
+    if($is_protected_adminuser)
+    {
+        //Don't alter any pages for this user.
+        error_log('HIT PAGEALTER IN PROTECTED MODE '.$base_url.' uid='.$user->uid.' path=' . $currentpath .'');
+    } else {
+        //Fair game for page alter.
+        if(strpos($currentpath,'/kickout_') !== FALSE)
+        {
+            //Get out of page alter if we are already in kickout mode!
+            error_log('HIT PAGEALTER IN KICKOUT MODE '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath 
+                    . '] and [' . $currentpage 
+                    . ']['.print_r($user,TRUE).']');
+            return;
+        } else
+        if(strpos($currentpath,'user/log') !== FALSE)
+        {
+            //Get out of page alter if we are already in kickout mode!
+            error_log('HIT PAGEALTER IN USER AUTHENTICATE GOTO MODE '.$base_url.' >>>[' 
+                    . $currentpath . '] and [' . $currentpage . ']');
+            return;
+        }
+        if(substr($currentpath,0,4) == 'user' 
+                || substr($currentpage,0,14) == 'raptor_kickout' 
+                || substr($currentpath,0,14) == 'raptor_kickout')
+        {
+            error_log('HIT PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . ']');
+            return;
+        }
+        error_log('TOP PAGEALTER '.$base_url.' uid='.$user->uid.'>>>[' . $currentpath . '] and [' . $currentpage . '] GET=' . print_r($_GET,TRUE));
+
+        //Go to our custom front page url.
+        $is_front_page = drupal_is_front_page();
+        if($is_front_page)
+        {
+            if(user_is_logged_in())
+            {
+                $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
+            } else {
+                $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
+            }
+            drupal_goto($redirect);
+            return;
+        }
+        $oContext = \raptor\Context::getInstance();
+        if($oContext == NULL)
+        {
+            //Log this joker out
+            error_log('Got NULL context, sending user to logout page at '.$base_url);
+            if(user_is_logged_in())
+            {
+                $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
+            } else {
+                $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
+            }
+            drupal_goto($redirect);
+            return;
+        } else
+        if($oContext->hasForceLogoutReason())
+        {
+            global $base_url;
+            $reason = $oContext->getForceLogoutReason();
+            $msg = $reason['text'];
+            drupal_set_message($msg,'error');
+            if($reason['code'] == ERRORCODE_KICKOUT_ACCOUNTCONFLICT)
+            {
+                $redirect = $base_url.'/raptor/kickout_accountconflict';
+            } else {
+                $redirect = $base_url.'/raptor/kickout_timeout';
+            }
+            error_log('HIT PAGEALTER IN FORCE KICKOUT MODE '
+                    . $base_url.'>>>[' 
+                    . $currentpath 
+                    . '] and [' . $currentpage 
+                    . ']'
+                    . '['.print_r($user, TRUE)
+                    .'] because '.print_r($reason,TRUE));
+            drupal_goto($redirect);   
+        }
+
+        global $raptor_worklist_rows;
+        global $raptor_protocoldashboard;
+        global $raptor_protocol_content;
+        global $raptor_context;
+
+        //Wrap all the other operations in a try catch
+        try
+        {
+            $userinfo = $oContext->getUserInfo();
+            $userprivs = $userinfo->getSystemPrivileges();
+            $raptor_context = $oContext;
+
+            if($userinfo->getUserID() < 0)
+            {
+                //This is not a valid user session, this can happen on kickout and things like that.
+                error_log('Did not have a valid user id (' . $userinfo->getUserID() . ')');
+                if($userinfo->getUserID() == -99)
+                {
+                    global $base_url;
+                    $redirect = $base_url.'/raptor/kickout_accountconflict';
+                    //$redirect = 'raptor/kickout_accountconflict'; 
+                    $urlargs = array('reason'=>'invalid_session');
+                    $http_response_code = 307;  //Temporary redirect 
+                    drupal_goto($redirect,$urlargs,$http_response_code);   
+                }
+                return;
+
+            } else if($currentpage == 'protocol' || $currentpath == 'protocol') {
+
+                if(!isset($raptor_protocol_content['Reference']))
+                {
+                    $localerrmsg = 'Missing reference information now!  Likely cause is a timed-out session.';
+                    drupal_set_message($localerrmsg,'error');
+                    error_log($localerrmsg);
+
+                }
+
+            } else if($currentpage == 'worklist' || $currentpath == 'worklist'){
+                //Clear any batch values from the session if any exist.
+                $oContext->clearPersonalBatchStack();
+                if($userprivs['SWI1'] != 1 )
+                {   
+                    //Cannot view worklist.
+                    $raptor_worklist_rows = array();
+                    if(!$userinfo->isSiteAdministrator())
+                    {
+                        drupal_set_message('This RAPTOR user account does not have privileges to view the worklist contents!','warning');
+                    }
+                } else {
+                    if($userinfo->isSiteAdministrator())
+                    {
+                        //Cannot view worklist.
+                        $raptor_worklist_rows = array();
+                        drupal_set_message('Administrator accounts should not have privilege SWI1!, but this one does.  Check the database.','warning');
+                    } else {
+                        //Set all the Worklist page values
+                        $ehrDao = $oContext->getEhrDao();
+                        if(!$ehrDao->isAuthenticated())
+                        {
+                            //For some reason they are no longer in active session, kick them out.
+                            $errmsg = "Your EHR session is no longer active!";
+                            error_log($errmsg . '>>>' . print_r($userinfo,TRUE));
+                            throw new \Exception($errmsg);
+                        }
+                        $raptor_worklist_rows = $ehrDao->getWorklistDetailsMap();
+                        if(count($raptor_worklist_rows) < 1)
+                        {
+                            //Empty result is not normal; check the user account.
+                            $logmsg = 'No order data was returned from VistA using your account';
+                            drupal_set_message($logmsg,'warning');
+                            error_log($logmsg);
+                            $userDuz = $ehrDao->getEHRUserID();
+                            $accountproblems = $ehrDao->getVistaAccountKeyProblems();
+                            if($accountproblems != NULL)
+                            {
+                                $allrights = $ehrDao->getUserSecurityKeys();
+                                $logmsg = "BAD USER ACCOUNT DETECTED"
+                                        . " site=$base_url uid=$user->uid path=$currentpath: $accountproblems"
+                                        . "\nExisting rights for this user are as follows..." . print_r($allrights,TRUE);
+                                error_log($logmsg);
+                                drupal_set_message($accountproblems,'error');
+                            }
+                        }
+                    }
+                }
+            } else {
+                //Some kind of admin page.
+                $raptor_worklist_rows = null;
+                $raptor_protocol_content = null;
+            }
+
+        } catch (\Exception $ex) {
+            //We should never be here, but if we do end up here let the login
+            global $base_url;
+            error_log('PAGEALTER Sending to logout because '.$ex->getMessage() 
+                    . ">>>\nerror details...".print_r($ex,TRUE));
+            if(user_is_logged_in())
+            {
+                $redirect = $base_url.'/user/logout'; //.$user->name.'/my-argument';
+            } else {
+                $redirect = $base_url.'/user/login'; //.$user->name.'/my-argument';
+            }
+            drupal_goto($redirect);
+            return;
+        }
+    }
+}
+
+function raptor_glue_menu_alter(&$items)
+{
+    $items['user/password']['access callback'] = FALSE;
+    $items['user/register']['access callback'] = FALSE;
+}
+
+function raptor_glue_menu() 
+{
+    $items = array();
+
+    $items['raptor/start'] = array(
+      'title' => t('Start Landing Page'),
+      'page callback' => 'raptor_start_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Start using RAPTOR'),
+      'file' => 'misc.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/about'] = array(
+      'title' => t('About Page'),
+      'page callback' => 'raptor_about_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('See information about RAPTOR installation'),
+      'file' => 'misc.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/loadcache'] = array(
+      'title' => t('Load Cache'),
+      'page callback' => 'raptor_glue_loadcache_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Load cache'),
+      'file' => 'misc.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/seeallurls'] = array(
+      'title' => t('See all RAPTOR URLs'),
+      'page callback' => 'raptor_seeallurls_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('See all the URLs in RAPTOR application'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/downloadconfig'] = array(
+      'title' => t('Download Configuration Settings'),
+      'page callback' => 'raptor_admincoredatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Download all the site configuration settings'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/selftest'] = array(
+      'title' => t('Self Test'),
+      'page callback' => 'raptor_glue_runtests_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Run a self test'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/users/exportdata'] = array(
+      'title' => t('User Account Data Dump'),
+      'page callback' => 'raptor_adminuserdatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Exract to a file all the non-admin RAPTOR user accounts'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/users/exportxml'] = array(
+      'title' => t('User Account XML Data Dump'),
+      'page callback' => 'raptor_adminuser_xmldatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Exract to a file all the non-admin RAPTOR user accounts as XML'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/protocollib/exportdata'] = array(
+      'title' => t('ProtocolLib Data Export'),
+      'page callback' => 'raptor_adminprotocollibdatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Extract to a file all protocol lib data'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/protocollib/exportxml'] = array(
+      'title' => t('ProtocolLib XML Data Export'),
+      'page callback' => 'raptor_adminprotocollib_xmldatadump_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Extract to an XML file all protocol lib data'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/resetdatafordemo'] = array(
+      'title' => t('Reset data for demo'),
+      'page callback' => 'raptor_resetdatafordemo_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Reset data for demo'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/dataexports'] = array(
+      'title' => t('Export RAPTOR data'),
+      'page callback' => 'raptor_dataexports_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Data exports'),
+      'file' => 'admin.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['worklist'] = array(
+      'title' => t('Worklist'),
+      'page callback' => 'raptor_glue_worklist_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('The RAPTOR Worklist Page'),
+      'file' => 'WorklistPage.php',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['protocol'] = array(
+      'title' => t('Protocol'),
+      'page callback' => 'raptor_glue_protocolinfo_form_inputarea',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('The RAPTOR Protocol Page'),
+      'file' => 'ProtocolInfoPage.php',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/getprotocollibtab'] = array(
+        'title' => 'Protocol Library',
+        'page callback' => 'raptor_glue_getprotocollibtab_form',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,        
+        'description' => t('Protocol library tab content'),
+        'file' => 'GetProtocolLibTab.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+        'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/getnotestab'] = array(
+        'title' => 'VistA Notes',
+        'page callback' => 'raptor_glue_getnotestab_form',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,        
+        'description' => t('VistA Notes tab content'),
+        'file' => 'GetNotesTab.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+        'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/getradrptstab'] = array(
+        'title' => 'Radiology Reports',
+        'page callback' => 'raptor_glue_getradrptstab_form',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,        
+        'description' => t('Radiology Reports tab content'),
+        'file' => 'GetRadiologyReportsTab.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+        'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/getradiationdosehxtab'] = array(
+        'title' => 'Radiation Dose History',
+        'page callback' => 'raptor_glue_getradiationdosehxtab_form',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,        
+        'description' => t('Radiation dose history tab content'),
+        'file' => 'GetRadiationDoseHxTab.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+        'type' => MENU_CALLBACK,
+    );
+    
+    //FORMS
+    $items['raptor/changepassword'] = array(
+      'title' => t('RAPTOR Password Change'),
+      'page callback' => 'raptor_glue_chgpwd_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Change Password Form'),
+        'file' => 'ChangePasswordPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/manageusers'] = array(
+      'title' => t('Manage User Accounts'),
+      'page callback' => 'raptor_glue_mngusers_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Manage Users Form'),
+        'file' => 'ManageUsersPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/viewuser'] = array(
+      'title' => t('View User Profile'),
+      'page callback' => 'raptor_glue_viewuser_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('View User Profile'),
+        'file' => 'ViewUserPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/addstandarduser'] = array(
+      'title' => t('Add Standard User'),
+        
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('raptor_glue_addstandarduser_form_builder'),
+       
+      //'page callback' => 'raptor_glue_addstandarduser_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Add Standard User Form'),
+        'file' => 'AddUserPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/addadminuser'] = array(
+      'title' => t('Add Admin User'),
+        
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('raptor_glue_addadminuser_form_builder'),
+        
+      //'page callback' => 'raptor_glue_addadminuser_form_builder',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Add Admin User Form'),
+        'file' => 'AddUserPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/deleteuser'] = array(
+      'title' => t('Delete User'),
+      'page callback' => 'raptor_glue_deleteuser_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Delete User Form'),
+        'file' => 'DeleteUserPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editqaquestions'] = array(
+      'title' => t('Edit QA Questions'),
+      'page callback' => 'raptor_glue_editqaquestions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit QA Questions Form'),
+        'file' => 'EditQAQuestionsPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/edituser'] = array(
+      'title' => t('Edit User'),
+      'page callback' => 'raptor_glue_edituser_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit User Form'),
+        'file' => 'EditUserPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editselfprofile'] = array(
+      'title' => t('Edit Profile'),
+      'page callback' => 'raptor_glue_editselfprofile_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Profile'),
+        'file' => 'EditUserPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/viewscannedprotocol'] = array(
+      'title' => t('View Scanned Protocol'),
+      'page callback' => 'raptor_glue_viewscannedprotocol_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('View Scanned Protocol Lib Document'),
+        'file' => 'ViewScannedProtocolLibFile.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/manageprotocollib'] = array(
+      'title' => t('Manage Protocols'),
+      'page callback' => 'raptor_glue_mng_protocols_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Manage Protocols Form'),
+        'file' => 'ManageProtocolLibPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/viewprotocollib'] = array(
+      'title' => t('View Protocol Lib'),
+      'page callback' => 'raptor_glue_viewprotocollib_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('View Protocol Lib Form'),
+        'file' => 'ViewProtocolLibPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/addprotocollib'] = array(
+      'title' => t('Add Protocol to Library'),
+      'page callback' => 'raptor_glue_addprotocollib_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Add Protocol Lib Form'),
+        'file' => 'AddProtocolLibPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/deleteprotocollib'] = array(
+      'title' => t('Delete Protocol from Library'),
+      'page callback' => 'raptor_glue_deleteprotocollib_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Delete Protocol Lib Form'),
+        'file' => 'DeleteProtocolLibPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editprotocollib'] = array(
+      'title' => t('Edit Protocol in Library'),
+      'page callback' => 'raptor_glue_editprotocollib_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Protocol Lib Form'),
+        'file' => 'EditProtocolLibPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/managelists'] = array(
+      'title' => t('Manage Lists'),
+      'page callback' => 'raptor_glue_mng_lists_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Manage Lists Form'),
+        'file' => 'ManageListsPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editsedationoptions'] = array(
+      'title' => t('Edit Sedation Options'),
+      'page callback' => 'raptor_glue_editsedationoptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Sedation Options Form'),
+        'file' => 'EditListSedationPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/edithydrationoptions'] = array(
+      'title' => t('Edit Hydration Options'),
+      'page callback' => 'raptor_glue_edithydrationoptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Hydration Options Form'),
+        'file' => 'EditListHydrationPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editcontrastoptions'] = array(
+      'title' => t('Edit Contrast Options'),
+      'page callback' => 'raptor_glue_editcontrastoptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Contrast Options Form'),
+        'file' => 'EditListContrastPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editradioisotopeoptions'] = array(
+      'title' => t('Edit Radionuclide Options'),
+      'page callback' => 'raptor_glue_editradioisotopeoptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Radionuclide Options Form'),
+        'file' => 'EditListRadioisotopePage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editexamroomoptions'] = array(
+      'title' => t('Edit Exam Room Options'),
+      'page callback' => 'raptor_glue_editexamroomoptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Exam Room Options Form'),
+        'file' => 'EditListExamRoomPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editboilerplateprotocoloptions'] = array(
+      'title' => t('Edit Protocol Boilerplate Text Options'),
+      'page callback' => 'raptor_glue_editboilerplateprotocoloptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Protocol Boilerplate Text Options Form'),
+        'file' => 'EditListBoilerplateProtocolPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editboilerplateexamoptions'] = array(
+      'title' => t('Edit Exam Boilerplate Text Options'),
+      'page callback' => 'raptor_glue_editboilerplateexamoptions_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Exam Boilerplate Text Options Form'),
+        'file' => 'EditListBoilerplateExamPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/editatriskmeds'] = array(
+      'title' => t('Edit At Risk Medications List'),
+      'page callback' => 'raptor_glue_editatriskmeds_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit At Risk Medications List Form'),
+        'file' => 'EditListAtRiskMedsPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editatriskallergycontrast'] = array(
+      'title' => t('Edit At Risk Allergy Contrast List'),
+      'page callback' => 'raptor_glue_editatriskallergycontrast_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit At Risk Allergy Contrast List Form'),
+        'file' => 'EditListAtRiskAllergyContrastPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editatriskbloodthinner'] = array(
+      'title' => t('Edit Blood Thinner Keyword List'),
+      'page callback' => 'raptor_glue_editatriskbloodthinner_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Blood Thinner Keyword List Form'),
+        'file' => 'EditListAtRiskBloodThinnerPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editatriskrarecontrast'] = array(
+      'title' => t('Edit Rare Contrast Keyword List'),
+      'page callback' => 'raptor_glue_editatriskrarecontrast_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Rare Contrast Keyword List Form'),
+        'file' => 'EditListAtRiskRareContrastPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editatriskrareradioisotope'] = array(
+      'title' => t('Edit Rare Radionuclide Keyword List'),
+      'page callback' => 'raptor_glue_editatriskrareradioisotope_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Rare Radionuclide Keyword List Form'),
+        'file' => 'EditListAtRiskRareRadioisotopePage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+
+    $items['raptor/editworklistranking'] = array(
+      'title' => t('Edit Worklist Ranking'),
+      'page callback' => 'raptor_glue_editworklistranking_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Worklist Ranking Form'),
+        'file' => 'EditWorklistRankingPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/choosevisit'] = array(
+      'title' => t('Choose Visit'),
+      'page callback' => 'raptor_glue_choosevisit_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Choose Visit Form'),
+      'file' => 'ChooseVisitPage.php',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/requestcollaborate'] = array(
+      'title' => t('Request Collaboration'),
+      'page callback' => 'raptor_glue_requestcollaborate_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Request Collaboration Form'),
+      'file' => 'RequestCollaboratePage.php',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/suspendticket'] = array(
+      'title' => t('Suspend Ticket'),
+      'page callback' => 'raptor_glue_suspendticket_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Suspend Ticket Form'),
+        'file' => 'SuspendTicketPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/addradiationdosehxentry'] = array(
+        'title' => 'Add Radiation Dose History Entry',
+        'page callback' => 'raptor_glue_addradiationdosehxentry_form',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,        
+        'description' => t('Add radiation dose history content'),
+        'file' => 'AddRadiationDoseHxEntryPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+        'type' => MENU_CALLBACK,
+    );
+    $items['raptor/editradiationdosehxentry'] = array(
+        'title' => 'Edit Radiation Dose History Entry',
+        'page callback' => 'raptor_glue_editradiationdosehxentry_form',
+        'access arguments' => array('access content'),
+        'access callback' => TRUE,        
+        'description' => t('Edit radiation dose history content'),
+        'file' => 'EditRadiationDoseHxEntryPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+        'type' => MENU_CALLBACK,
+    );
+    
+
+    $items['raptor/resetworkflow'] = array(
+      'title' => t('Reset Workflow'),
+      'page callback' => 'raptor_glue_resetworkflow_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Reset Workflow Form'),
+        'file' => 'ResetWorkflowPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/cancelorder'] = array(
+      'title' => t('Cancel Order'),
+      'page callback' => 'raptor_glue_cancelorder_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Cancel Order Form'),
+        'file' => 'CancelOrderPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/completionsuccess'] = array(
+      'title' => t('Completion Success'),
+      'page callback' => 'drupal_get_form',
+      'page callback' => array('raptor_glue_completion_form'),
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Completion Notice'),
+        'file' => 'misc.inc',
+        'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/replaceorder'] = array(
+      'title' => t('Replace Order'),
+      'page callback' => 'drupal_get_form',
+      'page callback' => array('raptor_glue_replaceorder_form'),
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Replace Order Form'),
+        'file' => 'ReplaceOrderPage.php',
+        'file path' => '/sites/all/modules/raptor_glue/form/',
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/declarehiddenworklistcols'] = array(
+      'title' => t('Declare Hidden Worklist Cols'),
+      'page callback' => 'raptor_declarehiddenworklistcols_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Declare Hidden Worklist Cols'),
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/userinteractionping'] = array(
+      'title' => t('Get/Set User Alive Info and Ticket Lock Info or Refresh Locks'),
+      'page callback' => 'raptor_glue_userinteractionping_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Use parameters as follows<ol>'
+              . '<li>No parameters: Get JSON object with user idle time info and ticket lock listing'
+              . '<li>Pass "refreshlocks" param to refresh locks instead of getting lock info'
+              . '<li>Pass "resetsecondssincelastaction" param to reset the user idle recording'
+              . '</ol>'),
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/secondssincelastaction'] = array(
+      'title' => t('Seconds since last user action'),
+      'page callback' => 'raptor_glue_secondssincelastaction_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Return the number of seconds since last user action'),
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/resetsecondssincelastaction'] = array(
+      'title' => t('Reset seconds since last user action'),
+      'page callback' => 'raptor_glue_resetsecondssincelastaction_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Reset number of seconds to zero'),
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/ticketlockrelease'] = array(
+      'title' => t('Release one user ticket lock'),
+      'page callback' => 'raptor_glue_ticketlockrelease_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Release user ticket lock'),
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/ticketlockrefresh'] = array(
+      'title' => t('Refresh one user ticket lock information'),
+      'page callback' => 'raptor_glue_ticketlockrefresh_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Update one user ticket lock information in the database'),
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['raptor/ticketlocksgetinfo'] = array(
+      'title' => t('Get ticket lock information'),
+      'page callback' => 'raptor_glue_ticketlocksgetinfo_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Get the ticket lock information'),
+      'type' => MENU_CALLBACK,
+    );
+    
+    $items['raptor/kickout_accountconflict'] = array(
+      'title' => t('User Session Account Kickout Account Conflict'),
+      'page callback' => 'raptor_kickout_accountconflict_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('User account session kickout because of account conflict'),
+      'file' => 'misc.inc',
+      'file path' => '/sites/all/modules/raptor_glue/functions/',
+      'type' => MENU_CALLBACK,
+    );
+    $items['raptor/kickout_timeout'] = array(
+      'title' => t('User Session Account Kickout Session Timeout'),
+      'page callback' => 'raptor_kickout_timeout_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('User account session kickout because of timeout'),
+      'type' => MENU_CALLBACK,
+    );
+
+    $items['admin/config/raptor_glue'] = array(
+      'title' => t('Edit Glue Configuration'),
+      'page callback' => 'raptor_glue_edit_config_form',
+      'access arguments' => array('access content'),
+      'access callback' => TRUE,        
+      'description' => t('Edit Glue Configuration Form'),
+      'type' => MENU_CALLBACK,
+      'file' => 'EditGlueConfigPage.php',
+      'file path' => '/sites/all/modules/raptor_glue/form/',
+    );
+    
+    return $items;
+}
+
+function raptor_glue_runtests_form() 
+{
+    return drupal_get_form("raptor_glue_runtests_form_builder");
+}
+
+function raptor_glue_getnotestab_form() 
+{
+    return drupal_get_form("raptor_glue_getnotestab_form_builder");
+}
+
+function raptor_glue_getradrptstab_form() 
+{
+    return drupal_get_form("raptor_glue_getradrptstab_form_builder");
+}
+
+function raptor_glue_getradiationdosehxtab_form() 
+{
+    return drupal_get_form("raptor_glue_getradiationdosehxtab_form_builder");
+}
+
+function raptor_glue_getnotestab_form_builder($form, &$form_state)
+{
+    $oContext = \raptor\Context::getInstance();    
+    $oPI = new \raptor\GetNotesTab($oContext);
+    $form = array();
+    $disabled = FALSE;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+function raptor_glue_getradrptstab_form_builder($form, &$form_state)
+{
+    $oContext = \raptor\Context::getInstance();    
+    $oPI = new \raptor\GetRadiologyReportsTab($oContext);
+    $form = array();
+    $disabled = FALSE;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+function raptor_glue_getradiationdosehxtab_form_builder($form, &$form_state)
+{
+    $oContext = \raptor\Context::getInstance();    
+    $oPI = new \raptor\GetRadiationDoseHxTab($oContext);
+    $form = array();
+    $disabled = FALSE;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+function raptor_glue_userinteractionping_form() 
+{
+    return drupal_get_form("raptor_glue_userinteractionping_form_builder");
+}
+
+function raptor_glue_secondssincelastaction_form() 
+{
+    return drupal_get_form("raptor_glue_secondssincelastaction_form_builder");
+}
+
+function raptor_glue_resetsecondssincelastaction_form() 
+{
+    return drupal_get_form("raptor_glue_resetsecondssincelastaction_form_builder");
+}
+
+function raptor_glue_ticketlocksgetinfo_form() 
+{
+    return drupal_get_form("raptor_glue_ticketlocksgetinfo_form_builder");
+}
+
+function raptor_glue_ticketlockrefresh_form() 
+{
+    return drupal_get_form("raptor_glue_ticketlockrefresh_form_builder");
+}
+
+function raptor_glue_ticketlockrelease_form() 
+{
+    return drupal_get_form("raptor_glue_ticketlockrelease_form_builder");
+}
+
+/**
+ * @return JSON data
+ */
+function raptor_glue_ticketlocksgetinfo_form_builder($form, &$form_state)
+{
+    $errormsg = NULL;
+    
+    //Get the user information but do not polute the url output.
+    ob_start(); //We will kill all messages.
+    module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+    
+    $oTT = new \raptor\TicketTrackingData();
+    
+    $locks = $oTT->getAllTicketLockDetails();
+    $aEditLocks = array();
+    $aViewLocks = array();
+    
+    foreach($locks['tickets'] as $tid=>$oneticket)
+    {
+        $oneticket['trackingid'] = $tid;
+        if($oneticket['locked_type_cd'] == 'E')
+        {
+            $aEditLocks[] = $oneticket;
+        } else {
+            $aViewLocks[] = $oneticket;
+        }
+    }
+    
+    ob_end_clean();
+
+    //Create the output.
+    $aResult = array(
+            'users' =>$locks['users']
+            , 'edit_locks'=>$aEditLocks
+            , 'view_locks'=>$aViewLocks
+        );
+    if($errormsg != NULL)
+    {
+        $aResult['errormsg'] = $errormsg;
+    }
+    $sJSON = json_encode($aResult);
+    
+    //Output the results.
+    header("Content-Type: application/json");
+    echo $sJSON;
+
+    error_log('ajax locks check result>>>'.$sJSON);
+    
+    //Stop all processing.
+    drupal_exit();  //Otherwise more stuff gets added to the file.
+}
+
+
+/**
+ * update one ticket lock for one user
+ */
+function raptor_glue_ticketlockrefresh_form_builder($form, &$form_state)
+{
+    if(!isset($_GET['tid']))
+    {
+        die("ERROR because missing required tid url parameter!");
+    }
+    $tid = $_GET['tid'];
+    if(!isset($_GET['uid']))
+    {
+        die("ERROR because missing required uid url parameter!");
+    }
+    $uid = $_GET['uid'];
+    
+    try
+    {
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+        $oTT = new \raptor\TicketTrackingData();
+        $oTT->updateTicketEditLock($tid, $uid);
+        ob_end_clean();
+        echo 'OK - refreshed '.$tid.' for '.$uid;
+    } catch (\Exception $ex) {
+        error_log('ERROR in raptor_glue_ticketlockrefresh_form_builder because '.print_r($ex,TRUE));
+        throw new \Exception('ERROR because '.$ex->getMessage(),99123,$ex);
+    }
+    
+    //Stop all processing.
+    drupal_exit();  //Otherwise more stuff gets added to the file.
+}
+
+/**
+ * update one ticket lock for one user
+ */
+function raptor_glue_ticketlockrelease_form_builder($form, &$form_state)
+{
+    if(!isset($_GET['tid']))
+    {
+        die("ERROR because missing required tid url parameter!");
+    }
+    $tid = $_GET['tid'];
+    if(!isset($_GET['uid']))
+    {
+        die("ERROR because missing required uid url parameter!");
+    }
+    $uid = $_GET['uid'];
+    
+    try
+    {
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+        $oTT = new \raptor\TicketTrackingData();
+        $num = $oTT->deleteTicketEditLock($tid,$uid);
+        if($num !== 1)
+        {
+            throw new \Exception('Expected to release one "'.$tid.'" record lock but instead released '.$num);
+        }
+        ob_end_clean();
+        echo 'OK - released '.$tid.' for '.$uid;
+    } catch (\Exception $ex) {
+        error_log('ERROR in raptor_glue_ticketlockrelease_form_builder because '.print_r($ex,TRUE));
+        throw new \Exception('ERROR because '.$ex->getMessage(),99123,$ex);
+    }
+
+    //Stop all processing.
+    drupal_exit();  //Otherwise more stuff gets added to the file.
+}
+
+/**
+ * @return JSON data
+ */
+function raptor_glue_secondssincelastaction_form_builder($form, &$form_state)
+{
+    //Log this.
+    global $user;
+
+    //Get the user information but do not polute the url output.
+    ob_start(); //We will kill all messages.
+    $errormsg = NULL;
+    $authenticated = 'no';
+    $useridleseconds = 9999999;
+    try
+    {
+        $oContext = \raptor\Context::getInstance(FALSE,TRUE);    
+        $oUserInfo = $oContext->getUserInfo(FALSE);
+        if($oUserInfo->getUserID() > 0)
+        {
+            $authenticated = 'yes';
+            $useridleseconds = intval($oContext->getUserIdleSeconds());
+        }
+    } catch (\Exception $ex) {
+        //Log it and continue.
+        error_log('Trouble in raptor_glue_secondssincelastaction_form_builder because '.$ex->getMessage());
+        $errormsg = $ex->getMessage();
+    }
+    ob_end_clean();
+    
+    //Create the output.
+    $aResult = array('authenticated'=>$authenticated
+            , 'idle_seconds'=>$useridleseconds
+            , 'allowed_idle_seconds'=>USER_TIMEOUT_SECONDS
+            , 'allowed_grace_seconds'=>USER_TIMEOUT_GRACE_SECONDS
+            , 'alive_ping_interval_seconds'=>USER_ALIVE_INTERVAL_SECONDS
+        );
+    if($errormsg != NULL)
+    {
+        $aResult['errormsg'] = $errormsg;
+    }
+    $sJSON = json_encode($aResult);
+    
+    //Output the results.
+    header("Content-Type: application/json");
+    echo $sJSON;
+
+    error_log('DEBUGINFO ajax timeout check result>>>'.$sJSON);
+    
+    //Stop all processing.
+    drupal_exit();  //Otherwise more stuff gets added to the file.
+}
+
+/**
+ * Reset the user idle count to zero seconds.  Does not return anything.
+ */
+function raptor_glue_resetsecondssincelastaction_form_builder($form, &$form_state)
+{
+    try
+    {
+        //Trigger recording of user activity.
+        $oContext = \raptor\Context::getInstance(FALSE,FALSE);   
+        echo 'OK';
+    } catch (\Exception $ex) {
+        //Log it and continue.
+        $errormsg = 'Trouble in raptor_glue_resetsecondssincelastaction_form_builder because '.$ex->getMessage();
+        error_log($errormsg);
+        throw new \Exception($errormsg,$ex);
+    }
+    
+    //error_log('Successfully called raptor_glue_resetsecondssincelastaction_form_builder');  //TODO remove
+    
+    //Stop all processing.
+    drupal_exit();  //Otherwise more stuff gets added to the file.
+}
+
+/**
+ * @return JSON data
+ */
+function raptor_glue_userinteractionping_form_builder($form, &$form_state)
+{
+    $refreshlocks = isset($_GET['refreshlocks']);
+    $rssla = isset($_GET['resetsecondssincelastaction']);
+    $resetsecondssincelastaction = $refreshlocks || $rssla;
+    
+    $inputsinfo = array('rl'=>$refreshlocks,'rs'=>$rssla);
+    
+    global $user;
+    if(!isset($user) || $user->uid == 0)
+    {
+        //This is NOT a RAPTOR user; don't clutter the log file.
+        drupal_exit();
+    }
+
+    //Do not polute the output
+    ob_start(); //We will kill all messages.
+    $errormsg = NULL;
+    
+    $authenticated = 'no';
+    $useridleseconds = 9999999;
+    $locks = array('unknown');
+    $aEditLocks = array();
+    $aViewLocks = array();
+    $sTrackingID = NULL;
+    $oContext = NULL;
+    try
+    {
+        //Get the user information first
+        if($resetsecondssincelastaction)
+        {
+            //Trigger user is alive recording.
+            $oContext = \raptor\Context::getInstance(FALSE,FALSE);    
+            if($refreshlocks){
+                //error_log('DEBUGINFO ajax userinteractionping triggered is-alive recording! --- Refreshing lock');
+            }else{
+                //error_log('DEBUGINFO ajax userinteractionping triggered is-alive recording! --- No locking');
+            }
+        } else {
+            //Passively get context.
+            $oContext = \raptor\Context::getInstance(FALSE,TRUE);    
+            //error_log('DEBUGINFO ajax userinteractionping DID NOT trigger is-alive recording!');
+        }
+        $oUserInfo = $oContext->getUserInfo(FALSE);
+        if($oUserInfo->getUserID() > 0)
+        {
+            $authenticated = 'yes';
+            $useridleseconds = intval($oContext->getUserIdleSeconds());
+        }
+        
+        //Collect the ticket lock information
+        module_load_include('php', 'raptor_datalayer', 'core/TicketTrackingData');
+        $oTT = new \raptor\TicketTrackingData();
+        
+        //Are we refreshing locks or are we just getting ticket lock information?
+        if($refreshlocks)
+        {
+            //Refresh the current lock (only one edit lock allowed per user)
+            try
+            {
+                $nUID = $user->uid;
+                $sTrackingID = trim($oContext->getSelectedTrackingID());
+                if($sTrackingID > '')
+                {
+                    //Make sure this is a fully qualified ID
+                    if(strpos($sTrackingID,'-') === FALSE)
+                    {
+                        $sTrackingID = $oContext->getSiteID() . '-' . $sTrackingID;
+                    }
+                    $oTT->updateTicketEditLock($sTrackingID, $nUID);
+                }
+            } catch (\Exception $ex) {
+                throw new \Exception('Cannot refresh lock on "'.$sTrackingID
+                        .'" for user "'.$nUID.'" because '.$ex->getMessage(), 9955, $ex);
+            }
+        }
+        //Get all the lock information.
+        $locks = $oTT->getAllTicketLockDetails();
+        foreach($locks['tickets'] as $tid=>$oneticket)
+        {
+            $oneticket['trackingid'] = $tid;
+            if($oneticket['locked_type_cd'] == 'E')
+            {
+                $aEditLocks[] = $oneticket;
+            } else {
+                $aViewLocks[] = $oneticket;
+            }
+        }
+    } catch (\Exception $ex) {
+        //Log it and continue.
+        error_log('Trouble in raptor_glue_userinteractionping_form_builder because '.$ex->getMessage());
+        $errormsg = $ex->getMessage();
+    }
+
+    ob_end_clean();
+    
+    //Create the output.
+    $aUserAliveStuff = array('authenticated'=>$authenticated
+            , 'idle_seconds'=>$useridleseconds
+            , 'allowed_idle_seconds'=>USER_TIMEOUT_SECONDS
+            , 'allowed_grace_seconds'=>USER_TIMEOUT_GRACE_SECONDS
+            , 'alive_ping_interval_seconds'=>USER_ALIVE_INTERVAL_SECONDS
+        );
+    if($refreshlocks)
+    {
+        $aTicketStuff = array(
+                'refreshed'=>$sTrackingID
+            );
+    } else {
+        $aTicketStuff = array(
+                'users' =>$locks['users']
+                , 'edit_locks'=>$aEditLocks
+                , 'view_locks'=>$aViewLocks
+            );
+    }
+    $aResult = array(
+            'thisuser' =>$aUserAliveStuff
+            , 'tickets'=>$aTicketStuff
+            , 'inputinfo'=>$inputsinfo
+        );
+    if($resetsecondssincelastaction)
+    {
+        $aResult['resetsecondssincelastaction'] = TRUE;
+    }
+    if($errormsg != NULL)
+    {
+        $aResult['errormsg'] = $errormsg;
+    }
+    $sJSON = json_encode($aResult);
+//error_log("LOOK result from raptor_glue_userinteractionping_form_builder >>> " . print_r($aResult,TRUE));  
+    //Output the results.
+    header("Content-Type: application/json");
+    echo $sJSON;
+
+    //error_log('DEBUGINFO ajax userinteractionping result>>>'.$sJSON);
+    
+    //Stop all processing.
+    drupal_exit();  //Otherwise more stuff gets added to the file.
+}
+
+
+function raptor_glue_edit_config_form() 
+{
+    return drupal_get_form('raptor_glue_edit_config_form_builder');
+}
+
+function raptor_glue_edit_config_form_builder($form, &$form_state)
+{
+    $oPI = new \raptor\EditGlueConfigPage();
+    $form = array();
+    $disabled = false;
+    $myvalues = array();    //No values for this one.
+    return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+}
+
+function raptor_glue_editqaquestions_form() 
+{
+    return drupal_get_form('raptor_glue_editqaquestions_form_builder');
+}
+
+function raptor_glue_editqaquestions_form_builder($form, &$form_state)
+{
+    try
+    {
+        $oPI = new \raptor\EditQAQuestionsPage();
+        $form = array();
+        $disabled = FALSE;
+        $myvalues = array();    //No values for this one.
+        return $oPI->getForm($form, $form_state, $disabled, $myvalues);
+    } catch (\Exception $ex) {
+        throw $ex;
+    }
+}
+
+function raptor_glue_editqaquestions_form_builder_validate($form, &$form_state) 
+{
+    try
+    {
+        $oPI = new \raptor\EditQAQuestionsPage();
+        return $oPI->looksValidFormState($form, $form_state);
+    } catch (\Exception $ex) {
+        throw $ex;
+    }
+}
+
+function raptor_glue_editqaquestions_form_builder_submit($form, &$form_state) 
+{
+    try
+    {
+        $myvalues = $form_state['values'];
+        $oPI = new \raptor\EditQAQuestionsPage();
+        $oPI->updateDatabase($form, $myvalues);
+        $form_state['redirect'] = array(
+            $oPI->getGobacktoURL()
+           ,$oPI->getGobacktoURLParams()
+          );
+    } catch (\Exception $ex) {
+        throw $ex;
+    }
+}
+

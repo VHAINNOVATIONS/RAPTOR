@@ -1,0 +1,9 @@
+﻿<NUnitProject>
+  <Settings activeconfig="Debug" />
+  <Config name="Debug" appbase="medora-webapp-test" configfile="app.config" binpathtype="Auto">
+    <assembly path="bin\Debug\medora-webapp-test.dll" />
+  </Config>
+  <Config name="Release" binpathtype="Auto">
+    <assembly path="medora-webapp-test\bin\Release\medora-webapp-test.dll" />
+  </Config>
+</NUnitProject>

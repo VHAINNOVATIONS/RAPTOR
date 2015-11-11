@@ -1,0 +1,126 @@
+
+
+.medical-health-bad{
+    background-color: red;
+}
+
+.medical-health-warn{
+    background-color: yellow;
+}
+
+.medical-health-good{
+    background-color: greenyellow;
+}
+
+.raptor-active-field{
+    color: blue;
+}
+
+#edit-radioisotope-cd{
+    width: 80%;
+}
+
+#edit-contrast-cd{
+    width: 80%;
+}
+
+.form-type-radio{
+    width: auto;
+}
+
+#edit-modality-abbr{
+    display: -webkit-box;
+}
+
+#header-sticky-wrapper-patient-name{
+    position: fixed;
+    font-weight: bold;
+    z-index: 10;
+}
+
+#paragraph-patient-name{
+    position: fixed;
+    left: 40%;
+    background-color:yellow;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    font-size: 18px;
+    z-index: 10;
+}
+
+.wrapper.cf{
+    z-index: 0;
+}
+
+.pending_column{
+    width: 18px;
+}
+
+#edit-boilerplate-fieldset{
+    width: 1000px;
+}
+
+.form-item form-type-textarea form-item-examnotes-tx{
+    width: 1000px;
+}
+
+.boilerplate-note-text-title{
+    width: 1000px;
+}
+label[for=edit-examnotes-tx--2]{
+    width: 100% !important;
+
+}
+
+#edit-examnotes-tx--2{
+    width: 100% !important;
+}
+
+.form-textarea-wrapper{
+    width: 100% !important;
+}
+
+.grippie{
+    width: 100% !important;
+}
+
+
+
+.boilerplate-col3{
+    position: relative !important;
+    top: 1em !important;
+    right: 1em !important;
+}
+
+.boilerplate-col1{
+    position: relative !important;
+    //top: 1em !important;
+    //right: 1em !important;
+    width: 58% !important;
+}
+/*
+.boilerplate-data-entry-area{
+    height: 350px !important;
+    margin-bottom: 0px !important;
+}
+
+
+
+.boilerplate-reset-note{
+    
+}
+
+.boilerplate-col3{
+    position: relative;
+    top: -280px;
+}
+
+
+.boilerplate-col1{
+    //width: 50% !important;
+}
+
+#edit-disabled-examnotes-tx{
+    //width: 100% !important;
+}
+*/

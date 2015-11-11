@@ -1,0 +1,202 @@
+/* ------------------ Admin Forms ------------------*/
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\000037}}
+#raptor-admin-container .top,
+#raptor-glue-edituser-form-builder .top,
+.data-entry-area1 .top, #administer-modal .top {
+  height: auto;
+  float: auto; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000312}}
+#raptor-admin-container .l-content[role=main],
+#raptor-glue-edituser-form-builder .l-content[role=main],
+.data-entry-area1 .l-content[role=main], #administer-modal .l-content[role=main] {
+  margin: 0 14px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000316}}
+#raptor-admin-container input,
+#raptor-glue-edituser-form-builder input,
+.data-entry-area1 input, #administer-modal input {
+  margin-right: 8px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000320}}
+#raptor-admin-container fieldset,
+#raptor-glue-edituser-form-builder fieldset,
+.data-entry-area1 fieldset, #administer-modal fieldset {
+  border: 1px solid #999;
+  padding: 16px;
+  margin: 16px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000327}}
+  #raptor-admin-container fieldset fieldset .form-item label,
+  #raptor-glue-edituser-form-builder fieldset fieldset .form-item label,
+  .data-entry-area1 fieldset fieldset .form-item label, #administer-modal fieldset fieldset .form-item label {
+    display: inline-block;
+    width: 150px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000335}}
+#raptor-admin-container legend,
+#raptor-glue-edituser-form-builder legend,
+.data-entry-area1 legend, #administer-modal legend {
+  text-transform: capitalize; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000339}}
+#raptor-admin-container .user-profile-dataentry > div,
+#raptor-glue-edituser-form-builder .user-profile-dataentry > div,
+.data-entry-area1 .user-profile-dataentry > div, #administer-modal .user-profile-dataentry > div {
+  margin: 16px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000344}}
+#raptor-admin-container .form-item label,
+#raptor-glue-edituser-form-builder .form-item label,
+.data-entry-area1 .form-item label, #administer-modal .form-item label {
+  display: inline-block;
+  width: 260px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000349}}
+#raptor-admin-container .form-item label[for=edit-confirmed-by-patient-yn],
+#raptor-glue-edituser-form-builder .form-item label[for=edit-confirmed-by-patient-yn],
+.data-entry-area1 .form-item label[for=edit-confirmed-by-patient-yn], #administer-modal .form-item label[for=edit-confirmed-by-patient-yn] {
+  width: 200px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000353}}
+#raptor-admin-container .form-item label[for=edit-canceled-reason-tx],
+#raptor-glue-edituser-form-builder .form-item label[for=edit-canceled-reason-tx],
+.data-entry-area1 .form-item label[for=edit-canceled-reason-tx], #administer-modal .form-item label[for=edit-canceled-reason-tx] {
+  width: 325px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000357}}
+#raptor-admin-container .form-item label[for=edit-suggested-uid],
+#raptor-glue-edituser-form-builder .form-item label[for=edit-suggested-uid],
+.data-entry-area1 .form-item label[for=edit-suggested-uid], #administer-modal .form-item label[for=edit-suggested-uid] {
+  width: 325px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000361}}
+#raptor-admin-container .form-item label[for=edit-notes-tx],
+#raptor-glue-edituser-form-builder .form-item label[for=edit-notes-tx],
+.data-entry-area1 .form-item label[for=edit-notes-tx], #administer-modal .form-item label[for=edit-notes-tx] {
+  width: 183px;
+  margin: 20px 0 5px 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000366}}
+#raptor-admin-container .form-item label[for=edit-notes-critical-yn],
+#raptor-glue-edituser-form-builder .form-item label[for=edit-notes-critical-yn],
+.data-entry-area1 .form-item label[for=edit-notes-critical-yn], #administer-modal .form-item label[for=edit-notes-critical-yn] {
+  width: 400px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000371}}
+#raptor-admin-container .form-type-checkbox,
+#raptor-glue-edituser-form-builder .form-type-checkbox,
+.data-entry-area1 .form-type-checkbox, #administer-modal .form-type-checkbox {
+  display: inline-block; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000374}}
+  #raptor-admin-container .form-type-checkbox label,
+  #raptor-glue-edituser-form-builder .form-type-checkbox label,
+  .data-entry-area1 .form-type-checkbox label, #administer-modal .form-type-checkbox label {
+    width: auto;
+    margin-right: 16px;
+    margin-left: -4px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000381}}
+#raptor-admin-container #edit-cancel,
+#raptor-glue-edituser-form-builder #edit-cancel,
+.data-entry-area1 #edit-cancel, #administer-modal #edit-cancel {
+  display: inline-block; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000385}}
+#raptor-admin-container .form-item-location-tx,
+#raptor-glue-edituser-form-builder .form-item-location-tx,
+.data-entry-area1 .form-item-location-tx, #administer-modal .form-item-location-tx {
+  display: inline-block; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000389}}
+#raptor-admin-container .form-item-duration-am,
+#raptor-glue-edituser-form-builder .form-item-duration-am,
+.data-entry-area1 .form-item-duration-am, #administer-modal .form-item-duration-am {
+  width: 183px;
+  display: inline-block;
+  margin: 0 0 0 16px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000396}}
+#raptor-admin-container .form-item-location-tx + ul,
+#raptor-admin-container .form-item-duration-am + ul,
+#raptor-glue-edituser-form-builder .form-item-location-tx + ul,
+#raptor-glue-edituser-form-builder .form-item-duration-am + ul,
+.data-entry-area1 .form-item-location-tx + ul,
+.data-entry-area1 .form-item-duration-am + ul, #administer-modal .form-item-location-tx + ul,
+#administer-modal .form-item-duration-am + ul {
+  display: inline-block; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\0000399}}
+  #raptor-admin-container .form-item-location-tx + ul li,
+  #raptor-admin-container .form-item-duration-am + ul li,
+  #raptor-glue-edituser-form-builder .form-item-location-tx + ul li,
+  #raptor-glue-edituser-form-builder .form-item-duration-am + ul li,
+  .data-entry-area1 .form-item-location-tx + ul li,
+  .data-entry-area1 .form-item-duration-am + ul li, #administer-modal .form-item-location-tx + ul li,
+  #administer-modal .form-item-duration-am + ul li {
+    display: inline;
+    margin: 0 12px 0 0; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003105}}
+#raptor-admin-container #raptor-schedule-table,
+#raptor-glue-edituser-form-builder #raptor-schedule-table,
+.data-entry-area1 #raptor-schedule-table, #administer-modal #raptor-schedule-table {
+  margin-bottom: 20px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003108}}
+  #raptor-admin-container #raptor-schedule-table th,
+  #raptor-glue-edituser-form-builder #raptor-schedule-table th,
+  .data-entry-area1 #raptor-schedule-table th, #administer-modal #raptor-schedule-table th {
+    width: 175px; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003113}}
+#raptor-admin-container .form-item-event-starttime-tx,
+#raptor-glue-edituser-form-builder .form-item-event-starttime-tx,
+.data-entry-area1 .form-item-event-starttime-tx, #administer-modal .form-item-event-starttime-tx {
+  display: inline-block; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003117}}
+#raptor-admin-container [form="edit-confirmed-by-patient-yn"], #raptor-admin-container #edit-confirmed-by-patient-yn,
+#raptor-glue-edituser-form-builder [form="edit-confirmed-by-patient-yn"],
+#raptor-glue-edituser-form-builder #edit-confirmed-by-patient-yn,
+.data-entry-area1 [form="edit-confirmed-by-patient-yn"],
+.data-entry-area1 #edit-confirmed-by-patient-yn, #administer-modal [form="edit-confirmed-by-patient-yn"], #administer-modal #edit-confirmed-by-patient-yn {
+  display: inline-block; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003122}}
+.raptor-dialog-table-container {
+  margin: 0 0 25px 0; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003126}}
+.raptor-dialog-table {
+  border-collapse: collapse;
+  border: 1px solid #ccc;
+  width: 100%; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003131}}
+  .raptor-dialog-table tr {
+    border-bottom: 1px solid #ccc; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003134}}
+    .raptor-dialog-table tr td, .raptor-dialog-table tr th {
+      padding: 6px 12px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003141}}
+.raptor-action-buttons div {
+  display: inline-block; }
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003145}}
+.raptor-action-buttons .admin-action-button {
+  margin-right: 8px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003151}}
+.selectable-text span {
+  background-color: yellow;
+  font-weight: bold; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003157}}
+#edit-leftpart {
+  float: left;
+  width: 40%; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003162}}
+#edit-rightpart {
+  float: left;
+  width: 44%; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003167}}
+#edit-rightpart ~ fieldset {
+  clear: both; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003171}}
+.previous-notes-intro {
+  border: 1px #666 solid;
+  border-bottom: none;
+  background-color: #ddd;
+  padding: 2px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003178}}
+.previous-notes-tx {
+  border: 1px #666 solid;
+  border-top: none;
+  margin-bottom: 16px;
+  padding: 2px; }
+
+@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/BitNami\/drupal-7\.31-1\/apps\/drupal\/htdocs\/sites\/all\/themes\/raptor_omega\/sass\/raptor-omega\.datalayer\.scss}line{font-family:\00003186}}
+.input-width-limit input[type=text] {
+  max-width: 280px; }
