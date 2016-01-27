@@ -6,6 +6,9 @@ modules/*
 themes/*
 libraries/*
 
+# ignore hidden vagrant folder
+.vagrant
+
 #Except these things...
 !.gitignore
 !EWDJSvistalayer
