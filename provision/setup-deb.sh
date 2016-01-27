@@ -67,7 +67,6 @@ sudo apt-get install -y nodejs
 sudo npm -g install npm@latest
 sudo npm -g install bower
 
-
 # cp /vagrant/provision/test.pl /var/www/html/
 # sudo chmod a+x /var/www/html/test.pl
 #curl -Gk https://localhost/test.pl --insecure
