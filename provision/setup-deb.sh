@@ -58,6 +58,57 @@ cp /vagrant/provision/settings.php /var/www/html/sites/default/settings.php
 chmod 664 /var/www/html/sites/default/settings.php
 sudo chown -R www-data:www-data /var/www
 
+# RAPTOR Application ###############################################################
+#
+# setup database for RAPTOR (raptor500)
+mysql -u root -praptor1! -h localhost -e "create database raptor500"
+mysql -u root -praptor1! -h localhost raptor500 < /vagrant/miscellaneous/raptor500.sql
+mysql -u root -praptor1! -h localhost -e "create user raptoruser@localhost identified by 'raptor1!'"
+mysql -u root -praptor1! -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost; flush privileges;"
+
+# copy RAPTOR modules and themes to drupal installation
+sudo cp -R /vagrant/modules/* /var/www/html/sites/all/modules/
+sudo cp -R /vagrant/themes/* /var/www/html/sites/all/themes/
+
+# enable RAPTOR Modules
+sudo apt-get install drush
+cd /var/www/html/sites/all/modules/
+drush -y en raptor_contraindications 
+drush -y en raptor_graph
+drush -y en raptor_workflow
+drush -y en raptor_datalayer
+drush -y en raptor_imageviewing
+drush -y en raptor_ewdvista
+drush -y en raptor_mdwsvista
+drush -y en simplerulesengine_core
+drush -y en raptor_floatingdialog
+drush -y en raptor_protocollib
+drush -y en simplerulesengine_demo
+drush -y en raptor_formulas
+drush -y en raptor_reports
+drush -y en simplerulesengine_ui
+drush -y en raptor_glue
+drush -y en raptor_scheduling
+
+# enable and set raptor theme 
+cd /var/www/html/sites/all/themes/
+drush -y -l http://localhost/ pm-enable omega
+drush -y -l http://localhost/ pm-enable raptor_omega
+drush -y -l http://localhost/ vset theme_default raptor_omega
+drush -y -l http://localhost/ omega-export raptor_omega
+# copy Drupal as RSite500 and configure to use the raptor500 database
+cd /var/www
+sudo cp -R html RSite500
+sudo mv RSite500 html/
+
+# configure RSite500
+sudo cp /vagrant/provision/settings500.php /var/www/html/RSite500/sites/default/settings.php
+sudo chmod 664 /var/www/html/RSite500/sites/default/settings.php
+
+# I'm sure ownership is borked from all the sudo commands...
+sudo chown -R www-data:www-data /var/www
+
+
 # EWD and EWD Federator ############################################################
 # 
 

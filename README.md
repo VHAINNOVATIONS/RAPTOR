@@ -45,4 +45,18 @@ http://<ip address of provisioned system>/
 username: admin
 password: raptor1!
 
+Raptor Site (default site is 500)
+http://<ip address of provisioned system>/RSite500/user/login
+username: admin
+password: apass
+
+Configuration
+-------------
+The following values may be changed to suit your environment:
+
+If you have a vista system with a very long workload listing, this value can be adjusted to make the worklist more managable:
+```
+OLDEST_WORKLIST_TICKET_ID = 30000
+```
+
 
