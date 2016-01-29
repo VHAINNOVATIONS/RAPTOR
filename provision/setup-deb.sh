@@ -48,14 +48,15 @@ sudo service apache2 restart
 # DRUPAL 7 #########################################################################
 #
 
-wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
+# wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
+wget http://ftp.drupal.org/files/projects/drupal-7.32.tar.gz
 tar xzvf drupal*
 cd drupal*
-sudo rsync -avz . /var/www/html
+sudo rsync -avz . /var/www/html/RAPTOR/
 
-mkdir /var/www/html/sites/default/files
-cp /vagrant/provision/settings.php /var/www/html/sites/default/settings.php
-chmod 664 /var/www/html/sites/default/settings.php
+mkdir /var/www/html/RAPTOR/sites/default/files
+cp /vagrant/provision/settings.php /var/www/html/RAPTOR/sites/default/settings.php
+chmod 664 /var/www/html/RAPTOR/sites/default/settings.php
 sudo chown -R www-data:www-data /var/www
 
 # RAPTOR Application ###############################################################
@@ -67,47 +68,48 @@ mysql -u root -praptor1! -h localhost -e "create user raptoruser@localhost ident
 mysql -u root -praptor1! -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost; flush privileges;"
 
 # copy RAPTOR modules and themes to drupal installation
-sudo cp -R /vagrant/modules/* /var/www/html/sites/all/modules/
-sudo cp -R /vagrant/themes/* /var/www/html/sites/all/themes/
+sudo cp -R /vagrant/modules/* /var/www/html/RAPTOR/sites/all/modules/
+sudo cp -R /vagrant/themes/* /var/www/html/RAPTOR/sites/all/themes/
 
-# enable RAPTOR Modules
-sudo apt-get install drush
-cd /var/www/html/sites/all/modules/
-drush -y en raptor_contraindications 
-drush -y en raptor_graph
-drush -y en raptor_workflow
-drush -y en raptor_datalayer
-drush -y en raptor_imageviewing
-drush -y en raptor_ewdvista
-drush -y en raptor_mdwsvista
-drush -y en simplerulesengine_core
-drush -y en raptor_floatingdialog
-drush -y en raptor_protocollib
-drush -y en simplerulesengine_demo
-drush -y en raptor_formulas
-drush -y en raptor_reports
-drush -y en simplerulesengine_ui
-drush -y en raptor_glue
-drush -y en raptor_scheduling
-
-# enable and set raptor theme 
-cd /var/www/html/sites/all/themes/
-drush -y -l http://localhost/ pm-enable omega
-drush -y -l http://localhost/ pm-enable raptor_omega
-drush -y -l http://localhost/ vset theme_default raptor_omega
-drush -y -l http://localhost/ omega-export raptor_omega
 # copy Drupal as RSite500 and configure to use the raptor500 database
-cd /var/www
-sudo cp -R html RSite500
-sudo mv RSite500 html/
+cd /var/www/html
+sudo cp -R RAPTOR RSite500
 
-# configure RSite500
+# configure RSite500 to use raptor500 database
 sudo cp /vagrant/provision/settings500.php /var/www/html/RSite500/sites/default/settings.php
 sudo chmod 664 /var/www/html/RSite500/sites/default/settings.php
 
 # I'm sure ownership is borked from all the sudo commands...
 sudo chown -R www-data:www-data /var/www
 
+# enable RAPTOR Modules
+sudo apt-get install -y drush
+cd /var/www/html/RSite500/sites/all/modules/
+#drush -y en raptor_contraindications 
+#drush -y en raptor_graph
+#drush -y en raptor_workflow
+#drush -y en raptor_datalayer
+#drush -y en raptor_imageviewing
+#drush -y en raptor_ewdvista
+#drush -y en raptor_mdwsvista
+#drush -y en simplerulesengine_core
+#drush -y en raptor_floatingdialog
+#drush -y en raptor_protocollib
+#drush -y en simplerulesengine_demo
+#drush -y en raptor_formulas
+#drush -y en raptor_reports
+#drush -y en simplerulesengine_ui
+#drush -y en raptor_glue
+#drush -y en raptor_scheduling
+
+drush -y en raptor_contraindications raptor_graph raptor_workflow raptor_datalayer raptor_imageviewing raptor_ewdvista raptor_mdwsvista simplerulesengine_core raptor_floatingdialog raptor_protocollib simplerulesengine_demo raptor_formulas raptor_reports simplerulesengine_ui raptor_glue raptor_scheduling
+
+# enable and set raptor theme 
+cd /var/www/html/RSite500/sites/all/themes/
+drush -y -l http://localhost/RSite500/ pm-enable omega
+drush -y -l http://localhost/RSite500/ pm-enable raptor_omega
+drush -y -l http://localhost/RSite500/ vset theme_default raptor_omega
+drush -y -l http://localhost/RSite500/ omega-export raptor_omega
 
 # EWD and EWD Federator ############################################################
 # 
@@ -121,6 +123,6 @@ sudo npm -g install bower
 # cp /vagrant/provision/test.pl /var/www/html/
 # sudo chmod a+x /var/www/html/test.pl
 #curl -Gk https://localhost/test.pl --insecure
-#cd /vagrant/
-#perl provision/install-difr.pl
-#echo open your browser to https://localhost:8081/app.pl
+
+echo The root installation is here: http://192.168.33.11/RAPTOR/ 
+echo Raptor test site is here: https://192.168.33.11/RSite500/

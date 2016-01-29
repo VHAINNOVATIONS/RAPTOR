@@ -7,8 +7,11 @@ Vagrant.configure("2") do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "Official Ubuntu 12.04 current daily Cloud Image amd64"
-  config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box"
+  # config.vm.box = "Official Ubuntu 12.04 current daily Cloud Image amd64"
+  # config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box"
+
+  config.vm.box = "CentOS 6.7 x64 (Minimal, Puppet 4.2.3, Guest Additions 4.3.30)"
+  config.vm.box_url = "https://github.com/CommanderK5/packer-centos-template/releases/download/0.6.7/vagrant-centos-6.7.box"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
@@ -41,7 +44,7 @@ Vagrant.configure("2") do |config|
   # Define primary box name for all VM providers
   # More VMs could be added here to build a multi-box install and provision
   # accordingly
-  config.vm.define "VHA RAPTOR - Ubuntu", primary: true do |vista|
+  config.vm.define "VHA RAPTOR", primary: true do |vista|
   end
 
   # Amazon EC2 configuration
@@ -52,7 +55,7 @@ Vagrant.configure("2") do |config|
     aws.ami = "ami-d9a98cb0"
     aws.instance_type = "t1.micro"
     override.vm.box = "dummy"
-    override.ssh.username = "ubuntu"
+    override.ssh.username = "ec2-user"
     override.ssh.private_key_path = ENV['AWS_PRIVATE_KEY']
   end
 
@@ -61,7 +64,7 @@ Vagrant.configure("2") do |config|
     rs.username = ENV['RS_USERNAME']
     rs.api_key = ENV['RS_API_KEY']
     rs.flavor = /512MB/
-    rs.image = /Ubuntu 12.04/
+    rs.image = /CentOS 6.7/
     rs.rackspace_region = :ord
     rs.public_key_path = ENV['RS_PUBLIC_KEY']
     override.ssh.private_key_path = ENV['RS_PRIVATE_KEY']
@@ -145,7 +148,7 @@ Vagrant.configure("2") do |config|
   #
   
   config.vm.provision :shell do |s|
-    s.path = "provision/setup-deb.sh"
+    s.path = "provision/setup.sh"
     s.args = "-e -i " + "#{ENV['instance']}"
   end
 end
