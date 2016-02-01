@@ -10,6 +10,7 @@ Dependencies
 - Apache2/IIS
 - MySQL
 - PHP5
+    - php-soap mbstring
 - Drupal 7
 - Node.js
 - EWD.js
@@ -41,12 +42,12 @@ vagrant up --provider=aws
 Credentials
 -----------
 Drupal 7
-http://<ip address of provisioned system>/
+http://192.168.33.11/RAPTOR/
 username: admin
 password: raptor1!
 
 Raptor Site (default site is 500)
-http://<ip address of provisioned system>/RSite500/user/login
+http://192.168.33.11/RSite500/user/login
 username: admin
 password: apass
 

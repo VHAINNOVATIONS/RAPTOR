@@ -52,10 +52,11 @@ sudo service apache2 restart
 wget http://ftp.drupal.org/files/projects/drupal-7.32.tar.gz
 tar xzvf drupal*
 cd drupal*
+sudo mkdir /var/www/html/RAPTOR
 sudo rsync -avz . /var/www/html/RAPTOR/
 
-mkdir /var/www/html/RAPTOR/sites/default/files
-cp /vagrant/provision/settings.php /var/www/html/RAPTOR/sites/default/settings.php
+sudo mkdir /var/www/html/RAPTOR/sites/default/files
+sudo cp /vagrant/provision/settings.php /var/www/html/RAPTOR/sites/default/settings.php
 chmod 664 /var/www/html/RAPTOR/sites/default/settings.php
 sudo chown -R www-data:www-data /var/www
 

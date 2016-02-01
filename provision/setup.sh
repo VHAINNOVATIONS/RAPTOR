@@ -56,7 +56,7 @@ wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
 # maybe better to wget the rpm's instead and put them in /vagrant/provision to install
 # that way they will be available for a quicker install upon subsequent builds...
 sudo rpm -Uvh mysql-community-release-el6-5.noarch.rpm
-sudo yum -y install mysql mysql-server php-mysql php-soap
+sudo yum -y install mysql mysql-server php-mysql php-soap php-mbstring
 sudo rpm -qa | grep mysql
 sudo chkconfig mysqld on
 sudo service mysqld start
@@ -119,6 +119,9 @@ mysql -u root -praptor1! -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREA
 sudo cp -R /vagrant/modules/* /var/www/html/RAPTOR/sites/all/modules/
 sudo cp -R /vagrant/themes/* /var/www/html/RAPTOR/sites/all/themes/
 
+# create tmp folder 
+sudo mkdir /var/www/html/RAPTOR/sites/default/files/tmp
+
 # copy Drupal as RSite500 and configure to use the raptor500 database
 cd /var/www/html
 sudo cp -R RAPTOR RSite500
@@ -138,7 +141,7 @@ drush -y en raptor_contraindications raptor_graph raptor_workflow raptor_datalay
 cd /var/www/html/RSite500/sites/all/themes/
 drush -y -l http://localhost/RSite500/ pm-enable omega
 drush -y -l http://localhost/RSite500/ pm-enable raptor_omega
-drush -y -l http://localhost/RSite500/ vset theme_default raptor_omega
+# drush -y -l http://localhost/RSite500/ vset theme_default raptor_omega
 # drush -y -l http://localhost/RSite500/ omega-export raptor_omega
 
 # install Nodejs and Development Tools such as gcc & make
