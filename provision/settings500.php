@@ -218,7 +218,7 @@ $databases = array (
     'default' => 
     array (
       'database' => 'raptor500',
-      'username' => 'raptoruser',
+      'username' => 'root',
       'password' => 'raptor1!',
       'host' => 'localhost',
       'port' => '',

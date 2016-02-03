@@ -72,17 +72,17 @@ mysql -u root -p"$DATABASE_PASS" -e "UPDATE mysql.user SET Password=PASSWORD('$D
 mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')"
 mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.user WHERE User=''"
 mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db='test\_%'"
-mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
 
-# set up database for drupal
+# set up database for Drupal 7
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "create database raptor500;"
 # add standard tables from a clean installation of Drupal 7
 mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/drupal.sql
 # add RAPTOR specific tables
 mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/raptor_tables.sql
 # add RAPTOR database user and assign access
-mysql -u root -p"$DATABASE_PASS" -h localhost -e "create user raptoruser@localhost identified by 'raptor1!'"
-mysql -u root -p"$DATABASE_PASS" -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost; flush privileges;"
+mysql -u root -p"$DATABASE_PASS" -h localhost -e "create user raptoruser@localhost identified by '$DATABASE_PASS';"
+mysql -u root -p"$DATABASE_PASS" -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost;"
+mysql -u root -p"$DATABASE_PASS" -h localhost -e "FLUSH PRIVILEGES;"
 
 # DRUPAL 7 #########################################################################
 #
@@ -106,8 +106,8 @@ sudo mv drush.phar /usr/local/bin/drush
 
 # Get Drupal 7 ##############################################
 
-wget http://ftp.drupal.org/files/projects/drupal-7.30.tar.gz
-# wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
+#wget http://ftp.drupal.org/files/projects/drupal-7.30.tar.gz
+wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
 tar xzvf drupal*
 cd drupal*
 sudo mkdir /var/www/html/RSite500
@@ -131,6 +131,12 @@ sudo mkdir /var/www/html/RSite500/sites/default/files/tmp
 sudo cp /vagrant/provision/settings500.php /var/www/html/RSite500/sites/default/settings.php
 sudo chmod 664 /var/www/html/RSite500/sites/default/settings.php
 
+# set permissions so vagrant has access to write
+sudo chown vagrant -R /var/www/html/RSite500
+
+# remove the $ from the end of this file which causes drush to fail
+sudo sed -i '$ d' /root/.drush/drushrc.php
+
 # enable RAPTOR Modules
 cd /var/www/html/RSite500/sites/all/modules/
 /usr/local/bin/drush -y en raptor_contraindications raptor_graph raptor_workflow raptor_datalayer raptor_imageviewing raptor_ewdvista raptor_mdwsvista simplerulesengine_core raptor_floatingdialog raptor_protocollib simplerulesengine_demo raptor_formulas raptor_reports simplerulesengine_ui raptor_glue raptor_scheduling
@@ -144,8 +150,6 @@ sudo chown -R apache /var/www/html/RSite500/sites/all/themes/omega/omega
 
 # enable and set raptor theme
 cd /var/www/html/RSite500/sites/all/themes/
-
-# drush -y -l http://localhost/RSite500/ pm-enable omega
 /usr/local/bin/drush -y -l http://localhost/RSite500/ pm-enable raptor_omega
 # drush -y -l http://localhost/RSite500/ vset theme_default raptor_omega
 # drush -y -l http://localhost/RSite500/ omega-export raptor_omega
