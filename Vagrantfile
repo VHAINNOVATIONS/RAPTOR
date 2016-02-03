@@ -44,7 +44,7 @@ Vagrant.configure("2") do |config|
   # Define primary box name for all VM providers
   # More VMs could be added here to build a multi-box install and provision
   # accordingly
-  config.vm.define "VHA RAPTOR", primary: true do |vista|
+  config.vm.define "RAPTOR", primary: true do |vista|
   end
 
   # Amazon EC2 configuration

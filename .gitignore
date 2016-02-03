@@ -5,6 +5,7 @@ nbproject
 modules/*
 themes/*
 libraries/*
+provision/bower_components
 
 # ignore hidden vagrant folder
 .vagrant

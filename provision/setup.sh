@@ -35,6 +35,11 @@ echo installing apache, php, and other tidbits
 sudo yum -y install vim zip unzip wget drush httpd php php-gd php-mcrypt php-curl
 sudo chkconfig httpd on
 
+# install Nodejs and Development Tools such as gcc & make
+sudo yum -y groupinstall 'Development Tools'
+sudo yum -y install nodejs npm
+sudo npm -g install bower
+
 # copy php.ini from provision folder to prepare for Drupal 7
 # 'expose_php' and 'allow_url_fopen' will be set to 'Off'
 sudo cp /vagrant/provision/php.ini /etc/
@@ -51,12 +56,13 @@ sudo service httpd start
 #
 echo install mysql
 echo -------------
+cd
 wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
 # note:
 # maybe better to wget the rpm's instead and put them in /vagrant/provision to install
 # that way they will be available for a quicker install upon subsequent builds...
 sudo rpm -Uvh mysql-community-release-el6-5.noarch.rpm
-sudo yum -y install mysql mysql-server php-mysql php-soap php-mbstring
+sudo yum -y install mysql mysql-server php-mysql php-soap php-mbstring php-dom php-xml rsync
 sudo rpm -qa | grep mysql
 sudo chkconfig mysqld on
 sudo service mysqld start
@@ -69,17 +75,22 @@ mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db=
 mysql -u root -p"$DATABASE_PASS" -e "FLUSH PRIVILEGES"
 
 # set up database for drupal
-mysql -u root -p"$DATABASE_PASS" -h localhost -e "create database drupal"
-mysql -u root -p"$DATABASE_PASS" -h localhost drupal < /vagrant/provision/drupal.sql
-mysql -u root -p"$DATABASE_PASS" -h localhost -e "create user drupaluser@localhost identified by 'drupal1!'"
-mysql -u root -p"$DATABASE_PASS" -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON drupal.* TO drupaluser@localhost; flush privileges;"
+mysql -u root -p"$DATABASE_PASS" -h localhost -e "create database raptor500;"
+# add standard tables from a clean installation of Drupal 7
+mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/drupal.sql
+# add RAPTOR specific tables
+mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/raptor_tables.sql
+# add RAPTOR database user and assign access
+mysql -u root -p"$DATABASE_PASS" -h localhost -e "create user raptoruser@localhost identified by 'raptor1!'"
+mysql -u root -p"$DATABASE_PASS" -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost; flush privileges;"
 
 # DRUPAL 7 #########################################################################
 #
 
-# Install Drush ######
+# Install Drush ###########################################
 
 # Download latest stable release using the code below or browse to github.com/drush-ops/drush/releases.
+cd
 wget http://files.drush.org/drush.phar
 # Or use our upcoming release: wget http://files.drush.org/drush-unstable.phar  
 
@@ -91,59 +102,59 @@ sudo chmod +x drush.phar
 sudo mv drush.phar /usr/local/bin/drush
 
 # Enrich the bash startup file with completion and aliases.
-drush init
+/usr/local/bin/drush -y init
 
-# Get Drupal 7 ######
+# Get Drupal 7 ##############################################
 
-# wget http://ftp.drupal.org/files/projects/drupal-7.32.tar.gz
-wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
+wget http://ftp.drupal.org/files/projects/drupal-7.30.tar.gz
+# wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
 tar xzvf drupal*
 cd drupal*
-sudo mkdir /var/www/html/RAPTOR
-sudo rsync -avz . /var/www/html/RAPTOR/
+sudo mkdir /var/www/html/RSite500
+sudo rsync -avz . /var/www/html/RSite500/
+sudo mkdir /var/www/html/RSite500/sites/default/files
 
-sudo mkdir /var/www/html/RAPTOR/sites/default/files
-sudo cp /vagrant/provision/settings.php /var/www/html/RAPTOR/sites/default/settings.php
-sudo chmod 664 /var/www/html/RAPTOR/sites/default/settings.php
-sudo chown -R apache:apache /var/www
-
-# RAPTOR Application ###############################################################
-#
-# setup database for RAPTOR (raptor500)
-mysql -u root -praptor1! -h localhost -e "create database raptor500"
-mysql -u root -praptor1! -h localhost raptor500 < /vagrant/miscellaneous/raptor500.sql
-mysql -u root -praptor1! -h localhost -e "create user raptoruser@localhost identified by 'raptor1!'"
-mysql -u root -praptor1! -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost; flush privileges;"
+# RAPTOR Application ########################################
 
 # copy RAPTOR modules and themes to drupal installation
-sudo cp -R /vagrant/modules/* /var/www/html/RAPTOR/sites/all/modules/
-sudo cp -R /vagrant/themes/* /var/www/html/RAPTOR/sites/all/themes/
+sudo cp -R /vagrant/modules/* /var/www/html/RSite500/sites/all/modules/
+sudo cp -R /vagrant/themes/* /var/www/html/RSite500/sites/all/themes/
 
 # create tmp folder 
-sudo mkdir /var/www/html/RAPTOR/sites/default/files/tmp
+sudo mkdir /var/www/html/RSite500/sites/default/files/tmp
 
-# copy Drupal as RSite500 and configure to use the raptor500 database
-cd /var/www/html
-sudo cp -R RAPTOR RSite500
+## copy Drupal as RSite500 and configure to use the raptor500 database
+#cd /var/www/html
+#sudo cp -R drupal RSite500
 
 # configure RSite500 to use raptor500 database
 sudo cp /vagrant/provision/settings500.php /var/www/html/RSite500/sites/default/settings.php
 sudo chmod 664 /var/www/html/RSite500/sites/default/settings.php
 
-# I'm sure ownership is borked from all the sudo commands...
-sudo chown -R apache:apache /var/www
-
 # enable RAPTOR Modules
 cd /var/www/html/RSite500/sites/all/modules/
-drush -y en raptor_contraindications raptor_graph raptor_workflow raptor_datalayer raptor_imageviewing raptor_ewdvista raptor_mdwsvista simplerulesengine_core raptor_floatingdialog raptor_protocollib simplerulesengine_demo raptor_formulas raptor_reports simplerulesengine_ui raptor_glue raptor_scheduling
+/usr/local/bin/drush -y en raptor_contraindications raptor_graph raptor_workflow raptor_datalayer raptor_imageviewing raptor_ewdvista raptor_mdwsvista simplerulesengine_core raptor_floatingdialog raptor_protocollib simplerulesengine_demo raptor_formulas raptor_reports simplerulesengine_ui raptor_glue raptor_scheduling
 
-# enable and set raptor theme 
+# automatically download the front-end libraries used by Omega
+cd /var/www/html/RSite500/sites/all/themes/omega/omega
+sudo chown -R vagrant /var/www/html/RSite500/sites/all/themes/omega/omega
+/usr/local/bin/drush -y make libraries.make --no-core --contrib-destination=.
+sudo chmod a+rx /var/www/html/RSite500/sites/all/themes/omega/omega/libraries
+sudo chown -R apache /var/www/html/RSite500/sites/all/themes/omega/omega
+
+# enable and set raptor theme
 cd /var/www/html/RSite500/sites/all/themes/
-drush -y -l http://localhost/RSite500/ pm-enable omega
-drush -y -l http://localhost/RSite500/ pm-enable raptor_omega
+
+# drush -y -l http://localhost/RSite500/ pm-enable omega
+/usr/local/bin/drush -y -l http://localhost/RSite500/ pm-enable raptor_omega
 # drush -y -l http://localhost/RSite500/ vset theme_default raptor_omega
 # drush -y -l http://localhost/RSite500/ omega-export raptor_omega
 
-# install Nodejs and Development Tools such as gcc & make
-sudo yum -y groupinstall 'Development Tools'
-sudo yum -y install nodejs npm
+# I'm sure ownership is borked from all the sudo commands...
+sudo chown -R apache:apache /var/www
+
+# restart apache so all php modules are loaded...
+sudo service httpd restart
+
+echo RAPTOR is now installed to a test instance for site 500
+echo Browse to: http://192.168.33.11/RSite500/

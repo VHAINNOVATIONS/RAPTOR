@@ -10,12 +10,23 @@ Dependencies
 - Apache2/IIS
 - MySQL
 - PHP5
-    - php-soap mbstring
+    - php-soap
+    - php-dom
+    - php-xml 
+    - mbstring
 - Drupal 7
+    - omega theme
+        - selectivizr.min.js
+        - html5shiv.min.js
+        - html5shiv-printshiv.min.js
+        - respond.min.js
+        - raptor_omega theme
 - Node.js
 - EWD.js
 - Intersystems Cache'
 - VistA
+    - Raptor specific KIDs builds
+    - EWD integration
 
 Prerequisites
 -------------
@@ -41,15 +52,10 @@ vagrant up --provider=aws
 
 Credentials
 -----------
-Drupal 7
-http://192.168.33.11/RAPTOR/
+Raptor Site (default site is 500)
+http://192.168.33.11/RSite500/
 username: admin
 password: raptor1!
-
-Raptor Site (default site is 500)
-http://192.168.33.11/RSite500/user/login
-username: admin
-password: apass
 
 Configuration
 -------------
