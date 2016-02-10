@@ -26,6 +26,11 @@ Vagrant.configure("2") do |config|
   # config.vm.network :forwarded_port, guest: 8000, host: 8000 # EWD.js Webservices
   # config.vm.network :forwarded_port, guest: 8081, host: 8081 # EWD VistA Term
 
+  # cache specific   
+  # config.vm.network :forwarded_port, guest: 57772, host: 57772 # System Management Portal
+  # config.vm.network :forwarded_port, guest: 1972, host: 1972 # SuperServer    
+
+
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
   config.vm.network :private_network, ip: "192.168.33.11"
