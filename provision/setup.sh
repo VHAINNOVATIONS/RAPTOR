@@ -195,13 +195,23 @@ else
   fi
 fi
 
+# stop cache before we move database 
+sudo /etc/init.d/cache stop 
 echo "Copying CACHE.DAT to /usr/cachesys/mgr/cache/"
 echo "This will take a while... Get some coffee or a cup of tea..."
-sudo mkdir -p /usr/cachesys/mgr/cacheinv/stream
+sudo mkdir -p /usr/cachesys/mgr/cacheinv
 sudo cp /vagrant/provision/cache/CACHE.DAT /usr/cachesys/mgr/cacheinv/
 echo "Setting permissions on database."
 sudo chown -R root:cacheserver /usr/cachesys/mgr/cacheinv 
 # missing steps
+echo "Copying cache.cpf"
+sudo cp /vagrant/provision/cache/cache.cpf /usr/cachesys/
+
+# create user for terminal access to VistA
+sudo adduser vista 
+echo vista | sudo passwd vista --stdin 
+sudo usermod -a -G cacheserver vista 
+sudo cp /vagrant/provision/cache/.bashrc /home/vista/
 
 # start cache 
 sudo /etc/init.d/cache start 

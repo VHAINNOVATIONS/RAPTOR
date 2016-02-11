@@ -10,7 +10,7 @@ libraries/*
 .vagrant
 
 # ignore cache installer and database
-/vagrant/provision/cache/*
+provision/cache/*
 
 #Except these things...
 !.gitignore
