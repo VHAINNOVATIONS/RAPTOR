@@ -1,7 +1,12 @@
 #!/bin/bash -xi
 # set up base box through vagrant file with these commands
+cacheInstallerPath=/vagrant/provision/cache 
+cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+parametersIsc=parameters.isc 
+cacheDatabase=/VISTA.zip
+cacheInstallTargetPath=/srv 
 
-# disable selinux ############################
+# disable selinux ###################
 #
 echo disabling ipv4 firewall
 echo -----------------------
@@ -19,7 +24,7 @@ sudo chkconfig ip6tables off
 echo checking that it is disabled
 /sbin/ip6tables -L -v -n
 
-# install EPEL and REMI Repos ##########################
+# install EPEL and REMI Repos ##################
 #
 echo installing epel-release and remi for CentOS/RHEL 6
 echo --------------------------------------------------
@@ -32,13 +37,13 @@ sudo cp /vagrant/provision/remi.repo /etc/yum.repos.d/
 # Install Apache, PHP, and other tidbits ##############
 #
 echo installing apache, php, and other tidbits
-sudo yum -y install vim zip unzip wget drush httpd php php-gd php-mcrypt php-curl
+sudo yum -y install parted vim zip unzip wget drush httpd php php-gd php-mcrypt php-curl
 sudo chkconfig httpd on
 
 # install Nodejs and Development Tools such as gcc & make
 sudo yum -y groupinstall 'Development Tools'
 sudo yum -y install nodejs npm
-sudo npm -g install bower
+# sudo npm -g install bower
 
 # copy php.ini from provision folder to prepare for Drupal 7
 # 'expose_php' and 'allow_url_fopen' will be set to 'Off'
@@ -52,7 +57,7 @@ sudo service httpd start
 #echo -------------------
 #sudo yum update
 
-# Install MySQL ###############################
+# Install MySQL ######################
 #
 echo install mysql
 echo -------------
@@ -84,10 +89,10 @@ mysql -u root -p"$DATABASE_PASS" -h localhost -e "create user raptoruser@localho
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost;"
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "FLUSH PRIVILEGES;"
 
-# DRUPAL 7 #########################################################################
+# DRUPAL 7 ################################
 #
 
-# Install Drush ###########################################
+# Install Drush ###########################
 
 # Download latest stable release using the code below or browse to github.com/drush-ops/drush/releases.
 cd
@@ -104,7 +109,7 @@ sudo mv drush.phar /usr/local/bin/drush
 # Enrich the bash startup file with completion and aliases.
 /usr/local/bin/drush -y init
 
-# Get Drupal 7 ##############################################
+# Get Drupal 7 ###########################
 
 #wget http://ftp.drupal.org/files/projects/drupal-7.30.tar.gz
 wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
@@ -114,7 +119,7 @@ sudo mkdir /var/www/html/RSite500
 sudo rsync -avz . /var/www/html/RSite500/
 sudo mkdir /var/www/html/RSite500/sites/default/files
 
-# RAPTOR Application ########################################
+# RAPTOR Application #####################
 
 # copy RAPTOR modules and themes to drupal installation
 sudo cp -R /vagrant/modules/* /var/www/html/RSite500/sites/all/modules/
@@ -159,6 +164,100 @@ sudo chown -R apache:apache /var/www
 
 # restart apache so all php modules are loaded...
 sudo service httpd restart
+
+# Intersystems Cache installation ################
+#cacheInstallerPath=/vagrant/provision/cache 
+#cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+#parametersIsc=parameters.isc 
+#cacheDatabase=VISTA.zip
+#cacheInstallTargetPath=/srv 
+
+# create user for terminal access to VistA and group used for cache
+sudo adduser vista 
+echo vista | sudo passwd vista --stdin 
+sudo adduser cache 
+echo cache | sudo passwd vistagold --stdin 
+# sudo groupadd cacheusr
+sudo usermod -a -G cacheusr vista 
+sudo cp /vagrant/provision/cache/.bashrc /home/vista/
+
+if [ -e "$cacheInstallerPath/$cacheInstaller" ]
+then
+  echo "Installing Cache from: $cacheInstaller"
+  # sudo yum -y install /vagrant/provision/cache/$cacheInstaller
+  # install from tar.gz 
+  # cache-2014.1.3.775.14809-lnxrhx64.tar.gz  
+  sudo mkdir -p $cacheInstallTargetPath/tmp
+  cd $cacheInstallTargetPath/tmp
+  sudo cp $cacheInstallerPath/$cacheInstaller .
+  sudo tar -xzvf $cacheInstaller   
+
+  # install from parameters file
+  sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
+
+  iptables -I INPUT 1 -p tcp --dport 57772 -j ACCEPT # System Management Portal
+  iptables -I INPUT 1 -p tcp --dport 1972  -j ACCEPT # SuperServer    
+  # start Cache
+  # sudo /etc/init.d/cache start
+else
+  echo "You are missing: $cacheInstaller"
+  echo "You cannot provision this system until you have downloaded Intersystems Cache"
+  echo "in 64-bit tar.gz format and placed it under the provision/cache folder."
+  exit 
+fi
+
+## add disk to store CACHE.DAT was sdb 
+#parted /dev/sdb mklabel msdos
+#parted /dev/sdb mkpart primary 0 100%
+#mkfs.xfs /dev/sdb1
+#mkdir /srv
+#echo `blkid /dev/sdb1 | awk '{print$2}' | sed -e 's/"//g'` /srv   xfs   noatime,nobarrier   0   0 >> /etc/fstab
+#mount /srv
+
+# check for cache.dat and put it where it goes
+if [ -e "$cacheInstallerPath/VISTA/CACHE.DAT" ]
+then
+  echo "CACHE.DAT has already been unzipped..."
+else
+  if [ -e "$cacheInstallerPath/$cacheDatabase" ]
+  then
+    cd $cacheInstallerPath
+    echo "Unzipping $cacheDatabase..."
+    unzip $cacheDatabase
+  else
+    echo "$cacheDatabase is missing.  Download from FTL and place it under"
+    echo "provision/cache folder."
+    exit
+  fi
+fi
+
+
+
+# stop cache before we move database 
+sudo ccontrol stop cache 
+echo "Copying CACHE.DAT to /srv/mgr/"
+echo "This will take a while... Get some coffee or a cup of tea..."
+sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA
+sudo cp -R $cacheInstallerPath/VISTA/CACHE.DAT /srv/mgr/VISTA/
+echo "Setting permissions on database."
+sudo chown -R cache:cacheusr /srv/mgr/VISTA
+sudo chmod 775 /srv/mgr/VISTA 
+sudo chmod 660 /srv/mgr/VISTA/CACHE.DAT
+# missing steps
+echo "Copying cache.cpf"
+sudo cp $cacheInstallerPath/cache.cpf $cacheInstallerTargetPath/
+
+
+# start cache 
+# sudo /etc/init.d/cache start 
+sudo ccontrol start cache 
+# EWD.js installation ############################
+echo VistA is now installed.  CSP is here:
+echo http://192.168.33.11:57772/csp/sys/UtilHome.csp
+echo username: cache password: vistagold 
+# EWD Federator installation #####################
+
+
 
 echo RAPTOR is now installed to a test instance for site 500
 echo Browse to: http://192.168.33.11/RSite500/

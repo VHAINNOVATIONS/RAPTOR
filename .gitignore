@@ -9,6 +9,9 @@ libraries/*
 # ignore hidden vagrant folder
 .vagrant
 
+# ignore cache installer and database
+provision/cache/*
+
 #Except these things...
 !.gitignore
 !EWDJSvistalayer

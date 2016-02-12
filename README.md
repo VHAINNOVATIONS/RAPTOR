@@ -12,7 +12,7 @@ Dependencies
 - PHP5
     - php-soap
     - php-dom
-    - php-xml 
+    - php-xml
     - mbstring
 - Drupal 7
     - omega theme
@@ -65,55 +65,18 @@ If you have a vista system with a very long workload listing, this value can be 
 ```
 OLDEST_WORKLIST_TICKET_ID = 30000
 ```
+
 Troubleshooting
 ---------------
-If you see the following error messages in the Vagrant output:
-```
-==> RAPTOR: + /usr/local/bin/drush -y en raptor_contraindications raptor_graph raptor_workflow raptor_datalayer raptor_i
-mageviewing raptor_ewdvista raptor_mdwsvista simplerulesengine_core raptor_floatingdialog raptor_protocollib simplerules
-engine_demo raptor_formulas raptor_reports simplerulesengine_ui raptor_glue raptor_scheduling
-==> RAPTOR: Drush command terminated abnormally due to an unrecoverable error.       [error]
-==> RAPTOR: Error: syntax error, unexpected end of file, expecting variable
-==> RAPTOR: (T_VARIABLE) or '$' in /root/.drush/drushrc.php, line 292
-==> RAPTOR: + cd /var/www/html/RSite500/sites/all/themes/omega/omega
-==> RAPTOR: + sudo chown -R vagrant /var/www/html/RSite500/sites/all/themes/omega/omega
-==> RAPTOR: + /usr/local/bin/drush -y make libraries.make --no-core --contrib-destination=.
-==> RAPTOR: Drush command terminated abnormally due to an unrecoverable error.       [error]
-==> RAPTOR: Error: syntax error, unexpected end of file, expecting variable
-==> RAPTOR: (T_VARIABLE) or '$' in /root/.drush/drushrc.php, line 292
-==> RAPTOR: + sudo chmod a+rx /var/www/html/RSite500/sites/all/themes/omega/omega/libraries
-==> RAPTOR: chmod:
-==> RAPTOR: cannot access `/var/www/html/RSite500/sites/all/themes/omega/omega/libraries'
-==> RAPTOR: : No such file or directory
-==> RAPTOR: + sudo chown -R apache /var/www/html/RSite500/sites/all/themes/omega/omega
-==> RAPTOR: + cd /var/www/html/RSite500/sites/all/themes/
-==> RAPTOR: + /usr/local/bin/drush -y -l http://localhost/RSite500/ pm-enable raptor_omega
-==> RAPTOR: Drush command terminated abnormally due to an unrecoverable error.       [error]
-==> RAPTOR: Error: syntax error, unexpected end of file, expecting variable
-==> RAPTOR: (T_VARIABLE) or '$' in /root/.drush/drushrc.php, line 292
-```
+You must have a non demo version of cache and a valid license key otherwise
+you will get the following:
 
-Run the following commands:
-```
-vagrant ssh
+Crash on D ^ZU
 
-# enable RAPTOR Modules
-cd /var/www/html/RSite500/sites/all/modules/
-/usr/local/bin/drush -y en raptor_contraindications raptor_graph raptor_workflow raptor_datalayer raptor_imageviewing raptor_ewdvista raptor_mdwsvista simplerulesengine_core raptor_floatingdialog raptor_protocollib simplerulesengine_demo raptor_formulas raptor_reports simplerulesengine_ui raptor_glue raptor_scheduling
+ref: https://www.mail-archive.com/hardhats-members@lists.sourceforge.net/msg01755.html 
 
-# automatically download the front-end libraries used by Omega
-cd /var/www/html/RSite500/sites/all/themes/omega/omega
-sudo chown -R vagrant /var/www/html/RSite500/sites/all/themes/omega/omega
-/usr/local/bin/drush -y make libraries.make --no-core --contrib-destination=.
-sudo chmod a+rx /var/www/html/RSite500/sites/all/themes/omega/omega/libraries
-sudo chown -R apache /var/www/html/RSite500/sites/all/themes/omega/omega
-
-# enable and set raptor theme
-cd /var/www/html/RSite500/sites/all/themes/
-/usr/local/bin/drush -y -l http://localhost/RSite500/ pm-enable raptor_omega
-# drush -y -l http://localhost/RSite500/ vset theme_default raptor_omega
-# drush -y -l http://localhost/RSite500/ omega-export raptor_omega
-
-# I'm sure ownership is borked from all the sudo commands...
-sudo chown -R apache:apache /var/www
-```
+> VistA logon (the ZU program) displays
+>         "** TROUBLE ** - ** CALL IRM NOW! **"
+> if the number of available jobs drops below 3. For those of us with
+> small Cache licenses, this is a permanent condition, so you may decide
+> to edit the ZU program to change the threshold.
