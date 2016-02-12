@@ -1,8 +1,10 @@
 #!/bin/bash -xi
 # set up base box through vagrant file with these commands
-
-cacheInstaller=cache-server-2015.2.2.805.0su-1.rh.x86_64.rpm
-cacheDatabase=CACHE_CPRS_30.zip
+cacheInstallerPath=/vagrant/provision/cache 
+cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+parametersIsc=parameters.isc 
+cacheDatabase=/VISTA.zip
+cacheInstallTargetPath=/srv 
 
 # disable selinux ###################
 #
@@ -35,7 +37,7 @@ sudo cp /vagrant/provision/remi.repo /etc/yum.repos.d/
 # Install Apache, PHP, and other tidbits ##############
 #
 echo installing apache, php, and other tidbits
-sudo yum -y install vim zip unzip wget drush httpd php php-gd php-mcrypt php-curl
+sudo yum -y install parted vim zip unzip wget drush httpd php php-gd php-mcrypt php-curl
 sudo chkconfig httpd on
 
 # install Nodejs and Development Tools such as gcc & make
@@ -164,60 +166,95 @@ sudo chown -R apache:apache /var/www
 sudo service httpd restart
 
 # Intersystems Cache installation ################
-if [ -e "/vagrant/provision/cache/$cacheInstaller" ]
+#cacheInstallerPath=/vagrant/provision/cache 
+#cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+#parametersIsc=parameters.isc 
+#cacheDatabase=VISTA.zip
+#cacheInstallTargetPath=/srv 
+
+# create user for terminal access to VistA and group used for cache
+sudo adduser vista 
+echo vista | sudo passwd vista --stdin 
+sudo adduser cache 
+echo cache | sudo passwd vistagold --stdin 
+# sudo groupadd cacheusr
+sudo usermod -a -G cacheusr vista 
+sudo cp /vagrant/provision/cache/.bashrc /home/vista/
+
+if [ -e "$cacheInstallerPath/$cacheInstaller" ]
 then
   echo "Installing Cache from: $cacheInstaller"
-  sudo yum -y install /vagrant/provision/cache/$cacheInstaller
+  # sudo yum -y install /vagrant/provision/cache/$cacheInstaller
+  # install from tar.gz 
+  # cache-2014.1.3.775.14809-lnxrhx64.tar.gz  
+  sudo mkdir -p $cacheInstallTargetPath/tmp
+  cd $cacheInstallTargetPath/tmp
+  sudo cp $cacheInstallerPath/$cacheInstaller .
+  sudo tar -xzvf $cacheInstaller   
+
+  # install from parameters file
+  sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
+
   iptables -I INPUT 1 -p tcp --dport 57772 -j ACCEPT # System Management Portal
   iptables -I INPUT 1 -p tcp --dport 1972  -j ACCEPT # SuperServer    
   # start Cache
-  sudo /etc/init.d/cache start
+  # sudo /etc/init.d/cache start
 else
   echo "You are missing: $cacheInstaller"
   echo "You cannot provision this system until you have downloaded Intersystems Cache"
-  echo "in 64-bit RPM format and placed it under the provision/cache folder."
+  echo "in 64-bit tar.gz format and placed it under the provision/cache folder."
   exit 
 fi
 
-if [ -e "/vagrant/provision/cache/CACHE.DAT" ]
+## add disk to store CACHE.DAT was sdb 
+#parted /dev/sdb mklabel msdos
+#parted /dev/sdb mkpart primary 0 100%
+#mkfs.xfs /dev/sdb1
+#mkdir /srv
+#echo `blkid /dev/sdb1 | awk '{print$2}' | sed -e 's/"//g'` /srv   xfs   noatime,nobarrier   0   0 >> /etc/fstab
+#mount /srv
+
+# check for cache.dat and put it where it goes
+if [ -e "$cacheInstallerPath/VISTA/CACHE.DAT" ]
 then
   echo "CACHE.DAT has already been unzipped..."
 else
-  if [ -e "/vagrant/provision/cache/$cacheDatabase" ]
+  if [ -e "$cacheInstallerPath/$cacheDatabase" ]
   then
-    cd /vagrant/provision/cache
+    cd $cacheInstallerPath
     echo "Unzipping $cacheDatabase..."
     unzip $cacheDatabase
   else
-    echo "CACHE_CPRS_30.zip is missing.  Download from FTL and place it under"
+    echo "$cacheDatabase is missing.  Download from FTL and place it under"
     echo "provision/cache folder."
     exit
   fi
 fi
 
+
+
 # stop cache before we move database 
-sudo /etc/init.d/cache stop 
-echo "Copying CACHE.DAT to /usr/cachesys/mgr/cache/"
+sudo ccontrol stop cache 
+echo "Copying CACHE.DAT to /srv/mgr/"
 echo "This will take a while... Get some coffee or a cup of tea..."
-sudo mkdir -p /usr/cachesys/mgr/cacheinv
-sudo cp /vagrant/provision/cache/CACHE.DAT /usr/cachesys/mgr/cacheinv/
+sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA
+sudo cp -R $cacheInstallerPath/VISTA/CACHE.DAT /srv/mgr/VISTA/
 echo "Setting permissions on database."
-sudo chown -R root:cacheserver /usr/cachesys/mgr/cacheinv 
+sudo chown -R cache:cacheusr /srv/mgr/VISTA
+sudo chmod 775 /srv/mgr/VISTA 
+sudo chmod 660 /srv/mgr/VISTA/CACHE.DAT
 # missing steps
 echo "Copying cache.cpf"
-sudo cp /vagrant/provision/cache/cache.cpf /usr/cachesys/
+sudo cp $cacheInstallerPath/cache.cpf $cacheInstallerTargetPath/
 
-# create user for terminal access to VistA
-sudo adduser vista 
-echo vista | sudo passwd vista --stdin 
-sudo usermod -a -G cacheserver vista 
-sudo cp /vagrant/provision/cache/.bashrc /home/vista/
 
 # start cache 
-sudo /etc/init.d/cache start 
-
+# sudo /etc/init.d/cache start 
+sudo ccontrol start cache 
 # EWD.js installation ############################
-
+echo VistA is now installed.  CSP is here:
+echo http://192.168.33.11:57772/csp/sys/UtilHome.csp
+echo username: cache password: vistagold 
 # EWD Federator installation #####################
 
 

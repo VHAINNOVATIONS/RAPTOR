@@ -10,8 +10,11 @@ Vagrant.configure("2") do |config|
   # config.vm.box = "Official Ubuntu 12.04 current daily Cloud Image amd64"
   # config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box"
 
-  config.vm.box = "CentOS 6.7 x64 (Minimal, Puppet 4.2.3, Guest Additions 4.3.30)"
-  config.vm.box_url = "https://github.com/CommanderK5/packer-centos-template/releases/download/0.6.7/vagrant-centos-6.7.box"
+  #config.vm.box = "CentOS 6.7 x64 (Minimal, Puppet 4.2.3, Guest Additions 4.3.30)"
+  #config.vm.box_url = "https://github.com/CommanderK5/packer-centos-template/releases/download/0.6.7/vagrant-centos-6.7.box"
+
+  config.vm.box = "CentOS 6.7 x86_64 Minimal (VirtualBox Guest Additions 5.0.8, Chef: 12.5.1, Puppet 3.8.4)"
+  config.vm.box_url = "https://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.7-x86_64-v20151108.box"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
@@ -75,17 +78,20 @@ Vagrant.configure("2") do |config|
     override.ssh.private_key_path = ENV['RS_PRIVATE_KEY']
   end
 
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider :virtualbox do |vb|
-  #   # Don't boot with headless mode
-  #   vb.gui = true
-  #
-  #   # Use VBoxManage to customize the VM. For example to change memory:
-  #   vb.customize ["modifyvm", :id, "--memory", "1024"]
-  # end
+  # Add 8 GB Drive to Virtualbox for /srv share used to 
+  # store CACHE.DAT file that is 4.4GB 
+  config.vm.provider :virtualbox do |vb|
+    # Don't boot with headless mode
+    # vb.gui = true
+  #  file_to_disk = './tmp/large_disk.vdi'
+  #  unless File.exists?(file_to_disk)
+  #    vb.customize ['createhd', '--filename', file_to_disk, '--size', 8 * 1024]
+  #  end
+  #  vb.customize ['storageattach', :id, '--storagectl', 'IDE Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
+    # Use VBoxManage to customize the VM. For example to change memory:
+    vb.customize ["modifyvm", :id, "--memory", "2048"]
+  end
+
   #
   # View the documentation for the provider you're using for more
   # information on available options.

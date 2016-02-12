@@ -12,7 +12,7 @@ Dependencies
 - PHP5
     - php-soap
     - php-dom
-    - php-xml 
+    - php-xml
     - mbstring
 - Drupal 7
     - omega theme
@@ -65,3 +65,18 @@ If you have a vista system with a very long workload listing, this value can be 
 ```
 OLDEST_WORKLIST_TICKET_ID = 30000
 ```
+
+Troubleshooting
+---------------
+You must have a non demo version of cache and a valid license key otherwise
+you will get the following:
+
+Crash on D ^ZU
+
+ref: https://www.mail-archive.com/hardhats-members@lists.sourceforge.net/msg01755.html 
+
+> VistA logon (the ZU program) displays
+>         "** TROUBLE ** - ** CALL IRM NOW! **"
+> if the number of available jobs drops below 3. For those of us with
+> small Cache licenses, this is a permanent condition, so you may decide
+> to edit the ZU program to change the threshold.
