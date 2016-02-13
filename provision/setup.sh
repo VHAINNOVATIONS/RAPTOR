@@ -177,9 +177,11 @@ sudo adduser vista
 echo vista | sudo passwd vista --stdin 
 sudo adduser cache 
 echo cache | sudo passwd vistagold --stdin 
-# sudo groupadd cacheusr
+sudo groupadd cacheserver
 sudo usermod -a -G cacheusr vista 
+sudo usermod -a -G cacheusr vagrant
 sudo cp /vagrant/provision/cache/.bashrc /home/vista/
+sudo chown vista /home/vista.bashrc
 
 if [ -e "$cacheInstallerPath/$cacheInstaller" ]
 then
@@ -234,18 +236,20 @@ fi
 
 
 # stop cache before we move database 
+sudo chown -R cache:cacheusr /srv
+sudo chmod g+wx /srv/bin
+
 sudo ccontrol stop cache 
 echo "Copying CACHE.DAT to /srv/mgr/"
 echo "This will take a while... Get some coffee or a cup of tea..."
 sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA
 sudo cp -R $cacheInstallerPath/VISTA/CACHE.DAT /srv/mgr/VISTA/
 echo "Setting permissions on database."
-sudo chown -R cache:cacheusr /srv/mgr/VISTA
 sudo chmod 775 /srv/mgr/VISTA 
 sudo chmod 660 /srv/mgr/VISTA/CACHE.DAT
 # missing steps
 echo "Copying cache.cpf"
-sudo cp $cacheInstallerPath/cache.cpf $cacheInstallerTargetPath/
+sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 
 
 # start cache 
