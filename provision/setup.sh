@@ -178,8 +178,6 @@ echo vista | sudo passwd vista --stdin
 sudo adduser cache 
 echo cache | sudo passwd vistagold --stdin 
 sudo groupadd cacheserver
-sudo usermod -a -G cacheusr vista 
-sudo usermod -a -G cacheusr vagrant
 sudo cp /vagrant/provision/cache/.bashrc /home/vista/
 sudo chown vista /home/vista.bashrc
 
@@ -207,6 +205,10 @@ else
   echo "in 64-bit tar.gz format and placed it under the provision/cache folder."
   exit 
 fi
+
+# add vista and vagrant to cacheusr group
+sudo usermod -a -G cacheusr vista 
+sudo usermod -a -G cacheusr vagrant
 
 ## add disk to store CACHE.DAT was sdb 
 #parted /dev/sdb mklabel msdos
@@ -247,6 +249,7 @@ sudo cp -R $cacheInstallerPath/VISTA/CACHE.DAT /srv/mgr/VISTA/
 echo "Setting permissions on database."
 sudo chmod 775 /srv/mgr/VISTA 
 sudo chmod 660 /srv/mgr/VISTA/CACHE.DAT
+sudo chown -R cache:cacheusr /srv/mgr/VISTA 
 # missing steps
 echo "Copying cache.cpf"
 sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/

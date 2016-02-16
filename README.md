@@ -66,6 +66,14 @@ If you have a vista system with a very long workload listing, this value can be 
 OLDEST_WORKLIST_TICKET_ID = 30000
 ```
 
+VistA Terminal Session
+----------------------
+```
+csession cache -U VISTA "^ZU"
+```
+username: cache 
+password: vistagold 
+
 Troubleshooting
 ---------------
 You must have a non demo version of cache and a valid license key otherwise
