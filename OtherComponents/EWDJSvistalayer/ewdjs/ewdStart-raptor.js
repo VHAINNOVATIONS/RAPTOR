@@ -24,12 +24,12 @@ var params = {
     //path:"/opt/cache/mgr",
     path:"/srv/mgr",
     username: "_SYSTEM",
-    password: "SYS",
+    password: "vistagold",
     //namespace: "USER"
-    namespace: "CPM"
+    namespace: "VISTA"
   },
   management: {
-    password: 'keepThisSecret!15'
+    password: 'vistagold'
   }
 };
 

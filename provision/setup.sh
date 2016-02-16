@@ -238,10 +238,10 @@ fi
 
 
 # stop cache before we move database 
-sudo chown -R cache:cacheusr /srv
+sudo chown -R vagrant:cacheusr /srv
 sudo chmod g+wx /srv/bin
 
-sudo ccontrol stop cache 
+sudo ccontrol stop cache quietly
 echo "Copying CACHE.DAT to /srv/mgr/"
 echo "This will take a while... Get some coffee or a cup of tea..."
 sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA
@@ -249,22 +249,35 @@ sudo cp -R $cacheInstallerPath/VISTA/CACHE.DAT /srv/mgr/VISTA/
 echo "Setting permissions on database."
 sudo chmod 775 /srv/mgr/VISTA 
 sudo chmod 660 /srv/mgr/VISTA/CACHE.DAT
-sudo chown -R cache:cacheusr /srv/mgr/VISTA 
+sudo chown -R vagrant:cacheusr /srv/mgr/VISTA 
 # missing steps
 echo "Copying cache.cpf"
 sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 
-
 # start cache 
 # sudo /etc/init.d/cache start 
 sudo ccontrol start cache 
-# EWD.js installation ############################
+
+# EWD.js and Federator installation ############################
+sudo mkdir /var/log/raptor 
+sudo touch /var/log/raptor/federatorCPM.log
+sudo touch /var/log/raptor/ewdjs.log
+sudo chown -R vagrant:vagrant /var/log/raptor
+
+cd /vagrant/OtherComponents/EWDJSvistalayer
+sudo cp -R ewdjs /opt/
+sudo chown -R vagrant:vagrant /opt/raptor 
+cd /opt/ewdjs 
+npm install ewdjs 
+npm install ewd-federator
+# get database interface from cache version we are running
+sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
+sudo ./startEverything.sh
+
+# user notifications 
 echo VistA is now installed.  CSP is here:
 echo http://192.168.33.11:57772/csp/sys/UtilHome.csp
 echo username: cache password: vistagold 
-# EWD Federator installation #####################
-
-
 
 echo RAPTOR is now installed to a test instance for site 500
 echo Browse to: http://192.168.33.11/RSite500/
