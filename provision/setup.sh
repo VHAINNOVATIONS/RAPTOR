@@ -111,7 +111,6 @@ sudo mv drush.phar /usr/local/bin/drush
 
 # Get Drupal 7 ###########################
 
-#wget http://ftp.drupal.org/files/projects/drupal-7.30.tar.gz
 wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
 tar xzvf drupal*
 cd drupal*
@@ -127,10 +126,6 @@ sudo cp -R /vagrant/themes/* /var/www/html/RSite500/sites/all/themes/
 
 # create tmp folder 
 sudo mkdir /var/www/html/RSite500/sites/default/files/tmp
-
-## copy Drupal as RSite500 and configure to use the raptor500 database
-#cd /var/www/html
-#sudo cp -R drupal RSite500
 
 # configure RSite500 to use raptor500 database
 sudo cp /vagrant/provision/settings500.php /var/www/html/RSite500/sites/default/settings.php
@@ -156,8 +151,6 @@ sudo chown -R apache /var/www/html/RSite500/sites/all/themes/omega/omega
 # enable and set raptor theme
 cd /var/www/html/RSite500/sites/all/themes/
 /usr/local/bin/drush -y -l http://localhost/RSite500/ pm-enable raptor_omega
-# drush -y -l http://localhost/RSite500/ vset theme_default raptor_omega
-# drush -y -l http://localhost/RSite500/ omega-export raptor_omega
 
 # I'm sure ownership is borked from all the sudo commands...
 sudo chown -R apache:apache /var/www
@@ -173,20 +166,18 @@ sudo service httpd restart
 #cacheInstallTargetPath=/srv 
 
 # create user for terminal access to VistA and group used for cache
-sudo adduser vista 
-echo vista | sudo passwd vista --stdin 
-sudo adduser cache 
-echo cache | sudo passwd vistagold --stdin 
+#sudo adduser vista 
+#echo vista | sudo passwd vista --stdin 
+#sudo adduser cache 
+#echo cache | sudo passwd vistagold --stdin 
 sudo groupadd cacheserver
-sudo cp /vagrant/provision/cache/.bashrc /home/vista/
-sudo chown vista /home/vista.bashrc
+#sudo cp /vagrant/provision/cache/.bashrc /home/vista/
+#sudo chown vista /home/vista.bashrc
 
 if [ -e "$cacheInstallerPath/$cacheInstaller" ]
 then
   echo "Installing Cache from: $cacheInstaller"
-  # sudo yum -y install /vagrant/provision/cache/$cacheInstaller
   # install from tar.gz 
-  # cache-2014.1.3.775.14809-lnxrhx64.tar.gz  
   sudo mkdir -p $cacheInstallTargetPath/tmp
   cd $cacheInstallTargetPath/tmp
   sudo cp $cacheInstallerPath/$cacheInstaller .
@@ -196,9 +187,7 @@ then
   sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
 
   iptables -I INPUT 1 -p tcp --dport 57772 -j ACCEPT # System Management Portal
-  iptables -I INPUT 1 -p tcp --dport 1972  -j ACCEPT # SuperServer    
-  # start Cache
-  # sudo /etc/init.d/cache start
+  iptables -I INPUT 1 -p tcp --dport 1972  -j ACCEPT # SuperServer
 else
   echo "You are missing: $cacheInstaller"
   echo "You cannot provision this system until you have downloaded Intersystems Cache"
@@ -207,7 +196,7 @@ else
 fi
 
 # add vista and vagrant to cacheusr group
-sudo usermod -a -G cacheusr vista 
+# sudo usermod -a -G cacheusr vista 
 sudo usermod -a -G cacheusr vagrant
 
 ## add disk to store CACHE.DAT was sdb 
@@ -235,8 +224,6 @@ else
   fi
 fi
 
-
-
 # stop cache before we move database 
 sudo chown -R vagrant:cacheusr /srv
 sudo chmod g+wx /srv/bin
@@ -256,7 +243,7 @@ sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 
 # start cache 
 # sudo /etc/init.d/cache start 
-sudo ccontrol start cache 
+sudo ccontrol start cache
 
 # EWD.js and Federator installation ############################
 sudo mkdir /var/log/raptor 
@@ -273,12 +260,31 @@ npm install ewd-federator
 # get database interface from cache version we are running
 sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
 sudo dos2unix /opt/startEverything 
-./opt/startEverything.sh
+
+sudo iptables -I INPUT 1 -p tcp --dport 8082 -j ACCEPT # EWD.js
+sudo iptables -I INPUT 1 -p tcp --dport 8081  -j ACCEPT # EWD Federator     
+sudo iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT # HTTP
+
+# copy node_modules for ewd into RAPTOR Module space...
+cd /opt/ewdjs/node_modules/ewdjs/essentials
+sudo cp -R node_modules /var/www/html/RSite500/sites/all/modules/raptor_glue/core/
+sudo chown -R apache:apache /var/www/html/RSite500/sites/all/modules/raptor_glue/core/node_
+modules/
+
+# start EWD and EWD Federator 
+# ./opt/ewdjs/startEverything.sh
 
 # user notifications 
 echo VistA is now installed.  CSP is here:
 echo http://192.168.33.11:57772/csp/sys/UtilHome.csp
-echo username: cache password: vistagold 
+echo username: cache password: innovate 
 
+echo you need to start EWD manually after enabling %Service_Callin 
+echo See Readme.md from root level of this repository... 
+echo EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/
+echo password: innovate 
+echo EWD: http://192.168.33.11:8082/ewdjs/ EWD.js ewdBootstrap3.js 
+echo EWD Federator: http://192.168.33.11:8081/RaptorEwdVista/raptor/
+echo password: innovate 
 echo RAPTOR is now installed to a test instance for site 500
 echo Browse to: http://192.168.33.11/RSite500/
