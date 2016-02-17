@@ -17,9 +17,7 @@ var params = {
   logFile: '/var/log/raptor/ewdjs.log',
   poolSize: 2,
   httpPort: 8082,
-  modulePath: '/opt/ewdjs/node_modules',
-  webServerRootPath: '/opt/ewdjs/node_modules/ewdjs/essentials/www',  
-traceLevel: 3,
+  traceLevel: 3,
   name: 'EWD.js CPM Server',
   database: {
     type: 'cache',
@@ -31,8 +29,7 @@ traceLevel: 3,
     namespace: "VISTA"
   },
   management: {
-    path: '/ewdjsMgr',
-    password: 'innovate'
+    password: 'vistagold'
   }
 };
 
