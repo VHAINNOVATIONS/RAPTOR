@@ -67,7 +67,7 @@ wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
 # maybe better to wget the rpm's instead and put them in /vagrant/provision to install
 # that way they will be available for a quicker install upon subsequent builds...
 sudo rpm -Uvh mysql-community-release-el6-5.noarch.rpm
-sudo yum -y install mysql mysql-server php-mysql php-soap php-mbstring php-dom php-xml rsync
+sudo yum -y install dos2unix mysql mysql-server php-mysql php-soap php-mbstring php-dom php-xml rsync
 sudo rpm -qa | grep mysql
 sudo chkconfig mysqld on
 sudo service mysqld start
@@ -272,7 +272,8 @@ npm install ewdjs
 npm install ewd-federator
 # get database interface from cache version we are running
 sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
-sudo ./startEverything.sh
+sudo dos2unix /opt/startEverything 
+./opt/startEverything.sh
 
 # user notifications 
 echo VistA is now installed.  CSP is here:
