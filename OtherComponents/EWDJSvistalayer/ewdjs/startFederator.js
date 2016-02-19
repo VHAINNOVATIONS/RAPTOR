@@ -10,7 +10,7 @@ var params = {
         //path:"c:\\InterSystems\\Cache\\Mgr",
         path:"/srv/mgr",
         username: "_SYSTEM",
-        password: "vistagold",
+        password: "innovate",
         //namespace: "EDU"
         namespace: "VISTA"
       },
@@ -21,7 +21,7 @@ var params = {
 	  //EWDVISTA
       port: 8082,
       ssl: false,
-      ewdjs: true,
+      ewdjs: false,
       accessId: 'ewdfederator',  // change as needed
       secretKey: 'apass'  // change as needed
     }
