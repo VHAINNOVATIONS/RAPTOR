@@ -6,23 +6,13 @@ parametersIsc=parameters.isc
 cacheDatabase=/VISTA.zip
 cacheInstallTargetPath=/srv 
 
-# disable selinux ###################
+# configure selinux ###################
 #
-echo disabling ipv4 firewall
+echo configuring ipv4 firewall
 echo -----------------------
-sudo service iptables save
 sudo service iptables stop
-sudo chkconfig iptables off
-echo checking that it is disabled
-/sbin/iptables -L -v -n
-
-echo disabling ipv6 firewall
-echo -----------------------
-sudo service ip6tables save
-sudo service ip6tables stop
-sudo chkconfig ip6tables off
-echo checking that it is disabled
-/sbin/ip6tables -L -v -n
+sudo cp /vagrant/provision/iptables /etc/sysconfig/
+sudo service iptables start 
 
 # install EPEL and REMI Repos ##################
 #
@@ -186,8 +176,6 @@ then
   # install from parameters file
   sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
 
-  iptables -I INPUT 1 -p tcp --dport 57772 -j ACCEPT # System Management Portal
-  iptables -I INPUT 1 -p tcp --dport 1972  -j ACCEPT # SuperServer
 else
   echo "You are missing: $cacheInstaller"
   echo "You cannot provision this system until you have downloaded Intersystems Cache"
@@ -245,6 +233,10 @@ sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 # sudo /etc/init.d/cache start 
 sudo ccontrol start cache
 
+# install RAPTOR Specific KIDS into VistA
+
+
+
 # EWD.js and Federator installation ############################
 sudo mkdir /var/log/raptor 
 sudo touch /var/log/raptor/federatorCPM.log
@@ -261,18 +253,32 @@ npm install ewd-federator
 sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
 sudo dos2unix /opt/startEverything 
 
-sudo iptables -I INPUT 1 -p tcp --dport 8082 -j ACCEPT # EWD.js
-sudo iptables -I INPUT 1 -p tcp --dport 8081  -j ACCEPT # EWD Federator     
-sudo iptables -I INPUT 1 -p tcp --dport 80 -j ACCEPT # HTTP
-
 # copy node_modules for ewd into RAPTOR Module space...
 cd /opt/ewdjs/node_modules/ewdjs/essentials
 sudo cp -R node_modules /var/www/html/RSite500/sites/all/modules/raptor_glue/core/
 sudo chown -R apache:apache /var/www/html/RSite500/sites/all/modules/raptor_glue/core/node_
 modules/
 
-# start EWD and EWD Federator 
+# start EWD and EWD Federator
+sudo dos2unix /opt/ewdjs/startEverything.sh
 # ./opt/ewdjs/startEverything.sh
+
+# add user to EWD
+# /opt/ewdjs/node_modules/ewdjs/extras/OSEHRA 
+
+# add ewd to vista
+# cp /opt/ewdjs/zewd*.zip /srv/mgr/
+# cd /opt/mgr 
+# sudo unzip zewd*zip 
+# csession cache
+# zn "%sys"
+# s ^zewd("config","routinePath","cache")="/srv/mgr/"
+# D $SYSTEM.OBJ.Load("zewd.xml")
+# check it: w $$version^%zewdAPI()
+# wget  http://gradvs1.mgateway.com/download/ewdMgr.zip
+#
+# add vista specific kids build 
+sudo cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/ 
 
 # user notifications 
 echo VistA is now installed.  CSP is here:

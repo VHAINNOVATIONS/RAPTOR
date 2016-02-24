@@ -26,7 +26,7 @@ traceLevel: 3,
     //path:"/opt/cache/mgr",
     path:"/srv/mgr",
     username: "_SYSTEM",
-    password: "vistagold",
+    password: "innovate",
     //namespace: "USER"
     namespace: "VISTA"
   },

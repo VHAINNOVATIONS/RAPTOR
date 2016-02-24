@@ -10,7 +10,7 @@ var params = {
         //path:"c:\\InterSystems\\Cache\\Mgr",
         path:"/srv/mgr",
         username: "_SYSTEM",
-        password: "vistagold",
+        password: "innovate",
         //namespace: "EDU"
         namespace: "VISTA"
       },
