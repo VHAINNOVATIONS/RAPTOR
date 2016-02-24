@@ -21,7 +21,7 @@ var params = {
 	  //EWDVISTA
       port: 8082,
       ssl: false,
-      ewdjs: false,
+      ewdjs: true,
       accessId: 'ewdfederator',  // change as needed
       secretKey: 'apass'  // change as needed
     }

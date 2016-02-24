@@ -263,8 +263,22 @@ modules/
 sudo dos2unix /opt/ewdjs/startEverything.sh
 # ./opt/ewdjs/startEverything.sh
 
-# add user to EWD..
+# add user to EWD
 # /opt/ewdjs/node_modules/ewdjs/extras/OSEHRA 
+
+# add ewd to vista
+# cp /opt/ewdjs/zewd*.zip /srv/mgr/
+# cd /opt/mgr 
+# sudo unzip zewd*zip 
+# csession cache
+# zn "%sys"
+# s ^zewd("config","routinePath","cache")="/srv/mgr/"
+# D $SYSTEM.OBJ.Load("zewd.xml")
+# check it: w $$version^%zewdAPI()
+# wget  http://gradvs1.mgateway.com/download/ewdMgr.zip
+#
+# add vista specific kids build 
+sudo cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/ 
 
 # user notifications 
 echo VistA is now installed.  CSP is here:
