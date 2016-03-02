@@ -72,8 +72,9 @@ mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db=
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "create database raptor500;"
 # add standard tables from a clean installation of Drupal 7
 mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/drupal.sql
-# add RAPTOR specific tables
-mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/raptor_tables.sql
+# don't add RAPTOR specific tables ...they will be automatically created when
+# drush installs the RAPTOR modules...
+# mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/raptor_tables.sql
 # add RAPTOR database user and assign access
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "create user raptoruser@localhost identified by '$DATABASE_PASS';"
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost;"
@@ -233,6 +234,16 @@ sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 # sudo /etc/init.d/cache start 
 sudo ccontrol start cache
 
+# enable cache' callin service
+csession CACHE -U%SYS <<EOI
+vagrant
+innovate
+n p
+s p("Enabled")=1
+D ##class(Security.Services).Modify("%Service_CallIn",.p)
+h
+EOI
+
 # install RAPTOR Specific KIDS into VistA
 
 
@@ -251,7 +262,7 @@ npm install ewdjs
 npm install ewd-federator
 # get database interface from cache version we are running
 sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
-sudo dos2unix /opt/startEverything 
+sudo dos2unix /opt/ewdjs/startEverything.sh 
 
 # copy node_modules for ewd into RAPTOR Module space...
 cd /opt/ewdjs/node_modules/ewdjs/essentials
@@ -260,7 +271,8 @@ sudo chown -R apache:apache /var/www/html/RSite500/sites/all/modules/raptor_glue
 modules/
 
 # start EWD and EWD Federator
-sudo dos2unix /opt/ewdjs/startEverything.sh
+cd /opt/ewdjs
+sudo ./startEverything.sh 
 # ./opt/ewdjs/startEverything.sh
 
 # add user to EWD
@@ -281,16 +293,14 @@ sudo dos2unix /opt/ewdjs/startEverything.sh
 sudo cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/ 
 
 # user notifications 
-echo VistA is now installed.  CSP is here:
-echo http://192.168.33.11:57772/csp/sys/UtilHome.csp
-echo username: cache password: innovate 
+echo VistA is now installed.  
 
-echo you need to start EWD manually after enabling %Service_Callin 
+echo CSP is here: http://192.168.33.11:57772/csp/sys/UtilHome.csp
+echo username: cache password: innovate 
 echo See Readme.md from root level of this repository... 
-echo EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/
-echo password: innovate 
+echo EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/ password: innovate 
 echo EWD: http://192.168.33.11:8082/ewdjs/ EWD.js ewdBootstrap3.js 
 echo EWD Federator: http://192.168.33.11:8081/RaptorEwdVista/raptor/
 echo password: innovate 
 echo RAPTOR is now installed to a test instance for site 500
-echo Browse to: http://192.168.33.11/RSite500/
+echo Browse to: http://192.168.33.11/RSite500/ after completing steps 1-3...
