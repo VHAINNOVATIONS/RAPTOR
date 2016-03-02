@@ -67,6 +67,40 @@ as: vagrant password: innovate
 - Then, to start EWD type:
 ```
 vagrant ssh
+
+csession cache
+```
+at prompt enter credentials with username: vagrant and password: innovate
+```
+D ^%CD
+```
+at namespace prompt enter:
+```
+VISTA
+```
+Type the following to get a prompt for access/verify code:
+```
+D ^ZU
+```
+Enter access/verify code pair: CPRS1234/CPRS4321$
+```
+Select Systems Manager Menu <TEST ACCOUNT> Option: ^^load a distribution
+Enter a Host File: /srv/mgr/VEFB_1_2.KID
+
+KIDS Distribution saved on Sep 28, 2015@08:20:31
+Comment: RAPTOR KIDS
+
+This Distribution contains Transport Globals for the following Package(s):
+   VEFB 1.2
+Distribution OK!
+
+Want to Continue with Load? YES//
+Loading Distribution...
+
+   VEFB 1.2
+Use INSTALL NAME: VEFB 1.2 to install this Distribution.
+```
+```
 cd /opt/ewdjs
 sudo nohup node ewdStart-raptor > /var/log/raptor/ewdjsCPM.log 2>&1 &
 ```
