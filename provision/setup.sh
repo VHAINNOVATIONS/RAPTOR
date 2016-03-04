@@ -244,9 +244,28 @@ D ##class(Security.Services).Modify("%Service_CallIn",.p)
 h
 EOI
 
-# install RAPTOR Specific KIDS into VistA
+# install VEFB_1_2 ~RAPTOR Specific KIDS into VistA
+csession CACHE -U%SYS <<EOI
+vagrant
+innovate
+D ^%CD
+vista
+D ^ZU
+cprs1234
+cprs4321$
+c-vt320
+^^load a distribution
+/srv/mgr/VEFB_1_2.KID
+yes
+6
+VEFB 1.2
+no
+no
 
-
+^
+^
+h
+EOI
 
 # EWD.js and Federator installation ############################
 sudo mkdir /var/log/raptor 

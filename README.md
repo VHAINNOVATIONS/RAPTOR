@@ -49,25 +49,10 @@ To provision in AWS adjust your environment variables or modify the 'aws' sectio
 ```
 vagrant up --provider=aws
 ```
-Manual Steps
-------------
-Ewd with Caché uses the %Service_callin interface that must be enabled.  
-The Callin service lets EWD execute and evaluate Cache ObjectScript commands 
-and expressions from within the C program that EWD has as it's binding to the
-database.
 
-At this time, the %Service_Callin is not automatically enabled within Caché.
-It is necessary, after provisioning, to go the the CSP (link below) login 
-as: vagrant password: innovate
-
-- click on System Administration -> Security -> Services
-- click on %Service_Callin 
-- check 'Service Enabled'
-- click 'save' button.
-- Then, to start EWD type:
+To connect to roll and scroll VistA to install VEFB KIDS build for RAPTOR
 ```
 vagrant ssh
-
 csession cache
 ```
 at prompt enter credentials with username: vagrant and password: innovate
@@ -99,6 +84,7 @@ Loading Distribution...
 
    VEFB 1.2
 Use INSTALL NAME: VEFB 1.2 to install this Distribution.
+
 ```
 ```
 cd /opt/ewdjs
