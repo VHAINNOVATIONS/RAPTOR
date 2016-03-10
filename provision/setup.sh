@@ -234,10 +234,17 @@ sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 # sudo /etc/init.d/cache start 
 sudo ccontrol start cache
 
-# enable cache' callin service
-csession CACHE -U%SYS <<EOI
+# enable cache' os authentication 
+csession CACHE -U%SYS <<EOE
 vagrant
 innovate
+s rc=##class(Security.System).Get("SYSTEM",.SP),d=SP("AutheEnabled") f i=1:1:4 s d=d\2 i i=4 s r=+d#2
+i 'r s NP("AutheEnabled")=SP("AutheEnabled")+16,rc=##class(Security.System).Modify("SYSTEM",.NP)
+h
+EOE
+
+# enable cache' callin service
+csession CACHE -U%SYS <<EOI
 n p
 s p("Enabled")=1
 D ##class(Security.Services).Modify("%Service_CallIn",.p)
@@ -245,19 +252,14 @@ h
 EOI
 
 # install VEFB_1_2 ~RAPTOR Specific KIDS into VistA
-csession CACHE -U%SYS <<EOI
-vagrant
-innovate
-D ^%CD
-vista
-D ^ZU
+csession CACHE -UVISTA "^ZU" <<EOI
 cprs1234
 cprs4321$
 c-vt320
 ^^load a distribution
 /srv/mgr/VEFB_1_2.KID
 yes
-6
+^^install package
 VEFB 1.2
 no
 no
@@ -279,9 +281,11 @@ sudo chown -R vagrant:vagrant /opt/raptor
 cd /opt/ewdjs 
 npm install ewdjs 
 npm install ewd-federator
+sudo npm install -g inherits@2.0.0
+sudo npm install -g node-inspector
+
 # get database interface from cache version we are running
 sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
-sudo dos2unix /opt/ewdjs/startEverything.sh 
 
 # copy node_modules for ewd into RAPTOR Module space...
 cd /opt/ewdjs/node_modules/ewdjs/essentials
@@ -291,6 +295,9 @@ modules/
 
 # start EWD and EWD Federator
 cd /opt/ewdjs
+
+sudo dos2unix startEverything.sh 
+sudo chmod a+x startEverything.sh 
 sudo ./startEverything.sh 
 # ./opt/ewdjs/startEverything.sh
 
@@ -308,6 +315,9 @@ sudo ./startEverything.sh
 # check it: w $$version^%zewdAPI()
 # wget  http://gradvs1.mgateway.com/download/ewdMgr.zip
 #
+
+# ps aux | grep -ie amarok | awk '{print "kill -9 " $2}'
+
 # add vista specific kids build 
 sudo cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/ 
 
@@ -318,7 +328,7 @@ echo CSP is here: http://192.168.33.11:57772/csp/sys/UtilHome.csp
 echo username: cache password: innovate 
 echo See Readme.md from root level of this repository... 
 echo EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/ password: innovate 
-echo EWD: http://192.168.33.11:8082/ewdjs/ EWD.js ewdBootstrap3.js 
+echo EWD: http://192.168.33.11:8082/ewdjs/EWD.js ewdBootstrap3.js 
 echo EWD Federator: http://192.168.33.11:8081/RaptorEwdVista/raptor/
 echo password: innovate 
 echo RAPTOR is now installed to a test instance for site 500
