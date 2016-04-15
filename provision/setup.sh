@@ -234,22 +234,27 @@ sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 # sudo /etc/init.d/cache start 
 sudo ccontrol start cache
 
-# enable cache' os authentication 
+# enable cache' os authentication and %Service_CallIn required by EWD.js 
 csession CACHE -U%SYS <<EOE
 vagrant
 innovate
 s rc=##class(Security.System).Get("SYSTEM",.SP),d=SP("AutheEnabled") f i=1:1:4 s d=d\2 i i=4 s r=+d#2
 i 'r s NP("AutheEnabled")=SP("AutheEnabled")+16,rc=##class(Security.System).Modify("SYSTEM",.NP)
-h
-EOE
 
-# enable cache' callin service
-csession CACHE -U%SYS <<EOI
 n p
 s p("Enabled")=1
 D ##class(Security.Services).Modify("%Service_CallIn",.p)
+
 h
-EOI
+EOE
+
+### enable cache' callin service
+#csession CACHE -U%SYS <<EOI
+#n p
+#s p("Enabled")=1
+#D ##class(Security.Services).Modify("%Service_CallIn",.p)
+#h
+#EOI
 
 # install VEFB_1_2 ~RAPTOR Specific KIDS into VistA
 csession CACHE -UVISTA "^ZU" <<EOI
@@ -290,18 +295,19 @@ sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
 # copy node_modules for ewd into RAPTOR Module space...
 cd /opt/ewdjs/node_modules/ewdjs/essentials
 sudo cp -R node_modules /var/www/html/RSite500/sites/all/modules/raptor_glue/core/
-sudo chown -R apache:apache /var/www/html/RSite500/sites/all/modules/raptor_glue/core/node_
-modules/
+sudo chown -R apache:apache /var/www/html/RSite500/sites/all/modules/raptor_glue/core/node_modules/
 
 # start EWD and EWD Federator
 cd /opt/ewdjs
 
+# add ewdfederator access to EWD
+node registerEWDFederator.js
+
+# start EWD and Federator 
 sudo dos2unix startEverything.sh 
 sudo chmod a+x startEverything.sh 
 sudo ./startEverything.sh 
-# ./opt/ewdjs/startEverything.sh
 
-# add user to EWD
 # /opt/ewdjs/node_modules/ewdjs/extras/OSEHRA 
 
 # add ewd to vista
@@ -316,11 +322,6 @@ sudo ./startEverything.sh
 # wget  http://gradvs1.mgateway.com/download/ewdMgr.zip
 #
 
-# ps aux | grep -ie amarok | awk '{print "kill -9 " $2}'
-
-# add vista specific kids build 
-sudo cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/ 
-
 # user notifications 
 echo VistA is now installed.  
 
@@ -333,3 +334,4 @@ echo EWD Federator: http://192.168.33.11:8081/RaptorEwdVista/raptor/
 echo password: innovate 
 echo RAPTOR is now installed to a test instance for site 500
 echo Browse to: http://192.168.33.11/RSite500/ after completing steps 1-3...
+echo to kill EWD and Federator sudo sh /opt/ewdjs/killEverything.sh 

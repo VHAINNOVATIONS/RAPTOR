@@ -10,7 +10,8 @@ libraries/*
 .vagrant
 
 # ignore cache installer and database
-provision/cache/*
+provision/cache/VISTA
+provision/cache/cache-*.tar.gz
 
 #Except these things...
 !.gitignore

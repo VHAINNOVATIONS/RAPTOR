@@ -17,11 +17,10 @@ var ewd = {
 var zewd = new ewd.mumps.GlobalNode('%zewd', []);
 zewd._setDocument({
   "EWDLiteServiceAccessId": {
-    "VistAClient": {
+    "ewdfederator": {
       "secretKey": "$keepSecret!",
       "apps": {
-        "VistADemo": true,
-        "VistARestServer": true
+        "raptor": true
       }
     }
   }
