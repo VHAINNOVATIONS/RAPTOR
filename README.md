@@ -93,7 +93,7 @@ sudo nohup node ewdStart-raptor > /var/log/raptor/ewdjsCPM.log 2>&1 &
 Now EWD is running and you should try to log into the RAPTOR application
 using a user such as:
 
-radiologist12/12radiologist 
+1radiologist/radiologist1 
 
 
 Credentials

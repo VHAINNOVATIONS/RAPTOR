@@ -55,17 +55,23 @@ Vagrant.configure("2") do |config|
   config.vm.define "RAPTOR", primary: true do |vista|
   end
 
-  # Amazon EC2 configuration
-  config.vm.provider :aws do |aws, override|
-    aws.access_key_id = ENV['AWS_ACCESS_KEY_ID']
-    aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
-    aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
-    aws.ami = "ami-d9a98cb0"
-    aws.instance_type = "t1.micro"
-    override.vm.box = "dummy"
-    override.ssh.username = "ec2-user"
-    override.ssh.private_key_path = ENV['AWS_PRIVATE_KEY']
-  end
+#  # Amazon EC2 configuration
+#  config.vm.provider :aws do |aws, override|
+#
+#    #aws.access_key_id = ENV['AWS_ACCESS_KEY_ID']
+#    #aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
+#    #aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
+#
+#    aws.access_key_id = config.user.aws.access_key_id
+#    aws.secret_access_key = config.user.aws.secret_access_key
+#    aws.region = config.user.site.aws.region
+#    aws.keypair_name = config.user.site.aws.keypair_name    
+#    aws.ami = "ami-d9a98cb0"
+#    aws.instance_type = "t1.micro"
+#    override.vm.box = "dummy"
+#    override.ssh.username = "ec2-user"
+#    #override.ssh.private_key_path = ENV['AWS_PRIVATE_KEY']
+#  end
 
   # Rackspace Cloud configuration
   config.vm.provider :rackspace do |rs, override|

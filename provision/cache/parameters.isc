@@ -1,0 +1,87 @@
+
+dist.source_dir: /srv/tmp
+legacy_dist.source_dir: /srv/tmp
+product_info.version: 2014.1.3.775.0.14809
+product_info.name: Cache
+platform_selection.platform: lnxrhx64
+platform_selection.platform_family: lnxrhx64
+platform_selection.endianness: little
+platform_selection.os: Linux
+posix_tools.user_add: /usr/sbin/useradd
+posix_tools.group_add: /usr/sbin/groupadd
+posix_tools.grep: grep
+posix_tools.id: id
+posix_tools.ps_opt: -ef
+posix_tools.gzip: gzip
+posix_tools.shared_ext: so
+posix_tools.symbolic_copy: cp -Rfp
+posix_tools.tr: tr
+posix_tools.shared_ext1: so
+posix_tools.permission: 755
+posix_tools.dir_permission: 775
+server_location.target_dir: /srv
+server_location.is_server_install: Y
+server_location.instance_name: CACHE
+server_location.is_new_install: Y
+server_location.registry_dir: /usr/local/etc/cachesys
+server_location.convert_ensemble_registry:
+server_location.ccontrol: /srv/tmp/dist/lnxrhx64/bin/shared/ccontrol
+postinstall: upgrade
+install_mode.setup_type: Development
+unicode_selection.binary_type: eightbit
+unicode_selection.install_unicode: N
+security_settings.cache_user: cacheusr
+security_settings.cache_group: cacheusr
+security_settings.manager_user: vagrant
+security_settings.manager_group: cacheserver
+security_settings.dbencrypted: 0
+security_settings.dbenckeyfile:
+security_settings.dbenckeyuser:
+security_settings.personal_database:
+security_settings.initial_level: Normal
+security_settings.already_secured: N
+security_settings.password: innovate
+installer.manifest:
+installer.manifest_parameters: SourceDir=/srv/tmp,ISCUpgrade=0,
+manager_source_code.available: Y
+port_selection.superserver_port: 1972
+port_selection.webserver_port: 57772
+port_selection.jdbcgateway_port: 62972
+csp_gateway.configure: N
+csp_gateway.web_server_type:
+csp_gateway.apache_version:
+csp_gateway.apache_user:
+csp_gateway.apache_conf_file:
+csp_gateway.apache_pid_file:
+csp_gateway.apache_use32bit:
+csp_gateway.sunone_server:
+csp_gateway.directory:
+license_key.enter_key: Y
+license_key.license_file: /vagrant/provision/cache/cache.key
+agent.user_account: iscagent
+agent.user_group: iscagent
+agent.install: Y
+client_location.target_dir: /srv
+client_location.is_client_install: N
+install: odbc
+install: cpp_binding
+install: cpp_sdk
+install: perl_binding
+install: python_binding
+install: engine_link_libraries
+install: light_cpp_binding
+install: database_server
+postinstall: database_server
+install: samples
+samples.install: Y
+japanese_docs.install: N
+install: docbook
+docbook.install: Y
+install: dev_kit
+install: fop
+install: renderserver
+install: printserver
+install: excelexporter
+install: addenda
+install: install_confirmation
+install: copyright
