@@ -23,7 +23,7 @@ var params = {
       ssl: false,
       ewdjs: true,
       accessId: 'ewdfederator',  // change as needed
-      secretKey: 'apass'  // change as needed
+      secretKey: '$keepSecret!'  // change as needed
     }
   },
 
