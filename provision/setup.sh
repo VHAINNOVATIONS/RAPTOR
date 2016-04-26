@@ -257,9 +257,8 @@ EOE
 #EOI
 
 # install VEFB_1_2 ~RAPTOR Specific KIDS into VistA
+cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/
 csession CACHE -UVISTA "^ZU" <<EOI
-cprs1234
-cprs4321$
 c-vt320
 ^^load a distribution
 /srv/mgr/VEFB_1_2.KID
