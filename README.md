@@ -46,6 +46,24 @@ This automated installation process will create a RAPTOR system on a Linux-based
 vagrant up
 ```
 To provision in AWS adjust your environment variables or modify the 'aws' section of the Vagrantfile and execute:
+
+To provision with AWS as your provider you will need to adjust line 25 of provision/cache/parameters.isc
+to contain the username you are using in AWS:
+```
+security_settings.manager_user: vagrant
+```
+~By default the username is set to 'vagrant'
+
+If you change this, you need to understand that everywhere in this document where the username
+'vagrant' is used, your new username would be used instead. 
+
+To change the name you will need to run the following where 'ec2-user' is your preferred username:
+
+```
+sed -i -e 's/vagrant/ec2-user/' /vagrant/provision/cache/parameters.isc
+```
+
+Afterwards, you can build the machine in AWS as follows:
 ```
 vagrant up --provider=aws
 ```
@@ -143,4 +161,83 @@ EWD Federator - http://192.168.33.11:8081/RaptorEwdVista/raptor/
 ERROR MESSAGE: 
 
 {"code":"RESTError","message":"ewdfederator is not authorised for Web Service access"}
-... looking into this...
+
+This means that the ewdfederator user has not been set up.
+
+To fix this error see the /opt/ewdjs/RegisterEWDFederator.js script that contains the
+credentials for the federator to use.  
+
+```
+var ewdGlobals = require('./node_modules/ewdjs/node_modules/globalsjs');
+var interface = require('cache');
+var db = new interface.Cache();
+var ok = db.open({
+  path: '/srv/mgr',
+  username: '_SYSTEM',
+  password: 'innovate',
+  namespace: 'VISTA'
+});
+
+ewdGlobals.init(db);
+
+var ewd = {
+  mumps: ewdGlobals
+};
+
+var zewd = new ewd.mumps.GlobalNode('%zewd', []);
+zewd._setDocument({
+  "EWDLiteServiceAccessId": {
+    "ewdfederator": {
+      "secretKey": "$keepSecret!",
+      "apps": {
+        "raptor": true
+      }
+    }
+  }
+});
+
+db.close();
+```
+
+The startFederator.js script must match these credentials as well.
+```
+var federator = require('ewd-federator');
+
+var params = {
+  //FEDERATOR
+  restPort: 8081,
+  poolSize: 2,
+  traceLevel: 3,
+      database: {
+        type: 'cache',
+        //path:"c:\\InterSystems\\Cache\\Mgr",
+        path:"/srv/mgr",
+        username: "_SYSTEM",
+        password: "innovate",
+        namespace: "VISTA"
+      },
+  server: {
+
+    RaptorEwdVista: {
+      host: '127.0.0.1',  // if federator installed on same physical machine as EWD.js / VistA
+	  //EWDVISTA
+      port: 8082,
+      ssl: false,
+      ewdjs: true,
+      accessId: 'ewdfederator',  // change as needed
+      secretKey: '$keepSecret!'  // change as needed
+    }
+  },
+
+  service: {
+    raptor: {
+      module: 'raptor',
+      service: 'parse',
+      contentType: 'application/json'
+    }
+  }
+
+};
+
+federator.start(params);
+```
