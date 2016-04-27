@@ -5,7 +5,6 @@ cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
 parametersIsc=parameters.isc 
 cacheDatabase=/VISTA.zip
 cacheInstallTargetPath=/srv 
-
 # configure selinux ###################
 #
 echo configuring ipv4 firewall
@@ -123,7 +122,8 @@ sudo cp /vagrant/provision/settings500.php /var/www/html/RSite500/sites/default/
 sudo chmod 664 /var/www/html/RSite500/sites/default/settings.php
 
 # set permissions so vagrant has access to write
-sudo chown vagrant -R /var/www/html/RSite500
+#sudo chown vagrant -R /var/www/html/RSite500
+sudo chown $USER -R /var/www/html/RSite500
 
 # remove the $ from the end of this file which causes drush to fail
 sudo sed -i '$ d' /root/.drush/drushrc.php
@@ -134,7 +134,8 @@ cd /var/www/html/RSite500/sites/all/modules/
 
 # automatically download the front-end libraries used by Omega
 cd /var/www/html/RSite500/sites/all/themes/omega/omega
-sudo chown -R vagrant /var/www/html/RSite500/sites/all/themes/omega/omega
+#sudo chown -R vagrant /var/www/html/RSite500/sites/all/themes/omega/omega
+sudo chown -R $USER /var/www/html/RSite500/sites/all/themes/omega/omega
 /usr/local/bin/drush -y make libraries.make --no-core --contrib-destination=.
 sudo chmod a+rx /var/www/html/RSite500/sites/all/themes/omega/omega/libraries
 sudo chown -R apache /var/www/html/RSite500/sites/all/themes/omega/omega
@@ -149,21 +150,10 @@ sudo chown -R apache:apache /var/www
 # restart apache so all php modules are loaded...
 sudo service httpd restart
 
-# Intersystems Cache installation ################
-#cacheInstallerPath=/vagrant/provision/cache 
-#cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
-#parametersIsc=parameters.isc 
-#cacheDatabase=VISTA.zip
-#cacheInstallTargetPath=/srv 
-
-# create user for terminal access to VistA and group used for cache
-#sudo adduser vista 
-#echo vista | sudo passwd vista --stdin 
-#sudo adduser cache 
-#echo cache | sudo passwd vistagold --stdin 
 sudo groupadd cacheserver
-#sudo cp /vagrant/provision/cache/.bashrc /home/vista/
-#sudo chown vista /home/vista.bashrc
+
+# get cache installer
+wget -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
 
 if [ -e "$cacheInstallerPath/$cacheInstaller" ]
 then
@@ -185,8 +175,7 @@ else
 fi
 
 # add vista and vagrant to cacheusr group
-# sudo usermod -a -G cacheusr vista 
-sudo usermod -a -G cacheusr vagrant
+sudo usermod -a -G cacheusr $USER
 
 ## add disk to store CACHE.DAT was sdb 
 #parted /dev/sdb mklabel msdos
@@ -207,14 +196,16 @@ else
     echo "Unzipping $cacheDatabase..."
     unzip $cacheDatabase
   else
-    echo "$cacheDatabase is missing.  Download from FTL and place it under"
-    echo "provision/cache folder."
-    exit
+    echo "$cacheDatabase is missing.  Downloading from FTL and place it under provision/cache folder..."
+    # create path and get CACHE.DAT
+    mkdir -p $cacheInstallerPath/VISTA 
+    wget -P $cacheInstallerPath/VISTA/ http://vaftl.us/vagrant/CACHE.DAT 
   fi
 fi
 
 # stop cache before we move database 
-sudo chown -R vagrant:cacheusr /srv
+#sudo chown -R vagrant:cacheusr /srv
+sudo chown -R $USER:cacheusr /srv
 sudo chmod g+wx /srv/bin
 
 sudo ccontrol stop cache quietly
@@ -225,7 +216,8 @@ sudo cp -R $cacheInstallerPath/VISTA/CACHE.DAT /srv/mgr/VISTA/
 echo "Setting permissions on database."
 sudo chmod 775 /srv/mgr/VISTA 
 sudo chmod 660 /srv/mgr/VISTA/CACHE.DAT
-sudo chown -R vagrant:cacheusr /srv/mgr/VISTA 
+#sudo chown -R vagrant:cacheusr /srv/mgr/VISTA 
+sudo chown -R $USER:cacheusr /srv/mgr/VISTA 
 # missing steps
 echo "Copying cache.cpf"
 sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
@@ -236,7 +228,7 @@ sudo ccontrol start cache
 
 # enable cache' os authentication and %Service_CallIn required by EWD.js 
 csession CACHE -U%SYS <<EOE
-vagrant
+$USER
 innovate
 s rc=##class(Security.System).Get("SYSTEM",.SP),d=SP("AutheEnabled") f i=1:1:4 s d=d\2 i i=4 s r=+d#2
 i 'r s NP("AutheEnabled")=SP("AutheEnabled")+16,rc=##class(Security.System).Modify("SYSTEM",.NP)
@@ -248,18 +240,10 @@ D ##class(Security.Services).Modify("%Service_CallIn",.p)
 h
 EOE
 
-### enable cache' callin service
-#csession CACHE -U%SYS <<EOI
-#n p
-#s p("Enabled")=1
-#D ##class(Security.Services).Modify("%Service_CallIn",.p)
-#h
-#EOI
-
 # install VEFB_1_2 ~RAPTOR Specific KIDS into VistA
 cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/
 csession CACHE -UVISTA "^ZU" <<EOI
-c-vt320
+vt320
 ^^load a distribution
 /srv/mgr/VEFB_1_2.KID
 yes
@@ -277,11 +261,12 @@ EOI
 sudo mkdir /var/log/raptor 
 sudo touch /var/log/raptor/federatorCPM.log
 sudo touch /var/log/raptor/ewdjs.log
-sudo chown -R vagrant:vagrant /var/log/raptor
+#sudo chown -R vagrant:vagrant /var/log/raptor
+sudo chown -R $USER:$USER /var/log/raptor
 
 cd /vagrant/OtherComponents/EWDJSvistalayer
 sudo cp -R ewdjs /opt/
-sudo chown -R vagrant:vagrant /opt/raptor 
+sudo chown -R $USER:$USER /opt/raptor 
 cd /opt/ewdjs 
 npm install ewdjs 
 npm install ewd-federator
