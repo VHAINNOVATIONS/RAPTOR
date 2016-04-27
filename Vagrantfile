@@ -22,13 +22,11 @@ Vagrant.configure("2") do |config|
     config.vm.hostname="RAPTOR-bciv"
     config.ssh.pty = "true"
     aws.user_data = "#!/bin/bash\nsed -i -e 's/^Defaults.*requiretty/# Defaults requiretty/g' /etc/sudoers"    
-#    aws.access_key_id = ENV['access_key_id']
-#    aws.secret_access_key = ENV['secret_access_key']
-    aws.access_key_id = "AKIAITX2D4LCXWBYKWSA"
-    aws.secret_access_key = "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"
+    aws.access_key_id = ENV['access_key_id']
+    aws.secret_access_key = ENV['secret_access_key']
     aws.keypair_name = ENV['aws_keyname']
     aws.ami = "ami-b191efd4"
-    aws.security_groups = "sg-2fcdd547"
+    aws.security_groups = ["VistA"]
     aws.region = "us-east-1"
     aws.instance_type = "m3.medium"
     override.vm.box = "dummy"
