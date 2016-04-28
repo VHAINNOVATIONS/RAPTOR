@@ -1,4 +1,7 @@
 #!/bin/bash -xi
+
+# set username
+myusername=$USER
 # set up base box through vagrant file with these commands
 cacheInstallerPath=/vagrant/provision/cache 
 cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
@@ -42,19 +45,12 @@ sudo cp /vagrant/provision/php.ini /etc/
 sudo cp /vagrant/provision/httpd.conf /etc/httpd/conf/
 sudo service httpd start
 
-#echo update repositories
-#echo -------------------
-#sudo yum update
-
 # Install MySQL ######################
 #
 echo install mysql
 echo -------------
 cd
 wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
-# note:
-# maybe better to wget the rpm's instead and put them in /vagrant/provision to install
-# that way they will be available for a quicker install upon subsequent builds...
 sudo rpm -Uvh mysql-community-release-el6-5.noarch.rpm
 sudo yum -y install dos2unix mysql mysql-server php-mysql php-soap php-mbstring php-dom php-xml rsync
 sudo rpm -qa | grep mysql
@@ -71,9 +67,6 @@ mysql -u root -p"$DATABASE_PASS" -e "DELETE FROM mysql.db WHERE Db='test' OR Db=
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "create database raptor500;"
 # add standard tables from a clean installation of Drupal 7
 mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/drupal.sql
-# don't add RAPTOR specific tables ...they will be automatically created when
-# drush installs the RAPTOR modules...
-# mysql -u root -p"$DATABASE_PASS" -h localhost raptor500 < /vagrant/provision/raptor_tables.sql
 # add RAPTOR database user and assign access
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "create user raptoruser@localhost identified by '$DATABASE_PASS';"
 mysql -u root -p"$DATABASE_PASS" -h localhost -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,CREATE TEMPORARY TABLES,LOCK TABLES ON raptor500.* TO raptoruser@localhost;"
@@ -87,7 +80,6 @@ mysql -u root -p"$DATABASE_PASS" -h localhost -e "FLUSH PRIVILEGES;"
 # Download latest stable release using the code below or browse to github.com/drush-ops/drush/releases.
 cd
 wget http://files.drush.org/drush.phar
-# Or use our upcoming release: wget http://files.drush.org/drush-unstable.phar  
 
 # Test your install.
 php drush.phar core-status
@@ -121,9 +113,8 @@ sudo mkdir /var/www/html/RSite500/sites/default/files/tmp
 sudo cp /vagrant/provision/settings500.php /var/www/html/RSite500/sites/default/settings.php
 sudo chmod 664 /var/www/html/RSite500/sites/default/settings.php
 
-# set permissions so vagrant has access to write
-#sudo chown vagrant -R /var/www/html/RSite500
-sudo chown $USER -R /var/www/html/RSite500
+# set permissions so $myusername has access to write
+sudo chown $myusername -R /var/www/html/RSite500
 
 # remove the $ from the end of this file which causes drush to fail
 sudo sed -i '$ d' /root/.drush/drushrc.php
@@ -135,7 +126,7 @@ cd /var/www/html/RSite500/sites/all/modules/
 # automatically download the front-end libraries used by Omega
 cd /var/www/html/RSite500/sites/all/themes/omega/omega
 #sudo chown -R vagrant /var/www/html/RSite500/sites/all/themes/omega/omega
-sudo chown -R $USER /var/www/html/RSite500/sites/all/themes/omega/omega
+sudo chown -R $myusername /var/www/html/RSite500/sites/all/themes/omega/omega
 /usr/local/bin/drush -y make libraries.make --no-core --contrib-destination=.
 sudo chmod a+rx /var/www/html/RSite500/sites/all/themes/omega/omega/libraries
 sudo chown -R apache /var/www/html/RSite500/sites/all/themes/omega/omega
@@ -164,6 +155,9 @@ then
   sudo cp $cacheInstallerPath/$cacheInstaller .
   sudo tar -xzvf $cacheInstaller   
 
+  # set user in parameters file to match $myusername
+  sed -i -e 's/vagrant/$myusername/' $cacheInstallerPath/parameters.isc
+
   # install from parameters file
   sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
 
@@ -175,7 +169,7 @@ else
 fi
 
 # add vista and vagrant to cacheusr group
-sudo usermod -a -G cacheusr $USER
+sudo usermod -a -G cacheusr $myusername
 
 ## add disk to store CACHE.DAT was sdb 
 #parted /dev/sdb mklabel msdos
@@ -190,22 +184,12 @@ if [ -e "$cacheInstallerPath/VISTA/CACHE.DAT" ]
 then
   echo "CACHE.DAT has already been unzipped..."
 else
-  if [ -e "$cacheInstallerPath/$cacheDatabase" ]
-  then
-    cd $cacheInstallerPath
-    echo "Unzipping $cacheDatabase..."
-    unzip $cacheDatabase
-  else
-    echo "$cacheDatabase is missing.  Downloading from FTL and place it under provision/cache folder..."
-    # create path and get CACHE.DAT
-    mkdir -p $cacheInstallerPath/VISTA 
-    wget -P $cacheInstallerPath/VISTA/ http://vaftl.us/vagrant/CACHE.DAT 
-  fi
+  sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA 
+  sudo chown -R $myusername:cacheusr $cacheInstallTargetPath/mgr/VISTA
+  wget -P $cacheInstallTargetPath/mgr/VISTA/ http://vaftl.us/vagrant/CACHE.DAT 
 fi
 
-# stop cache before we move database 
-#sudo chown -R vagrant:cacheusr /srv
-sudo chown -R $USER:cacheusr /srv
+sudo chown -R $myusername:cacheusr /srv
 sudo chmod g+wx /srv/bin
 
 sudo ccontrol stop cache quietly
@@ -216,19 +200,18 @@ sudo cp -R $cacheInstallerPath/VISTA/CACHE.DAT /srv/mgr/VISTA/
 echo "Setting permissions on database."
 sudo chmod 775 /srv/mgr/VISTA 
 sudo chmod 660 /srv/mgr/VISTA/CACHE.DAT
-#sudo chown -R vagrant:cacheusr /srv/mgr/VISTA 
-sudo chown -R $USER:cacheusr /srv/mgr/VISTA 
-# missing steps
+sudo chown -R $myusername:cacheusr /srv/mgr/VISTA 
+
+# copy cache configuration
 echo "Copying cache.cpf"
 sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 
 # start cache 
-# sudo /etc/init.d/cache start 
 sudo ccontrol start cache
 
 # enable cache' os authentication and %Service_CallIn required by EWD.js 
 csession CACHE -U%SYS <<EOE
-$USER
+$myusername
 innovate
 s rc=##class(Security.System).Get("SYSTEM",.SP),d=SP("AutheEnabled") f i=1:1:4 s d=d\2 i i=4 s r=+d#2
 i 'r s NP("AutheEnabled")=SP("AutheEnabled")+16,rc=##class(Security.System).Modify("SYSTEM",.NP)
@@ -241,9 +224,11 @@ h
 EOE
 
 # install VEFB_1_2 ~RAPTOR Specific KIDS into VistA
+# todo: this doesn't work because it doesn't see device(0) ~something with c-vt320? vt320 doesn't 
+# work either...
 cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/
 csession CACHE -UVISTA "^ZU" <<EOI
-vt320
+c-vt320
 ^^load a distribution
 /srv/mgr/VEFB_1_2.KID
 yes
@@ -262,16 +247,16 @@ sudo mkdir /var/log/raptor
 sudo touch /var/log/raptor/federatorCPM.log
 sudo touch /var/log/raptor/ewdjs.log
 #sudo chown -R vagrant:vagrant /var/log/raptor
-sudo chown -R $USER:$USER /var/log/raptor
+sudo chown -R $myusername:$myusername /var/log/raptor
 
 cd /vagrant/OtherComponents/EWDJSvistalayer
 sudo cp -R ewdjs /opt/
-sudo chown -R $USER:$USER /opt/raptor 
+sudo chown -R $myusername:$myusername /opt/raptor 
 cd /opt/ewdjs 
 npm install ewdjs 
 npm install ewd-federator
-sudo npm install -g inherits@2.0.0
-sudo npm install -g node-inspector
+#sudo npm install -g inherits@2.0.0
+#sudo npm install -g node-inspector
 
 # get database interface from cache version we are running
 sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
@@ -291,20 +276,6 @@ node registerEWDFederator.js
 sudo dos2unix startEverything.sh 
 sudo chmod a+x startEverything.sh 
 sudo ./startEverything.sh 
-
-# /opt/ewdjs/node_modules/ewdjs/extras/OSEHRA 
-
-# add ewd to vista
-# cp /opt/ewdjs/zewd*.zip /srv/mgr/
-# cd /opt/mgr 
-# sudo unzip zewd*zip 
-# csession cache
-# zn "%sys"
-# s ^zewd("config","routinePath","cache")="/srv/mgr/"
-# D $SYSTEM.OBJ.Load("zewd.xml")
-# check it: w $$version^%zewdAPI()
-# wget  http://gradvs1.mgateway.com/download/ewdMgr.zip
-#
 
 # user notifications 
 echo VistA is now installed.  
