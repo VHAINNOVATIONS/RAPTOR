@@ -6,7 +6,6 @@ myusername=$USER
 cacheInstallerPath=/vagrant/provision/cache 
 cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
 parametersIsc=parameters.isc 
-cacheDatabase=/VISTA.zip
 cacheInstallTargetPath=/srv 
 # configure selinux ###################
 #
@@ -144,10 +143,14 @@ sudo service httpd restart
 sudo groupadd cacheserver
 
 # get cache installer
-wget -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
+  echo "Cache installer is already in present..."
+else
+  echo "downloading Cache installer..."
+  wget -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+fi
 
-if [ -e "$cacheInstallerPath/$cacheInstaller" ]
-then
+if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
   echo "Installing Cache from: $cacheInstaller"
   # install from tar.gz 
   sudo mkdir -p $cacheInstallTargetPath/tmp
@@ -156,20 +159,19 @@ then
   sudo tar -xzvf $cacheInstaller   
 
   # set user in parameters file to match $myusername
-  sed -i -e 's/vagrant/$myusername/' $cacheInstallerPath/parameters.isc
+  #sed -i -e `s/ vagrant/$myusername/` $cacheInstallerPath/parameters.isc
 
   # install from parameters file
   sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
-
 else
   echo "You are missing: $cacheInstaller"
   echo "You cannot provision this system until you have downloaded Intersystems Cache"
   echo "in 64-bit tar.gz format and placed it under the provision/cache folder."
-  exit 
+  exit
 fi
 
 # add vista and vagrant to cacheusr group
-sudo usermod -a -G cacheusr $myusername
+sudo usermod -a -G cacheusr vagrant
 
 ## add disk to store CACHE.DAT was sdb 
 #parted /dev/sdb mklabel msdos
@@ -179,31 +181,31 @@ sudo usermod -a -G cacheusr $myusername
 #echo `blkid /dev/sdb1 | awk '{print$2}' | sed -e 's/"//g'` /srv   xfs   noatime,nobarrier   0   0 >> /etc/fstab
 #mount /srv
 
-# check for cache.dat and put it where it goes
-if [ -e "$cacheInstallerPath/VISTA/CACHE.DAT" ]
-then
-  echo "CACHE.DAT has already been unzipped..."
+# stop cache
+sudo ccontrol stop cache quietly
+
+if [ -e "$cacheInstallerPath/CACHE.DAT" ]; then
+  echo "CACHE.DAT is already present... copying to /srv/mgr/"
+  echo "This will take a while... Get some coffee or a cup of tea..."
+  sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA
+  sudo cp -R $cacheInstallerPath/CACHE.DAT /srv/mgr/VISTA/
 else
+  echo "$cacheinstallerpath/CACHE.DAT not found... downloading..."
   sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA 
   sudo chown -R $myusername:cacheusr $cacheInstallTargetPath/mgr/VISTA
+  echo "This will take a while... Get some coffee or a cup of tea..."
   wget -P $cacheInstallTargetPath/mgr/VISTA/ http://vaftl.us/vagrant/CACHE.DAT 
 fi
 
-sudo chown -R $myusername:cacheusr /srv
-sudo chmod g+wx /srv/bin
-
-sudo ccontrol stop cache quietly
-echo "Copying CACHE.DAT to /srv/mgr/"
-echo "This will take a while... Get some coffee or a cup of tea..."
-sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA
-sudo cp -R $cacheInstallerPath/VISTA/CACHE.DAT /srv/mgr/VISTA/
 echo "Setting permissions on database."
+sudo chown -R vagrant:cacheusr /srv
+sudo chmod g+wx /srv/bin
 sudo chmod 775 /srv/mgr/VISTA 
 sudo chmod 660 /srv/mgr/VISTA/CACHE.DAT
-sudo chown -R $myusername:cacheusr /srv/mgr/VISTA 
+sudo chown -R vagrant:cacheusr /srv/mgr/VISTA 
 
 # copy cache configuration
-echo "Copying cache.cpf"
+echo "Copying cache.cpf configuration file..."
 sudo cp $cacheInstallerPath/cache.cpf $cacheInstallTargetPath/
 
 # start cache 
@@ -211,7 +213,7 @@ sudo ccontrol start cache
 
 # enable cache' os authentication and %Service_CallIn required by EWD.js 
 csession CACHE -U%SYS <<EOE
-$myusername
+vagrant
 innovate
 s rc=##class(Security.System).Get("SYSTEM",.SP),d=SP("AutheEnabled") f i=1:1:4 s d=d\2 i i=4 s r=+d#2
 i 'r s NP("AutheEnabled")=SP("AutheEnabled")+16,rc=##class(Security.System).Modify("SYSTEM",.NP)
@@ -228,7 +230,8 @@ EOE
 # work either...
 cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/
 csession CACHE -UVISTA "^ZU" <<EOI
-c-vt320
+cprs1234
+cprs4321$
 ^^load a distribution
 /srv/mgr/VEFB_1_2.KID
 yes
@@ -253,7 +256,7 @@ cd /vagrant/OtherComponents/EWDJSvistalayer
 sudo cp -R ewdjs /opt/
 sudo chown -R $myusername:$myusername /opt/raptor 
 cd /opt/ewdjs 
-npm install ewdjs 
+npm install ewdjs@0.103.0 
 npm install ewd-federator
 #sudo npm install -g inherits@2.0.0
 #sudo npm install -g node-inspector
