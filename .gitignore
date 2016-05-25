@@ -6,6 +6,9 @@ modules/*
 themes/*
 libraries/*
 
+# ignore _private folder 
+_private
+
 # ignore hidden vagrant folder
 .vagrant
 
