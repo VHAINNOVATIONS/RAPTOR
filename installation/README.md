@@ -37,11 +37,13 @@ VistA Server EWD Installation
     unzip RAPTOR-automate.zip
     ```
 3. Run the following commands to install EWD:
-    ```
-    cd RAPTOR-automate/installation
-    sudo chmod u+x install-ewd-on-VistA-server.sh
-    sudo ./install-ewd-on-VistA-server.sh
-    ```
+
+```
+cd RAPTOR-automate/installation
+sudo chmod u+x install-ewd-on-VistA-server.sh
+sudo ./install-ewd-on-VistA-server.sh
+```
+
 4. It is necessary to obtain the database interface that is specific to your version of Intersystems Caché for use by EWD.  
     Change the source path of the Caché installation, if it differs from the command below:
     ```
