@@ -34,8 +34,12 @@ Prerequisites
 - Install VirtualBox (see: https://www.virtualbox.org/wiki/Downloads )
 - Install Git (see: operating system specific instructions ) 
 
-Installation
-------------
+Installation for Production
+---------------------------
+https://github.com/VHAINNOVATIONS/RAPTOR/Installation/README.md
+
+Installation for Demonstration and Development
+----------------------------------------------
 This automated installation process will create a RAPTOR system on a Linux-based virtual machine.
 
 - Open your terminal application such as a shell under Linux, Command Prompt under Windows, or Terminal.app on Mac.
