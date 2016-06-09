@@ -23,11 +23,9 @@ traceLevel: 3,
   name: 'EWD.js CPM Server',
   database: {
     type: 'cache',
-    //path:"/opt/cache/mgr",
     path:"/srv/mgr",
     username: "_SYSTEM",
     password: "innovate",
-    //namespace: "USER"
     namespace: "VISTA"
   },
   management: {
