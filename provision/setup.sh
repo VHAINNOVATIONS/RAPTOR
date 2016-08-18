@@ -51,7 +51,7 @@ echo -------------
 cd
 wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
 sudo rpm -Uvh mysql-community-release-el6-5.noarch.rpm
-sudo yum -y install dos2unix mysql mysql-server php-mysql php-soap php-mbstring php-dom php-xml rsync
+sudo yum -y install dos2unix mysql mysql-server php-mysql php-soap php-mbstring php-dom php-xml rsync ruby-devel
 sudo rpm -qa | grep mysql
 sudo chkconfig mysqld on
 sudo service mysqld start
@@ -140,6 +140,13 @@ sudo chown -R apache:apache /var/www
 # restart apache so all php modules are loaded...
 sudo service httpd restart
 
+# cache specific installation steps
+
+# get ruby deps for installing cache through ruby
+sudo gem install -q json -v '1.8.3'
+sudo gem install -q expect -v '0.0.13'
+
+# add group to use for cache admins to start and stop
 sudo groupadd cacheserver
 
 # get cache installer
@@ -161,8 +168,22 @@ if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
   # set user in parameters file to match $myusername
   #sed -i -e `s/ vagrant/$myusername/` $cacheInstallerPath/parameters.isc
 
-  # install from parameters file
-  sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
+# -- deprecating installation from parameters file ---
+#  # install from parameters file
+#  sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
+
+  # spawn ruby cache installer
+  #
+  # If you need to change settings... 
+  # ~see config.local.json under /vagrant/provision 
+  #
+  sudo mkdir /srv/mgr
+  sudo cp /vagrant/provision/cache/cache.key /srv/mgr/
+  cd /vagrant/provision
+  dos2unix install-cache.rb
+  sudo ./install-cache.rb 
+  #sleep 60*3
+
 else
   echo "You are missing: $cacheInstaller"
   echo "You cannot provision this system until you have downloaded Intersystems Cache"
@@ -229,44 +250,51 @@ EOE
 # todo: this doesn't work because it doesn't see device(0) ~something with c-vt320? vt320 doesn't 
 # work either...
 cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/
-csession CACHE -UVISTA "^ZU" <<EOI
-cprs1234
-cprs4321$
-^^load a distribution
-/srv/mgr/VEFB_1_2.KID
-yes
-^^install package
-VEFB 1.2
-no
-no
+cd /opt/vagrant/provision/
+dos2unix install-vefb.rb
+sudo ./install-vefb.rb
 
-^
-^
-h
-EOI
+#csession CACHE -UVISTA "^ZU" <<EOI
+#cprs1234
+#cprs4321$
+#^^load a distribution
+#/srv/mgr/VEFB_1_2.KID
+#yes
+#^^install package
+#VEFB 1.2
+#no
+#no
+#
+#^
+#^
+#h
+#EOI
 
 # EWD.js and Federator installation ############################
 sudo mkdir /var/log/raptor 
 sudo touch /var/log/raptor/federatorCPM.log
 sudo touch /var/log/raptor/ewdjs.log
-#sudo chown -R vagrant:vagrant /var/log/raptor
-sudo chown -R $myusername:$myusername /var/log/raptor
+sudo chown -R vagrant:vagrant /var/log/raptor
 
 cd /vagrant/OtherComponents/EWDJSvistalayer
 sudo cp -R ewdjs /opt/
-sudo chown -R $myusername:$myusername /opt/raptor 
-cd /opt/ewdjs 
-npm install ewdjs@0.103.0 
-npm install ewd-federator
-#sudo npm install -g inherits@2.0.0
-#sudo npm install -g node-inspector
+sudo chown -R vagrant:vagrant /opt/ewdjs
+
+cd /vagrant/provision
+dos2unix install-ewd.rb
+sudo ./install-ewd.rb
+
+cd /opt/ewdjs
+sudo npm install -g inherits@2.0.0
+sudo npm install -g globalsjs@0.31.0
 
 # get database interface from cache version we are running
 sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
 
 # copy node_modules for ewd into RAPTOR Module space...
-cd /opt/ewdjs/node_modules/ewdjs/essentials
-sudo cp -R node_modules /var/www/html/RSite500/sites/all/modules/raptor_glue/core/
+#cd /opt/ewdjs/node_modules/ewdjs/essentials
+#sudo cp -R node_modules /var/www/html/RSite500/sites/all/modules/raptor_glue/core/
+sudo cp -R /opt/ewdjs/node_modules /var/www/html/RSite500/sites/all/modules/raptor_glue/core/node_modules 
 sudo chown -R apache:apache /var/www/html/RSite500/sites/all/modules/raptor_glue/core/node_modules/
 
 # start EWD and EWD Federator
@@ -275,9 +303,12 @@ cd /opt/ewdjs
 # add ewdfederator access to EWD
 node registerEWDFederator.js
 
-# start EWD and Federator 
 sudo dos2unix startEverything.sh 
 sudo chmod a+x startEverything.sh 
+sudo dos2unix killEverything.sh 
+sudo chmod a+x killEverything.sh
+
+# start EWD and Federator 
 sudo ./startEverything.sh 
 
 # user notifications 
@@ -286,7 +317,7 @@ echo VistA is now installed.
 echo CSP is here: http://192.168.33.11:57772/csp/sys/UtilHome.csp
 echo username: cache password: innovate 
 echo See Readme.md from root level of this repository... 
-echo EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/ password: innovate 
+echo EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/index.html password: innovate 
 echo EWD: http://192.168.33.11:8082/ewdjs/EWD.js ewdBootstrap3.js 
 echo EWD Federator: http://192.168.33.11:8081/RaptorEwdVista/raptor/
 echo password: innovate 

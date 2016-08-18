@@ -125,9 +125,9 @@ http://192.168.33.11/RSite500/
 username: admin
 password: raptor1!
 
-Resident access/verify: 1radiologist/cprs1234$
-Radiologist access/verify: radio1234/Rad12345!
-Scheduler access/verify: cprs1234/cprs4321$
+- Resident access/verify: 1radiologist/cprs1234$
+- Radiologist access/verify: radio1234/Rad12345!
+- Scheduler access/verify: cprs1234/cprs4321$
 
 Configuration
 -------------
@@ -143,8 +143,8 @@ VistA Terminal Session
 ```
 csession cache -U VISTA "^ZU"
 ```
-username: vagrant 
-password: innovate 
+username: cprs1234 
+password: cprs4321$ 
 
 Troubleshooting
 ---------------

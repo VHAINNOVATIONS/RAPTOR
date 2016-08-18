@@ -18,7 +18,7 @@ var params = {
   poolSize: 2,
   httpPort: 8082,
   modulePath: '/opt/ewdjs/node_modules',
-  webServerRootPath: '/opt/ewdjs/node_modules/ewdjs/essentials/www',  
+  webServerRootPath: '/opt/ewdjs/www',  
 traceLevel: 3,
   name: 'EWD.js CPM Server',
   database: {

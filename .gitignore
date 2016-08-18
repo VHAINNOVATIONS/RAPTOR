@@ -5,6 +5,7 @@ nbproject
 modules/*
 themes/*
 libraries/*
+ssh.exe.stackdump
 
 # ignore _private folder 
 _private
@@ -13,7 +14,7 @@ _private
 .vagrant
 
 # ignore cache installer and database
-provision/cache/VISTA
+provision/cache/CACHE.DAT
 provision/cache/cache-*.tar.gz
 
 #Except these things...
