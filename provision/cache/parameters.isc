@@ -32,7 +32,7 @@ unicode_selection.binary_type: eightbit
 unicode_selection.install_unicode: N
 security_settings.cache_user: cacheusr
 security_settings.cache_group: cacheusr
-security_settings.manager_user: ec2-user
+security_settings.manager_user: vagrant 
 security_settings.manager_group: cacheserver
 security_settings.dbencrypted: 0
 security_settings.dbenckeyfile:
