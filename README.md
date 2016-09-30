@@ -108,9 +108,34 @@ Loading Distribution...
 Use INSTALL NAME: VEFB 1.2 to install this Distribution.
 
 ```
+
+EWDJS and EWD Federator
+-----------------------
+EWDJS and FEDERATOR resides within the /opt/ewdjs folder 
+
+To manually start it you can use this command:
 ```
 cd /opt/ewdjs
-sudo nohup node ewdStart-raptor > /var/log/raptor/ewdjsCPM.log 2>&1 &
+./startEverything.sh
+```
+To stop it use this:
+```
+cd /opt/ewdjs
+./killEverything.sh
+```
+
+Important EWD Links on RAPTOR Development VM
+--------------------------------------------
+EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/index.html password: innovate 
+EWD: http://192.168.33.11:8082/ewdjs/EWD.js ewdBootstrap3.js 
+EWD Federator: http://192.168.33.11:8081/RaptorEwdVista/raptor/
+echo password: innovate 
+
+Cache Links on RAPTOR Development VM
+------------------------------------
+CSP is here: http://192.168.33.11:57772/csp/sys/UtilHome.csp
+username: cache password: innovate
+
 ```
 Now EWD is running and you should try to log into the RAPTOR application
 using a user such as:
