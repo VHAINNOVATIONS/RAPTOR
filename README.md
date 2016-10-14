@@ -36,7 +36,7 @@ Prerequisites
 
 Installation for Production
 ---------------------------
-https://github.com/VHAINNOVATIONS/RAPTOR/blob/automate/Installation/README.md
+https://github.com/VHAINNOVATIONS/RAPTOR/blob/automate/installation/README.md
 
 Installation for Demonstration and Development
 ----------------------------------------------
