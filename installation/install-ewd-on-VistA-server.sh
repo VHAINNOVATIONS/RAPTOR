@@ -11,7 +11,7 @@ sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noa
 sudo rpm -Uvh http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
 rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm
 # sed -i s'/enabled=1/enabled=0/' /etc/yum.repos.d/remi.repo
-sudo cp /vagrant/provision/remi.repo /etc/yum.repos.d/
+#sudo cp /vagrant/provision/remi.repo /etc/yum.repos.d/
 
 # install Nodejs and Development Tools such as gcc & make
 sudo yum -y groupinstall 'Development Tools'
