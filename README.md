@@ -36,7 +36,7 @@ Prerequisites
 
 Installation for Production
 ---------------------------
-https://github.com/VHAINNOVATIONS/RAPTOR/Installation/README.md
+https://github.com/VHAINNOVATIONS/RAPTOR/blob/automate/Installation/README.md
 
 Installation for Demonstration and Development
 ----------------------------------------------
@@ -134,13 +134,13 @@ echo password: innovate
 Cache Links on RAPTOR Development VM
 ------------------------------------
 CSP is here: http://192.168.33.11:57772/csp/sys/UtilHome.csp
-username: cache password: innovate
+username: vagrant 
+password: innovate
 
-```
 Now EWD is running and you should try to log into the RAPTOR application
 using a user such as:
 
-1radiologist/radiologist1 
+1radiologist/cprs1234$
 
 
 Credentials

@@ -28,6 +28,27 @@ or by cloning the repository by using the git clone command:
 git clone https://github.com/VHAINNOVATIONS/RAPTOR.git
 ```
 
+Assumptions
+===========
+Currently the setup.production.sh and install-ewd-on-VistA-server scripts both assume that the repository has been copied 
+to the respective server and that it has been unzipped in a folder called '/vagrant'.  If this is not the case the script 
+will fail.  
+
+Please ensure that these locations have been created prior to running the scripts.
+
+NOTE: The setup.production.sh script will install Cache with a test VistA instance as well which would not be used in a production setting but,
+is useful in testing the system prior to pointing EWD Federator at a production VistA having EWD.js installed.
+
+IMPORTANT: 
+----------
+
+The following scripts will need to be adjusted for credentials in your environment for a production installation of EWD.js:
+```
+OtherComponents/EWDJSvistalayer/ewdjs/registerEWDFederator.js
+OtherComponents/EWDJSvistalayer/ewdjs/ewdStart-raptor.js
+OtherComponents/EWDJSvistalayer/ewdjs/startFederator.js
+```
+
 VistA Server EWD Installation
 =============================
 1. Use the ssh command or set up a connection through Attachmate Reflection and connect to the Linux server that hosts the VistA instance(s) RAPTOR will communicate with
