@@ -26,7 +26,7 @@
 
 namespace raptor;
 
-require_once 'ContraindicationPageHelper.php';
+require_once 'ContraIndicationPageHelper.php';
 
 /**
  * This class returns the Admin Information input content
