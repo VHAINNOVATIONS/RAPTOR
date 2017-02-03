@@ -28,7 +28,7 @@ namespace raptor;
 
 module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
 
-/**
+/** 
  * This class returns the configuration edit page
  *
  * @author Frank Font of SAN Business Consultants

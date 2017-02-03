@@ -26,7 +26,7 @@
 
 namespace raptor;
 
-require_once 'ContraindicationPageHelper.php';
+require_once 'ContraIndicationPageHelper.php';
 
 module_load_include('php','simplerulesengine_ui','form/DeleteRulePage');
 module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
