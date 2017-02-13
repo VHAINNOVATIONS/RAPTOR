@@ -1,4 +1,4 @@
-var ewdGlobals = require('./node_modules/ewdjs/node_modules/globalsjs');
+var ewdGlobals = require('globalsjs');
 var interface = require('cache');
 var db = new interface.Cache();
 var ok = db.open({
@@ -8,7 +8,7 @@ var ok = db.open({
   namespace: 'VISTA'
 });
 
-ewdGlobals.init(db);
+ewdGlobals.init(db); 
 
 var ewd = {
   mumps: ewdGlobals

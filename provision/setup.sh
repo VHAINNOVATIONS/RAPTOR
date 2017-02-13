@@ -3,8 +3,10 @@
 # set username
 myusername=$USER
 # set up base box through vagrant file with these commands
-cacheInstallerPath=/vagrant/provision/cache 
+nexusUrl=http://nexus.vaftl.us:8081/nexus/service/local/repositories/ftl/content/
+cacheInstallerPath=/vagrant/provision/cache
 cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+cacheInstallerSource=$nexusUrl/$cacheInstaller
 parametersIsc=parameters.isc 
 cacheInstallTargetPath=/srv 
 # configure selinux ###################
@@ -49,7 +51,7 @@ sudo service httpd start
 echo install mysql
 echo -------------
 cd
-wget http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
+wget -nc -progress=bar:force http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
 sudo rpm -Uvh mysql-community-release-el6-5.noarch.rpm
 sudo yum -y install dos2unix mysql mysql-server php-mysql php-soap php-mbstring php-dom php-xml rsync ruby-devel
 sudo rpm -qa | grep mysql
@@ -78,7 +80,7 @@ mysql -u root -p"$DATABASE_PASS" -h localhost -e "FLUSH PRIVILEGES;"
 
 # Download latest stable release using the code below or browse to github.com/drush-ops/drush/releases.
 cd
-wget http://files.drush.org/drush.phar
+wget -nc -progress=bar:force http://files.drush.org/drush.phar
 
 # Test your install.
 php drush.phar core-status
@@ -92,7 +94,7 @@ sudo mv drush.phar /usr/local/bin/drush
 
 # Get Drupal 7 ###########################
 
-wget http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
+wget -nc -progress=bar:force http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
 tar xzvf drupal*
 cd drupal*
 sudo mkdir /var/www/html/RSite500
@@ -154,9 +156,12 @@ if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
   echo "Cache installer is already in present..."
 else
   echo "downloading Cache installer..."
-  wget -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+  #wget -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+  #wget -nc --progress=bar:force -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+  wget -nc --progress=bar:force -P $cacheInstallerPath/ $cacheInstallerSource
 fi
 
+echo "Attempting to install Intersystems Caché..."
 if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
   echo "Installing Cache from: $cacheInstaller"
   # install from tar.gz 
@@ -164,13 +169,6 @@ if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
   cd $cacheInstallTargetPath/tmp
   sudo cp $cacheInstallerPath/$cacheInstaller .
   sudo tar -xzvf $cacheInstaller   
-
-  # set user in parameters file to match $myusername
-  #sed -i -e `s/ vagrant/$myusername/` $cacheInstallerPath/parameters.isc
-
-# -- deprecating installation from parameters file ---
-#  # install from parameters file
-#  sudo $cacheInstallTargetPath/tmp/package/installFromParametersFile $cacheInstallerPath/parameters.isc
 
   # spawn ruby cache installer
   #
@@ -181,9 +179,11 @@ if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
   sudo cp /vagrant/provision/cache/cache.key /srv/mgr/
   cd /vagrant/provision
   dos2unix install-cache.rb
-  sudo ./install-cache.rb 
-  #sleep 60*3
-
+  sudo chmod u+x install-cache.rb
+  echo "Running ruby installer for cache in lieu of using parameter file : Fix for deploying under Windows OS"
+  sudo ruby ./install-cache.rb 
+  echo "waiting..."
+  sleep 60*3
 else
   echo "You are missing: $cacheInstaller"
   echo "You cannot provision this system until you have downloaded Intersystems Cache"
@@ -215,7 +215,7 @@ else
   sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA 
   sudo chown -R $myusername:cacheusr $cacheInstallTargetPath/mgr/VISTA
   echo "This will take a while... Get some coffee or a cup of tea..."
-  wget -P $cacheInstallTargetPath/mgr/VISTA/ http://vaftl.us/vagrant/CACHE.DAT 
+  wget -nc -progress=bar:force -P $cacheInstallTargetPath/mgr/VISTA/ http://vaftl.us/vagrant/CACHE.DAT 
 fi
 
 echo "Setting permissions on database."
@@ -252,6 +252,7 @@ EOE
 cp /vagrant/OtherComponents/VistAConfig/VEFB_1_2.KID /srv/mgr/
 cd /opt/vagrant/provision/
 dos2unix install-vefb.rb
+sudo chmod u+x install-vefb.rb
 sudo ./install-vefb.rb
 
 #csession CACHE -UVISTA "^ZU" <<EOI
@@ -282,11 +283,12 @@ sudo chown -R vagrant:vagrant /opt/ewdjs
 
 cd /vagrant/provision
 dos2unix install-ewd.rb
+sudo chmod u+x install-ewd.rb
 sudo ./install-ewd.rb
 
 cd /opt/ewdjs
 sudo npm install -g inherits@2.0.0
-sudo npm install -g globalsjs@0.31.0
+npm install globalsjs@0.31.0
 
 # get database interface from cache version we are running
 sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node

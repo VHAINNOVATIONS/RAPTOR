@@ -2,6 +2,8 @@
 nbproject
 *.zip
 *.7z
+.DS_Store
+
 modules/*
 themes/*
 libraries/*
@@ -16,7 +18,7 @@ _private
 # ignore cache installer and database
 provision/cache/CACHE.DAT
 provision/cache/cache-*.tar.gz
-
+ 
 #Except these things...
 !.gitignore
 !EWDJSvistalayer

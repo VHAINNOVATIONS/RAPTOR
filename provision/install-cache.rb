@@ -10,7 +10,7 @@ require 'pty'
 require 'expect'
 require 'json'
 
-print "BC's Cache Installer...\r"
+print "BC's Cache Installer... \r"
 
 file = File.read('config.local.json')
 config=JSON.parse(file)
