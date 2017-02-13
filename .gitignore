@@ -2,10 +2,23 @@
 nbproject
 *.zip
 *.7z
+.DS_Store
+
 modules/*
 themes/*
 libraries/*
+ssh.exe.stackdump
 
+# ignore _private folder 
+_private
+
+# ignore hidden vagrant folder
+.vagrant
+
+# ignore cache installer and database
+provision/cache/CACHE.DAT
+provision/cache/cache-*.tar.gz
+ 
 #Except these things...
 !.gitignore
 !EWDJSvistalayer
