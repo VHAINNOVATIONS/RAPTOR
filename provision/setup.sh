@@ -51,7 +51,7 @@ sudo service httpd start
 echo install mysql
 echo -------------
 cd
-wget -nc -progress=bar:force http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
+wget -nc --progress=bar:force http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm
 sudo rpm -Uvh mysql-community-release-el6-5.noarch.rpm
 sudo yum -y install dos2unix mysql mysql-server php-mysql php-soap php-mbstring php-dom php-xml rsync ruby-devel
 sudo rpm -qa | grep mysql
@@ -80,7 +80,7 @@ mysql -u root -p"$DATABASE_PASS" -h localhost -e "FLUSH PRIVILEGES;"
 
 # Download latest stable release using the code below or browse to github.com/drush-ops/drush/releases.
 cd
-wget -nc -progress=bar:force http://files.drush.org/drush.phar
+wget -nc --progress=bar:force http://files.drush.org/drush.phar
 
 # Test your install.
 php drush.phar core-status
@@ -94,7 +94,7 @@ sudo mv drush.phar /usr/local/bin/drush
 
 # Get Drupal 7 ###########################
 
-wget -nc -progress=bar:force http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
+wget -nc --progress=bar:force http://ftp.drupal.org/files/projects/drupal-7.41.tar.gz
 tar xzvf drupal*
 cd drupal*
 sudo mkdir /var/www/html/RSite500
@@ -215,7 +215,7 @@ else
   sudo mkdir -p $cacheInstallTargetPath/mgr/VISTA 
   sudo chown -R $myusername:cacheusr $cacheInstallTargetPath/mgr/VISTA
   echo "This will take a while... Get some coffee or a cup of tea..."
-  wget -nc -progress=bar:force -P $cacheInstallTargetPath/mgr/VISTA/ http://vaftl.us/vagrant/CACHE.DAT 
+  wget -nc --progress=bar:force -P $cacheInstallTargetPath/mgr/VISTA/ http://vaftl.us/vagrant/CACHE.DAT 
 fi
 
 echo "Setting permissions on database."
