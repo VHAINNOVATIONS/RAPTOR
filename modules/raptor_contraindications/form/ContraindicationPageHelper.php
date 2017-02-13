@@ -28,7 +28,7 @@ namespace raptor;
 
 require_once (RAPTOR_CI_MODULE_PATH . '/core/ContraIndEngine.inc');
 
-/**
+/** 
  * This class helps with forms
  *
  * @author Frank Font of SAN Business Consultants

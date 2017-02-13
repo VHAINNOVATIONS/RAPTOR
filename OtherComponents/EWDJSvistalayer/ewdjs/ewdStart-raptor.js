@@ -17,19 +17,20 @@ var params = {
   logFile: '/var/log/raptor/ewdjs.log',
   poolSize: 2,
   httpPort: 8082,
-  traceLevel: 3,
+  modulePath: '/opt/ewdjs/node_modules',
+  webServerRootPath: '/opt/ewdjs/www',  
+traceLevel: 3,
   name: 'EWD.js CPM Server',
   database: {
     type: 'cache',
-    //path:"/opt/cache/mgr",
     path:"/srv/mgr",
     username: "_SYSTEM",
-    password: "SYS",
-    //namespace: "USER"
-    namespace: "CPM"
+    password: "innovate",
+    namespace: "VISTA"
   },
   management: {
-    password: 'keepThisSecret!15'
+    path: '/ewdjsMgr',
+    password: 'innovate'
   }
 };
 

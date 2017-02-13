@@ -1,0 +1,352 @@
+[ConfigFile]
+Version=2013.1
+
+[Databases]
+CACHESYS=/srv/mgr/
+CACHELIB=/srv/mgr/cachelib/
+CACHETEMP=/srv/mgr/cachetemp/
+CACHE=/srv/mgr/cache/
+CACHEAUDIT=/srv/mgr/cacheaudit/
+DOCBOOK=/srv/mgr/docbook/
+SAMPLES=/srv/mgr/samples/
+USER=/srv/mgr/user/
+VISTA=/srv/mgr/VISTA/
+
+[Namespaces]
+%SYS=CACHESYS
+DOCBOOK=DOCBOOK
+SAMPLES=SAMPLES
+USER=USER
+VISTA=VISTA
+
+[Map.VISTA]
+Global_%Z*=VISTA
+Global_%z*=VISTA
+Routine_%DT*=VISTA
+Routine_%HOSTCMD=VISTA
+Routine_%INET=VISTA
+Routine_%RCR=VISTA
+Routine_%XB*=VISTA
+Routine_%XU*=VISTA
+Routine_%ZDEBUG*=VISTA
+Routine_%ZG=VISTA
+Routine_%ZIS*=VISTA
+Routine_%ZI*=VISTA
+Routine_%ZO*=VISTA
+Routine_%ZT*=VISTA
+Routine_%ZV*=VISTA
+
+[MirrorMember]
+AgentAddress=
+AsyncMemberGUID=
+DaysBeforePurge=0
+JoinMirror=0
+SystemName=
+VirtualAddressInterface=
+
+[Journal]
+AlternateDirectory=/srv/mgr/journal/
+BackupsBeforePurge=2
+CurrentDirectory=/srv/mgr/journal/
+DaysBeforePurge=2
+FileSizeLimit=1024
+FreezeOnError=0
+JournalFilePrefix=
+JournalcspSession=0
+
+[Startup]
+CallinHalt=1
+CallinStart=1
+CliSysName=
+DBSizesAllowed=8192
+DefaultPort=1972
+DefaultPortBindAddress=
+EnsembleAutoStart=0
+ErrorPurge=30
+IPv6=0
+JobHalt=1
+JobServers=0
+JobStart=1
+MaxCacheTempSizeAtStart=0
+MaxConsoleLogSize=5
+ProcessHalt=1
+ProcessStart=1
+ShutdownTimeout=300
+SystemHalt=1
+SystemStart=1
+TempDirectory=Temp
+TerminalPrompt=8,2
+WebServer=1
+WebServerName=
+WebServerPort=57772
+WebServerURLPrefix=
+ZSTU=1
+
+[DeviceSubTypes]
+C-ANSI=80^#,$C(27,91,72,27,91,74)^25^$C(8)^W $C(27,91)_(DY+1)_";"_(DX+1)_"H" S $X=DX,$Y=DY^$C(27,91,74)^$C(27,91,75)^$C(27,91,72,27,91,74)^$C(8,32,8)
+C-Cache Terminal=80^#,$C(27,91,72,27,91,74)^24^$C(8)^W $C(27,91)_(DY+1)_";"_(DX+1)_"H" S $X=DX,$Y=DY^$C(27,91,74)^$C(27,91,75)^$C(27,91,72,27,91,74)^$C(8,32,8)
+C-TV925=80^#,$C(27,44)^24^$C(8)^W $C(27,61,DY+32,DX+32) S $X=DX,$Y=DY^^^$C(27,44)^$C(8,32,8)
+C-VT100=80^#,$C(27,91,72,27,91,74)^24^$C(8)^W $C(27,91)_(DY+1)_";"_(DX+1)_"H" S $X=DX,$Y=DY^$C(27,91,74)^$C(27,91,75)^^
+C-VT101W=132^#,$C(27,91,72,27,91,74)^14^$C(8)^W $C(27,91)_(DY+1)_";"_(DX+1)_"H" S $X=DX,$Y=DY^$C(27,91,74)^$C(27,91,75)^^
+C-VT132=132^#,$C(27,91,72,27,91,74)^24^$C(8)^W $C(27,91)_(DY+1)_";"_(DX+1)_"H" S $X=DX,$Y=DY^$C(27,91,74)^$C(27,91,75)^^
+C-VT220=80^#,$C(27,91,72,27,91,74)^24^$C(8)^W $C(27,91)_(DY+1)_";"_(DX+1)_"H" S $X=DX,$Y=DY^$C(27,91,74)^$C(27,91,75)^$C(27,91,72,27,91,74)^$C(8,32,8)
+C-VT240=80^#,$C(27,91,72,27,91,74)^24^$C(8)^W $C(27,91)_(DY+1)_";"_(DX+1)_"H" S $X=DX,$Y=DY^$C(27,91,74)^$C(27,91,75)^$C(27,91,72,27,91,74)^$C(8,32,8)
+C-VT52=80^#,$C(27,72)^24^$C(8)^W $C(27,89,DY+32,DX+32) S $X=DX,$Y=DY^^^^
+M/UX=255^#^66^$C(8)^^^^^
+MAIL=132^#^11^$C(8)^^^^^
+P-DEC=132^#^66^$C(8)^^^^^
+PK-DEC=150^#^66^$C(8)^^^^^
+PK-QUME=150^#^66^$C(8)^^^^^
+
+[Devices]
+0=0^TRM^C-Cache Terminal^^^^Principal device^
+2=2^SPL^PK-DEC^^^^Spool LA120^
+47=47^MT^M/UX^^("auv":0:2048)^^Magnetic tape^
+48=48^MT^M/UX^^("avl":0:2048)^^Magnetic tape^
+57=57^BT^M/UX^^("auv":0:2048)^^Magnetic tape^
+58=58^BT^M/UX^^("avl":0:2048)^^Magnetic tape^
+SPOOL=2^SPL^PK-DEC^^^^Spool LA120^
+TERM=0^TRM^C-Cache Terminal^^^^Windows Console^
+|LAT|=0^TRM^C-VT220^^^^Principal device^
+|PRN|=|PRN|^OTH^P-DEC^^"W"^^Windows Printer^
+|TNT|=0^TRM^C-VT220^^^^Principal device^
+|TRM|=0^TRM^C-Cache Terminal^^^^Windows Console^
+
+[MagTapes]
+47=/dev/st0
+48=/dev/st1
+49=/dev/st0l
+50=/dev/st1l
+51=/dev/st0a
+52=/dev/st1a
+53=/dev/st0m
+54=/dev/st1m
+55=/dev/nst0
+56=/dev/nst1
+57=/dev/st0
+58=/dev/st1
+59=/dev/st0l
+60=/dev/st1l
+61=/dev/st0a
+62=/dev/st1a
+
+[config]
+LibPath=
+MaxServerConn=1
+MaxServers=2
+Path=
+bbsiz=262144
+console=,
+errlog=500
+globals=0,0,0,0,0,0
+gmheap=21184
+history=32,1024
+ijcbuff=512
+ijcnum=16
+locksiz=1179648
+memlock=0
+netjob=1
+nlstab=30
+overview=Linux/x86-64~UNIX
+pijdir=
+routines=0
+udevtabsiz=24576
+vectors=32
+wijdir=
+zfheap=0,0
+
+[Miscellaneous]
+AsyncDisconnectErr=0
+AsynchError=1
+BreakMode=1
+CollectResourceStats=0
+DisconnectErr=0
+EnableLongStrings=1
+FileMode=0
+GlobalKillEnabled=1
+IEEEError=1
+LineRecall=1
+LogRollback=0
+MVDefined=0
+NodeNameInPid=0
+NullSubscripts=0
+OldZU5=0
+OpenMode=0
+PopError=0
+RefInKind=0
+ScientificNotation=1
+SetZEOF=0
+ShutDownLogErrors=0
+StopID=0
+SwitchOSdir=0
+SynchCommit=0
+TelnetNUL=0
+TruncateOverflow=0
+Undefined=0
+UseNagleAlgorithm=0
+ViewPastData=0
+ZDateNull=0
+ZaMode=0
+
+[ECP]
+ClientReconnectDuration=1200
+ClientReconnectInterval=5
+ServerTroubleDuration=60
+
+[Cluster]
+CommIPAddress=
+JoinCluster=0
+
+[LicenseServers]
+LOCAL=127.0.0.1,4001
+
+[Monitor]
+PatrolCollectionInterval=30
+PatrolDisplayMode=0
+PatrolEnabled=0
+PatrolTopProcesses=20
+SNMPEnabled=0
+WMIEnabled=0
+
+[IO]
+File=^%X364
+MagTape=^%XMAG
+Other=^%X364
+Terminal=^%X364
+
+[SQL]
+AllowRowIDUpdate=0
+Comment=1
+DBMSSecurity=1
+DDLNo201=0
+DDLNo30=0
+DDLNo307=0
+DDLNo311=0
+DDLNo315=0
+DDLNo324=0
+DDLNo333=0
+DDLSQLOnlyCompile=0
+DefaultSchema=SQLUser
+DelimitedIds=1
+DropDelete=1
+ECPSync=0
+ExtrinsicFunctions=0
+FastDistinct=1
+IdKey=1
+IdTrxFrom=~ `!@#$%^&*()_+-=[]\{}|;':",./<>?
+IdTrxTo=
+JDBCGatewayAddress=
+JDBCGatewayLog=
+JDBCGatewayPort=62972
+JavaClassPath=
+JavaHome=
+LockThreshold=1000
+LockTimeout=10
+ODBCVarcharMaxlen=4096
+Prefix=CacheSql
+QueryProcedures=0
+ReferentialChecks=1
+SaveMAC=0
+TCPKeepAlive=300
+TODATEDefaultFormat=DD MON YYYY
+TimePrecision=0
+
+[SqlSysDatatypes]
+BIGINT=%Library.BigInt
+BIGINT(%1)=%Library.BigInt
+BINARY=%Library.Binary(MAXLEN=1)
+BINARY VARYING=%Library.Binary(MAXLEN=1)
+BINARY VARYING(%1)=%Library.Binary(MAXLEN=%1)
+BINARY(%1)=%Library.Binary(MAXLEN=%1)
+BIT=%Library.Boolean
+BLOB=%Stream.GlobalBinary
+CHAR=%Library.String(MAXLEN=1)
+CHAR VARYING=%Library.String(MAXLEN=1)
+CHAR VARYING(%1)=%Library.String(MAXLEN=%1)
+CHAR(%1)=%Library.String(MAXLEN=%1)
+CHARACTER=%Library.String(MAXLEN=1)
+CHARACTER VARYING=%Library.String(MAXLEN=1)
+CHARACTER VARYING(%1)=%Library.String(MAXLEN=%1)
+CHARACTER(%1)=%Library.String(MAXLEN=%1)
+CLOB=%Stream.GlobalCharacter
+DATE=%Library.Date
+DATETIME=%Library.TimeStamp
+DATETIME2=%Library.TimeStamp
+DEC=%Library.Numeric(MAXVAL=999999999999999,MINVAL=-999999999999999,SCALE=0)
+DEC(%1)=%Library.Numeric(MAXVAL=<|'$$maxval^%apiSQL(%1,0)'|>,MINVAL=<|'$$minval^%apiSQL(%1,0)'|>,SCALE=0)
+DEC(%1,%2)=%Library.Numeric(MAXVAL=<|'$$maxval^%apiSQL(%1,%2)'|>,MINVAL=<|'$$minval^%apiSQL(%1,%2)'|>,SCALE=%2)
+DECIMAL=%Library.Numeric(MAXVAL=999999999999999,MINVAL=-999999999999999,SCALE=0)
+DECIMAL(%1)=%Library.Numeric(MAXVAL=<|'$$maxval^%apiSQL(%1,0)'|>,MINVAL=<|'$$minval^%apiSQL(%1,0)'|>,SCALE=0)
+DECIMAL(%1,%2)=%Library.Numeric(MAXVAL=<|'$$maxval^%apiSQL(%1,%2)'|>,MINVAL=<|'$$minval^%apiSQL(%1,%2)'|>,SCALE=%2)
+DOUBLE=%Library.Double
+DOUBLE PRECISION=%Library.Double
+FLOAT=%Library.Float
+FLOAT(%1)=%Library.Float(MAXVAL=<|'$$maxval^%apiSQL(%1)'|>,MINVAL=<|'$$minval^%apiSQL(%1)'|>)
+IMAGE=%Stream.GlobalBinary
+INT=%Library.Integer(MAXVAL=2147483647,MINVAL=-2147483648)
+INT(%1)=%Library.Integer(MAXVAL=2147483647,MINVAL=-2147483648)
+INTEGER=%Library.Integer(MAXVAL=2147483647,MINVAL=-2147483648)
+LONG=%Stream.GlobalCharacter
+LONG BINARY=%Stream.GlobalBinary
+LONG RAW=%Stream.GlobalBinary
+LONG VARCHAR=%Stream.GlobalCharacter
+LONG VARCHAR(%1)=%Stream.GlobalCharacter
+LONGTEXT=%Stream.GlobalCharacter
+LONGVARBINARY=%Stream.GlobalBinary
+LONGVARBINARY(%1)=%Stream.GlobalBinary
+LONGVARCHAR=%Stream.GlobalCharacter
+LONGVARCHAR(%1)=%Stream.GlobalCharacter
+MEDIUMINT=%Library.Integer(MAXVAL=8388607,MINVAL=-8388608)
+MEDIUMINT(%1)=%Library.Integer(MAXVAL=8388607,MINVAL=-8388608)
+MONEY=%Library.Currency
+NATIONAL CHAR=%Library.String(MAXLEN=1)
+NATIONAL CHAR VARYING=%Library.String(MAXLEN=1)
+NATIONAL CHAR VARYING(%1)=%Library.String(MAXLEN=%1)
+NATIONAL CHAR(%1)=%Library.String(MAXLEN=%1)
+NATIONAL CHARACTER=%Library.String(MAXLEN=1)
+NATIONAL CHARACTER VARYING=%Library.String(MAXLEN=1)
+NATIONAL CHARACTER VARYING(%1)=%Library.String(MAXLEN=%1)
+NATIONAL CHARACTER(%1)=%Library.String(MAXLEN=%1)
+NATIONAL VARCHAR=%Library.String(MAXLEN=1)
+NATIONAL VARCHAR(%1)=%Library.String(MAXLEN=%1)
+NCHAR=%Library.String(MAXLEN=1)
+NCHAR(%1)=%Library.String(MAXLEN=%1)
+NTEXT=%Stream.GlobalCharacter
+NUMBER=%Library.Numeric(SCALE=0)
+NUMBER(%1)=%Library.Numeric(MAXVAL=<|'$$maxval^%apiSQL(%1)'|>,MINVAL=<|'$$minval^%apiSQL(%1)'|>,SCALE=0)
+NUMBER(%1,%2)=%Library.Numeric(MAXVAL=<|'$$maxval^%apiSQL(%1,%2)'|>,MINVAL=<|'$$minval^%apiSQL(%1,%2)'|>,SCALE=%2)
+NUMERIC=%Library.Numeric(MAXVAL=999999999999999,MINVAL=-999999999999999,SCALE=0)
+NUMERIC(%1)=%Library.Numeric(MAXVAL=<|'$$maxval^%apiSQL(%1,0)'|>,MINVAL=<|'$$minval^%apiSQL(%1,0)'|>,SCALE=0)
+NUMERIC(%1,%2)=%Library.Numeric(MAXVAL=<|'$$maxval^%apiSQL(%1,%2)'|>,MINVAL=<|'$$minval^%apiSQL(%1,%2)'|>,SCALE=%2)
+NVARCHAR=%Library.String(MAXLEN=1)
+NVARCHAR(%1)=%Library.String(MAXLEN=%1)
+NVARCHAR(%1,%2)=%Library.String(MAXLEN=%1)
+NVARCHAR(MAX)=%Stream.GlobalCharacter
+RAW(%1)=%Library.Binary(MAXLEN=%1)
+REAL=%Library.Float
+SERIAL=%Library.Counter
+SMALLDATETIME=%Library.TimeStamp
+SMALLINT=%Library.SmallInt
+SMALLINT(%1)=%Library.SmallInt
+SMALLMONEY=%Library.Currency
+SYSNAME=%Library.String(MAXLEN=128)
+TEXT=%Stream.GlobalCharacter
+TIME=%Library.Time
+TIMESTAMP=%Library.TimeStamp
+TINYINT=%Library.TinyInt
+TINYINT(%1)=%Library.TinyInt
+VARBINARY=%Library.Binary(MAXLEN=1)
+VARBINARY(%1)=%Library.Binary(MAXLEN=%1)
+VARCHAR=%Library.String(MAXLEN=1)
+VARCHAR(%1)=%Library.String(MAXLEN=%1)
+VARCHAR(%1,%2)=%Library.String(MAXLEN=%1)
+VARCHAR(MAX)=%Stream.GlobalCharacter
+VARCHAR2(%1)=%Library.String(MAXLEN=%1)
+
+[Telnet]
+DNSLookup=ON
+Port=23
+
+[Conversions]
+LastConvertTime=2015-01-29 21:48:50
+

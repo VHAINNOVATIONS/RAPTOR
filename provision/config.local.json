@@ -1,0 +1,9 @@
+{
+    "cacheInstallerPath": "/vagrant/provision/cache",
+    "cacheInstaller": "cache-2014.1.3.775.14809-lnxrhx64.tar.gz",
+    "cacheInstallTargetPath": "/srv",
+    "instanceOwner": "vagrant",
+    "commonPassword": "innovate",
+    "cacheGroup": "cacheserver"
+}
+       

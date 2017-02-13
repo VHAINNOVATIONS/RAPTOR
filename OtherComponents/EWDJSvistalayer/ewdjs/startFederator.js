@@ -7,12 +7,10 @@ var params = {
   traceLevel: 3,
       database: {
         type: 'cache',
-        //path:"c:\\InterSystems\\Cache\\Mgr",
         path:"/srv/mgr",
         username: "_SYSTEM",
-        password: "SYS",
-        //namespace: "EDU"
-        namespace: "CPM"
+        password: "innovate",
+        namespace: "VISTA"
       },
   server: {
 
@@ -23,7 +21,7 @@ var params = {
       ssl: false,
       ewdjs: true,
       accessId: 'ewdfederator',  // change as needed
-      secretKey: 'apass'  // change as needed
+      secretKey: '$keepSecret!'  // change as needed
     }
   },
 

@@ -29,7 +29,7 @@ namespace raptor;
 module_load_include('php','simplerulesengine_ui','form/ManageRulesPage');
 module_load_include('inc','raptor_contraindications','core/ContraIndEngine');
 
-/**
+/** 
  * This class returns the list of available Rules
  *
  * @author Frank Font of SAN Business Consultants
