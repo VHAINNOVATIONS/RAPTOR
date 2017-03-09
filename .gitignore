@@ -2,7 +2,7 @@
 nbproject
 *.zip
 *.7z
-.DS_Store
+*.DS_Store
 
 modules/*
 themes/*
