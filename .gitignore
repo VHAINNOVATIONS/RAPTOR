@@ -4,6 +4,8 @@ nbproject
 *.7z
 *.DS_Store
 
+OtherComponents/QEWDvistalayer/node_modules
+
 modules/*
 themes/*
 libraries/*

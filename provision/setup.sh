@@ -255,38 +255,25 @@ dos2unix install-vefb.rb
 sudo chmod u+x install-vefb.rb
 sudo ./install-vefb.rb
 
-#csession CACHE -UVISTA "^ZU" <<EOI
-#cprs1234
-#cprs4321$
-#^^load a distribution
-#/srv/mgr/VEFB_1_2.KID
-#yes
-#^^install package
-#VEFB 1.2
-#no
-#no
+# QEWD.js and Federator installation #################################################
 #
-#^
-#^
-#h
-#EOI
-
-# EWD.js and Federator installation ############################
-sudo mkdir /var/log/raptor 
+sudo mkdir /var/log/raptor
 sudo touch /var/log/raptor/federatorCPM.log
 sudo touch /var/log/raptor/ewdjs.log
 sudo chown -R vagrant:vagrant /var/log/raptor
 
-cd /vagrant/OtherComponents/EWDJSvistalayer
-sudo cp -R ewdjs /opt/
+cd /vagrant/OtherComponents/QEWDJSvistalayer
+sudo mkdir /opt/ewdjs
+sudo cp * /opt/ewdjs/
 sudo chown -R vagrant:vagrant /opt/ewdjs
+cd /opt/ewdjs/
+sudo npm install
 
-cd /vagrant/provision
-dos2unix install-ewd.rb
-sudo chmod u+x install-ewd.rb
-sudo ./install-ewd.rb
+# cd /vagrant/provision
+# dos2unix install-qewd.rb
+# sudo chmod u+x install-qewd.rb
+# sudo ./install-qewd.rb
 
-cd /opt/ewdjs
 sudo npm install -g inherits@2.0.0
 npm install globalsjs@0.31.0
 
