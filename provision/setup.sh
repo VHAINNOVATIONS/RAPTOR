@@ -262,11 +262,13 @@ sudo touch /var/log/raptor/federatorCPM.log
 sudo touch /var/log/raptor/ewdjs.log
 sudo chown -R vagrant:vagrant /var/log/raptor
 
-cd /vagrant/OtherComponents/QEWDJSvistalayer
+cd /vagrant/OtherComponents/QEWDvistalayer
 sudo mkdir /opt/ewdjs
 sudo cp * /opt/ewdjs/
 sudo chown -R vagrant:vagrant /opt/ewdjs
 cd /opt/ewdjs/
+sudo chown -R vagrant:vagrant /opt/ewdjs
+sudo chmod a+x /opt/ewdjs/*.sh 
 sudo npm install
 
 # cd /vagrant/provision
@@ -288,6 +290,7 @@ sudo chown -R apache:apache /var/www/html/RSite500/sites/all/modules/raptor_glue
 
 # start EWD and EWD Federator
 cd /opt/ewdjs
+sudo chown -R vagrant:vagrant /opt/ewdjs
 
 # add ewdfederator access to EWD
 node registerEWDFederator.js

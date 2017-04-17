@@ -49,23 +49,20 @@ This automated installation process will create a RAPTOR system on a Linux-based
 ```
 vagrant up
 ```
-To provision in AWS adjust your environment variables or modify the 'aws' section of the Vagrantfile and execute:
+If you change the Unix username that you install RAPTOR from you will need to change your username in the provisioning scripts.
 
-To provision with AWS as your provider you will need to adjust line 25 of provision/cache/parameters.isc
-to contain the username you are using in AWS:
+To customize the credentials used for the Caché installation it is necessary to edit the provision/config.local.json file:
 ```
-security_settings.manager_user: vagrant
+{
+    "cacheInstallerPath": "/vagrant/provision/cache",
+    "cacheInstaller": "cache-2014.1.3.775.14809-lnxrhx64.tar.gz",
+    "cacheInstallTargetPath": "/srv",
+    "instanceOwner": "vagrant",
+    "commonPassword": "innovate",
+    "cacheGroup": "cacheserver"
+}
 ```
-~By default the username is set to 'vagrant'
-
-If you change this, you need to understand that everywhere in this document where the username
-'vagrant' is used, your new username would be used instead. 
-
-To change the name you will need to run the following where 'ec2-user' is your preferred username:
-
-```
-sed -i -e 's/vagrant/ec2-user/' /vagrant/provision/cache/parameters.isc
-```
+Further in the provision/setup.sh the install-cache.rb script parses this config.local.json file to use values for installation of InterSystem's Caché.
 
 Afterwards, you can build the machine in AWS as follows:
 ```
@@ -113,15 +110,15 @@ EWDJS and EWD Federator
 -----------------------
 EWDJS and FEDERATOR resides within the /opt/ewdjs folder 
 
-To manually start it you can use this command:
+To manually start it you can use this command (which executes /opt/ewdjs/startEverything.sh):
 ```
 cd /opt/ewdjs
-./startEverything.sh
+npm run start 
 ```
-To stop it use this:
+To stop it use this (evoking /opt/ewdjs/killEverything.sh):
 ```
 cd /opt/ewdjs
-./killEverything.sh
+npm run stop
 ```
 
 Important EWD Links on RAPTOR Development VM
