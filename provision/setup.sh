@@ -3,10 +3,10 @@
 # set username
 myusername=$USER
 # set up base box through vagrant file with these commands
-nexusUrl=http://nexus.vaftl.us:8081/nexus/service/local/repositories/ftl/content/
+resourcesUrl=http://resources.vaftl.us/files/cache
 cacheInstallerPath=/vagrant/provision/cache
-cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
-cacheInstallerSource=$nexusUrl/$cacheInstaller
+cacheInstaller=cache-2014.1.3.775.0-1.rh.x86_64.tar.gz
+cacheInstallerSource=$resourcesUrl/$cacheInstaller
 parametersIsc=parameters.isc 
 cacheInstallTargetPath=/srv 
 # configure selinux ###################
@@ -156,9 +156,7 @@ if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
   echo "Cache installer is already in present..."
 else
   echo "downloading Cache installer..."
-  #wget -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
-  #wget -nc --progress=bar:force -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
-  wget -nc --progress=bar:force -P $cacheInstallerPath/ $cacheInstallerSource
+  wget -nc --progress=bar:force -P $cacheInstallerPath/$cacheInstallerSource
 fi
 
 echo "Attempting to install Intersystems Caché..."

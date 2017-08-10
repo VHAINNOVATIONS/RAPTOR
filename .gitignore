@@ -18,6 +18,7 @@ _private
 # ignore cache installer and database
 provision/cache/CACHE.DAT
 provision/cache/cache-*.tar.gz
+provision/cache/cache.key
  
 #Except these things...
 !.gitignore
