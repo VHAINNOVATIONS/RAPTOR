@@ -5,7 +5,7 @@ myusername=$USER
 # set up base box through vagrant file with these commands
 resourcesUrl=http://resources.vaftl.us/files/cache
 cacheInstallerPath=/vagrant/provision/cache
-cacheInstaller=cache-2014.1.3.775.0-1.rh.x86_64.tar.gz
+cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
 cacheInstallerSource=$resourcesUrl/$cacheInstaller
 parametersIsc=parameters.isc 
 cacheInstallTargetPath=/srv 
