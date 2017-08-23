@@ -17,7 +17,7 @@ print "VEFB KIDS Installer...\r"
 
 fnames = [] # "csession cache -UVISTA '^ZU'"
 #PTY.spawn(config['command']) do |r_f,w_f,pid|
-PTY.spawn('csession cache -UVISTA '^ZU'') do |r_f,w_f,pid|
+PTY.spawn("csession cache -UVISTA '^ZU'") do |r_f,w_f,pid|
    w_f.sync = true
    $expect_verbose = true
 
