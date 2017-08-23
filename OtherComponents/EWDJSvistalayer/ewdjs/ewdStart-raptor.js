@@ -16,7 +16,6 @@ var ewd = require('ewdjs');
 var params = {
   logFile: '/var/log/raptor/ewdjs.log',
   poolSize: 2,
-  httpPort: 8082,
   httpPort: 8080,
   modulePath: '/opt/ewdjs/node_modules',
   webServerRootPath: '/opt/ewdjs/www',  
