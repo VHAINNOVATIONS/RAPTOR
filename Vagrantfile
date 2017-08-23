@@ -4,7 +4,7 @@
 Vagrant.configure("2") do |config|
   
   # config.vm.synced_folder "../", "/vagrant"
- # config.vm.synced_folder ".", "/vagrant", type: "rsync"    
+  #config.vm.synced_folder ".", "/vagrant", type: "rsync"    
 
   # Define primary box name for all VM providers
   # More VMs could be added here to build a multi-box install and provision
@@ -12,6 +12,7 @@ Vagrant.configure("2") do |config|
   
   config.vm.hostname="RAPTOR"
   config.vm.network :private_network, ip: "192.168.33.11"
+  #config.vm.network "public_network"
   config.vm.box = "CentOS 6.7 x86_64 Minimal (VirtualBox Guest Additions 5.0.8, Chef: 12.5.1, Puppet 3.8.4)"
   config.vm.box_url = "https://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.7-x86_64-v20151108.box"
 
@@ -41,15 +42,16 @@ Vagrant.configure("2") do |config|
     config.vm.hostname="RAPTOR"
     #config.ssh.pty = "true"
     #aws.user_data = "#!/bin/bash\nsed -i -e 's/^Defaults.*requiretty/# Defaults requiretty/g' /etc/sudoers"    
-    aws.access_key_id = ENV['access_key_id']
-    aws.secret_access_key = ENV['secret_access_key']
+    aws.access_key_id = ENV['aws_access_key_id']
+    aws.secret_access_key = ENV['aws_secret_access_key']
     aws.keypair_name = ENV['aws_keyname']
-    aws.ami = "ami-48b75c25"
-    aws.security_groups = ["VistA"]
+    #aws.ami = "ami-b98ea9af"
+    aws.ami = "ami-23e1ce58"
+    aws.security_groups = ["Raptor"]
     aws.region = "us-east-1"
     aws.instance_type = "m3.medium"
     override.vm.box = "dummy"
-    override.ssh.username = "ec2-user"
+    override.ssh.username = ENV["aws_username"]
     override.ssh.private_key_path = ENV['aws_keypath']
 
     #aws.access_key_id = ENV['AWS_ACCESS_KEY_ID']

@@ -3,13 +3,13 @@
 # set username
 myusername=$USER
 # set up base box through vagrant file with these commands
-resourcesUrl=http://resources.vaftl.us/files/cache
+cacheUrl=http://resources.vaftl.us/files/cache
 cacheInstallerPath=/vagrant/provision/cache
 cacheInstaller=cache-2014.1.3.775.14809-lnxrhx64.tar.gz
-cacheInstallerSource=$resourcesUrl/$cacheInstaller
+cacheInstallerSource=$cacheUrl/$cacheInstaller
 parametersIsc=parameters.isc 
 cacheInstallTargetPath=/srv 
-# configure selinux ###################
+# configure linux ###################
 #
 echo configuring ipv4 firewall
 echo -----------------------
@@ -35,7 +35,25 @@ sudo chkconfig httpd on
 
 # install Nodejs and Development Tools such as gcc & make
 sudo yum -y groupinstall 'Development Tools'
-sudo yum -y install nodejs npm
+#sudo yum -y install nodejs-6.0 npm
+
+# Node.js v6.x
+
+# Install NVM
+
+cd ~
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.32.1/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+nvm install 6
+
+sudo ln -s /usr/local/bin/node /usr/bin/node
+sudo ln -s /usr/local/lib/node /usr/lib/node
+sudo ln -s /usr/local/bin/npm /usr/bin/npm
+sudo ln -s /usr/local/bin/node-waf /usr/bin/node-waf
+n=$(which node);n=${n%/bin/node}; chmod -R 755 $n/bin/*; sudo cp -r $n/{bin,lib,share} /usr/local
+
+
 # sudo npm -g install bower
 
 # copy php.ini from provision folder to prepare for Drupal 7
@@ -156,7 +174,9 @@ if [ -e "$cacheInstallerPath/$cacheInstaller" ]; then
   echo "Cache installer is already in present..."
 else
   echo "downloading Cache installer..."
-  wget -nc --progress=bar:force -P $cacheInstallerPath/$cacheInstallerSource
+  #wget -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+  #wget -nc --progress=bar:force -P $cacheInstallerPath/ http://vaftl.us/vagrant/cache-2014.1.3.775.14809-lnxrhx64.tar.gz
+  wget -nc --progress=bar:force -P $cacheInstallerPath/ $cacheInstallerSource
 fi
 
 echo "Attempting to install Intersystems Caché..."
@@ -289,7 +309,8 @@ sudo npm install -g inherits@2.0.0
 npm install globalsjs@0.31.0
 
 # get database interface from cache version we are running
-sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
+#sudo cp /srv/bin/cache0100.node /opt/ewdjs/node_modules/cache.node
+
 
 # copy node_modules for ewd into RAPTOR Module space...
 #cd /opt/ewdjs/node_modules/ewdjs/essentials
@@ -317,8 +338,8 @@ echo VistA is now installed.
 echo CSP is here: http://192.168.33.11:57772/csp/sys/UtilHome.csp
 echo username: cache password: innovate 
 echo See Readme.md from root level of this repository... 
-echo EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/index.html password: innovate 
-echo EWD: http://192.168.33.11:8082/ewdjs/EWD.js ewdBootstrap3.js 
+echo EWD Monitor: http://192.168.33.11:8080/ewd/ewdMonitor/index.html password: innovate 
+echo EWD: http://192.168.33.11:8080/ewdjs/EWD.js ewdBootstrap3.js 
 echo EWD Federator: http://192.168.33.11:8081/RaptorEwdVista/raptor/
 echo password: innovate 
 echo RAPTOR is now installed to a test instance for site 500
