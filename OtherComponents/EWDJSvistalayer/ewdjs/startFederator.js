@@ -17,7 +17,7 @@ var params = {
     RaptorEwdVista: {
       host: '127.0.0.1',  // if federator installed on same physical machine as EWD.js / VistA
 	  //EWDVISTA
-      port: 8080,
+      port: 8082,
       ssl: false,
       ewdjs: true,
       accessId: 'ewdfederator',  // change as needed
