@@ -77,3 +77,4 @@ provision/cache/cache-*.tar.gz
 !modules/simplerulesengine_core/*
 !modules/simplerulesengine_demo/*
 !modules/simplerulesengine_ui/*
+.ssh.config
