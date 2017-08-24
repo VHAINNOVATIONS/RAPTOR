@@ -339,7 +339,7 @@ echo CSP is here: http://192.168.33.11:57772/csp/sys/UtilHome.csp
 echo username: cache password: innovate 
 echo See Readme.md from root level of this repository... 
 echo EWD Monitor: http://192.168.33.11:8082/ewd/ewdMonitor/index.html password: innovate 
-echo EWD: http://192.168.33.11:8080/ewdjs/EWD.js ewdBootstrap3.js 
+echo EWD: http://192.168.33.11:8082/ewdjs/EWD.js ewdBootstrap3.js 
 echo EWD Federator: http://192.168.33.11:8081/RaptorEwdVista/raptor/
 echo password: innovate 
 echo RAPTOR is now installed to a test instance for site 500
