@@ -26,11 +26,11 @@ PTY.spawn('sudo su') do |r_f,w_f,pid|
    #end
 
    r_f.expect(/\]\# /) do
-     w_f.print 'cd '+ config['cacheInstallTargetPath']+"/tmp \r"
+     w_f.print 'cd ' + config['cacheInstallTargetPath'] + "/tmp \r"
    end
 
    r_f.expect(/tmp\]\# /) do
-     w_f.print 'sudo ./cinstall'+"\r"
+     w_f.print 'sudo ./cinstall'+ "\r"
    end
 
    r_f.expect(/Enter instance name <CACHE>: /) do
