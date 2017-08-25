@@ -3,7 +3,7 @@ nbproject
 *.zip
 *.7z
 *.DS_Store
-
+*.log
 modules/*
 themes/*
 libraries/*
