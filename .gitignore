@@ -78,3 +78,5 @@ provision/cache/cache-*.tar.gz
 !modules/simplerulesengine_demo/*
 !modules/simplerulesengine_ui/*
 .ssh.config
+*.log
+OtherComponents/.DS_Store
