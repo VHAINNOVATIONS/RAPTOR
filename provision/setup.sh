@@ -286,6 +286,7 @@ cp /vagrant/OtherComponents/EWDJSvistalayer/mumps/vefbrc.ro /srv/mgr/
 #h
 #EOE
 
+
 # EWD.js and Federator installation ############################
 sudo mkdir /var/log/raptor 
 sudo touch /var/log/raptor/federatorCPM.log
