@@ -4,6 +4,7 @@ nbproject
 *.7z
 *.DS_Store
 *.log
+*.key
 modules/*
 themes/*
 libraries/*

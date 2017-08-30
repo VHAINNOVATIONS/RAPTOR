@@ -273,21 +273,18 @@ dos2unix install-vefb.rb
 sudo chmod u+x install-vefb.rb
 sudo ./install-vefb.rb
 
-#csession CACHE -UVISTA "^ZU" <<EOI
-#cprs1234
-#cprs4321$
-#^^load a distribution
-#/srv/mgr/VEFB_1_2.KID
-#yes
-#^^install package
-#VEFB 1.2
-#no
-#no
-#
-#^
-#^
+cp /vagrant/OtherComponents/EWDJSvistalayer/mumps/vefbrc.ro /srv/mgr/
+#sudo chmod u+x install-vefbroutine.rb
+#sudo ./install-vefbroutine.rb
+#csession CACHE <<EOE
+#vagrant
+#innovate
+#ZN VISTA
+#d ^%RI
+#/srv/mgr/vefbrc.ro
+#A
 #h
-#EOI
+#EOE
 
 # EWD.js and Federator installation ############################
 sudo mkdir /var/log/raptor 
