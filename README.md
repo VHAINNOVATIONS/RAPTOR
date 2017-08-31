@@ -109,6 +109,15 @@ Use INSTALL NAME: VEFB 1.2 to install this Distribution.
 
 ```
 
+```
+
+Select Systems Manager Menu <TEST ACCOUNT> Option: ^^install package
+
+INSTALL NAME : VEFB 1.2
+
+```
+Then select defaults (hit enter) till KIDS installation is complete.
+
 EWDJS and EWD Federator
 -----------------------
 EWDJS and FEDERATOR resides within the /opt/ewdjs folder 
