@@ -149,7 +149,7 @@ password: innovate
 Now EWD is running and you should try to log into the RAPTOR application
 using a user such as:
 
-1radiologist/cprs1234$
+1radiologist/radiologist1
 
 
 Credentials
