@@ -1,0 +1,21 @@
+# Installation log for Red Hat Enterprise Linux Server release 7.2
+curl --silent --location https://rpm.nodesource.com/setup_8.x | sudo bash -
+yum -y install nodejs
+mkdir /opt/RAPTOR
+cd /opt/RAPTOR
+git clone https://github.com/VHAINNOVATIONS/RAPTOR.git
+mkdir /opt/RAPTOR/ewdjs
+cd /opt/RAPTOR/ewdjs
+sudo npm install ewdjs
+sudo npm install ewd-federator
+sudo npm install -g inherits@2.0.0  # from BC's install script
+cp /opt/RAPTOR/RAPTOR/OtherComponents/EWDJSvistalayer/ewdjs/startFederator.js ./
+cp /opt/RAPTOR/RAPTOR/OtherComponents/EWDJSvistalayer/ewdjs/node_modules/cache.node node_modules/cache.node
+yes|cp -Rf /opt/RAPTOR/RAPTOR/node_modules/* /opt/RAPTOR/ewdjs/node_modules/
+npm install -g n
+n 6.12.3 # supplied cache.node requires an older version of node
+npm install mime@1.6.0 # ewdjs requires an older version of mime
+# update configuration in startFederator.js and ewdStart-cache-linux.js
+
+n use 6.12.3 ewdStart-cache-linux.js
+
