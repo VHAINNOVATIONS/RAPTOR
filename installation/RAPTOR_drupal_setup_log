@@ -1,0 +1,35 @@
+# Installation log for Red Hat Enterprise Linux Server release 7.4
+#export DATABASE_PASS
+wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+wget http://dl.iuscommunity.org/pub/ius/stable/Redhat/7/x86_64/ius-release-1.0-13.ius.el7.noarch.rpm
+rpm -iv ius-release-1.0-13.ius.el7.noarch.rpm
+rpm -iv epel-release-latest-7.noarch.rpm
+yum install vim zip unzip wget httpd
+yum install mariadb mariadb-server
+yum install php56u php56u-gd php56u-curl php56u-mysql php56u-soap php56u-mbstring php56u-dom php56u-xml
+systemctl start mariadb
+systemctl enable mariadb
+mysql_secure_installation
+mysql -u root -p -e "create database raptor675;"
+mysql -u root -p -e "create user raptor_drupal@localhost identified by '$DATABASE_PASS';"
+mysql -u root -p -e "GRANT ALL PRIVILEGES ON raptor675.* TO raptor_drupal@localhost;"
+mysql -u root -p -e "FLUSH PRIVILEGES;"
+systemctl start httpd
+systemctl enable httpd
+wget https://ftp.drupal.org/files/projects/drupal-7.56.tar.gz
+tar -zxf drupal-7.56.tar.gz
+mkdir /var/www/html/RAPTOR
+cp -R drupal-7.56/* /var/www/html/RAPTOR/
+cp drupal-7.56/.htaccess /var/www/html/RAPTOR/
+rm -Rf drupal-7.56*
+yum install git
+chcon --user system_u --type httpd_sys_content_t -Rv /var/www/html
+chcon --user system_u --type httpd_sys_rw_content_t -Rv /var/www/html
+# set up drupal
+mkdir /var/www/staging
+mkdir /var/www/staging/RAPTOR
+git clone https://github.com/VHAINNOVATIONS/RAPTOR.git /var/www/staging/RAPTOR/
+mkdir /var/www/html/RAPTOR/sites/all/modules
+mkdir /var/www/html/RAPTOR/sites/all/themes
+cp -R /var/www/staging/RAPTOR/modules/* /var/www/html/RAPTOR/sites/all/modules/
+cp -R /var/www/staging/RAPTOR/themes/* /var/www/html/RAPTOR/sites/all/themes/
